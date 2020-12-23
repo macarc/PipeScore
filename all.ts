@@ -18,14 +18,13 @@ export const unlog2 = (a: any,b: any) => b;
 
 export const lineGap = 7;
 export const lineHeightOf = (n: number) => n * lineGap;
-export const gracenoteToNoteWidthRatio = 0.4;
 
 export const enum Pitch {
   HA, HG, F, E, D, C, B, A, G
 }
 export type RestOrPitch = Pitch | 'rest';
 
-export const pitchToHeight = (pitch: Pitch) => {
+export function pitchToHeight(pitch: Pitch): number {
     switch (pitch) {
         case Pitch.HA: return -1;
         case Pitch.HG: return -0.5;
@@ -38,16 +37,12 @@ export const pitchToHeight = (pitch: Pitch) => {
         case Pitch.G: return 3;
     }
 }
-export const noteOffset = (note: Pitch) => {
-  // Return the difference from the top of the stave
-  // to the note
-  return lineHeightOf(pitchToHeight(note));
-}
+// Return the difference from the top of the stave
+// to the note
+export const noteOffset = (note: Pitch) => lineHeightOf(pitchToHeight(note));
 
-export const noteY = (staveY: number, note: Pitch) => {
-  // return the y value of given note
-  return staveY + noteOffset(note);
-}
+// return the y value of given note
+export const noteY = (staveY: number, note: Pitch) => staveY + noteOffset(note);
 
 
 export type Svg = Hole;

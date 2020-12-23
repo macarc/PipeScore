@@ -52,11 +52,11 @@ interface SingleGracenote {
 
 const tailXOffset: number = 3;
 
-function numberOfNotes(gracenote: Gracenote, thisNote: RestOrPitch, previousNote: RestOrPitch): number {
+function numberOfNotes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): number {
   return notes(gracenote,thisNote,previousNote).length;
 };
 
-function notes(gracenote: Gracenote, thisNote: RestOrPitch, previousNote: RestOrPitch): Pitch[] {
+function notes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): Pitch[] {
   if (thisNote === 'rest') return [];
   else if (gracenote.type === 'single') {
     return [gracenote.note];
@@ -100,20 +100,19 @@ function single(note: Pitch, x: number, staveY:number): Svg {
 interface GracenoteProps {
   thisNote: RestOrPitch,
   previousNote: RestOrPitch,
-  gracenote: Gracenote,
   y: number,
   x: number,
   gracenoteWidth: number,
 }
 
-function render(props: GracenoteProps): Svg {
-  if (props.gracenote.type === 'single') {
-    return single(props.gracenote.note, props.x, props.y);
-  } else if (props.gracenote.type === 'reactive') {
+function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
+  if (gracenote.type === 'single') {
+    return single(gracenote.note, props.x, props.y);
+  } else if (gracenote.type === 'reactive') {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
     // rather than by value)
-    const uniqueNotes: { note: Pitch }[] = notes(props.gracenote, props.thisNote, props.previousNote).map(note => ({ note }));
+    const uniqueNotes: { note: Pitch }[] = notes(gracenote, props.thisNote, props.previousNote).map(note => ({ note }));
     if (uniqueNotes.length === 1) {
       return single(uniqueNotes[0].note, props.x, props.y);
     } else {
@@ -132,8 +131,15 @@ function render(props: GracenoteProps): Svg {
   }
 }
 
+const init: () => GracenoteModel = () => ({
+  type: 'single',
+  note: Pitch.HG,
+});
 
-export type Gracenote = ReactiveGracenote | SingleGracenote;
+
+export type GracenoteModel = ReactiveGracenote | SingleGracenote;
 export default {
-  render
+  render,
+  init,
+  numberOfNotes
 }

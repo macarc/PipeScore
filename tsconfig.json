@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es2017",
         "watch": true,
         "noEmit": true,
         "moduleResolution": "node",
         "strict": true,
         "noImplicitAny": true,
-        "alwaysStrict": true,
+        "alwaysStrict": true
     }
 }
