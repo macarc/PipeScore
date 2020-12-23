@@ -1,4 +1,4 @@
-import { Pitch, RestOrPitch, Svg, noteOffset, noteY } from './all';
+import { Pitch, RestOrPitch, Svg, noteOffset, lineHeightOf, noteY } from './all';
 import Gracenote, { GracenoteModel } from './Gracenote';
 import { svg } from 'uhtml';
 
@@ -14,12 +14,12 @@ interface NonRestNoteModel {
   gracenote: GracenoteModel | null
 }
 
-interface GroupNoteModel {
+export interface GroupNoteModel {
   notes: NoteModel[]
 }
 
 
-// todo placeholders
+// todo these are just placeholders
 const click = (...args: any[]) => null;
 const unclick = (...args: any[]) => null;
 const draggedNote: number | null = null;
@@ -40,7 +40,7 @@ const noteAndGracenoteWidth = (notes: NoteModel[], gracenoteRatio: number, prevN
     
 const totalBeatWidth = (note: GroupNoteModel,previousNote: RestOrPitch) => noteAndGracenoteWidth(note.notes, gracenoteToNoteWidthRatio, previousNote);
 
-const lastNoteOfWholeNote = (wholeNote: GroupNoteModel) => wholeNote ? wholeNote.notes[wholeNote.notes.length - 1].pitch : null;
+const lastNoteOfWholeNote = (wholeNote: GroupNoteModel) => wholeNote.notes.length === 0 ? 'rest' : wholeNote.notes[wholeNote.notes.length - 1].pitch;
 
 const numberOfNotes = (note: GroupNoteModel) => note.notes.length;
 
@@ -97,7 +97,7 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, length1: number,
 	</g>`;
 };
   
-function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: Event) => null,mouseup: () => null): Svg {
+function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: Event) => void,mouseup: () => void): Svg {
     // Draw note head, ledger line and dot
     const noteWidth = 5;
     const noteHeight = 4;
@@ -120,12 +120,12 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
 
     const filled = note.length < 1.5; // shorter than a dotted crotchet
 
-    const rotateText = "30deg " + Math.round(x) + " " + Math.round(y);
+    const rotateText = "rotate(30 " + Math.round(x) + " " + Math.round(y) + ")";
 
     const colour = selected ? "orange" : "black";
 
     return svg`<g class="note-head">
-      <ellipse cx=${x} cy=${y} rx="5" ry="4" stroke=${colour} fill=${filled ? colour : "white"} transform=${`rotate(30 ${x} ${y})`} pointer-events=${pointerEvents} />
+      <ellipse cx=${x} cy=${y} rx="5" ry="4" stroke=${colour} fill=${filled ? colour : "white"} transform=${rotateText} pointer-events=${pointerEvents} />
 
       ${hasDot ? svg`<circle cx=${x + dotXOffset} cy=${y + dotYOffset} r="1.5" fill=${colour} pointer-events="none" />` : null}
 
@@ -137,7 +137,7 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
 };
 function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitch, x: number,y: number, noteWidth: number,numberOfTails: number, selectedNotes: NoteModel[]): Svg {
     const stemX = x - 5;
-    const stemY = noteOffset(y) + 30;
+    const stemY = lineHeightOf(y) + 30;
 
     const gracenoteProps = ({
       x: x,
@@ -342,4 +342,6 @@ const init: () => GroupNoteModel = () => ({
 export default {
   render,
   init,
+  totalBeatWidth,
+  lastNote: lastNoteOfWholeNote,
 };

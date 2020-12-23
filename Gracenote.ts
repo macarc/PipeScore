@@ -75,9 +75,10 @@ function head(x: number,y: number, note: Pitch, beamY: number): Svg {
   const ledgerLeft = 5;
   const ledgerRight = 5.2;
   // todo: make ledger line the correct length
+  const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg`<g class="gracenote-head">
     ${note === Pitch.HA ? svg`<line x1=${x - ledgerLeft} x2=${x + ledgerRight} y1=${y} y2=${y} stroke="black" />` : null}
-    <ellipse cx=${x} cy=${y} rx="3.5" ry="2.5" transform="rotate(-30 ${x} ${y})" fill="black" pointer-events="none" />
+    <ellipse cx=${x} cy=${y} rx="3.5" ry="2.5" transform="${rotateText}" fill="black" pointer-events="none" />
 
     <line x1=${x + tailXOffset} y1=${y} x2=${x + tailXOffset} y2=${beamY} stroke="black" /> 
   </g>`;
