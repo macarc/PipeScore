@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "watch": true,
+        "noEmit": true,
+        "moduleResolution": "node",
+        "strict": true,
+        "noImplicitAny": true,
+        "alwaysStrict": true,
+    }
+}

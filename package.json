@@ -1,0 +1,19 @@
+{
+  "name": "pipescore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Bar.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parcel-bundler": "^1.12.4",
+    "uhtml": "^2.1.4"
+  },
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  }
+}
