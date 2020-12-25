@@ -1,6 +1,7 @@
 import { svg } from 'uhtml';
 import { Svg } from './all';
 import Stave, { StaveModel } from './Stave';
+import { dispatch } from './Controller';
 
 export interface ScoreModel {
   staves: StaveModel[]
@@ -30,8 +31,8 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
     updateStave: updateStave(index)
   });
 
-  return svg`<svg width=${width} height=${height}>
-    <rect x="0" y="0" width="100%" height="100%" fill="white" />
+  return svg`<svg width=${width} height=${height} onmouseup=${() => dispatch({ name: 'mouse up' }) } >
+    <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`
       ${Stave.render(stave, staveProps(stave,idx))}

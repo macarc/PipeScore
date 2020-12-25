@@ -1,6 +1,8 @@
 import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight } from './all';
-import Note, { GroupNoteModel } from './Note';
+import { log, log2, unlog, unlog2 } from './all';
+import Note, { GroupNoteModel, NoteModel } from './Note';
+import { dispatch } from './Controller';
 
 
 export interface BarModel {
@@ -12,15 +14,13 @@ function dragBoxes(x: number,y: number,width: number,mouseDrag: (pitch: Pitch) =
   // Invisible rectangles that are used to detect note dragging
   const height = lineGap / 2;
 
-
   const pitches = [Pitch.G,Pitch.A,Pitch.B,Pitch.C,Pitch.D,Pitch.E,Pitch.F,Pitch.HG,Pitch.HA];
 
   return svg`<g class="drag-boxes">
-
     <rect x=${x} y=${y - 4 * lineGap} width=${width} height=${lineGap * 4} onmouseover=${() => mouseDrag(Pitch.HA)} opacity="0" />
     <rect x=${x} y=${y + 3.5 * lineGap} width=${width} height=${lineGap * 4} onmouseover=${() => mouseDrag(Pitch.G)} opacity="0" />
 
-    ${pitches.map(n => [n,pitchToHeight(n)]).map(([note,boxY]) => 
+    ${pitches.map(n => <[Pitch,number]>[n,pitchToHeight(n)]).map(([note,boxY]) => 
       svg`<rect
         x=${x}
         y=${y + lineGap * boxY - lineGap / 2}
@@ -37,6 +37,8 @@ interface BarProps {
   y: number,
   width: number,
   previousBar: BarModel | null,
+  draggedNote: NoteModel | null,
+  dragNote: (note: NoteModel) => void,
   updateBar: (newBar: BarModel) => void
 }
 function render(bar: BarModel,props: BarProps): Svg {
@@ -52,11 +54,7 @@ function render(bar: BarModel,props: BarProps): Svg {
   const beats = bar.notes
     .reduce((nums, n, index) => {
       const previous = previousNoteOf(index);
-      if (previous !== null) {
-        return [...nums, nums[nums.length - 1] + Note.totalBeatWidth(n,previous)];
-      } else {
-        return nums
-      }
+      return [...nums, nums[nums.length - 1] + Note.totalBeatWidth(n,previous || 'rest')];
     },
     [1]);
   
@@ -78,13 +76,14 @@ function render(bar: BarModel,props: BarProps): Svg {
       ? previousNote || 'rest'
       : bar.notes[index - 1] ? Note.lastNote(bar.notes[index - 1]) : 'rest',
     selectedNotes: [],
+    draggedNote: props.draggedNote,
     updateNote
-  })
+  });
+
 
   return svg`
-
     <g class="bar">
-      ${dragBoxes(props.x,staveY, props.width, /* todo */() => null)}
+      ${dragBoxes(props.x,staveY, props.width, (pitch: Pitch) => dispatch({ name: 'mouse over pitch', pitch }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
       )}

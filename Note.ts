@@ -1,17 +1,20 @@
+import { svg } from 'uhtml';
 import { Pitch, RestOrPitch, Svg, noteOffset, lineHeightOf, noteY } from './all';
 import Gracenote, { GracenoteModel } from './Gracenote';
-import { svg } from 'uhtml';
+import { dispatch, isSelected } from './Controller';
 
-interface NoteModel {
+import { log, unlog, log2, unlog2 } from './all';
+
+export interface NoteModel {
   pitch: RestOrPitch,
   length: number,
-  gracenote: GracenoteModel | null
+  gracenote: GracenoteModel | null,
 }
 
 interface NonRestNoteModel {
   pitch: Pitch,
   length: number,
-  gracenote: GracenoteModel | null
+  gracenote: GracenoteModel | null,
 }
 
 export interface GroupNoteModel {
@@ -19,10 +22,7 @@ export interface GroupNoteModel {
 }
 
 
-// todo these are just placeholders
-const click = (...args: any[]) => null;
-const unclick = (...args: any[]) => null;
-const draggedNote: number | null = null;
+const selectedNotes: NoteModel[] = [];
 
 
 
@@ -30,13 +30,15 @@ const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
 
+const noteLengthToNumTails = (length: number) => Math.ceil(Math.log(1 / length) / Math.log(2));
+
 
 const noteAndGracenoteWidth = (notes: NoteModel[], gracenoteRatio: number, prevNote: RestOrPitch='rest') =>
 	notes.map((n,i) => 1 +
 	(n.pitch === 'rest' || n.gracenote === null
 		? 0
 		: gracenoteRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch))
-	).reduce((a,b) => a + b);
+	).reduce((a,b) => a + b, 0);
     
 const totalBeatWidth = (note: GroupNoteModel,previousNote: RestOrPitch) => noteAndGracenoteWidth(note.notes, gracenoteToNoteWidthRatio, previousNote);
 
@@ -44,19 +46,15 @@ const lastNoteOfWholeNote = (wholeNote: GroupNoteModel) => wholeNote.notes.lengt
 
 const numberOfNotes = (note: GroupNoteModel) => note.notes.length;
 
-function beamFrom(x1: number,y1: number, x2: number,y2: number, length1: number,length2: number): Svg {
-	// draw beams from note1 at x1,y1 to note2 x2,y2
-	// where note1 is length1 long and note2 is length2
+function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
+	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
 	const leftIs1 = x1 < x2;
-	const leftLength = leftIs1 ? length1 : length2;
-	const rightLength = leftIs1 ? length2 : length1;
+	const leftTails = leftIs1 ? tails1 : tails2;
+	const rightTails = leftIs1 ? tails2 : tails1;
 	const xL = leftIs1 ? x1 : x2;
 	const xR = leftIs1 ? x2 : x1;
 	const yL = leftIs1 ? y1 : y2;
 	const yR = leftIs1 ? y2 : y1;
-	// log laws! :)
-	const leftTails = Math.ceil(Math.log(1 / leftLength) / Math.log(2));
-	const rightTails = Math.ceil(Math.log(1 / rightLength) / Math.log(2));
 
 
 	const diffIsL = leftTails > rightTails;
@@ -97,7 +95,7 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, length1: number,
 	</g>`;
 };
   
-function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: Event) => void,mouseup: () => void): Svg {
+function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: Event) => void): Svg {
     // Draw note head, ledger line and dot
     const noteWidth = 5;
     const noteHeight = 4;
@@ -109,7 +107,7 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
     const hasDot = (Math.log(note.length) / Math.log(2)) % 1 !== 0;
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
-    const dragged = draggedNote === noteIndex;
+    const dragged = isSelected(note);
 
 
     // pointer events must be set so that if it is being
@@ -132,7 +130,7 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
       ${(note.pitch === Pitch.HA) ? svg`<line class="ledger" x1=${x - 8} x2=${x + 8} y1=${y} y2=${y} stroke=${colour} pointer-events="none" />` : null}
 
 
-      <rect x=${x - clickableWidth / 2} y=${y - clickableHeight / 2} width=${clickableWidth} height=${clickableHeight} onmousedown=${mousedown} onmouseup=${mouseup} pointer-events=${pointerEvents} opacity="0"/>
+      <rect x=${x - clickableWidth / 2} y=${y - clickableHeight / 2} width=${clickableWidth} height=${clickableHeight} onmousedown=${mousedown} pointer-events=${pointerEvents} opacity="0"/>
     </g>`;
 };
 function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitch, x: number,y: number, noteWidth: number,numberOfTails: number, selectedNotes: NoteModel[]): Svg {
@@ -150,7 +148,7 @@ function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitc
     return svg`
       ${note.gracenote === null ? null : Gracenote.render(note.gracenote, gracenoteProps)}
 
-      ${noteHead(x, noteY(y, note.pitch), note,noteIndex, selectedNotes.includes(note), (e: Event) => click(0, e), unclick)}
+      ${noteHead(x, noteY(y, note.pitch), note,noteIndex, selectedNotes.includes(note), () => dispatch({ name: 'note clicked', note }))}
       ${(note.length > 3) ? null : svg`<line
         x1=${stemX}
         x2=${stemX}
@@ -170,7 +168,8 @@ interface NoteProps {
   y: number,
   previousNote: RestOrPitch,
   noteWidth: number,
-  selectedNotes: NoteModel[]
+  selectedNotes: NoteModel[],
+  draggedNote: NoteModel | null,
 }
 
 function isNonRest(note: NoteModel): note is NonRestNoteModel {
@@ -206,17 +205,15 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
       </g>`;
 
     } else {
-      const nonrestnotemodelandnumberOrNull: [NonRestNoteModel, number] | null = null;
       const firstNonRest_ = note.notes.reduce((last: null | [NonRestNoteModel, number],next: NoteModel, index: number) => {
         if (last !== null) {
           return last;
         } else if (isNonRest(next)) {
-          const x: [NonRestNoteModel, number] = [next,index];
-          return x;
+          return <[NonRestNoteModel, number]>[next, index];
         } else {
           return last;
         }
-      }, nonrestnotemodelandnumberOrNull);
+      }, <[NonRestNoteModel, number] | null>null);
 
 
       if (firstNonRest_ === null) {
@@ -227,8 +224,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
 
         const [lastNonRest, lastNonRestIndex] = note.notes.reduce((last: [NonRestNoteModel, number],next: NoteModel, index: number) => {
           if (isNonRest(next)) {
-            const makeTypeSystemHappy: [NonRestNoteModel, number] = [next,index];
-            return makeTypeSystemHappy;
+            return <[NonRestNoteModel, number]>[next, index];
           } else {
             return last;
           }
@@ -245,10 +241,11 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
           noteOffset(lastNonRest.pitch)
           - noteOffset(firstNonRest.pitch),
           10);
+
+
         
 
         let multiple = false;
-        // todo have a firstNonRest // index, and use that for the lowestNote so it will definitely have Pitch not PitchOrRest
         const [lowestNote,lowestNoteIndex]: [NonRestNoteModel,number] = note.notes.reduce((last,next, index) => {
 
           if (isNonRest(next)) {
@@ -305,13 +302,14 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
                     previousNote: previousNote ? previousNote.pitch : lastNote
                   });
 
-                  return svg`<g class="grouped-note">
+
+                  return svg.for(shortNote)`<g class="grouped-note">
                       ${shortNote.gracenote === null ? null : Gracenote.render(shortNote.gracenote,gracenoteProps)}
 
-                      ${/*todo*/noteHead(xOf(index), yOf(shortNote), shortNote,index, props.selectedNotes.includes(shortNote), (e: Event) => click(index, e), unclick)}
+                      ${noteHead(xOf(index), yOf(shortNote), shortNote,index, props.selectedNotes.includes(shortNote), () => dispatch({ name: 'note clicked', note: shortNote }))}
 
                       ${
-                        previousNote ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index), shortNote.length, previousNote.length) : null
+                        previousNote ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index), noteLengthToNumTails(shortNote.length), noteLengthToNumTails(previousNote.length)) : null
                       }
 
                       <line
@@ -332,11 +330,14 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
       }
     }
   }
-
 };
 
 const init: () => GroupNoteModel = () => ({
-	notes: [{ pitch: Pitch.A, length: 1, gracenote: Gracenote.init() }]
+	notes: [
+    { pitch: Pitch.A, length: 0.5, gracenote: Gracenote.init() },
+    { pitch: Pitch.D, length: 0.25, gracenote: Gracenote.init() },
+    { pitch: Pitch.HA, length: 0.25, gracenote: Gracenote.init() }
+  ]
 });
 
 export default {

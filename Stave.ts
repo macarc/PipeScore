@@ -38,7 +38,9 @@ function render(stave: StaveModel, props: StaveProps): Svg {
     y: staveHeight,
     width: barWidth,
     previousBar: previousBar(index),
-    updateBar: updateBar(index)
+    updateBar: updateBar(index),
+    draggedNote: null,
+    dragNote: () => null
   });
 
   return svg`

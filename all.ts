@@ -20,7 +20,7 @@ export const lineGap = 7;
 export const lineHeightOf = (n: number) => n * lineGap;
 
 export const enum Pitch {
-  HA, HG, F, E, D, C, B, A, G
+  HA = 'HA', HG = 'HG', F = 'F', E = 'E', D = 'D', C = 'C', B = 'B', A = 'A', G = 'G'
 }
 export type RestOrPitch = Pitch | 'rest';
 
