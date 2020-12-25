@@ -223,12 +223,13 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         const [firstNonRest, firstNonRestIndex] = firstNonRest_;
 
         const [lastNonRest, lastNonRestIndex] = note.notes.reduce((last: [NonRestNoteModel, number],next: NoteModel, index: number) => {
+          if (index <= firstNonRestIndex) return last;
           if (isNonRest(next)) {
             return <[NonRestNoteModel, number]>[next, index];
           } else {
             return last;
           }
-        }, firstNonRest_);
+        }, [firstNonRest, firstNonRestIndex]);
 
         const cap = (n: number, cap: number) =>
           (n > cap) ? cap :
@@ -247,7 +248,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
 
         let multiple = false;
         const [lowestNote,lowestNoteIndex]: [NonRestNoteModel,number] = note.notes.reduce((last,next, index) => {
-
+          if (index <= firstNonRestIndex) return last;
           if (isNonRest(next)) {
             const [lowestNoteSoFar,lowestNoteIndexSoFar] = last;
             if (noteOffset(next.pitch) === noteOffset(lowestNoteSoFar.pitch)) {
@@ -255,8 +256,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
               return last;
             } else if (noteOffset(next.pitch) > noteOffset(lowestNoteSoFar.pitch)) {
               multiple = false;
-              const makeTypesystemHappy: [NonRestNoteModel, number] = [next,index];
-              return makeTypesystemHappy;
+              return <[NonRestNoteModel, number]>[next,index];
             } else {
               return last;
             }
@@ -272,7 +272,8 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
 
         const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalBeatWidth(note,props.previousNote));
 
-        const stemYOf = (shortNote: NoteModel, index: number) => 
+
+        const stemYOf = (shortNote: NoteModel, index: number) =>
           props.y
             + (multipleLowest
               // straight line if there is more than one lowest note
@@ -309,7 +310,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
                       ${noteHead(xOf(index), yOf(shortNote), shortNote,index, props.selectedNotes.includes(shortNote), () => dispatch({ name: 'note clicked', note: shortNote }))}
 
                       ${
-                        previousNote ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index), noteLengthToNumTails(shortNote.length), noteLengthToNumTails(previousNote.length)) : null
+                        previousNote ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), noteLengthToNumTails(shortNote.length), noteLengthToNumTails(previousNote.length)) : null
                       }
 
                       <line
