@@ -7,20 +7,12 @@ export interface ScoreModel {
   staves: StaveModel[]
 }
 
-interface ScoreProps {
-  updateScore: (newScore: ScoreModel) => void
-}
-
-function render(score: ScoreModel, props: ScoreProps): Svg {
+function render(score: ScoreModel): Svg {
   const width = 210 * 5;
   const height = 297 * 5;
   const margin = 30;
   const staveGap = 100;
   const topOffset = 150;
-  const updateStave = (index: number) => (stave: StaveModel) => {
-    score.staves[index] = stave;
-    props.updateScore(score);
-  }
   
   const staveProps = (stave: StaveModel, index: number) => ({
     x: margin,
@@ -28,7 +20,6 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
     width: width - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
-    updateStave: updateStave(index)
   });
 
   return svg`<svg width=${width} height=${height} onmouseup=${() => dispatch({ name: 'mouse up' }) } >

@@ -39,7 +39,6 @@ interface BarProps {
   previousBar: BarModel | null,
   draggedNote: NoteModel | null,
   dragNote: (note: NoteModel) => void,
-  updateBar: (newBar: BarModel) => void
 }
 function render(bar: BarModel,props: BarProps): Svg {
   const staveY = props.y;
@@ -63,10 +62,6 @@ function render(bar: BarModel,props: BarProps): Svg {
 
   const getX = (noteIndex: number) => props.x + beatWidth * beats[noteIndex];
 
-  const updateNote = (note: GroupNoteModel, index: number) => {
-    bar.notes[index] = note;
-    props.updateBar(bar);
-  }
 
   const noteProps = (note: GroupNoteModel,index: number) => ({
     x: getX(index),
@@ -77,7 +72,6 @@ function render(bar: BarModel,props: BarProps): Svg {
       : bar.notes[index - 1] ? Note.lastNote(bar.notes[index - 1]) : 'rest',
     selectedNotes: [],
     draggedNote: props.draggedNote,
-    updateNote
   });
 
 

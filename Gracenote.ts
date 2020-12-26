@@ -114,11 +114,12 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
     // the right answer (so it will compare by reference
     // rather than by value)
     const uniqueNotes: { note: Pitch }[] = notes(gracenote, props.thisNote, props.previousNote).map(note => ({ note }));
+
+    const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth - props.gracenoteWidth * 0.5;
+    const y = (note: Pitch) => noteY(props.y, note);
     if (uniqueNotes.length === 1) {
-      return single(uniqueNotes[0].note, props.x, props.y);
+      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y);
     } else {
-      const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth * 0.6 - props.gracenoteWidth * 0.3;
-      const y = (note: Pitch) => noteY(props.y, note);
       return svg`<g class="reactive-gracenote">
         ${[0,2,4].map(i => svg`<line x1=${xOf(uniqueNotes[0]) + tailXOffset} x2=${xOf(uniqueNotes[uniqueNotes.length - 1]) + tailXOffset} y1=${props.y - 3.5 * lineGap + i} y2=${props.y - 3.5 * lineGap + i} stroke="black" />`
         )}
@@ -128,7 +129,7 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
       </g>`;
     }
   } else {
-    return svg`<g></g>`;
+    return gracenote;
   }
 }
 

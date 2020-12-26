@@ -19,7 +19,8 @@ function isMouseMovedOver(e: ScoreEvent): e is MouseMovedOver {
 
 type NoteClicked = {
   name: 'note clicked',
-  note: NoteModel
+  note: NoteModel,
+  event: MouseEvent
 }
 function isNoteClicked(e: ScoreEvent): e is NoteClicked {
   return e.name === 'note clicked';
@@ -45,7 +46,7 @@ function isMouseUp(e: ScoreEvent): e is MouseUp {
 interface State {
   score: ScoreModel,
   draggedNote: NoteModel | null,
-  selectedNotes: NoteModel[]
+  selectedNotes: Set<NoteModel>
 }
 
 
@@ -53,7 +54,7 @@ let currentState: State = {
   score: { staves: [] },
 
   draggedNote: null,
-  selectedNotes: []
+  selectedNotes: new Set()
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -65,14 +66,18 @@ export function dispatch(event: ScoreEvent): void {
     }
   } else if (isNoteClicked(event)) {
     currentState.draggedNote = event.note;
+    if (! event.event.shiftKey) {
+      currentState.selectedNotes = new Set();
+    }
     changed = true;
   } else if (isBackgroundClicked(event)) {
-    if (currentState.selectedNotes.length > 0) {
-      currentState.selectedNotes = [];
+    if (currentState.selectedNotes.size > 0) {
+      currentState.selectedNotes = new Set();
       changed = true;
     }
   } else if (isMouseUp(event)) {
     if (currentState.draggedNote !== null) {
+      currentState.selectedNotes.add(currentState.draggedNote);
       currentState.draggedNote = null;
       changed = true;
     }
@@ -85,9 +90,11 @@ export function dispatch(event: ScoreEvent): void {
   }
 }
 
-export const isSelected = (note: NoteModel) => note === currentState.draggedNote;
 
-const updateScore = (newScore: ScoreModel) => render(document.body, Score.render(newScore, { updateScore }));
+export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
+export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
+
+const updateScore = (newScore: ScoreModel) => render(document.body, Score.render(newScore));
 
 
 

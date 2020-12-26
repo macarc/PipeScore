@@ -3,4 +3,4 @@ A massive checklist
 
 [x] fix slanted beams
 [ ] cap should be dependent on how many notes are in the group
-[ ] check / fix gaps between notes
+[X] check / fix gaps between notes

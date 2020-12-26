@@ -1,7 +1,7 @@
 import { svg } from 'uhtml';
 import { Pitch, RestOrPitch, Svg, noteOffset, lineHeightOf, noteY } from './all';
 import Gracenote, { GracenoteModel } from './Gracenote';
-import { dispatch, isSelected } from './Controller';
+import { dispatch, isSelected, isBeingDragged } from './Controller';
 
 import { log, unlog, log2, unlog2 } from './all';
 
@@ -20,10 +20,6 @@ interface NonRestNoteModel {
 export interface GroupNoteModel {
   notes: NoteModel[]
 }
-
-
-const selectedNotes: NoteModel[] = [];
-
 
 
 const gracenoteToNoteWidthRatio = 0.6;
@@ -95,7 +91,7 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
 	</g>`;
 };
   
-function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: Event) => void): Svg {
+function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: MouseEvent) => void): Svg {
     // Draw note head, ledger line and dot
     const noteWidth = 5;
     const noteHeight = 4;
@@ -107,7 +103,7 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
     const hasDot = (Math.log(note.length) / Math.log(2)) % 1 !== 0;
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
-    const dragged = isSelected(note);
+    const dragged = isBeingDragged(note);
 
 
     // pointer events must be set so that if it is being
@@ -133,14 +129,14 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
       <rect x=${x - clickableWidth / 2} y=${y - clickableHeight / 2} width=${clickableWidth} height=${clickableHeight} onmousedown=${mousedown} pointer-events=${pointerEvents} opacity="0"/>
     </g>`;
 };
-function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitch, x: number,y: number, noteWidth: number,numberOfTails: number, selectedNotes: NoteModel[]): Svg {
+function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitch, x: number,y: number, noteWidth: number,numberOfTails: number): Svg {
     const stemX = x - 5;
     const stemY = lineHeightOf(y) + 30;
 
     const gracenoteProps = ({
       x: x,
       y: y,
-      gracenoteWidth: noteWidth * 0.6,
+      gracenoteWidth: noteWidth * gracenoteToNoteWidthRatio,
       thisNote: note.pitch,
       previousNote: lastNote
     })
@@ -148,7 +144,7 @@ function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitc
     return svg`
       ${note.gracenote === null ? null : Gracenote.render(note.gracenote, gracenoteProps)}
 
-      ${noteHead(x, noteY(y, note.pitch), note,noteIndex, selectedNotes.includes(note), () => dispatch({ name: 'note clicked', note }))}
+      ${noteHead(x, noteY(y, note.pitch), note,noteIndex, isSelected(note), (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
       ${(note.length > 3) ? null : svg`<line
         x1=${stemX}
         x2=${stemX}
@@ -168,8 +164,6 @@ interface NoteProps {
   y: number,
   previousNote: RestOrPitch,
   noteWidth: number,
-  selectedNotes: NoteModel[],
-  draggedNote: NoteModel | null,
 }
 
 function isNonRest(note: NoteModel): note is NonRestNoteModel {
@@ -197,7 +191,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const firstNote = note.notes[0];
     if (numberOfNotes(note) === 1 && isNonRest(firstNote)) {
       const numberOfTails = Math.ceil(-1 * Math.log(firstNote.length) / Math.log(2));
-      return singleton(firstNote,0,lastNote,props.x,props.y,props.noteWidth,numberOfTails, props.selectedNotes);
+      return singleton(firstNote,0,lastNote,props.x,props.y,props.noteWidth,numberOfTails);
     } else if (numberOfNotes(note) === 1) {
           
       return svg`<g class="rest">
@@ -307,7 +301,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
                   return svg.for(shortNote)`<g class="grouped-note">
                       ${shortNote.gracenote === null ? null : Gracenote.render(shortNote.gracenote,gracenoteProps)}
 
-                      ${noteHead(xOf(index), yOf(shortNote), shortNote,index, props.selectedNotes.includes(shortNote), () => dispatch({ name: 'note clicked', note: shortNote }))}
+                      ${noteHead(xOf(index), yOf(shortNote), shortNote,index, isSelected(shortNote), (event: MouseEvent) => dispatch({ name: 'note clicked', note: shortNote, event }))}
 
                       ${
                         previousNote ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), noteLengthToNumTails(shortNote.length), noteLengthToNumTails(previousNote.length)) : null

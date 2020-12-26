@@ -12,7 +12,6 @@ interface StaveProps {
   y: number,
   width: number,
   previousStave: StaveModel | null,
-  updateStave: (newStave: StaveModel) => void
 }
 
 function render(stave: StaveModel, props: StaveProps): Svg {
@@ -28,17 +27,11 @@ function render(stave: StaveModel, props: StaveProps): Svg {
     ? (props.previousStave ? props.previousStave.bars[props.previousStave.bars.length - 1] : null)
     : stave.bars[barIdx - 1];
 
-  const updateBar = (index: number) => (bar: BarModel) => {
-    stave.bars[index] = bar;
-    props.updateStave(stave);
-  }
-
   const barProps = (bar: BarModel, index: number) => ({
     x: getX(index),
     y: staveHeight,
     width: barWidth,
     previousBar: previousBar(index),
-    updateBar: updateBar(index),
     draggedNote: null,
     dragNote: () => null
   });
