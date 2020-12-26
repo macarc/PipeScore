@@ -58,6 +58,10 @@ let currentState: State = {
 };
 
 export function dispatch(event: ScoreEvent): void {
+  /*
+     The global event handler.
+     Takes an event, processes it to create a new state, then rerenders the view if necessary.
+   */
   let changed = false;
   if (isMouseMovedOver(event)) {
     if (currentState.draggedNote !== null && event.pitch !== currentState.draggedNote.pitch) {
@@ -86,7 +90,7 @@ export function dispatch(event: ScoreEvent): void {
   }
 
   if (changed) {
-    updateScore(currentState.score);
+    updateView(currentState.score);
   }
 }
 
@@ -94,7 +98,7 @@ export function dispatch(event: ScoreEvent): void {
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
 
-const updateScore = (newScore: ScoreModel) => render(document.body, Score.render(newScore));
+const updateView = (newScore: ScoreModel) => render(document.body, Score.render(newScore));
 
 
 
@@ -102,5 +106,5 @@ const updateScore = (newScore: ScoreModel) => render(document.body, Score.render
 // this is needed because of circular dependency
 document.addEventListener('DOMContentLoaded', () => {
   currentState.score = Score.init();
-  updateScore(currentState.score);
+  updateView(currentState.score);
 });

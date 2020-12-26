@@ -98,7 +98,7 @@ function single(note: Pitch, x: number, staveY:number): Svg {
   </g>`;
 }
 
-interface GracenoteProps {
+export interface GracenoteProps {
   thisNote: RestOrPitch,
   previousNote: RestOrPitch,
   y: number,
@@ -134,8 +134,8 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
 }
 
 const init: () => GracenoteModel = () => ({
-  type: 'reactive',
-  name: 'doubling'
+  type: 'single',
+  note: Pitch.HG
 });
 
 

@@ -1,6 +1,6 @@
 import { svg } from 'uhtml';
 import { Pitch, RestOrPitch, Svg, noteOffset, lineHeightOf, noteY } from './all';
-import Gracenote, { GracenoteModel } from './Gracenote';
+import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
 import { dispatch, isSelected, isBeingDragged } from './Controller';
 
 import { log, unlog, log2, unlog2 } from './all';
@@ -91,7 +91,7 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
 	</g>`;
 };
   
-function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,selected: boolean, mousedown: (e: MouseEvent) => void): Svg {
+function noteHead(x: number, y: number, note: NonRestNoteModel, mousedown: (e: MouseEvent) => void): Svg {
     // Draw note head, ledger line and dot
     const noteWidth = 5;
     const noteHeight = 4;
@@ -104,6 +104,7 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
     const dragged = isBeingDragged(note);
+    const selected = isSelected(note);
 
 
     // pointer events must be set so that if it is being
@@ -129,31 +130,23 @@ function noteHead(x: number,y: number, note: NonRestNoteModel,noteIndex: number,
       <rect x=${x - clickableWidth / 2} y=${y - clickableHeight / 2} width=${clickableWidth} height=${clickableHeight} onmousedown=${mousedown} pointer-events=${pointerEvents} opacity="0"/>
     </g>`;
 };
-function singleton(note: NonRestNoteModel,noteIndex: number,lastNote: RestOrPitch, x: number,y: number, noteWidth: number,numberOfTails: number): Svg {
+function singleton(note: NonRestNoteModel, x: number,y: number, numberOfTails: number, gracenoteProps: GracenoteProps): Svg {
     const stemX = x - 5;
-    const stemY = lineHeightOf(y) + 30;
-
-    const gracenoteProps = ({
-      x: x,
-      y: y,
-      gracenoteWidth: noteWidth * gracenoteToNoteWidthRatio,
-      thisNote: note.pitch,
-      previousNote: lastNote
-    })
+    const stemY = noteY(y,note.pitch) + 30;
 
     return svg`
       ${note.gracenote === null ? null : Gracenote.render(note.gracenote, gracenoteProps)}
 
-      ${noteHead(x, noteY(y, note.pitch), note,noteIndex, isSelected(note), (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
+      ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
       ${(note.length > 3) ? null : svg`<line
         x1=${stemX}
         x2=${stemX}
-        y1=${y}
+        y1=${noteY(y,note.pitch)}
         y2=${stemY}
         stroke="black"
         />`}
       ${numberOfTails > 0 ? svg`<g class="tails">
-        ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" />`)}
+        ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" stroke-width="2" />`)}
       </g>` : null}
     `;
 };
@@ -191,7 +184,16 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const firstNote = note.notes[0];
     if (numberOfNotes(note) === 1 && isNonRest(firstNote)) {
       const numberOfTails = Math.ceil(-1 * Math.log(firstNote.length) / Math.log(2));
-      return singleton(firstNote,0,lastNote,props.x,props.y,props.noteWidth,numberOfTails);
+      const gracenoteProps = ({
+        // can just be props.x since it is the first note
+        x: props.x,
+        y: props.y,
+        gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
+        thisNote: firstNote.pitch,
+        previousNote: lastNote
+      })
+
+      return singleton(firstNote,xOf(0),props.y,numberOfTails, gracenoteProps);
     } else if (numberOfNotes(note) === 1) {
           
       return svg`<g class="rest">
@@ -279,7 +281,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         // Intentional double equals (array out of bounds)
         const notANote = (note?: NoteModel) => note == null || note.pitch === 'rest';
 
-        const isSingleton = (index: number) => !(notANote(note.notes[index - 1]) || notANote(note.notes[index + 1]));
+        const isSingleton = (index: number) => notANote(note.notes[index - 1]) && notANote(note.notes[index + 1]);
 
 
         return svg`
@@ -297,14 +299,16 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
                     previousNote: previousNote ? previousNote.pitch : lastNote
                   });
 
-
+                  if (isSingleton(index)) {
+                    return singleton(shortNote, xOf(index), props.y, noteLengthToNumTails(shortNote.length), gracenoteProps);
+                  } else {
                   return svg.for(shortNote)`<g class="grouped-note">
                       ${shortNote.gracenote === null ? null : Gracenote.render(shortNote.gracenote,gracenoteProps)}
 
-                      ${noteHead(xOf(index), yOf(shortNote), shortNote,index, isSelected(shortNote), (event: MouseEvent) => dispatch({ name: 'note clicked', note: shortNote, event }))}
+                      ${noteHead(xOf(index), yOf(shortNote), shortNote, (event: MouseEvent) => dispatch({ name: 'note clicked', note: shortNote, event }))}
 
                       ${
-                        previousNote ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), noteLengthToNumTails(shortNote.length), noteLengthToNumTails(previousNote.length)) : null
+                        (previousNote && previousNote.pitch !== 'rest') ? beamFrom(stemXOf(index),stemYOf(shortNote, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), noteLengthToNumTails(shortNote.length), noteLengthToNumTails(previousNote.length)) : null
                       }
 
                       <line
@@ -315,13 +319,14 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
                         stroke="black"
                         />
                     </g>`
+                  }
                 } else {
                   // todo
                   return svg`<g></g>`;
                 }
               }
             )}
-          </g>`;
+        </g>`;
       }
     }
   }
@@ -330,7 +335,8 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
 const init: () => GroupNoteModel = () => ({
 	notes: [
     { pitch: Pitch.A, length: 0.5, gracenote: Gracenote.init() },
-    { pitch: Pitch.D, length: 0.25, gracenote: Gracenote.init() },
+    { pitch: 'rest', length: 0.125, gracenote: Gracenote.init() },
+    { pitch: Pitch.HG, length: 0.125, gracenote: Gracenote.init() },
     { pitch: Pitch.HA, length: 0.25, gracenote: Gracenote.init() }
   ]
 });
