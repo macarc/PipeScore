@@ -144,7 +144,7 @@ function noteHead(x: number, y: number, note: NonRestNoteModel, mousedown: (e: M
 };
 
 function singleton(note: NonRestNoteModel, x: number,y: number, gracenoteProps: GracenoteProps): Svg {
-  // TODO this shouldn't be less than x
+  // todo this is complected with stemXOf in `render`
   const stemX = x - 5;
   const stemY = noteY(y,note.pitch) + 30;
   const numberOfTails = noteLengthToNumTails(note.length);
@@ -166,18 +166,19 @@ function singleton(note: NonRestNoteModel, x: number,y: number, gracenoteProps: 
   `;
 };
 
-function ghostNote(note: RestNoteModel, x: number, y: number, noteWidth: number): Svg {
+function ghostNote(rest: RestNoteModel, x: number, y: number, noteWidth: number): Svg {
+  // todo this is very similar to singleton
   const stemX = x - 5;
   const stemY = noteY(y, Pitch.A) + 30;
-  const numberOfTails = noteLengthToNumTails(note.length);
+  const numberOfTails = noteLengthToNumTails(rest.length);
 
   const opacity = 0.25;
 
   const pitch = hoveringPitch();
 
   return svg`
-    ${noteHead(x, noteY(y, pitch), {...note, pitch: pitch}, () => null, opacity, true)}
-    ${(note.length > 3) ? null : svg`<line
+    ${noteHead(x, noteY(y, pitch), {...rest, pitch: pitch}, () => null, opacity, true)}
+    ${(rest.length > 3) ? null : svg`<line
       x1=${stemX}
       x2=${stemX}
       y1=${noteY(y,pitch)}
@@ -189,7 +190,7 @@ function ghostNote(note: RestNoteModel, x: number, y: number, noteWidth: number)
       ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" stroke-width="2" opacity=${opacity} />`)}
     </g>` : null}
 
-    ${noteBoxes(stemX - 2.5,y,noteWidth + 5, (p) => dispatch({ name: 'mouse over pitch', pitch: p}), (p) => dispatch({ name: 'rest clicked', pitch: p, rest: note }))}
+    ${noteBoxes(stemX - 2.5,y,noteWidth + 5, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'rest clicked', pitch, rest }))}
 
   `;
 }

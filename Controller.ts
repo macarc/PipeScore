@@ -9,7 +9,7 @@ import UI from './UI';
 // EventTypes should be named after what the user is doing rather than what is happening internally
 // (e.g. NoteClicked rather than NoteSelected)
 // though ones that are accessed throught the UI will be named after what is happening
-type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp | DeleteSelectedNotes | RestClicked;
+type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp | DeleteSelectedNotes | RestClicked | SetGracenoteOnSelected;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -56,6 +56,14 @@ type RestClicked = {
 }
 function isRestClicked(e: ScoreEvent): e is RestClicked {
   return e.name === 'rest clicked';
+}
+
+type SetGracenoteOnSelected = {
+  name: 'set gracenote',
+  value: string
+}
+function isSetGracenoteOnSelected(e: ScoreEvent): e is SetGracenoteOnSelected {
+  return e.name === 'set gracenote';
 }
 
 
@@ -117,6 +125,9 @@ export function dispatch(event: ScoreEvent): void {
     }
   } else if (isRestClicked(event)) {
     (event.rest as NoteModel).pitch = event.pitch;
+    changed = true;
+  } else if (isSetGracenoteOnSelected(event)) {
+    currentState.selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
     changed = true;
   } else {
     return event;

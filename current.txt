@@ -16,3 +16,5 @@ I just added rest functionality. Clean up needed:
 [ ] calculate diff/e.t.c separately if there is a rest between notes
 [ ] combine rests somehow into a single rest (if there are multiple next to each other)
 [ ] placing notes from a blank score (of different lengths)
+[ ] only do rest thing with rest under mouse (maybe
+

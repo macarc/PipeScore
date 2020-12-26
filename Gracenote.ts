@@ -1,12 +1,24 @@
-import { Pitch, RestOrPitch, lineGap, noteY, Svg } from './all';
+import { Pitch, RestOrPitch, lineGap, noteY, Svg, log } from './all';
 import { svg } from 'uhtml';
 
-type GracenoteFn = (note: Pitch, prev: RestOrPitch) => Pitch[];
+type Gracenote = Pitch[];
+
+interface InvalidGracenote {
+  gracenote: Gracenote
+}
+
+function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is InvalidGracenote {
+  return (gracenote as InvalidGracenote).gracenote != null;
+}
+type GracenoteFn = (note: Pitch, prev: RestOrPitch) => Pitch[] | InvalidGracenote;
+
+const invalidateIf = (pred: boolean, gracenote: Gracenote): Gracenote | InvalidGracenote => pred ? ({ gracenote }) : gracenote;
 
 const gracenotes: Map<string, GracenoteFn> = new Map();
 
-gracenotes.set('throw-d', (note: Pitch,_: RestOrPitch) => note === Pitch.D ? [Pitch.G,Pitch.D,Pitch.C] : []);
-gracenotes.set('doubling', (note: Pitch,prev: RestOrPitch) => {
+
+gracenotes.set('throw-d', note => invalidateIf(note !== Pitch.D, [Pitch.G,Pitch.D,Pitch.C]));
+gracenotes.set('doubling', (note, prev) => {
   let init = [];
   if (note === Pitch.G || note === Pitch.A || note === Pitch.B || note === Pitch.C) {
     init = [Pitch.HG, note, Pitch.D];
@@ -17,7 +29,7 @@ gracenotes.set('doubling', (note: Pitch,prev: RestOrPitch) => {
   } else if (note === Pitch.F) {
     init = [Pitch.HG, note, Pitch.HG];
   } else if (note === Pitch.HG) {
-    // ['HA', note, 'HA'] or ['HG','F'] ?
+    // [HA, note, HA] or [HG,F] ?
     init = [Pitch.HA,note,Pitch.HA];
   } else if (note === Pitch.HA)  {
     init = [Pitch.HA, Pitch.HG];
@@ -34,6 +46,34 @@ gracenotes.set('doubling', (note: Pitch,prev: RestOrPitch) => {
   }
 
   return init;
+});
+gracenotes.set('grip', note => {
+  if (note === Pitch.D) {
+    return [Pitch.G, Pitch.B, Pitch.G];
+  } else {
+    return [Pitch.G, Pitch.D, Pitch.G];
+  }
+})
+gracenotes.set('toarluath', (note, prev) => {
+  if (note === Pitch.D) {
+    return [Pitch.G, Pitch.B, Pitch.G, Pitch.E]
+  } else if (note === Pitch.E || note === Pitch.F || note === Pitch.HG || note === Pitch.HA) {
+    return [Pitch.G, Pitch.D, Pitch.G];
+  } else {
+    return [Pitch.G, Pitch.D, Pitch.G, Pitch.E]
+  }
+});
+gracenotes.set('birl', (note, prev) => {
+  return invalidateIf(note !== Pitch.A, prev === Pitch.A ? [Pitch.G, Pitch.A, Pitch.G] : [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
+});
+gracenotes.set('g-gracenote-birl', (note, prev) => {
+  if (prev === Pitch.HA) {
+    return invalidateIf(note !== Pitch.A, [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
+  } else if (prev === Pitch.HG) {
+    return invalidateIf(note !== Pitch.A, [Pitch.HA, Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
+  } else {
+    return invalidateIf(note !== Pitch.A, [Pitch.HG, Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
+  }
 });
 
 
@@ -53,10 +93,15 @@ interface SingleGracenote {
 const tailXOffset: number = 3;
 
 function numberOfNotes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): number {
-  return notes(gracenote,thisNote,previousNote).length;
+  const grace = notes(gracenote,thisNote,previousNote);
+  if (isInvalid(grace)) {
+    return grace.gracenote.length;
+  } else {
+    return grace.length;
+  }
 };
 
-function notes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): Pitch[] {
+function notes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): Pitch[] | InvalidGracenote {
   if (thisNote === 'rest') return [];
   else if (gracenote.type === 'single') {
     return [gracenote.note];
@@ -71,14 +116,14 @@ function notes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: R
   }
 }
 
-function head(x: number,y: number, note: Pitch, beamY: number): Svg {
+function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean): Svg {
   const ledgerLeft = 5;
   const ledgerRight = 5.2;
   // todo: make ledger line the correct length
   const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg`<g class="gracenote-head">
     ${note === Pitch.HA ? svg`<line x1=${x - ledgerLeft} x2=${x + ledgerRight} y1=${y} y2=${y} stroke="black" />` : null}
-    <ellipse cx=${x} cy=${y} rx="3.5" ry="2.5" transform="${rotateText}" fill="black" pointer-events="none" />
+    <ellipse cx=${x} cy=${y} rx="3.5" ry="2.5" transform="${rotateText}" fill=${isValid ? "black" : "red"} pointer-events="none" />
 
     <line x1=${x + tailXOffset} y1=${y} x2=${x + tailXOffset} y2=${beamY} stroke="black" /> 
   </g>`;
@@ -90,7 +135,7 @@ const stemYOf = (y: number) => y - 2;
 function single(note: Pitch, x: number, staveY:number): Svg {
   const y = noteY(staveY, note);
   return svg`<g class="gracenote">
-    ${head(x,y, note, y - 3 * lineGap)}
+    ${head(x,y, note, y - 3 * lineGap, true)}
 
     <line x1=${stemXOf(x)} x2=${stemXOf(x)} y1=${stemYOf(y)} y2=${stemYOf(y) - 20} stroke="black" />
 
@@ -113,7 +158,8 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
     // rather than by value)
-    const uniqueNotes: { note: Pitch }[] = notes(gracenote, props.thisNote, props.previousNote).map(note => ({ note }));
+    const grace = notes(gracenote, props.thisNote, props.previousNote);
+    const uniqueNotes: { note: Pitch }[] = isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
 
     const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth - props.gracenoteWidth * 0.5;
     const y = (note: Pitch) => noteY(props.y, note);
@@ -124,7 +170,7 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
         ${[0,2,4].map(i => svg`<line x1=${xOf(uniqueNotes[0]) + tailXOffset} x2=${xOf(uniqueNotes[uniqueNotes.length - 1]) + tailXOffset} y1=${props.y - 3.5 * lineGap + i} y2=${props.y - 3.5 * lineGap + i} stroke="black" />`
         )}
         ${uniqueNotes.map(
-          noteObj => head(xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap)
+          noteObj => head(xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap, ! isInvalid(grace))
         )}
       </g>`;
     }
