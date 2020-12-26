@@ -1,13 +1,15 @@
 import { render } from 'uhtml';
 import { Pitch } from './all';
-import { NoteModel } from './Note';
+import { NoteModel, NonRestNoteModel, RestNoteModel } from './Note';
 import Score, { ScoreModel } from './Score';
+import UI from './UI';
 
 // Events
 // Each EventType has an isEventType function that checks if a ScoreEvent is that event type
 // EventTypes should be named after what the user is doing rather than what is happening internally
 // (e.g. NoteClicked rather than NoteSelected)
-type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp;
+// though ones that are accessed throught the UI will be named after what is happening
+type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp | DeleteSelectedNotes | RestClicked;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -19,7 +21,7 @@ function isMouseMovedOver(e: ScoreEvent): e is MouseMovedOver {
 
 type NoteClicked = {
   name: 'note clicked',
-  note: NoteModel,
+  note: NonRestNoteModel,
   event: MouseEvent
 }
 function isNoteClicked(e: ScoreEvent): e is NoteClicked {
@@ -40,13 +42,30 @@ function isMouseUp(e: ScoreEvent): e is MouseUp {
   return e.name === 'mouse up';
 }
 
+type DeleteSelectedNotes = {
+  name: 'delete selected notes'
+}
+function isDeleteSelectedNotes(e: ScoreEvent): e is DeleteSelectedNotes {
+  return e.name === 'delete selected notes';
+}
+
+type RestClicked = {
+  name: 'rest clicked',
+  rest: RestNoteModel,
+  pitch: Pitch
+}
+function isRestClicked(e: ScoreEvent): e is RestClicked {
+  return e.name === 'rest clicked';
+}
 
 
 
-interface State {
+
+export interface State {
   score: ScoreModel,
   draggedNote: NoteModel | null,
-  selectedNotes: Set<NoteModel>
+  selectedNotes: Set<NoteModel>,
+  hoveredPitch: Pitch
 }
 
 
@@ -54,7 +73,8 @@ let currentState: State = {
   score: { staves: [] },
 
   draggedNote: null,
-  selectedNotes: new Set()
+  selectedNotes: new Set(),
+  hoveredPitch: Pitch.A
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -64,9 +84,13 @@ export function dispatch(event: ScoreEvent): void {
    */
   let changed = false;
   if (isMouseMovedOver(event)) {
-    if (currentState.draggedNote !== null && event.pitch !== currentState.draggedNote.pitch) {
-      currentState.draggedNote.pitch = event.pitch;
+    if (event.pitch !== currentState.hoveredPitch) {
+      currentState.hoveredPitch = event.pitch;
       changed = true;
+      if (currentState.draggedNote !== null) {
+        currentState.draggedNote.pitch = event.pitch;
+        changed = true;
+      }
     }
   } else if (isNoteClicked(event)) {
     currentState.draggedNote = event.note;
@@ -85,12 +109,21 @@ export function dispatch(event: ScoreEvent): void {
       currentState.draggedNote = null;
       changed = true;
     }
+  } else if (isDeleteSelectedNotes(event)) {
+    if (currentState.selectedNotes.size > 0) {
+      currentState.selectedNotes.forEach(n => n.pitch = 'rest');
+      currentState.selectedNotes = new Set();
+      changed = true;
+    }
+  } else if (isRestClicked(event)) {
+    (event.rest as NoteModel).pitch = event.pitch;
+    changed = true;
   } else {
     return event;
   }
 
   if (changed) {
-    updateView(currentState.score);
+    updateView(currentState);
   }
 }
 
@@ -98,7 +131,15 @@ export function dispatch(event: ScoreEvent): void {
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
 
-const updateView = (newScore: ScoreModel) => render(document.body, Score.render(newScore));
+export let hoveringPitch = () => currentState.hoveredPitch;
+
+const updateView = (newState: State) => {
+  const scoreRoot = document.getElementById("score");
+  const uiRoot = document.getElementById("ui");
+  if (!scoreRoot || !uiRoot) return;
+  render(scoreRoot, Score.render(newState.score));
+  render(uiRoot, UI.render(newState));
+}
 
 
 
@@ -106,5 +147,5 @@ const updateView = (newScore: ScoreModel) => render(document.body, Score.render(
 // this is needed because of circular dependency
 document.addEventListener('DOMContentLoaded', () => {
   currentState.score = Score.init();
-  updateView(currentState.score);
+  updateView(currentState);
 });

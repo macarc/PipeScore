@@ -1,5 +1,5 @@
 import { svg } from 'uhtml';
-import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight } from './all';
+import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes } from './all';
 import { log, log2, unlog, unlog2 } from './all';
 import Note, { GroupNoteModel, NoteModel } from './Note';
 import { dispatch } from './Controller';
@@ -8,29 +8,6 @@ import { dispatch } from './Controller';
 export interface BarModel {
   notes: GroupNoteModel[]
 }
-
-
-function dragBoxes(x: number,y: number,width: number,mouseDrag: (pitch: Pitch) => void): Svg {
-  // Invisible rectangles that are used to detect note dragging
-  const height = lineGap / 2;
-
-  const pitches = [Pitch.G,Pitch.A,Pitch.B,Pitch.C,Pitch.D,Pitch.E,Pitch.F,Pitch.HG,Pitch.HA];
-
-  return svg`<g class="drag-boxes">
-    <rect x=${x} y=${y - 4 * lineGap} width=${width} height=${lineGap * 4} onmouseover=${() => mouseDrag(Pitch.HA)} opacity="0" />
-    <rect x=${x} y=${y + 3.5 * lineGap} width=${width} height=${lineGap * 4} onmouseover=${() => mouseDrag(Pitch.G)} opacity="0" />
-
-    ${pitches.map(n => <[Pitch,number]>[n,pitchToHeight(n)]).map(([note,boxY]) => 
-      svg`<rect
-        x=${x}
-        y=${y + lineGap * boxY - lineGap / 2}
-        width=${width}
-        height=${height}
-        onmouseover=${() => mouseDrag(note)}
-        opacity="0"
-        />`)}
-  </g>`
-};
 
 interface BarProps {
   x: number,
@@ -77,7 +54,7 @@ function render(bar: BarModel,props: BarProps): Svg {
 
   return svg`
     <g class="bar">
-      ${dragBoxes(props.x,staveY, props.width, (pitch: Pitch) => dispatch({ name: 'mouse over pitch', pitch }))}
+      ${noteBoxes(props.x,staveY, props.width, (pitch: Pitch) => dispatch({ name: 'mouse over pitch', pitch }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
       )}

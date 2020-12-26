@@ -45,7 +45,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
       </g>
       <g class="stave-lines">
         ${staveLines.map(
-          y => svg`<line x1=${props.x} x2=${props.x + props.width} y1=${y} y2=${y} stroke="black" />`
+          y => svg`<line x1=${props.x} x2=${props.x + props.width} y1=${y} y2=${y} stroke="black" pointer-events="none" />`
         )}
       </g>
     </g>

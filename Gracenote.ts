@@ -134,8 +134,8 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
 }
 
 const init: () => GracenoteModel = () => ({
-  type: 'single',
-  note: Pitch.HG
+  type: 'reactive',
+  name: 'doubling'
 });
 
 

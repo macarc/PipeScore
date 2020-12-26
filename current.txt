@@ -1,6 +1,18 @@
 A massive checklist
 
 
+next:
+
+I just added rest functionality. Clean up needed:
+* Make it more efficient ?
+* Fix a thing with singleton -> it is centring the note on the x passed, but should be only after the x (I think, check this)
+
+
+
 [x] fix slanted beams
 [ ] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
+[ ] fix single gracenotes have a thick stem for some reason
+[ ] calculate diff/e.t.c separately if there is a rest between notes
+[ ] combine rests somehow into a single rest (if there are multiple next to each other)
+[ ] placing notes from a blank score (of different lengths)
