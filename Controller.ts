@@ -1,6 +1,6 @@
 import { render } from 'uhtml';
-import { Pitch } from './all';
-import { NoteModel, NonRestNoteModel, RestNoteModel } from './Note';
+import { Pitch, NoteLength, numberToNoteLength } from './all';
+import { NoteModel, NonRestNoteModel, RestNoteModel, conditionRestLength } from './Note';
 import Score, { ScoreModel } from './Score';
 import UI from './UI';
 
@@ -9,7 +9,7 @@ import UI from './UI';
 // EventTypes should be named after what the user is doing rather than what is happening internally
 // (e.g. NoteClicked rather than NoteSelected)
 // though ones that are accessed throught the UI will be named after what is happening
-type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp | DeleteSelectedNotes | RestClicked | SetGracenoteOnSelected;
+type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp | DeleteSelectedNotes | RestClicked | SetGracenoteOnSelected | SetInputLength;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -66,6 +66,14 @@ function isSetGracenoteOnSelected(e: ScoreEvent): e is SetGracenoteOnSelected {
   return e.name === 'set gracenote';
 }
 
+type SetInputLength = {
+  name: 'set note input length',
+  length: number
+}
+function isSetInputLength(e: ScoreEvent): e is SetInputLength {
+  return e.name === 'set note input length';
+}
+
 
 
 
@@ -73,7 +81,9 @@ export interface State {
   score: ScoreModel,
   draggedNote: NoteModel | null,
   selectedNotes: Set<NoteModel>,
-  hoveredPitch: Pitch
+  hoveredPitch: Pitch,
+  focused: boolean,
+  noteInputLength: NoteLength | null
 }
 
 
@@ -82,7 +92,9 @@ let currentState: State = {
 
   draggedNote: null,
   selectedNotes: new Set(),
-  hoveredPitch: Pitch.A
+  hoveredPitch: Pitch.A,
+  focused: true,
+  noteInputLength: null
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -124,10 +136,18 @@ export function dispatch(event: ScoreEvent): void {
       changed = true;
     }
   } else if (isRestClicked(event)) {
-    (event.rest as NoteModel).pitch = event.pitch;
-    changed = true;
+    if (currentState.noteInputLength !== null) {
+      (event.rest as NoteModel).pitch = event.pitch;
+      event.rest.length  = currentState.noteInputLength;
+      changed = true;
+    }
   } else if (isSetGracenoteOnSelected(event)) {
     currentState.selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
+    changed = true;
+  } else if (isSetInputLength(event)) {
+    const len = numberToNoteLength(event.length);
+    Score.groupNotes(currentState.score).map(n => conditionRestLength(n, len));
+    currentState.noteInputLength = len;
     changed = true;
   } else {
     return event;
@@ -141,6 +161,8 @@ export function dispatch(event: ScoreEvent): void {
 
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
+export const shouldntDisplayRests = () => currentState.draggedNote !== null || ! currentState.focused;
+export const currentInputLength: () => NoteLength | null = () => currentState.noteInputLength;
 
 export let hoveringPitch = () => currentState.hoveredPitch;
 

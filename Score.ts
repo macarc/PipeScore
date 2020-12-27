@@ -1,10 +1,15 @@
 import { svg } from 'uhtml';
-import { Svg } from './all';
+import { Svg, flatten } from './all';
+import { GroupNoteModel } from './Note';
 import Stave, { StaveModel } from './Stave';
 import { dispatch } from './Controller';
 
 export interface ScoreModel {
   staves: StaveModel[]
+}
+
+function groupNotes(score: ScoreModel): GroupNoteModel[] {
+  return flatten(score.staves.map(stave => Stave.groupNotes(stave)));
 }
 
 function render(score: ScoreModel): Svg {
@@ -22,7 +27,7 @@ function render(score: ScoreModel): Svg {
     previousStave: score.staves[index - 1] || null,
   });
 
-  return svg`<svg width=${width} height=${height} onmouseup=${() => dispatch({ name: 'mouse up' }) } >
+  return svg`<svg width=${width} height=${height} onmouseup=${() => dispatch({ name: 'mouse up' })}>
     <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`
@@ -38,5 +43,6 @@ const init: () => ScoreModel = () => ({
 
 export default {
   render,
-  init
+  init,
+  groupNotes,
 }

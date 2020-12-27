@@ -17,6 +17,12 @@ interface BarProps {
   draggedNote: NoteModel | null,
   dragNote: (note: NoteModel) => void,
 }
+
+
+function groupNotes(bar: BarModel) {
+  return bar.notes;
+}
+
 function render(bar: BarModel,props: BarProps): Svg {
   const staveY = props.y;
 
@@ -70,5 +76,6 @@ const init = () => ({
 
 export default {
   render,
-  init
+  init,
+  groupNotes
 }

@@ -1,24 +1,24 @@
 import { svg } from 'uhtml';
-import { Pitch, RestOrPitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes } from './all';
+import { Pitch, RestOrPitch, NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, splitLength } from './all';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
-import { dispatch, isSelected, isBeingDragged, hoveringPitch } from './Controller';
+import { dispatch, isSelected, isBeingDragged, hoveringPitch, shouldntDisplayRests, currentInputLength } from './Controller';
 
 import { log, unlog, log2, unlog2 } from './all';
 
 export interface NoteModel {
   pitch: RestOrPitch,
-  length: number,
+  length: NoteLength,
   gracenote: GracenoteModel | null,
 }
 
 export interface NonRestNoteModel {
   pitch: Pitch,
-  length: number,
+  length: NoteLength,
   gracenote: GracenoteModel | null,
 }
 export interface RestNoteModel {
   pitch: 'rest',
-  length: number,
+  length: NoteLength,
   // todo - should this have to be null?
   gracenote: GracenoteModel | null
 }
@@ -34,12 +34,26 @@ export interface GroupNoteModel {
 }
 
 
+export function conditionRestLength(groupNote: GroupNoteModel, mouseLength: NoteLength) {
+  const newNotes = groupNote.notes.slice();
+
+  for (const note of groupNote.notes) {
+    if (isRest(note)) {
+      const lengths = mouseLength === null ? [note.length] : splitLength(note.length, mouseLength);
+      const rests = lengths.map(length => ({
+        pitch: <RestOrPitch>'rest',
+        length,
+        gracenote: null
+      }));
+      newNotes.splice(newNotes.indexOf(note), 1, ...rests);
+    }
+  }
+  groupNote.notes = newNotes;
+}
+
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
-
-const noteLengthToNumTails = (length: number) => Math.ceil(Math.log(1 / length) / Math.log(2));
-
 
 const noteAndGracenoteWidth = (notes: NoteModel[], gracenoteRatio: number, prevNote: RestOrPitch='rest') =>
 	notes.map((n,i) => 1 +
@@ -112,7 +126,7 @@ function noteHead(x: number, y: number, note: NonRestNoteModel, mousedown: (e: M
     const clickableWidth = 14;
     const clickableHeight = 12;
 
-    const hasDot = (Math.log(note.length) / Math.log(2)) % 1 !== 0;
+    const dotted = hasDot(note.length);
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
     const dragged = forceNoPointerEvents || isBeingDragged(note);
@@ -125,7 +139,7 @@ function noteHead(x: number, y: number, note: NonRestNoteModel, mousedown: (e: M
     // drag downwards a single box)
     const pointerEvents = dragged ? 'none' : 'visiblePainted';
 
-    const filled = note.length < 1.5; // shorter than a dotted crotchet
+    const filled = isFilled(note.length);
 
     const rotateText = "rotate(30 " + Math.round(x) + " " + Math.round(y) + ")";
 
@@ -134,7 +148,7 @@ function noteHead(x: number, y: number, note: NonRestNoteModel, mousedown: (e: M
     return svg`<g class="note-head">
       <ellipse cx=${x} cy=${y} rx="5" ry="4" stroke=${colour} fill=${filled ? colour : "white"} transform=${rotateText} pointer-events=${pointerEvents} opacity=${opacity} />
 
-      ${hasDot ? svg`<circle cx=${x + dotXOffset} cy=${y + dotYOffset} r="1.5" fill=${colour} pointer-events="none" opacity=${opacity} />` : null}
+      ${dotted ? svg`<circle cx=${x + dotXOffset} cy=${y + dotYOffset} r="1.5" fill=${colour} pointer-events="none" opacity=${opacity} />` : null}
 
       ${(note.pitch === Pitch.HA) ? svg`<line class="ledger" x1=${x - 8} x2=${x + 8} y1=${y} y2=${y} stroke=${colour} pointer-events="none" opacity=${opacity} />` : null}
 
@@ -149,25 +163,29 @@ function singleton(note: NonRestNoteModel, x: number,y: number, gracenoteProps: 
   const stemY = noteY(y,note.pitch) + 30;
   const numberOfTails = noteLengthToNumTails(note.length);
 
+
   return svg`
     ${note.gracenote === null ? null : Gracenote.render(note.gracenote, gracenoteProps)}
 
     ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
-    ${(note.length > 3) ? null : svg`<line
+    ${hasStem(note.length) ? svg`<line
       x1=${stemX}
       x2=${stemX}
       y1=${noteY(y,note.pitch)}
       y2=${stemY}
       stroke="black"
-      />`}
+      />` : null}
     ${numberOfTails > 0 ? svg`<g class="tails">
       ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" stroke-width="2" />`)}
     </g>` : null}
   `;
 };
 
-function ghostNote(rest: RestNoteModel, x: number, y: number, noteWidth: number): Svg {
+function rest(rest: RestNoteModel, x: number, y: number, noteWidth: number): Svg {
   // todo this is very similar to singleton
+  if (shouldntDisplayRests()) {
+    return svg`<g></g>`
+  }
   const stemX = x - 5;
   const stemY = noteY(y, Pitch.A) + 30;
   const numberOfTails = noteLengthToNumTails(rest.length);
@@ -178,14 +196,14 @@ function ghostNote(rest: RestNoteModel, x: number, y: number, noteWidth: number)
 
   return svg`
     ${noteHead(x, noteY(y, pitch), {...rest, pitch: pitch}, () => null, opacity, true)}
-    ${(rest.length > 3) ? null : svg`<line
+    ${hasStem(rest.length) ? svg`<line
       x1=${stemX}
       x2=${stemX}
       y1=${noteY(y,pitch)}
       y2=${stemY}
       stroke="black"
       opacity="${opacity}"
-      />`}
+      />`: null}
     ${numberOfTails > 0 ? svg`<g class="tails">
       ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" stroke-width="2" opacity=${opacity} />`)}
     </g>` : null}
@@ -361,7 +379,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
                     </g>`
                   }
                 } else if (isRest(shortNote)) {
-                  return ghostNote(shortNote, xOf(index), props.y, props.noteWidth);
+                  return rest(shortNote, xOf(index), props.y, props.noteWidth);
                 } else {
                   throw new Error('note is neither a note or a rest');
                 }
@@ -375,10 +393,10 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
 
 const init: () => GroupNoteModel = () => ({
 	notes: [
-    { pitch: Pitch.A, length: 0.5, gracenote: Gracenote.init() },
-    { pitch: 'rest', length: 0.125, gracenote: Gracenote.init() },
-    { pitch: Pitch.HG, length: 0.125, gracenote: Gracenote.init() },
-    { pitch: Pitch.HA, length: 0.25, gracenote: Gracenote.init() }
+    { pitch: Pitch.A, length: NoteLength.Quaver, gracenote: Gracenote.init() },
+    { pitch: 'rest', length: NoteLength.SemiQuaver, gracenote: Gracenote.init() },
+    { pitch: Pitch.HG, length: NoteLength.SemiQuaver, gracenote: Gracenote.init() },
+    { pitch: Pitch.HA, length: NoteLength.Quaver, gracenote: Gracenote.init() }
   ]
 });
 
