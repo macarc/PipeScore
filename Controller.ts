@@ -1,5 +1,6 @@
 import { render } from 'uhtml';
-import { Pitch, NoteLength, numberToNoteLength } from './all';
+import { Pitch } from './all';
+import { NoteLength, numberToNoteLength, noteLengthToNumber } from './NoteLength';
 import { NoteModel, NonRestNoteModel, RestNoteModel, conditionRestLength } from './Note';
 import Score, { ScoreModel } from './Score';
 import UI from './UI';
@@ -102,7 +103,7 @@ export function dispatch(event: ScoreEvent): void {
      The global event handler.
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
-  let changed = false;
+  let changed = false, recalculateRests = false;
   if (isMouseMovedOver(event)) {
     if (event.pitch !== currentState.hoveredPitch) {
       currentState.hoveredPitch = event.pitch;
@@ -136,21 +137,28 @@ export function dispatch(event: ScoreEvent): void {
       changed = true;
     }
   } else if (isRestClicked(event)) {
-    if (currentState.noteInputLength !== null) {
-      (event.rest as NoteModel).pitch = event.pitch;
-      event.rest.length  = currentState.noteInputLength;
-      changed = true;
+    (event.rest as NoteModel).pitch = event.pitch;
+    if (event.rest.length !== currentState.noteInputLength) {
+      currentState.noteInputLength = event.rest.length;
+      recalculateRests = true;
     }
+    changed = true;
   } else if (isSetGracenoteOnSelected(event)) {
     currentState.selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
     changed = true;
   } else if (isSetInputLength(event)) {
     const len = numberToNoteLength(event.length);
-    Score.groupNotes(currentState.score).map(n => conditionRestLength(n, len));
-    currentState.noteInputLength = len;
-    changed = true;
+    if (len !== currentState.noteInputLength) {
+      currentState.noteInputLength = len;
+      recalculateRests = true;
+    }
   } else {
     return event;
+  }
+
+  if (recalculateRests) {
+    Score.groupNotes(currentState.score).map(n => conditionRestLength(n, currentState.noteInputLength));
+    changed = true;
   }
 
   if (changed) {
@@ -162,7 +170,7 @@ export function dispatch(event: ScoreEvent): void {
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
 export const shouldntDisplayRests = () => currentState.draggedNote !== null || ! currentState.focused;
-export const currentInputLength: () => NoteLength | null = () => currentState.noteInputLength;
+export const currentNoteInputAsNumber = () => currentState.noteInputLength === null ? 0 : noteLengthToNumber(currentState.noteInputLength);
 
 export let hoveringPitch = () => currentState.hoveredPitch;
 

@@ -1,6 +1,9 @@
 A massive checklist
 
 
+next:
+definitely needs a clean up / refactor after adding note adding
+
 [x] fix slanted beams
 [ ] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
@@ -10,6 +13,8 @@ A massive checklist
 [ ] only do rest thing with rest under mouse (maybe)
 [ ] fix random errors with adding gracenote (it just throws an error sometimes)
 [ ] HG -> HA gracenote on next note looks a bit crushed
+[X] Any time rests are merged, some notes are deleted
+[ ] Make adding notes more frictionless
 
 
 

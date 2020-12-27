@@ -1,6 +1,7 @@
 import { ScoreModel } from './Score';
+import { log } from './all';
 import { NoteModel } from './Note';
-import { dispatch, State } from './Controller';
+import { dispatch, State, currentNoteInputAsNumber } from './Controller';
 import { html } from 'uhtml';
 
 

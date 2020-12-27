@@ -1,7 +1,8 @@
 import { svg } from 'uhtml';
-import { Pitch, RestOrPitch, NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, splitLength } from './all';
+import { Pitch, RestOrPitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes } from './all';
+import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths } from './NoteLength';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
-import { dispatch, isSelected, isBeingDragged, hoveringPitch, shouldntDisplayRests, currentInputLength } from './Controller';
+import { dispatch, isSelected, isBeingDragged, hoveringPitch, shouldntDisplayRests } from './Controller';
 
 import { log, unlog, log2, unlog2 } from './all';
 
@@ -34,21 +35,49 @@ export interface GroupNoteModel {
 }
 
 
-export function conditionRestLength(groupNote: GroupNoteModel, mouseLength: NoteLength) {
-  const newNotes = groupNote.notes.slice();
+function mergeRests(notes: NoteModel[]): NoteModel[] {
+  const newNotes = notes.slice();
+  let i=0;
+  while (i < notes.length) {
+    console.log(i);
+    const note = notes[i];
+    if (note.pitch === 'rest') {
+      let next = notes.slice(notes.indexOf(note) + 1);
+      let notesToMerge: NoteModel[] = [note];
+      while (next.length > 0 && next[0].pitch === 'rest') {
+        notesToMerge.push(next[0]);
+        next = next.slice(1);
+      }
 
-  for (const note of groupNote.notes) {
-    if (isRest(note)) {
-      const lengths = mouseLength === null ? [note.length] : splitLength(note.length, mouseLength);
-      const rests = lengths.map(length => ({
-        pitch: <RestOrPitch>'rest',
-        length,
-        gracenote: null
-      }));
-      newNotes.splice(newNotes.indexOf(note), 1, ...rests);
+      const newLengths = mergeLengths(notesToMerge.map(rest => rest.length));
+      const newRests = newLengths.map(length => ({ pitch: <RestOrPitch>'rest', length, gracenote: null }));
+      newNotes.splice(newNotes.indexOf(note), notesToMerge.length, ...newRests);
+      i += notesToMerge.length;
+    } else {
+      i += 1;
     }
   }
-  groupNote.notes = newNotes;
+  return newNotes;
+}
+
+export function conditionRestLength(groupNote: GroupNoteModel, mouseLength: NoteLength | null) {
+  const notes = mergeRests(groupNote.notes);
+  if (mouseLength !== null) {
+    const newNotes = notes.slice();
+
+    for (const note of notes) {
+      if (isRest(note)) {
+        const lengths = mouseLength === null ? [note.length] : splitLength(note.length, mouseLength);
+        const rests = lengths.map(length => ({
+          pitch: <RestOrPitch>'rest',
+          length,
+          gracenote: null
+        }));
+        newNotes.splice(newNotes.indexOf(note), 1, ...rests);
+      }
+    }
+    groupNote.notes = newNotes;
+  }
 }
 
 const gracenoteToNoteWidthRatio = 0.6;
