@@ -1,7 +1,7 @@
 import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes } from './all';
 import { log, log2, unlog, unlog2 } from './all';
-import Note, { GroupNoteModel, NoteModel } from './Note';
+import Note, { GroupNoteModel, NoteModel, lastNoteOfWholeNote, totalBeatWidth } from './Note';
 import { dispatch } from './Controller';
 
 
@@ -28,15 +28,15 @@ function render(bar: BarModel,props: BarProps): Svg {
 
 
   const previousWholeNote = props.previousBar ? props.previousBar.notes[props.previousBar.notes.length - 1] : null;
-  const previousNote = previousWholeNote ? Note.lastNote(previousWholeNote) : null;
+  const previousNote = previousWholeNote ? lastNoteOfWholeNote(previousWholeNote) : null;
   const previousNoteOf = (noteIndex: number) => noteIndex === 0
     ? previousNote
-    : Note.lastNote(bar.notes[noteIndex - 1]) || null;
+    : lastNoteOfWholeNote(bar.notes[noteIndex - 1]) || null;
   
   const beats = bar.notes
     .reduce((nums, n, index) => {
       const previous = previousNoteOf(index);
-      return [...nums, nums[nums.length - 1] + Note.totalBeatWidth(n,previous || 'rest')];
+      return [...nums, nums[nums.length - 1] + totalBeatWidth(n,previous || null)];
     },
     [1]);
   
@@ -51,8 +51,8 @@ function render(bar: BarModel,props: BarProps): Svg {
     y: staveY,
     noteWidth: beatWidth,
     previousNote: index === 0
-      ? previousNote || 'rest'
-      : bar.notes[index - 1] ? Note.lastNote(bar.notes[index - 1]) : 'rest',
+      ? previousNote || null
+      : bar.notes[index - 1] ? lastNoteOfWholeNote(bar.notes[index - 1]) : null,
     selectedNotes: [],
     draggedNote: props.draggedNote,
   });

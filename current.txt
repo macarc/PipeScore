@@ -8,13 +8,16 @@ definitely needs a clean up / refactor after adding note adding
 [ ] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
 [ ] calculate diff/e.t.c separately if there is a rest between notes
-[ ] combine rests somehow into a single rest (if there are multiple next to each other)
-[ ] placing notes from a blank score (of different lengths)
+[X] combine rests somehow into a single rest (if there are multiple next to each other)
+[X] placing notes from a blank score (of different lengths)
 [ ] only do rest thing with rest under mouse (maybe)
-[ ] fix random errors with adding gracenote (it just throws an error sometimes)
+[ ] fix random errors with adding note (it just throws an error sometimes)
 [ ] HG -> HA gracenote on next note looks a bit crushed
 [X] Any time rests are merged, some notes are deleted
-[ ] Make adding notes more frictionless
+[X] Make adding notes more frictionless
+[ ] Make icons for note input
+[ ] Width of drag boxes is wrong
+[ ] Automatically group notes to correct grouping
 
 
 
@@ -23,9 +26,9 @@ End user features:
 [X] Single notes
 [X] Note groups
 [X] Modifying notes
-[ ] Rests
-[ ] Adding notes
-[ ] Reactive gracenotes
+[?] Rests
+[X] Adding notes
+[X] Reactive gracenotes
 [ ] Time signatures
 [ ] Repeat marks, second timings
 [ ] Anacrusis

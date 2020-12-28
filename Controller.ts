@@ -1,7 +1,7 @@
 import { render } from 'uhtml';
 import { Pitch } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber } from './NoteLength';
-import { NoteModel, NonRestNoteModel, RestNoteModel, conditionRestLength } from './Note';
+import { NoteModel, GroupNoteModel } from './Note';
 import Score, { ScoreModel } from './Score';
 import UI from './UI';
 
@@ -10,7 +10,16 @@ import UI from './UI';
 // EventTypes should be named after what the user is doing rather than what is happening internally
 // (e.g. NoteClicked rather than NoteSelected)
 // though ones that are accessed throught the UI will be named after what is happening
-type ScoreEvent = MouseMovedOver | NoteClicked | BackgroundClicked | MouseUp | DeleteSelectedNotes | RestClicked | SetGracenoteOnSelected | SetInputLength;
+type ScoreEvent
+  = MouseMovedOver
+  | NoteClicked
+  | BackgroundClicked
+  | MouseUp
+  | DeleteSelectedNotes
+  | SetGracenoteOnSelected
+  | SetInputLength
+  | StopInputtingNotes
+  | NoteAdded;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -22,7 +31,7 @@ function isMouseMovedOver(e: ScoreEvent): e is MouseMovedOver {
 
 type NoteClicked = {
   name: 'note clicked',
-  note: NonRestNoteModel,
+  note: NoteModel,
   event: MouseEvent
 }
 function isNoteClicked(e: ScoreEvent): e is NoteClicked {
@@ -50,15 +59,6 @@ function isDeleteSelectedNotes(e: ScoreEvent): e is DeleteSelectedNotes {
   return e.name === 'delete selected notes';
 }
 
-type RestClicked = {
-  name: 'rest clicked',
-  rest: RestNoteModel,
-  pitch: Pitch
-}
-function isRestClicked(e: ScoreEvent): e is RestClicked {
-  return e.name === 'rest clicked';
-}
-
 type SetGracenoteOnSelected = {
   name: 'set gracenote',
   value: string
@@ -69,12 +69,28 @@ function isSetGracenoteOnSelected(e: ScoreEvent): e is SetGracenoteOnSelected {
 
 type SetInputLength = {
   name: 'set note input length',
-  length: number
+  length: NoteLength
 }
 function isSetInputLength(e: ScoreEvent): e is SetInputLength {
   return e.name === 'set note input length';
 }
 
+type StopInputtingNotes = {
+  name: 'stop inputting notes'
+}
+function isStopInputtingNotes(e: ScoreEvent): e is StopInputtingNotes {
+  return e.name === 'stop inputting notes';
+}
+
+type NoteAdded = {
+  name: 'note added',
+  pitch: Pitch,
+  index: number,
+  note: GroupNoteModel
+}
+function isNoteAdded(e: ScoreEvent): e is NoteAdded {
+  return e.name === 'note added';
+}
 
 
 
@@ -103,7 +119,7 @@ export function dispatch(event: ScoreEvent): void {
      The global event handler.
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
-  let changed = false, recalculateRests = false;
+  let changed = false;
   if (isMouseMovedOver(event)) {
     if (event.pitch !== currentState.hoveredPitch) {
       currentState.hoveredPitch = event.pitch;
@@ -132,33 +148,29 @@ export function dispatch(event: ScoreEvent): void {
     }
   } else if (isDeleteSelectedNotes(event)) {
     if (currentState.selectedNotes.size > 0) {
-      currentState.selectedNotes.forEach(n => n.pitch = 'rest');
+      //currentState.selectedNotes.forEach(n => n.pitch = 'rest');
       currentState.selectedNotes = new Set();
       changed = true;
     }
-  } else if (isRestClicked(event)) {
-    (event.rest as NoteModel).pitch = event.pitch;
-    if (event.rest.length !== currentState.noteInputLength) {
-      currentState.noteInputLength = event.rest.length;
-      recalculateRests = true;
-    }
-    changed = true;
   } else if (isSetGracenoteOnSelected(event)) {
     currentState.selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
     changed = true;
   } else if (isSetInputLength(event)) {
-    const len = numberToNoteLength(event.length);
-    if (len !== currentState.noteInputLength) {
-      currentState.noteInputLength = len;
-      recalculateRests = true;
+    if (event.length !== currentState.noteInputLength) {
+      currentState.noteInputLength = event.length;
     }
+  } else if (isStopInputtingNotes(event)) {
+     if (currentState.noteInputLength !== null) {
+       currentState.noteInputLength = null;
+     }
+  } else if (isNoteAdded(event)) {
+    if (currentState.noteInputLength !== null) {
+      event.note.notes.splice(event.index, 0, { pitch: event.pitch, length: currentState.noteInputLength, gracenote: null });
+      changed = true;
+    }
+
   } else {
     return event;
-  }
-
-  if (recalculateRests) {
-    Score.groupNotes(currentState.score).map(n => conditionRestLength(n, currentState.noteInputLength));
-    changed = true;
   }
 
   if (changed) {
@@ -169,10 +181,6 @@ export function dispatch(event: ScoreEvent): void {
 
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
-export const shouldntDisplayRests = () => currentState.draggedNote !== null || ! currentState.focused;
-export const currentNoteInputAsNumber = () => currentState.noteInputLength === null ? 0 : noteLengthToNumber(currentState.noteInputLength);
-
-export let hoveringPitch = () => currentState.hoveredPitch;
 
 const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
@@ -184,9 +192,19 @@ const updateView = (newState: State) => {
 
 
 
+function keyHandler(e: KeyboardEvent) {
+  switch (e.key) {
+    case "Escape":
+      dispatch({ name: 'stop inputting notes' });
+      break;
+  }
+}
 
-// this is needed because of circular dependency
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('keydown', keyHandler);
   currentState.score = Score.init();
   updateView(currentState);
 });

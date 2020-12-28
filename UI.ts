@@ -1,12 +1,25 @@
 import { ScoreModel } from './Score';
 import { log } from './all';
+import { NoteLength } from './NoteLength';
 import { NoteModel } from './Note';
-import { dispatch, State, currentNoteInputAsNumber } from './Controller';
+import { dispatch, State } from './Controller';
 import { html } from 'uhtml';
 
 
 
 function render(state: State) {
+
+  const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
+  const isCurrentNoteInput = (length: NoteLength) => state.noteInputLength === length;
+
+
+  const noteInputButton = (length: NoteLength) => html`<button
+    class=${isCurrentNoteInput(length) ? 'current-note-input' : null}
+    onclick=${setNoteInput(length)}>
+      ${length}
+    </button>`;
+
+
   return html`
     <div>
       UI
@@ -14,12 +27,13 @@ function render(state: State) {
 
       <h2>Note Input</h2>
       <label>Current note input type</label>
-      <select id="set-note-input" onchange=${() => dispatch({ name: 'set note input length', length: parseFloat((document.getElementById('set-note-input') as HTMLSelectElement).value) })}>
-        <option value="1">Crotchet</value>
-        <option value="0.5">Quaver</value>
-        <option value="0.25">Semi-quaver</value>
-        <option value="0.125">Demi-semi-quaver</value>
-      </select>
+      ${noteInputButton(NoteLength.Semibreve)}
+      ${noteInputButton(NoteLength.Minim)}
+      ${noteInputButton(NoteLength.Crotchet)}
+      ${noteInputButton(NoteLength.Quaver)}
+      ${noteInputButton(NoteLength.SemiQuaver)}
+      ${noteInputButton(NoteLength.DemiSemiQuaver)}
+      ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
 
 
       <h2>Gracenote</h2>

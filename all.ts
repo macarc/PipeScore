@@ -1,3 +1,9 @@
+/*
+  This just has some useful things each of which are too small to have their own module,
+  but don't really fit anywhere else.
+*/
+
+
 import { render, html, svg, Hole } from 'uhtml';
 export const log = (a: any) => {
   console.log(a);
@@ -22,8 +28,6 @@ export const lineHeightOf = (n: number) => n * lineGap;
 export const enum Pitch {
   HA = 'HA', HG = 'HG', F = 'F', E = 'E', D = 'D', C = 'C', B = 'B', A = 'A', G = 'G'
 }
-export type RestOrPitch = Pitch | 'rest';
-
 export function pitchToHeight(pitch: Pitch): number {
     switch (pitch) {
         case Pitch.HA: return -1;

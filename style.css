@@ -16,3 +16,7 @@ html {
   margin: 0.2rem;
   width: 100%;
 }
+
+.current-note-input {
+  background-color: yellow;
+}

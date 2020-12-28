@@ -1,4 +1,4 @@
-import { Pitch, RestOrPitch, lineGap, noteY, Svg, log } from './all';
+import { Pitch, lineGap, noteY, Svg, log } from './all';
 import { svg } from 'uhtml';
 
 type Gracenote = Pitch[];
@@ -10,7 +10,7 @@ interface InvalidGracenote {
 function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is InvalidGracenote {
   return (gracenote as InvalidGracenote).gracenote != null;
 }
-type GracenoteFn = (note: Pitch, prev: RestOrPitch) => Pitch[] | InvalidGracenote;
+type GracenoteFn = (note: Pitch, prev: Pitch | null) => Pitch[] | InvalidGracenote;
 
 const invalidateIf = (pred: boolean, gracenote: Gracenote): Gracenote | InvalidGracenote => pred ? ({ gracenote }) : gracenote;
 
@@ -92,7 +92,7 @@ interface SingleGracenote {
 
 const tailXOffset: number = 3;
 
-function numberOfNotes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): number {
+function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
   const grace = notes(gracenote,thisNote,previousNote);
   if (isInvalid(grace)) {
     return grace.gracenote.length;
@@ -101,9 +101,8 @@ function numberOfNotes(gracenote: GracenoteModel, thisNote: RestOrPitch, previou
   }
 };
 
-function notes(gracenote: GracenoteModel, thisNote: RestOrPitch, previousNote: RestOrPitch): Pitch[] | InvalidGracenote {
-  if (thisNote === 'rest') return [];
-  else if (gracenote.type === 'single') {
+function notes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Pitch[] | InvalidGracenote {
+  if (gracenote.type === 'single') {
     return [gracenote.note];
   } else if (gracenote.type === 'reactive') {
     const notes = gracenotes.get(gracenote.name);
@@ -144,8 +143,8 @@ function single(note: Pitch, x: number, staveY:number): Svg {
 }
 
 export interface GracenoteProps {
-  thisNote: RestOrPitch,
-  previousNote: RestOrPitch,
+  thisNote: Pitch,
+  previousNote: Pitch | null,
   y: number,
   x: number,
   gracenoteWidth: number,
