@@ -1,7 +1,7 @@
 import { render } from 'uhtml';
-import { Pitch } from './all';
+import { Pitch, flatten } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber } from './NoteLength';
-import { NoteModel, GroupNoteModel } from './Note';
+import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes } from './Note';
 import Score, { ScoreModel } from './Score';
 import UI from './UI';
 
@@ -119,7 +119,8 @@ export function dispatch(event: ScoreEvent): void {
      The global event handler.
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
-  let changed = false;
+  let changed = false,
+    recalculateNoteGroupings = false;
   if (isMouseMovedOver(event)) {
     if (event.pitch !== currentState.hoveredPitch) {
       currentState.hoveredPitch = event.pitch;
@@ -148,9 +149,19 @@ export function dispatch(event: ScoreEvent): void {
     }
   } else if (isDeleteSelectedNotes(event)) {
     if (currentState.selectedNotes.size > 0) {
-      //currentState.selectedNotes.forEach(n => n.pitch = 'rest');
+      const groupedNotes = Score.groupNotes(currentState.score);
+      const notes = flatten(groupedNotes.map(g => g.notes));
+      // quadratic!
+      groupedNotes.forEach(g => {
+        g.notes.forEach(note => {
+          if (currentState.selectedNotes.has(note)) {
+            g.notes.splice(g.notes.indexOf(note), 1);
+          }
+        });
+      });
       currentState.selectedNotes = new Set();
       changed = true;
+      recalculateNoteGroupings = true;
     }
   } else if (isSetGracenoteOnSelected(event)) {
     currentState.selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
@@ -158,6 +169,7 @@ export function dispatch(event: ScoreEvent): void {
   } else if (isSetInputLength(event)) {
     if (event.length !== currentState.noteInputLength) {
       currentState.noteInputLength = event.length;
+      changed = true;
     }
   } else if (isStopInputtingNotes(event)) {
      if (currentState.noteInputLength !== null) {
@@ -167,10 +179,15 @@ export function dispatch(event: ScoreEvent): void {
     if (currentState.noteInputLength !== null) {
       event.note.notes.splice(event.index, 0, { pitch: event.pitch, length: currentState.noteInputLength, gracenote: null });
       changed = true;
+      recalculateNoteGroupings = true
     }
 
   } else {
     return event;
+  }
+
+  if (recalculateNoteGroupings) {
+    makeCorrectGroupings();
   }
 
   if (changed) {
@@ -201,10 +218,21 @@ function keyHandler(e: KeyboardEvent) {
 }
 
 
+function makeCorrectGroupings() {
+  const bars = Score.bars(currentState.score);
+  const noteModels = bars.map(b => unGroupNotes(b.notes));
+  for (let i=0; i < bars.length; i++) {
+    // todo actually pass the correct time signature
+    bars[i].notes = groupNotes(noteModels[i], 1);
+  }
+}
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', keyHandler);
   currentState.score = Score.init();
+  // initially set the notes to be the right groupings
+  makeCorrectGroupings();
   updateView(currentState);
 });

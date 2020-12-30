@@ -1,6 +1,7 @@
 import { svg } from 'uhtml';
 import { Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
+import { BarModel } from './Bar';
 import Stave, { StaveModel } from './Stave';
 import { dispatch } from './Controller';
 
@@ -10,6 +11,9 @@ export interface ScoreModel {
 
 function groupNotes(score: ScoreModel): GroupNoteModel[] {
   return flatten(score.staves.map(stave => Stave.groupNotes(stave)));
+}
+function bars(score: ScoreModel): BarModel[] {
+  return flatten(score.staves.map(stave => Stave.bars(stave)));
 }
 
 function render(score: ScoreModel): Svg {
@@ -45,4 +49,5 @@ export default {
   render,
   init,
   groupNotes,
+  bars
 }

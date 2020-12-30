@@ -1,6 +1,6 @@
 import { svg } from 'uhtml';
-import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes } from './all';
-import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths } from './NoteLength';
+import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten } from './all';
+import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
 import { dispatch, isSelected, isBeingDragged } from './Controller';
 
@@ -14,6 +14,53 @@ export interface NoteModel {
 
 export interface GroupNoteModel {
   notes: NoteModel[]
+}
+
+export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
+  return flatten(notes.map(note => note.notes));
+}
+
+export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
+  // todo - I'm not sure which file this should go in
+  // I feel like it should go in NoteLengths.ts but then it is quite hard to convert back
+  // from NoteLength[][] to GroupNote[] since some notelengths might be added
+  const groupedNotes: GroupNoteModel[] = [];
+  let currentGroup: GroupNoteModel = { notes: [] },
+    currentLength = 0;
+  notes.forEach(note => {
+    const length = noteLengthToNumber(note.length);
+    if (currentLength + length < lengthOfGroup) {
+      currentGroup.notes.push(note);
+      currentLength += length;
+    } else if (currentLength + length === lengthOfGroup) {
+      currentGroup.notes.push(note);
+      groupedNotes.push(currentGroup);
+      currentLength = 0;
+      currentGroup = { notes: [] };
+    } else {
+      // currentLength + length > lengthOfGroup
+
+      const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
+      const splitNoteLengths = splitLengths.map(numberToNoteLength);
+      const splitNotes = splitNoteLengths.map(length => {
+        let x: NoteModel = {
+          pitch: note.pitch,
+          gracenote: null,
+          length
+        }
+        return x;
+      });
+      splitNotes[0].gracenote = note.gracenote;
+      currentGroup.notes.push(splitNotes[0]);
+      groupedNotes.push(currentGroup);
+
+      // TODO - check if it goes over another group
+      currentLength = splitLengths.slice(1).reduce((a,b) => a + b);
+      currentGroup = { notes: splitNotes.slice(1) };
+    }
+  });
+  groupedNotes.push(currentGroup);
+  return groupedNotes;
 }
 
 const gracenoteToNoteWidthRatio = 0.6;
@@ -286,7 +333,7 @@ const init: () => GroupNoteModel = () => ({
 	notes: [
     { pitch: Pitch.A, length: NoteLength.Quaver, gracenote: Gracenote.init() },
     { pitch: Pitch.HG, length: NoteLength.SemiQuaver, gracenote: Gracenote.init() },
-    { pitch: Pitch.HA, length: NoteLength.Quaver, gracenote: Gracenote.init() }
+    { pitch: Pitch.HA, length: NoteLength.SemiQuaver, gracenote: Gracenote.init() }
   ]
 });
 

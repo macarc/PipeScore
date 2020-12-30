@@ -1,9 +1,5 @@
 A massive checklist
 
-
-next:
-definitely needs a clean up / refactor after adding note adding
-
 [x] fix slanted beams
 [ ] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
@@ -16,8 +12,8 @@ definitely needs a clean up / refactor after adding note adding
 [X] Any time rests are merged, some notes are deleted
 [X] Make adding notes more frictionless
 [ ] Make icons for note input
-[ ] Width of drag boxes is wrong
-[ ] Automatically group notes to correct grouping
+[X] Width of drag boxes is wrong
+[X] Automatically group notes to correct grouping
 
 
 

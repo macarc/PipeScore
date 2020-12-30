@@ -19,6 +19,10 @@ function groupNotes(stave: StaveModel): GroupNoteModel[] {
   return flatten(stave.bars.map(b => Bar.groupNotes(b)));
 }
 
+function bars(stave: StaveModel): BarModel[] {
+  return stave.bars;
+}
+
 const trebleClef = (x: number, y: number) => svg`
   <g transform=${`translate(${x + 5} ${y - 25}) scale(0.08)`}>
       <g class="Layer 1" transform="matrix(.21599 0 0 .21546 -250.44 -1202.6)">
@@ -76,5 +80,6 @@ const init: () => StaveModel = () => ({
 export default {
   render,
   init,
-  groupNotes
+  groupNotes,
+  bars
 }
