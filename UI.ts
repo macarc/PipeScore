@@ -20,6 +20,16 @@ function render(state: State) {
     </button>`;
 
 
+  const changeZoomLevel = () => {
+    const element = document.getElementById('zoom-level');
+    if (element !== null) {
+      const newZoomLevel = parseInt((element as HTMLInputElement).value);
+      if (! isNaN(newZoomLevel)) {
+        dispatch({ name: 'change zoom level', zoomLevel: newZoomLevel });
+      }
+    }
+  }
+
   return html`
     <div>
       UI
@@ -49,6 +59,8 @@ function render(state: State) {
       <button onclick=${() => dispatch({ name: 'toggle dotted' })}>
         Toggle dotted
       </button>
+      <label>Zoom Level</label>
+      <input id="zoom-level" type="range" min="10" max="200" step="5" oninput=${changeZoomLevel} />
     </div>
   `;
 }

@@ -16,7 +16,11 @@ function bars(score: ScoreModel): BarModel[] {
   return flatten(score.staves.map(stave => Stave.bars(stave)));
 }
 
-function render(score: ScoreModel): Svg {
+interface ScoreProps {
+  zoomLevel: number
+}
+
+function render(score: ScoreModel, props: ScoreProps): Svg {
   const width = 210 * 5;
   const height = 297 * 5;
   const margin = 30;
@@ -31,7 +35,7 @@ function render(score: ScoreModel): Svg {
     previousStave: score.staves[index - 1] || null,
   });
 
-  return svg`<svg width=${width} height=${height} onmouseup=${() => dispatch({ name: 'mouse up' })}>
+  return svg`<svg width=${width * props.zoomLevel / 100} height=${height * props.zoomLevel / 100} viewBox=${`0 0 ${width} ${height}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
     <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`

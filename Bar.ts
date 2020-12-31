@@ -2,7 +2,7 @@ import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes } from './all';
 import { log, log2, unlog, unlog2 } from './all';
 import Note, { GroupNoteModel, NoteModel, lastNoteOfWholeNote, totalBeatWidth } from './Note';
-import TimeSignature, { TimeSignatureModel } from './TimeSignature';
+import TimeSignature, { TimeSignatureModel, timeSignatureWidth } from './TimeSignature';
 import { dispatch } from './Controller';
 
 
@@ -16,8 +16,6 @@ interface BarProps {
   y: number,
   width: number,
   previousBar: BarModel | null,
-  draggedNote: NoteModel | null,
-  dragNote: (note: NoteModel) => void,
 }
 
 
@@ -27,6 +25,9 @@ function groupNotes(bar: BarModel) {
 
 function render(bar: BarModel,props: BarProps): Svg {
   const staveY = props.y;
+  const hasTimeSignature = props.previousBar !== null ? props.previousBar.timeSignature === bar.timeSignature : true;
+  const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0);
+  const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
 
 
   const previousWholeNote = props.previousBar ? props.previousBar.notes[props.previousBar.notes.length - 1] : null;
@@ -43,9 +44,9 @@ function render(bar: BarModel,props: BarProps): Svg {
     [1]);
   
   const totalNumberOfBeats = beats[beats.length - 1];
-  const beatWidth = props.width / totalNumberOfBeats;
+  const beatWidth = width / totalNumberOfBeats;
 
-  const getX = (noteIndex: number) => props.x + beatWidth * beats[noteIndex];
+  const getX = (noteIndex: number) => xAfterTimeSignature + beatWidth * beats[noteIndex];
 
 
   const noteProps = (note: GroupNoteModel,index: number) => ({
@@ -56,20 +57,19 @@ function render(bar: BarModel,props: BarProps): Svg {
       ? previousNote || null
       : bar.notes[index - 1] ? lastNoteOfWholeNote(bar.notes[index - 1]) : null,
     selectedNotes: [],
-    draggedNote: props.draggedNote,
   });
 
 
   return svg`
     <g class="bar">
-      ${noteBoxes(props.x,staveY, props.width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
-      ${noteBoxes(props.x, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
+      ${noteBoxes(xAfterTimeSignature,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
+      ${noteBoxes(xAfterTimeSignature, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
       )}
 
       <line x1=${props.x} x2=${props.x} y1=${staveY} y2=${lineHeightOf(4) + props.y} stroke="black" />
-      ${TimeSignature.render(bar.timeSignature, { x: props.x + 10, y: props.y })}
+      ${hasTimeSignature ? TimeSignature.render(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
     </g>`;
 
 }

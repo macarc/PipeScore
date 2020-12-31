@@ -16,6 +16,7 @@ A massive checklist
 [X] Add notes before first note in bar and in empty bar
 [X] Deleting multiple notes doesn't work
 [ ] todo in groupNotes function
+[X] Add zoom
 
 
 
@@ -24,7 +25,6 @@ End user features:
 [X] Single notes
 [X] Note groups
 [X] Modifying notes
-[?] Rests
 [X] Adding notes
 [X] Reactive gracenotes
 [ ] Time signatures

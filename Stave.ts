@@ -52,8 +52,6 @@ function render(stave: StaveModel, props: StaveProps): Svg {
     y: staveHeight,
     width: barWidth,
     previousBar: previousBar(index),
-    draggedNote: null,
-    dragNote: () => null
   });
 
   return svg`

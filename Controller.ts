@@ -21,7 +21,8 @@ type ScoreEvent
   | SetInputLength
   | StopInputtingNotes
   | NoteAdded
-  | ToggleDotted;
+  | ToggleDotted
+  | ChangeZoomLevel;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -101,6 +102,14 @@ function isToggleDotted(e: ScoreEvent): e is ToggleDotted {
   return e.name === 'toggle dotted';
 }
 
+type ChangeZoomLevel = {
+  name: 'change zoom level',
+  zoomLevel: number
+}
+function isChangeZoomLevel(e: ScoreEvent): e is ScoreEvent {
+  return e.name === 'change zoom level';
+}
+
 
 
 export interface State {
@@ -109,7 +118,8 @@ export interface State {
   selectedNotes: Set<NoteModel>,
   hoveredPitch: Pitch,
   focused: boolean,
-  noteInputLength: NoteLength | null
+  noteInputLength: NoteLength | null,
+  zoomLevel: number
 }
 
 
@@ -120,7 +130,8 @@ let currentState: State = {
   selectedNotes: new Set(),
   hoveredPitch: Pitch.A,
   focused: true,
-  noteInputLength: null
+  noteInputLength: null,
+  zoomLevel: 100
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -196,6 +207,11 @@ export function dispatch(event: ScoreEvent): void {
   } else if (isToggleDotted(event)) {
     currentState.selectedNotes.forEach(note => note.length = toggleDot(note.length));
     changed = true;
+  } else if (isChangeZoomLevel(event)) {
+    if (event.zoomLevel !== currentState.zoomLevel) {
+      currentState.zoomLevel = event.zoomLevel;
+      changed = true;
+    }
   } else {
     return event;
   }
@@ -217,7 +233,7 @@ const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
   const uiRoot = document.getElementById("ui");
   if (!scoreRoot || !uiRoot) return;
-  render(scoreRoot, Score.render(newState.score));
+  render(scoreRoot, Score.render(newState.score, { zoomLevel: currentState.zoomLevel }));
   render(uiRoot, UI.render(newState));
 }
 
@@ -243,10 +259,10 @@ function makeCorrectGroupings() {
 
 
 
-document.addEventListener('DOMContentLoaded', () => {
+export default function startController() {
   window.addEventListener('keydown', keyHandler);
   currentState.score = Score.init();
   // initially set the notes to be the right groupings
   makeCorrectGroupings();
   updateView(currentState);
-});
+}
