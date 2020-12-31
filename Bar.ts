@@ -2,10 +2,12 @@ import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes } from './all';
 import { log, log2, unlog, unlog2 } from './all';
 import Note, { GroupNoteModel, NoteModel, lastNoteOfWholeNote, totalBeatWidth } from './Note';
+import { TimeSignature } from './TimeSignature';
 import { dispatch } from './Controller';
 
 
 export interface BarModel {
+  timeSignature: TimeSignature,
   notes: GroupNoteModel[]
 }
 
@@ -69,9 +71,9 @@ function render(bar: BarModel,props: BarProps): Svg {
     </g>`;
 
 }
-const init = () => ({
+const init: () => BarModel = () => ({
+  timeSignature: [2, 4],
   notes: [Note.init(),Note.init()]
-
 })
 
 export default {

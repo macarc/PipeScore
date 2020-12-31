@@ -46,6 +46,9 @@ function render(state: State) {
         <option value="birl">Birl</value>
         <option value="g-gracenote-birl">G Gracenote Birl</value>
       </select>
+      <button onclick=${() => dispatch({ name: 'toggle dotted' })}>
+        Toggle dotted
+      </button>
     </div>
   `;
 }

@@ -1,7 +1,8 @@
 import { render } from 'uhtml';
 import { Pitch, flatten } from './all';
-import { NoteLength, numberToNoteLength, noteLengthToNumber } from './NoteLength';
+import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes } from './Note';
+import { timeSignatureToBeatDivision } from './TimeSignature';
 import Score, { ScoreModel } from './Score';
 import UI from './UI';
 
@@ -19,7 +20,8 @@ type ScoreEvent
   | SetGracenoteOnSelected
   | SetInputLength
   | StopInputtingNotes
-  | NoteAdded;
+  | NoteAdded
+  | ToggleDotted;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -90,6 +92,13 @@ type NoteAdded = {
 }
 function isNoteAdded(e: ScoreEvent): e is NoteAdded {
   return e.name === 'note added';
+}
+
+type ToggleDotted = {
+  name:  'toggle dotted'
+}
+function isToggleDotted(e: ScoreEvent): e is ToggleDotted {
+  return e.name === 'toggle dotted';
 }
 
 
@@ -181,7 +190,9 @@ export function dispatch(event: ScoreEvent): void {
       changed = true;
       recalculateNoteGroupings = true
     }
-
+  } else if (isToggleDotted(event)) {
+    currentState.selectedNotes.forEach(note => note.length = toggleDot(note.length));
+    changed = true;
   } else {
     return event;
   }
@@ -223,7 +234,7 @@ function makeCorrectGroupings() {
   const noteModels = bars.map(b => unGroupNotes(b.notes));
   for (let i=0; i < bars.length; i++) {
     // todo actually pass the correct time signature
-    bars[i].notes = groupNotes(noteModels[i], 1);
+    bars[i].notes = groupNotes(noteModels[i], timeSignatureToBeatDivision(bars[i].timeSignature));
   }
 }
 

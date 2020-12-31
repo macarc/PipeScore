@@ -1,3 +1,5 @@
+// todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for
+// it to be finished unless used with another dottedHemiDemiSemiQuaver which is pretty unlikely
 export const enum NoteLength {
   Semibreve = 'sb',
   DottedMinim = 'dm', Minim = 'm',
@@ -166,4 +168,21 @@ export function groupNoteLengths(lengths: NoteLength[], lengthOfGroup: number): 
   return groupedLengths;
 }
 
+export function toggleDot(length: NoteLength): NoteLength {
+  switch(length) {
+    case NoteLength.Semibreve: return NoteLength.Semibreve;
+    case NoteLength.DottedMinim: return NoteLength.Minim;
+    case NoteLength.Minim: return NoteLength.DottedMinim;
+    case NoteLength.DottedCrotchet: return NoteLength.Crotchet;
+    case NoteLength.Crotchet: return NoteLength.DottedCrotchet;
+    case NoteLength.DottedQuaver: return NoteLength.Quaver;
+    case NoteLength.Quaver: return NoteLength.DottedQuaver;
+    case NoteLength.DottedSemiQuaver: return NoteLength.SemiQuaver;
+    case NoteLength.SemiQuaver: return NoteLength.DottedSemiQuaver;
+    case NoteLength.DottedDemiSemiQuaver: return NoteLength.DemiSemiQuaver;
+    case NoteLength.DemiSemiQuaver: return NoteLength.DottedDemiSemiQuaver;
+    case NoteLength.DottedHemiDemiSemiQuaver: return NoteLength.HemiDemiSemiQuaver;
+    case NoteLength.HemiDemiSemiQuaver: return NoteLength.DottedHemiDemiSemiQuaver;
+  }
+}
 

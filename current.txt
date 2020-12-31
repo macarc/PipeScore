@@ -3,15 +3,14 @@ A massive checklist
 [x] fix slanted beams
 [ ] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
-[ ] calculate diff/e.t.c separately if there is a rest between notes
 [X] combine rests somehow into a single rest (if there are multiple next to each other)
 [X] placing notes from a blank score (of different lengths)
-[ ] only do rest thing with rest under mouse (maybe)
 [ ] fix random errors with adding note (it just throws an error sometimes)
 [ ] HG -> HA gracenote on next note looks a bit crushed
 [X] Any time rests are merged, some notes are deleted
 [X] Make adding notes more frictionless
 [ ] Make icons for note input
+[ ] Dotted note can get crushed into next gracenote
 [X] Width of drag boxes is wrong
 [X] Automatically group notes to correct grouping
 
