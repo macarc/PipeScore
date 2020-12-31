@@ -162,11 +162,14 @@ export function dispatch(event: ScoreEvent): void {
       const notes = flatten(groupedNotes.map(g => g.notes));
       // quadratic!
       groupedNotes.forEach(g => {
+        // Need to slice it so that deleting inside the loop works
+        const newNotes = g.notes.slice();
         g.notes.forEach(note => {
           if (currentState.selectedNotes.has(note)) {
-            g.notes.splice(g.notes.indexOf(note), 1);
+            newNotes.splice(newNotes.indexOf(note), 1);
           }
         });
+        g.notes = newNotes;
       });
       currentState.selectedNotes = new Set();
       changed = true;

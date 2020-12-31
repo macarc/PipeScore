@@ -13,6 +13,9 @@ A massive checklist
 [ ] Dotted note can get crushed into next gracenote
 [X] Width of drag boxes is wrong
 [X] Automatically group notes to correct grouping
+[X] Add notes before first note in bar and in empty bar
+[X] Deleting multiple notes doesn't work
+[ ] todo in groupNotes function
 
 
 

@@ -59,6 +59,8 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       currentGroup = { notes: splitNotes.slice(1) };
     }
   });
+  // pushes the last notes to the groupedNotes
+  // this also ensures that the length will never be 0, even if there are 0 notes
   groupedNotes.push(currentGroup);
   return groupedNotes;
 }

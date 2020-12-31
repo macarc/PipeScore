@@ -1,6 +1,7 @@
 import { svg } from 'uhtml';
 import { lineHeightOf, Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
+import TimeSignature from './TimeSignature';
 import Bar, { BarModel } from './Bar';
 
 export interface StaveModel {
