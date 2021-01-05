@@ -60,7 +60,7 @@ function render(state: State) {
         Toggle dotted
       </button>
       <label>Zoom Level</label>
-      <input id="zoom-level" type="range" min="10" max="200" step="5" oninput=${changeZoomLevel} />
+      <input id="zoom-level" type="range" min="10" max="200" step="2" value=${state.zoomLevel} oninput=${changeZoomLevel} />
     </div>
   `;
 }

@@ -3,10 +3,13 @@ import { Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
 import { BarModel } from './Bar';
 import Stave, { StaveModel } from './Stave';
+import TextBox, { TextBoxModel } from './TextBox';
 import { dispatch } from './Controller';
 
 export interface ScoreModel {
-  staves: StaveModel[]
+  staves: StaveModel[],
+  // an array rather than a set since it makes rendering easier (with map)
+  textBoxes: TextBoxModel[]
 }
 
 function groupNotes(score: ScoreModel): GroupNoteModel[] {
@@ -17,6 +20,7 @@ function bars(score: ScoreModel): BarModel[] {
 }
 
 interface ScoreProps {
+  svgRef: any,
   zoomLevel: number
 }
 
@@ -35,18 +39,25 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
     previousStave: score.staves[index - 1] || null,
   });
 
-  return svg`<svg width=${width * props.zoomLevel / 100} height=${height * props.zoomLevel / 100} viewBox=${`0 0 ${width} ${height}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
+  const textBoxProps = (textBox: TextBoxModel, index: number) => ({
+    id: index
+  });
+
+  return svg`<svg ref=${props.svgRef} width=${width * props.zoomLevel / 100} height=${height * props.zoomLevel / 100} viewBox=${`0 0 ${width} ${height}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
     <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`
       ${Stave.render(stave, staveProps(stave,idx))}
     `)}
+
+    ${score.textBoxes.map((textBox, idx) => svg.for(textBox)`${TextBox.render(textBox, textBoxProps(textBox, idx))}`)}
   </svg>`;
 };
 
 
 const init: () => ScoreModel = () => ({
-  staves: [Stave.init(),Stave.init()]
+  staves: [Stave.init(),Stave.init()],
+  textBoxes: [TextBox.init()]
 });
 
 export default {

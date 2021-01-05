@@ -249,12 +249,15 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         // difference between first and last notes in a group
         noteOffset(lastNote.pitch)
         - noteOffset(firstNote.pitch),
-        10);
+        30 / note.notes.length);
 
 
       
 
       const [lowestNote,lowestNoteIndex,multipleLowest]: [NoteModel,number,boolean] = note.notes.reduce((last,next, index) => {
+        if (index === 0) {
+          return last;
+        }
         const [lowestNoteSoFar,lowestNoteIndexSoFar,_] = last;
         if (noteOffset(next.pitch) === noteOffset(lowestNoteSoFar.pitch)) {
           return [lowestNoteSoFar, lowestNoteIndexSoFar, true];
@@ -264,6 +267,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
           return last;
         }
       }, <[NoteModel,number,boolean]>[firstNote,0, false]);
+
 
 
       const stemOffset = (note: NoteModel) => 

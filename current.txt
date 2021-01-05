@@ -1,7 +1,8 @@
 A massive checklist
 
+
 [x] fix slanted beams
-[ ] cap should be dependent on how many notes are in the group
+[X] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
 [X] combine rests somehow into a single rest (if there are multiple next to each other)
 [X] placing notes from a blank score (of different lengths)
@@ -27,7 +28,7 @@ End user features:
 [X] Modifying notes
 [X] Adding notes
 [X] Reactive gracenotes
-[ ] Time signatures
+[X] Time signatures
 [ ] Repeat marks, second timings
 [ ] Anacrusis
 [ ] Note ties

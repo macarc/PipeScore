@@ -3,6 +3,7 @@ import { Pitch, flatten } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes } from './Note';
 import { timeSignatureToBeatDivision } from './TimeSignature';
+import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel } from './Score';
 import UI from './UI';
 
@@ -22,7 +23,10 @@ type ScoreEvent
   | StopInputtingNotes
   | NoteAdded
   | ToggleDotted
-  | ChangeZoomLevel;
+  | ChangeZoomLevel
+  | TextClicked
+  | TextMouseUp
+  | TextDragged;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -106,11 +110,22 @@ type ChangeZoomLevel = {
   name: 'change zoom level',
   zoomLevel: number
 }
-function isChangeZoomLevel(e: ScoreEvent): e is ScoreEvent {
+function isChangeZoomLevel(e: ScoreEvent): e is ChangeZoomLevel {
   return e.name === 'change zoom level';
 }
 
+type TextClicked = {
+  name: 'text clicked',
+  text: TextBoxModel
+}
+function isTextClicked(e: ScoreEvent): e is TextClicked {
+  return e.name === 'text clicked';
+}
 
+
+interface SvgRef {
+  current: SVGSVGElement | null
+}
 
 export interface State {
   score: ScoreModel,
@@ -119,19 +134,39 @@ export interface State {
   hoveredPitch: Pitch,
   focused: boolean,
   noteInputLength: NoteLength | null,
-  zoomLevel: number
+  zoomLevel: number,
+  draggedText: TextBoxModel | null,
+  currentSvg: SvgRef
+}
+
+type TextDragged = {
+  name: 'text dragged',
+  x: number,
+  y: number
+}
+function isTextDragged(e: ScoreEvent): e is TextDragged {
+  return e.name === 'text dragged';
+}
+
+type TextMouseUp = {
+  name: 'text mouse up'
+}
+function isTextMouseUp(e: ScoreEvent): e is TextMouseUp {
+  return e.name === 'text mouse up';
 }
 
 
 let currentState: State = {
-  score: { staves: [] },
+  score: Score.init(),
 
   draggedNote: null,
   selectedNotes: new Set(),
   hoveredPitch: Pitch.A,
   focused: true,
   noteInputLength: null,
-  zoomLevel: 100
+  zoomLevel: 100,
+  draggedText: null,
+  currentSvg: { current: null }
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -212,6 +247,15 @@ export function dispatch(event: ScoreEvent): void {
       currentState.zoomLevel = event.zoomLevel;
       changed = true;
     }
+  } else if (isTextClicked(event)) {
+    currentState.draggedText = event.text;
+  } else if (isTextMouseUp(event)) {
+    currentState.draggedText = null;
+  } else if (isTextDragged(event)) {
+    if (currentState.draggedText !== null) {
+      setCoords(currentState.draggedText, event.x, event.y);
+      changed = true
+    }
   } else {
     return event;
   }
@@ -233,7 +277,7 @@ const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
   const uiRoot = document.getElementById("ui");
   if (!scoreRoot || !uiRoot) return;
-  render(scoreRoot, Score.render(newState.score, { zoomLevel: currentState.zoomLevel }));
+  render(scoreRoot, Score.render(newState.score, { svgRef: currentState.currentSvg, zoomLevel: currentState.zoomLevel }));
   render(uiRoot, UI.render(newState));
 }
 
@@ -257,10 +301,30 @@ function makeCorrectGroupings() {
   }
 }
 
+function dragText(event: MouseEvent) {
+  if (currentState.draggedText !== null) {
+    const svg = currentState.currentSvg.current;
+    if (svg == null) {
+      return;
+    } else {
+      const CTM = svg.getScreenCTM();
+      if (CTM == null) return;
+      const pt = svg.createSVGPoint();
+      pt.x = event.clientX;
+      pt.y = event.clientY;
+
+      const svgPt = pt.matrixTransform(CTM.inverse());
+
+      dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
+    }
+  }
+}
+
 
 
 export default function startController() {
   window.addEventListener('keydown', keyHandler);
+  window.addEventListener('mousemove', dragText);
   currentState.score = Score.init();
   // initially set the notes to be the right groupings
   makeCorrectGroupings();
