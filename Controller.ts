@@ -1,7 +1,7 @@
 import { render } from 'uhtml';
 import { Pitch, flatten } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
-import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes } from './Note';
+import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel } from './Score';
@@ -244,7 +244,7 @@ export function dispatch(event: ScoreEvent): void {
      }
   } else if (isNoteAdded(event)) {
     if (currentState.noteInputLength !== null) {
-      event.note.notes.splice(event.index, 0, { pitch: event.pitch, length: currentState.noteInputLength, gracenote: null });
+      event.note.notes.splice(event.index, 0, initNoteModel(event.pitch, currentState.noteInputLength));
       changed = true;
       recalculateNoteGroupings = true
     }

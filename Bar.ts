@@ -1,7 +1,7 @@
 import { svg } from 'uhtml';
-import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes } from './all';
+import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY } from './all';
 import { log, log2, unlog, unlog2 } from './all';
-import Note, { GroupNoteModel, NoteModel, lastNoteOfWholeNote, totalBeatWidth } from './Note';
+import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfWholeNote, totalBeatWidth, lastNoteXOffset } from './Note';
 import TimeSignature, { TimeSignatureModel, timeSignatureWidth } from './TimeSignature';
 import { dispatch } from './Controller';
 
@@ -49,13 +49,36 @@ function render(bar: BarModel,props: BarProps): Svg {
   const getX = (noteIndex: number) => xAfterTimeSignature + beatWidth * beats[noteIndex];
 
 
+  function previousNoteData(index: number): PreviousNote | null {
+    const lastNote = (index > 0 || null) && lastNoteOfWholeNote(bar.notes[index - 1]);
+    if (index === 0) {
+      if (previousNote !== null) {
+        return ({
+          pitch: previousNote,
+          // TODO return correct x value
+          x: 0,
+          y: noteY(props.y, previousNote)
+        });
+      } else {
+        return null;
+      }
+    } else if (lastNote !== null) {
+      const noteBeforeThat = (index < 2) ? null : lastNoteOfWholeNote(bar.notes[index - 2]);
+      return ({
+        pitch: lastNote,
+        x: getX(index - 1) + lastNoteXOffset(beatWidth, bar.notes[index - 1], noteBeforeThat),
+        y: noteY(props.y, lastNote)
+      })
+    } else {
+      return null;
+    }
+  }
+
   const noteProps = (note: GroupNoteModel,index: number) => ({
     x: getX(index),
     y: staveY,
     noteWidth: beatWidth,
-    previousNote: index === 0
-      ? previousNote || null
-      : bar.notes[index - 1] ? lastNoteOfWholeNote(bar.notes[index - 1]) : null,
+    previousNote: previousNoteData(index),
     selectedNotes: [],
   });
 

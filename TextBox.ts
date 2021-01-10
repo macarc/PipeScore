@@ -31,7 +31,7 @@ function render(tx: TextBoxModel, props: TextBoxProps): Svg {
 const init = () => ({
   x: 10,
   y: 100,
-  text: "<Insert text>"
+  text: "<Double Click to edit>"
 });
 
 

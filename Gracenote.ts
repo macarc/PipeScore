@@ -10,7 +10,7 @@ interface InvalidGracenote {
 function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is InvalidGracenote {
   return (gracenote as InvalidGracenote).gracenote != null;
 }
-type GracenoteFn = (note: Pitch, prev: Pitch | null) => Pitch[] | InvalidGracenote;
+type GracenoteFn = (note: Pitch, prev: Pitch | null) => Gracenote | InvalidGracenote;
 
 const invalidateIf = (pred: boolean, gracenote: Gracenote): Gracenote | InvalidGracenote => pred ? ({ gracenote }) : gracenote;
 
@@ -88,6 +88,11 @@ interface SingleGracenote {
   note: Pitch,
 }
 
+interface NoGracenote {
+  type: 'none'
+}
+
+export type GracenoteModel = ReactiveGracenote | SingleGracenote | NoGracenote;
 
 
 const tailXOffset: number = 3;
@@ -110,8 +115,11 @@ function notes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch |
       return notes(thisNote,previousNote);
     }
     return [];
-  } else {
+  } else if (gracenote.type === 'none') {
     return [];
+  } else {
+    // never
+    return gracenote;
   }
 }
 
@@ -173,18 +181,17 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
         )}
       </g>`;
     }
+  } else if (gracenote.type === 'none') {
+    return svg`<g class="no-gracenote"></g>`;
   } else {
     return gracenote;
   }
 }
 
 const init: () => GracenoteModel = () => ({
-  type: 'reactive',
-  name: 'doubling'
+  type: 'none',
 });
 
-
-export type GracenoteModel = ReactiveGracenote | SingleGracenote;
 export default {
   render,
   init,
