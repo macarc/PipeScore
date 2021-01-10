@@ -20,3 +20,7 @@ html {
 .current-note-input {
   background-color: yellow;
 }
+
+text {
+  user-select: none;
+}

@@ -24,7 +24,7 @@ export function setCoords(tx: TextBoxModel, x: number, y: number){
 
 function render(tx: TextBoxModel, props: TextBoxProps): Svg {
   return svg`
-    <text x=${tx.x} y=${tx.y} onmousedown=${() => dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => dispatch({ name: 'text mouse up' })} >${tx.text}</text>
+    <text x=${tx.x} y=${tx.y} ondblclick=${() => dispatch({ name: 'edit text', text: tx })} onmousedown=${() => dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => dispatch({ name: 'text mouse up' })} >${tx.text}</text>
   `;
 }
 

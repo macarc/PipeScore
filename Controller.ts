@@ -26,7 +26,8 @@ type ScoreEvent
   | ChangeZoomLevel
   | TextClicked
   | TextMouseUp
-  | TextDragged;
+  | TextDragged
+  | EditText;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -120,6 +121,14 @@ type TextClicked = {
 }
 function isTextClicked(e: ScoreEvent): e is TextClicked {
   return e.name === 'text clicked';
+}
+
+type EditText = {
+  name: 'edit text',
+  text: TextBoxModel
+}
+function isEditText(e: ScoreEvent): e is EditText {
+  return e.name === 'edit text';
 }
 
 
@@ -255,6 +264,12 @@ export function dispatch(event: ScoreEvent): void {
     if (currentState.draggedText !== null) {
       setCoords(currentState.draggedText, event.x, event.y);
       changed = true
+    }
+  } else if (isEditText(event)) {
+    const newText = prompt("Enter new text:", event.text.text);
+    if (newText && newText !== event.text.text) {
+      event.text.text = newText;
+      changed = true;
     }
   } else {
     return event;
