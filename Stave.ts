@@ -2,7 +2,7 @@ import { svg } from 'uhtml';
 import { lineHeightOf, Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
 import TimeSignature from './TimeSignature';
-import Bar, { BarModel } from './Bar';
+import Bar, { BarModel, xOffsetOfLastNote } from './Bar';
 
 export interface StaveModel {
   bars: BarModel[]
@@ -51,6 +51,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
     x: getX(index),
     y: staveHeight,
     width: barWidth,
+    lastNoteX: index === 0 ? null : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth),
     previousBar: previousBar(index),
   });
 
