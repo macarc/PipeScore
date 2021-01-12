@@ -1,8 +1,7 @@
 /*
-  This just has some useful things each of which are too small to have their own module,
-  but don't really fit anywhere else.
+  all.ts - general helper functions and global types for PipeScore
+  Copyright (C) 2020 Archie Maclean
 */
-
 
 import { render, html, svg, Hole } from 'uhtml';
 export const log = (a: any) => {

@@ -1,3 +1,7 @@
+/*
+  Bar.ts - Bar (measure) implementation for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY } from './all';
 import { log, log2, unlog, unlog2 } from './all';

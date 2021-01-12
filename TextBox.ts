@@ -1,3 +1,7 @@
+/*
+  TextBox.ts - Text Box functionality for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { Svg } from './all';
 import { svg } from 'uhtml';
 import { dispatch } from './Controller';

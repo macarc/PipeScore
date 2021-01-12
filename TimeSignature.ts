@@ -1,3 +1,7 @@
+/*
+  TimeSignature.ts - Time Signature implementation for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { svg } from 'uhtml';
 import { Svg } from './all';
 import { NoteLength } from './NoteLength';

@@ -1,3 +1,7 @@
+/*
+  Gracenote.ts - Gracenote implementation for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { Pitch, lineGap, noteY, Svg, log } from './all';
 import { svg } from 'uhtml';
 

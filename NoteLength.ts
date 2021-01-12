@@ -1,3 +1,7 @@
+/*
+  NoteLength.ts - helper functions for note lengths for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { removeNull } from './all';
 
 // todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for

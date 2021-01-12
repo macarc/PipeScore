@@ -1,3 +1,7 @@
+/*
+  UI.ts - User interface for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { ScoreModel } from './Score';
 import { log } from './all';
 import { NoteLength } from './NoteLength';

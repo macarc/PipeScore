@@ -1,3 +1,7 @@
+/*
+  Score.ts - Score implementation for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { svg } from 'uhtml';
 import { Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';

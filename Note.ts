@@ -1,3 +1,7 @@
+/*
+  Note.ts - Note implementation for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { svg } from 'uhtml';
 import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull } from './all';
 import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
