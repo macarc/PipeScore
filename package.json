@@ -1,14 +1,14 @@
 {
-  "name": "pipescore",
-  "version": "1.0.0",
-  "description": "",
-  "main": "Bar.js",
+  "name": "PipeScore",
+  "version": "0.4.0",
+  "description": "A web-based bagpipe notation app.",
+  "main": "PipeScore.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel index.html"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0",
   "dependencies": {
     "parcel-bundler": "^1.12.4",
     "uhtml": "^2.1.4"
