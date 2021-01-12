@@ -25,6 +25,8 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
   // todo - I'm not sure which file this should go in
   // I feel like it should go in NoteLengths.ts but then it is quite hard to convert back
   // from NoteLength[][] to GroupNote[] since some notelengths might be added
+
+  // TODO should merge tied notes together if possible
   const groupedNotes: GroupNoteModel[] = [];
   let currentGroup: GroupNoteModel = { notes: [] },
     currentLength = 0;
@@ -44,7 +46,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
       const splitNotes = splitNoteLengths.map(length => {
-        let x: NoteModel = initNoteModel(note.pitch, length);
+        let x: NoteModel = initNoteModel(note.pitch, length, true);
         return x;
       });
       splitNotes[0].gracenote = note.gracenote;
@@ -52,7 +54,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       groupedNotes.push(currentGroup);
 
       // TODO - check if it goes over another group
-      currentLength = splitLengths.slice(1).reduce((a,b) => a + b);
+      currentLength = splitLengths.splice(1).reduce((a,b) => a + b);
       currentGroup = { notes: splitNotes.slice(1) };
     }
   });
@@ -170,9 +172,26 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
 };
 
 function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote): Svg {
+  const tieOffsetY = 10;
+  const tieHeight = 15;
+  const tieWidth = 8;
   const y = noteY(staveY, pitch);
-  return svg`<line x1=${x} x2=${previousNote.x} y1=${y} y2=${previousNote.y} stroke="black">`
+  const x0 = x - 1;
+  const y0 = y - tieOffsetY;
+  const x1 = previousNote.x + 1;
+  const y1 = previousNote.y - tieOffsetY;
+  const midx = previousNote.x + (x - previousNote.x) / 2.0;
+  const midy = y0 + (y1 - y0) / 2.0;
+  const midloy = midy - tieHeight;
+  const midhiy = midy - tieHeight - tieWidth;
+  const path = `
+M ${x0},${y0} S ${midx},${midhiy}, ${x1},${y1}
+M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
+    `;
+  return svg`<path d=${path} stroke="black">`;
 }
+
+const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
 function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null): Svg {
   // todo this is complected with stemXOf in `render`
@@ -182,8 +201,8 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
 
 
   return svg`<g class="singleton">
-    ${(note.tied && previousNote !== null) ? tie(y, note.pitch, x, previousNote) : null}
-    ${note.tied === false ? Gracenote.render(note.gracenote, gracenoteProps) : null}
+    ${shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null}
+    ${shouldTie(note, previousNote) ?  Gracenote.render(note.gracenote, gracenoteProps) : null}
 
     ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
     ${hasStem(note.length) ? svg`<line
@@ -323,8 +342,8 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
               })()
 
               return svg.for(shortNote)`<g class="grouped-note">
-                ${(shortNote.tied && previousNoteObj !== null) ? tie(props.y, shortNote.pitch, xOf(index), previousNoteObj) : null}
-                ${shortNote.tied === false ? Gracenote.render(shortNote.gracenote,gracenoteProps) : null}
+                ${shouldTie(shortNote, previousNoteObj) ? tie(props.y, shortNote.pitch, xOf(index), previousNoteObj) : null}
+                ${shouldTie(shortNote, previousNoteObj) ?  Gracenote.render(shortNote.gracenote,gracenoteProps) : null}
 
                 ${noteHead(xOf(index), yOf(shortNote), shortNote, (event: MouseEvent) => dispatch({ name: 'note clicked', note: shortNote, event }))}
 
@@ -349,11 +368,11 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
   }
 };
 
-export const initNoteModel: (pitch: Pitch, length: NoteLength) => NoteModel = (pitch: Pitch, length: NoteLength) => ({
+export const initNoteModel = (pitch: Pitch, length: NoteLength, tied: boolean = false) => ({
   pitch,
   length,
   gracenote: Gracenote.init(),
-  tied: true
+  tied: false
 });
 
 const init: () => GroupNoteModel = () => ({

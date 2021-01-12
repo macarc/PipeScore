@@ -1,9 +1,6 @@
 A massive checklist
 
 
-next:
-check if ties work in all circumstances
-
 [x] fix slanted beams
 [X] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
@@ -22,7 +19,8 @@ check if ties work in all circumstances
 [ ] todo in groupNotes function
 [X] Add zoom
 [X] previousNoteData should return correct x value
-[ ] Ties on notes on input (if inputted notes are split)
+[X] Ties on notes on input (if inputted notes are split)
+[ ] Tied notes should move together
 
 
 
