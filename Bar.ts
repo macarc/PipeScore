@@ -34,10 +34,10 @@ export function xOffsetOfLastNote(bar: BarModel, width: number): number {
   const beats = beatsOf(bar, null)
   const totalNumberOfBeats = beats[beats.length - 1];
   const beatWidth = width / totalNumberOfBeats;
-  let index = bar.notes.length - 1;
-  if (numberOfNotes(bar.notes[bar.notes.length - 1]) === 0) index = bar.notes.length - 2;
-  if (index >= 0) {
-    return beatWidth * beats[index] + lastNoteXOffset(beatWidth, bar.notes[index], lastNoteOfGroupNote(bar.notes[index - 1]) || null);
+  let lastNoteIndex = bar.notes.length - 1;
+  if (numberOfNotes(bar.notes[bar.notes.length - 1]) === 0) lastNoteIndex = bar.notes.length - 2;
+  if (lastNoteIndex >= 0) {
+    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1]) || null);
   } else {
     return 0;
   }

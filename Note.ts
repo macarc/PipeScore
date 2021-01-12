@@ -26,12 +26,12 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
   // I feel like it should go in NoteLengths.ts but then it is quite hard to convert back
   // from NoteLength[][] to GroupNote[] since some notelengths might be added
 
-  // TODO should merge tied notes together if possible
-  const groupedNotes: GroupNoteModel[] = [];
   let currentGroup: GroupNoteModel = { notes: [] },
+  groupedNotes: GroupNoteModel[] = [],
   currentLength = 0,
   previousLength = 0;
   const pushNote = (currentGroup: GroupNoteModel, note: NoteModel, length: number, previousLength: number): number => {
+    // add a note to the end - also merges notes if it can and they are tied
     if (note.tied && previousLength !== 0) {
         const newLength = length + previousLength;
         const newNoteLength = numberToNoteLength(newLength);
@@ -60,6 +60,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       previousLength = 0;
     } else {
       // currentLength + length > lengthOfGroup
+      if (isNaN(lengthOfGroup - currentLength)) debugger;
 
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
@@ -68,13 +69,26 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       // It is set to be true, so override with the correct value
       splitNotes[0].tied = note.tied;
       pushNote(currentGroup, splitNotes[0], noteLengthToNumber(splitNotes[0].length), previousLength);
-      //currentGroup.notes.push(splitNotes[0]);
       groupedNotes.push(currentGroup);
-
-      // TODO - check if it goes over another group
-      currentLength = splitLengths.splice(1).reduce((a,b) => a + b);
-      currentGroup = { notes: splitNotes.slice(1) };
       previousLength = 0;
+
+      currentLength = splitLengths.splice(1).reduce((a,b) => a + b);
+
+      // If it goes over multiple groups, then add all the groups and use the last one
+      if (currentLength > lengthOfGroup) {
+        const currentNotesGroup = groupNotes(splitNotes.slice(1), lengthOfGroup);
+        groupedNotes = groupedNotes.concat(currentNotesGroup.slice(0, currentNotesGroup.length - 1));
+        currentGroup = currentNotesGroup[currentNotesGroup.length - 1];
+        currentLength = currentGroup.notes.reduce((a,b) => a + noteLengthToNumber(b.length), 0);
+      } else {
+        currentGroup = { notes: [] };
+        if (splitNotes.length > 1) {
+          splitNotes.slice(1).forEach(n => {
+            const current = noteLengthToNumber(n.length);
+            previousLength = pushNote(currentGroup, n, current, previousLength);
+          });
+        }
+      }
     }
   });
   // pushes the last notes to the groupedNotes

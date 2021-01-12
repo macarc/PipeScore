@@ -1,6 +1,10 @@
 A massive checklist
 
+next:
+check a few more cases of splitting large notes
 
+
+a todo list:
 [x] fix slanted beams
 [X] cap should be dependent on how many notes are in the group
 [X] check / fix gaps between notes
@@ -16,11 +20,12 @@ A massive checklist
 [X] Automatically group notes to correct grouping
 [X] Add notes before first note in bar and in empty bar
 [X] Deleting multiple notes doesn't work
-[ ] todo in groupNotes function
+[X] todo in groupNotes function
 [X] Add zoom
 [X] previousNoteData should return correct x value
 [X] Ties on notes on input (if inputted notes are split)
 [ ] Tied notes should move together
+[X] When splitting really large notes right after a short note, the large note gets split into too many short notes
 
 
 
@@ -36,7 +41,7 @@ End user features:
 [ ] Anacrusis
 [ ] Note ties
 [ ] Adding staves / bars
-[ ] Text boxes
+[X] Text boxes
 [ ] Multiple scores per page
 [ ] Documentation
 [ ] Saving / Loading
