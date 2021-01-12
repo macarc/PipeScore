@@ -48,6 +48,10 @@ export const noteOffset = (note: Pitch) => lineHeightOf(pitchToHeight(note));
 // return the y value of given note
 export const noteY = (staveY: number, note: Pitch) => staveY + noteOffset(note);
 
+export function removeNull<A>(a: A | null): a is A {
+  return a !== null;
+}
+
 
 
 export type Svg = Hole;

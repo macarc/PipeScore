@@ -1,3 +1,5 @@
+import { removeNull } from './all';
+
 // todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for
 // it to be finished unless used with another dottedHemiDemiSemiQuaver which is pretty unlikely
 export const enum NoteLength {
@@ -56,7 +58,7 @@ export function noteLengthToNumber(length: NoteLength): number {
   }
 }
 
-export function numberToNoteLength(length: number): NoteLength {
+export function numberToNoteLength(length: number): NoteLength | null {
   switch (length) {
     case 4: return NoteLength.Semibreve;
     case 3: return NoteLength.DottedMinim;
@@ -71,7 +73,7 @@ export function numberToNoteLength(length: number): NoteLength {
     case 0.125: return NoteLength.DemiSemiQuaver;
     case 0.9375: return NoteLength.DottedHemiDemiSemiQuaver;
     case 0.0625: return NoteLength.HemiDemiSemiQuaver;
-    default: return NoteLength.Crotchet;
+    default: return null;
   }
 }
 
@@ -91,7 +93,9 @@ export function splitLengthNumber(longLength: number, splitInto: number): number
 }
 
 export function splitLength(longLength: NoteLength, splitInto: NoteLength): NoteLength[] {
-  return splitLengthNumber(noteLengthToNumber(longLength), noteLengthToNumber(splitInto)).map(numberToNoteLength)
+  return splitLengthNumber(noteLengthToNumber(longLength), noteLengthToNumber(splitInto))
+    .map(numberToNoteLength)
+    .filter(removeNull);
 }
 
 
@@ -139,6 +143,7 @@ export function noteLengthToNumTails(length: NoteLength): number {
 }
 
 // Old version of groupNotes in Note.ts
+/*
 export function groupNoteLengths(lengths: NoteLength[], lengthOfGroup: number): NoteLength[][] {
   const groupedLengths = [];
   let currentGroup: NoteLength[] = [], currentLength = 0;
@@ -167,6 +172,7 @@ export function groupNoteLengths(lengths: NoteLength[], lengthOfGroup: number): 
   }
   return groupedLengths;
 }
+*/
 
 export function toggleDot(length: NoteLength): NoteLength {
   switch(length) {

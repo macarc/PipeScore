@@ -1,5 +1,5 @@
 import { svg } from 'uhtml';
-import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten } from './all';
+import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull } from './all';
 import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
 import { dispatch, isSelected, isBeingDragged } from './Controller';
@@ -29,33 +29,52 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
   // TODO should merge tied notes together if possible
   const groupedNotes: GroupNoteModel[] = [];
   let currentGroup: GroupNoteModel = { notes: [] },
-    currentLength = 0;
+  currentLength = 0,
+  previousLength = 0;
+  const pushNote = (currentGroup: GroupNoteModel, note: NoteModel, length: number, previousLength: number): number => {
+    if (note.tied && previousLength !== 0) {
+        const newLength = length + previousLength;
+        const newNoteLength = numberToNoteLength(newLength);
+        if (newNoteLength === null) {
+          currentGroup.notes.push(note);
+          return length;
+        } else {
+          currentGroup.notes[currentGroup.notes.length - 1].length = newNoteLength;
+          return newLength;
+        }
+      } else {
+        currentGroup.notes.push(note);
+        return length;
+      }
+    };
   notes.forEach(note => {
     const length = noteLengthToNumber(note.length);
     if (currentLength + length < lengthOfGroup) {
-      currentGroup.notes.push(note);
+      previousLength = pushNote(currentGroup, note, length, previousLength);
       currentLength += length;
     } else if (currentLength + length === lengthOfGroup) {
-      currentGroup.notes.push(note);
+      pushNote(currentGroup, note, length, previousLength);
       groupedNotes.push(currentGroup);
       currentLength = 0;
       currentGroup = { notes: [] };
+      previousLength = 0;
     } else {
       // currentLength + length > lengthOfGroup
 
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
-      const splitNotes = splitNoteLengths.map(length => {
-        let x: NoteModel = initNoteModel(note.pitch, length, true);
-        return x;
-      });
+      const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, /* it won't be true if it is the first note, but that is overwritten a few lines later */true));
       splitNotes[0].gracenote = note.gracenote;
-      currentGroup.notes.push(splitNotes[0]);
+      // It is set to be true, so override with the correct value
+      splitNotes[0].tied = note.tied;
+      pushNote(currentGroup, splitNotes[0], noteLengthToNumber(splitNotes[0].length), previousLength);
+      //currentGroup.notes.push(splitNotes[0]);
       groupedNotes.push(currentGroup);
 
       // TODO - check if it goes over another group
       currentLength = splitLengths.splice(1).reduce((a,b) => a + b);
       currentGroup = { notes: splitNotes.slice(1) };
+      previousLength = 0;
     }
   });
   // pushes the last notes to the groupedNotes
@@ -372,7 +391,7 @@ export const initNoteModel = (pitch: Pitch, length: NoteLength, tied: boolean = 
   pitch,
   length,
   gracenote: Gracenote.init(),
-  tied: false
+  tied
 });
 
 const init: () => GroupNoteModel = () => ({
