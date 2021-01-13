@@ -188,13 +188,15 @@ export function dispatch(event: ScoreEvent): void {
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
   let changed = false,
-    recalculateNoteGroupings = false;
+  recalculateNoteGroupings = false,
+  changedNote: NoteModel | null = null;
   if (isMouseMovedOver(event)) {
     if (event.pitch !== currentState.hoveredPitch) {
       currentState.hoveredPitch = event.pitch;
       changed = true;
       if (currentState.draggedNote !== null) {
         currentState.draggedNote.pitch = event.pitch;
+        changedNote = currentState.draggedNote;
         changed = true;
       }
     }
@@ -248,8 +250,11 @@ export function dispatch(event: ScoreEvent): void {
      }
   } else if (isNoteAdded(event)) {
     if (currentState.noteInputLength !== null) {
-      event.note.notes.splice(event.index, 0, initNoteModel(event.pitch, currentState.noteInputLength));
+      const newNote = initNoteModel(event.pitch, currentState.noteInputLength);
+      event.note.notes.splice(event.index, 0, newNote);
       changed = true;
+      // todo - should this need to be set?
+      changedNote = newNote;
       recalculateNoteGroupings = true
     }
   } else if (isToggleDotted(event)) {
@@ -277,6 +282,10 @@ export function dispatch(event: ScoreEvent): void {
     }
   } else {
     return event;
+  }
+
+  if (changedNote) {
+    makeCorrectTie(changedNote);
   }
 
   if (recalculateNoteGroupings) {
@@ -310,6 +319,19 @@ function keyHandler(e: KeyboardEvent) {
   }
 }
 
+
+function makeCorrectTie(noteModel: NoteModel) {
+  const bars = Score.bars(currentState.score);
+  const noteModels = flatten(bars.map(b => unGroupNotes(b.notes)));
+  for (let i=0; i < noteModels.length; i++) {
+    if (i === 0 && noteModels[i] === noteModel) {
+      break;
+    } else if (noteModels[i] === noteModel) {
+      if (noteModel.tied) noteModels[i - 1].pitch = noteModel.pitch;
+      if (noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
+    }
+  }
+}
 
 function makeCorrectGroupings() {
   const bars = Score.bars(currentState.score);

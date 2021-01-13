@@ -108,7 +108,7 @@ function render(bar: BarModel,props: BarProps): Svg {
     y: staveY,
     noteWidth: beatWidth,
     previousNote: previousNoteData(index),
-    selectedNotes: [],
+    selectedNotes: []
   });
 
 

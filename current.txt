@@ -1,8 +1,5 @@
 A massive checklist
 
-next:
-check a few more cases of splitting large notes
-
 
 a todo list:
 [x] fix slanted beams
@@ -24,8 +21,9 @@ a todo list:
 [X] Add zoom
 [X] previousNoteData should return correct x value
 [X] Ties on notes on input (if inputted notes are split)
-[ ] Tied notes should move together
+[X] Tied notes should move together
 [X] When splitting really large notes right after a short note, the large note gets split into too many short notes
+[ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
 
 
 
