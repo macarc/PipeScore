@@ -63,11 +63,9 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       currentGroup = { notes: [] };
       previousLength = 0;
     } else {
-      // currentLength + length > lengthOfGroup
-
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
-      const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, /* it won't be true if it is the first note, but that is overwritten a few lines later */true));
+      const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, true));
       splitNotes[0].gracenote = note.gracenote;
       // It is set to be true, so override with the correct value
       splitNotes[0].tied = note.tied;

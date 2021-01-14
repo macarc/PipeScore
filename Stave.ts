@@ -57,6 +57,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
     width: barWidth,
     lastNoteX: index === 0 ? null : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
     previousBar: previousBar(index),
+    shouldRenderLastBarline: index === (stave.bars.length - 1)
   });
 
   return svg`

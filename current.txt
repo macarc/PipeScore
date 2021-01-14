@@ -39,7 +39,8 @@ End user features:
 [X] Adding notes
 [X] Reactive gracenotes
 [X] Time signatures
-[ ] Repeat marks, second timings
+[ ] Repeat marks
+[ ] Second timings
 [ ] Anacrusis
 [ ] Note ties
 [ ] Adding staves / bars

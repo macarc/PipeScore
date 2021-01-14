@@ -31,7 +31,6 @@ interface BarProps {
   width: number,
   previousBar: BarModel | null,
   lastNoteX: number | null,
-  shouldRenderLastBarline: boolean
 }
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
@@ -81,46 +80,39 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
 
 function renderBarline(type: Barline, x: number, y: number): Svg {
   const height = lineHeightOf(4);
-  const lineOffset = 6;
+  const lineOffset = 5;
   const circleXOffset = 10;
   const topCircleY = y + lineHeightOf(1);
   const bottomCircleY = y + lineHeightOf(3);
   const circleRadius = 2;
-  const thickLineWidth = 2.5;
   if (type === Barline.Normal) {
     return svg`
       <line x1=${x} x2=${x} y1=${y} y2=${y + height} stroke="black" />
     `;
   } else if (type === Barline.RepeatFirst) {
     return svg`
-      <rect x=${x} y=${y} width=${thickLineWidth} height=${height} fill="black" />
+      <rect x=${x} y=${y} width=${2} height=${height} fill="black" />
       <line x1=${x + lineOffset} x2=${x + lineOffset} y1=${y} y2=${y + height} stroke="black" />
       <circle cx=${x + circleXOffset} cy=${topCircleY} r=${circleRadius} fill="black" />
       <circle cx=${x + circleXOffset} cy=${bottomCircleY} r=${circleRadius} fill="black" />
     `;
   } else if (type === Barline.RepeatLast) {
     return svg`
-      <rect x=${x - thickLineWidth} y=${y} width=${thickLineWidth} height=${height} fill="black" />
-      <line x1=${x - lineOffset} x2=${x - lineOffset} y1=${y} y2=${y + height} stroke="black" />
+      <rect x=${x} y=${y} width=${2} height=${height} fill="black" />
+      <line x1=${x - lineOffset} x2=${x + lineOffset} y1=${y} y2=${y + height} stroke="black" />
       <circle cx=${x - circleXOffset} cy=${topCircleY} r=${circleRadius} fill="black" />
       <circle cx=${x - circleXOffset} cy=${bottomCircleY} r=${circleRadius} fill="black" />
     `;
   } else {
-    // never
-    return type;
+    return null;
   }
-}
-
-function barlineWidth(barline: Barline) {
-  return (barline === Barline.Normal ? 1 : 10);
 }
 
 function render(bar: BarModel,props: BarProps): Svg {
   const staveY = props.y;
   const hasTimeSignature = props.previousBar !== null ? props.previousBar.timeSignature === bar.timeSignature : true;
-  const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
+  const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0);
   const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
-  const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.frontBarline);
 
 
 
@@ -145,7 +137,7 @@ function render(bar: BarModel,props: BarProps): Svg {
   const totalNumberOfBeats = beats[beats.length - 1];
   const beatWidth = width / totalNumberOfBeats;
 
-  const getX = (noteIndex: number) => xAfterBarline + beatWidth * beats[noteIndex];
+  const getX = (noteIndex: number) => xAfterTimeSignature + beatWidth * beats[noteIndex];
 
 
   function previousNoteData(index: number): PreviousNote | null {
@@ -183,14 +175,13 @@ function render(bar: BarModel,props: BarProps): Svg {
 
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
-      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
+      ${noteBoxes(xAfterTimeSignature,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
+      ${noteBoxes(xAfterTimeSignature, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
       )}
 
-      ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
-      ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
+      ${renderBarline(bar.frontBarline, props.x, props.y)}
       ${hasTimeSignature ? TimeSignature.render(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
     </g>`;
 
@@ -198,7 +189,7 @@ function render(bar: BarModel,props: BarProps): Svg {
 const init: () => BarModel = () => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
-  frontBarline: Barline.Normal,
+  frontBarline: Barline.RepeatFirst,
   backBarline: Barline.Normal
 })
 
