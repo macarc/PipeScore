@@ -328,7 +328,7 @@ function makeCorrectTie(noteModel: NoteModel) {
       break;
     } else if (noteModels[i] === noteModel) {
       if (noteModel.tied) noteModels[i - 1].pitch = noteModel.pitch;
-      if (noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
+      if ((i < noteModels.length - 1) && noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
     }
   }
 }

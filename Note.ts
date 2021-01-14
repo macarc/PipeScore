@@ -64,7 +64,6 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       previousLength = 0;
     } else {
       // currentLength + length > lengthOfGroup
-      if (isNaN(lengthOfGroup - currentLength)) debugger;
 
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
@@ -79,7 +78,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       currentLength = splitLengths.splice(1).reduce((a,b) => a + b);
 
       // If it goes over multiple groups, then add all the groups and use the last one
-      if (currentLength > lengthOfGroup) {
+      if (currentLength >= lengthOfGroup) {
         const currentNotesGroup = groupNotes(splitNotes.slice(1), lengthOfGroup);
         groupedNotes = groupedNotes.concat(currentNotesGroup.slice(0, currentNotesGroup.length - 1));
         currentGroup = currentNotesGroup[currentNotesGroup.length - 1];
@@ -230,7 +229,7 @@ M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null): Svg {
+function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, noteBoxes: () => Svg): Svg {
   // todo this is complected with stemXOf in `render`
   const stemX = x - noteHeadWidth;
   const stemY = noteY(y,note.pitch) + 30;
@@ -251,6 +250,10 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
       />` : null}
     ${numberOfTails > 0 ? svg`<g class="tails">
       ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" stroke-width="2" />`)}
+
+
+    ${noteBoxes()}
+
     </g>` : null}
   `;
 };
@@ -302,8 +305,9 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         thisNote: firstNote.pitch,
         previousNote: previousPitch
       });
+      const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', pitch, index: 1, note: note }))
 
-      return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote);
+      return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb);
     } else {
 
       const cap = (n: number, cap: number) =>
@@ -413,11 +417,7 @@ export const initNoteModel = (pitch: Pitch, length: NoteLength, tied: boolean = 
 });
 
 const init: () => GroupNoteModel = () => ({
-	notes: [
-    initNoteModel(Pitch.A, NoteLength.Quaver),
-    initNoteModel(Pitch.HG, NoteLength.SemiQuaver),
-    initNoteModel(Pitch.HA, NoteLength.SemiQuaver)
-  ]
+	notes: [ ]
 });
 
 export default {

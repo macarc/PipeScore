@@ -34,14 +34,34 @@ function groupNotes(bar: BarModel) {
   return bar.notes;
 }
 
-export function xOffsetOfLastNote(bar: BarModel, width: number): number {
-  const beats = beatsOf(bar, null)
-  const totalNumberOfBeats = beats[beats.length - 1];
-  const beatWidth = width / totalNumberOfBeats;
+function lastNoteIndexOfBar(bar: BarModel): number {
   let lastNoteIndex = bar.notes.length - 1;
   if (numberOfNotes(bar.notes[bar.notes.length - 1]) === 0) lastNoteIndex = bar.notes.length - 2;
-  if (lastNoteIndex >= 0) {
-    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1]) || null);
+  return lastNoteIndex;
+}
+
+function lastNoteOfBar(bar: BarModel): Pitch | null {
+  const lastGroupNote = bar.notes[lastNoteIndexOfBar(bar)] || null;
+  if (lastGroupNote !== null) {
+    return lastNoteOfGroupNote(lastGroupNote);
+  } else {
+    return null;
+  }
+}
+
+function numberOfGroupNotes(bar: BarModel): number {
+  return lastNoteIndexOfBar(bar) + 1;
+}
+
+export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
+  const lastNoteIndex = lastNoteIndexOfBar(bar);
+  const lastNote = lastNoteOfBar(bar);
+  const previousBarLastNote = previousBar ? lastNoteOfBar(previousBar) : null;
+  if (lastNote !== null) {
+    const beats = beatsOf(bar, null)
+    const totalNumberOfBeats = beats[beats.length - 1];
+    const beatWidth = width / totalNumberOfBeats;
+    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], (numberOfGroupNotes(bar) === 1 ? previousBarLastNote : lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1])) || null);
   } else {
     return 0;
   }
@@ -80,7 +100,7 @@ function render(bar: BarModel,props: BarProps): Svg {
 
 
   function previousNoteData(index: number): PreviousNote | null {
-    const lastNote = (index > 0 || null) && lastNoteOfGroupNote(bar.notes[index - 1]);
+    const lastNote = (index > 0) ? lastNoteOfGroupNote(bar.notes[index - 1]) : null;
     if (index === 0) {
       if (previousNote !== null && props.lastNoteX !== null) {
         return ({

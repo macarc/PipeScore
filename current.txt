@@ -24,6 +24,10 @@ a todo list:
 [X] Tied notes should move together
 [X] When splitting really large notes right after a short note, the large note gets split into too many short notes
 [ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
+[X] Notes can't be added to the end of the bar
+[X] Placing a minim then one before it causes stack overflow
+[X] Placing a single quaver and then moving the mouse causes an error
+[ ] Placing a note inside two tied notes should probably break the tie
 
 
 
