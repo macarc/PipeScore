@@ -28,6 +28,10 @@ export function timeSignatureToBeatDivision(ts: TimeSignatureModel): number {
   }
 }
 
+export function timeSignatureEqual(ts0: TimeSignatureModel, ts1: TimeSignatureModel): boolean {
+  return ts0[0] === ts1[0] && ts0[1] === ts1[1];
+}
+
 
 interface TimeSignatureProps {
   x: number,

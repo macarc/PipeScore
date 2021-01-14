@@ -6,7 +6,7 @@ import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY } from './all';
 import { log, log2, unlog, unlog2 } from './all';
 import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
-import TimeSignature, { TimeSignatureModel, timeSignatureWidth } from './TimeSignature';
+import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
 import { dispatch } from './Controller';
 
 
@@ -21,7 +21,7 @@ export interface BarModel {
   timeSignature: TimeSignatureModel,
   notes: GroupNoteModel[],
   frontBarline: FrontBarline,
-  backBarline: Barline.RepeatLast | Barline.Normal
+  backBarline: BackBarline
 }
 
 
@@ -92,19 +92,19 @@ function renderBarline(type: Barline, x: number, y: number): Svg {
       <line x1=${x} x2=${x} y1=${y} y2=${y + height} stroke="black" />
     `;
   } else if (type === Barline.RepeatFirst) {
-    return svg`
+    return svg`<g class="barline-repeat-first">
       <rect x=${x} y=${y} width=${thickLineWidth} height=${height} fill="black" />
       <line x1=${x + lineOffset} x2=${x + lineOffset} y1=${y} y2=${y + height} stroke="black" />
       <circle cx=${x + circleXOffset} cy=${topCircleY} r=${circleRadius} fill="black" />
       <circle cx=${x + circleXOffset} cy=${bottomCircleY} r=${circleRadius} fill="black" />
-    `;
+    </g>`;
   } else if (type === Barline.RepeatLast) {
-    return svg`
+    return svg`<g class="barline-repeat-last">
       <rect x=${x - thickLineWidth} y=${y} width=${thickLineWidth} height=${height} fill="black" />
       <line x1=${x - lineOffset} x2=${x - lineOffset} y1=${y} y2=${y + height} stroke="black" />
       <circle cx=${x - circleXOffset} cy=${topCircleY} r=${circleRadius} fill="black" />
       <circle cx=${x - circleXOffset} cy=${bottomCircleY} r=${circleRadius} fill="black" />
-    `;
+    </g>`;
   } else {
     // never
     return type;
@@ -117,7 +117,7 @@ function barlineWidth(barline: Barline) {
 
 function render(bar: BarModel,props: BarProps): Svg {
   const staveY = props.y;
-  const hasTimeSignature = props.previousBar !== null ? props.previousBar.timeSignature === bar.timeSignature : true;
+  const hasTimeSignature = props.previousBar !== null ? !(timeSignatureEqual(props.previousBar.timeSignature, bar.timeSignature)) : true;
   const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
   const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
   const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.frontBarline);
