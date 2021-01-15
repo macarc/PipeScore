@@ -28,6 +28,17 @@ function bars(stave: StaveModel): BarModel[] {
   return stave.bars;
 }
 
+export function addBarToStave(stave: StaveModel, bar: BarModel) {
+  const ind = stave.bars.indexOf(bar);
+  if (ind !== -1)
+    stave.bars.splice(ind + 1, 0, Bar.init());
+}
+export function deleteBarFromStave(stave: StaveModel, bar: BarModel) {
+  const ind = stave.bars.indexOf(bar);
+  if (ind !== -1)
+    stave.bars.splice(ind, 1);
+}
+
 const trebleClef = (x: number, y: number) => svg`
   <g transform=${`translate(${x + 5} ${y - 25}) scale(0.08)`}>
       <g class="Layer 1" transform="matrix(.21599 0 0 .21546 -250.44 -1202.6)">

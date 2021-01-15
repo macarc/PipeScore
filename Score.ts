@@ -22,6 +22,21 @@ function groupNotes(score: ScoreModel): GroupNoteModel[] {
 function bars(score: ScoreModel): BarModel[] {
   return flatten(score.staves.map(stave => Stave.bars(stave)));
 }
+function staves(score: ScoreModel): StaveModel[] {
+  return score.staves;
+}
+
+export function addStaveToScore(score: ScoreModel, afterStave: StaveModel) {
+  const ind = score.staves.indexOf(afterStave);
+  if (ind !== -1)
+    score.staves.splice(ind + 1, 0, Stave.init());
+}
+
+export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel) {
+  const ind = score.staves.indexOf(stave);
+  if (ind !== -1)
+    score.staves.splice(ind, 1);
+}
 
 interface ScoreProps {
   svgRef: any,
@@ -68,5 +83,6 @@ export default {
   render,
   init,
   groupNotes,
-  bars
+  bars,
+  staves
 }

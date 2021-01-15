@@ -8,7 +8,10 @@ import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from '.
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
-import Score, { ScoreModel } from './Score';
+import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore } from './Score';
+import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
+import { BarModel } from './Bar';
+import Stave from './Stave';
 import UI from './UI';
 
 // Events
@@ -31,7 +34,11 @@ type ScoreEvent
   | TextClicked
   | TextMouseUp
   | TextDragged
-  | EditText;
+  | EditText
+  | AddBar
+  | AddStave
+  | DeleteBar
+  | DeleteStave;
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -133,6 +140,34 @@ type EditText = {
 }
 function isEditText(e: ScoreEvent): e is EditText {
   return e.name === 'edit text';
+}
+
+type AddBar = {
+  name: 'add bar'
+}
+function isAddBar(e: ScoreEvent): e is AddBar {
+  return e.name === 'add bar';
+}
+
+type DeleteBar = {
+  name: 'delete bar'
+}
+function isDeleteBar(e: ScoreEvent): e is DeleteBar {
+  return e.name === 'delete bar';
+}
+
+type AddStave = {
+  name: 'add stave'
+}
+function isAddStave(e: ScoreEvent): e is AddStave {
+  return e.name === 'add stave';
+}
+
+type DeleteStave = {
+  name: 'delete stave'
+}
+function isDeleteStave(e: ScoreEvent): e is DeleteStave {
+  return e.name === 'delete stave';
 }
 
 
@@ -280,6 +315,22 @@ export function dispatch(event: ScoreEvent): void {
       event.text.text = newText;
       changed = true;
     }
+  } else if (isAddBar(event)) {
+    const { bar, stave } = currentBar([...currentState.selectedNotes.values()][0]);
+    addBarToStave(stave, bar);
+    changed = true;
+  } else if (isDeleteBar(event)) {
+    const { bar, stave } = currentBar([...currentState.selectedNotes.values()][0]);
+    deleteBarFromStave(stave, bar);
+    changed = true;
+  } else if (isAddStave(event)) {
+    const { stave } = currentBar([...currentState.selectedNotes.values()][0]);
+    addStaveToScore(currentState.score, stave);
+    changed = true;
+  } else if (isDeleteStave(event)) {
+    const { stave } = currentBar([...currentState.selectedNotes.values()][0]);
+    deleteStaveFromScore(currentState.score, stave);
+    changed = true;
   } else {
     return event;
   }
@@ -359,6 +410,21 @@ function dragText(event: MouseEvent) {
       dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
     }
   }
+}
+
+function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
+  const staves = Score.staves(currentState.score);
+  for (const stave of staves) {
+    const bars = Stave.bars(stave);
+    for (const bar of bars) {
+      const noteModels = unGroupNotes(bar.notes);
+      if (noteModels.includes(note)) {
+        return { stave, bar };
+      }
+    }
+  }
+
+  return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
 }
 
 

@@ -63,6 +63,18 @@ function render(state: State) {
       <button onclick=${() => dispatch({ name: 'toggle dotted' })}>
         Toggle dotted
       </button>
+      <button onclick=${() => dispatch({ name: 'add bar' })}>
+        Add Bar After
+      </button>
+      <button onclick=${() => dispatch({ name: 'delete bar' })}>
+        Delete Bar
+      </button>
+      <button onclick=${() => dispatch({ name: 'add stave' })}>
+        Add Stave After
+      </button>
+      <button onclick=${() => dispatch({ name: 'delete stave' })}>
+        Delete Stave
+      </button>
       <label>Zoom Level</label>
       <input id="zoom-level" type="range" min="10" max="200" step="2" value=${state.zoomLevel} oninput=${changeZoomLevel} />
     </div>
