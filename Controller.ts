@@ -3,9 +3,11 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
-import { Pitch, flatten } from './all';
+import { Pitch, flatten, SvgRef } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
-import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
+import { NoteModel, initNoteModel } from './NoteModel';
+import { GroupNoteModel, groupNotes, unGroupNotes } from './GroupNote';
+import { AnyNoteModel } from './Note';
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore } from './Score';
@@ -106,7 +108,7 @@ type NoteAdded = {
   name: 'note added',
   pitch: Pitch,
   index: number,
-  note: GroupNoteModel
+  note: AnyNoteModel
 }
 function isNoteAdded(e: ScoreEvent): e is NoteAdded {
   return e.name === 'note added';
@@ -171,10 +173,6 @@ function isDeleteStave(e: ScoreEvent): e is DeleteStave {
   return e.name === 'delete stave';
 }
 
-
-interface SvgRef {
-  current: SVGSVGElement | null
-}
 
 export interface State {
   score: ScoreModel,
@@ -290,12 +288,15 @@ export function dispatch(event: ScoreEvent): void {
      }
   } else if (isNoteAdded(event)) {
     if (currentState.noteInputLength !== null) {
+      // TODO
+      /*
       const newNote = initNoteModel(event.pitch, currentState.noteInputLength);
       event.note.notes.splice(event.index, 0, newNote);
       changed = true;
       // todo - should this need to be set?
       changedNote = newNote;
       recalculateNoteGroupings = true
+      */
     }
   } else if (isToggleDotted(event)) {
     currentState.selectedNotes.forEach(note => note.length = toggleDot(note.length));
@@ -361,7 +362,9 @@ const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
   const uiRoot = document.getElementById("ui");
   if (!scoreRoot || !uiRoot) return;
-  render(scoreRoot, Score.render(newState.score, { svgRef: currentState.currentSvg, zoomLevel: currentState.zoomLevel }));
+
+  const displayScore = Score.prerender(newState.score, { svgRef: currentState.currentSvg, zoomLevel: currentState.zoomLevel });
+  render(scoreRoot, Score.render(displayScore));
   render(uiRoot, UI.render(newState));
 }
 
@@ -376,7 +379,9 @@ function keyHandler(e: KeyboardEvent) {
 }
 
 
+// TODO
 function makeCorrectTie(noteModel: NoteModel) {
+  /*
   const bars = Score.bars(currentState.score);
   const noteModels = flatten(bars.map(b => unGroupNotes(b.notes)));
   for (let i=0; i < noteModels.length; i++) {
@@ -387,18 +392,23 @@ function makeCorrectTie(noteModel: NoteModel) {
       if ((i < noteModels.length - 1) && noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
     }
   }
+  */
 }
 
 function makeCorrectGroupings() {
+  /* TODO
   const bars = Score.bars(currentState.score);
   const noteModels = bars.map(b => unGroupNotes(b.notes));
   for (let i=0; i < bars.length; i++) {
     // todo actually pass the correct time signature
     bars[i].notes = groupNotes(noteModels[i], timeSignatureToBeatDivision(bars[i].timeSignature));
   }
+  */
 }
 
 function dragText(event: MouseEvent) {
+  // TODO
+  /*
   if (currentState.draggedText !== null) {
     const svg = currentState.currentSvg.current;
     if (svg == null) {
@@ -415,10 +425,13 @@ function dragText(event: MouseEvent) {
       dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
     }
   }
+  */
 }
 
 function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
   const staves = Score.staves(currentState.score);
+  // TODO
+  /*
   for (const stave of staves) {
     const bars = Stave.bars(stave);
     for (const bar of bars) {
@@ -428,6 +441,7 @@ function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
       }
     }
   }
+  */
 
   return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
 }

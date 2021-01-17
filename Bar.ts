@@ -5,8 +5,11 @@
 import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY } from './all';
 import { log, log2, unlog, unlog2 } from './all';
-import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
-import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
+import Note, { lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes, DisplayNote } from './Note';
+import { GroupNoteModel } from './GroupNote';
+import { NoteModel, PreviousNote } from './NoteModel';
+import { AnyNoteModel } from './Note';
+import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual, DisplayTimeSignature } from './TimeSignature';
 import { dispatch } from './Controller';
 
 
@@ -17,9 +20,16 @@ enum Barline {
 type FrontBarline = Barline.RepeatFirst | Barline.Normal;
 type BackBarline = Barline.RepeatLast | Barline.Normal;
 
+interface DisplayBarline {
+  display: boolean,
+  type: Barline,
+  x: number,
+  y: number
+}
+
 export interface BarModel {
   timeSignature: TimeSignatureModel,
-  notes: GroupNoteModel[],
+  notes: AnyNoteModel[],
   frontBarline: FrontBarline,
   backBarline: BackBarline
 }
@@ -79,7 +89,11 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
 }
 
 
-function renderBarline(type: Barline, x: number, y: number): Svg {
+function renderBarline(display: DisplayBarline): Svg {
+  if (! display.display) return svg``;
+  const x = display.x;
+  const y = display.y;
+  const type = display.type;
   const height = lineHeightOf(4);
   const lineOffset = 6;
   const circleXOffset = 10;
@@ -115,7 +129,34 @@ function barlineWidth(barline: Barline) {
   return (barline === Barline.Normal ? 1 : 10);
 }
 
-function render(bar: BarModel,props: BarProps): Svg {
+function render(display: DisplayBar): Svg {
+  return svg`
+    <g class="bar">
+      ${noteBoxes(display.barLeft, display.y, display.barLeft - display.barRight, display.mouseOverPitch)}
+      ${noteBoxes(display.barLeft, display.y, display.endNoteBoxWidth, display.mouseOverPitch, display.noteAddedToEnd)}
+      ${display.notes.map(note => svg.for(note)`${Note.render(note)}`)}
+
+      ${renderBarline(display.frontBarline)}
+      ${renderBarline(display.backBarline)}
+      ${(display.timeSignature !== null) ? TimeSignature.render(display.timeSignature) : null}
+    </g>`;
+
+}
+
+export interface DisplayBar {
+  barLeft: number,
+  barRight: number,
+  y: number,
+  endNoteBoxWidth: number,
+  mouseOverPitch: (pitch: Pitch) => void,
+  noteAddedToEnd: (pitch: Pitch) => void,
+  notes: DisplayNote[],
+  frontBarline: DisplayBarline,
+  backBarline: DisplayBarline,
+  timeSignature: DisplayTimeSignature | null
+}
+
+function prerender(bar: BarModel, props: BarProps): DisplayBar {
   const staveY = props.y;
   const hasTimeSignature = props.previousBar !== null ? !(timeSignatureEqual(props.previousBar.timeSignature, bar.timeSignature)) : true;
   const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
@@ -172,29 +213,37 @@ function render(bar: BarModel,props: BarProps): Svg {
     }
   }
 
-  const noteProps = (note: GroupNoteModel,index: number) => ({
+  const noteProps = (note: AnyNoteModel,index: number) => ({
     x: getX(index),
     y: staveY,
     noteWidth: beatWidth,
     previousNote: previousNoteData(index),
     selectedNotes: []
   });
-
-
-  return svg`
-    <g class="bar">
-      ${noteBoxes(xAfterBarline,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
-      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
-      ${bar.notes.map(
-        (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
-      )}
-
-      ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
-      ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
-      ${hasTimeSignature ? TimeSignature.render(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
-    </g>`;
-
+  return ({
+    y: staveY,
+    endNoteBoxWidth: beatWidth,
+    mouseOverPitch: pitch => dispatch({ name: 'mouse over pitch', pitch }),
+    noteAddedToEnd: pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }),
+    barLeft: xAfterBarline,
+    barRight: props.x + props.width,
+    notes: bar.notes.map((note, idx) => Note.prerender(note, noteProps(note, idx))),
+    frontBarline: {
+      display: true,
+      type: bar.frontBarline,
+      x: xAfterTimeSignature,
+      y: props.y
+    },
+    backBarline: {
+      display: (bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline,
+      type: bar.backBarline,
+      x: xAfterTimeSignature,
+      y: props.y
+    },
+    timeSignature: hasTimeSignature ? TimeSignature.prerender(bar.timeSignature, { x: props.x + 10, y: props.y }) : null,
+  });
 }
+
 const init: () => BarModel = () => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
@@ -203,6 +252,7 @@ const init: () => BarModel = () => ({
 })
 
 export default {
+  prerender,
   render,
   init,
   groupNotes

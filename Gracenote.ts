@@ -162,7 +162,8 @@ export interface GracenoteProps {
   gracenoteWidth: number,
 }
 
-function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
+function render(display: DisplayGracenote): Svg {
+  const { gracenote, props } = display;
   if (gracenote.type === 'single') {
     return single(gracenote.note, props.x, props.y);
   } else if (gracenote.type === 'reactive') {
@@ -192,11 +193,25 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
   }
 }
 
+export interface DisplayGracenote {
+  // TODO this is just a quick hack so it doesn't display errors
+  gracenote: GracenoteModel,
+  props: GracenoteProps
+}
+
+function prerender(gracenote: GracenoteModel, props: GracenoteProps): DisplayGracenote {
+  return ({
+    gracenote,
+    props
+  });
+}
+
 const init: () => GracenoteModel = () => ({
   type: 'none',
 });
 
 export default {
+  prerender,
   render,
   init,
   numberOfNotes

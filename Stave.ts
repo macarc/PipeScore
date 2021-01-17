@@ -6,7 +6,7 @@ import { svg } from 'uhtml';
 import { lineHeightOf, Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
 import TimeSignature from './TimeSignature';
-import Bar, { BarModel, xOffsetOfLastNote } from './Bar';
+import Bar, { BarModel, xOffsetOfLastNote, DisplayBar } from './Bar';
 
 export interface StaveModel {
   bars: BarModel[]
@@ -49,10 +49,39 @@ const trebleClef = (x: number, y: number) => svg`
 
 const trebleClefWidth = 40;
 
-function render(stave: StaveModel, props: StaveProps): Svg {
+function render(display: DisplayStave): Svg {
+
+  return svg`
+    <g class="stave">
+      ${trebleClef(display.left, display.y)}
+      <g class="notes">
+        ${display.bars.map(
+          (bar) => svg.for(bar)`${Bar.render(bar)}`
+        )}
+      </g>
+      <g class="stave-lines">
+        ${display.stavelines.map(
+          y => svg`<g>
+            <line x1=${display.left} x2=${display.right} y1=${y} y2=${y} stroke="black" pointer-events="none" />
+          </g>`
+        )}
+      </g>
+    </g>
+  `
+};
+
+export interface DisplayStave {
+  left: number,
+  right: number,
+  y: number,
+  bars: DisplayBar[],
+  stavelines: number[]
+}
+
+function prerender(stave: StaveModel, props: StaveProps): DisplayStave {
   const staveHeight = props.y;
   
-  const staveLines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
+  const stavelines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
 
   const barWidth = (props.width - trebleClefWidth) / stave.bars.length;
 
@@ -70,30 +99,20 @@ function render(stave: StaveModel, props: StaveProps): Svg {
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1)
   });
-
-  return svg`
-    <g class="stave">
-      ${trebleClef(props.x, props.y)}
-      <g class="notes">
-        ${stave.bars.map(
-          (bar,idx) => svg.for(bar)`${Bar.render(bar, barProps(bar,idx))}`
-        )}
-      </g>
-      <g class="stave-lines">
-        ${staveLines.map(
-          y => svg`<g>
-            <line x1=${props.x} x2=${props.x + props.width} y1=${y} y2=${y} stroke="black" pointer-events="none" />
-          </g>`
-        )}
-      </g>
-    </g>
-  `
-};
+  return ({
+    left: props.x,
+    right: props.x + props.width,
+    y: props.y,
+    bars: stave.bars.map((bar, idx) => Bar.prerender(bar, barProps(bar,idx))),
+    stavelines
+  });
+}
 const init: () => StaveModel = () => ({
   bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
 })
 
 export default {
+  prerender,
   render,
   init,
   groupNotes,

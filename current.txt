@@ -1,6 +1,11 @@
 A massive checklist
 
 
+next:
+Go through all the TODOS and fix them
+Make a lot of the prerenders more idiomatic
+Make sure adding/removing/grouping/e.t.c. notes works (I just commented them out temporarily)
+
 a todo list:
 [x] fix slanted beams
 [X] cap should be dependent on how many notes are in the group
@@ -30,6 +35,7 @@ a todo list:
 [ ] Placing a note inside two tied notes should probably break the tie
 [ ] Deal with things (ties, second timings, maybe more) going over stave break
 [ ] Somehow do second timings without making render effectful?
+[ ] Work out a better way of prerendering things like noteBoxes, without () => Svg callbacks
 
 
 

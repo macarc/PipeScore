@@ -56,6 +56,11 @@ export function removeNull<A>(a: A | null): a is A {
 export type Svg = Hole;
 export type Html = Hole;
 
+export interface SvgRef {
+  current: SVGSVGElement | null
+}
+
+
 export function flatten(array: any[]): any[] {
   return [].concat.apply([], array);
 }

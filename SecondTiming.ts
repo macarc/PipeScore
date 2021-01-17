@@ -14,7 +14,7 @@ export interface SecondTimingModel {
 
 
 
-function render(secondTiming: SecondTimingModel): Svg {
+function render(display: DisplaySecondTiming): Svg {
   return svg`<g></g>`
 }
 
@@ -25,7 +25,15 @@ const init = (start: NoteModel, middle: NoteModel, end: NoteModel): SecondTiming
   end
 });
 
+export interface DisplaySecondTiming {
+}
+
+function prerender(secondTiming: SecondTimingModel): DisplaySecondTiming {
+  return ({});
+}
+
 export default {
+  prerender,
   render,
   init
 }
