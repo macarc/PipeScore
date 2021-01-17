@@ -28,6 +28,8 @@ a todo list:
 [X] Placing a minim then one before it causes stack overflow
 [X] Placing a single quaver and then moving the mouse causes an error
 [ ] Placing a note inside two tied notes should probably break the tie
+[ ] Deal with things (ties, second timings, maybe more) going over stave break
+[ ] Somehow do second timings without making render effectful?
 
 
 
@@ -43,7 +45,7 @@ End user features:
 [ ] Second timings
 [ ] Anacrusis
 [ ] Note ties
-[ ] Adding staves / bars
+[X] Adding staves / bars
 [X] Text boxes
 [ ] A easy way to input all of the above
 [ ] Multiple scores per page

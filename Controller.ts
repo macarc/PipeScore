@@ -11,6 +11,7 @@ import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
 import { BarModel } from './Bar';
+import SecondTiming from './SecondTiming';
 import Stave from './Stave';
 import UI from './UI';
 
@@ -250,6 +251,10 @@ export function dispatch(event: ScoreEvent): void {
     if (currentState.draggedNote !== null) {
       currentState.selectedNotes.add(currentState.draggedNote);
       currentState.draggedNote = null;
+      if (currentState.selectedNotes.size === 3) {
+        const notesAsList = <[NoteModel, NoteModel, NoteModel]>[...currentState.selectedNotes.values()];
+        currentState.score.secondTimings.push(SecondTiming.init(...notesAsList));
+      }
       changed = true;
     }
   } else if (isDeleteSelectedNotes(event)) {

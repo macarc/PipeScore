@@ -8,12 +8,14 @@ import { GroupNoteModel } from './Note';
 import { BarModel } from './Bar';
 import Stave, { StaveModel } from './Stave';
 import TextBox, { TextBoxModel } from './TextBox';
+import SecondTiming, { SecondTimingModel } from './SecondTiming';
 import { dispatch } from './Controller';
 
 export interface ScoreModel {
   staves: StaveModel[],
   // an array rather than a set since it makes rendering easier (with map)
-  textBoxes: TextBoxModel[]
+  textBoxes: TextBoxModel[],
+  secondTimings: SecondTimingModel[]
 }
 
 function groupNotes(score: ScoreModel): GroupNoteModel[] {
@@ -70,14 +72,22 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
     `)}
 
     ${score.textBoxes.map((textBox, idx) => svg.for(textBox)`${TextBox.render(textBox, textBoxProps(textBox, idx))}`)}
+
+
+    ${score.secondTimings.map((secondTiming) => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
   </svg>`;
 };
 
 
-const init: () => ScoreModel = () => ({
-  staves: [Stave.init(),Stave.init()],
-  textBoxes: [TextBox.init()]
-});
+const init: () => ScoreModel = () => {
+  const firstStave = Stave.init();
+  const secondStave = Stave.init();
+  return ({
+  staves: [firstStave,secondStave],
+  textBoxes: [TextBox.init()],
+  secondTimings: []
+})
+};
 
 export default {
   render,

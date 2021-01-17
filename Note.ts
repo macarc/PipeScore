@@ -63,6 +63,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       currentGroup = { notes: [] };
       previousLength = 0;
     } else {
+      // TODO maybe this shouldn't be doing all this work
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
       const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, true));
@@ -77,6 +78,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
 
       // If it goes over multiple groups, then add all the groups and use the last one
       if (currentLength >= lengthOfGroup) {
+        console.log(splitNotes.slice(1))
         const currentNotesGroup = groupNotes(splitNotes.slice(1), lengthOfGroup);
         groupedNotes = groupedNotes.concat(currentNotesGroup.slice(0, currentNotesGroup.length - 1));
         currentGroup = currentNotesGroup[currentNotesGroup.length - 1];
@@ -248,12 +250,10 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
       />` : null}
     ${numberOfTails > 0 ? svg`<g class="tails">
       ${[...Array(numberOfTails).keys()].map(t => svg`<line x1=${stemX} x2=${stemX + 10} y1=${stemY - 5 * t} y2=${stemY - 5 * t - 10} stroke="black" stroke-width="2" />`)}
-
+    </g>` : null}
 
     ${noteBoxes()}
-
-    </g>` : null}
-  `;
+  </g>`;
 };
 
 
@@ -303,6 +303,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         thisNote: firstNote.pitch,
         previousNote: previousPitch
       });
+
       const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', pitch, index: 1, note: note }))
 
       return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb);
