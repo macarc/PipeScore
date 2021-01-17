@@ -26,10 +26,30 @@ export function setCoords(tx: TextBoxModel, x: number, y: number){
   tx.y = y;
 }
 
-function render(tx: TextBoxModel, props: TextBoxProps): Svg {
+function render(display: DisplayTextBox): Svg {
   return svg`
-    <text x=${tx.x} y=${tx.y} ondblclick=${() => dispatch({ name: 'edit text', text: tx })} onmousedown=${() => dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => dispatch({ name: 'text mouse up' })} >${tx.text}</text>
+    <text x=${display.x} y=${display.y} ondblclick=${display.editText} onmousedown=${display.clickText} onmouseup=${display.mouseUpText} >${display.text}</text>
   `;
+}
+
+export interface DisplayTextBox {
+  x: number,
+  y: number,
+  text: string,
+  editText: () => void,
+  clickText: () => void,
+  mouseUpText: () => void
+}
+
+function prerender(tx: TextBoxModel, props: TextBoxProps): DisplayTextBox {
+  return ({
+    x: tx.x,
+    y: tx.y,
+    text: tx.text,
+    editText: () => dispatch({ name: 'edit text', text: tx }),
+    clickText: () => dispatch({ name: 'text clicked', text: tx }),
+    mouseUpText: () => dispatch({ name: 'text mouse up' })
+  })
 }
 
 const init = () => ({
@@ -40,6 +60,7 @@ const init = () => ({
 
 
 export default {
+  prerender,
   render,
   init
 }

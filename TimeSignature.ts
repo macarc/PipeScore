@@ -38,20 +38,37 @@ interface TimeSignatureProps {
   y: number
 }
 
-function render(timeSignature: TimeSignatureModel, props: TimeSignatureProps): Svg {
-  const y = props.y + 15;
+function render(display: DisplayTimeSignature): Svg {
   return svg`<g class="time-signature">
-    <text x=${props.x} y=${y} font-size="25">${timeSignature[0]}</text>
-    <text x=${props.x} y=${y + 15} font-size="25">${timeSignature[1]}</text>
+    <text x=${display.x} y=${display.topY} font-size="25">${display.top}</text>
+    <text x=${display.x} y=${display.bottomY} font-size="25">${display.bottom}</text>
   </g>`;
 }
 
+export interface DisplayTimeSignature {
+  x: number,
+  topY: number,
+  bottomY: number,
+  top: string,
+  bottom: string
+}
+
+function prerender(timeSignature: TimeSignatureModel, props: TimeSignatureProps): DisplayTimeSignature {
+  return ({
+    x: props.x,
+    topY: props.y + 15,
+    bottomY: props.y + 30,
+    top: timeSignature[0].toString(),
+    bottom: timeSignature[1].toString()
+  })
+}
 
 const init: () => TimeSignatureModel = () => [6,8];
 
 export const timeSignatureWidth = 30;
 
 export default {
+  prerender,
   render,
   init
 }
