@@ -146,38 +146,6 @@ export function noteLengthToNumTails(length: NoteLength): number {
   }
 }
 
-// Old version of groupNotes in Note.ts
-/*
-export function groupNoteLengths(lengths: NoteLength[], lengthOfGroup: number): NoteLength[][] {
-  const groupedLengths = [];
-  let currentGroup: NoteLength[] = [], currentLength = 0;
-  for (let i=0; i < lengths.length; i++) {
-    const length = noteLengthToNumber(lengths[i]);
-    if (currentLength + length < lengthOfGroup) {
-      currentGroup.push(lengths[i]);
-      currentLength += length;
-    } else if (currentLength + length === lengthOfGroup) {
-      currentGroup.push(lengths[i]);
-      groupedLengths.push(currentGroup.slice());
-      currentLength = 0;
-      currentGroup = [];
-    } else {
-      // currentLength + length > lengthOfGroup
-      console.log(length, lengthOfGroup - currentLength);
-      const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
-      const splitNoteLengths = splitLengths.map(numberToNoteLength);
-      currentGroup.push(splitNoteLengths[0]);
-      groupedLengths.push(currentGroup.slice());
-
-      // TODO - check if it goes over another group
-      currentLength = splitLengths.slice(1).reduce((a,b) => a + b);
-      currentGroup = splitNoteLengths.slice(1);
-    }
-  }
-  return groupedLengths;
-}
-*/
-
 export function toggleDot(length: NoteLength): NoteLength {
   switch(length) {
     case NoteLength.Semibreve: return NoteLength.Semibreve;

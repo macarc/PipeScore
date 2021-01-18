@@ -3,6 +3,7 @@ A massive checklist
 
 next:
 Go through all the TODOS and fix them
+Instead of Group / Singleton being different, it shold decide during prerender which to go for
 Make a lot of the prerenders more idiomatic
 Make sure adding/removing/grouping/e.t.c. notes works (I just commented them out temporarily)
 
@@ -36,6 +37,7 @@ a todo list:
 [ ] Deal with things (ties, second timings, maybe more) going over stave break
 [ ] Somehow do second timings without making render effectful?
 [ ] Work out a better way of prerendering things like noteBoxes, without () => Svg callbacks
+[ ] Remove unused imports
 
 
 

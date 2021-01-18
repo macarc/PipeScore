@@ -6,8 +6,7 @@ import { render } from 'uhtml';
 import { Pitch, flatten, SvgRef } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
 import { NoteModel, initNoteModel } from './NoteModel';
-import { GroupNoteModel, groupNotes, unGroupNotes } from './GroupNote';
-import { AnyNoteModel } from './Note';
+import { GroupNoteModel, groupNotes } from './GroupNote';
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore } from './Score';
@@ -108,7 +107,7 @@ type NoteAdded = {
   name: 'note added',
   pitch: Pitch,
   index: number,
-  note: AnyNoteModel
+  note: GroupNoteModel
 }
 function isNoteAdded(e: ScoreEvent): e is NoteAdded {
   return e.name === 'note added';
@@ -288,15 +287,12 @@ export function dispatch(event: ScoreEvent): void {
      }
   } else if (isNoteAdded(event)) {
     if (currentState.noteInputLength !== null) {
-      // TODO
-      /*
       const newNote = initNoteModel(event.pitch, currentState.noteInputLength);
       event.note.notes.splice(event.index, 0, newNote);
       changed = true;
       // todo - should this need to be set?
       changedNote = newNote;
       recalculateNoteGroupings = true
-      */
     }
   } else if (isToggleDotted(event)) {
     currentState.selectedNotes.forEach(note => note.length = toggleDot(note.length));

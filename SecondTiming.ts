@@ -1,6 +1,6 @@
 import { svg } from 'uhtml';
 import { Svg } from './all';
-import { NoteModel } from './Note';
+import { NoteModel } from './NoteModel';
 
 
 

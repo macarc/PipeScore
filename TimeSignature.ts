@@ -6,10 +6,16 @@ import { svg } from 'uhtml';
 import { Svg } from './all';
 import { NoteLength } from './NoteLength';
 
-// todo more denominators
+/* MODEL */
 type Denominator = 4 | 8;
 export type TimeSignatureModel = [number, Denominator];
 
+const init: () => TimeSignatureModel = () => [2,4];
+
+/* CONSTANTS */
+export const timeSignatureWidth = 30;
+
+/* FUNCTIONS */
 export function timeSignatureToNumberOfBeats(ts: TimeSignatureModel): number {
   switch (ts[1]) {
     case 4:
@@ -33,24 +39,10 @@ export function timeSignatureEqual(ts0: TimeSignatureModel, ts1: TimeSignatureMo
 }
 
 
+/* PRERENDER */
 interface TimeSignatureProps {
   x: number,
   y: number
-}
-
-function render(display: DisplayTimeSignature): Svg {
-  return svg`<g class="time-signature">
-    <text x=${display.x} y=${display.topY} font-size="25">${display.top}</text>
-    <text x=${display.x} y=${display.bottomY} font-size="25">${display.bottom}</text>
-  </g>`;
-}
-
-export interface DisplayTimeSignature {
-  x: number,
-  topY: number,
-  bottomY: number,
-  top: string,
-  bottom: string
 }
 
 function prerender(timeSignature: TimeSignatureModel, props: TimeSignatureProps): DisplayTimeSignature {
@@ -63,10 +55,24 @@ function prerender(timeSignature: TimeSignatureModel, props: TimeSignatureProps)
   })
 }
 
-const init: () => TimeSignatureModel = () => [2,4];
+/* RENDER */
+export interface DisplayTimeSignature {
+  x: number,
+  topY: number,
+  bottomY: number,
+  top: string,
+  bottom: string
+}
 
-export const timeSignatureWidth = 30;
+function render(display: DisplayTimeSignature): Svg {
+  return svg`<g class="time-signature">
+    <text x=${display.x} y=${display.topY} font-size="25">${display.top}</text>
+    <text x=${display.x} y=${display.bottomY} font-size="25">${display.bottom}</text>
+  </g>`;
+}
 
+
+/* EXPORTS */
 export default {
   prerender,
   render,

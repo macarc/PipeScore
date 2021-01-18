@@ -2,32 +2,16 @@ import { svg } from 'uhtml';
 import { Svg, Pitch, noteY } from './all';
 import { NoteModel, PreviousNote } from './NoteModel';
 
-export function render(display: DisplayTie): Svg {
-  const path = `
-M ${display.x0},${display.y0} S ${display.midx},${display.midhiy}, ${display.x1},${display.y1}
-M ${display.x1},${display.y1} S ${display.midx},${display.midloy}, ${display.x0},${display.y0}
-    `;
-  return svg`<path d=${path} stroke="black">`;
-}
-
+/* FUNCTIONS */
 export const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-export interface DisplayTie {
-  x0: number,
-  x1: number,
-  y0: number,
-  y1: number,
-  midx: number,
-  midloy: number,
-  midhiy: number
-}
 
-function prerender(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote): DisplayTie {
+/* PRERENDER */
+function prerender(x: number, y: number, previousNote: PreviousNote): DisplayTie {
   const tieOffsetY = 10;
   const tieHeight = 15;
   const tieWidth = 8;
 
-  const y = noteY(staveY, pitch);
   const x0 = x - 1;
   const y0 = y - tieOffsetY;
   const x1 = previousNote.x + 1;
@@ -48,7 +32,26 @@ function prerender(staveY: number, pitch: Pitch, x: number, previousNote: Previo
   })
 }
 
+/* RENDER */
+export interface DisplayTie {
+  x0: number,
+  x1: number,
+  y0: number,
+  y1: number,
+  midx: number,
+  midloy: number,
+  midhiy: number
+}
+export function render(display: DisplayTie): Svg {
+  const path = `
+M ${display.x0},${display.y0} S ${display.midx},${display.midhiy}, ${display.x1},${display.y1}
+M ${display.x1},${display.y1} S ${display.midx},${display.midloy}, ${display.x0},${display.y0}
+    `;
+  return svg`<path d=${path} stroke="black">`;
+}
 
+
+/* EXPORTS */
 export default {
   prerender,
   render

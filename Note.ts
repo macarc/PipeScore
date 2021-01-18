@@ -3,84 +3,50 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull } from './all';
-import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
+import { Svg } from './all';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
-import { dispatch, isSelected, isBeingDragged } from './Controller';
-import { NoteModel, NoteProps, noteHead, noteAndGracenoteWidth } from './NoteModel';
+import { NoteProps } from './NoteModel';
 import Singleton, { SingletonModel, DisplaySingleton } from './Singleton';
 import GroupNote, { GroupNoteModel, DisplayGroupNote } from './GroupNote';
 
-import { log, unlog, log2, unlog2 } from './all';
 
-// TODO remove this
-export { NoteModel } from './NoteModel';
-export { GroupNoteModel } from './GroupNote';
+/* MODEL */
+const init: () => GroupNoteModel = () => ({
+	notes: [ ]
+});
 
 
-
+/* CONSTANTS */
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
 const noteHeadWidth = 5;
 
-// todo this is basically manual dynamic dispatch. Make it automatic somehow?
-
-export function numberOfNotes(note: AnyNoteModel): number {
-  if (isGroupNote(note)) {
-    return note.notes.length;
-  } else if (isSingleton(note)) {
-    return 1;
-  } else {
-    return note;
-  }
-}
-// TODO break singleton definitions into their own module too
-export function totalBeatWidth(note: AnyNoteModel,previousPitch: Pitch | null): number {
-  if (isGroupNote(note)) {
-    return GroupNote.totalBeatWidth(note, previousPitch);
-  } else if (isSingleton(note)) {
-    return Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch) * gracenoteToNoteWidthRatio + 1;
-  } else {
-    return note;
-  }
+/* FUNCTIONS */
+export function numberOfNotes(note: GroupNoteModel): number {
+  return note.notes.length;
 }
 
-export function lastNoteOfGroupNote(note: AnyNoteModel): Pitch | null {
-  if (isGroupNote(note)) {
-    return GroupNote.lastNoteOfGroupNote(note);
-  } else if (isSingleton(note)) {
-    return note.pitch;
+/* PRERENDER */
+function prerender(note: GroupNoteModel, props: NoteProps): DisplayNote {
+  if (note.notes.length === 0) {
+    return {
+      type: 'display none'
+    }
+  } else if (note.notes.length === 1) {
+    return {
+      type: 'display singleton',
+      display: Singleton.prerender(note.notes[0], props)
+    };
   } else {
-    return note;
+    return {
+      type: 'display group',
+      display: GroupNote.prerender(note, props)
+    };
   }
 }
 
-export function lastNoteXOffset(beatWidth: number, note: AnyNoteModel, previousPitch: Pitch | null): number {
-  if (isGroupNote(note)) {
-    return GroupNote.lastNoteXOffset(beatWidth, note, previousPitch);
-  } else if (isSingleton(note)) {
-    return beatWidth * Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch) * gracenoteToNoteWidthRatio;
-  } else {
-    return note;
-  }
-}
-
-
-function render(display: DisplayNote): Svg {
-  if (isDisplayNone(display)) {
-    return svg`<g></g>`;
-  } else if (isDisplaySingleton(display)) {
-      return Singleton.render(display.display);
-  } else if (isDisplayGroup(display)) {
-    return GroupNote.render(display.display);
-  } else {
-    // never
-    return display;
-  }
-};
-
-
+/* RENDER */
 interface SingletonDisplay {
   type: 'display singleton',
   display: DisplaySingleton
@@ -105,25 +71,22 @@ function isDisplayNone(note: DisplayNote): note is DisplayNone {
 
 export type DisplayNote = SingletonDisplay | GroupDisplay | DisplayNone;
 
-export type AnyNoteModel = GroupNoteModel | SingletonModel;
+function render(display: DisplayNote): Svg {
+  if (isDisplayNone(display)) {
+    return svg`<g></g>`;
+  } else if (isDisplaySingleton(display)) {
+      return Singleton.render(display.display);
+  } else if (isDisplayGroup(display)) {
+    return GroupNote.render(display.display);
+  } else {
+    // never
+    return display;
+  }
+};
 
-function isGroupNote(note: AnyNoteModel): note is GroupNoteModel {
-  return (note as GroupNoteModel).notes != null;
-}
-function isSingleton(note: AnyNoteModel): note is SingletonModel {
-  return (note as GroupNoteModel).notes == null;
-}
 
-function prerender(note: AnyNoteModel, props: NoteProps): DisplayNote {
-  return ({
-    type: 'display none'
-  });
-}
 
-const init: () => AnyNoteModel = () => ({
-	notes: [ ]
-});
-
+/* EXPORTS */
 export default {
   prerender,
   render,

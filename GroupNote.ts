@@ -1,18 +1,32 @@
 import { svg } from 'uhtml';
 import { Svg, Pitch, lineGap, noteBoxes, noteOffset, noteY, flatten, removeNull } from './all';
-import { NoteModel, NoteProps, PreviousNote, noteHeadWidth, gracenoteToNoteWidthRatio, noteAndGracenoteWidth, noteHead, tailGap, shortTailLength, initNoteModel } from './NoteModel';
+import { NoteModel, NoteProps, PreviousNote, gracenoteToNoteWidthRatio, noteAndGracenoteWidth, tailGap, shortTailLength, initNoteModel } from './NoteModel';
+import { noteHeadWidth, noteHead } from './NoteHead';
 import Tie, { DisplayTie, shouldTie } from './Tie';
 import Gracenote, { DisplayGracenote } from './Gracenote';
 import { NoteLength, noteLengthToNumTails, noteLengthToNumber, numberToNoteLength, splitLengthNumber } from './NoteLength';
 import { dispatch } from './Controller';
 
+/* 
+
+Todo in this file:
+- fix groupNotes to work with longer notes
+
+
+*/
+
+
+/* MODEL */
 export interface GroupNoteModel {
   notes: NoteModel[]
 }
 
-export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
-  return flatten(notes.map(note => note.notes));
-}
+/* FUNCTIONS */
+export const totalBeatWidth = (groupNote: GroupNoteModel, previousPitch: Pitch | null) => noteAndGracenoteWidth(groupNote.notes, previousPitch);
+
+export const lastNoteOfGroupNote = (groupNote: GroupNoteModel) => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
+
+export const lastNoteXOffset = (beatWidth: number, note: GroupNoteModel, previousPitch: Pitch | null) => beatWidth * noteAndGracenoteWidth(note.notes.slice(0, note.notes.length - 1), previousPitch);
 
 export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
   let currentGroup: GroupNoteModel = { notes: [] },
@@ -48,7 +62,6 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       currentGroup = { notes: [] };
       previousLength = 0;
     } else {
-      // TODO maybe this shouldn't be doing all this work
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
       const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, true));
@@ -86,107 +99,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
 }
 
 
-function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
-	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
-	const leftIs1 = x1 < x2;
-	const leftTails = leftIs1 ? tails1 : tails2;
-	const rightTails = leftIs1 ? tails2 : tails1;
-	const xL = leftIs1 ? x1 : x2;
-	const xR = leftIs1 ? x2 : x1;
-	const yL = leftIs1 ? y1 : y2;
-	const yR = leftIs1 ? y2 : y1;
-
-
-	const diffIsL = leftTails > rightTails;
-
-	// tails shared by both notes
-	const sharedTails = diffIsL ? [...Array(rightTails).keys()] : [...Array(leftTails).keys()];
-	// tails extra tails for one note
-	const diffTails = diffIsL ? [...Array(leftTails).keys()].splice(rightTails) : [...Array(rightTails).keys()].splice(leftTails);
-
-	const tailEndY =
-	diffIsL
-	// because similar triangles
-	? yL + shortTailLength / (xR - xL) * (yR - yL)
-	: yR - shortTailLength / (xR - xL) * (yR - yL);
-
-
-	return svg`<g class="tails">
-    ${sharedTails.map(
-    i =>
-      svg`<line
-        x1=${xL}
-        x2=${xR}
-        y1=${yL - i * tailGap}
-        y2=${yR - i * tailGap}
-        stroke="black"
-        stroke-width="2" />`
-        )}
-    ${diffTails.map(
-    i =>
-      svg`<line
-        x1=${diffIsL ? xL : xR}
-        x2=${diffIsL ? xL + shortTailLength : xR - shortTailLength}
-        y1=${(diffIsL ? yL : yR) - i * tailGap}
-        y2=${tailEndY - i * tailGap}
-        stroke="black"
-        stroke-width="2" />`
-        )}
-	</g>`;
-};
-
-
-const totalBeatWidth = (groupNote: GroupNoteModel, previousPitch: Pitch | null) => noteAndGracenoteWidth(groupNote.notes, previousPitch);
-
-const lastNoteOfGroupNote = (groupNote: GroupNoteModel) => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
-
-const lastNoteXOffset = (beatWidth: number, note: GroupNoteModel, previousPitch: Pitch | null) => beatWidth * noteAndGracenoteWidth(note.notes.slice(0, note.notes.length - 1), previousPitch);
-
-interface DisplayShortNote {
-  x: number,
-  y: number,
-  prevStemX: number,
-  prevStemY: number,
-  stemX: number,
-  stemY: number,
-  length: NoteLength,
-  prevLength: NoteLength,
-  gracenote: DisplayGracenote | null,
-  onClick: (event: MouseEvent) => void,
-  tie: DisplayTie | null,
-  numberOfTails: number,
-  noteBoxes: () => Svg,
-  shouldBeam: boolean,
-  note: NoteModel
-}
-
-function renderNote(display: DisplayShortNote): Svg {
-  return svg`<g class="grouped-note">
-    ${display.tie ? Tie.render(display.tie) : null}
-    ${display.gracenote ? Gracenote.render(display.gracenote) : null}
-
-    ${noteHead(display.x, display.y, display.note, (event: MouseEvent) => dispatch({ name: 'note clicked', note: display.note, event }))}
-
-    ${
-      (display.shouldBeam) ? beamFrom(display.stemX,display.stemY, display.prevStemX,display.prevStemY, noteLengthToNumTails(display.length), noteLengthToNumTails(display.prevLength)) : null
-    }
-
-    ${display.noteBoxes()}
-
-    <line
-      x1=${display.stemX}
-      x2=${display.stemX}
-      y1=${display.y}
-      y2=${display.stemY}
-      stroke="black"
-      />
-  </g>`;
-}
-
-export interface DisplayGroupNote {
-  notes: DisplayShortNote[]
-}
-
+/* PRERENDER */
 function prerender(groupNote: GroupNoteModel, props: NoteProps): DisplayGroupNote {
   const previousPitch = props.previousNote && props.previousNote.pitch;
   // relativeIndex takes a note and returns not the actual index, but the index including
@@ -253,7 +166,17 @@ function prerender(groupNote: GroupNoteModel, props: NoteProps): DisplayGroupNot
   return ({
     notes: groupNote.notes.map(
       (shortNote,index) => {
-        let previousNote: NoteModel | null = groupNote.notes[index - 1] || null;
+        const previousNotify = (previousNote: NoteModel): PreviousNote | null => {
+          if (previousNote !== null)
+            return ({
+              pitch: previousNote.pitch,
+              x: xOf(index - 1),
+              y: yOf(previousNote)
+            })
+          else
+            return props.previousNote
+        }
+        let previousNote: PreviousNote | null = (index > 0) ? previousNotify(groupNote.notes[index - 1]) : props.previousNote;
 
         const gracenoteProps = ({
           x: props.x + props.noteWidth * relativeIndexOfGracenote(index),
@@ -263,21 +186,11 @@ function prerender(groupNote: GroupNoteModel, props: NoteProps): DisplayGroupNot
           previousNote: previousNote ? previousNote.pitch : previousPitch
         });
 
-        const previousNoteObj: PreviousNote | null = (() => {
-          if (previousNote !== null)
-            return ({
-              pitch: previousNote.pitch,
-              x: xOf(index - 1),
-              y: yOf(previousNote)
-            })
-          else
-            return props.previousNote
-        })()
 
-        const hasTie = props.previousNote && shouldTie(shortNote, previousNoteObj);
+        const hasTie = previousNote && shouldTie(shortNote, previousNote);
         return ({
           // have to check for previousNote again because TypeScript is bad at inference :(
-          tie: (props.previousNote && hasTie) ? Tie.prerender(props.y, shortNote.pitch, xOf(index), props.previousNote) : null,
+          tie: (previousNote && hasTie) ? Tie.prerender(xOf(index), yOf(shortNote), previousNote) : null,
           x: xOf(index),
           y: yOf(shortNote),
           shouldBeam: index !== 0,
@@ -298,6 +211,29 @@ function prerender(groupNote: GroupNoteModel, props: NoteProps): DisplayGroupNot
   });
 }
 
+/* RENDER */
+interface DisplayShortNote {
+  x: number,
+  y: number,
+  prevStemX: number,
+  prevStemY: number,
+  stemX: number,
+  stemY: number,
+  length: NoteLength,
+  prevLength: NoteLength,
+  gracenote: DisplayGracenote | null,
+  onClick: (event: MouseEvent) => void,
+  tie: DisplayTie | null,
+  numberOfTails: number,
+  noteBoxes: () => Svg,
+  shouldBeam: boolean,
+  note: NoteModel
+}
+
+export interface DisplayGroupNote {
+  notes: DisplayShortNote[]
+}
+
 function render(display: DisplayGroupNote): Svg {
   return svg`
     <g class="grouped-notes">
@@ -306,13 +242,82 @@ function render(display: DisplayGroupNote): Svg {
       )}
   </g>`;
 }
-  
 
+function renderNote(display: DisplayShortNote): Svg {
+  return svg`<g class="grouped-note">
+    ${display.tie ? Tie.render(display.tie) : null}
+    ${display.gracenote ? Gracenote.render(display.gracenote) : null}
+
+    ${noteHead(display.x, display.y, display.note, (event: MouseEvent) => dispatch({ name: 'note clicked', note: display.note, event }))}
+
+    ${
+      (display.shouldBeam) ? renderBeamFrom(display.stemX,display.stemY, display.prevStemX,display.prevStemY, noteLengthToNumTails(display.length), noteLengthToNumTails(display.prevLength)) : null
+    }
+
+    ${display.noteBoxes()}
+
+    <line
+      x1=${display.stemX}
+      x2=${display.stemX}
+      y1=${display.y}
+      y2=${display.stemY}
+      stroke="black"
+      />
+  </g>`;
+}
+
+function renderBeamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
+	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
+	const leftIs1 = x1 < x2;
+	const leftTails = leftIs1 ? tails1 : tails2;
+	const rightTails = leftIs1 ? tails2 : tails1;
+	const xL = leftIs1 ? x1 : x2;
+	const xR = leftIs1 ? x2 : x1;
+	const yL = leftIs1 ? y1 : y2;
+	const yR = leftIs1 ? y2 : y1;
+
+
+	const diffIsL = leftTails > rightTails;
+
+	// tails shared by both notes
+	const sharedTails = diffIsL ? [...Array(rightTails).keys()] : [...Array(leftTails).keys()];
+	// tails extra tails for one note
+	const diffTails = diffIsL ? [...Array(leftTails).keys()].splice(rightTails) : [...Array(rightTails).keys()].splice(leftTails);
+
+	const tailEndY =
+	diffIsL
+	// because similar triangles
+	? yL + shortTailLength / (xR - xL) * (yR - yL)
+	: yR - shortTailLength / (xR - xL) * (yR - yL);
+
+
+	return svg`<g class="tails">
+    ${sharedTails.map(
+    i =>
+      svg`<line
+        x1=${xL}
+        x2=${xR}
+        y1=${yL - i * tailGap}
+        y2=${yR - i * tailGap}
+        stroke="black"
+        stroke-width="2" />`
+        )}
+    ${diffTails.map(
+    i =>
+      svg`<line
+        x1=${diffIsL ? xL : xR}
+        x2=${diffIsL ? xL + shortTailLength : xR - shortTailLength}
+        y1=${(diffIsL ? yL : yR) - i * tailGap}
+        y2=${tailEndY - i * tailGap}
+        stroke="black"
+        stroke-width="2" />`
+        )}
+	</g>`;
+};
+
+/* EXPORTS */
 export default {
   prerender,
   render,
-  totalBeatWidth,
-  lastNoteOfGroupNote,
-  lastNoteXOffset
 }
 

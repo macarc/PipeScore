@@ -4,29 +4,42 @@
 */
 import { svg } from 'uhtml';
 import { Svg, flatten, SvgRef } from './all';
-import { GroupNoteModel } from './Note';
+import { GroupNoteModel } from './GroupNote';
 import { BarModel } from './Bar';
 import Stave, { StaveModel, DisplayStave } from './Stave';
 import TextBox, { TextBoxModel, DisplayTextBox } from './TextBox';
 import SecondTiming, { SecondTimingModel, DisplaySecondTiming } from './SecondTiming';
 import { dispatch } from './Controller';
 
+/* MODEL */
 export interface ScoreModel {
   staves: StaveModel[],
   // an array rather than a set since it makes rendering easier (with map)
   textBoxes: TextBoxModel[],
   secondTimings: SecondTimingModel[]
 }
+const init: () => ScoreModel = () => {
+  const firstStave = Stave.init();
+  const secondStave = Stave.init();
+  return ({
+    staves: [firstStave,secondStave],
+    textBoxes: [TextBox.init()],
+    secondTimings: []
+  })
+};
 
-function groupNotes(score: ScoreModel): GroupNoteModel[] {
-  return flatten(score.staves.map(stave => Stave.groupNotes(stave)));
-}
-function bars(score: ScoreModel): BarModel[] {
-  return flatten(score.staves.map(stave => Stave.bars(stave)));
-}
-function staves(score: ScoreModel): StaveModel[] {
-  return score.staves;
-}
+/* CONSTANTS */
+const width = 210 * 5;
+const height = 297 * 5;
+
+/* FUNCTIONS */
+
+
+// todo these are probably not needed any more
+const groupNotes = (score: ScoreModel): GroupNoteModel[] => flatten(score.staves.map(stave => Stave.groupNotes(stave)));
+const bars = (score: ScoreModel): BarModel[] => flatten(score.staves.map(stave => Stave.bars(stave)));
+const staves = (score: ScoreModel): StaveModel[] => score.staves;
+
 
 export function addStaveToScore(score: ScoreModel, afterStave: StaveModel) {
   const ind = score.staves.indexOf(afterStave);
@@ -40,39 +53,12 @@ export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel) {
     score.staves.splice(ind, 1);
 }
 
+
+/* PRERENDER */
 interface ScoreProps {
   svgRef: any,
   zoomLevel: number
 }
-const width = 210 * 5;
-const height = 297 * 5;
-
-function render(display: DisplayScore): Svg {
-
-  return svg`<svg ref=${display.svgRef} width=${display.outerWidth} height=${display.outerHeight} viewBox=${`0 0 ${width} ${height}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
-    <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
-
-    ${display.staves.map((stave) => svg.for(stave)`
-      ${Stave.render(stave)}
-    `)}
-
-    ${display.textBoxes.map((textBox) => svg.for(textBox)`${TextBox.render(textBox)}`)}
-
-
-    ${display.secondTimings.map((secondTiming) => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
-  </svg>`;
-};
-
-export interface DisplayScore {
-  staves: DisplayStave[],
-  textBoxes: DisplayTextBox[],
-  secondTimings: DisplaySecondTiming[],
-  outerWidth: number,
-  outerHeight: number,
-  svgRef: SvgRef
-}
-
-
 function prerender(score: ScoreModel, props: ScoreProps): DisplayScore {
   const margin = 30;
   const staveGap = 100;
@@ -100,16 +86,30 @@ function prerender(score: ScoreModel, props: ScoreProps): DisplayScore {
 }
 
 
-const init: () => ScoreModel = () => {
-  const firstStave = Stave.init();
-  const secondStave = Stave.init();
-  return ({
-    staves: [firstStave,secondStave],
-    textBoxes: [TextBox.init()],
-    secondTimings: []
-  })
+/* RENDER */
+export interface DisplayScore {
+  staves: DisplayStave[],
+  textBoxes: DisplayTextBox[],
+  secondTimings: DisplaySecondTiming[],
+  outerWidth: number,
+  outerHeight: number,
+  svgRef: SvgRef
+}
+
+function render(display: DisplayScore): Svg {
+  return svg`<svg ref=${display.svgRef} width=${display.outerWidth} height=${display.outerHeight} viewBox=${`0 0 ${width} ${height}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
+    <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
+
+    ${display.staves.map((stave) => svg.for(stave)`
+      ${Stave.render(stave)}
+    `)}
+    ${display.textBoxes.map((textBox) => svg.for(textBox)`${TextBox.render(textBox)}`)}
+
+    ${display.secondTimings.map((secondTiming) => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
+  </svg>`;
 };
 
+/* EXPORT */
 export default {
   prerender,
   render,
