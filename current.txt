@@ -1,6 +1,15 @@
 A massive checklist
 
 
+<<<<<<< HEAD
+=======
+next:
+Go through all the TODOS and fix them
+Instead of Group / Singleton being different, it shold decide during prerender which to go for
+Make a lot of the prerenders more idiomatic
+Make sure adding/removing/grouping/e.t.c. notes works (I just commented them out temporarily)
+
+>>>>>>> 630626b (Continue refactor)
 a todo list:
 [x] fix slanted beams
 [X] cap should be dependent on how many notes are in the group
@@ -27,6 +36,7 @@ a todo list:
 [X] Placing a minim then one before it causes stack overflow
 [X] Placing a single quaver and then moving the mouse causes an error
 [ ] Deal with things (ties, second timings, maybe more) going over stave break
+<<<<<<< HEAD
 [X] Delete second timings when their notes are deleted
 [X] Delete noteXY when a note is deleted
 [X] Have noteLeft, noteRight and noteY instead of noteXY
@@ -41,6 +51,11 @@ a todo list:
 [X] ID for notes so that secondTiming can refer to that (also for bar, then there won't need to be different implementations!)
 [ ] Change selectedNotes to selectedItems? (use ID instead)
 [ ] Tied notes still have bugs - e.g. changes gap between notes
+=======
+[ ] Somehow do second timings without making render effectful?
+[ ] Work out a better way of prerendering things like noteBoxes, without () => Svg callbacks
+[ ] Remove unused imports
+>>>>>>> 630626b (Continue refactor)
 
 
 

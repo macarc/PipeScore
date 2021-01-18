@@ -3,6 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
+<<<<<<< HEAD
 import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull, ID, genId, deepcopy } from './all';
 import { NoteLength, noteLengthToNumTails, hasStem, hasDot, hasBeam, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
@@ -25,6 +26,19 @@ export interface GroupNoteModel {
 export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
   return flatten(notes.map(note => note.notes));
 }
+=======
+import { Svg } from './all';
+import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
+import { NoteProps } from './NoteModel';
+import Singleton, { SingletonModel, DisplaySingleton } from './Singleton';
+import GroupNote, { GroupNoteModel, DisplayGroupNote } from './GroupNote';
+
+
+/* MODEL */
+const init: () => GroupNoteModel = () => ({
+	notes: [ ]
+});
+>>>>>>> 630626b (Continue refactor)
 
 export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
   let currentGroup: GroupNoteModel = { notes: [] },
@@ -91,12 +105,14 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
   return groupedNotes;
 }
 
+/* CONSTANTS */
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
 // note that this is actually *half* the width
 const noteHeadWidth = 5;
 
+<<<<<<< HEAD
 const noteAndGracenoteWidth = (notes: NoteModel[], prevNote: Pitch | null) =>
 	notes.map((n,i) => 1 + (n.tied ? 0 :
 	  (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch)))
@@ -281,11 +297,50 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
 
     const stemXOf = (index: number) => xOf(index) - noteHeadWidth;
+=======
+/* FUNCTIONS */
+export function numberOfNotes(note: GroupNoteModel): number {
+  return note.notes.length;
+}
+
+/* PRERENDER */
+function prerender(note: GroupNoteModel, props: NoteProps): DisplayNote {
+  if (note.notes.length === 0) {
+    return {
+      type: 'display none'
+    }
+  } else if (note.notes.length === 1) {
+    return {
+      type: 'display singleton',
+      display: Singleton.prerender(note.notes[0], props)
+    };
+  } else {
+    return {
+      type: 'display group',
+      display: GroupNote.prerender(note, props)
+    };
+  }
+}
+
+/* RENDER */
+interface SingletonDisplay {
+  type: 'display singleton',
+  display: DisplaySingleton
+}
+interface GroupDisplay {
+  type: 'display group',
+  display: DisplayGroupNote
+}
+interface DisplayNone {
+  type: 'display none'
+}
+>>>>>>> 630626b (Continue refactor)
 
 
     const firstNote: NoteModel = note.notes[0];
     const lastNote: NoteModel = note.notes[note.notes.length - 1];
 
+<<<<<<< HEAD
     const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
     const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index), xOf(index) + noteHeadWidth, props.y);
 
@@ -416,7 +471,24 @@ export const initNoteModel = (pitch: Pitch, length: NoteLength, tied: boolean = 
 const init: () => GroupNoteModel = () => ({
 	notes: [ ]
 });
+=======
+function render(display: DisplayNote): Svg {
+  if (isDisplayNone(display)) {
+    return svg`<g></g>`;
+  } else if (isDisplaySingleton(display)) {
+      return Singleton.render(display.display);
+  } else if (isDisplayGroup(display)) {
+    return GroupNote.render(display.display);
+  } else {
+    // never
+    return display;
+  }
+};
 
+
+>>>>>>> 630626b (Continue refactor)
+
+/* EXPORTS */
 export default {
   render,
   init,

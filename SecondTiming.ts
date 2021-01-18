@@ -1,7 +1,12 @@
 import { svg } from 'uhtml';
+<<<<<<< HEAD
 import { Svg, ID } from './all';
 import { NoteModel } from './Note';
 import { getXY } from './Controller';
+=======
+import { Svg } from './all';
+import { NoteModel } from './NoteModel';
+>>>>>>> 630626b (Continue refactor)
 
 
 

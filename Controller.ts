@@ -5,7 +5,12 @@
 import { render } from 'uhtml';
 import { Pitch, flatten, ID } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
+<<<<<<< HEAD
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
+=======
+import { NoteModel, initNoteModel } from './NoteModel';
+import { GroupNoteModel, groupNotes } from './GroupNote';
+>>>>>>> 630626b (Continue refactor)
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';

@@ -5,7 +5,7 @@
 import { ScoreModel } from './Score';
 import { log } from './all';
 import { NoteLength } from './NoteLength';
-import { NoteModel } from './Note';
+import { NoteModel } from './NoteModel';
 import { dispatch, State } from './Controller';
 import { html } from 'uhtml';
 
