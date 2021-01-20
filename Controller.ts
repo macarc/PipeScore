@@ -36,6 +36,7 @@ type ScoreEvent
   | TextMouseUp
   | TextDragged
   | EditText
+  | AddSecondTiming
   | AddBar
   | AddStave
   | DeleteBar
@@ -185,6 +186,7 @@ export interface State {
   noteInputLength: NoteLength | null,
   zoomLevel: number,
   draggedText: TextBoxModel | null,
+  noteCoords: Map<NoteModel, [number, number]>,
   currentSvg: SvgRef
 }
 
@@ -204,6 +206,13 @@ function isTextMouseUp(e: ScoreEvent): e is TextMouseUp {
   return e.name === 'text mouse up';
 }
 
+type AddSecondTiming = {
+  name: 'add second timing'
+}
+function isAddSecondTiming(e: ScoreEvent): e is AddSecondTiming {
+  return e.name === 'add second timing';
+}
+
 
 let currentState: State = {
   score: Score.init(),
@@ -215,6 +224,7 @@ let currentState: State = {
   noteInputLength: null,
   zoomLevel: 100,
   draggedText: null,
+  noteCoords: new Map(),
   currentSvg: { current: null }
 };
 
@@ -251,10 +261,6 @@ export function dispatch(event: ScoreEvent): void {
     if (currentState.draggedNote !== null) {
       currentState.selectedNotes.add(currentState.draggedNote);
       currentState.draggedNote = null;
-      if (currentState.selectedNotes.size === 3) {
-        const notesAsList = <[NoteModel, NoteModel, NoteModel]>[...currentState.selectedNotes.values()];
-        currentState.score.secondTimings.push(SecondTiming.init(...notesAsList));
-      }
       changed = true;
     }
   } else if (isDeleteSelectedNotes(event)) {
@@ -336,6 +342,13 @@ export function dispatch(event: ScoreEvent): void {
     const { stave } = currentBar([...currentState.selectedNotes.values()][0]);
     deleteStaveFromScore(currentState.score, stave);
     changed = true;
+  } else if (isAddSecondTiming(event)) {
+    const selectedNotes = [...currentState.selectedNotes.values()];
+    if (selectedNotes.length >= 3) {
+      const newSecondTiming = SecondTiming.init(selectedNotes[0], selectedNotes[1], selectedNotes[2]);
+      currentState.score.secondTimings.push(newSecondTiming);
+      changed = true;
+    }
   } else {
     return event;
   }
@@ -356,6 +369,10 @@ export function dispatch(event: ScoreEvent): void {
 
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
+
+// the y value will be the stave's y rather than the actual y value of the note
+export const setNoteXY = (note: NoteModel, x: number, y: number) => currentState.noteCoords.set(note, [x,y]);
+export const getNoteXY = (note: NoteModel): [number, number] | null => currentState.noteCoords.get(note) || null;
 
 const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");

@@ -6,7 +6,7 @@ import { svg } from 'uhtml';
 import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull } from './all';
 import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
-import { dispatch, isSelected, isBeingDragged } from './Controller';
+import { dispatch, isSelected, isBeingDragged, setNoteXY } from './Controller';
 
 import { log, unlog, log2, unlog2 } from './all';
 
@@ -295,6 +295,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const lastNote: NoteModel = note.notes[note.notes.length - 1];
 
     if (numberOfNotes(note) === 1) {
+      setNoteXY(firstNote, xOf(0), props.y);
       const gracenoteProps = ({
         // can just be props.x since it is the first note
         x: props.x,
@@ -360,6 +361,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         <g class="grouped-notes">
           ${note.notes.map(
             (shortNote,index) => {
+              setNoteXY(shortNote, xOf(index), props.y);
               let previousNote: NoteModel | null = note.notes[index - 1] || null;
 
               const gracenoteProps = ({
