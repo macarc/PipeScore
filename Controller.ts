@@ -238,15 +238,14 @@ export function dispatch(event: ScoreEvent): void {
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
   let changed = false,
-  recalculateNoteGroupings = false,
-  changedNote: NoteModel | null = null;
+  recalculateNoteGroupings = false;
   if (isMouseMovedOver(event)) {
     if (event.pitch !== currentState.hoveredPitch) {
       currentState.hoveredPitch = event.pitch;
       changed = true;
       if (currentState.draggedNote !== null) {
         currentState.draggedNote.pitch = event.pitch;
-        changedNote = currentState.draggedNote;
+        makeCorrectTie(currentState.draggedNote);
         changed = true;
       }
     }
@@ -303,8 +302,8 @@ export function dispatch(event: ScoreEvent): void {
       const newNote = initNoteModel(event.pitch, currentState.noteInputLength);
       event.note.notes.splice(event.index, 0, newNote);
       changed = true;
-      // todo - should this need to be set?
-      changedNote = newNote;
+      // todo - should this need to be done?
+      makeCorrectTie(newNote);
       recalculateNoteGroupings = true
     }
   } else if (isToggleDotted(event)) {
@@ -355,15 +354,14 @@ export function dispatch(event: ScoreEvent): void {
     }
   } else if (isTieSelectedNotes(event)) {
     if (currentState.selectedNotes.size > 0) {
-      currentState.selectedNotes.forEach(note => note.tied = !note.tied);
+      currentState.selectedNotes.forEach(note => {
+        note.tied = !note.tied
+        makeCorrectTie(note);
+      });
       changed = true;
     }
   } else {
     return event;
-  }
-
-  if (changedNote) {
-    makeCorrectTie(changedNote);
   }
 
   if (recalculateNoteGroupings) {

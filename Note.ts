@@ -57,13 +57,24 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       previousLength = pushNote(currentGroup, note, length, previousLength);
       currentLength += length;
     } else if (currentLength + length === lengthOfGroup) {
-      pushNote(currentGroup, note, length, previousLength);
+      previousLength = pushNote(currentGroup, note, length, previousLength);
       groupedNotes.push(currentGroup);
       currentLength = 0;
       currentGroup = { notes: [] };
       previousLength = 0;
     } else {
+      groupedNotes.push(currentGroup);
+      currentGroup = { notes: [] };
+      previousLength = pushNote(currentGroup, note, length, previousLength);
+      currentLength = length;
+      if (currentLength >= lengthOfGroup) {
+        groupedNotes.push(currentGroup);
+        currentGroup = { notes: [] };
+        currentLength = 0;
+        previousLength = 0;
+      }
       // TODO maybe this shouldn't be doing all this work
+      /*
       const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
       const splitNoteLengths = splitLengths.map(numberToNoteLength);
       const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, true));
@@ -78,7 +89,6 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
 
       // If it goes over multiple groups, then add all the groups and use the last one
       if (currentLength >= lengthOfGroup) {
-        console.log(splitNotes.slice(1))
         const currentNotesGroup = groupNotes(splitNotes.slice(1), lengthOfGroup);
         groupedNotes = groupedNotes.concat(currentNotesGroup.slice(0, currentNotesGroup.length - 1));
         currentGroup = currentNotesGroup[currentNotesGroup.length - 1];
@@ -92,6 +102,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
           });
         }
       }
+      */
     }
   });
   // pushes the last notes to the groupedNotes

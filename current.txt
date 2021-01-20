@@ -11,7 +11,7 @@ a todo list:
 [ ] HG -> HA gracenote on next note looks a bit crushed
 [X] Any time rests are merged, some notes are deleted
 [X] Make adding notes more frictionless
-[ ] Make icons for note input
+[X] Make icons for note input
 [ ] Dotted note can get crushed into next gracenote
 [X] Width of drag boxes is wrong
 [X] Automatically group notes to correct grouping
@@ -31,6 +31,7 @@ a todo list:
 [X] Delete second timings when their notes are deleted
 [X] Delete noteXY when a note is deleted
 [ ] Have noteLeft, noteRight and noteY instead of noteXY
+[ ] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
 
 
 

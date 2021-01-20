@@ -18,9 +18,9 @@ function render(state: State) {
 
 
   const noteInputButton = (length: NoteLength) => html`<button
-    class=${isCurrentNoteInput(length) ? 'current-note-input' : null}
+    class=${`${isCurrentNoteInput(length) ? 'current-note-input' : ''} note-input`}
+    id=${`note-${length}`}
     onclick=${setNoteInput(length)}>
-      ${length}
     </button>`;
 
 
@@ -35,14 +35,7 @@ function render(state: State) {
   }
 
   return html`
-    <div>
-      UI
-      <button onclick=${() => dispatch({ name: 'delete selected notes' })}>Delete Selected Notes</button>
-      <button onclick=${() => dispatch({ name: 'tie selected notes' })}>Tie Selected Notes</button>
-      <button onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
-
-      <h2>Note Input</h2>
-      <label>Current note input type</label>
+    <div id="topbar">
       ${noteInputButton(NoteLength.Semibreve)}
       ${noteInputButton(NoteLength.Minim)}
       ${noteInputButton(NoteLength.Crotchet)}
@@ -50,6 +43,14 @@ function render(state: State) {
       ${noteInputButton(NoteLength.SemiQuaver)}
       ${noteInputButton(NoteLength.DemiSemiQuaver)}
       ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
+    </div>
+    <div id="sidebar">
+      <button onclick=${() => dispatch({ name: 'delete selected notes' })}>Delete Selected Notes</button>
+      <button onclick=${() => dispatch({ name: 'tie selected notes' })}>Tie Selected Notes</button>
+      <button onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
+
+      <h2>Note Input</h2>
+      <label>Current note input type</label>
 
 
       <h2>Gracenote</h2>
