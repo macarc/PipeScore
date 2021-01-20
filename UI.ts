@@ -36,17 +36,20 @@ function render(state: State) {
 
   return html`
     <div id="topbar">
-      ${noteInputButton(NoteLength.Semibreve)}
-      ${noteInputButton(NoteLength.Minim)}
-      ${noteInputButton(NoteLength.Crotchet)}
-      ${noteInputButton(NoteLength.Quaver)}
-      ${noteInputButton(NoteLength.SemiQuaver)}
-      ${noteInputButton(NoteLength.DemiSemiQuaver)}
-      ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
+      <div id="note-inputs">
+        ${noteInputButton(NoteLength.Semibreve)}
+        ${noteInputButton(NoteLength.Minim)}
+        ${noteInputButton(NoteLength.Crotchet)}
+        ${noteInputButton(NoteLength.Quaver)}
+        ${noteInputButton(NoteLength.SemiQuaver)}
+        ${noteInputButton(NoteLength.DemiSemiQuaver)}
+        ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
+      </div>
+      <button id="toggle-dotted" onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
+      <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
+      <button id="delete-notes" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
     </div>
     <div id="sidebar">
-      <button onclick=${() => dispatch({ name: 'delete selected notes' })}>Delete Selected Notes</button>
-      <button onclick=${() => dispatch({ name: 'tie selected notes' })}>Tie Selected Notes</button>
       <button onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
 
       <h2>Note Input</h2>
@@ -63,9 +66,6 @@ function render(state: State) {
         <option value="birl">Birl</value>
         <option value="g-gracenote-birl">G Gracenote Birl</value>
       </select>
-      <button onclick=${() => dispatch({ name: 'toggle dotted' })}>
-        Toggle dotted
-      </button>
       <button onclick=${() => dispatch({ name: 'add bar' })}>
         Add Bar After
       </button>
