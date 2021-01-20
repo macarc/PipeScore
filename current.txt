@@ -27,10 +27,10 @@ a todo list:
 [X] Notes can't be added to the end of the bar
 [X] Placing a minim then one before it causes stack overflow
 [X] Placing a single quaver and then moving the mouse causes an error
-[ ] Placing a note inside two tied notes should probably break the tie
 [ ] Deal with things (ties, second timings, maybe more) going over stave break
-[ ] Delete second timings when their notes are deleted
-[ ] Delete noteXY when a note is deleted
+[X] Delete second timings when their notes are deleted
+[X] Delete noteXY when a note is deleted
+[ ] Have noteLeft, noteRight and noteY instead of noteXY
 
 
 
@@ -45,7 +45,7 @@ End user features:
 [X] Repeat marks
 [ ] Second timings
 [ ] Anacrusis
-[ ] Note ties
+[X] Note ties
 [X] Adding staves / bars
 [X] Text boxes
 [ ] A easy way to input all of the above

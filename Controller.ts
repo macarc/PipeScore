@@ -11,15 +11,11 @@ import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
 import { BarModel } from './Bar';
-import SecondTiming from './SecondTiming';
+import SecondTiming, { SecondTimingModel } from './SecondTiming';
 import Stave from './Stave';
 import UI from './UI';
 
 // Events
-// Each EventType has an isEventType function that checks if a ScoreEvent is that event type
-// EventTypes should be named after what the user is doing rather than what is happening internally
-// (e.g. NoteClicked rather than NoteSelected)
-// though ones that are accessed throught the UI will be named after what is happening
 type ScoreEvent
   = MouseMovedOver
   | NoteClicked
@@ -30,6 +26,7 @@ type ScoreEvent
   | SetInputLength
   | StopInputtingNotes
   | NoteAdded
+  | TieSelectedNotes
   | ToggleDotted
   | ChangeZoomLevel
   | TextClicked
@@ -172,6 +169,13 @@ function isDeleteStave(e: ScoreEvent): e is DeleteStave {
   return e.name === 'delete stave';
 }
 
+type TieSelectedNotes = {
+  name: 'tie selected notes'
+}
+function isTieSelectedNotes(e: ScoreEvent): e is TieSelectedNotes {
+  return e.name === 'tie selected notes';
+}
+
 
 interface SvgRef {
   current: SVGSVGElement | null
@@ -273,7 +277,7 @@ export function dispatch(event: ScoreEvent): void {
         const newNotes = g.notes.slice();
         g.notes.forEach(note => {
           if (currentState.selectedNotes.has(note)) {
-            newNotes.splice(newNotes.indexOf(note), 1);
+            deleteNote(note, newNotes);
           }
         });
         g.notes = newNotes;
@@ -347,6 +351,11 @@ export function dispatch(event: ScoreEvent): void {
     if (selectedNotes.length >= 3) {
       const newSecondTiming = SecondTiming.init(selectedNotes[0], selectedNotes[1], selectedNotes[2]);
       currentState.score.secondTimings.push(newSecondTiming);
+      changed = true;
+    }
+  } else if (isTieSelectedNotes(event)) {
+    if (currentState.selectedNotes.size > 0) {
+      currentState.selectedNotes.forEach(note => note.tied = !note.tied);
       changed = true;
     }
   } else {
@@ -447,6 +456,19 @@ function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
   }
 
   return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
+}
+
+function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
+  newNotes.splice(newNotes.indexOf(note), 1);
+  currentState.noteCoords.delete(note);
+  const secondTimingsToDelete: SecondTimingModel[] = [];
+  currentState.score.secondTimings.forEach(t => {
+    if (t.start === note || t.middle === note || t.end === note) {
+      secondTimingsToDelete.push(t);
+    }
+  });
+  secondTimingsToDelete.forEach(t =>
+    currentState.score.secondTimings.splice(currentState.score.secondTimings.indexOf(t), 1));
 }
 
 

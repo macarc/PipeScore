@@ -13,8 +13,6 @@ export interface SecondTimingModel {
 
 
 
-
-
 function render(secondTiming: SecondTimingModel): Svg {
   const start = getNoteXY(secondTiming.start);
   const middle = getNoteXY(secondTiming.middle);
@@ -23,9 +21,13 @@ function render(secondTiming: SecondTimingModel): Svg {
     return svg`<g class="second-timing">
       <line x1=${start[0]} y1=${start[1] - 10} x2=${middle[0]} y2=${middle[1] - 10} stroke="black" />
       <line x1=${middle[0]} y1=${middle[1] - 10} x2=${end[0]} y2=${end[1] - 10} stroke="black" />
+
+      ${[start, middle, end].map(([x,y]) =>
+        svg`<line x1=${x} x2=${x} y1=${y - 10} y2=${y - 5} stroke="black" />`
+      )}
     </g>`
   } else {
-    console.log('invalid second timing!');
+    console.error('invalid second timing!');
     return svg`<g></g>`;
   }
 }

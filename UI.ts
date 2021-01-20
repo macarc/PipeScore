@@ -38,6 +38,7 @@ function render(state: State) {
     <div>
       UI
       <button onclick=${() => dispatch({ name: 'delete selected notes' })}>Delete Selected Notes</button>
+      <button onclick=${() => dispatch({ name: 'tie selected notes' })}>Tie Selected Notes</button>
       <button onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
 
       <h2>Note Input</h2>
