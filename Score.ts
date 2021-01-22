@@ -17,6 +17,8 @@ export interface ScoreModel {
   textBoxes: TextBoxModel[],
   secondTimings: SecondTimingModel[]
 }
+export const scoreWidth = 210 * 5;
+export const scoreHeight = 297 * 5;
 
 function groupNotes(score: ScoreModel): GroupNoteModel[] {
   return flatten(score.staves.map(stave => Stave.groupNotes(stave)));
@@ -46,8 +48,6 @@ interface ScoreProps {
 }
 
 function render(score: ScoreModel, props: ScoreProps): Svg {
-  const width = 210 * 5;
-  const height = 297 * 5;
   const margin = 30;
   const staveGap = 100;
   const topOffset = 150;
@@ -55,7 +55,7 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
   const staveProps = (stave: StaveModel, index: number) => ({
     x: margin,
     y: index * staveGap + topOffset,
-    width: width - 2 * margin,
+    width: scoreWidth - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
   });
@@ -64,7 +64,7 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
     id: index
   });
 
-  return svg`<svg ref=${props.svgRef} width=${width * props.zoomLevel / 100} height=${height * props.zoomLevel / 100} viewBox=${`0 0 ${width} ${height}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
+  return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
     <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`
@@ -80,10 +80,8 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
 
 
 const init: () => ScoreModel = () => {
-  const firstStave = Stave.init();
-  const secondStave = Stave.init();
   return ({
-  staves: [firstStave,secondStave],
+  staves: [Stave.init(),Stave.init()],
   textBoxes: [TextBox.init()],
   secondTimings: []
 })

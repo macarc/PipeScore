@@ -23,6 +23,8 @@ function render(state: State) {
     onclick=${setNoteInput(length)}>
     </button>`;
 
+  const gracenoteInput = (name: string) => html`<button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: name })}>${name}</button>`;
+
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');
@@ -48,24 +50,19 @@ function render(state: State) {
       <button id="toggle-dotted" onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
       <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
       <button id="delete-notes" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
+      <button id="second-timing" onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
     </div>
     <div id="sidebar">
-      <button onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
-
-      <h2>Note Input</h2>
-      <label>Current note input type</label>
-
 
       <h2>Gracenote</h2>
       <label>Gracenote on selected notes</label>
-      <select id="set-gracenote" onchange=${() => dispatch({ name: 'set gracenote', value: (document.getElementById('set-gracenote') as HTMLSelectElement).value })}>
-        <option value="doubling">Doubling</value>
-        <option value="throw-d">Throw on D</value>
-        <option value="toarluath">Toarluath</value>
-        <option value="grip">Grip</value>
-        <option value="birl">Birl</value>
-        <option value="g-gracenote-birl">G Gracenote Birl</value>
-      </select>
+      ${gracenoteInput('doubling')}
+      ${gracenoteInput('throw-d')}
+      ${gracenoteInput('toarluath')}
+      ${gracenoteInput('grip')}
+      ${gracenoteInput('birl')}
+      ${gracenoteInput('g-gracenote-birl')}
+      <hr />
       <button onclick=${() => dispatch({ name: 'add bar' })}>
         Add Bar After
       </button>

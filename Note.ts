@@ -114,6 +114,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
+// note that this is actually *half* the width
 const noteHeadWidth = 5;
 
 const noteAndGracenoteWidth = (notes: NoteModel[], prevNote: Pitch | null) =>
@@ -249,7 +250,7 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
 
   return svg`<g class="singleton">
     ${shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null}
-    ${shouldTie(note, previousNote) ?  Gracenote.render(note.gracenote, gracenoteProps) : null}
+    ${shouldTie(note, previousNote) ?  null : Gracenote.render(note.gracenote, gracenoteProps)}
 
     ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
     ${hasStem(note.length) ? svg`<line
@@ -305,8 +306,11 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const firstNote: NoteModel = note.notes[0];
     const lastNote: NoteModel = note.notes[note.notes.length - 1];
 
+    const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
+    const setXY = (note: NoteModel, index: number) => setNoteXY(note, gracenoteX(index), xOf(index) + noteHeadWidth, props.y);
+
     if (numberOfNotes(note) === 1) {
-      setNoteXY(firstNote, xOf(0), props.y);
+      setXY(firstNote, 0);
       const gracenoteProps = ({
         // can just be props.x since it is the first note
         x: props.x,
@@ -372,11 +376,11 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         <g class="grouped-notes">
           ${note.notes.map(
             (shortNote,index) => {
-              setNoteXY(shortNote, xOf(index), props.y);
+              setXY(shortNote, index);
               let previousNote: NoteModel | null = note.notes[index - 1] || null;
 
               const gracenoteProps = ({
-                x: props.x + props.noteWidth * relativeIndexOfGracenote(index),
+                x: gracenoteX(index),
                 y: props.y,
                 gracenoteWidth: props.noteWidth * 0.6,
                 thisNote: shortNote.pitch,
@@ -396,7 +400,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
 
               return svg.for(shortNote)`<g class="grouped-note">
                 ${shouldTie(shortNote, previousNoteObj) ? tie(props.y, shortNote.pitch, xOf(index), previousNoteObj) : null}
-                ${shouldTie(shortNote, previousNoteObj) ?  Gracenote.render(shortNote.gracenote,gracenoteProps) : null}
+                ${shouldTie(shortNote, previousNoteObj) ? null : Gracenote.render(shortNote.gracenote,gracenoteProps)}
 
                 ${noteHead(xOf(index), yOf(shortNote), shortNote, (event: MouseEvent) => dispatch({ name: 'note clicked', note: shortNote, event }))}
 

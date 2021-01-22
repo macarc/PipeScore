@@ -59,13 +59,16 @@ gracenotes.set('grip', note => {
   }
 })
 gracenotes.set('toarluath', (note, prev) => {
-  if (note === Pitch.D) {
-    return [Pitch.G, Pitch.B, Pitch.G, Pitch.E]
-  } else if (note === Pitch.E || note === Pitch.F || note === Pitch.HG || note === Pitch.HA) {
-    return [Pitch.G, Pitch.D, Pitch.G];
+  let notes = [];
+  if (prev === Pitch.D) {
+    notes = [Pitch.G, Pitch.B, Pitch.G, Pitch.E]
   } else {
-    return [Pitch.G, Pitch.D, Pitch.G, Pitch.E]
+    notes = [Pitch.G, Pitch.D, Pitch.G, Pitch.E]
   }
+  if (note === Pitch.E || note === Pitch.F || note === Pitch.HG || note === Pitch.HA) {
+    notes = notes.slice(0,3);
+  }
+  return notes;
 });
 gracenotes.set('birl', (note, prev) => {
   return invalidateIf(note !== Pitch.A, prev === Pitch.A ? [Pitch.G, Pitch.A, Pitch.G] : [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
@@ -100,13 +103,15 @@ export type GracenoteModel = ReactiveGracenote | SingleGracenote | NoGracenote;
 
 
 const tailXOffset: number = 3;
+// actually this is half of the head width
+const gracenoteHeadWidth = 3.5;
 
 function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
   const grace = notes(gracenote,thisNote,previousNote);
   if (isInvalid(grace)) {
-    return grace.gracenote.length;
+    return grace.gracenote.length + 1;
   } else {
-    return grace.length;
+    return grace.length + 1;
   }
 };
 
@@ -134,7 +139,7 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean)
   const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg`<g class="gracenote-head">
     ${note === Pitch.HA ? svg`<line x1=${x - ledgerLeft} x2=${x + ledgerRight} y1=${y} y2=${y} stroke="black" />` : null}
-    <ellipse cx=${x} cy=${y} rx="3.5" ry="2.5" transform="${rotateText}" fill=${isValid ? "black" : "red"} pointer-events="none" />
+    <ellipse cx=${x} cy=${y} rx=${gracenoteHeadWidth} ry="2.5" transform="${rotateText}" fill=${isValid ? "black" : "red"} pointer-events="none" />
 
     <line x1=${x + tailXOffset} y1=${y} x2=${x + tailXOffset} y2=${beamY} stroke="black" /> 
   </g>`;
@@ -172,7 +177,7 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
     const grace = notes(gracenote, props.thisNote, props.previousNote);
     const uniqueNotes: { note: Pitch }[] = isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
 
-    const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth - props.gracenoteWidth * 0.5;
+    const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth + gracenoteHeadWidth;
     const y = (note: Pitch) => noteY(props.y, note);
     if (uniqueNotes.length === 1) {
       return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y);

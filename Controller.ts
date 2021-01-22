@@ -8,7 +8,7 @@ import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from '.
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
-import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore } from './Score';
+import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
 import { BarModel } from './Bar';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
@@ -32,8 +32,8 @@ type ScoreEvent
   | TextClicked
   | TextMouseUp
   | TextDragged
-  | EditText
   | AddSecondTiming
+  | EditText
   | AddBar
   | AddStave
   | DeleteBar
@@ -176,24 +176,6 @@ function isTieSelectedNotes(e: ScoreEvent): e is TieSelectedNotes {
   return e.name === 'tie selected notes';
 }
 
-
-interface SvgRef {
-  current: SVGSVGElement | null
-}
-
-export interface State {
-  score: ScoreModel,
-  draggedNote: NoteModel | null,
-  selectedNotes: Set<NoteModel>,
-  hoveredPitch: Pitch,
-  focused: boolean,
-  noteInputLength: NoteLength | null,
-  zoomLevel: number,
-  draggedText: TextBoxModel | null,
-  noteCoords: Map<NoteModel, [number, number]>,
-  currentSvg: SvgRef
-}
-
 type TextDragged = {
   name: 'text dragged',
   x: number,
@@ -211,10 +193,33 @@ function isTextMouseUp(e: ScoreEvent): e is TextMouseUp {
 }
 
 type AddSecondTiming = {
-  name: 'add second timing'
+  name: 'add second timing',
 }
 function isAddSecondTiming(e: ScoreEvent): e is AddSecondTiming {
   return e.name === 'add second timing';
+}
+
+
+interface SvgRef {
+  current: SVGSVGElement | null
+}
+
+interface NoteXY {
+  beforeX: number,
+  afterX: number,
+  y: number
+}
+export interface State {
+  score: ScoreModel,
+  draggedNote: NoteModel | null,
+  selectedNotes: Set<NoteModel>,
+  hoveredPitch: Pitch,
+  focused: boolean,
+  noteInputLength: NoteLength | null,
+  zoomLevel: number,
+  draggedText: TextBoxModel | null,
+  noteCoords: Map<NoteModel, NoteXY>,
+  currentSvg: SvgRef
 }
 
 
@@ -226,7 +231,7 @@ let currentState: State = {
   hoveredPitch: Pitch.A,
   focused: true,
   noteInputLength: null,
-  zoomLevel: 100,
+  zoomLevel: calculateZoomLevel(),
   draggedText: null,
   noteCoords: new Map(),
   currentSvg: { current: null }
@@ -345,19 +350,18 @@ export function dispatch(event: ScoreEvent): void {
     const { stave } = currentBar([...currentState.selectedNotes.values()][0]);
     deleteStaveFromScore(currentState.score, stave);
     changed = true;
-  } else if (isAddSecondTiming(event)) {
-    const selectedNotes = [...currentState.selectedNotes.values()];
-    if (selectedNotes.length >= 3) {
-      const newSecondTiming = SecondTiming.init(selectedNotes[0], selectedNotes[1], selectedNotes[2]);
-      currentState.score.secondTimings.push(newSecondTiming);
-      changed = true;
-    }
   } else if (isTieSelectedNotes(event)) {
     if (currentState.selectedNotes.size > 0) {
       currentState.selectedNotes.forEach(note => {
         note.tied = !note.tied
         makeCorrectTie(note);
       });
+      changed = true;
+    }
+  } else if (isAddSecondTiming(event)) {
+    if (currentState.selectedNotes.size >= 3) {
+      const notes = sortByPosition([...currentState.selectedNotes.values()]);
+      currentState.score.secondTimings.push(SecondTiming.init(notes[0], notes[1], notes[2]));
       changed = true;
     }
   } else {
@@ -378,8 +382,8 @@ export const isBeingDragged = (note: NoteModel) => note === currentState.dragged
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
 
 // the y value will be the stave's y rather than the actual y value of the note
-export const setNoteXY = (note: NoteModel, x: number, y: number) => currentState.noteCoords.set(note, [x,y]);
-export const getNoteXY = (note: NoteModel): [number, number] | null => currentState.noteCoords.get(note) || null;
+export const setNoteXY = (note: NoteModel, beforeX: number, afterX: number, y: number) => currentState.noteCoords.set(note, { beforeX, afterX, y });
+export const getNoteXY = (note: NoteModel): NoteXY | null => currentState.noteCoords.get(note) || null;
 
 const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
@@ -413,6 +417,14 @@ function makeCorrectTie(noteModel: NoteModel) {
   }
 }
 
+function sortByPosition(notes: NoteModel[]) {
+  const bars = Score.bars(currentState.score);
+  const noteModels = flatten(bars.map(b => unGroupNotes(b.notes)));
+
+  notes.sort((a,b) => noteModels.indexOf(a) > noteModels.indexOf(b) ? 1 : -1);
+  return notes;
+}
+
 function makeCorrectGroupings() {
   const bars = Score.bars(currentState.score);
   const noteModels = bars.map(b => unGroupNotes(b.notes));
@@ -441,6 +453,19 @@ function dragText(event: MouseEvent) {
   }
 }
 
+function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
+  newNotes.splice(newNotes.indexOf(note), 1);
+  currentState.noteCoords.delete(note);
+  const secondTimingsToDelete: SecondTimingModel[] = [];
+  currentState.score.secondTimings.forEach(t => {
+    if (t.start === note || t.middle === note || t.end === note) {
+      secondTimingsToDelete.push(t);
+    }
+  });
+  secondTimingsToDelete.forEach(t =>
+    currentState.score.secondTimings.splice(currentState.score.secondTimings.indexOf(t), 1));
+}
+
 function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
   const staves = Score.staves(currentState.score);
   for (const stave of staves) {
@@ -456,19 +481,12 @@ function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
   return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
 }
 
-function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
-  newNotes.splice(newNotes.indexOf(note), 1);
-  currentState.noteCoords.delete(note);
-  const secondTimingsToDelete: SecondTimingModel[] = [];
-  currentState.score.secondTimings.forEach(t => {
-    if (t.start === note || t.middle === note || t.end === note) {
-      secondTimingsToDelete.push(t);
-    }
-  });
-  secondTimingsToDelete.forEach(t =>
-    currentState.score.secondTimings.splice(currentState.score.secondTimings.indexOf(t), 1));
-}
+function calculateZoomLevel(): number {
+  const widthWithoutSidebar = window.innerWidth * 0.9;
+  const width = widthWithoutSidebar * 0.9;
+  return width / scoreWidth * 100;
 
+}
 
 
 export default function startController() {

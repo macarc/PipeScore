@@ -1,6 +1,6 @@
 html {
   background: lightgrey;
-  margin-top: 2rem;
+  margin-top: 6rem;
 }
 
 #ui button {
@@ -49,6 +49,10 @@ html {
 
 #delete-notes {
   background-image: url('./images/bin-icon.png');
+}
+
+svg {
+  margin: 2vw;
 }
 
 
