@@ -3,14 +3,23 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
+<<<<<<< HEAD
+import { Pitch, flatten, SvgRef } from './all';
+=======
 import { Pitch, flatten, ID } from './all';
+>>>>>>> before-refactor
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
+<<<<<<< HEAD
 <<<<<<< HEAD
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 =======
 import { NoteModel, initNoteModel } from './NoteModel';
 import { GroupNoteModel, groupNotes } from './GroupNote';
 >>>>>>> 630626b (Continue refactor)
+=======
+import { NoteModel, initNoteModel } from './NoteModel';
+import { GroupNoteModel, groupNotes } from './GroupNote';
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 import { timeSignatureToBeatDivision } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';
@@ -174,11 +183,25 @@ function isDeleteStave(e: ScoreEvent): e is DeleteStave {
   return e.name === 'delete stave';
 }
 
+<<<<<<< HEAD
+
+export interface State {
+  score: ScoreModel,
+  draggedNote: NoteModel | null,
+  selectedNotes: Set<NoteModel>,
+  hoveredPitch: Pitch,
+  focused: boolean,
+  noteInputLength: NoteLength | null,
+  zoomLevel: number,
+  draggedText: TextBoxModel | null,
+  currentSvg: SvgRef
+=======
 type TieSelectedNotes = {
   name: 'tie selected notes'
 }
 function isTieSelectedNotes(e: ScoreEvent): e is TieSelectedNotes {
   return e.name === 'tie selected notes';
+>>>>>>> before-refactor
 }
 
 type TextDragged = {
@@ -396,7 +419,9 @@ const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
   const uiRoot = document.getElementById("ui");
   if (!scoreRoot || !uiRoot) return;
-  render(scoreRoot, Score.render(newState.score, { svgRef: currentState.currentSvg, zoomLevel: currentState.zoomLevel }));
+
+  const displayScore = Score.prerender(newState.score, { svgRef: currentState.currentSvg, zoomLevel: currentState.zoomLevel });
+  render(scoreRoot, Score.render(displayScore));
   render(uiRoot, UI.render(newState));
 }
 
@@ -411,7 +436,9 @@ function keyHandler(e: KeyboardEvent) {
 }
 
 
+// TODO
 function makeCorrectTie(noteModel: NoteModel) {
+  /*
   const bars = Score.bars(currentState.score);
   const noteModels = flatten(bars.map(b => unGroupNotes(b.notes)));
   for (let i=0; i < noteModels.length; i++) {
@@ -422,6 +449,7 @@ function makeCorrectTie(noteModel: NoteModel) {
       if ((i < noteModels.length - 1) && noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
     }
   }
+  */
 }
 
 function sortByPosition(notes: NoteModel[]) {
@@ -433,15 +461,19 @@ function sortByPosition(notes: NoteModel[]) {
 }
 
 function makeCorrectGroupings() {
+  /* TODO
   const bars = Score.bars(currentState.score);
   const noteModels = bars.map(b => unGroupNotes(b.notes));
   for (let i=0; i < bars.length; i++) {
     // todo actually pass the correct time signature
     bars[i].notes = groupNotes(noteModels[i], timeSignatureToBeatDivision(bars[i].timeSignature));
   }
+  */
 }
 
 function dragText(event: MouseEvent) {
+  // TODO
+  /*
   if (currentState.draggedText !== null) {
     const svg = currentState.currentSvg.current;
     if (svg == null) {
@@ -458,6 +490,7 @@ function dragText(event: MouseEvent) {
       dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
     }
   }
+  */
 }
 
 function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
@@ -475,6 +508,8 @@ function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
 
 function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
   const staves = Score.staves(currentState.score);
+  // TODO
+  /*
   for (const stave of staves) {
     const bars = Stave.bars(stave);
     for (const bar of bars) {
@@ -484,6 +519,7 @@ function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
       }
     }
   }
+  */
 
   return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
 }

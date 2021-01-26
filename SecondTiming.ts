@@ -1,5 +1,6 @@
 import { svg } from 'uhtml';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Svg, ID } from './all';
 import { NoteModel } from './Note';
 import { getXY } from './Controller';
@@ -7,6 +8,15 @@ import { getXY } from './Controller';
 import { Svg } from './all';
 import { NoteModel } from './NoteModel';
 >>>>>>> 630626b (Continue refactor)
+=======
+import { Svg } from './all';
+import { NoteModel } from './NoteModel';
+=======
+import { Svg, ID } from './all';
+import { NoteModel } from './Note';
+import { getXY } from './Controller';
+>>>>>>> before-refactor
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 
 
 
@@ -18,6 +28,12 @@ export interface SecondTimingModel {
 
 
 
+<<<<<<< HEAD
+
+
+function render(display: DisplaySecondTiming): Svg {
+  return svg`<g></g>`
+=======
 function render(secondTiming: SecondTimingModel): Svg {
   const start = getXY(secondTiming.start);
   const middle = getXY(secondTiming.middle);
@@ -35,6 +51,7 @@ function render(secondTiming: SecondTimingModel): Svg {
     console.error('invalid second timing!');
     return svg`<g></g>`;
   }
+>>>>>>> before-refactor
 }
 
 
@@ -44,7 +61,15 @@ const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
   end
 });
 
+export interface DisplaySecondTiming {
+}
+
+function prerender(secondTiming: SecondTimingModel): DisplaySecondTiming {
+  return ({});
+}
+
 export default {
+  prerender,
   render,
   init
 }

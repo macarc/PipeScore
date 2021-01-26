@@ -6,6 +6,7 @@ import { svg } from 'uhtml';
 import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY, ID, genId } from './all';
 import { log, log2, unlog, unlog2 } from './all';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
 import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
 import { dispatch, setXY } from './Controller';
@@ -16,6 +17,18 @@ import { NoteModel, PreviousNote, initNoteModel } from './NoteModel';
 import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual, DisplayTimeSignature, timeSignatureToBeatDivision } from './TimeSignature';
 import { dispatch } from './Controller';
 >>>>>>> 630626b (Continue refactor)
+=======
+import Note, { numberOfNotes, DisplayNote } from './Note';
+import {  GroupNoteModel, groupNotes, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset } from './GroupNote';
+import { NoteModel, PreviousNote, initNoteModel } from './NoteModel';
+import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual, DisplayTimeSignature, timeSignatureToBeatDivision } from './TimeSignature';
+import { dispatch } from './Controller';
+=======
+import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
+import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
+import { dispatch, setXY } from './Controller';
+>>>>>>> before-refactor
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 
 
 /* MODEL */
@@ -29,10 +42,14 @@ type BackBarline = Barline.RepeatLast | Barline.Normal;
 export interface BarModel {
   timeSignature: TimeSignatureModel,
 <<<<<<< HEAD
+<<<<<<< HEAD
   notes: GroupNoteModel[],
 =======
   notes: NoteModel[],
 >>>>>>> 630626b (Continue refactor)
+=======
+  notes: NoteModel[],
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
   frontBarline: FrontBarline,
   backBarline: BackBarline,
   id: ID
@@ -44,9 +61,15 @@ const init: () => BarModel = () => ({
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal
 })
+<<<<<<< HEAD
 
 
 
+=======
+
+
+
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 /* FUNCTIONS */
 const beatsOf = (notes: GroupNoteModel[], previousNote: Pitch | null) => notes
     .reduce((nums, n, index) => {
@@ -56,8 +79,13 @@ const beatsOf = (notes: GroupNoteModel[], previousNote: Pitch | null) => notes
     [1]);
 
 const barlineWidth = (barline: Barline) => barline === Barline.Normal ? 1 : 10;
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 function lastNoteIndexOf(notes: GroupNoteModel[]): number {
   let lastNoteIndex = notes.length - 1;
   if (numberOfNotes(notes[notes.length - 1]) === 0) lastNoteIndex = notes.length - 2;
@@ -156,6 +184,16 @@ export interface DisplayBar {
   timeSignature: DisplayTimeSignature | null,
   lastNote: PreviousNote | null,
 }
+<<<<<<< HEAD
+
+interface DisplayBarline {
+  display: boolean,
+  type: Barline,
+  x: number,
+  y: number
+}
+=======
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 
 interface DisplayBarline {
   display: boolean,
@@ -164,7 +202,11 @@ interface DisplayBarline {
   y: number
 }
 
-function renderBarline(type: Barline, x: number, y: number): Svg {
+function renderBarline(display: DisplayBarline): Svg {
+  if (! display.display) return svg``;
+  const x = display.x;
+  const y = display.y;
+  const type = display.type;
   const height = lineHeightOf(4);
   const lineOffset = 6;
   const circleXOffset = 10;
@@ -197,6 +239,11 @@ function renderBarline(type: Barline, x: number, y: number): Svg {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+function render(display: DisplayBar): Svg {
+=======
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 function barlineWidth(barline: Barline) {
   return (barline === Barline.Normal ? 1 : 10);
 }
@@ -268,20 +315,21 @@ function render(bar: BarModel,props: BarProps): Svg {
   });
 
 
+>>>>>>> before-refactor
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
-      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
-      ${bar.notes.map(
-        (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
-      )}
+      ${noteBoxes(display.barLeft, display.y, display.barRight - display.barLeft, display.mouseOverPitch)}
+      ${noteBoxes(display.barLeft, display.y, display.endNoteBoxWidth, display.mouseOverPitch, display.noteAddedToEnd)}
+      ${display.notes.map(note => svg.for(note)`${Note.render(note)}`)}
 
-      ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
-      ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
-      ${hasTimeSignature ? TimeSignature.render(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
+      ${renderBarline(display.frontBarline)}
+      ${renderBarline(display.backBarline)}
+      ${(display.timeSignature !== null) ? TimeSignature.render(display.timeSignature) : null}
     </g>`;
 
 }
+<<<<<<< HEAD
+=======
 const init: () => BarModel = () => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
@@ -289,7 +337,9 @@ const init: () => BarModel = () => ({
   backBarline: Barline.Normal,
   id: genId()
 })
+>>>>>>> before-refactor
 
+<<<<<<< HEAD
 =======
 function render(display: DisplayBar): Svg {
   return svg`
@@ -307,7 +357,11 @@ function render(display: DisplayBar): Svg {
 
 /* EXPORTS */
 >>>>>>> 630626b (Continue refactor)
+=======
+/* EXPORTS */
+>>>>>>> adb75441999bc90fe4e1dce8c57573f92e4827fc
 export default {
+  prerender,
   render,
   init,
   groupNotes: (bar: BarModel) => bar.notes
