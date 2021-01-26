@@ -24,7 +24,7 @@ export function timeSignatureToBeatDivision(ts: TimeSignatureModel): number {
     case 4:
       return 1;
     case 8:
-      return 3;
+      return 1.5;
   }
 }
 
@@ -47,7 +47,7 @@ function render(timeSignature: TimeSignatureModel, props: TimeSignatureProps): S
 }
 
 
-const init: () => TimeSignatureModel = () => [2,4];
+const init: () => TimeSignatureModel = () => [6,8];
 
 export const timeSignatureWidth = 30;
 

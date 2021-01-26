@@ -86,7 +86,6 @@ gracenotes.set('g-gracenote-birl', (note, prev) => {
 
 interface ReactiveGracenote {
   type: 'reactive',
-  // todo make typesafe
   name: string
 }
 

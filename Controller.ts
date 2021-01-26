@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
-import { Pitch, flatten } from './all';
+import { Pitch, flatten, ID } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { timeSignatureToBeatDivision } from './TimeSignature';
@@ -204,7 +204,7 @@ interface SvgRef {
   current: SVGSVGElement | null
 }
 
-interface NoteXY {
+interface XY {
   beforeX: number,
   afterX: number,
   y: number
@@ -218,7 +218,7 @@ export interface State {
   noteInputLength: NoteLength | null,
   zoomLevel: number,
   draggedText: TextBoxModel | null,
-  noteCoords: Map<NoteModel, NoteXY>,
+  itemCoords: Map<ID, XY>,
   currentSvg: SvgRef
 }
 
@@ -233,7 +233,7 @@ let currentState: State = {
   noteInputLength: null,
   zoomLevel: calculateZoomLevel(),
   draggedText: null,
-  noteCoords: new Map(),
+  itemCoords: new Map(),
   currentSvg: { current: null }
 };
 
@@ -314,6 +314,7 @@ export function dispatch(event: ScoreEvent): void {
   } else if (isToggleDotted(event)) {
     currentState.selectedNotes.forEach(note => note.length = toggleDot(note.length));
     changed = true;
+    recalculateNoteGroupings = true;
   } else if (isChangeZoomLevel(event)) {
     if (event.zoomLevel !== currentState.zoomLevel) {
       currentState.zoomLevel = event.zoomLevel;
@@ -340,6 +341,7 @@ export function dispatch(event: ScoreEvent): void {
     changed = true;
   } else if (isDeleteBar(event)) {
     const { bar, stave } = currentBar([...currentState.selectedNotes.values()][0]);
+    currentState.itemCoords.delete(bar.id);
     deleteBarFromStave(stave, bar);
     changed = true;
   } else if (isAddStave(event)) {
@@ -361,7 +363,7 @@ export function dispatch(event: ScoreEvent): void {
   } else if (isAddSecondTiming(event)) {
     if (currentState.selectedNotes.size >= 3) {
       const notes = sortByPosition([...currentState.selectedNotes.values()]);
-      currentState.score.secondTimings.push(SecondTiming.init(notes[0], notes[1], notes[2]));
+      currentState.score.secondTimings.push(SecondTiming.init(notes[0].id, notes[1].id, notes[2].id));
       changed = true;
     }
   } else {
@@ -382,8 +384,8 @@ export const isBeingDragged = (note: NoteModel) => note === currentState.dragged
 export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
 
 // the y value will be the stave's y rather than the actual y value of the note
-export const setNoteXY = (note: NoteModel, beforeX: number, afterX: number, y: number) => currentState.noteCoords.set(note, { beforeX, afterX, y });
-export const getNoteXY = (note: NoteModel): NoteXY | null => currentState.noteCoords.get(note) || null;
+export const setXY = (item: ID, beforeX: number, afterX: number, y: number) => currentState.itemCoords.set(item, { beforeX, afterX, y });
+export const getXY = (item: ID): XY | null => currentState.itemCoords.get(item) || null;
 
 const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
@@ -455,10 +457,10 @@ function dragText(event: MouseEvent) {
 
 function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
   newNotes.splice(newNotes.indexOf(note), 1);
-  currentState.noteCoords.delete(note);
+  currentState.itemCoords.delete(note.id);
   const secondTimingsToDelete: SecondTimingModel[] = [];
   currentState.score.secondTimings.forEach(t => {
-    if (t.start === note || t.middle === note || t.end === note) {
+    if (t.start === note.id || t.middle === note.id || t.end === note.id) {
       secondTimingsToDelete.push(t);
     }
   });

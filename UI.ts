@@ -55,7 +55,7 @@ function render(state: State) {
     <div id="sidebar">
 
       <h2>Gracenote</h2>
-      <label>Gracenote on selected notes</label>
+      <label>Click to apply to current selection</label>
       ${gracenoteInput('doubling')}
       ${gracenoteInput('throw-d')}
       ${gracenoteInput('toarluath')}
@@ -75,6 +75,7 @@ function render(state: State) {
       <button onclick=${() => dispatch({ name: 'delete stave' })}>
         Delete Stave
       </button>
+      <hr />
       <label>Zoom Level</label>
       <input id="zoom-level" type="range" min="10" max="200" step="2" value=${state.zoomLevel} oninput=${changeZoomLevel} />
     </div>

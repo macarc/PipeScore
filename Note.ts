@@ -3,10 +3,10 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull } from './all';
-import { NoteLength, noteLengthToNumTails, hasStem, hasDot, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
+import { Pitch, Svg, noteOffset, lineHeightOf, noteY, noteBoxes, flatten, removeNull, ID, genId, deepcopy } from './all';
+import { NoteLength, noteLengthToNumTails, hasStem, hasDot, hasBeam, isFilled, splitLength, mergeLengths, noteLengthToNumber, splitLengthNumber, numberToNoteLength } from './NoteLength';
 import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
-import { dispatch, isSelected, isBeingDragged, setNoteXY } from './Controller';
+import { dispatch, isSelected, isBeingDragged, setXY } from './Controller';
 
 import { log, unlog, log2, unlog2 } from './all';
 
@@ -14,7 +14,8 @@ export interface NoteModel {
   pitch: Pitch,
   length: NoteLength,
   gracenote: GracenoteModel,
-  tied: boolean
+  tied: boolean,
+  id: ID
 }
 
 export interface GroupNoteModel {
@@ -26,28 +27,37 @@ export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
 }
 
 export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
-  // todo - I'm not sure which file this should go in
-  // I feel like it should go in NoteLengths.ts but then it is quite hard to convert back
-  // from NoteLength[][] to GroupNote[] since some notelengths might be added
-
   let currentGroup: GroupNoteModel = { notes: [] },
   groupedNotes: GroupNoteModel[] = [],
   currentLength = 0,
   previousLength = 0;
   const pushNote = (currentGroup: GroupNoteModel, note: NoteModel, length: number, previousLength: number): number => {
     // add a note to the end - also merges notes if it can and they are tied
+    const push = (note: NoteModel) => {
+      if (hasBeam(note.length)) {
+        currentGroup.notes.push(note);
+      } else {
+        // Push the note as its own group. This won't modify the currentLength,
+        // which means that other groupings will still be correct
+        groupedNotes.push(deepcopy(currentGroup));
+        currentGroup.notes = [note];
+        groupedNotes.push(deepcopy(currentGroup));
+        currentGroup.notes = [];
+
+      }
+    };
     if (note.tied && previousLength !== 0) {
         const newLength = length + previousLength;
         const newNoteLength = numberToNoteLength(newLength);
         if (newNoteLength === null) {
-          currentGroup.notes.push(note);
+          push(note);
           return length;
         } else {
           currentGroup.notes[currentGroup.notes.length - 1].length = newNoteLength;
           return newLength;
         }
       } else {
-        currentGroup.notes.push(note);
+        push(note);
         return length;
       }
     };
@@ -73,36 +83,6 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
         currentLength = 0;
         previousLength = 0;
       }
-      // TODO maybe this shouldn't be doing all this work
-      /*
-      const splitLengths = splitLengthNumber(length, lengthOfGroup - currentLength);
-      const splitNoteLengths = splitLengths.map(numberToNoteLength);
-      const splitNotes = splitNoteLengths.filter(removeNull).map(length => initNoteModel(note.pitch, length, true));
-      splitNotes[0].gracenote = note.gracenote;
-      // It is set to be true, so override with the correct value
-      splitNotes[0].tied = note.tied;
-      pushNote(currentGroup, splitNotes[0], noteLengthToNumber(splitNotes[0].length), previousLength);
-      groupedNotes.push(currentGroup);
-      previousLength = 0;
-
-      currentLength = splitLengths.splice(1).reduce((a,b) => a + b);
-
-      // If it goes over multiple groups, then add all the groups and use the last one
-      if (currentLength >= lengthOfGroup) {
-        const currentNotesGroup = groupNotes(splitNotes.slice(1), lengthOfGroup);
-        groupedNotes = groupedNotes.concat(currentNotesGroup.slice(0, currentNotesGroup.length - 1));
-        currentGroup = currentNotesGroup[currentNotesGroup.length - 1];
-        currentLength = currentGroup.notes.reduce((a,b) => a + noteLengthToNumber(b.length), 0);
-      } else {
-        currentGroup = { notes: [] };
-        if (splitNotes.length > 1) {
-          splitNotes.slice(1).forEach(n => {
-            const current = noteLengthToNumber(n.length);
-            previousLength = pushNote(currentGroup, n, current, previousLength);
-          });
-        }
-      }
-      */
     }
   });
   // pushes the last notes to the groupedNotes
@@ -307,10 +287,10 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const lastNote: NoteModel = note.notes[note.notes.length - 1];
 
     const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
-    const setXY = (note: NoteModel, index: number) => setNoteXY(note, gracenoteX(index), xOf(index) + noteHeadWidth, props.y);
+    const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index), xOf(index) + noteHeadWidth, props.y);
 
     if (numberOfNotes(note) === 1) {
-      setXY(firstNote, 0);
+      setNoteXY(firstNote, 0);
       const gracenoteProps = ({
         // can just be props.x since it is the first note
         x: props.x,
@@ -376,7 +356,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
         <g class="grouped-notes">
           ${note.notes.map(
             (shortNote,index) => {
-              setXY(shortNote, index);
+              setNoteXY(shortNote, index);
               let previousNote: NoteModel | null = note.notes[index - 1] || null;
 
               const gracenoteProps = ({
@@ -429,7 +409,8 @@ export const initNoteModel = (pitch: Pitch, length: NoteLength, tied: boolean = 
   pitch,
   length,
   gracenote: Gracenote.init(),
-  tied
+  tied,
+  id: genId()
 });
 
 const init: () => GroupNoteModel = () => ({

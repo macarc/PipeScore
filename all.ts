@@ -56,6 +56,14 @@ export function removeNull<A>(a: A | null): a is A {
 export type Svg = Hole;
 export type Html = Hole;
 
+export type ID = number;
+export const genId = () => Math.floor(Math.random() * 100000000)
+
+export function deepcopy<A>(obj: A): A {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+
 export function flatten(array: any[]): any[] {
   return [].concat.apply([], array);
 }

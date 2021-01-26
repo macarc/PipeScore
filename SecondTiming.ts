@@ -1,22 +1,22 @@
 import { svg } from 'uhtml';
-import { Svg } from './all';
+import { Svg, ID } from './all';
 import { NoteModel } from './Note';
-import { getNoteXY } from './Controller';
+import { getXY } from './Controller';
 
 
 
 export interface SecondTimingModel {
-  start: NoteModel,
-  middle: NoteModel,
-  end: NoteModel
+  start: ID,
+  middle: ID,
+  end: ID
 }
 
 
 
 function render(secondTiming: SecondTimingModel): Svg {
-  const start = getNoteXY(secondTiming.start);
-  const middle = getNoteXY(secondTiming.middle);
-  const end = getNoteXY(secondTiming.end);
+  const start = getXY(secondTiming.start);
+  const middle = getXY(secondTiming.middle);
+  const end = getXY(secondTiming.end);
   const height = 35;
   const mid = 20;
   if (start && middle && end) {
@@ -33,7 +33,7 @@ function render(secondTiming: SecondTimingModel): Svg {
 }
 
 
-const init = (start: NoteModel, middle: NoteModel, end: NoteModel): SecondTimingModel => ({
+const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
   start,
   middle,
   end

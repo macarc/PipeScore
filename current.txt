@@ -36,6 +36,11 @@ a todo list:
 [X] Better zoom (instead of this weird 5 * 210 or whatever)
 [ ] Cut time
 [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
+[X] Second Timings for bars
+[ ] Preview note for current placement
+[X] ID for notes so that secondTiming can refer to that (also for bar, then there won't need to be different implementations!)
+[ ] Change selectedNotes to selectedItems? (use ID instead)
+[ ] Tied notes still have bugs - e.g. changes gap between notes
 
 
 

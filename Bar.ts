@@ -3,11 +3,11 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY } from './all';
+import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY, ID, genId } from './all';
 import { log, log2, unlog, unlog2 } from './all';
 import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
 import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
-import { dispatch } from './Controller';
+import { dispatch, setXY } from './Controller';
 
 
 enum Barline {
@@ -21,7 +21,8 @@ export interface BarModel {
   timeSignature: TimeSignatureModel,
   notes: GroupNoteModel[],
   frontBarline: FrontBarline,
-  backBarline: BackBarline
+  backBarline: BackBarline,
+  id: ID
 }
 
 
@@ -116,6 +117,7 @@ function barlineWidth(barline: Barline) {
 }
 
 function render(bar: BarModel,props: BarProps): Svg {
+  setXY(bar.id, props.x, props.x + props.width, props.y);
   const staveY = props.y;
   const hasTimeSignature = props.previousBar !== null ? !(timeSignatureEqual(props.previousBar.timeSignature, bar.timeSignature)) : true;
   const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
@@ -199,7 +201,8 @@ const init: () => BarModel = () => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
   frontBarline: Barline.Normal,
-  backBarline: Barline.Normal
+  backBarline: Barline.Normal,
+  id: genId()
 })
 
 export default {
