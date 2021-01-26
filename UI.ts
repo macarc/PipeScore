@@ -18,10 +18,12 @@ function render(state: State) {
 
 
   const noteInputButton = (length: NoteLength) => html`<button
-    class=${isCurrentNoteInput(length) ? 'current-note-input' : null}
+    class=${`${isCurrentNoteInput(length) ? 'current-note-input' : ''} note-input`}
+    id=${`note-${length}`}
     onclick=${setNoteInput(length)}>
-      ${length}
     </button>`;
+
+  const gracenoteInput = (name: string) => html`<button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: name })}>${name}</button>`;
 
 
   const changeZoomLevel = () => {
@@ -35,34 +37,32 @@ function render(state: State) {
   }
 
   return html`
-    <div>
-      UI
-      <button onclick=${() => dispatch({ name: 'delete selected notes' })}>Delete Selected Notes</button>
-
-      <h2>Note Input</h2>
-      <label>Current note input type</label>
-      ${noteInputButton(NoteLength.Semibreve)}
-      ${noteInputButton(NoteLength.Minim)}
-      ${noteInputButton(NoteLength.Crotchet)}
-      ${noteInputButton(NoteLength.Quaver)}
-      ${noteInputButton(NoteLength.SemiQuaver)}
-      ${noteInputButton(NoteLength.DemiSemiQuaver)}
-      ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
-
+    <div id="topbar">
+      <div id="note-inputs">
+        ${noteInputButton(NoteLength.Semibreve)}
+        ${noteInputButton(NoteLength.Minim)}
+        ${noteInputButton(NoteLength.Crotchet)}
+        ${noteInputButton(NoteLength.Quaver)}
+        ${noteInputButton(NoteLength.SemiQuaver)}
+        ${noteInputButton(NoteLength.DemiSemiQuaver)}
+        ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
+      </div>
+      <button id="toggle-dotted" onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
+      <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
+      <button id="delete-notes" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
+      <button id="second-timing" onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
+    </div>
+    <div id="sidebar">
 
       <h2>Gracenote</h2>
-      <label>Gracenote on selected notes</label>
-      <select id="set-gracenote" onchange=${() => dispatch({ name: 'set gracenote', value: (document.getElementById('set-gracenote') as HTMLSelectElement).value })}>
-        <option value="doubling">Doubling</value>
-        <option value="throw-d">Throw on D</value>
-        <option value="toarluath">Toarluath</value>
-        <option value="grip">Grip</value>
-        <option value="birl">Birl</value>
-        <option value="g-gracenote-birl">G Gracenote Birl</value>
-      </select>
-      <button onclick=${() => dispatch({ name: 'toggle dotted' })}>
-        Toggle dotted
-      </button>
+      <label>Click to apply to current selection</label>
+      ${gracenoteInput('doubling')}
+      ${gracenoteInput('throw-d')}
+      ${gracenoteInput('toarluath')}
+      ${gracenoteInput('grip')}
+      ${gracenoteInput('birl')}
+      ${gracenoteInput('g-gracenote-birl')}
+      <hr />
       <button onclick=${() => dispatch({ name: 'add bar' })}>
         Add Bar After
       </button>
@@ -75,6 +75,7 @@ function render(state: State) {
       <button onclick=${() => dispatch({ name: 'delete stave' })}>
         Delete Stave
       </button>
+      <hr />
       <label>Zoom Level</label>
       <input id="zoom-level" type="range" min="10" max="200" step="2" value=${state.zoomLevel} oninput=${changeZoomLevel} />
     </div>

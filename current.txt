@@ -13,11 +13,11 @@ a todo list:
 [X] check / fix gaps between notes
 [X] combine rests somehow into a single rest (if there are multiple next to each other)
 [X] placing notes from a blank score (of different lengths)
-[ ] fix random errors with adding note (it just throws an error sometimes)
+[X] fix random errors with adding note (it just throws an error sometimes)
 [ ] HG -> HA gracenote on next note looks a bit crushed
 [X] Any time rests are merged, some notes are deleted
 [X] Make adding notes more frictionless
-[ ] Make icons for note input
+[X] Make icons for note input
 [ ] Dotted note can get crushed into next gracenote
 [X] Width of drag boxes is wrong
 [X] Automatically group notes to correct grouping
@@ -29,15 +29,30 @@ a todo list:
 [X] Ties on notes on input (if inputted notes are split)
 [X] Tied notes should move together
 [X] When splitting really large notes right after a short note, the large note gets split into too many short notes
-[ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
 [X] Notes can't be added to the end of the bar
 [X] Placing a minim then one before it causes stack overflow
 [X] Placing a single quaver and then moving the mouse causes an error
-[ ] Placing a note inside two tied notes should probably break the tie
 [ ] Deal with things (ties, second timings, maybe more) going over stave break
+<<<<<<< HEAD
 [ ] Somehow do second timings without making render effectful?
 [ ] Work out a better way of prerendering things like noteBoxes, without () => Svg callbacks
 [ ] Remove unused imports
+=======
+[X] Delete second timings when their notes are deleted
+[X] Delete noteXY when a note is deleted
+[X] Have noteLeft, noteRight and noteY instead of noteXY
+[ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
+  [ ] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
+[X] Good default zoom
+[X] Better zoom (instead of this weird 5 * 210 or whatever)
+[ ] Cut time
+[ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
+[X] Second Timings for bars
+[ ] Preview note for current placement
+[X] ID for notes so that secondTiming can refer to that (also for bar, then there won't need to be different implementations!)
+[ ] Change selectedNotes to selectedItems? (use ID instead)
+[ ] Tied notes still have bugs - e.g. changes gap between notes
+>>>>>>> before-refactor
 
 
 
@@ -52,9 +67,12 @@ End user features:
 [X] Repeat marks
 [ ] Second timings
 [ ] Anacrusis
-[ ] Note ties
+[X] Note ties
 [X] Adding staves / bars
 [X] Text boxes
+[ ] Triplets
+[ ] Harmony Stave?
+[ ] Copy/paste/undo/redo
 [ ] A easy way to input all of the above
 [ ] Multiple scores per page
 [ ] Documentation

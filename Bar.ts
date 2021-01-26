@@ -3,13 +3,19 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY } from './all';
+import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY, ID, genId } from './all';
 import { log, log2, unlog, unlog2 } from './all';
+<<<<<<< HEAD
 import Note, { numberOfNotes, DisplayNote } from './Note';
 import {  GroupNoteModel, groupNotes, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset } from './GroupNote';
 import { NoteModel, PreviousNote, initNoteModel } from './NoteModel';
 import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual, DisplayTimeSignature, timeSignatureToBeatDivision } from './TimeSignature';
 import { dispatch } from './Controller';
+=======
+import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
+import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
+import { dispatch, setXY } from './Controller';
+>>>>>>> before-refactor
 
 
 /* MODEL */
@@ -24,7 +30,8 @@ export interface BarModel {
   timeSignature: TimeSignatureModel,
   notes: NoteModel[],
   frontBarline: FrontBarline,
-  backBarline: BackBarline
+  backBarline: BackBarline,
+  id: ID
 }
 
 const init: () => BarModel = () => ({
@@ -189,7 +196,81 @@ function renderBarline(display: DisplayBarline): Svg {
   }
 }
 
+<<<<<<< HEAD
 function render(display: DisplayBar): Svg {
+=======
+function barlineWidth(barline: Barline) {
+  return (barline === Barline.Normal ? 1 : 10);
+}
+
+function render(bar: BarModel,props: BarProps): Svg {
+  setXY(bar.id, props.x, props.x + props.width, props.y);
+  const staveY = props.y;
+  const hasTimeSignature = props.previousBar !== null ? !(timeSignatureEqual(props.previousBar.timeSignature, bar.timeSignature)) : true;
+  const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
+  const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
+  const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.frontBarline);
+
+
+
+  const previousWholeNote = props.previousBar ? (() => {
+    const last = props.previousBar.notes[props.previousBar.notes.length - 1];
+    if (numberOfNotes(last) === 0) {
+      // if all the notes add up to an even number, then the final note in the bar will have 0 length
+      // so in that case, return the second last note
+      return props.previousBar.notes[props.previousBar.notes.length - 2];
+    } else {
+      return last;
+    }
+  })() : null;
+  const previousNote = previousWholeNote ? lastNoteOfGroupNote(previousWholeNote) : null;
+  const previousNoteOf = (noteIndex: number) => noteIndex === 0
+    ? previousNote
+    : lastNoteOfGroupNote(bar.notes[noteIndex - 1]) || null;
+
+  const beats = beatsOf(bar, previousNote);
+  
+  
+  const totalNumberOfBeats = beats[beats.length - 1];
+  const beatWidth = width / totalNumberOfBeats;
+
+  const getX = (noteIndex: number) => xAfterBarline + beatWidth * beats[noteIndex];
+
+
+  function previousNoteData(index: number): PreviousNote | null {
+    const lastNote = (index > 0) ? lastNoteOfGroupNote(bar.notes[index - 1]) : null;
+    if (index === 0) {
+      if (previousNote !== null && props.lastNoteX !== null) {
+        return ({
+          pitch: previousNote,
+          x: props.lastNoteX,
+          y: noteY(props.y, previousNote)
+        });
+      } else {
+        return null;
+      }
+    } else if (lastNote !== null) {
+      const noteBeforeThat = (index < 2) ? null : lastNoteOfGroupNote(bar.notes[index - 2]);
+      return ({
+        pitch: lastNote,
+        x: getX(index - 1) + lastNoteXOffset(beatWidth, bar.notes[index - 1], noteBeforeThat),
+        y: noteY(props.y, lastNote)
+      })
+    } else {
+      return null;
+    }
+  }
+
+  const noteProps = (note: GroupNoteModel,index: number) => ({
+    x: getX(index),
+    y: staveY,
+    noteWidth: beatWidth,
+    previousNote: previousNoteData(index),
+    selectedNotes: []
+  });
+
+
+>>>>>>> before-refactor
   return svg`
     <g class="bar">
       ${noteBoxes(display.barLeft, display.y, display.barRight - display.barLeft, display.mouseOverPitch)}
@@ -202,6 +283,16 @@ function render(display: DisplayBar): Svg {
     </g>`;
 
 }
+<<<<<<< HEAD
+=======
+const init: () => BarModel = () => ({
+  timeSignature: TimeSignature.init(),
+  notes: [Note.init(),Note.init()],
+  frontBarline: Barline.Normal,
+  backBarline: Barline.Normal,
+  id: genId()
+})
+>>>>>>> before-refactor
 
 /* EXPORTS */
 export default {

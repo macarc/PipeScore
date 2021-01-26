@@ -1,24 +1,98 @@
 html {
-  background: lightblue;
+  background: lightgrey;
+  margin-top: 6rem;
+  font-family: sans-serif;
 }
 
-#ui {
+h2 {
+  font-size: 2rem;
+}
+
+label {
+  font-size: 0.8rem;
+}
+
+#ui button {
+  margin: 0.2rem;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-clip: padding-box;
+  background-color: white;
+  vertical-align: middle;
+  width: 3rem;
+  height: 3rem;
+  word-break: break-all;
+  font-size: 0.8rem;
+}
+#ui #sidebar {
   position: fixed;
   right: 0;
   top: 0;
   height: 100vh;
   width: 10vw;
   padding: 1rem;
-  background-color: green;
+  background-color: lightblue;
 }
 
-#ui button {
-  margin: 0.2rem;
-  width: 100%;
+#ui #topbar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 90vw;
+  padding: 1rem;
+  background: lightblue;
+  margin: 0;
 }
 
+#ui #topbar div {
+  display: inline;
+  margin: 0 2rem;
+}
+
+#tie {
+  background-image: url('./images/tie-icon.png');
+}
+
+#delete-notes {
+  background-image: url('./images/bin-icon.png');
+}
+
+svg {
+  margin: 2vw;
+}
+
+
+#note-sb {
+  background-image: url('./images/semibreve-icon.jpg');
+}
+
+#note-m {
+  background-image: url('./images/minim-icon.jpg');
+}
+
+#note-c {
+  background-image: url('./images/crotchet-icon.png');
+}
+
+#note-q {
+  background-image: url('./images/quaver-icon.png');
+}
+
+#note-sq {
+  background-image: url('./images/semiquaver-icon.png');
+}
+
+#note-ssq {
+  background-image: url('./images/demisemiquaver-icon.png');
+}
+
+#note-hdsq {
+  background-image: url('./images/hemidemisemiquaver-icon.png');
+}
 .current-note-input {
-  background-color: yellow;
+  background-color: yellow !important;
 }
 
 text {

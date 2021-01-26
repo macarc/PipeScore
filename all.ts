@@ -56,8 +56,16 @@ export function removeNull<A>(a: A | null): a is A {
 export type Svg = Hole;
 export type Html = Hole;
 
+<<<<<<< HEAD
 export interface SvgRef {
   current: SVGSVGElement | null
+=======
+export type ID = number;
+export const genId = () => Math.floor(Math.random() * 100000000)
+
+export function deepcopy<A>(obj: A): A {
+  return JSON.parse(JSON.stringify(obj));
+>>>>>>> before-refactor
 }
 
 

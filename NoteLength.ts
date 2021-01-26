@@ -40,6 +40,10 @@ export function hasDot(length: NoteLength): boolean {
   return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(length));
 }
 
+export function hasBeam(length: NoteLength): boolean {
+  return noteLengthToNumber(length) < 1;
+}
+
 export function isFilled(length: NoteLength): boolean {
   return noteLengthToNumber(length) < 2;
 }

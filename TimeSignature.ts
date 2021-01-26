@@ -30,7 +30,7 @@ export function timeSignatureToBeatDivision(ts: TimeSignatureModel): number {
     case 4:
       return 1;
     case 8:
-      return 3;
+      return 1.5;
   }
 }
 
@@ -64,12 +64,16 @@ export interface DisplayTimeSignature {
   bottom: string
 }
 
+<<<<<<< HEAD
 function render(display: DisplayTimeSignature): Svg {
   return svg`<g class="time-signature">
     <text x=${display.x} y=${display.topY} font-size="25">${display.top}</text>
     <text x=${display.x} y=${display.bottomY} font-size="25">${display.bottom}</text>
   </g>`;
 }
+=======
+const init: () => TimeSignatureModel = () => [6,8];
+>>>>>>> before-refactor
 
 
 /* EXPORTS */

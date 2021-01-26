@@ -18,6 +18,7 @@ export interface ScoreModel {
   textBoxes: TextBoxModel[],
   secondTimings: SecondTimingModel[]
 }
+<<<<<<< HEAD
 const init: () => ScoreModel = () => {
   const firstStave = Stave.init();
   const secondStave = Stave.init();
@@ -39,6 +40,10 @@ const height = 297 * 5;
 const groupNotes = (score: ScoreModel): GroupNoteModel[] => flatten(score.staves.map(stave => Stave.groupNotes(stave)));
 const bars = (score: ScoreModel): BarModel[] => flatten(score.staves.map(stave => Stave.bars(stave)));
 const staves = (score: ScoreModel): StaveModel[] => score.staves;
+=======
+export const scoreWidth = 210 * 5;
+export const scoreHeight = 297 * 5;
+>>>>>>> before-refactor
 
 
 export function addStaveToScore(score: ScoreModel, afterStave: StaveModel) {
@@ -59,14 +64,19 @@ interface ScoreProps {
   svgRef: any,
   zoomLevel: number
 }
+<<<<<<< HEAD
 function prerender(score: ScoreModel, props: ScoreProps): DisplayScore {
+=======
+
+function render(score: ScoreModel, props: ScoreProps): Svg {
+>>>>>>> before-refactor
   const margin = 30;
   const staveGap = 100;
   const topOffset = 150;
   const staveProps = (stave: StaveModel, index: number) => ({
     x: margin,
     y: index * staveGap + topOffset,
-    width: width - 2 * margin,
+    width: scoreWidth - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
   });
@@ -75,6 +85,7 @@ function prerender(score: ScoreModel, props: ScoreProps): DisplayScore {
     id: index
   });
 
+<<<<<<< HEAD
   return ({
     staves: score.staves.map((stave, idx) => Stave.prerender(stave, staveProps(stave, idx))),
     textBoxes: score.textBoxes.map((textBox, idx) => TextBox.prerender(textBox, textBoxProps(textBox, idx))),
@@ -84,6 +95,14 @@ function prerender(score: ScoreModel, props: ScoreProps): DisplayScore {
     svgRef: props.svgRef
   });
 }
+=======
+  return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
+    <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
+
+    ${score.staves.map((stave,idx) => svg.for(stave)`
+      ${Stave.render(stave, staveProps(stave,idx))}
+    `)}
+>>>>>>> before-refactor
 
 
 /* RENDER */
@@ -105,8 +124,17 @@ function render(display: DisplayScore): Svg {
     `)}
     ${display.textBoxes.map((textBox) => svg.for(textBox)`${TextBox.render(textBox)}`)}
 
+<<<<<<< HEAD
     ${display.secondTimings.map((secondTiming) => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
   </svg>`;
+=======
+const init: () => ScoreModel = () => {
+  return ({
+  staves: [Stave.init(),Stave.init()],
+  textBoxes: [TextBox.init()],
+  secondTimings: []
+})
+>>>>>>> before-refactor
 };
 
 /* EXPORT */
