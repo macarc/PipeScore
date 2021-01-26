@@ -6,22 +6,14 @@ import { Svg } from './all';
 import { svg } from 'uhtml';
 import { dispatch } from './Controller';
 
-/* MODEL */
 export interface TextBoxModel {
   x: number,
   y: number,
   text: string
 }
-const init = () => ({
-  x: 10,
-  y: 100,
-  text: "<Double Click to edit>"
-});
 
-/* FUNCTIONS */
-export function setCoords(tx: TextBoxModel, x: number, y: number){
-  tx.x = x - widthOf(tx) / 2;
-  tx.y = y;
+
+interface TextBoxProps {
 }
 
 function widthOf(tx: TextBoxModel) {
@@ -29,40 +21,25 @@ function widthOf(tx: TextBoxModel) {
   return tx.text.length * 5;
 }
 
-/* PRERENDER */
-interface TextBoxProps { }
-
-function prerender(tx: TextBoxModel, props: TextBoxProps): DisplayTextBox {
-  return ({
-    x: tx.x,
-    y: tx.y,
-    text: tx.text,
-    editText: () => dispatch({ name: 'edit text', text: tx }),
-    clickText: () => dispatch({ name: 'text clicked', text: tx }),
-    mouseUpText: () => dispatch({ name: 'text mouse up' })
-  })
+export function setCoords(tx: TextBoxModel, x: number, y: number){
+  tx.x = x - widthOf(tx) / 2;
+  tx.y = y;
 }
 
-/* RENDER */
-export interface DisplayTextBox {
-  x: number,
-  y: number,
-  text: string,
-  editText: () => void,
-  clickText: () => void,
-  mouseUpText: () => void
-}
-
-function render(display: DisplayTextBox): Svg {
+function render(tx: TextBoxModel, props: TextBoxProps): Svg {
   return svg`
-    <text x=${display.x} y=${display.y} ondblclick=${display.editText} onmousedown=${display.clickText} onmouseup=${display.mouseUpText} >${display.text}</text>
+    <text x=${tx.x} y=${tx.y} ondblclick=${() => dispatch({ name: 'edit text', text: tx })} onmousedown=${() => dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => dispatch({ name: 'text mouse up' })} >${tx.text}</text>
   `;
 }
 
+const init = () => ({
+  x: 10,
+  y: 100,
+  text: "<Double Click to edit>"
+});
 
-/* EXPORTS */
+
 export default {
-  prerender,
   render,
   init
 }
