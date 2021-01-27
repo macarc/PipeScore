@@ -11,6 +11,7 @@ import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
 import { BarModel } from './Bar';
+import { ScoreSelection } from './Selection';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
 import Stave from './Stave';
 import UI from './UI';
@@ -209,12 +210,12 @@ interface XY {
   afterX: number,
   y: number
 }
+
 export interface State {
   score: ScoreModel,
   draggedNote: NoteModel | null,
-  selectedNotes: Set<NoteModel>,
+  selection: ScoreSelection | null,
   hoveredPitch: Pitch,
-  focused: boolean,
   noteInputLength: NoteLength | null,
   zoomLevel: number,
   draggedText: TextBoxModel | null,
@@ -227,14 +228,13 @@ let currentState: State = {
   score: Score.init(),
 
   draggedNote: null,
-  selectedNotes: new Set(),
   hoveredPitch: Pitch.A,
-  focused: true,
   noteInputLength: null,
   zoomLevel: calculateZoomLevel(),
   draggedText: null,
   itemCoords: new Map(),
-  currentSvg: { current: null }
+  currentSvg: { current: null },
+  selection: null
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -243,7 +243,9 @@ export function dispatch(event: ScoreEvent): void {
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
   let changed = false,
-  recalculateNoteGroupings = false;
+  recalculateNoteGroupings = false,
+  noteModels = currentNoteModels(),
+  selectedNotes = selectionToNotes(currentState.selection, noteModels);
   if (isMouseMovedOver(event)) {
     if (event.pitch !== currentState.hoveredPitch) {
       currentState.hoveredPitch = event.pitch;
@@ -251,28 +253,39 @@ export function dispatch(event: ScoreEvent): void {
       if (currentState.draggedNote !== null) {
         currentState.draggedNote.pitch = event.pitch;
         makeCorrectTie(currentState.draggedNote);
-        changed = true;
       }
     }
   } else if (isNoteClicked(event)) {
     currentState.draggedNote = event.note;
-    if (! event.event.shiftKey) {
-      currentState.selectedNotes = new Set();
-    }
     changed = true;
+    if (! event.event.shiftKey) {
+      currentState.selection = { start: event.note, end: event.note };
+    } else {
+      if (currentState.selection === null) {
+        currentState.selection = { start: event.note, end: event.note };
+      } else {
+        const ind = noteModels.indexOf(event.note);
+        if (ind < noteModels.indexOf(currentState.selection.start)) {
+          currentState.selection.start = event.note;
+        } else if (ind > noteModels.indexOf(currentState.selection.end)) {
+          currentState.selection.end = event.note;
+        }
+      }
+    }
   } else if (isBackgroundClicked(event)) {
-    if (currentState.selectedNotes.size > 0) {
-      currentState.selectedNotes = new Set();
+    console.log('background clicked', selectedNotes);
+    if (selectedNotes.length > 0) {
+      console.log('goodbye selection');
+      currentState.selection = null;
       changed = true;
     }
   } else if (isMouseUp(event)) {
     if (currentState.draggedNote !== null) {
-      currentState.selectedNotes.add(currentState.draggedNote);
       currentState.draggedNote = null;
       changed = true;
     }
   } else if (isDeleteSelectedNotes(event)) {
-    if (currentState.selectedNotes.size > 0) {
+    if (selectedNotes.length > 0) {
       const groupedNotes = Score.groupNotes(currentState.score);
       const notes = flatten(groupedNotes.map(g => g.notes));
       // quadratic!
@@ -280,18 +293,18 @@ export function dispatch(event: ScoreEvent): void {
         // Need to slice it so that deleting inside the loop works
         const newNotes = g.notes.slice();
         g.notes.forEach(note => {
-          if (currentState.selectedNotes.has(note)) {
+          if (selectedNotes.includes(note)) {
             deleteNote(note, newNotes);
           }
         });
         g.notes = newNotes;
       });
-      currentState.selectedNotes = new Set();
+      currentState.selection = null;
       changed = true;
       recalculateNoteGroupings = true;
     }
   } else if (isSetGracenoteOnSelected(event)) {
-    currentState.selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
+    selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
     changed = true;
   } else if (isSetInputLength(event)) {
     if (event.length !== currentState.noteInputLength) {
@@ -312,7 +325,7 @@ export function dispatch(event: ScoreEvent): void {
       recalculateNoteGroupings = true
     }
   } else if (isToggleDotted(event)) {
-    currentState.selectedNotes.forEach(note => note.length = toggleDot(note.length));
+    selectedNotes.forEach(note => note.length = toggleDot(note.length));
     changed = true;
     recalculateNoteGroupings = true;
   } else if (isChangeZoomLevel(event)) {
@@ -336,33 +349,43 @@ export function dispatch(event: ScoreEvent): void {
       changed = true;
     }
   } else if (isAddBar(event)) {
-    const { bar, stave } = currentBar([...currentState.selectedNotes.values()][0]);
-    addBarToStave(stave, bar);
-    changed = true;
+    if (currentState.selection) {
+      const { bar, stave } = currentBar(currentState.selection.start);
+      addBarToStave(stave, bar);
+      changed = true;
+    }
   } else if (isDeleteBar(event)) {
-    const { bar, stave } = currentBar([...currentState.selectedNotes.values()][0]);
-    currentState.itemCoords.delete(bar.id);
-    deleteBarFromStave(stave, bar);
-    changed = true;
+    if (currentState.selection) {
+      // todo delete all selected bars
+      const { bar, stave } = currentBar(currentState.selection.start);
+      currentState.itemCoords.delete(bar.id);
+      deleteBarFromStave(stave, bar);
+      changed = true;
+    }
   } else if (isAddStave(event)) {
-    const { stave } = currentBar([...currentState.selectedNotes.values()][0]);
-    addStaveToScore(currentState.score, stave);
-    changed = true;
+    if (currentState.selection) {
+      const { stave } = currentBar(currentState.selection.start);
+      addStaveToScore(currentState.score, stave);
+      changed = true;
+    }
   } else if (isDeleteStave(event)) {
-    const { stave } = currentBar([...currentState.selectedNotes.values()][0]);
-    deleteStaveFromScore(currentState.score, stave);
-    changed = true;
+    if (currentState.selection) {
+      // todo delete all selected staves
+      const { stave } = currentBar(currentState.selection.start);
+      deleteStaveFromScore(currentState.score, stave);
+      changed = true;
+    }
   } else if (isTieSelectedNotes(event)) {
-    if (currentState.selectedNotes.size > 0) {
-      currentState.selectedNotes.forEach(note => {
+    if (selectedNotes.length > 0) {
+      selectedNotes.forEach(note => {
         note.tied = !note.tied
         makeCorrectTie(note);
       });
       changed = true;
     }
   } else if (isAddSecondTiming(event)) {
-    if (currentState.selectedNotes.size >= 3) {
-      const notes = sortByPosition([...currentState.selectedNotes.values()]);
+    if (selectedNotes.length >= 3) {
+      const notes = sortByPosition(selectedNotes);
       currentState.score.secondTimings.push(SecondTiming.init(notes[0].id, notes[1].id, notes[2].id));
       changed = true;
     }
@@ -381,7 +404,7 @@ export function dispatch(event: ScoreEvent): void {
 
 
 export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
-export const isSelected = (note: NoteModel) => currentState.selectedNotes.has(note) || isBeingDragged(note);
+export const isSelected = (note: NoteModel) => false//currentState.selectedNotes.has(note) || isBeingDragged(note);
 
 // the y value will be the stave's y rather than the actual y value of the note
 export const setXY = (item: ID, beforeX: number, afterX: number, y: number) => currentState.itemCoords.set(item, { beforeX, afterX, y });
@@ -391,7 +414,13 @@ const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
   const uiRoot = document.getElementById("ui");
   if (!scoreRoot || !uiRoot) return;
-  render(scoreRoot, Score.render(newState.score, { svgRef: currentState.currentSvg, zoomLevel: currentState.zoomLevel }));
+
+  const scoreProps = {
+    svgRef: currentState.currentSvg,
+    zoomLevel: currentState.zoomLevel,
+    selection: currentState.selection
+  }
+  render(scoreRoot, Score.render(newState.score, scoreProps));
   render(uiRoot, UI.render(newState));
 }
 
@@ -410,11 +439,10 @@ function makeCorrectTie(noteModel: NoteModel) {
   const bars = Score.bars(currentState.score);
   const noteModels = flatten(bars.map(b => unGroupNotes(b.notes)));
   for (let i=0; i < noteModels.length; i++) {
-    if (i === 0 && noteModels[i] === noteModel) {
-      break;
-    } else if (noteModels[i] === noteModel) {
-      if (noteModel.tied) noteModels[i - 1].pitch = noteModel.pitch;
+    if (noteModels[i].id === noteModel.id) {
+      if ((i > 0) && noteModel.tied) noteModels[i - 1].pitch = noteModel.pitch;
       if ((i < noteModels.length - 1) && noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
+      break;
     }
   }
 }
@@ -466,6 +494,9 @@ function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
   });
   secondTimingsToDelete.forEach(t =>
     currentState.score.secondTimings.splice(currentState.score.secondTimings.indexOf(t), 1));
+  if (currentState.selection && (note === currentState.selection.start || note === currentState.selection.end)) {
+    currentState.selection = null;
+  }
 }
 
 function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
@@ -490,6 +521,23 @@ function calculateZoomLevel(): number {
 
 }
 
+function currentNoteModels(): NoteModel[] {
+  const bars = Score.bars(currentState.score);
+  return flatten(bars.map(b => unGroupNotes(b.notes)));
+}
+
+
+function selectionToNotes(selection: ScoreSelection | null, noteModels: NoteModel[]): NoteModel[] {
+  if (selection === null) return [];
+  const startInd = noteModels.indexOf(selection.start);
+  const endInd = noteModels.indexOf(selection.end);
+  if (startInd !== -1 && endInd !== -1) {
+    return noteModels.slice(startInd, endInd + 1);
+  } else {
+    console.log('tsneario');
+    return [];
+  }
+}
 
 export default function startController() {
   window.addEventListener('keydown', keyHandler);

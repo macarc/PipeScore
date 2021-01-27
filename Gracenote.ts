@@ -108,9 +108,17 @@ const gracenoteHeadWidth = 3.5;
 function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
   const grace = notes(gracenote,thisNote,previousNote);
   if (isInvalid(grace)) {
-    return grace.gracenote.length + 1;
+    if (grace.gracenote.length > 0) {
+      return grace.gracenote.length + 1;
+    } else {
+      return 0;
+    }
   } else {
-    return grace.length + 1;
+    if (grace.length > 0) {
+      return grace.length + 1;
+    } else {
+      return 0;
+    }
   }
 };
 

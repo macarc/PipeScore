@@ -39,11 +39,10 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       } else {
         // Push the note as its own group. This won't modify the currentLength,
         // which means that other groupings will still be correct
-        groupedNotes.push(deepcopy(currentGroup));
+        if (currentGroup.notes.length > 0) groupedNotes.push({ ...currentGroup });
         currentGroup.notes = [note];
-        groupedNotes.push(deepcopy(currentGroup));
+        groupedNotes.push({ ...currentGroup });
         currentGroup.notes = [];
-
       }
     };
     if (note.tied && previousLength !== 0) {
@@ -68,7 +67,8 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
       currentLength += length;
     } else if (currentLength + length === lengthOfGroup) {
       previousLength = pushNote(currentGroup, note, length, previousLength);
-      groupedNotes.push(currentGroup);
+      // this check is needed since pushNote could end up setting currentGroup to have no notes in it
+      if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
       currentLength = 0;
       currentGroup = { notes: [] };
       previousLength = 0;
@@ -106,7 +106,7 @@ export const totalBeatWidth = (note: GroupNoteModel,previousPitch: Pitch | null)
 
 export const lastNoteOfGroupNote = (groupNote: GroupNoteModel) => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
 
-export const lastNoteXOffset = (beatWidth: number, note: GroupNoteModel, previousPitch: Pitch | null) => beatWidth * noteAndGracenoteWidth(note.notes.slice(0, note.notes.length - 1), previousPitch);
+export const lastNoteXOffset = (beatWidth: number, note: GroupNoteModel, previousPitch: Pitch | null) => beatWidth * noteAndGracenoteWidth(note.notes.slice().splice(0, note.notes.length), previousPitch) - beatWidth;
 
 export const numberOfNotes = (note: GroupNoteModel) => note.notes.length;
 
@@ -287,7 +287,7 @@ function render(note: GroupNoteModel,props: NoteProps): Svg {
     const lastNote: NoteModel = note.notes[note.notes.length - 1];
 
     const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
-    const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index), xOf(index) + noteHeadWidth, props.y);
+    const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index) - noteHeadWidth, xOf(index) + noteHeadWidth, props.y);
 
     if (numberOfNotes(note) === 1) {
       setNoteXY(firstNote, 0);

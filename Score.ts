@@ -9,6 +9,7 @@ import { BarModel } from './Bar';
 import Stave, { StaveModel } from './Stave';
 import TextBox, { TextBoxModel } from './TextBox';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
+import { ScoreSelection, selection } from './Selection';
 import { dispatch } from './Controller';
 
 export interface ScoreModel {
@@ -19,6 +20,7 @@ export interface ScoreModel {
 }
 export const scoreWidth = 210 * 5;
 export const scoreHeight = 297 * 5;
+export const staveGap = 100;
 
 function groupNotes(score: ScoreModel): GroupNoteModel[] {
   return flatten(score.staves.map(stave => Stave.groupNotes(stave)));
@@ -44,12 +46,12 @@ export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel) {
 
 interface ScoreProps {
   svgRef: any,
-  zoomLevel: number
+  zoomLevel: number,
+  selection: ScoreSelection | null
 }
 
 function render(score: ScoreModel, props: ScoreProps): Svg {
   const margin = 30;
-  const staveGap = 100;
   const topOffset = 150;
   
   const staveProps = (stave: StaveModel, index: number) => ({
@@ -75,6 +77,8 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
 
 
     ${score.secondTimings.map((secondTiming) => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
+
+    ${props.selection ? selection(props.selection) : null}
   </svg>`;
 };
 

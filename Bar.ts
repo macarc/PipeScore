@@ -164,9 +164,10 @@ function render(bar: BarModel,props: BarProps): Svg {
       }
     } else if (lastNote !== null) {
       const noteBeforeThat = (index < 2) ? null : lastNoteOfGroupNote(bar.notes[index - 2]);
+      const x = getX(index - 1) + lastNoteXOffset(beatWidth, bar.notes[index - 1], noteBeforeThat);
       return ({
         pitch: lastNote,
-        x: getX(index - 1) + lastNoteXOffset(beatWidth, bar.notes[index - 1], noteBeforeThat),
+        x,
         y: noteY(props.y, lastNote)
       })
     } else {

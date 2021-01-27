@@ -47,7 +47,7 @@ function render(timeSignature: TimeSignatureModel, props: TimeSignatureProps): S
 }
 
 
-const init: () => TimeSignatureModel = () => [6,8];
+const init: () => TimeSignatureModel = () => [2,4];
 
 export const timeSignatureWidth = 30;
 
