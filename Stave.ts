@@ -100,7 +100,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
   `
 };
 const init: () => StaveModel = () => ({
-  bars: [Bar.init(true),Bar.init(),Bar.init(),Bar.init()]
+  bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
 })
 
 export default {

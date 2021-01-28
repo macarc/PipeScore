@@ -6,7 +6,7 @@ import { render } from 'uhtml';
 import { Pitch, flatten, ID } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
-import { timeSignatureToBeatDivision } from './TimeSignature';
+import { TimeSignatureModel, timeSignatureToBeatDivision, parseDenominator } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
@@ -35,6 +35,8 @@ type ScoreEvent
   | TextDragged
   | AddSecondTiming
   | EditText
+  | EditTimeSignatureNumerator
+  | EditTimeSignatureDenominator
   | AddBar
   | AddStave
   | DeleteBar
@@ -198,6 +200,22 @@ type AddSecondTiming = {
 }
 function isAddSecondTiming(e: ScoreEvent): e is AddSecondTiming {
   return e.name === 'add second timing';
+}
+
+type EditTimeSignatureNumerator = {
+  name: 'edit time signature numerator',
+  timeSignature: TimeSignatureModel
+}
+function isEditTimeSignatureNumerator(e: ScoreEvent): e is EditTimeSignatureNumerator {
+  return e.name === 'edit time signature numerator';
+}
+
+type EditTimeSignatureDenominator = {
+  name: 'edit time signature denominator',
+  timeSignature: TimeSignatureModel
+}
+function isEditTimeSignatureDenominator(e: ScoreEvent): e is EditTimeSignatureDenominator {
+  return e.name === 'edit time signature denominator';
 }
 
 
@@ -389,6 +407,34 @@ export function dispatch(event: ScoreEvent): void {
       currentState.score.secondTimings.push(SecondTiming.init(notes[0].id, notes[1].id, notes[2].id));
       changed = true;
     }
+  } else if (isEditTimeSignatureNumerator(event)) {
+    const newNumerator = prompt('Enter new top number:', event.timeSignature[0].toString());
+    if (! newNumerator) return;
+    const asNumber = parseInt(newNumerator);
+
+    if (asNumber === event.timeSignature[0]) return;
+
+    if (!isNaN(asNumber) && asNumber > 0) {
+      setTimeSignatureFrom(event.timeSignature, [asNumber, event.timeSignature[1]]);
+      recalculateNoteGroupings = true;
+      changed = true;
+    } else {
+      alert('Invalid time signature');
+    }
+  } else if (isEditTimeSignatureDenominator(event)) {
+    const newDenominator = prompt('Enter new bottom number:', event.timeSignature[1].toString());
+    if (! newDenominator) return;
+    const denom = parseDenominator(newDenominator);
+
+    if (denom === event.timeSignature[1]) return;
+
+    if (denom === null) {
+      alert('Invalid time signature - PipeScore only supports 4 and 8 time signatures right now, sorry.');
+    } else {
+      setTimeSignatureFrom(event.timeSignature, [event.timeSignature[0], denom]);
+      recalculateNoteGroupings = true;
+      changed = true;
+    }
   } else {
     return event;
   }
@@ -515,7 +561,7 @@ function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
 }
 
 function calculateZoomLevel(): number {
-  const widthWithoutSidebar = window.innerWidth * 0.9;
+  const widthWithoutSidebar = window.innerWidth * 0.85;
   const width = widthWithoutSidebar * 0.9;
   return width / scoreWidth * 100;
 
@@ -536,6 +582,19 @@ function selectionToNotes(selection: ScoreSelection | null, noteModels: NoteMode
   } else {
     console.log('tsneario');
     return [];
+  }
+}
+
+function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignature: TimeSignatureModel) {
+  const bars = Score.bars(currentState.score);
+  let atTimeSignature = false;
+  for (let bar of bars) {
+    if (bar.timeSignature === timeSignature) {
+      atTimeSignature = true;
+    }
+    if (atTimeSignature) {
+      bar.timeSignature = newTimeSignature;
+    }
   }
 }
 

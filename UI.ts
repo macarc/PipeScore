@@ -55,7 +55,6 @@ function render(state: State) {
     <div id="sidebar">
 
       <h2>Gracenote</h2>
-      <label>Click to apply to current selection</label>
       ${gracenoteInput('doubling')}
       ${gracenoteInput('throw-d')}
       ${gracenoteInput('toarluath')}
