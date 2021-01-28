@@ -8,7 +8,7 @@ label {
   font-size: 0.8rem;
 }
 
-#ui button {
+#ui button:not(.textual) {
   margin: 0.2rem;
   background-position: center;
   background-size: contain;
@@ -52,8 +52,11 @@ label {
   background-image: url('./images/tie-icon.png');
 }
 
-#delete-notes {
+.delete {
   background-image: url('./images/bin-icon.png');
+}
+.add {
+  background-image: url('./images/plus-icon.jpg');
 }
 
 svg {

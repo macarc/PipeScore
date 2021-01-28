@@ -291,10 +291,12 @@ export function dispatch(event: ScoreEvent): void {
       }
     }
   } else if (isBackgroundClicked(event)) {
-    console.log('background clicked', selectedNotes);
     if (selectedNotes.length > 0) {
-      console.log('goodbye selection');
       currentState.selection = null;
+      changed = true;
+    }
+    if (currentState.noteInputLength !== null) {
+      currentState.noteInputLength = null;
       changed = true;
     }
   } else if (isMouseUp(event)) {
@@ -580,7 +582,6 @@ function selectionToNotes(selection: ScoreSelection | null, noteModels: NoteMode
   if (startInd !== -1 && endInd !== -1) {
     return noteModels.slice(startInd, endInd + 1);
   } else {
-    console.log('tsneario');
     return [];
   }
 }
@@ -606,3 +607,4 @@ export default function startController() {
   makeCorrectGroupings();
   updateView(currentState);
 }
+currentState.noteInputLength = null;

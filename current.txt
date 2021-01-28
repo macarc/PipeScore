@@ -7,11 +7,13 @@ Bugs to fix:
 [ ] Deal with things (ties, second timings, selection, ...) going over stave break
 [ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
   [ ] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
+  [ ] Have a manual override
 [ ] Cut time
 [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
 [ ] Preview note for current placement
-[ ] Clicking above notes probably shouldn't add the note
 [ ] Use correct previous note in all calls to widthOfAnacrusis
+[ ] Better second timing usage - you should click to add, then be able to drag the sections around
+[ ] Add transforms for texts
 
 
 
@@ -25,12 +27,13 @@ General features:
 [X] Time signatures
 [X] Repeat marks
 [ ] Second timings
-[ ] Anacrusis
+[X] Anacrusis
 [X] Note ties
 [X] Adding staves / bars
 [X] Text boxes
 [ ] Triplets
-[ ] Harmony Stave?
+[ ] Harmony Stave
+[ ] Resizable interface
 [ ] Copy/paste/undo/redo
 [ ] A easy way to input all of the above
 [ ] Multiple scores per page

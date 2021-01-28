@@ -49,8 +49,7 @@ function render(state: State) {
       </div>
       <button id="toggle-dotted" onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
       <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
-      <button id="delete-notes" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
-      <button id="second-timing" onclick=${() => dispatch({ name: 'add second timing' })}>Add Second Timing</button>
+      <button id="delete-notes" class="delete" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
     </div>
     <div id="sidebar">
 
@@ -62,18 +61,25 @@ function render(state: State) {
       ${gracenoteInput('birl')}
       ${gracenoteInput('g-gracenote-birl')}
       <hr />
-      <button onclick=${() => dispatch({ name: 'add bar' })}>
-        Add Bar After
-      </button>
-      <button onclick=${() => dispatch({ name: 'delete bar' })}>
-        Delete Bar
-      </button>
-      <button onclick=${() => dispatch({ name: 'add stave' })}>
-        Add Stave After
-      </button>
-      <button onclick=${() => dispatch({ name: 'delete stave' })}>
-        Delete Stave
-      </button>
+      <h2>Bar</h2>
+      <button class="add" onclick=${() => dispatch({ name: 'add bar' })}></button>
+      <button class="delete" onclick=${() => dispatch({ name: 'delete bar' })}></button>
+      <hr />
+      <h2>Stave</h2>
+      <button class="add" onclick=${() => dispatch({ name: 'add stave' })}></button>
+      <button class="delete" onclick=${() => dispatch({ name: 'delete stave' })}></button>
+      <hr />
+      <h2>Text</h2>
+      <button class="add" onclick=${() => alert('unimplemented')}></button>
+      <button class="delete" onclick=${() => alert('unimplemented')}></button>
+      <button onclick=${() => alert('unimplemented')}>Centre</button>
+      <h2>Second Timing</h2>
+      <button class="add" onclick=${() => dispatch({ name: 'add second timing' })}></button>
+      <hr />
+      <h2>Document</h2>
+      <button class="textual">Print</button>
+      <button class="textual">Export</button>
+      <button class="textual">Download</button>
       <hr />
       <label>Zoom Level</label>
       <input id="zoom-level" type="range" min="10" max="200" step="2" value=${state.zoomLevel} oninput=${changeZoomLevel} />
