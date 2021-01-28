@@ -6,7 +6,9 @@ import { svg } from 'uhtml';
 import { lineHeightOf, Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
 import TimeSignature from './TimeSignature';
-import Bar, { BarModel, xOffsetOfLastNote } from './Bar';
+import Bar, { BarModel, xOffsetOfLastNote, widthOfAnacrusis } from './Bar';
+
+import { log } from './all';
 
 export interface StaveModel {
   bars: BarModel[]
@@ -54,9 +56,17 @@ function render(stave: StaveModel, props: StaveProps): Svg {
   
   const staveLines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
 
-  const barWidth = (props.width - trebleClefWidth) / stave.bars.length;
+  const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, null) : 0), 0);
 
-  const getX = (barIdx: number) => barIdx * barWidth + props.x + trebleClefWidth;
+  const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.length;
+
+  const getX = (barIdx: number): number => stave.bars.slice().splice(0, barIdx).reduce((soFar, bar) => {
+    if (bar.isAnacrusis) {
+      return soFar + widthOfAnacrusis(bar, null);
+    } else {
+      return soFar + barWidth;
+    }
+  }, props.x + trebleClefWidth);
 
   const previousBar = (barIdx: number) => barIdx === 0
     ? (props.previousStave ? props.previousStave.bars[props.previousStave.bars.length - 1] : null)
@@ -65,7 +75,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
   const barProps = (bar: BarModel, index: number) => ({
     x: getX(index),
     y: staveHeight,
-    width: barWidth,
+    width: bar.isAnacrusis ? widthOfAnacrusis(bar, null) : barWidth,
     lastNoteX: index === 0 ? null : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1)
@@ -90,7 +100,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
   `
 };
 const init: () => StaveModel = () => ({
-  bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
+  bars: [Bar.init(true),Bar.init(),Bar.init(),Bar.init()]
 })
 
 export default {

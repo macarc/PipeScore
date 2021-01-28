@@ -10,8 +10,8 @@ Bugs to fix:
 [ ] Cut time
 [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
 [ ] Preview note for current placement
-[ ] Change selectedNotes to selectedItems? (use ID instead)
 [ ] Clicking above notes probably shouldn't add the note
+[ ] Use correct previous note in all calls to widthOfAnacrusis
 
 
 

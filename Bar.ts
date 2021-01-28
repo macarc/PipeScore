@@ -22,6 +22,7 @@ export interface BarModel {
   notes: GroupNoteModel[],
   frontBarline: FrontBarline,
   backBarline: BackBarline,
+  isAnacrusis: boolean,
   id: ID
 }
 
@@ -41,6 +42,8 @@ const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
       return [...nums, nums[nums.length - 1] + totalBeatWidth(n,previous || null)];
     },
     [1]);
+
+const minimumBeatWidth = 30;
 
 function groupNotes(bar: BarModel) {
   return bar.notes;
@@ -77,6 +80,12 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
   } else {
     return 0;
   }
+}
+
+export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null): number {
+  const beats = beatsOf(anacrusis, previousNote);
+  const totalNumberOfBeats = Math.max(beats[beats.length - 1], 2);
+  return minimumBeatWidth * totalNumberOfBeats;
 }
 
 
@@ -198,11 +207,12 @@ function render(bar: BarModel,props: BarProps): Svg {
     </g>`;
 
 }
-const init: () => BarModel = () => ({
+const init = (isAnacrusis: boolean = false): BarModel => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,
+  isAnacrusis,
   id: genId()
 })
 
