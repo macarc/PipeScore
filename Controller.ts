@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
-import { Pitch, flatten, ID } from './all';
+import { Pitch, flatten, ID, genId, deepcopy } from './all';
 import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { TimeSignatureModel, timeSignatureToBeatDivision, parseDenominator } from './TimeSignature';
@@ -19,6 +19,8 @@ import UI from './UI';
 // Events
 type ScoreEvent
   = MouseMovedOver
+  | Copy
+  | Paste
   | NoteClicked
   | BackgroundClicked
   | MouseUp
@@ -41,6 +43,21 @@ type ScoreEvent
   | AddStave
   | DeleteBar
   | DeleteStave;
+
+
+type Copy = {
+  name: 'copy'
+}
+function isCopy(e: ScoreEvent): e is Copy {
+  return e.name === 'copy';
+}
+
+type Paste = {
+  name: 'paste'
+}
+function isPaste(e: ScoreEvent): e is Paste {
+  return e.name === 'paste';
+}
 
 type MouseMovedOver = {
   name: 'mouse over pitch',
@@ -238,6 +255,7 @@ export interface State {
   zoomLevel: number,
   draggedText: TextBoxModel | null,
   itemCoords: Map<ID, XY>,
+  clipboard: NoteModel[] | null,
   currentSvg: SvgRef
 }
 
@@ -252,7 +270,8 @@ let currentState: State = {
   draggedText: null,
   itemCoords: new Map(),
   currentSvg: { current: null },
-  selection: null
+  selection: null,
+  clipboard: null
 };
 
 export function dispatch(event: ScoreEvent): void {
@@ -378,6 +397,9 @@ export function dispatch(event: ScoreEvent): void {
     if (currentState.selection) {
       // todo delete all selected bars
       const { bar, stave } = currentBar(currentState.selection.start);
+      const newNotes = flatten(bar.notes.slice().map(n => n.notes));
+      bar.notes.forEach(groupNote => groupNote.notes.forEach(note => deleteNote(note, newNotes)));
+      bar.notes = newNotes;
       currentState.itemCoords.delete(bar.id);
       deleteBarFromStave(stave, bar);
       changed = true;
@@ -392,6 +414,9 @@ export function dispatch(event: ScoreEvent): void {
     if (currentState.selection) {
       // todo delete all selected staves
       const { stave } = currentBar(currentState.selection.start);
+      const notes: NoteModel[] = flatten(stave.bars.map(bar => flatten(bar.notes.map(n => n.notes))));
+      const newNotes = notes.slice();
+      notes.forEach(note => deleteNote(note, newNotes));
       deleteStaveFromScore(currentState.score, stave);
       changed = true;
     }
@@ -437,6 +462,22 @@ export function dispatch(event: ScoreEvent): void {
       recalculateNoteGroupings = true;
       changed = true;
     }
+  } else if (isCopy(event)) {
+    currentState.clipboard = JSON.parse(JSON.stringify(selectedNotes));
+  } else if (isPaste(event)) {
+    if (! currentState.selection || ! currentState.clipboard) {
+      return;
+    }
+    let toPaste = currentState.clipboard.map(note => {
+      const n = initNoteModel(note.pitch, note.length, note.tied);
+      n.gracenote = deepcopy(note.gracenote);
+      return n;
+    });
+    const pasteAfter = currentState.selection.end;
+    const { bar } = currentBar(pasteAfter);
+    bar.notes.splice(bar.notes.length, 0, { notes: toPaste });
+    changed = true;
+    recalculateNoteGroupings = true;
   } else {
     return event;
   }
@@ -478,6 +519,14 @@ function keyHandler(e: KeyboardEvent) {
   switch (e.key) {
     case "Escape":
       dispatch({ name: 'stop inputting notes' });
+      break;
+    case "c":
+      if (e.ctrlKey)
+        dispatch({ name: 'copy' });
+      break;
+    case "v":
+      if (e.ctrlKey)
+        dispatch({ name: 'paste' });
       break;
   }
 }
@@ -532,6 +581,10 @@ function dragText(event: MouseEvent) {
 }
 
 function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
+  if (newNotes.indexOf(note) == -1) {
+    console.error("tried to delete a note that wasn't there");
+    return;
+  }
   newNotes.splice(newNotes.indexOf(note), 1);
   currentState.itemCoords.delete(note.id);
   const secondTimingsToDelete: SecondTimingModel[] = [];
