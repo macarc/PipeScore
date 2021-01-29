@@ -11,7 +11,7 @@ import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
 import { BarModel } from './Bar';
-import { ScoreSelectionModel } from './Selection';
+import { ScoreSelectionModel } from './ScoreSelection';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
 import Stave from './Stave';
 import UI from './UI';

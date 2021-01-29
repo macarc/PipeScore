@@ -9,7 +9,7 @@ import { BarModel } from './Bar';
 import Stave, { StaveModel } from './Stave';
 import TextBox, { TextBoxModel } from './TextBox';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
-import ScoreSelection, { ScoreSelectionModel } from './Selection';
+import ScoreSelection, { ScoreSelectionModel } from './ScoreSelection';
 import { SvgRef, dispatch } from './Controller';
 
 export interface ScoreModel {
