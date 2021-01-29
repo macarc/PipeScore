@@ -3,15 +3,15 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
-import { Pitch, flatten, ID, genId, deepcopy } from './all';
-import { NoteLength, numberToNoteLength, noteLengthToNumber, toggleDot } from './NoteLength';
+import { Pitch, flatten, ID, deepcopy } from './all';
+import { NoteLength, toggleDot } from './NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { TimeSignatureModel, timeSignatureToBeatDivision, parseDenominator } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
 import Score, { ScoreModel, addStaveToScore, deleteStaveFromScore, scoreWidth } from './Score';
 import { StaveModel, addBarToStave, deleteBarFromStave } from './Stave';
 import { BarModel } from './Bar';
-import { ScoreSelection } from './Selection';
+import { ScoreSelectionModel } from './Selection';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
 import Stave from './Stave';
 import UI from './UI';
@@ -236,7 +236,7 @@ function isEditTimeSignatureDenominator(e: ScoreEvent): e is EditTimeSignatureDe
 }
 
 
-interface SvgRef {
+export interface SvgRef {
   current: SVGSVGElement | null
 }
 
@@ -249,8 +249,7 @@ interface XY {
 export interface State {
   score: ScoreModel,
   draggedNote: NoteModel | null,
-  selection: ScoreSelection | null,
-  hoveredPitch: Pitch,
+  selection: ScoreSelectionModel | null,
   noteInputLength: NoteLength | null,
   zoomLevel: number,
   draggedText: TextBoxModel | null,
@@ -260,11 +259,9 @@ export interface State {
 }
 
 
-let currentState: State = {
+const currentState: State = {
   score: Score.init(),
-
   draggedNote: null,
-  hoveredPitch: Pitch.A,
   noteInputLength: null,
   zoomLevel: calculateZoomLevel(),
   draggedText: null,
@@ -279,18 +276,15 @@ export function dispatch(event: ScoreEvent): void {
      The global event handler.
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
-  let changed = false,
-  recalculateNoteGroupings = false,
-  noteModels = currentNoteModels(),
-  selectedNotes = selectionToNotes(currentState.selection, noteModels);
+  let changed = false;
+  let recalculateNoteGroupings = false;
+  const noteModels = currentNoteModels();
+  const selectedNotes = selectionToNotes(currentState.selection, noteModels);
   if (isMouseMovedOver(event)) {
-    if (event.pitch !== currentState.hoveredPitch) {
-      currentState.hoveredPitch = event.pitch;
-      changed = true;
-      if (currentState.draggedNote !== null) {
-        currentState.draggedNote.pitch = event.pitch;
-        makeCorrectTie(currentState.draggedNote);
-      }
+    if (currentState.draggedNote !== null) {
+    changed = true;
+      currentState.draggedNote.pitch = event.pitch;
+      makeCorrectTie(currentState.draggedNote);
     }
   } else if (isNoteClicked(event)) {
     currentState.draggedNote = event.note;
@@ -326,7 +320,6 @@ export function dispatch(event: ScoreEvent): void {
   } else if (isDeleteSelectedNotes(event)) {
     if (selectedNotes.length > 0) {
       const groupedNotes = Score.groupNotes(currentState.score);
-      const notes = flatten(groupedNotes.map(g => g.notes));
       // quadratic!
       groupedNotes.forEach(g => {
         // Need to slice it so that deleting inside the loop works
@@ -399,7 +392,6 @@ export function dispatch(event: ScoreEvent): void {
       const { bar, stave } = currentBar(currentState.selection.start);
       const newNotes = flatten(bar.notes.slice().map(n => n.notes));
       bar.notes.forEach(groupNote => groupNote.notes.forEach(note => deleteNote(note, newNotes)));
-      bar.notes = newNotes;
       currentState.itemCoords.delete(bar.id);
       deleteBarFromStave(stave, bar);
       changed = true;
@@ -437,7 +429,7 @@ export function dispatch(event: ScoreEvent): void {
   } else if (isEditTimeSignatureNumerator(event)) {
     const newNumerator = prompt('Enter new top number:', event.timeSignature[0].toString());
     if (! newNumerator) return;
-    const asNumber = parseInt(newNumerator);
+    const asNumber = parseInt(newNumerator, 10);
 
     if (asNumber === event.timeSignature[0]) return;
 
@@ -468,7 +460,7 @@ export function dispatch(event: ScoreEvent): void {
     if (! currentState.selection || ! currentState.clipboard) {
       return;
     }
-    let toPaste = currentState.clipboard.map(note => {
+    const toPaste = currentState.clipboard.map(note => {
       const n = initNoteModel(note.pitch, note.length, note.tied);
       n.gracenote = deepcopy(note.gracenote);
       return n;
@@ -492,11 +484,13 @@ export function dispatch(event: ScoreEvent): void {
 }
 
 
-export const isBeingDragged = (note: NoteModel) => note === currentState.draggedNote;
-export const isSelected = (note: NoteModel) => false//currentState.selectedNotes.has(note) || isBeingDragged(note);
+export const isBeingDragged = (note: NoteModel): boolean => note === currentState.draggedNote;
+export const isSelected = (note: NoteModel): boolean => false
 
 // the y value will be the stave's y rather than the actual y value of the note
-export const setXY = (item: ID, beforeX: number, afterX: number, y: number) => currentState.itemCoords.set(item, { beforeX, afterX, y });
+export const setXY = (item: ID, beforeX: number, afterX: number, y: number): void => {
+  currentState.itemCoords.set(item, { beforeX, afterX, y });
+}
 export const getXY = (item: ID): XY | null => currentState.itemCoords.get(item) || null;
 
 const updateView = (newState: State) => {
@@ -581,7 +575,7 @@ function dragText(event: MouseEvent) {
 }
 
 function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
-  if (newNotes.indexOf(note) == -1) {
+  if (newNotes.indexOf(note) === -1) {
     console.error("tried to delete a note that wasn't there");
     return;
   }
@@ -628,7 +622,7 @@ function currentNoteModels(): NoteModel[] {
 }
 
 
-function selectionToNotes(selection: ScoreSelection | null, noteModels: NoteModel[]): NoteModel[] {
+function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: NoteModel[]): NoteModel[] {
   if (selection === null) return [];
   const startInd = noteModels.indexOf(selection.start);
   const endInd = noteModels.indexOf(selection.end);
@@ -642,7 +636,7 @@ function selectionToNotes(selection: ScoreSelection | null, noteModels: NoteMode
 function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignature: TimeSignatureModel) {
   const bars = Score.bars(currentState.score);
   let atTimeSignature = false;
-  for (let bar of bars) {
+  for (const bar of bars) {
     if (bar.timeSignature === timeSignature) {
       atTimeSignature = true;
     }
@@ -652,7 +646,7 @@ function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignatur
   }
 }
 
-export default function startController() {
+export default function startController(): void {
   window.addEventListener('keydown', keyHandler);
   window.addEventListener('mousemove', dragText);
   currentState.score = Score.init();

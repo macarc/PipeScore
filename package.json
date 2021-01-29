@@ -5,7 +5,8 @@
   "main": "PipeScore.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "parcel index.html"
+    "dev": "parcel index.html",
+    "lint": "eslint . --ext .ts"
   },
   "author": "",
   "license": "GPL-3.0",
@@ -14,6 +15,9 @@
     "uhtml": "^2.1.4"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.18.0",
     "typescript": "^4.1.3"
   }
 }

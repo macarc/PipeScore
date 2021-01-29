@@ -2,16 +2,14 @@
   UI.ts - User interface for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { ScoreModel } from './Score';
-import { log } from './all';
+import { Svg } from './all';
 import { NoteLength } from './NoteLength';
-import { NoteModel } from './Note';
 import { dispatch, State } from './Controller';
 import { html } from 'uhtml';
 
 
 
-function render(state: State) {
+function render(state: State): Svg {
 
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
   const isCurrentNoteInput = (length: NoteLength) => state.noteInputLength === length;
@@ -29,7 +27,7 @@ function render(state: State) {
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');
     if (element !== null) {
-      const newZoomLevel = parseInt((element as HTMLInputElement).value);
+      const newZoomLevel = parseInt((element as HTMLInputElement).value, 10);
       if (! isNaN(newZoomLevel)) {
         dispatch({ name: 'change zoom level', zoomLevel: newZoomLevel });
       }

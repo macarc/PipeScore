@@ -3,9 +3,8 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, lineGap, Svg, Pitch, pitchToHeight, noteBoxes, noteY, ID, genId } from './all';
-import { log, log2, unlog, unlog2 } from './all';
-import Note, { GroupNoteModel, NoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
+import { lineHeightOf, Svg, Pitch, noteBoxes, noteY, ID, genId } from './all';
+import Note, { GroupNoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
 import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
 import { dispatch, setXY } from './Controller';
 
@@ -45,9 +44,7 @@ const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
 
 const minimumBeatWidth = 30;
 
-function groupNotes(bar: BarModel) {
-  return bar.notes;
-}
+const groupNotes = (bar: BarModel):  GroupNoteModel[] => bar.notes;
 
 function lastNoteIndexOfBar(bar: BarModel): number {
   let lastNoteIndex = bar.notes.length - 1;
@@ -146,13 +143,10 @@ function render(bar: BarModel,props: BarProps): Svg {
     }
   })() : null;
   const previousNote = previousWholeNote ? lastNoteOfGroupNote(previousWholeNote) : null;
-  const previousNoteOf = (noteIndex: number) => noteIndex === 0
-    ? previousNote
-    : lastNoteOfGroupNote(bar.notes[noteIndex - 1]) || null;
 
   const beats = beatsOf(bar, previousNote);
-  
-  
+
+
   const totalNumberOfBeats = beats[beats.length - 1];
   const beatWidth = width / totalNumberOfBeats;
 
@@ -207,7 +201,7 @@ function render(bar: BarModel,props: BarProps): Svg {
     </g>`;
 
 }
-const init = (isAnacrusis: boolean = false): BarModel => ({
+const init = (isAnacrusis = false): BarModel => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
   frontBarline: Barline.Normal,

@@ -1,6 +1,5 @@
 import { svg } from 'uhtml';
 import { Svg, ID } from './all';
-import { NoteModel } from './Note';
 import { getXY } from './Controller';
 
 

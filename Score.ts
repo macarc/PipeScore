@@ -9,8 +9,8 @@ import { BarModel } from './Bar';
 import Stave, { StaveModel } from './Stave';
 import TextBox, { TextBoxModel } from './TextBox';
 import SecondTiming, { SecondTimingModel } from './SecondTiming';
-import { ScoreSelection, selection } from './Selection';
-import { dispatch } from './Controller';
+import ScoreSelection, { ScoreSelectionModel } from './Selection';
+import { SvgRef, dispatch } from './Controller';
 
 export interface ScoreModel {
   staves: StaveModel[],
@@ -32,38 +32,34 @@ function staves(score: ScoreModel): StaveModel[] {
   return score.staves;
 }
 
-export function addStaveToScore(score: ScoreModel, afterStave: StaveModel) {
+export function addStaveToScore(score: ScoreModel, afterStave: StaveModel): void {
   const ind = score.staves.indexOf(afterStave);
   if (ind !== -1)
     score.staves.splice(ind + 1, 0, Stave.init());
 }
 
-export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel) {
+export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel): void {
   const ind = score.staves.indexOf(stave);
   if (ind !== -1)
     score.staves.splice(ind, 1);
 }
 
 interface ScoreProps {
-  svgRef: any,
+  svgRef: SvgRef,
   zoomLevel: number,
-  selection: ScoreSelection | null
+  selection: ScoreSelectionModel | null
 }
 
 function render(score: ScoreModel, props: ScoreProps): Svg {
   const margin = 30;
   const topOffset = 150;
-  
+
   const staveProps = (stave: StaveModel, index: number) => ({
     x: margin,
     y: index * staveGap + topOffset,
     width: scoreWidth - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
-  });
-
-  const textBoxProps = (textBox: TextBoxModel, index: number) => ({
-    id: index
   });
 
   return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
@@ -73,14 +69,14 @@ function render(score: ScoreModel, props: ScoreProps): Svg {
       ${Stave.render(stave, staveProps(stave,idx))}
     `)}
 
-    ${score.textBoxes.map((textBox, idx) => svg.for(textBox)`${TextBox.render(textBox, textBoxProps(textBox, idx))}`)}
+    ${score.textBoxes.map(textBox => svg.for(textBox)`${TextBox.render(textBox)}`)}
 
 
-    ${score.secondTimings.map((secondTiming) => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
+    ${score.secondTimings.map(secondTiming => svg.for(secondTiming)`${SecondTiming.render(secondTiming)}`)}
 
-    ${props.selection ? selection(props.selection) : null}
+    ${props.selection ? ScoreSelection.render(props.selection) : null}
   </svg>`;
-};
+}
 
 
 const init: () => ScoreModel = () => {

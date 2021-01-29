@@ -2,7 +2,7 @@
   Gracenote.ts - Gracenote implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { Pitch, lineGap, noteY, Svg, log } from './all';
+import { Pitch, lineGap, noteY, Svg } from './all';
 import { svg } from 'uhtml';
 
 type Gracenote = Pitch[];
@@ -23,33 +23,33 @@ const gracenotes: Map<string, GracenoteFn> = new Map();
 
 gracenotes.set('throw-d', note => invalidateIf(note !== Pitch.D, [Pitch.G,Pitch.D,Pitch.C]));
 gracenotes.set('doubling', (note, prev) => {
-  let init = [];
+  let pitches = [];
   if (note === Pitch.G || note === Pitch.A || note === Pitch.B || note === Pitch.C) {
-    init = [Pitch.HG, note, Pitch.D];
+    pitches = [Pitch.HG, note, Pitch.D];
   } else if (note === Pitch.D) {
-    init = [Pitch.HG, note, Pitch.E];
+    pitches = [Pitch.HG, note, Pitch.E];
   } else if (note === Pitch.E){
-    init = [Pitch.HG, note, Pitch.F];
+    pitches = [Pitch.HG, note, Pitch.F];
   } else if (note === Pitch.F) {
-    init = [Pitch.HG, note, Pitch.HG];
+    pitches = [Pitch.HG, note, Pitch.HG];
   } else if (note === Pitch.HG) {
     // [HA, note, HA] or [HG,F] ?
-    init = [Pitch.HA,note,Pitch.HA];
+    pitches = [Pitch.HA,note,Pitch.HA];
   } else if (note === Pitch.HA)  {
-    init = [Pitch.HA, Pitch.HG];
+    pitches = [Pitch.HA, Pitch.HG];
   } else {
     return [];
   }
 
   if (prev === Pitch.HG && (note !== Pitch.HA && note !== Pitch.HG)) {
-    init[0] = Pitch.HA;
+    pitches[0] = Pitch.HA;
   } else if (prev === Pitch.HA) {
-    init = init.splice(1);
+    pitches = pitches.splice(1);
 
-    if (note === Pitch.HG) init = [Pitch.HG,Pitch.F];
+    if (note === Pitch.HG) pitches = [Pitch.HG,Pitch.F];
   }
 
-  return init;
+  return pitches;
 });
 gracenotes.set('grip', note => {
   if (note === Pitch.D) {
@@ -59,16 +59,16 @@ gracenotes.set('grip', note => {
   }
 })
 gracenotes.set('toarluath', (note, prev) => {
-  let notes = [];
+  let pitches = [];
   if (prev === Pitch.D) {
-    notes = [Pitch.G, Pitch.B, Pitch.G, Pitch.E]
+    pitches = [Pitch.G, Pitch.B, Pitch.G, Pitch.E]
   } else {
-    notes = [Pitch.G, Pitch.D, Pitch.G, Pitch.E]
+    pitches = [Pitch.G, Pitch.D, Pitch.G, Pitch.E]
   }
   if (note === Pitch.E || note === Pitch.F || note === Pitch.HG || note === Pitch.HA) {
-    notes = notes.slice(0,3);
+    pitches = pitches.slice(0,3);
   }
-  return notes;
+  return pitches;
 });
 gracenotes.set('birl', (note, prev) => {
   return invalidateIf(note !== Pitch.A, prev === Pitch.A ? [Pitch.G, Pitch.A, Pitch.G] : [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
@@ -101,12 +101,12 @@ interface NoGracenote {
 export type GracenoteModel = ReactiveGracenote | SingleGracenote | NoGracenote;
 
 
-const tailXOffset: number = 3;
+const tailXOffset = 3;
 // actually this is half of the head width
 const gracenoteHeadWidth = 3.5;
 
 function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
-  const grace = notes(gracenote,thisNote,previousNote);
+  const grace = notesOf(gracenote,thisNote,previousNote);
   if (isInvalid(grace)) {
     if (grace.gracenote.length > 0) {
       return grace.gracenote.length + 1;
@@ -120,9 +120,9 @@ function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote:
       return 0;
     }
   }
-};
+}
 
-function notes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Pitch[] | InvalidGracenote {
+function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Pitch[] | InvalidGracenote {
   if (gracenote.type === 'single') {
     return [gracenote.note];
   } else if (gracenote.type === 'reactive') {
@@ -148,9 +148,9 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean)
     ${note === Pitch.HA ? svg`<line x1=${x - ledgerLeft} x2=${x + ledgerRight} y1=${y} y2=${y} stroke="black" />` : null}
     <ellipse cx=${x} cy=${y} rx=${gracenoteHeadWidth} ry="2.5" transform="${rotateText}" fill=${isValid ? "black" : "red"} pointer-events="none" />
 
-    <line x1=${x + tailXOffset} y1=${y} x2=${x + tailXOffset} y2=${beamY} stroke="black" /> 
+    <line x1=${x + tailXOffset} y1=${y} x2=${x + tailXOffset} y2=${beamY} stroke="black" />
   </g>`;
-};
+}
 
 const stemXOf = (x: number) => x + 3;
 const stemYOf = (y: number) => y - 2;
@@ -181,7 +181,7 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
     // rather than by value)
-    const grace = notes(gracenote, props.thisNote, props.previousNote);
+    const grace = notesOf(gracenote, props.thisNote, props.previousNote);
     const uniqueNotes: { note: Pitch }[] = isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
 
     const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth + gracenoteHeadWidth;
@@ -204,7 +204,7 @@ function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
   }
 }
 
-const init: () => GracenoteModel = () => ({
+const init = (): GracenoteModel => ({
   type: 'none',
 });
 

@@ -4,7 +4,6 @@
 */
 import { svg } from 'uhtml';
 import { Svg } from './all';
-import { NoteLength } from './NoteLength';
 import { dispatch } from './Controller';
 
 // todo more denominators

@@ -13,26 +13,23 @@ export interface TextBoxModel {
 }
 
 
-interface TextBoxProps {
-}
-
 function widthOf(tx: TextBoxModel) {
   // todo improve this
   return tx.text.length * 5;
 }
 
-export function setCoords(tx: TextBoxModel, x: number, y: number){
+export function setCoords(tx: TextBoxModel, x: number, y: number): void {
   tx.x = x - widthOf(tx) / 2;
   tx.y = y;
 }
 
-function render(tx: TextBoxModel, props: TextBoxProps): Svg {
+function render(tx: TextBoxModel): Svg {
   return svg`
     <text x=${tx.x} y=${tx.y} ondblclick=${() => dispatch({ name: 'edit text', text: tx })} onmousedown=${() => dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => dispatch({ name: 'text mouse up' })} >${tx.text}</text>
   `;
 }
 
-const init = () => ({
+const init = (): TextBoxModel => ({
   x: 10,
   y: 100,
   text: "<Double Click to edit>"

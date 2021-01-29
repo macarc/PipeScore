@@ -5,10 +5,7 @@
 import { svg } from 'uhtml';
 import { lineHeightOf, Svg, flatten } from './all';
 import { GroupNoteModel } from './Note';
-import TimeSignature from './TimeSignature';
 import Bar, { BarModel, xOffsetOfLastNote, widthOfAnacrusis } from './Bar';
-
-import { log } from './all';
 
 export interface StaveModel {
   bars: BarModel[]
@@ -30,12 +27,12 @@ function bars(stave: StaveModel): BarModel[] {
   return stave.bars;
 }
 
-export function addBarToStave(stave: StaveModel, bar: BarModel) {
+export function addBarToStave(stave: StaveModel, bar: BarModel): void {
   const ind = stave.bars.indexOf(bar);
   if (ind !== -1)
     stave.bars.splice(ind + 1, 0, Bar.init());
 }
-export function deleteBarFromStave(stave: StaveModel, bar: BarModel) {
+export function deleteBarFromStave(stave: StaveModel, bar: BarModel): void {
   const ind = stave.bars.indexOf(bar);
   if (ind !== -1)
     stave.bars.splice(ind, 1);
@@ -53,7 +50,7 @@ const trebleClefWidth = 40;
 
 function render(stave: StaveModel, props: StaveProps): Svg {
   const staveHeight = props.y;
-  
+
   const staveLines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
 
   const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, null) : 0), 0);
@@ -98,7 +95,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
       </g>
     </g>
   `
-};
+}
 const init: () => StaveModel = () => ({
   bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
 })
