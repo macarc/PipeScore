@@ -1,2 +1,3 @@
-export function dispatch(a: any) {
+export function dispatch(a: never) {
+  
 }

@@ -164,8 +164,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
-      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
+      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'add note to start', pitch }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${renderNote(note,noteProps(note,idx))}`
       )}

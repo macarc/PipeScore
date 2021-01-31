@@ -18,7 +18,7 @@ interface TimeSignatureProps {
 export default function render(timeSignature: TimeSignatureModel, props: TimeSignatureProps): Svg {
   const y = props.y + 15;
   return svg`<g class="time-signature">
-    <text text-anchor="middle" x=${props.x} y=${y} font-size="25" onclick=${() => dispatch({ name: 'edit time signature numerator', timeSignature })}>${timeSignature[0]}</text>
-    <text text-anchor="middle" x=${props.x} y=${y + 15} font-size="25" onclick=${() => dispatch({ name: 'edit time signature denominator', timeSignature })}>${timeSignature[1]}</text>
+    <text text-anchor="middle" x=${props.x} y=${y} font-size="25" onclick=${() => dispatch({ name: 'edit numerator', timeSignature })}>${timeSignature[0]}</text>
+    <text text-anchor="middle" x=${props.x} y=${y + 15} font-size="25" onclick=${() => dispatch({ name: 'edit denominator', timeSignature })}>${timeSignature[1]}</text>
   </g>`;
 }
