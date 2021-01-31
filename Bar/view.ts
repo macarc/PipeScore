@@ -3,27 +3,21 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, Svg, Pitch, noteBoxes, noteY, ID, genId } from './all';
-import Note, { GroupNoteModel, PreviousNote, lastNoteOfGroupNote, totalBeatWidth, lastNoteXOffset, numberOfNotes } from './Note';
-import TimeSignature, { TimeSignatureModel, timeSignatureWidth, timeSignatureEqual } from './TimeSignature';
-import { dispatch, setXY } from './Controller';
+import { lineHeightOf, Pitch, Svg, noteBoxes, noteY, ID, genId } from '../all';
+import renderNote, { lastNoteXOffset, totalBeatWidth } from '../Note/view';
+import { PreviousNote } from '../Note/model';
+import Note, { lastNoteOfGroupNote } from '../Note/functions';
+import TimeSignature from '../TimeSignature/view';
+import { timeSignatureWidth, timeSignatureEqual } from '../TimeSignature/functions';
+
+import { setXY } from '../global';
+import { GroupNoteModel } from '../Note/model';
+
+import { BarModel, FrontBarline, BackBarline, Barline } from './model';
+import { dispatch } from './controller';
+import Bar, { lastNoteOfBar, lastNoteIndexOfBar, numberOfGroupNotes } from './functions';
 
 
-enum Barline {
-  RepeatFirst, RepeatLast, Normal
-}
-
-type FrontBarline = Barline.RepeatFirst | Barline.Normal;
-type BackBarline = Barline.RepeatLast | Barline.Normal;
-
-export interface BarModel {
-  timeSignature: TimeSignatureModel,
-  notes: GroupNoteModel[],
-  frontBarline: FrontBarline,
-  backBarline: BackBarline,
-  isAnacrusis: boolean,
-  id: ID
-}
 
 
 interface BarProps {
@@ -35,35 +29,16 @@ interface BarProps {
   shouldRenderLastBarline: boolean
 }
 
-const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
+export const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
     .reduce((nums, n, index) => {
       const previous = index === 0 ? previousNote : lastNoteOfGroupNote(bar.notes[index - 1]);
       return [...nums, nums[nums.length - 1] + totalBeatWidth(n,previous || null)];
     },
     [1]);
 
+
 const minimumBeatWidth = 30;
 
-const groupNotes = (bar: BarModel):  GroupNoteModel[] => bar.notes;
-
-function lastNoteIndexOfBar(bar: BarModel): number {
-  let lastNoteIndex = bar.notes.length - 1;
-  if (numberOfNotes(bar.notes[bar.notes.length - 1]) === 0) lastNoteIndex = bar.notes.length - 2;
-  return lastNoteIndex;
-}
-
-function lastNoteOfBar(bar: BarModel): Pitch | null {
-  const lastGroupNote = bar.notes[lastNoteIndexOfBar(bar)] || null;
-  if (lastGroupNote !== null) {
-    return lastNoteOfGroupNote(lastGroupNote);
-  } else {
-    return null;
-  }
-}
-
-function numberOfGroupNotes(bar: BarModel): number {
-  return lastNoteIndexOfBar(bar) + 1;
-}
 
 export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
   const lastNoteIndex = lastNoteIndexOfBar(bar);
@@ -122,7 +97,7 @@ function barlineWidth(barline: Barline) {
   return (barline === Barline.Normal ? 1 : 10);
 }
 
-function render(bar: BarModel,props: BarProps): Svg {
+export default function render(bar: BarModel,props: BarProps): Svg {
   setXY(bar.id, props.x, props.x + props.width, props.y);
   const staveY = props.y;
   const hasTimeSignature = props.previousBar !== null ? !(timeSignatureEqual(props.previousBar.timeSignature, bar.timeSignature)) : true;
@@ -134,7 +109,7 @@ function render(bar: BarModel,props: BarProps): Svg {
 
   const previousWholeNote = props.previousBar ? (() => {
     const last = props.previousBar.notes[props.previousBar.notes.length - 1];
-    if (numberOfNotes(last) === 0) {
+    if (Note.numberOfNotes(last) === 0) {
       // if all the notes add up to an even number, then the final note in the bar will have 0 length
       // so in that case, return the second last note
       return props.previousBar.notes[props.previousBar.notes.length - 2];
@@ -192,26 +167,12 @@ function render(bar: BarModel,props: BarProps): Svg {
       ${noteBoxes(xAfterBarline,staveY, width, pitch => dispatch({ name: 'mouse over pitch', pitch }))}
       ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', index: 0, pitch, note: bar.notes[0] }))}
       ${bar.notes.map(
-        (note,idx) => svg.for(note)`${Note.render(note,noteProps(note,idx))}`
+        (note,idx) => svg.for(note)`${renderNote(note,noteProps(note,idx))}`
       )}
 
       ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
       ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
-      ${hasTimeSignature ? TimeSignature.render(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
+      ${hasTimeSignature ? TimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
     </g>`;
 
-}
-const init = (isAnacrusis = false): BarModel => ({
-  timeSignature: TimeSignature.init(),
-  notes: [Note.init(),Note.init()],
-  frontBarline: Barline.Normal,
-  backBarline: Barline.Normal,
-  isAnacrusis,
-  id: genId()
-})
-
-export default {
-  render,
-  init,
-  groupNotes
 }

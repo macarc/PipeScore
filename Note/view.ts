@@ -3,91 +3,15 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Pitch, Svg, noteOffset, noteY, noteBoxes, flatten, ID, genId } from './all';
-import { NoteLength, noteLengthToNumTails, hasStem, hasDot, hasBeam, isFilled, noteLengthToNumber, numberToNoteLength } from './NoteLength';
-import Gracenote, { GracenoteModel, GracenoteProps } from './Gracenote';
-import { dispatch, isSelected, isBeingDragged, setXY } from './Controller';
+import { Pitch, Svg, noteOffset, noteY, noteBoxes } from '../all';
+import Gracenote, { GracenoteProps } from '../Gracenote/view';
+import { numberOfNotes as gracenoteNumberOfNotes } from '../Gracenote/functions';
+import { setXY } from '../global';
 
-export interface NoteModel {
-  pitch: Pitch,
-  length: NoteLength,
-  gracenote: GracenoteModel,
-  tied: boolean,
-  id: ID
-}
+import { GroupNoteModel, NoteModel, NoteLength, PreviousNote } from './model';
+import { noteLengthToNumTails, hasStem, hasDot, hasBeam, isFilled, noteLengthToNumber, numberToNoteLength, numberOfNotes } from './functions';
+import { dispatch } from './controller';
 
-export interface GroupNoteModel {
-  notes: NoteModel[]
-}
-
-export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
-  return flatten(notes.map(note => note.notes));
-}
-
-export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
-  const pushNote = (group: GroupNoteModel, note: NoteModel, length: number): number => {
-    // add a note to the end - also merges notes if it can and they are tied
-    const push = (noteToPush: NoteModel) => {
-      if (hasBeam(noteToPush.length)) {
-        group.notes.push(noteToPush);
-      } else {
-        // Push the note as its own group. This won't modify the currentLength,
-        // which means that other groupings will still be correct
-        if (group.notes.length > 0) groupedNotes.push({ ...group });
-        group.notes = [noteToPush];
-        groupedNotes.push({ ...group });
-        group.notes = [];
-      }
-    };
-    if (note.tied && previousLength !== 0) {
-        const newLength = length + previousLength;
-        const newNoteLength = numberToNoteLength(newLength);
-        if (newNoteLength === null) {
-          push(note);
-          return length;
-        } else {
-          group.notes[group.notes.length - 1].length = newNoteLength;
-          return newLength;
-        }
-      } else {
-        push(note);
-        return length;
-      }
-    };
-  let currentGroup: GroupNoteModel = { notes: [] };
-  const groupedNotes: GroupNoteModel[] = [];
-  let currentLength = 0;
-  let previousLength = 0;
-  notes.forEach(note => {
-    const length = noteLengthToNumber(note.length);
-    if (currentLength + length < lengthOfGroup) {
-      previousLength = pushNote(currentGroup, note, length);
-      currentLength += length;
-    } else if (currentLength + length === lengthOfGroup) {
-      previousLength = pushNote(currentGroup, note, length);
-      // this check is needed since pushNote could end up setting currentGroup to have no notes in it
-      if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
-      currentLength = 0;
-      currentGroup = { notes: [] };
-      previousLength = 0;
-    } else {
-      groupedNotes.push(currentGroup);
-      currentGroup = { notes: [] };
-      previousLength = pushNote(currentGroup, note, length);
-      currentLength = length;
-      if (currentLength >= lengthOfGroup) {
-        groupedNotes.push(currentGroup);
-        currentGroup = { notes: [] };
-        currentLength = 0;
-        previousLength = 0;
-      }
-    }
-  });
-  // pushes the last notes to the groupedNotes
-  // this also ensures that the length will never be 0, even if there are 0 notes
-  groupedNotes.push(currentGroup);
-  return groupedNotes;
-}
 
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
@@ -97,16 +21,12 @@ const noteHeadWidth = 5;
 
 const noteAndGracenoteWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
   notes.map((n,i) => 1 + (n.tied ? 0 :
-                          (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch)))
+                          (gracenoteToNoteWidthRatio * gracenoteNumberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch)))
            ).reduce((a,b) => a + b, 0);
 
 export const totalBeatWidth = (note: GroupNoteModel,previousPitch: Pitch | null): number => noteAndGracenoteWidth(note.notes, previousPitch);
 
-export const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
-
 export const lastNoteXOffset = (beatWidth: number, note: GroupNoteModel, previousPitch: Pitch | null): number => beatWidth * noteAndGracenoteWidth(note.notes.slice().splice(0, note.notes.length), previousPitch) - beatWidth;
-
-export const numberOfNotes = (note: GroupNoteModel): number => note.notes.length;
 
 function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
 	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
@@ -169,8 +89,8 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
     const dotted = hasDot(note.length);
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
-    const dragged = isBeingDragged(note);
-    const selected = isSelected(note);
+    const dragged = false//todo isBeingDragged(note);
+    const selected = false//todo isSelected(note);
 
 
     // pointer events must be set so that if it is being
@@ -228,7 +148,7 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
 
   return svg`<g class="singleton">
     ${shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null}
-    ${shouldTie(note, previousNote) ?  null : Gracenote.render(note.gracenote, gracenoteProps)}
+    ${shouldTie(note, previousNote) ?  null : Gracenote(note.gracenote, gracenoteProps)}
 
     ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
     ${hasStem(note.length) ? svg`<line
@@ -248,12 +168,6 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
 
 
 
-export interface PreviousNote {
-  pitch: Pitch,
-  x: number,
-  y: number
-}
-
 interface NoteProps {
   x: number,
   y: number,
@@ -262,7 +176,7 @@ interface NoteProps {
 }
 
 
-function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
+export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
 
   const previousPitch = props.previousNote && props.previousNote.pitch;
 
@@ -274,7 +188,7 @@ function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
     // useful for x calculations
 
     const relativeIndexOfGracenote = (index: number) => noteAndGracenoteWidth(groupNote.notes.slice().splice(0,index), previousPitch);
-    const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (Gracenote.numberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : groupNote.notes[index - 1].pitch)));
+    const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (gracenoteNumberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : groupNote.notes[index - 1].pitch)));
     const xOf = (noteIndex: number) => props.x + relativeIndexOf(groupNote.notes[noteIndex],noteIndex) * props.noteWidth;
     const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
 
@@ -375,7 +289,7 @@ function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
 
               return svg.for(note)`<g class="grouped-note">
                 ${shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null}
-                ${shouldTie(note, previousNoteObj) ? null : Gracenote.render(note.gracenote,gracenoteProps)}
+                ${shouldTie(note, previousNoteObj) ? null : Gracenote(note.gracenote,gracenoteProps)}
 
                 ${noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
 
@@ -399,20 +313,3 @@ function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
     }
   }
 }
-
-export const initNoteModel = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
-  pitch,
-  length,
-  gracenote: Gracenote.init(),
-  tied,
-  id: genId()
-});
-
-const init: () => GroupNoteModel = () => ({
-	notes: [ ]
-});
-
-export default {
-  render,
-  init,
-};

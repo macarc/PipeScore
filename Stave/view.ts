@@ -3,14 +3,13 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, Svg, flatten } from './all';
-import { GroupNoteModel } from './Note';
-import Bar, { BarModel, xOffsetOfLastNote, widthOfAnacrusis } from './Bar';
+import { lineHeightOf, Svg, flatten } from '../all';
+import { GroupNoteModel } from '../Note/model';
+import Bar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
+import { BarModel } from '../Bar/model';
 
-export interface StaveModel {
-  bars: BarModel[]
-}
-
+import { StaveModel } from './model';
+import { dispatch } from './controller';
 
 interface StaveProps {
   x: number,
@@ -19,24 +18,6 @@ interface StaveProps {
   previousStave: StaveModel | null,
 }
 
-function groupNotes(stave: StaveModel): GroupNoteModel[] {
-  return flatten(stave.bars.map(b => Bar.groupNotes(b)));
-}
-
-function bars(stave: StaveModel): BarModel[] {
-  return stave.bars;
-}
-
-export function addBarToStave(stave: StaveModel, bar: BarModel): void {
-  const ind = stave.bars.indexOf(bar);
-  if (ind !== -1)
-    stave.bars.splice(ind + 1, 0, Bar.init());
-}
-export function deleteBarFromStave(stave: StaveModel, bar: BarModel): void {
-  const ind = stave.bars.indexOf(bar);
-  if (ind !== -1)
-    stave.bars.splice(ind, 1);
-}
 
 const trebleClef = (x: number, y: number) => svg`
   <g transform=${`translate(${x + 5} ${y - 25}) scale(0.08)`}>
@@ -48,7 +29,7 @@ const trebleClef = (x: number, y: number) => svg`
 
 const trebleClefWidth = 40;
 
-function render(stave: StaveModel, props: StaveProps): Svg {
+export default function render(stave: StaveModel, props: StaveProps): Svg {
   const staveHeight = props.y;
 
   const staveLines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
@@ -83,7 +64,7 @@ function render(stave: StaveModel, props: StaveProps): Svg {
       ${trebleClef(props.x, props.y)}
       <g class="notes">
         ${stave.bars.map(
-          (bar,idx) => svg.for(bar)`${Bar.render(bar, barProps(bar,idx))}`
+          (bar,idx) => svg.for(bar)`${Bar(bar, barProps(bar,idx))}`
         )}
       </g>
       <g class="stave-lines">
@@ -95,14 +76,4 @@ function render(stave: StaveModel, props: StaveProps): Svg {
       </g>
     </g>
   `
-}
-const init: () => StaveModel = () => ({
-  bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
-})
-
-export default {
-  render,
-  init,
-  groupNotes,
-  bars
 }

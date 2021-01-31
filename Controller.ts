@@ -2,9 +2,11 @@
   Controller.ts - Handles input and events for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
+
+/*
 import { render } from 'uhtml';
 import { Pitch, flatten, ID, deepcopy } from './all';
-import { NoteLength, toggleDot } from './NoteLength';
+import { NoteLength, toggleDot } from './Note/NoteLength';
 import { NoteModel, GroupNoteModel, unGroupNotes, groupNotes, initNoteModel } from './Note';
 import { TimeSignatureModel, timeSignatureToBeatDivision, parseDenominator } from './TimeSignature';
 import { TextBoxModel, setCoords } from './TextBox';
@@ -236,10 +238,6 @@ function isEditTimeSignatureDenominator(e: ScoreEvent): e is EditTimeSignatureDe
 }
 
 
-export interface SvgRef {
-  current: SVGSVGElement | null
-}
-
 interface XY {
   beforeX: number,
   afterX: number,
@@ -275,7 +273,7 @@ export function dispatch(event: ScoreEvent): void {
   /*
      The global event handler.
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
-   */
+   /
   let changed = false;
   let recalculateNoteGroupings = false;
   const noteModels = currentNoteModels();
@@ -487,11 +485,6 @@ export function dispatch(event: ScoreEvent): void {
 export const isBeingDragged = (note: NoteModel): boolean => note === currentState.draggedNote;
 export const isSelected = (note: NoteModel): boolean => false
 
-// the y value will be the stave's y rather than the actual y value of the note
-export const setXY = (item: ID, beforeX: number, afterX: number, y: number): void => {
-  currentState.itemCoords.set(item, { beforeX, afterX, y });
-}
-export const getXY = (item: ID): XY | null => currentState.itemCoords.get(item) || null;
 
 const updateView = (newState: State) => {
   const scoreRoot = document.getElementById("score");
@@ -655,3 +648,4 @@ export default function startController(): void {
   updateView(currentState);
 }
 currentState.noteInputLength = null;
+*/

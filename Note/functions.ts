@@ -1,20 +1,80 @@
-/*
-  NoteLength.ts - helper functions for note lengths for PipeScore
-  Copyright (C) 2020 Archie Maclean
-*/
-import { removeNull } from './all';
+import { GroupNoteModel, NoteModel, NoteLength } from './model';
+import Gracenote from '../Gracenote/functions';
+import { Pitch, removeNull, genId, flatten } from '../all';
 
-// todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for
-// it to be finished unless used with another dottedHemiDemiSemiQuaver which is pretty unlikely
-export const enum NoteLength {
-  Semibreve = 'sb',
-  DottedMinim = 'dm', Minim = 'm',
-  DottedCrotchet = 'dc', Crotchet = 'c',
-  DottedQuaver = 'dq', Quaver = 'q',
-  DottedSemiQuaver = 'dsq', SemiQuaver = 'sq',
-  DottedDemiSemiQuaver = 'dssq', DemiSemiQuaver = 'ssq',
-  DottedHemiDemiSemiQuaver = 'dhdsq', HemiDemiSemiQuaver = 'hdsq'
+export const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
+
+export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
+  return flatten(notes.map(note => note.notes));
 }
+
+export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
+  const pushNote = (group: GroupNoteModel, note: NoteModel, length: number): number => {
+    // add a note to the end - also merges notes if it can and they are tied
+    const push = (noteToPush: NoteModel) => {
+      if (hasBeam(noteToPush.length)) {
+        group.notes.push(noteToPush);
+      } else {
+        // Push the note as its own group. This won't modify the currentLength,
+        // which means that other groupings will still be correct
+        if (group.notes.length > 0) groupedNotes.push({ ...group });
+        group.notes = [noteToPush];
+        groupedNotes.push({ ...group });
+        group.notes = [];
+      }
+    };
+    if (note.tied && previousLength !== 0) {
+        const newLength = length + previousLength;
+        const newNoteLength = numberToNoteLength(newLength);
+        if (newNoteLength === null) {
+          push(note);
+          return length;
+        } else {
+          group.notes[group.notes.length - 1].length = newNoteLength;
+          return newLength;
+        }
+      } else {
+        push(note);
+        return length;
+      }
+    };
+  let currentGroup: GroupNoteModel = { notes: [] };
+  const groupedNotes: GroupNoteModel[] = [];
+  let currentLength = 0;
+  let previousLength = 0;
+  notes.forEach(note => {
+    const length = noteLengthToNumber(note.length);
+    if (currentLength + length < lengthOfGroup) {
+      previousLength = pushNote(currentGroup, note, length);
+      currentLength += length;
+    } else if (currentLength + length === lengthOfGroup) {
+      previousLength = pushNote(currentGroup, note, length);
+      // this check is needed since pushNote could end up setting currentGroup to have no notes in it
+      if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
+      currentLength = 0;
+      currentGroup = { notes: [] };
+      previousLength = 0;
+    } else {
+      groupedNotes.push(currentGroup);
+      currentGroup = { notes: [] };
+      previousLength = pushNote(currentGroup, note, length);
+      currentLength = length;
+      if (currentLength >= lengthOfGroup) {
+        groupedNotes.push(currentGroup);
+        currentGroup = { notes: [] };
+        currentLength = 0;
+        previousLength = 0;
+      }
+    }
+  });
+  // pushes the last notes to the groupedNotes
+  // this also ensures that the length will never be 0, even if there are 0 notes
+  groupedNotes.push(currentGroup);
+  return groupedNotes;
+}
+
+
+// Note Length
 
 const noteLengths = [
   NoteLength.Semibreve,
@@ -168,3 +228,22 @@ export function toggleDot(length: NoteLength): NoteLength {
   }
 }
 
+export const numberOfNotes = (note: GroupNoteModel): number => note.notes.length;
+
+export const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
+  pitch,
+  length,
+  gracenote: Gracenote.init(),
+  tied,
+  id: genId()
+});
+
+export const initGroupNote = (): GroupNoteModel => ({
+	notes: [ ]
+});
+
+export default {
+  initNote,
+  init: initGroupNote,
+  numberOfNotes
+}

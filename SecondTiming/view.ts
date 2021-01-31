@@ -1,18 +1,13 @@
 import { svg } from 'uhtml';
-import { Svg, ID } from './all';
-import { getXY } from './Controller';
+import { Svg } from '../all';
+
+import { getXY } from '../global';
+
+import { SecondTimingModel } from './model';
 
 
 
-export interface SecondTimingModel {
-  start: ID,
-  middle: ID,
-  end: ID
-}
-
-
-
-function render(secondTiming: SecondTimingModel): Svg {
+export default function render(secondTiming: SecondTimingModel): Svg {
   const start = getXY(secondTiming.start);
   const middle = getXY(secondTiming.middle);
   const end = getXY(secondTiming.end);
@@ -29,16 +24,4 @@ function render(secondTiming: SecondTimingModel): Svg {
     console.error('invalid second timing!');
     return svg`<g></g>`;
   }
-}
-
-
-const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
-  start,
-  middle,
-  end
-});
-
-export default {
-  render,
-  init
 }

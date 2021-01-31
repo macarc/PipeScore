@@ -3,6 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 
+
 import { svg, Hole } from 'uhtml';
 export const log = <T>(a: T): T => {
   console.log(a);
@@ -52,6 +53,9 @@ export function removeNull<A>(a: A | null): a is A {
 }
 
 
+export interface SvgRef {
+  current: SVGSVGElement | null
+}
 
 export type Svg = Hole;
 export type Html = Hole;

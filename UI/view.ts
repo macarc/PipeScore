@@ -2,17 +2,21 @@
   UI.ts - User interface for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { Svg } from './all';
-import { NoteLength } from './NoteLength';
-import { dispatch, State } from './Controller';
+import { Svg } from '../all';
+import { NoteLength } from '../Note/model';
 import { html } from 'uhtml';
+import { dispatch } from './controller';
+
+interface UIProps {
+  noteInputLength: NoteLength,
+  zoomLevel: number
+}
 
 
-
-function render(state: State): Svg {
+function render(props: UIProps): Svg {
 
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
-  const isCurrentNoteInput = (length: NoteLength) => state.noteInputLength === length;
+  const isCurrentNoteInput = (length: NoteLength) => props.noteInputLength === length;
 
 
   const noteInputButton = (length: NoteLength) => html`<button
@@ -80,7 +84,7 @@ function render(state: State): Svg {
       <button class="textual">Download</button>
       <hr />
       <label>Zoom Level</label>
-      <input id="zoom-level" type="range" min="10" max="200" step="2" value=${state.zoomLevel} oninput=${changeZoomLevel} />
+      <input id="zoom-level" type="range" min="10" max="200" step="2" value=${props.zoomLevel} oninput=${changeZoomLevel} />
     </div>
   `;
 }
