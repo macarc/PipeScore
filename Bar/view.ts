@@ -173,7 +173,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
       ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
       ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
-      ${hasTimeSignature ? TimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y }) : null}
+      ${hasTimeSignature ? TimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null}
     </g>`;
 
 }

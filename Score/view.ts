@@ -47,7 +47,7 @@ export default function render(score: ScoreModel, props: ScoreProps): Svg {
       ${Stave(stave, staveProps(stave,idx))}
     `)}
 
-    ${score.textBoxes.map(textBox => svg.for(textBox)`${TextBox(textBox)}`)}
+    ${score.textBoxes.map(textBox => svg.for(textBox)`${TextBox(textBox, { dispatch: props.dispatch })}`)}
 
 
     ${score.secondTimings.map(secondTiming => svg.for(secondTiming)`${SecondTiming(secondTiming)}`)}

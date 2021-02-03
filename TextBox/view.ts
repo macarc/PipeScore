@@ -4,12 +4,16 @@
 */
 import { svg } from 'uhtml';
 import { Svg } from '../all';
+import { ScoreEvent } from '../Event';
 
 import { TextBoxModel } from './model';
-import { dispatch } from './controller';
 
-export default function render(tx: TextBoxModel): Svg {
+interface TextBoxProps {
+  dispatch: (e: ScoreEvent) => void
+}
+
+export default function render(tx: TextBoxModel, props: TextBoxProps): Svg {
   return svg`
-    <text x=${tx.x} y=${tx.y} ondblclick=${() => dispatch({ name: 'edit text', text: tx })} onmousedown=${() => dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => dispatch({ name: 'text mouse up' })} >${tx.text}</text>
+    <text x=${tx.x} y=${tx.y} ondblclick=${() => props.dispatch({ name: 'edit text', text: tx })} onmousedown=${() => props.dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => props.dispatch({ name: 'text mouse up' })} >${tx.text}</text>
   `;
 }
