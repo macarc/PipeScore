@@ -10,9 +10,9 @@ import TextBox  from '../TextBox/view';
 import SecondTiming  from '../SecondTiming/view';
 import ScoreSelection from '../ScoreSelection/view';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
+import { ScoreEvent } from '../Event';
 
 import { ScoreModel } from './model';
-import { dispatch } from './controller';
 
 // TODO remove these
 export const scoreWidth = 210 * 5;
@@ -20,9 +20,11 @@ export const scoreHeight = 297 * 5;
 export const staveGap = 100;
 
 interface ScoreProps {
+  updateView: (score: ScoreModel) => void,
   svgRef: SvgRef,
   zoomLevel: number,
-  selection: ScoreSelectionModel | null
+  selection: ScoreSelectionModel | null,
+  dispatch: (e: ScoreEvent) => void
 }
 
 export default function render(score: ScoreModel, props: ScoreProps): Svg {
@@ -35,10 +37,11 @@ export default function render(score: ScoreModel, props: ScoreProps): Svg {
     width: scoreWidth - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
+    dispatch: props.dispatch
   });
 
-  return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => dispatch({ name: 'mouse up' })}>
-    <rect x="0" y="0" width="100%" onmousedown=${() => dispatch({ name: 'background clicked' })} height="100%" fill="white" />
+  return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => props.dispatch({ name: 'mouse up' })}>
+    <rect x="0" y="0" width="100%" onmousedown=${() => props.dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`
       ${Stave(stave, staveProps(stave,idx))}

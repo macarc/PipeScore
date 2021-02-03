@@ -54,7 +54,7 @@ export function removeNull<A>(a: A | null): a is A {
 
 
 export interface SvgRef {
-  current: SVGSVGElement | null
+  ref: SVGSVGElement | null
 }
 
 export type Svg = Hole;

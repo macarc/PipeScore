@@ -5,18 +5,12 @@
 import { Svg } from '../all';
 import { NoteLength } from '../Note/model';
 import { html } from 'uhtml';
-import { dispatch } from './controller';
+import { inputLength, zoomLevel } from '../global';
+import { ScoreEvent } from '../Event';
 
-interface UIProps {
-  noteInputLength: NoteLength,
-  zoomLevel: number
-}
-
-
-function render(props: UIProps): Svg {
-
+export default function render(dispatch: (e: ScoreEvent) => void): Svg {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
-  const isCurrentNoteInput = (length: NoteLength) => props.noteInputLength === length;
+  const isCurrentNoteInput = (length: NoteLength) => inputLength === length;
 
 
   const noteInputButton = (length: NoteLength) => html`<button
@@ -33,7 +27,7 @@ function render(props: UIProps): Svg {
     if (element !== null) {
       const newZoomLevel = parseInt((element as HTMLInputElement).value, 10);
       if (! isNaN(newZoomLevel)) {
-        dispatch({ name: 'change zoom level', zoomLevel: newZoomLevel });
+        dispatch({ name: 'change zoom level', zoomLevel });
       }
     }
   }
@@ -84,13 +78,7 @@ function render(props: UIProps): Svg {
       <button class="textual">Download</button>
       <hr />
       <label>Zoom Level</label>
-      <input id="zoom-level" type="range" min="10" max="200" step="2" value=${props.zoomLevel} oninput=${changeZoomLevel} />
+      <input id="zoom-level" type="range" min="10" max="200" step="2" value=${zoomLevel} oninput=${changeZoomLevel} />
     </div>
   `;
-}
-
-
-
-export default {
-  render
 }

@@ -4,9 +4,10 @@
   "description": "A web-based bagpipe notation app.",
   "main": "PipeScore.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo 'Run `npm run lint` and `npm run check-deps`'",
     "dev": "parcel index.html",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "check-deps": "madge -c PipeScore.ts"
   },
   "author": "",
   "license": "GPL-3.0",
@@ -18,6 +19,7 @@
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
     "eslint": "^7.18.0",
+    "madge": "^4.0.0",
     "typescript": "^4.1.3"
   }
 }

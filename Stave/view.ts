@@ -7,15 +7,16 @@ import { lineHeightOf, Svg, flatten } from '../all';
 import { GroupNoteModel } from '../Note/model';
 import Bar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
 import { BarModel } from '../Bar/model';
+import { ScoreEvent } from '../Event';
 
 import { StaveModel } from './model';
-import { dispatch } from './controller';
 
 interface StaveProps {
   x: number,
   y: number,
   width: number,
   previousStave: StaveModel | null,
+  dispatch: (e: ScoreEvent) => void
 }
 
 
@@ -56,7 +57,8 @@ export default function render(stave: StaveModel, props: StaveProps): Svg {
     width: bar.isAnacrusis ? widthOfAnacrusis(bar, null) : barWidth,
     lastNoteX: index === 0 ? null : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
     previousBar: previousBar(index),
-    shouldRenderLastBarline: index === (stave.bars.length - 1)
+    shouldRenderLastBarline: index === (stave.bars.length - 1),
+    dispatch: props.dispatch
   });
 
   return svg`

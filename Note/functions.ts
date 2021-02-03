@@ -2,17 +2,17 @@ import { GroupNoteModel, NoteModel, NoteLength } from './model';
 import Gracenote from '../Gracenote/functions';
 import { Pitch, removeNull, genId, flatten } from '../all';
 
-export const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
+const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
 
-export function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
+function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
   return flatten(notes.map(note => note.notes));
 }
 
-export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
+function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
   const pushNote = (group: GroupNoteModel, note: NoteModel, length: number): number => {
     // add a note to the end - also merges notes if it can and they are tied
     const push = (noteToPush: NoteModel) => {
-      if (hasBeam(noteToPush.length)) {
+      if (hasBeam(noteToPush)) {
         group.notes.push(noteToPush);
       } else {
         // Push the note as its own group. This won't modify the currentLength,
@@ -43,7 +43,7 @@ export function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNote
   let currentLength = 0;
   let previousLength = 0;
   notes.forEach(note => {
-    const length = noteLengthToNumber(note.length);
+    const length = lengthToNumber(note.length);
     if (currentLength + length < lengthOfGroup) {
       previousLength = pushNote(currentGroup, note, length);
       currentLength += length;
@@ -92,23 +92,23 @@ const noteLengths = [
   NoteLength.HemiDemiSemiQuaver
 ];
 
-export function hasStem(length: NoteLength): boolean {
-  return length !== NoteLength.Semibreve;
+function hasStem(note: NoteModel): boolean {
+  return note.length !== NoteLength.Semibreve;
 }
 
-export function hasDot(length: NoteLength): boolean {
-  return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(length));
+function hasDot(note: NoteModel): boolean {
+  return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(note.length));
 }
 
-export function hasBeam(length: NoteLength): boolean {
-  return noteLengthToNumber(length) < 1;
+function hasBeam(note: NoteModel): boolean {
+  return lengthToNumber(note.length) < 1;
 }
 
-export function isFilled(length: NoteLength): boolean {
-  return noteLengthToNumber(length) < 2;
+function isFilled(note: NoteModel): boolean {
+  return lengthToNumber(note.length) < 2;
 }
 
-export function noteLengthToNumber(length: NoteLength): number {
+function lengthToNumber(length: NoteLength): number {
   switch (length) {
     case NoteLength.Semibreve: return 4;
     case NoteLength.DottedMinim: return 3;
@@ -126,7 +126,7 @@ export function noteLengthToNumber(length: NoteLength): number {
   }
 }
 
-export function numberToNoteLength(length: number): NoteLength | null {
+function numberToNoteLength(length: number): NoteLength | null {
   switch (length) {
     case 4: return NoteLength.Semibreve;
     case 3: return NoteLength.DottedMinim;
@@ -145,7 +145,7 @@ export function numberToNoteLength(length: number): NoteLength | null {
   }
 }
 
-export function splitLengthNumber(longLength: number, splitInto: number): number[] {
+function splitLengthNumber(longLength: number, splitInto: number): number[] {
   if (splitInto >= longLength) {
     return [longLength];
   } else {
@@ -160,18 +160,18 @@ export function splitLengthNumber(longLength: number, splitInto: number): number
   }
 }
 
-export function splitLength(longLength: NoteLength, splitInto: NoteLength): NoteLength[] {
-  return splitLengthNumber(noteLengthToNumber(longLength), noteLengthToNumber(splitInto))
+function splitLength(longLength: NoteLength, splitInto: NoteLength): NoteLength[] {
+  return splitLengthNumber(lengthToNumber(longLength), lengthToNumber(splitInto))
     .map(numberToNoteLength)
     .filter(removeNull);
 }
 
 
-export function mergeLengths(initialLengths: NoteLength[]): NoteLength[] {
-  let totalLength = initialLengths.reduce((a, b) => a + noteLengthToNumber(b), 0);
+function mergeLengths(initialLengths: NoteLength[]): NoteLength[] {
+  let totalLength = initialLengths.reduce((a, b) => a + lengthToNumber(b), 0);
   const lengths = [];
   for (const noteLength of noteLengths) {
-    const length = noteLengthToNumber(noteLength);
+    const length = lengthToNumber(noteLength);
     if (length === totalLength) {
       lengths.push(noteLength);
       break;
@@ -187,7 +187,7 @@ export function mergeLengths(initialLengths: NoteLength[]): NoteLength[] {
   return lengths;
 }
 
-export function noteLengthToNumTails(length: NoteLength): number {
+function lengthToNumTails(length: NoteLength): number {
   switch (length) {
     case NoteLength.Semibreve:
     case NoteLength.DottedMinim:
@@ -210,7 +210,7 @@ export function noteLengthToNumTails(length: NoteLength): number {
   }
 }
 
-export function toggleDot(length: NoteLength): NoteLength {
+function toggleDot(length: NoteLength): NoteLength {
   switch(length) {
     case NoteLength.Semibreve: return NoteLength.Semibreve;
     case NoteLength.DottedMinim: return NoteLength.Minim;
@@ -228,9 +228,9 @@ export function toggleDot(length: NoteLength): NoteLength {
   }
 }
 
-export const numberOfNotes = (note: GroupNoteModel): number => note.notes.length;
+const numberOfNotes = (note: GroupNoteModel): number => note.notes.length;
 
-export const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
+const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
   pitch,
   length,
   gracenote: Gracenote.init(),
@@ -238,12 +238,21 @@ export const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteMo
   id: genId()
 });
 
-export const initGroupNote = (): GroupNoteModel => ({
+const initGroupNote = (): GroupNoteModel => ({
 	notes: [ ]
 });
 
 export default {
   initNote,
   init: initGroupNote,
-  numberOfNotes
+  numberOfNotes,
+  unGroupNotes,
+  groupNotes,
+  lastNoteOfGroupNote,
+  lengthToNumTails,
+  hasStem,
+  hasDot,
+  hasBeam,
+  isFilled,
+  toggleDot
 }

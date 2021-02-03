@@ -19,13 +19,13 @@ function staves(score: ScoreModel): StaveModel[] {
   return score.staves;
 }
 
-export function addStaveToScore(score: ScoreModel, afterStave: StaveModel): void {
+function addStave(score: ScoreModel, afterStave: StaveModel): void {
   const ind = score.staves.indexOf(afterStave);
   if (ind !== -1)
     score.staves.splice(ind + 1, 0, Stave.init());
 }
 
-export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel): void {
+function deleteStave(score: ScoreModel, stave: StaveModel): void {
   const ind = score.staves.indexOf(stave);
   if (ind !== -1)
     score.staves.splice(ind, 1);
@@ -33,7 +33,7 @@ export function deleteStaveFromScore(score: ScoreModel, stave: StaveModel): void
 
 
 
-export const init: () => ScoreModel = () => ({
+const init: () => ScoreModel = () => ({
   staves: [Stave.init(),Stave.init()],
   textBoxes: [TextBox.init()],
   secondTimings: []
@@ -41,5 +41,10 @@ export const init: () => ScoreModel = () => ({
 
 
 export default {
-  init
+  init,
+  bars,
+  staves,
+  addStave,
+  deleteStave,
+  groupNotes,
 }

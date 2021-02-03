@@ -6,15 +6,15 @@ import { svg } from 'uhtml';
 import { lineHeightOf, Pitch, Svg, noteBoxes, noteY, ID, genId } from '../all';
 import renderNote, { lastNoteXOffset, totalBeatWidth } from '../Note/view';
 import { PreviousNote } from '../Note/model';
-import Note, { lastNoteOfGroupNote } from '../Note/functions';
+import Note from '../Note/functions';
 import TimeSignature from '../TimeSignature/view';
 import { timeSignatureWidth, timeSignatureEqual } from '../TimeSignature/functions';
 
 import { setXY } from '../global';
 import { GroupNoteModel } from '../Note/model';
+import { ScoreEvent } from '../Event';
 
 import { BarModel, FrontBarline, BackBarline, Barline } from './model';
-import { dispatch } from './controller';
 import Bar, { lastNoteOfBar, lastNoteIndexOfBar, numberOfGroupNotes } from './functions';
 
 
@@ -26,12 +26,13 @@ interface BarProps {
   width: number,
   previousBar: BarModel | null,
   lastNoteX: number | null,
-  shouldRenderLastBarline: boolean
+  shouldRenderLastBarline: boolean,
+  dispatch: (e: ScoreEvent) => void
 }
 
 export const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
     .reduce((nums, n, index) => {
-      const previous = index === 0 ? previousNote : lastNoteOfGroupNote(bar.notes[index - 1]);
+      const previous = index === 0 ? previousNote : Note.lastNoteOfGroupNote(bar.notes[index - 1]);
       return [...nums, nums[nums.length - 1] + totalBeatWidth(n,previous || null)];
     },
     [1]);
@@ -48,7 +49,7 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
     const beats = beatsOf(bar, null)
     const totalNumberOfBeats = beats[beats.length - 1];
     const beatWidth = width / totalNumberOfBeats;
-    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], (numberOfGroupNotes(bar) === 1 ? previousBarLastNote : lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1])) || null);
+    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], (numberOfGroupNotes(bar) === 1 ? previousBarLastNote : Note.lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1])) || null);
   } else {
     return 0;
   }
@@ -117,7 +118,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
       return last;
     }
   })() : null;
-  const previousNote = previousWholeNote ? lastNoteOfGroupNote(previousWholeNote) : null;
+  const previousNote = previousWholeNote ? Note.lastNoteOfGroupNote(previousWholeNote) : null;
 
   const beats = beatsOf(bar, previousNote);
 
@@ -129,7 +130,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
 
   function previousNoteData(index: number): PreviousNote | null {
-    const lastNote = (index > 0) ? lastNoteOfGroupNote(bar.notes[index - 1]) : null;
+    const lastNote = (index > 0) ? Note.lastNoteOfGroupNote(bar.notes[index - 1]) : null;
     if (index === 0) {
       if (previousNote !== null && props.lastNoteX !== null) {
         return ({
@@ -141,7 +142,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
         return null;
       }
     } else if (lastNote !== null) {
-      const noteBeforeThat = (index < 2) ? null : lastNoteOfGroupNote(bar.notes[index - 2]);
+      const noteBeforeThat = (index < 2) ? null : Note.lastNoteOfGroupNote(bar.notes[index - 2]);
       const x = getX(index - 1) + lastNoteXOffset(beatWidth, bar.notes[index - 1], noteBeforeThat);
       return ({
         pitch: lastNote,
@@ -158,13 +159,14 @@ export default function render(bar: BarModel,props: BarProps): Svg {
     y: staveY,
     noteWidth: beatWidth,
     previousNote: previousNoteData(index),
-    selectedNotes: []
+    selectedNotes: [],
+    dispatch: props.dispatch
   });
 
 
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'add note to start', pitch }))}
+      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', index: 0, pitch, groupNote: bar.notes[0] }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${renderNote(note,noteProps(note,idx))}`
       )}

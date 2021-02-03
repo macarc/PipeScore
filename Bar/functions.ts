@@ -2,7 +2,7 @@ import { BarModel, Barline } from './model';
 import { Pitch, genId } from '../all';
 import { GroupNoteModel } from '../Note/model';
 
-import Note, { initGroupNote, lastNoteOfGroupNote } from '../Note/functions';
+import Note from '../Note/functions';
 import TimeSignature from '../TimeSignature/functions';
 
 export const groupNotes = (bar: BarModel):  GroupNoteModel[] => bar.notes;
@@ -16,7 +16,7 @@ export function lastNoteIndexOfBar(bar: BarModel): number {
 export function lastNoteOfBar(bar: BarModel): Pitch | null {
   const lastGroupNote = bar.notes[lastNoteIndexOfBar(bar)] || null;
   if (lastGroupNote !== null) {
-    return lastNoteOfGroupNote(lastGroupNote);
+    return Note.lastNoteOfGroupNote(lastGroupNote);
   } else {
     return null;
   }
@@ -28,7 +28,7 @@ export function numberOfGroupNotes(bar: BarModel): number {
 
 export const init = (isAnacrusis = false): BarModel => ({
   timeSignature: TimeSignature.init(),
-  notes: [initGroupNote(),initGroupNote()],
+  notes: [Note.init(),Note.init()],
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,
   isAnacrusis,

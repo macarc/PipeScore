@@ -6,12 +6,11 @@ import { svg } from 'uhtml';
 import { Pitch, Svg, noteOffset, noteY, noteBoxes } from '../all';
 import Gracenote, { GracenoteProps } from '../Gracenote/view';
 import { numberOfNotes as gracenoteNumberOfNotes } from '../Gracenote/functions';
-import { setXY } from '../global';
+import { setXY, draggedNote } from '../global';
 
 import { GroupNoteModel, NoteModel, NoteLength, PreviousNote } from './model';
-import { noteLengthToNumTails, hasStem, hasDot, hasBeam, isFilled, noteLengthToNumber, numberToNoteLength, numberOfNotes } from './functions';
-import { dispatch } from './controller';
-
+import { ScoreEvent } from '../Event';
+import Note from './functions';
 
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
@@ -86,10 +85,10 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
     const clickableWidth = 14;
     const clickableHeight = 12;
 
-    const dotted = hasDot(note.length);
+    const dotted = Note.hasDot(note);
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
-    const dragged = false//todo isBeingDragged(note);
+    const dragged = note === draggedNote//todo isBeingDragged(note);
     const selected = false//todo isSelected(note);
 
 
@@ -99,7 +98,7 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
     // drag downwards a single box)
     const pointerEvents = dragged ? 'none' : 'visiblePainted';
 
-    const filled = isFilled(note.length);
+    const filled = Note.isFilled(note);
 
     const rotateText = `rotate(${rotation} ${Math.round(x)} ${Math.round(y)})`;
 
@@ -139,11 +138,11 @@ M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => Svg): Svg {
+function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => Svg, dispatch: (e: ScoreEvent) => void): Svg {
   // todo this is complected with stemXOf in `render`
   const stemX = x - noteHeadWidth;
   const stemY = noteY(y,note.pitch) + 30;
-  const numberOfTails = noteLengthToNumTails(note.length);
+  const numberOfTails = Note.lengthToNumTails(note.length);
 
 
   return svg`<g class="singleton">
@@ -151,7 +150,7 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
     ${shouldTie(note, previousNote) ?  null : Gracenote(note.gracenote, gracenoteProps)}
 
     ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
-    ${hasStem(note.length) ? svg`<line
+    ${Note.hasStem(note) ? svg`<line
       x1=${stemX}
       x2=${stemX}
       y1=${noteY(y,note.pitch)}
@@ -173,6 +172,7 @@ interface NoteProps {
   y: number,
   previousNote: PreviousNote | null,
   noteWidth: number,
+  dispatch: (e: ScoreEvent) => void
 }
 
 
@@ -201,7 +201,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
     const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
     const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index) - noteHeadWidth, xOf(index) + noteHeadWidth, props.y);
 
-    if (numberOfNotes(groupNote) === 1) {
+    if (Note.numberOfNotes(groupNote) === 1) {
       setNoteXY(firstNote, 0);
       const gracenoteProps = ({
         // can just be props.x since it is the first note
@@ -212,9 +212,9 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         previousNote: previousPitch
       });
 
-      const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', pitch, index: 1, note: groupNote }))
+      const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: 1, groupNote }))
 
-      return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb);
+      return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.dispatch);
     } else {
 
       const cap = (n: number, max: number) =>
@@ -291,13 +291,13 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
                 ${shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null}
                 ${shouldTie(note, previousNoteObj) ? null : Gracenote(note.gracenote,gracenoteProps)}
 
-                ${noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
+                ${noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }))}
 
                 ${
-                  (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), noteLengthToNumTails(note.length), noteLengthToNumTails(previousNote.length)) : null
+                  (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null
                 }
 
-                ${noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => dispatch({ name: 'mouse over pitch', pitch }), pitch => dispatch({ name: 'note added', pitch, index: index + 1, note: groupNote }))}
+                ${noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: index + 1, groupNote }))}
 
                 <line
                   x1=${stemXOf(index)}

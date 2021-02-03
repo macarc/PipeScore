@@ -8,6 +8,13 @@ type MouseUp = {
 }
 const isMouseUp = (e: ScoreEvent): e is MouseUp => e.name === 'mouse up';
 
-type ScoreEvent = BackgroundClicked | MouseUp;
+type Changed = {
+  name: 'changed'
+}
+const isChanged = (e: ScoreEvent): e is Changed => e.name === 'changed'
 
-export function dispatch(a: ScoreEvent) { }
+type ScoreEvent = BackgroundClicked | MouseUp | Changed;
+
+export function dispatch(e: ScoreEvent) {
+
+}
