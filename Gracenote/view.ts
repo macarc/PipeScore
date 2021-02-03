@@ -5,8 +5,8 @@
 import { svg } from 'uhtml';
 import { Pitch, lineGap, noteY, Svg } from '../all';
 
-import { GracenoteModel, Gracenote } from './model';
-import { gracenotes, notesOf, isInvalid } from './functions';
+import { GracenoteModel } from './model';
+import { notesOf, isInvalid } from './functions';
 
 
 

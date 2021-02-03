@@ -1,6 +1,6 @@
 import { GroupNoteModel, NoteModel, NoteLength } from './model';
 import Gracenote from '../Gracenote/functions';
-import { Pitch, removeNull, genId, flatten } from '../all';
+import { Pitch, genId, flatten } from '../all';
 
 const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
 
@@ -76,22 +76,6 @@ function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[]
 
 // Note Length
 
-const noteLengths = [
-  NoteLength.Semibreve,
-  NoteLength.DottedMinim,
-  NoteLength.Minim,
-  NoteLength.DottedCrotchet,
-  NoteLength.Crotchet,
-  NoteLength.DottedQuaver,
-  NoteLength.Quaver,
-  NoteLength.DottedSemiQuaver,
-  NoteLength.SemiQuaver,
-  NoteLength.DottedDemiSemiQuaver,
-  NoteLength.DemiSemiQuaver,
-  NoteLength.DottedHemiDemiSemiQuaver,
-  NoteLength.HemiDemiSemiQuaver
-];
-
 function hasStem(note: NoteModel): boolean {
   return note.length !== NoteLength.Semibreve;
 }
@@ -143,48 +127,6 @@ function numberToNoteLength(length: number): NoteLength | null {
     case 0.0625: return NoteLength.HemiDemiSemiQuaver;
     default: return null;
   }
-}
-
-function splitLengthNumber(longLength: number, splitInto: number): number[] {
-  if (splitInto >= longLength) {
-    return [longLength];
-  } else {
-    const remainderLength = longLength - splitInto;
-    if (remainderLength === 0) {
-      return [splitInto];
-    } else {
-      const rest = splitLengthNumber(remainderLength, splitInto);
-      rest.unshift(splitInto);
-      return rest;
-    }
-  }
-}
-
-function splitLength(longLength: NoteLength, splitInto: NoteLength): NoteLength[] {
-  return splitLengthNumber(lengthToNumber(longLength), lengthToNumber(splitInto))
-    .map(numberToNoteLength)
-    .filter(removeNull);
-}
-
-
-function mergeLengths(initialLengths: NoteLength[]): NoteLength[] {
-  let totalLength = initialLengths.reduce((a, b) => a + lengthToNumber(b), 0);
-  const lengths = [];
-  for (const noteLength of noteLengths) {
-    const length = lengthToNumber(noteLength);
-    if (length === totalLength) {
-      lengths.push(noteLength);
-      break;
-    } else if (length > totalLength) {
-      continue;
-    } else {
-      while (length < totalLength) {
-        lengths.push(noteLength);
-        totalLength -= length;
-      }
-    }
-  }
-  return lengths;
 }
 
 function lengthToNumTails(length: NoteLength): number {
@@ -256,3 +198,65 @@ export default {
   isFilled,
   toggleDot
 }
+/*
+zombie code - currently unused, may be useful in future?
+
+const noteLengths = [
+  NoteLength.Semibreve,
+  NoteLength.DottedMinim,
+  NoteLength.Minim,
+  NoteLength.DottedCrotchet,
+  NoteLength.Crotchet,
+  NoteLength.DottedQuaver,
+  NoteLength.Quaver,
+  NoteLength.DottedSemiQuaver,
+  NoteLength.SemiQuaver,
+  NoteLength.DottedDemiSemiQuaver,
+  NoteLength.DemiSemiQuaver,
+  NoteLength.DottedHemiDemiSemiQuaver,
+  NoteLength.HemiDemiSemiQuaver
+];
+
+function splitLength(longLength: NoteLength, splitInto: NoteLength): NoteLength[] {
+  return splitLengthNumber(lengthToNumber(longLength), lengthToNumber(splitInto))
+    .map(numberToNoteLength)
+    .filter(removeNull);
+}
+
+
+function mergeLengths(initialLengths: NoteLength[]): NoteLength[] {
+  let totalLength = initialLengths.reduce((a, b) => a + lengthToNumber(b), 0);
+  const lengths = [];
+  for (const noteLength of noteLengths) {
+    const length = lengthToNumber(noteLength);
+    if (length === totalLength) {
+      lengths.push(noteLength);
+      break;
+    } else if (length > totalLength) {
+      continue;
+    } else {
+      while (length < totalLength) {
+        lengths.push(noteLength);
+        totalLength -= length;
+      }
+    }
+  }
+  return lengths;
+}
+function splitLengthNumber(longLength: number, splitInto: number): number[] {
+  if (splitInto >= longLength) {
+    return [longLength];
+  } else {
+    const remainderLength = longLength - splitInto;
+    if (remainderLength === 0) {
+      return [splitInto];
+    } else {
+      const rest = splitLengthNumber(remainderLength, splitInto);
+      rest.unshift(splitInto);
+      return rest;
+    }
+  }
+}
+
+*/
+

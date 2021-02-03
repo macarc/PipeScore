@@ -3,8 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, Svg, flatten } from '../all';
-import { GroupNoteModel } from '../Note/model';
+import { lineHeightOf, Svg } from '../all';
 import Bar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
 import { BarModel } from '../Bar/model';
 import { ScoreEvent } from '../Event';

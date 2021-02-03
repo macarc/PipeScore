@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Svg, SvgRef, flatten } from '../all';
+import { Svg, SvgRef } from '../all';
 import Stave  from '../Stave/view';
 import { StaveModel } from '../Stave/model';
 import TextBox  from '../TextBox/view';

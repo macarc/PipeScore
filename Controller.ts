@@ -2,15 +2,12 @@
   Controller.ts - Handles input and events for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { render } from 'uhtml';
-import { Pitch, flatten, ID, deepcopy, SvgRef } from './all';
-import { NoteLength, NoteModel, GroupNoteModel } from './Note/model';
+import { flatten, deepcopy } from './all';
+import { NoteModel } from './Note/model';
 import Note from './Note/functions';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { timeSignatureToBeatDivision, parseDenominator } from './TimeSignature/functions';
-import { TextBoxModel } from './TextBox/model';
 import { setCoords } from './TextBox/functions';
-import renderScore from './Score/view';
 import { ScoreModel } from './Score/model';
 import Score from './Score/functions';
 import { StaveModel } from './Stave/model';
@@ -20,8 +17,6 @@ import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import SecondTiming from './SecondTiming/functions';
 import Stave from './Stave/functions';
-import renderStave from './Stave/view';
-import renderUI from './UI/view';
 import * as ScoreEvent from './Event';
 
 import {
@@ -380,7 +375,7 @@ function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignatur
   }
 }
 
-let updateView: (score: ScoreModel) => void = (score: ScoreModel) => null;
+let updateView: (score: ScoreModel) => void = () => null;
 
 export default function startController(updateViewFn: (score: ScoreModel) => void): void {
   updateView = updateViewFn;

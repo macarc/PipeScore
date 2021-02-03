@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, Pitch, Svg, noteBoxes, noteY, ID, genId } from '../all';
+import { lineHeightOf, Pitch, Svg, noteBoxes, noteY }  from '../all';
 import renderNote, { lastNoteXOffset, totalBeatWidth } from '../Note/view';
 import { PreviousNote } from '../Note/model';
 import Note from '../Note/functions';
@@ -14,8 +14,8 @@ import { setXY } from '../global';
 import { GroupNoteModel } from '../Note/model';
 import { ScoreEvent } from '../Event';
 
-import { BarModel, FrontBarline, BackBarline, Barline } from './model';
-import Bar, { lastNoteOfBar, lastNoteIndexOfBar, numberOfGroupNotes } from './functions';
+import { BarModel, Barline } from './model';
+import { lastNoteOfBar, lastNoteIndexOfBar, numberOfGroupNotes } from './functions';
 
 
 
@@ -30,7 +30,7 @@ interface BarProps {
   dispatch: (e: ScoreEvent) => void
 }
 
-export const beatsOf = (bar: BarModel, previousNote: Pitch | null) => bar.notes
+export const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
       const previous = index === 0 ? previousNote : Note.lastNoteOfGroupNote(bar.notes[index - 1]);
       return [...nums, nums[nums.length - 1] + totalBeatWidth(n,previous || null)];

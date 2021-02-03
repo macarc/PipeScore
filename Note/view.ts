@@ -8,7 +8,7 @@ import Gracenote, { GracenoteProps } from '../Gracenote/view';
 import { numberOfNotes as gracenoteNumberOfNotes } from '../Gracenote/functions';
 import { setXY, draggedNote } from '../global';
 
-import { GroupNoteModel, NoteModel, NoteLength, PreviousNote } from './model';
+import { GroupNoteModel, NoteModel, PreviousNote } from './model';
 import { ScoreEvent } from '../Event';
 import Note from './functions';
 
@@ -229,9 +229,6 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         - noteOffset(firstNote.pitch),
         30 / groupNote.notes.length);
 
-
-
-
       const [lowestNote,lowestNoteIndex,multipleLowest]: [NoteModel,number,boolean] = groupNote.notes.reduce((last,next, index) => {
         if (index === 0) {
           return last;
@@ -267,7 +264,6 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
             (note,index) => {
               setNoteXY(note, index);
               const previousNote: NoteModel | null = groupNote.notes[index - 1] || null;
-
               const gracenoteProps = ({
                 x: gracenoteX(index),
                 y: props.y,
@@ -275,7 +271,6 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
                 thisNote: note.pitch,
                 previousNote: previousNote ? previousNote.pitch : previousPitch
               });
-
               const previousNoteObj: PreviousNote | null = (() => {
                 if (previousNote !== null)
                   return ({

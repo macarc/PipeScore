@@ -1,4 +1,4 @@
-import { ID, Pitch, SvgRef } from './all';
+import { ID, SvgRef } from './all';
 import { NoteModel, NoteLength } from './Note/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 import { TextBoxModel } from './TextBox/model';
@@ -26,23 +26,39 @@ export const deleteXY = (item: ID): void => {
 
 export let draggedNote: NoteModel | null = null;
 
-export const setDraggedNote = (note: NoteModel) => draggedNote = note;
-export const unDragNote = () => draggedNote = null;
-export const isBeingDragged = (note: NoteModel) => note === draggedNote;
+export const setDraggedNote = (note: NoteModel): void => {
+  draggedNote = note;
+}
+export const unDragNote = (): void => {
+  draggedNote = null;
+}
+export const isBeingDragged = (note: NoteModel): boolean => note === draggedNote;
 
 export let inputLength: NoteLength | null = null;
-export const setInputLength = (l: NoteLength | null) => inputLength = l;
+export const setInputLength = (l: NoteLength | null): void => {
+  inputLength = l;
+}
 
 export let zoomLevel = 100;
-export const setZoomLevel = (z: number) => zoomLevel = z;
+export const setZoomLevel = (z: number): void => {
+  zoomLevel = z;
+}
 
-export let currentSvg: SvgRef = { ref: null };
+export const currentSvg: SvgRef = { ref: null };
 export let clipboard: NoteModel[] | null = null;
-export const setClipboard = (c: NoteModel[] | null) => clipboard = c;
+export const setClipboard = (c: NoteModel[] | null): void => {
+  clipboard = c;
+}
 export let selection: ScoreSelectionModel | null = null;
-export const setSelection = (s: ScoreSelectionModel | null) => selection = s;
+export const setSelection = (s: ScoreSelectionModel | null): void => {
+  selection = s;
+}
 export let draggedText: TextBoxModel | null = null;
-export const setDraggedText = (t: TextBoxModel | null) => draggedText = t;
+export const setDraggedText = (t: TextBoxModel | null): void => {
+  draggedText = t;
+}
 
 export let score: ScoreModel;
-export const setScore = (s: ScoreModel) => score = s;
+export const setScore = (s: ScoreModel): void => {
+  score = s;
+}
