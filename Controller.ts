@@ -2,6 +2,7 @@
   Controller.ts - Handles input and events for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
+import { render } from 'uhtml';
 import { flatten, deepcopy } from './all';
 import { NoteModel } from './Note/model';
 import Note from './Note/functions';
@@ -17,6 +18,9 @@ import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import SecondTiming from './SecondTiming/functions';
 import Stave from './Stave/functions';
+
+import renderScore from './Score/view';
+import renderUI from './UI/view';
 import * as ScoreEvent from './Event';
 
 import {
@@ -375,10 +379,24 @@ function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignatur
   }
 }
 
-let updateView: (score: ScoreModel) => void = () => null;
+const updateView = (score: ScoreModel) => {
+  const scoreRoot = document.getElementById("score");
+  const uiRoot = document.getElementById("ui");
+  if (!scoreRoot || !uiRoot) return;
 
-export default function startController(updateViewFn: (score: ScoreModel) => void): void {
-  updateView = updateViewFn;
+  const scoreProps = {
+    svgRef: currentSvg,
+    zoomLevel: zoomLevel,
+    selection: selection,
+    updateView: () => null,
+    dispatch
+  }
+  render(scoreRoot, renderScore(score, scoreProps));
+  render(uiRoot, renderUI(dispatch));
+}
+
+
+export default function startController(): void {
   window.addEventListener('keydown', keyHandler);
   window.addEventListener('mousemove', dragText);
   // initially set the notes to be the right groupings
