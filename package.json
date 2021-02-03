@@ -7,7 +7,7 @@
     "test": "echo 'Run `npm run lint` and `npm run check-deps`'",
     "dev": "parcel index.html",
     "lint": "eslint . --ext .ts",
-    "check-deps": "madge -c PipeScore.ts"
+    "check-deps": "madge -c --warning PipeScore.ts"
   },
   "author": "",
   "license": "GPL-3.0",
