@@ -17,6 +17,7 @@ Bugs to fix:
   [ ] have two types, 1 for reference and one for value?
   [ ] put over correct bars
 [ ] Add options to override 'correct' functionality - e.g. tie merging, automatic grouping, automatic gracenotes
+[ ] Better time signature editing (it should only change as far as the time signature is the same)
 
 
 

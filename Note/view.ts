@@ -191,9 +191,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
     const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (gracenoteNumberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : groupNote.notes[index - 1].pitch)));
     const xOf = (noteIndex: number) => props.x + relativeIndexOf(groupNote.notes[noteIndex],noteIndex) * props.noteWidth;
     const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
-
     const stemXOf = (index: number) => xOf(index) - noteHeadWidth;
-
 
     const firstNote: NoteModel = groupNote.notes[0];
     const lastNote: NoteModel = groupNote.notes[groupNote.notes.length - 1];
@@ -243,10 +241,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         }
       }, [firstNote,0, false] as [NoteModel,number,boolean]);
 
-
-
       const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalBeatWidth(groupNote,previousPitch));
-
 
       const stemYOf = (note: NoteModel, index: number) =>
         props.y
