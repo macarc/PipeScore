@@ -35,7 +35,6 @@ import {
   deleteXY
 } from './global';
 
-// Events
 export function dispatch(event: ScoreEvent.ScoreEvent): void {
   /*
      The global event handler.
@@ -249,22 +248,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 }
 
 
-function keyHandler(e: KeyboardEvent) {
-  switch (e.key) {
-    case "Escape":
-      dispatch({ name: 'stop inputting notes' });
-      break;
-    case "c":
-      if (e.ctrlKey)
-        dispatch({ name: 'copy' });
-      break;
-    case "v":
-      if (e.ctrlKey)
-        dispatch({ name: 'paste' });
-      break;
-  }
-}
-
 
 function makeCorrectTie(noteModel: NoteModel) {
   const bars = Score.bars(score);
@@ -397,7 +380,6 @@ const updateView = (score: ScoreModel) => {
 
 
 export default function startController(): void {
-  window.addEventListener('keydown', keyHandler);
   window.addEventListener('mousemove', dragText);
   // initially set the notes to be the right groupings
   makeCorrectGroupings();

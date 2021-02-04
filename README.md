@@ -21,5 +21,6 @@ PipeScore uses a global controller rather than individual controllers for each c
 
 The UI component defines the user interface - the top and sidebar.
 `Event.ts` defines all the possible events that the controller will take.
+`global.ts` contains all the global mutable variables that hold the state of PipeScore.
 
 The entry point is `PipeScore.ts` which creates and initialises the controller.

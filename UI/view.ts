@@ -27,7 +27,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
     if (element !== null) {
       const newZoomLevel = parseInt((element as HTMLInputElement).value, 10);
       if (! isNaN(newZoomLevel)) {
-        dispatch({ name: 'change zoom level', zoomLevel });
+        dispatch({ name: 'change zoom level', zoomLevel: newZoomLevel });
       }
     }
   }

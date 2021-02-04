@@ -164,9 +164,10 @@ export default function render(bar: BarModel,props: BarProps): Svg {
   });
 
 
+  // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline, staveY, beatWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', index: 0, pitch, groupNote: bar.notes[0] }))}
+      ${noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', index: 0, pitch, groupNote: bar.notes[0] }))}
       ${bar.notes.map(
         (note,idx) => svg.for(note)`${renderNote(note,noteProps(note,idx))}`
       )}

@@ -54,25 +54,25 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
 
 	return svg`<g class="tails">
     ${sharedTails.map(
-    i =>
+      i =>
       svg`<line
-        x1=${xL}
-        x2=${xR}
-        y1=${yL - i * tailGap}
-        y2=${yR - i * tailGap}
-        stroke="black"
-        stroke-width="2" />`
-        )}
+      x1=${xL}
+      x2=${xR}
+      y1=${yL - i * tailGap}
+      y2=${yR - i * tailGap}
+      stroke="black"
+      stroke-width="2" />`
+    )}
     ${diffTails.map(
-    i =>
+      i =>
       svg`<line
-        x1=${diffIsL ? xL : xR}
-        x2=${diffIsL ? xL + shortTailLength : xR - shortTailLength}
-        y1=${(diffIsL ? yL : yR) - i * tailGap}
-        y2=${tailEndY - i * tailGap}
-        stroke="black"
-        stroke-width="2" />`
-        )}
+      x1=${diffIsL ? xL : xR}
+      x2=${diffIsL ? xL + shortTailLength : xR - shortTailLength}
+      y1=${(diffIsL ? yL : yR) - i * tailGap}
+      y2=${tailEndY - i * tailGap}
+      stroke="black"
+      stroke-width="2" />`
+    )}
 	</g>`;
 }
 
