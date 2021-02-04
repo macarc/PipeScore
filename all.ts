@@ -18,6 +18,10 @@ export const logf = <A, T extends () => A>(a: T): T => {
   return a;
 }
 
+export const scoreWidth = 210 * 5;
+export const scoreHeight = 297 * 5;
+export const staveGap = 100;
+
 export const unlog = <T>(a: T): T => a;
 export const unlogf = <T>(a: T): T => a;
 export const unlog2 = <T, A>(a: A,b: T): T => b;
@@ -54,7 +58,7 @@ export function removeNull<A>(a: A | null): a is A {
 
 
 export interface SvgRef {
-  ref: SVGSVGElement | null
+  current: SVGSVGElement | null
 }
 
 export type Svg = Hole;

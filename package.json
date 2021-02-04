@@ -4,7 +4,7 @@
   "description": "A web-based bagpipe notation app.",
   "main": "PipeScore.ts",
   "scripts": {
-    "test": "echo 'Run `npm run lint` and `npm run circles`'",
+    "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "parcel index.html",
     "lint": "eslint . --ext .ts",
     "circles": "madge -c --warning PipeScore.ts"

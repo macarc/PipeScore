@@ -1,3 +1,7 @@
+/*
+  Bar/functions.ts - Defines functions that transform Bars
+  Copyright (C) 2020 Archie Maclean
+*/
 import { BarModel, Barline } from './model';
 import { Pitch, genId } from '../all';
 import { GroupNoteModel } from '../Note/model';

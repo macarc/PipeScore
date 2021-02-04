@@ -35,7 +35,7 @@ function deleteStave(score: ScoreModel, stave: StaveModel): void {
 
 const init: () => ScoreModel = () => ({
   staves: [Stave.init(),Stave.init()],
-  textBoxes: [TextBox.init()],
+  textBoxes: [],
   secondTimings: []
 });
 

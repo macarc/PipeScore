@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Svg, SvgRef } from '../all';
+import { Svg, SvgRef, scoreWidth, scoreHeight, staveGap } from '../all';
 import Stave  from '../Stave/view';
 import { StaveModel } from '../Stave/model';
 import TextBox  from '../TextBox/view';
@@ -15,10 +15,6 @@ import { ScoreEvent } from '../Event';
 import { ScoreModel } from './model';
 
 // TODO remove these
-export const scoreWidth = 210 * 5;
-export const scoreHeight = 297 * 5;
-export const staveGap = 100;
-
 interface ScoreProps {
   updateView: (score: ScoreModel) => void,
   svgRef: SvgRef,

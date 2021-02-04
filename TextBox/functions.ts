@@ -1,22 +1,23 @@
 import { TextBoxModel } from './model';
+import { scoreWidth } from '../all';
 
-function widthOf(tx: TextBoxModel) {
-  // todo improve this
-  return tx.text.length * 5;
+export function centre(tx: TextBoxModel, pageWidth: number): void {
+  tx.x = pageWidth / 2;
 }
 
 export function setCoords(tx: TextBoxModel, x: number, y: number): void {
-  tx.x = x - widthOf(tx) / 2;
+  tx.x = x;
   tx.y = y;
 }
 
 export const init = (): TextBoxModel => ({
-  x: 10,
+  x: scoreWidth / 2,
   y: 100,
   text: "<Double Click to edit>"
 });
 
 export default {
   init,
-  setCoords
+  setCoords,
+  centre
 }

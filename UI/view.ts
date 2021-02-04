@@ -66,9 +66,9 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
       <button class="delete" onclick=${() => dispatch({ name: 'delete stave' })}></button>
       <hr />
       <h2>Text</h2>
-      <button class="add" onclick=${() => alert('unimplemented')}></button>
-      <button class="delete" onclick=${() => alert('unimplemented')}></button>
-      <button onclick=${() => alert('unimplemented')}>Centre</button>
+      <button class="add" onclick=${() => dispatch({ name: 'add text' })}></button>
+      <button class="delete" onclick=${() => dispatch({ name: 'delete text' })}></button>
+      <button onclick=${() => dispatch({ name: 'centre text' })}>Centre</button>
       <h2>Second Timing</h2>
       <button class="add" onclick=${() => dispatch({ name: 'add second timing' })}></button>
       <hr />

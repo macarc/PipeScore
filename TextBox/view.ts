@@ -5,6 +5,7 @@
 import { svg } from 'uhtml';
 import { Svg } from '../all';
 import { ScoreEvent } from '../Event';
+import { selectedText } from '../global';
 
 import { TextBoxModel } from './model';
 
@@ -14,6 +15,6 @@ interface TextBoxProps {
 
 export default function render(tx: TextBoxModel, props: TextBoxProps): Svg {
   return svg`
-    <text x=${tx.x} y=${tx.y} ondblclick=${() => props.dispatch({ name: 'edit text', text: tx })} onmousedown=${() => props.dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => props.dispatch({ name: 'text mouse up' })} >${tx.text}</text>
+    <text x=${tx.x} y=${tx.y} text-anchor="middle" ondblclick=${() => props.dispatch({ name: 'edit text', text: tx })} onmousedown=${() => props.dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => props.dispatch({ name: 'text mouse up' })} fill=${tx === selectedText ? 'orange' : null}>${tx.text}</text>
   `;
 }

@@ -12,14 +12,11 @@ Bugs to fix:
 [ ] Preview note for current placement
 [ ] Use correct previous note in all calls to widthOfAnacrusis
 [ ] Better second timing usage - you should click to add, then be able to drag the sections around
-[ ] Add transforms for texts
 [ ] Stricter bar lengths
 [ ] Copy/paste
   [ ] have two types, 1 for reference and one for value?
   [ ] put over correct bars
 [ ] Add options to override 'correct' functionality - e.g. tie merging, automatic grouping, automatic gracenotes
-[ ] Text box dragging is broken
-
 
 
 
@@ -90,3 +87,5 @@ Bugs fixed:
 [X] Selection should look nicer
 [X] Making a selection then adding another note somewhere crashes it (the selection is no longer in the noteModels)
 [X] Selecting a note then deleting its bar/stave leaves the selection box
+[X] Text box dragging is broken
+[X] Add transforms for texts

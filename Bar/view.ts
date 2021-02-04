@@ -1,5 +1,5 @@
 /*
-  Bar.ts - Bar (measure) implementation for PipeScore
+  Bar/view.ts - defines how to display a bar
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';

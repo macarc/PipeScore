@@ -1,3 +1,7 @@
+/*
+  global.ts - Defines global mutable state variables for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { ID, SvgRef } from './all';
 import { NoteModel, NoteLength } from './Note/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
@@ -44,7 +48,7 @@ export const setZoomLevel = (z: number): void => {
   zoomLevel = z;
 }
 
-export const currentSvg: SvgRef = { ref: null };
+export const currentSvg: SvgRef = { current: null };
 export let clipboard: NoteModel[] | null = null;
 export const setClipboard = (c: NoteModel[] | null): void => {
   clipboard = c;
@@ -56,6 +60,10 @@ export const setSelection = (s: ScoreSelectionModel | null): void => {
 export let draggedText: TextBoxModel | null = null;
 export const setDraggedText = (t: TextBoxModel | null): void => {
   draggedText = t;
+}
+export let selectedText: TextBoxModel | null = null;
+export const setSelectedText = (t: TextBoxModel | null): void => {
+  selectedText = t;
 }
 
 export let score: ScoreModel;

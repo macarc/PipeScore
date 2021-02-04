@@ -3,12 +3,12 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
-import { flatten, deepcopy } from './all';
+import { flatten, deepcopy, scoreWidth } from './all';
 import { NoteModel } from './Note/model';
 import Note from './Note/functions';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { timeSignatureToBeatDivision, parseDenominator } from './TimeSignature/functions';
-import { setCoords } from './TextBox/functions';
+import TextBox from './TextBox/functions';
 import { ScoreModel } from './Score/model';
 import Score from './Score/functions';
 import { StaveModel } from './Stave/model';
@@ -31,6 +31,7 @@ import {
   clipboard, setClipboard,
   selection, setSelection,
   draggedText, setDraggedText,
+  selectedText, setSelectedText,
   score,
   deleteXY
 } from './global';
@@ -74,6 +75,10 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
     if (inputLength !== null) {
       setInputLength(null);
+      changed = true;
+    }
+    if (selectedText !== null) {
+      setSelectedText(null);
       changed = true;
     }
   } else if (ScoreEvent.isMouseUp(event)) {
@@ -131,13 +136,28 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isTextClicked(event)) {
+    setSelectedText(event.text)
     setDraggedText(event.text);
+    changed = true;
   } else if (ScoreEvent.isTextMouseUp(event)) {
     setDraggedText(null);
   } else if (ScoreEvent.isTextDragged(event)) {
     if (draggedText !== null) {
-      setCoords(draggedText, event.x, event.y);
+      TextBox.setCoords(draggedText, event.x, event.y);
       changed = true
+    }
+  } else if (ScoreEvent.isCentreText(event)) {
+    if (selectedText !== null) {
+      TextBox.centre(selectedText, scoreWidth);
+      changed = true;
+    }
+  } else if (ScoreEvent.isAddText(event)) {
+    score.textBoxes.push(TextBox.init());
+    changed = true;
+  } else if (ScoreEvent.isDeleteText(event)) {
+    if (selectedText !== null) {
+      score.textBoxes.splice(score.textBoxes.indexOf(selectedText), 1);
+      changed = true;
     }
   } else if (ScoreEvent.isEditText(event)) {
     const newText = prompt("Enter new text:", event.text.text);
@@ -290,7 +310,7 @@ function makeCorrectGroupings() {
 
 function dragText(event: MouseEvent) {
   if (draggedText !== null) {
-    const svg = currentSvg.ref;
+    const svg = currentSvg.current;
     if (svg == null) {
       return;
     } else {

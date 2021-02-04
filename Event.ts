@@ -1,3 +1,7 @@
+/*
+  Event.ts - ScoreEvent type for PipeScore
+  Copyright (C) 2020 Archie Maclean
+*/
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { GroupNoteModel, NoteModel, NoteLength } from './Note/model';
@@ -20,6 +24,9 @@ export type ScoreEvent
   | TextClicked
   | TextMouseUp
   | TextDragged
+  | CentreText
+  | AddText
+  | DeleteText
   | AddSecondTiming
   | EditText
   | EditTimeSignatureNumerator
@@ -146,6 +153,13 @@ export function isEditText(e: ScoreEvent): e is EditText {
   return e.name === 'edit text';
 }
 
+type AddText = {
+  name: 'add text'
+}
+export function isAddText(e: ScoreEvent): e is AddText {
+  return e.name === 'add text';
+}
+
 type AddBar = {
   name: 'add bar'
 }
@@ -195,6 +209,20 @@ type TextMouseUp = {
 }
 export function isTextMouseUp(e: ScoreEvent): e is TextMouseUp {
   return e.name === 'text mouse up';
+}
+
+type CentreText = {
+  name: 'centre text'
+}
+export function isCentreText(e: ScoreEvent): e is CentreText {
+  return e.name === 'centre text';
+}
+
+type DeleteText = {
+  name: 'delete text'
+}
+export function isDeleteText(e: ScoreEvent): e is DeleteText {
+  return e.name === 'delete text';
 }
 
 type AddSecondTiming = {
