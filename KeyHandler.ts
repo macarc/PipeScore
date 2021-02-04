@@ -1,7 +1,7 @@
 import { dispatch } from './Controller';
 import { NoteLength } from './Note/model';
 
-export function keyHandler(e: KeyboardEvent) {
+export function keyHandler(e: KeyboardEvent): void {
   switch (e.key) {
     case "Escape":
       dispatch({ name: 'stop inputting notes' });
@@ -33,7 +33,15 @@ export function keyHandler(e: KeyboardEvent) {
     case "4":
       dispatch({ name: 'set note input length', length: NoteLength.Quaver });
       break;
-
+    case "5":
+      dispatch({ name: 'set note input length', length: NoteLength.Crotchet });
+      break;
+    case "6":
+      dispatch({ name: 'set note input length', length: NoteLength.Minim });
+      break;
+    case "7":
+      dispatch({ name: 'set note input length', length: NoteLength.Semibreve });
+      break;
   }
 }
 

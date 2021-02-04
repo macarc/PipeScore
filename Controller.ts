@@ -122,6 +122,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isToggleDotted(event)) {
     selectedNotes.forEach(note => note.length = Note.toggleDot(note.length));
+    if (inputLength !== null) setInputLength(Note.toggleDot(inputLength));
     changed = true;
     recalculateNoteGroupings = true;
   } else if (ScoreEvent.isChangeZoomLevel(event)) {
@@ -250,12 +251,21 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 
 
 function makeCorrectTie(noteModel: NoteModel) {
+  // corrects the pitches of any notes tied to noteModel
   const bars = Score.bars(score);
   const noteModels = flatten(bars.map(b => Note.unGroupNotes(b.notes)));
   for (let i=0; i < noteModels.length; i++) {
     if (noteModels[i].id === noteModel.id) {
-      if ((i > 0) && noteModel.tied) noteModels[i - 1].pitch = noteModel.pitch;
-      if ((i < noteModels.length - 1) && noteModels[i + 1].tied) noteModels[i + 1].pitch = noteModel.pitch;
+      let b = i;
+      while ((b > 0) && noteModels[b].tied) {
+        noteModels[b - 1].pitch = noteModel.pitch;
+        b -= 1;
+      }
+      let a = i;
+      while ((a < noteModels.length - 1) && noteModels[a + 1].tied) {
+        noteModels[a + 1].pitch = noteModel.pitch;
+        a += 1;
+      }
       break;
     }
   }

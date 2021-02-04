@@ -7,7 +7,6 @@ Bugs to fix:
 [ ] Deal with things (ties, second timings, selection, ...) going over stave break
 [ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
   [ ] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
-  [ ] Have a manual override
 [ ] Cut time
 [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
 [ ] Preview note for current placement
@@ -18,6 +17,8 @@ Bugs to fix:
 [ ] Copy/paste
   [ ] have two types, 1 for reference and one for value?
   [ ] put over correct bars
+[ ] Add options to override 'correct' functionality - e.g. tie merging, automatic grouping, automatic gracenotes
+[ ] Text box dragging is broken
 
 
 

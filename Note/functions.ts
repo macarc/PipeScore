@@ -24,20 +24,20 @@ function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[]
       }
     };
     if (note.tied && previousLength !== 0) {
-        const newLength = length + previousLength;
-        const newNoteLength = numberToNoteLength(newLength);
-        if (newNoteLength === null) {
-          push(note);
-          return length;
-        } else {
-          group.notes[group.notes.length - 1].length = newNoteLength;
-          return newLength;
-        }
-      } else {
+      const newLength = length + previousLength;
+      const newNoteLength = numberToNoteLength(newLength);
+      if (newNoteLength === null) {
         push(note);
         return length;
+      } else {
+        group.notes[group.notes.length - 1].length = newNoteLength;
+        return newLength;
       }
-    };
+    } else {
+      push(note);
+      return length;
+    }
+  };
   let currentGroup: GroupNoteModel = { notes: [] };
   const groupedNotes: GroupNoteModel[] = [];
   let currentLength = 0;
