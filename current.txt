@@ -90,3 +90,4 @@ Bugs fixed:
 [X] Selecting a note then deleting its bar/stave leaves the selection box
 [X] Text box dragging is broken
 [X] Add transforms for texts
+[X] Correct zoom on page load

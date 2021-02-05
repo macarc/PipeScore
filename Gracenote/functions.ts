@@ -108,7 +108,8 @@ export function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote
 }
 
 export const init = (): GracenoteModel => ({
-  type: 'none',
+  type: 'single',
+  note: Pitch.HG
 });
 
 export default {

@@ -5,7 +5,7 @@ interface ReactiveGracenote {
   name: string
 }
 
-interface SingleGracenote {
+export interface SingleGracenote {
   type: 'single',
   note: Pitch,
 }

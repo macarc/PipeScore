@@ -9,7 +9,7 @@ import { numberOfNotes as gracenoteNumberOfNotes } from '../Gracenote/functions'
 import { setXY, draggedNote } from '../global';
 
 import { GroupNoteModel, NoteModel, PreviousNote } from './model';
-import { ScoreEvent } from '../Event';
+import { Dispatch } from '../Event';
 import Note from './functions';
 
 const gracenoteToNoteWidthRatio = 0.6;
@@ -138,7 +138,7 @@ M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => Svg, dispatch: (e: ScoreEvent) => void): Svg {
+function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => Svg, dispatch: Dispatch): Svg {
   // todo this is complected with stemXOf in `render`
   const stemX = x - noteHeadWidth;
   const stemY = noteY(y,note.pitch) + 30;
@@ -172,7 +172,7 @@ interface NoteProps {
   y: number,
   previousNote: PreviousNote | null,
   noteWidth: number,
-  dispatch: (e: ScoreEvent) => void
+  dispatch: Dispatch
 }
 
 
@@ -207,7 +207,8 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         y: props.y,
         gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
         thisNote: firstNote.pitch,
-        previousNote: previousPitch
+        previousNote: previousPitch,
+        dispatch: props.dispatch
       });
 
       const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: 1, groupNote }))
@@ -264,7 +265,8 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
                 y: props.y,
                 gracenoteWidth: props.noteWidth * 0.6,
                 thisNote: note.pitch,
-                previousNote: previousNote ? previousNote.pitch : previousPitch
+                previousNote: previousNote ? previousNote.pitch : previousPitch,
+                dispatch: props.dispatch
               });
               const previousNoteObj: PreviousNote | null = (() => {
                 if (previousNote !== null)

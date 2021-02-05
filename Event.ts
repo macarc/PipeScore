@@ -5,6 +5,7 @@
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { GroupNoteModel, NoteModel, NoteLength } from './Note/model';
+import { SingleGracenote } from './Gracenote/model';
 import { Pitch } from './all';
 export type ScoreEvent
   = MouseMovedOver
@@ -17,6 +18,7 @@ export type ScoreEvent
   | SetGracenoteOnSelected
   | SetInputLength
   | StopInputtingNotes
+  | SingleGracenoteClicked
   | NoteAdded
   | TieSelectedNotes
   | ToggleDotted
@@ -36,6 +38,7 @@ export type ScoreEvent
   | DeleteBar
   | DeleteStave;
 
+export type Dispatch = (e: ScoreEvent) => void
 
 type Copy = {
   name: 'copy'
@@ -57,6 +60,14 @@ type MouseMovedOver = {
 }
 export function isMouseMovedOver(e: ScoreEvent): e is MouseMovedOver {
   return e.name === 'mouse over pitch';
+}
+
+type SingleGracenoteClicked = {
+  name: 'gracenote clicked',
+  gracenote: SingleGracenote
+}
+export function isSingleGracenoteClicked(e: ScoreEvent): e is SingleGracenoteClicked {
+  return e.name === 'gracenote clicked';
 }
 
 type NoteClicked = {

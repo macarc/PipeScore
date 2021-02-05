@@ -4,8 +4,10 @@
 */
 import { svg } from 'uhtml';
 import { Pitch, lineGap, noteY, Svg } from '../all';
+import { Dispatch } from '../Event';
+import { draggedGracenote } from '../global';
 
-import { GracenoteModel } from './model';
+import { GracenoteModel, SingleGracenote } from './model';
 import { notesOf, isInvalid } from './functions';
 
 
@@ -33,10 +35,16 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean)
 const stemXOf = (x: number) => x + 3;
 const stemYOf = (y: number) => y - 2;
 
-function single(note: Pitch, x: number, staveY: number): Svg {
+function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: SingleGracenote | null): Svg {
   const y = noteY(staveY, note);
+  const boxWidth = 2.5 * gracenoteHeadWidth;
+  const boxHeight = 6;
   return svg`<g class="gracenote">
     ${head(x,y, note, y - 3 * lineGap, true)}
+
+    ${(gracenote !== null)
+      ? svg`<rect onmousedown=${() => dispatch({ name: 'gracenote clicked', gracenote })} x=${x - boxWidth / 2} y=${y - boxHeight / 2} width=${boxWidth} height=${boxHeight} pointer-events=${gracenote === draggedGracenote ? "none" : "default"} opacity="0" />`
+      : null}
 
     <line x1=${stemXOf(x)} x2=${stemXOf(x)} y1=${stemYOf(y)} y2=${stemYOf(y) - 20} stroke="black" />
 
@@ -50,11 +58,12 @@ export interface GracenoteProps {
   y: number,
   x: number,
   gracenoteWidth: number,
+  dispatch: Dispatch
 }
 
 export default function render(gracenote: GracenoteModel, props: GracenoteProps): Svg {
   if (gracenote.type === 'single') {
-    return single(gracenote.note, props.x, props.y);
+    return single(gracenote.note, props.x, props.y, props.dispatch, gracenote);
   } else if (gracenote.type === 'reactive') {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
@@ -65,7 +74,7 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth + gracenoteHeadWidth;
     const y = (note: Pitch) => noteY(props.y, note);
     if (uniqueNotes.length === 1) {
-      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y);
+      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, null);
     } else {
       return svg`<g class="reactive-gracenote">
         ${[0,2,4].map(i => svg`<line x1=${xOf(uniqueNotes[0]) + tailXOffset} x2=${xOf(uniqueNotes[uniqueNotes.length - 1]) + tailXOffset} y1=${props.y - 3.5 * lineGap + i} y2=${props.y - 3.5 * lineGap + i} stroke="black" />`

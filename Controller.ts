@@ -27,6 +27,7 @@ import {
   inputLength, setInputLength,
   zoomLevel, setZoomLevel,
   draggedNote, setDraggedNote, unDragNote,
+  draggedGracenote, setDraggedGracenote,
   currentSvg,
   clipboard, setClipboard,
   selection, setSelection,
@@ -46,10 +47,14 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   const noteModels = currentNoteModels();
   const selectedNotes = selectionToNotes(selection, noteModels);
   if (ScoreEvent.isMouseMovedOver(event)) {
-    if (draggedNote !== null) {
-    changed = true;
+    if (draggedNote !== null && event.pitch !== draggedNote.pitch) {
+      changed = true;
       draggedNote.pitch = event.pitch;
       makeCorrectTie(draggedNote);
+    }
+    if (draggedGracenote !== null && event.pitch !== draggedGracenote.note) {
+      changed = true;
+      draggedGracenote.note = event.pitch;
     }
   } else if (ScoreEvent.isNoteClicked(event)) {
     setDraggedNote(event.note);
@@ -68,6 +73,9 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
         }
       }
     }
+  } else if (ScoreEvent.isSingleGracenoteClicked(event)) {
+    setDraggedGracenote(event.gracenote);
+    changed = true;
   } else if (ScoreEvent.isBackgroundClicked(event)) {
     if (selectedNotes.length > 0) {
       setSelection(null);
@@ -82,8 +90,9 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isMouseUp(event)) {
-    if (draggedNote !== null) {
+    if (draggedNote !== null || draggedGracenote !== null) {
       unDragNote();
+      setDraggedGracenote(null)
       changed = true;
     }
   } else if (ScoreEvent.isDeleteSelectedNotes(event)) {

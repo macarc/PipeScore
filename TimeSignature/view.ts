@@ -4,14 +4,14 @@
 */
 import { svg } from 'uhtml';
 import { Svg } from '../all';
-import { ScoreEvent } from '../Event';
+import { Dispatch } from '../Event';
 
 import { TimeSignatureModel } from './model';
 
 interface TimeSignatureProps {
   x: number,
   y: number,
-  dispatch: (e: ScoreEvent) => void
+  dispatch: Dispatch
 }
 
 export default function render(timeSignature: TimeSignatureModel, props: TimeSignatureProps): Svg {

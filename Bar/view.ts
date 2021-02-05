@@ -12,7 +12,7 @@ import { timeSignatureWidth, timeSignatureEqual } from '../TimeSignature/functio
 
 import { setXY } from '../global';
 import { GroupNoteModel } from '../Note/model';
-import { ScoreEvent } from '../Event';
+import { Dispatch } from '../Event';
 
 import { BarModel, Barline } from './model';
 import { lastNoteOfBar, lastNoteIndexOfBar, numberOfGroupNotes } from './functions';
@@ -27,7 +27,7 @@ interface BarProps {
   previousBar: BarModel | null,
   lastNoteX: number | null,
   shouldRenderLastBarline: boolean,
-  dispatch: (e: ScoreEvent) => void
+  dispatch: Dispatch
 }
 
 export const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes

@@ -10,7 +10,7 @@ import TextBox  from '../TextBox/view';
 import SecondTiming  from '../SecondTiming/view';
 import ScoreSelection from '../ScoreSelection/view';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
-import { ScoreEvent } from '../Event';
+import { Dispatch } from '../Event';
 
 import { ScoreModel } from './model';
 
@@ -20,7 +20,7 @@ interface ScoreProps {
   svgRef: SvgRef,
   zoomLevel: number,
   selection: ScoreSelectionModel | null,
-  dispatch: (e: ScoreEvent) => void
+  dispatch: Dispatch
 }
 
 export default function render(score: ScoreModel, props: ScoreProps): Svg {

@@ -6,7 +6,7 @@ import { svg } from 'uhtml';
 import { lineHeightOf, Svg } from '../all';
 import Bar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
 import { BarModel } from '../Bar/model';
-import { ScoreEvent } from '../Event';
+import { Dispatch } from '../Event';
 
 import { StaveModel } from './model';
 
@@ -15,7 +15,7 @@ interface StaveProps {
   y: number,
   width: number,
   previousStave: StaveModel | null,
-  dispatch: (e: ScoreEvent) => void
+  dispatch: Dispatch
 }
 
 

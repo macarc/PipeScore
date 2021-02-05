@@ -4,7 +4,6 @@ import { flatten } from '../all';
 
 import Stave from '../Stave/functions';
 import { StaveModel } from '../Stave/model';
-import TextBox from '../TextBox/functions';
 import { BarModel } from '../Bar/model';
 import { GroupNoteModel } from '../Note/model';
 
