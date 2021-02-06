@@ -1,7 +1,8 @@
 import { TimeSignatureModel, Denominator } from './model';
 
 export const timeSignatureWidth = 30;
-export function timeSignatureToNumberOfBeats(ts: TimeSignatureModel): number {
+
+function numberOfBeats(ts: TimeSignatureModel): number {
   switch (ts[1]) {
     case 4:
       return ts[0];
@@ -10,7 +11,7 @@ export function timeSignatureToNumberOfBeats(ts: TimeSignatureModel): number {
   }
 }
 
-export function timeSignatureToBeatDivision(ts: TimeSignatureModel): number {
+function beatDivision(ts: TimeSignatureModel): number {
   switch (ts[1]) {
     case 4:
       return 1;
@@ -19,7 +20,7 @@ export function timeSignatureToBeatDivision(ts: TimeSignatureModel): number {
   }
 }
 
-export function parseDenominator(text: string): Denominator | null {
+function parseDenominator(text: string): Denominator | null {
   switch (text) {
     case '4': return 4;
     case '8': return 8;
@@ -27,12 +28,16 @@ export function parseDenominator(text: string): Denominator | null {
   }
 }
 
-export function timeSignatureEqual(ts0: TimeSignatureModel, ts1: TimeSignatureModel): boolean {
+function equal(ts0: TimeSignatureModel, ts1: TimeSignatureModel): boolean {
   return ts0[0] === ts1[0] && ts0[1] === ts1[1];
 }
 
 export const init: () => TimeSignatureModel = () => [2,4];
 
 export default {
-  init
+  init,
+  numberOfBeats,
+  beatDivision,
+  parseDenominator,
+  equal
 }

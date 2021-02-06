@@ -4,24 +4,26 @@
 */
 import { render } from 'uhtml';
 import { flatten, deepcopy, scoreWidth } from './all';
-import { NoteModel } from './Note/model';
-import Note from './Note/functions';
-import { TimeSignatureModel } from './TimeSignature/model';
-import { timeSignatureToBeatDivision, parseDenominator } from './TimeSignature/functions';
-import TextBox from './TextBox/functions';
+import * as ScoreEvent from './Event';
+
 import { ScoreModel } from './Score/model';
-import Score from './Score/functions';
 import { StaveModel } from './Stave/model';
-import { addBarToStave, deleteBarFromStave } from './Stave/functions';
 import { BarModel } from './Bar/model';
+import { NoteModel } from './Note/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
-import SecondTiming from './SecondTiming/functions';
+import { TimeSignatureModel } from './TimeSignature/model';
+
+import Score from './Score/functions';
 import Stave from './Stave/functions';
+import Note from './Note/functions';
+import Gracenote from './Gracenote/functions';
+import TimeSignature from './TimeSignature/functions';
+import TextBox from './TextBox/functions';
+import SecondTiming from './SecondTiming/functions';
 
 import renderScore from './Score/view';
 import renderUI from './UI/view';
-import * as ScoreEvent from './Event';
 
 import {
   inputLength, setInputLength,
@@ -114,7 +116,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       recalculateNoteGroupings = true;
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
-    selectedNotes.forEach(note => note.gracenote = { type: 'reactive', name: event.value });
+    selectedNotes.forEach(note => note.gracenote = Gracenote.from(event.value));
     changed = true;
   } else if (ScoreEvent.isSetInputLength(event)) {
     if (event.length !== inputLength) {
@@ -177,7 +179,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isAddBar(event)) {
     if (selection) {
       const { bar, stave } = currentBar(selection.start);
-      addBarToStave(stave, bar);
+      Stave.addBar(stave, bar);
       changed = true;
     }
   } else if (ScoreEvent.isDeleteBar(event)) {
@@ -187,7 +189,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const newNotes = flatten(bar.notes.slice().map(n => n.notes));
       bar.notes.forEach(groupNote => groupNote.notes.forEach(note => deleteNote(note, newNotes)));
       deleteXY(bar.id);
-      deleteBarFromStave(stave, bar);
+      Stave.deleteBar(stave, bar);
       changed = true;
     }
   } else if (ScoreEvent.isAddStave(event)) {
@@ -237,7 +239,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isEditTimeSignatureDenominator(event)) {
     const newDenominator = prompt('Enter new bottom number:', event.timeSignature[1].toString());
     if (! newDenominator) return;
-    const denom = parseDenominator(newDenominator);
+    const denom = TimeSignature.parseDenominator(newDenominator);
 
     if (denom === event.timeSignature[1]) return;
 
@@ -313,7 +315,7 @@ function makeCorrectGroupings() {
   const noteModels = bars.map(b => Note.unGroupNotes(b.notes));
   for (let i=0; i < bars.length; i++) {
     // todo actually pass the correct time signature
-    bars[i].notes = Note.groupNotes(noteModels[i], timeSignatureToBeatDivision(bars[i].timeSignature));
+    bars[i].notes = Note.groupNotes(noteModels[i], TimeSignature.beatDivision(bars[i].timeSignature));
   }
 }
 

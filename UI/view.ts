@@ -2,11 +2,12 @@
   UI.ts - User interface for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { Svg } from '../all';
-import { NoteLength } from '../Note/model';
 import { html } from 'uhtml';
+import { Svg } from '../all';
 import { inputLength, zoomLevel } from '../global';
+
 import { ScoreEvent } from '../Event';
+import { NoteLength } from '../Note/model';
 
 export default function render(dispatch: (e: ScoreEvent) => void): Svg {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
@@ -50,6 +51,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
     <div id="sidebar">
 
       <h2>Gracenote</h2>
+      <button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: null })}>Single</button>
       ${gracenoteInput('doubling')}
       ${gracenoteInput('throw-d')}
       ${gracenoteInput('toarluath')}

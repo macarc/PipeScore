@@ -2,11 +2,13 @@
   Event.ts - ScoreEvent type for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { TimeSignatureModel } from './TimeSignature/model';
-import { TextBoxModel } from './TextBox/model';
+import { Pitch } from './all';
+
 import { GroupNoteModel, NoteModel, NoteLength } from './Note/model';
 import { SingleGracenote } from './Gracenote/model';
-import { Pitch } from './all';
+import { TimeSignatureModel } from './TimeSignature/model';
+import { TextBoxModel } from './TextBox/model';
+
 export type ScoreEvent
   = MouseMovedOver
   | Copy
@@ -102,7 +104,7 @@ export function isDeleteSelectedNotes(e: ScoreEvent): e is DeleteSelectedNotes {
 
 type SetGracenoteOnSelected = {
   name: 'set gracenote',
-  value: string
+  value: string | null
 }
 export function isSetGracenoteOnSelected(e: ScoreEvent): e is SetGracenoteOnSelected {
   return e.name === 'set gracenote';

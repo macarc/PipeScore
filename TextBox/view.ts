@@ -4,10 +4,11 @@
 */
 import { svg } from 'uhtml';
 import { Svg } from '../all';
+
 import { ScoreEvent } from '../Event';
 import { selectedText } from '../global';
-
 import { TextBoxModel } from './model';
+
 
 interface TextBoxProps {
   dispatch: (e: ScoreEvent) => void

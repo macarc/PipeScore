@@ -4,19 +4,18 @@
 */
 import { svg } from 'uhtml';
 import { lineHeightOf, Pitch, Svg, noteBoxes, noteY }  from '../all';
-import renderNote, { lastNoteXOffset, totalBeatWidth } from '../Note/view';
-import { PreviousNote } from '../Note/model';
-import Note from '../Note/functions';
-import TimeSignature from '../TimeSignature/view';
-import { timeSignatureWidth, timeSignatureEqual } from '../TimeSignature/functions';
-
 import { setXY } from '../global';
-import { GroupNoteModel } from '../Note/model';
+
+import { GroupNoteModel, PreviousNote } from '../Note/model';
+import { BarModel, Barline } from './model';
 import { Dispatch } from '../Event';
 
-import { BarModel, Barline } from './model';
-import { lastNoteOfBar, lastNoteIndexOfBar, numberOfGroupNotes } from './functions';
+import Bar from './functions';
+import Note from '../Note/functions';
+import renderTimeSignature from '../TimeSignature/view';
+import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
+import renderNote, { lastNoteXOffset, totalBeatWidth } from '../Note/view';
 
 
 
@@ -42,14 +41,14 @@ const minimumBeatWidth = 30;
 
 
 export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
-  const lastNoteIndex = lastNoteIndexOfBar(bar);
-  const lastNote = lastNoteOfBar(bar);
-  const previousBarLastNote = previousBar ? lastNoteOfBar(previousBar) : null;
+  const lastNoteIndex = Bar.lastNoteIndex(bar);
+  const lastNote = Bar.lastNote(bar);
+  const previousBarLastNote = previousBar ? Bar.lastNote(previousBar) : null;
   if (lastNote !== null) {
     const beats = beatsOf(bar, null)
     const totalNumberOfBeats = beats[beats.length - 1];
     const beatWidth = width / totalNumberOfBeats;
-    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], (numberOfGroupNotes(bar) === 1 ? previousBarLastNote : Note.lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1])) || null);
+    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], (Bar.numberOfGroupNotes(bar) === 1 ? previousBarLastNote : Note.lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1])) || null);
   } else {
     return 0;
   }
@@ -101,7 +100,7 @@ function barlineWidth(barline: Barline) {
 export default function render(bar: BarModel,props: BarProps): Svg {
   setXY(bar.id, props.x, props.x + props.width, props.y);
   const staveY = props.y;
-  const hasTimeSignature = props.previousBar !== null ? !(timeSignatureEqual(props.previousBar.timeSignature, bar.timeSignature)) : true;
+  const hasTimeSignature = props.previousBar !== null ? !(TimeSignature.equal(props.previousBar.timeSignature, bar.timeSignature)) : true;
   const width = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
   const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
   const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.frontBarline);
@@ -174,7 +173,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
       ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
       ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
-      ${hasTimeSignature ? TimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null}
+      ${hasTimeSignature ? renderTimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null}
     </g>`;
 
 }

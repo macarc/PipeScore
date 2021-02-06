@@ -2,9 +2,8 @@
   all.ts - general helper functions and global types for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-
-
 import { svg, Hole } from 'uhtml';
+
 export const log = <T>(a: T): T => {
   console.log(a);
   return a;

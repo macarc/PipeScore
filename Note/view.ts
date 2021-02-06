@@ -4,13 +4,15 @@
 */
 import { svg } from 'uhtml';
 import { Pitch, Svg, noteOffset, noteY, noteBoxes } from '../all';
-import Gracenote, { GracenoteProps } from '../Gracenote/view';
-import { numberOfNotes as gracenoteNumberOfNotes } from '../Gracenote/functions';
 import { setXY, draggedNote } from '../global';
 
 import { GroupNoteModel, NoteModel, PreviousNote } from './model';
 import { Dispatch } from '../Event';
+
 import Note from './functions';
+import Gracenote from '../Gracenote/functions';
+
+import renderGracenote, { GracenoteProps } from '../Gracenote/view';
 
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
@@ -20,7 +22,7 @@ const noteHeadWidth = 5;
 
 const noteAndGracenoteWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
   notes.map((n,i) => 1 + (n.tied ? 0 :
-                          (gracenoteToNoteWidthRatio * gracenoteNumberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch)))
+                          (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch)))
            ).reduce((a,b) => a + b, 0);
 
 export const totalBeatWidth = (note: GroupNoteModel,previousPitch: Pitch | null): number => noteAndGracenoteWidth(note.notes, previousPitch);
@@ -147,7 +149,7 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
 
   return svg`<g class="singleton">
     ${shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null}
-    ${shouldTie(note, previousNote) ?  null : Gracenote(note.gracenote, gracenoteProps)}
+    ${shouldTie(note, previousNote) ?  null : renderGracenote(note.gracenote, gracenoteProps)}
 
     ${noteHead(x, noteY(y, note.pitch), note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }))}
     ${Note.hasStem(note) ? svg`<line
@@ -188,7 +190,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
     // useful for x calculations
 
     const relativeIndexOfGracenote = (index: number) => noteAndGracenoteWidth(groupNote.notes.slice().splice(0,index), previousPitch);
-    const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (gracenoteNumberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : groupNote.notes[index - 1].pitch)));
+    const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (Gracenote.numberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : groupNote.notes[index - 1].pitch)));
     const xOf = (noteIndex: number) => props.x + relativeIndexOf(groupNote.notes[noteIndex],noteIndex) * props.noteWidth;
     const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
     const stemXOf = (index: number) => xOf(index) - noteHeadWidth;
@@ -281,7 +283,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
 
               return svg.for(note)`<g class="grouped-note">
                 ${shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null}
-                ${shouldTie(note, previousNoteObj) ? null : Gracenote(note.gracenote,gracenoteProps)}
+                ${shouldTie(note, previousNoteObj) ? null : renderGracenote(note.gracenote,gracenoteProps)}
 
                 ${noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }))}
 

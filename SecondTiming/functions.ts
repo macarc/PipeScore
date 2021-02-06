@@ -1,7 +1,8 @@
-import { SecondTimingModel } from './model';
 import { ID } from '../all';
 
-export const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
+import { SecondTimingModel } from './model';
+
+const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
   start,
   middle,
   end

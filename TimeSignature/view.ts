@@ -4,8 +4,8 @@
 */
 import { svg } from 'uhtml';
 import { Svg } from '../all';
-import { Dispatch } from '../Event';
 
+import { Dispatch } from '../Event';
 import { TimeSignatureModel } from './model';
 
 interface TimeSignatureProps {

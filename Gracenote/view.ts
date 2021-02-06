@@ -4,11 +4,12 @@
 */
 import { svg } from 'uhtml';
 import { Pitch, lineGap, noteY, Svg } from '../all';
-import { Dispatch } from '../Event';
 import { draggedGracenote } from '../global';
 
+import { Dispatch } from '../Event';
 import { GracenoteModel, SingleGracenote } from './model';
-import { notesOf, isInvalid } from './functions';
+
+import Gracenote from './functions';
 
 
 
@@ -68,8 +69,8 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
     // rather than by value)
-    const grace = notesOf(gracenote, props.thisNote, props.previousNote);
-    const uniqueNotes: { note: Pitch }[] = isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
+    const grace = Gracenote.notesOf(gracenote, props.thisNote, props.previousNote);
+    const uniqueNotes: { note: Pitch }[] = Gracenote.isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
 
     const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth + gracenoteHeadWidth;
     const y = (note: Pitch) => noteY(props.y, note);
@@ -80,7 +81,7 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
         ${[0,2,4].map(i => svg`<line x1=${xOf(uniqueNotes[0]) + tailXOffset} x2=${xOf(uniqueNotes[uniqueNotes.length - 1]) + tailXOffset} y1=${props.y - 3.5 * lineGap + i} y2=${props.y - 3.5 * lineGap + i} stroke="black" />`
         )}
         ${uniqueNotes.map(
-          noteObj => head(xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap, ! isInvalid(grace))
+          noteObj => head(xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap, ! Gracenote.isInvalid(grace))
         )}
       </g>`;
     }

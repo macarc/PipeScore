@@ -4,17 +4,18 @@
 */
 import { svg } from 'uhtml';
 import { Svg, SvgRef, scoreWidth, scoreHeight, staveGap } from '../all';
-import Stave  from '../Stave/view';
+
+import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
-import TextBox  from '../TextBox/view';
-import SecondTiming  from '../SecondTiming/view';
-import ScoreSelection from '../ScoreSelection/view';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
 import { Dispatch } from '../Event';
 
-import { ScoreModel } from './model';
+import TextBox  from '../TextBox/view';
+import SecondTiming  from '../SecondTiming/view';
+import ScoreSelection from '../ScoreSelection/view';
 
-// TODO remove these
+import renderStave  from '../Stave/view';
+
 interface ScoreProps {
   updateView: (score: ScoreModel) => void,
   svgRef: SvgRef,
@@ -40,7 +41,7 @@ export default function render(score: ScoreModel, props: ScoreProps): Svg {
     <rect x="0" y="0" width="100%" onmousedown=${() => props.dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
     ${score.staves.map((stave,idx) => svg.for(stave)`
-      ${Stave(stave, staveProps(stave,idx))}
+      ${renderStave(stave, staveProps(stave,idx))}
     `)}
 
     ${score.textBoxes.map(textBox => svg.for(textBox)`${TextBox(textBox, { dispatch: props.dispatch })}`)}

@@ -1,14 +1,15 @@
-import { GracenoteModel, Gracenote, InvalidGracenote } from './model';
 import { Pitch } from '../all';
 
-export function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is InvalidGracenote {
+import { GracenoteModel, Gracenote, InvalidGracenote } from './model';
+
+function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is InvalidGracenote {
   return (gracenote as InvalidGracenote).gracenote != null;
 }
 type GracenoteFn = (note: Pitch, prev: Pitch | null) => Gracenote | InvalidGracenote;
 
 const invalidateIf = (pred: boolean, gracenote: Gracenote): Gracenote | InvalidGracenote => pred ? ({ gracenote }) : gracenote;
 
-export const gracenotes: Map<string, GracenoteFn> = new Map();
+const gracenotes: Map<string, GracenoteFn> = new Map();
 
 gracenotes.set('throw-d', note => invalidateIf(note !== Pitch.D, [Pitch.G,Pitch.D,Pitch.C]));
 gracenotes.set('doubling', (note, prev) => {
@@ -73,7 +74,7 @@ gracenotes.set('g-gracenote-birl', (note, prev) => {
 });
 
 
-export function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
+function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
   const grace = notesOf(gracenote,thisNote,previousNote);
   if (isInvalid(grace)) {
     if (grace.gracenote.length > 0) {
@@ -90,7 +91,7 @@ export function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previo
   }
 }
 
-export function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Pitch[] | InvalidGracenote {
+function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Pitch[] | InvalidGracenote {
   if (gracenote.type === 'single') {
     return [gracenote.note];
   } else if (gracenote.type === 'reactive') {
@@ -107,13 +108,25 @@ export function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote
   }
 }
 
-export const init = (): GracenoteModel => ({
-  type: 'single',
-  note: Pitch.HG
+const init = (): GracenoteModel => ({
+  type: 'none'
 });
+
+const from = (name: string | null): GracenoteModel =>
+  (name === null)
+    ? ({
+      type: 'single',
+      note: Pitch.HG
+    })
+    : ({
+      type: 'reactive',
+      name
+    });
 
 export default {
   init,
+  from,
   notesOf,
-  numberOfNotes
+  numberOfNotes,
+  isInvalid
 }

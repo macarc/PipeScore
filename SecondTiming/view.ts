@@ -1,6 +1,5 @@
 import { svg } from 'uhtml';
 import { Svg } from '../all';
-
 import { getXY } from '../global';
 
 import { SecondTimingModel } from './model';

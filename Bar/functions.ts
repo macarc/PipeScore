@@ -2,23 +2,24 @@
   Bar/functions.ts - Defines functions that transform Bars
   Copyright (C) 2020 Archie Maclean
 */
-import { BarModel, Barline } from './model';
 import { Pitch, genId } from '../all';
+import { BarModel, Barline } from './model';
+
 import { GroupNoteModel } from '../Note/model';
 
 import Note from '../Note/functions';
 import TimeSignature from '../TimeSignature/functions';
 
-export const groupNotes = (bar: BarModel):  GroupNoteModel[] => bar.notes;
+const groupNotes = (bar: BarModel):  GroupNoteModel[] => bar.notes;
 
-export function lastNoteIndexOfBar(bar: BarModel): number {
-  let lastNoteIndex = bar.notes.length - 1;
-  if (Note.numberOfNotes(bar.notes[bar.notes.length - 1]) === 0) lastNoteIndex = bar.notes.length - 2;
-  return lastNoteIndex;
+function lastNoteIndex(bar: BarModel): number {
+  let index = bar.notes.length - 1;
+  if (Note.numberOfNotes(bar.notes[bar.notes.length - 1]) === 0) index = bar.notes.length - 2;
+  return index;
 }
 
-export function lastNoteOfBar(bar: BarModel): Pitch | null {
-  const lastGroupNote = bar.notes[lastNoteIndexOfBar(bar)] || null;
+function lastNote(bar: BarModel): Pitch | null {
+  const lastGroupNote = bar.notes[lastNoteIndex(bar)] || null;
   if (lastGroupNote !== null) {
     return Note.lastNoteOfGroupNote(lastGroupNote);
   } else {
@@ -26,11 +27,11 @@ export function lastNoteOfBar(bar: BarModel): Pitch | null {
   }
 }
 
-export function numberOfGroupNotes(bar: BarModel): number {
-  return lastNoteIndexOfBar(bar) + 1;
+function numberOfGroupNotes(bar: BarModel): number {
+  return lastNoteIndex(bar) + 1;
 }
 
-export const init = (isAnacrusis = false): BarModel => ({
+const init = (isAnacrusis = false): BarModel => ({
   timeSignature: TimeSignature.init(),
   notes: [Note.init(),Note.init()],
   frontBarline: Barline.Normal,
@@ -43,7 +44,7 @@ export default {
   init,
   groupNotes,
   numberOfGroupNotes,
-  lastNoteOfBar,
-  lastNoteIndexOfBar
+  lastNote,
+  lastNoteIndex
 }
 

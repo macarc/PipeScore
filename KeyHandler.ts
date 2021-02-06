@@ -1,4 +1,5 @@
 import { dispatch } from './Controller';
+
 import { NoteLength } from './Note/model';
 
 export function keyHandler(e: KeyboardEvent): void {

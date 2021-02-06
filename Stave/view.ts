@@ -4,11 +4,12 @@
 */
 import { svg } from 'uhtml';
 import { lineHeightOf, Svg } from '../all';
-import Bar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
+
+import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
 import { Dispatch } from '../Event';
 
-import { StaveModel } from './model';
+import renderBar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
 
 interface StaveProps {
   x: number,
@@ -65,7 +66,7 @@ export default function render(stave: StaveModel, props: StaveProps): Svg {
       ${trebleClef(props.x, props.y)}
       <g class="notes">
         ${stave.bars.map(
-          (bar,idx) => svg.for(bar)`${Bar(bar, barProps(bar,idx))}`
+          (bar,idx) => svg.for(bar)`${renderBar(bar, barProps(bar,idx))}`
         )}
       </g>
       <g class="stave-lines">

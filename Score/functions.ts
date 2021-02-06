@@ -1,11 +1,11 @@
-import { ScoreModel } from './model';
-
 import { flatten } from '../all';
 
-import Stave from '../Stave/functions';
+import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
 import { BarModel } from '../Bar/model';
 import { GroupNoteModel } from '../Note/model';
+
+import Stave from '../Stave/functions';
 
 
 function groupNotes(score: ScoreModel): GroupNoteModel[] {

@@ -1,6 +1,8 @@
-import { GroupNoteModel, NoteModel, NoteLength } from './model';
-import Gracenote from '../Gracenote/functions';
 import { Pitch, genId, flatten } from '../all';
+
+import { GroupNoteModel, NoteModel, NoteLength } from './model';
+
+import Gracenote from '../Gracenote/functions';
 
 const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
 
