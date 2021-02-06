@@ -91,7 +91,7 @@ svg {
 #note-hdsq {
   background-image: url('./images/hemidemisemiquaver-icon.png');
 }
-.current-note-input {
+.highlighted {
   background-color: yellow !important;
 }
 

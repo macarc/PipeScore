@@ -82,8 +82,8 @@ function hasStem(note: NoteModel): boolean {
   return note.length !== NoteLength.Semibreve;
 }
 
-function hasDot(note: NoteModel): boolean {
-  return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(note.length));
+function hasDot(note: NoteLength): boolean {
+  return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(note));
 }
 
 function hasBeam(note: NoteModel): boolean {
@@ -92,6 +92,30 @@ function hasBeam(note: NoteModel): boolean {
 
 function isFilled(note: NoteModel): boolean {
   return lengthToNumber(note.length) < 2;
+}
+
+function equalOrDotted(a: NoteLength, b: NoteLength): boolean {
+  if (a === b)
+    return true;
+
+  let conv;
+
+  switch (a) {
+    case NoteLength.Semibreve: conv = NoteLength.Semibreve; break;
+    case NoteLength.DottedMinim: conv = NoteLength.Minim; break;
+    case NoteLength.Minim: conv = NoteLength.DottedMinim; break;
+    case NoteLength.DottedCrotchet: conv = NoteLength.Crotchet; break;
+    case NoteLength.Crotchet: conv = NoteLength.DottedCrotchet; break;
+    case NoteLength.DottedQuaver: conv = NoteLength.Quaver; break;
+    case NoteLength.Quaver: conv = NoteLength.DottedQuaver; break;
+    case NoteLength.DottedSemiQuaver: conv = NoteLength.SemiQuaver; break;
+    case NoteLength.SemiQuaver: conv = NoteLength.DottedSemiQuaver; break;
+    case NoteLength.DottedDemiSemiQuaver: conv = NoteLength.DemiSemiQuaver; break;
+    case NoteLength.DemiSemiQuaver: conv = NoteLength.DottedDemiSemiQuaver; break;
+    case NoteLength.DottedHemiDemiSemiQuaver: conv = NoteLength.HemiDemiSemiQuaver; break;
+    case NoteLength.HemiDemiSemiQuaver: conv = NoteLength.DottedHemiDemiSemiQuaver; break;
+  }
+  return b === conv;
 }
 
 function lengthToNumber(length: NoteLength): number {
@@ -198,7 +222,8 @@ export default {
   hasDot,
   hasBeam,
   isFilled,
-  toggleDot
+  toggleDot,
+  equalOrDotted
 }
 /*
 zombie code - currently unused, may be useful in future?

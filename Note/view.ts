@@ -87,7 +87,7 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
     const clickableWidth = 14;
     const clickableHeight = 12;
 
-    const dotted = Note.hasDot(note);
+    const dotted = Note.hasDot(note.length);
     const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
     const dotXOffset = 10;
     const dragged = note === draggedNote//todo isBeingDragged(note);

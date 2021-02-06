@@ -2,7 +2,6 @@ Notes
 
 
 Bugs to fix:
-[ ] HG -> HA gracenote on next note looks a bit crushed
 [ ] Dotted note can get crushed into next gracenote
 [ ] Deal with things (ties, second timings, selection, ...) going over stave break
 [ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
@@ -91,3 +90,4 @@ Bugs fixed:
 [X] Text box dragging is broken
 [X] Add transforms for texts
 [X] Correct zoom on page load
+[X] HG -> HA gracenote on next note looks a bit crushed

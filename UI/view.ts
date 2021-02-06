@@ -9,13 +9,15 @@ import { inputLength, zoomLevel } from '../global';
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
 
+import Note from '../Note/functions';
+
 export default function render(dispatch: (e: ScoreEvent) => void): Svg {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
-  const isCurrentNoteInput = (length: NoteLength) => inputLength === length;
+  const isCurrentNoteInput = (length: NoteLength) => inputLength === null ? false : Note.equalOrDotted(inputLength, length);
 
 
   const noteInputButton = (length: NoteLength) => html`<button
-    class=${`${isCurrentNoteInput(length) ? 'current-note-input' : ''} note-input`}
+    class=${`${isCurrentNoteInput(length) ? 'highlighted' : null} note-input`}
     id=${`note-${length}`}
     onclick=${setNoteInput(length)}>
     </button>`;
@@ -44,12 +46,11 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
         ${noteInputButton(NoteLength.DemiSemiQuaver)}
         ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
       </div>
-      <button id="toggle-dotted" onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
+      <button id="toggle-dotted" class=${(inputLength && Note.hasDot(inputLength)) ? 'highlighted' : null} onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
       <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
       <button id="delete-notes" class="delete" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
     </div>
     <div id="sidebar">
-
       <h2>Gracenote</h2>
       <button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: null })}>Single</button>
       ${gracenoteInput('doubling')}
