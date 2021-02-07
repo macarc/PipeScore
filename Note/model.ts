@@ -16,7 +16,8 @@ export interface NoteModel {
 }
 
 export interface GroupNoteModel {
-  notes: NoteModel[]
+  notes: NoteModel[],
+  triplet: boolean
 }
 
 // todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for

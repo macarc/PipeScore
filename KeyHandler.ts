@@ -21,6 +21,9 @@ export function keyHandler(e: KeyboardEvent): void {
     case ".":
       dispatch({ name: 'toggle dotted' });
       break;
+    case "t":
+      dispatch({ name: 'tie selected notes' });
+      break;
 
     case "1":
       dispatch({ name: 'set note input length', length: NoteLength.HemiDemiSemiQuaver });

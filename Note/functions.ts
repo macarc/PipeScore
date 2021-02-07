@@ -10,62 +10,44 @@ function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
   return flatten(notes.map(note => note.notes));
 }
 
-function groupNotes(notes: NoteModel[], lengthOfGroup: number): GroupNoteModel[] {
-  const pushNote = (group: GroupNoteModel, note: NoteModel, length: number): number => {
-    // add a note to the end - also merges notes if it can and they are tied
-    const push = (noteToPush: NoteModel) => {
-      if (hasBeam(noteToPush)) {
-        group.notes.push(noteToPush);
-      } else {
-        // Push the note as its own group. This won't modify the currentLength,
-        // which means that other groupings will still be correct
-        if (group.notes.length > 0) groupedNotes.push({ ...group });
-        group.notes = [noteToPush];
-        groupedNotes.push({ ...group });
-        group.notes = [];
-      }
-    };
-    if (note.tied && previousLength !== 0) {
-      const newLength = length + previousLength;
-      const newNoteLength = numberToNoteLength(newLength);
-      if (newNoteLength === null) {
-        push(note);
-        return length;
-      } else {
-        group.notes[group.notes.length - 1].length = newNoteLength;
-        return newLength;
-      }
+function groupNotes(groupNotes: GroupNoteModel[], lengthOfGroup: number): GroupNoteModel[] {
+  // TODO this could probably be cleaned up further
+  const notes = unGroupNotes(groupNotes);
+  const pushNote = (group: GroupNoteModel, note: NoteModel): void => {
+    if (hasBeam(note)) {
+      group.notes.push(note);
     } else {
-      push(note);
-      return length;
+      // Push the note as its own group. This won't modify the currentLength,
+      // which means that other groupings will still be correct
+      if (group.notes.length > 0) groupedNotes.push({ ...group });
+      group.notes = [note];
+      groupedNotes.push({ ...group });
+      group.notes = [];
     }
   };
-  let currentGroup: GroupNoteModel = { notes: [] };
+  let currentGroup: GroupNoteModel = initGroupNote();
   const groupedNotes: GroupNoteModel[] = [];
   let currentLength = 0;
-  let previousLength = 0;
   notes.forEach(note => {
     const length = lengthToNumber(note.length);
     if (currentLength + length < lengthOfGroup) {
-      previousLength = pushNote(currentGroup, note, length);
+      pushNote(currentGroup, note);
       currentLength += length;
     } else if (currentLength + length === lengthOfGroup) {
-      previousLength = pushNote(currentGroup, note, length);
+      pushNote(currentGroup, note);
       // this check is needed since pushNote could end up setting currentGroup to have no notes in it
       if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
       currentLength = 0;
-      currentGroup = { notes: [] };
-      previousLength = 0;
+      currentGroup = initGroupNote();
     } else {
       groupedNotes.push(currentGroup);
-      currentGroup = { notes: [] };
-      previousLength = pushNote(currentGroup, note, length);
+      currentGroup = initGroupNote();
+      pushNote(currentGroup, note);
       currentLength = length;
       if (currentLength >= lengthOfGroup) {
         groupedNotes.push(currentGroup);
-        currentGroup = { notes: [] };
+        currentGroup = initGroupNote();
         currentLength = 0;
-        previousLength = 0;
       }
     }
   });
@@ -136,25 +118,6 @@ function lengthToNumber(length: NoteLength): number {
   }
 }
 
-function numberToNoteLength(length: number): NoteLength | null {
-  switch (length) {
-    case 4: return NoteLength.Semibreve;
-    case 3: return NoteLength.DottedMinim;
-    case 2: return NoteLength.Minim;
-    case 1.5: return NoteLength.DottedCrotchet;
-    case 1: return NoteLength.Crotchet;
-    case 0.75: return NoteLength.DottedQuaver;
-    case 0.5: return NoteLength.Quaver;
-    case 0.375: return NoteLength.DottedSemiQuaver;
-    case 0.25: return NoteLength.SemiQuaver;
-    case 0.1875: return NoteLength.DottedDemiSemiQuaver;
-    case 0.125: return NoteLength.DemiSemiQuaver;
-    case 0.9375: return NoteLength.DottedHemiDemiSemiQuaver;
-    case 0.0625: return NoteLength.HemiDemiSemiQuaver;
-    default: return null;
-  }
-}
-
 function lengthToNumTails(length: NoteLength): number {
   switch (length) {
     case NoteLength.Semibreve:
@@ -207,12 +170,19 @@ const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => 
 });
 
 const initGroupNote = (): GroupNoteModel => ({
-	notes: [ ]
+	notes: [ ],
+  triplet: false
+});
+
+const groupNoteFrom = (notes: NoteModel[]): GroupNoteModel => ({
+  notes,
+  triplet: false
 });
 
 export default {
   initNote,
   init: initGroupNote,
+  groupNoteFrom,
   numberOfNotes,
   unGroupNotes,
   groupNotes,
@@ -282,6 +252,25 @@ function splitLengthNumber(longLength: number, splitInto: number): number[] {
       rest.unshift(splitInto);
       return rest;
     }
+  }
+}
+
+function numberToNoteLength(length: number): NoteLength | null {
+  switch (length) {
+    case 4: return NoteLength.Semibreve;
+    case 3: return NoteLength.DottedMinim;
+    case 2: return NoteLength.Minim;
+    case 1.5: return NoteLength.DottedCrotchet;
+    case 1: return NoteLength.Crotchet;
+    case 0.75: return NoteLength.DottedQuaver;
+    case 0.5: return NoteLength.Quaver;
+    case 0.375: return NoteLength.DottedSemiQuaver;
+    case 0.25: return NoteLength.SemiQuaver;
+    case 0.1875: return NoteLength.DottedDemiSemiQuaver;
+    case 0.125: return NoteLength.DemiSemiQuaver;
+    case 0.9375: return NoteLength.DottedHemiDemiSemiQuaver;
+    case 0.0625: return NoteLength.HemiDemiSemiQuaver;
+    default: return null;
   }
 }
 

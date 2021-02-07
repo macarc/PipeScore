@@ -263,7 +263,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     });
     const pasteAfter = selection.end;
     const { bar } = currentBar(pasteAfter);
-    bar.notes.splice(bar.notes.length, 0, { notes: toPaste });
+    bar.notes.splice(bar.notes.length, 0, Note.groupNoteFrom(toPaste));
     changed = true;
     recalculateNoteGroupings = true;
   } else {
@@ -312,10 +312,9 @@ function sortByPosition(notes: NoteModel[]) {
 
 function makeCorrectGroupings() {
   const bars = Score.bars(score);
-  const noteModels = bars.map(b => Note.unGroupNotes(b.notes));
   for (let i=0; i < bars.length; i++) {
     // todo actually pass the correct time signature
-    bars[i].notes = Note.groupNotes(noteModels[i], TimeSignature.beatDivision(bars[i].timeSignature));
+    bars[i].notes = Note.groupNotes(bars[i].notes, TimeSignature.beatDivision(bars[i].timeSignature));
   }
 }
 

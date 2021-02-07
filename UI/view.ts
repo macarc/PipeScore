@@ -15,7 +15,6 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
   const isCurrentNoteInput = (length: NoteLength) => inputLength === null ? false : Note.equalOrDotted(inputLength, length);
 
-
   const noteInputButton = (length: NoteLength) => html`<button
     class=${`${isCurrentNoteInput(length) ? 'highlighted' : null} note-input`}
     id=${`note-${length}`}
@@ -23,7 +22,6 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
     </button>`;
 
   const gracenoteInput = (name: string) => html`<button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: name })}>${name}</button>`;
-
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');

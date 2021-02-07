@@ -4,8 +4,6 @@ Notes
 Bugs to fix:
 [ ] Dotted note can get crushed into next gracenote
 [ ] Deal with things (ties, second timings, selection, ...) going over stave break
-[ ] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
-  [ ] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
 [ ] Cut time
 [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
 [ ] Preview note for current placement
@@ -17,6 +15,8 @@ Bugs to fix:
   [ ] put over correct bars
 [ ] Add options to override 'correct' functionality - e.g. tie merging, automatic grouping, automatic gracenotes
 [ ] Better time signature editing (it should only change as far as the time signature is the same)
+[ ] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
+
 
 
 
@@ -91,3 +91,6 @@ Bugs fixed:
 [X] Add transforms for texts
 [X] Correct zoom on page load
 [X] HG -> HA gracenote on next note looks a bit crushed
+[X] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
+  [X] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
+[X] I think for ties - no automatic insertion / deletion - it's too subjective
