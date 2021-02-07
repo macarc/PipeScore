@@ -28,27 +28,36 @@ function groupNotes(groupNotes: GroupNoteModel[], lengthOfGroup: number): GroupN
   let currentGroup: GroupNoteModel = initGroupNote();
   const groupedNotes: GroupNoteModel[] = [];
   let currentLength = 0;
-  notes.forEach(note => {
-    const length = lengthToNumber(note.length);
-    if (currentLength + length < lengthOfGroup) {
-      pushNote(currentGroup, note);
-      currentLength += length;
-    } else if (currentLength + length === lengthOfGroup) {
-      pushNote(currentGroup, note);
-      // this check is needed since pushNote could end up setting currentGroup to have no notes in it
-      if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
-      currentLength = 0;
-      currentGroup = initGroupNote();
+  groupNotes.forEach(groupNote => {
+    if (!groupNote.triplet) {
+      groupNote.notes.forEach(note => {
+        const length = lengthToNumber(note.length);
+        if (currentLength + length < lengthOfGroup) {
+          pushNote(currentGroup, note);
+          currentLength += length;
+        } else if (currentLength + length === lengthOfGroup) {
+          pushNote(currentGroup, note);
+          // this check is needed since pushNote could end up setting currentGroup to have no notes in it
+          if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
+          currentLength = 0;
+          currentGroup = initGroupNote();
+        } else {
+          groupedNotes.push(currentGroup);
+          currentGroup = initGroupNote();
+          pushNote(currentGroup, note);
+          currentLength = length;
+          if (currentLength >= lengthOfGroup) {
+            groupedNotes.push(currentGroup);
+            currentGroup = initGroupNote();
+            currentLength = 0;
+          }
+        }
+      });
     } else {
       groupedNotes.push(currentGroup);
+      groupedNotes.push(groupNote);
       currentGroup = initGroupNote();
-      pushNote(currentGroup, note);
-      currentLength = length;
-      if (currentLength >= lengthOfGroup) {
-        groupedNotes.push(currentGroup);
-        currentGroup = initGroupNote();
-        currentLength = 0;
-      }
+      currentLength = 0;
     }
   });
   // pushes the last notes to the groupedNotes
@@ -179,9 +188,15 @@ const groupNoteFrom = (notes: NoteModel[]): GroupNoteModel => ({
   triplet: false
 });
 
+const initTriplet = (length: NoteLength): GroupNoteModel => ({
+  notes: [initNote(Pitch.A, length), initNote(Pitch.A, length), initNote(Pitch.A, length)],
+  triplet: true
+})
+
 export default {
   initNote,
   init: initGroupNote,
+  initTriplet,
   groupNoteFrom,
   numberOfNotes,
   unGroupNotes,

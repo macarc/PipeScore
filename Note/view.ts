@@ -182,6 +182,8 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
 
   const previousPitch = props.previousNote && props.previousNote.pitch;
 
+  const canAddNotes = !groupNote.triplet;
+
   if (groupNote.notes.length === 0) {
     return svg`<g></g>`;
   } else {
@@ -213,7 +215,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         dispatch: props.dispatch
       });
 
-      const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: 1, groupNote }))
+      const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: 1, groupNote })) : () => svg``;
 
       return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.dispatch);
     } else {
@@ -291,7 +293,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
                   (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null
                 }
 
-                ${noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: index + 1, groupNote }))}
+                ${canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: index + 1, groupNote })) : null}
 
                 <line
                   x1=${stemXOf(index)}

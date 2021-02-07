@@ -23,6 +23,7 @@ export type ScoreEvent
   | SingleGracenoteClicked
   | NoteAdded
   | TieSelectedNotes
+  | AddTriplet
   | ToggleDotted
   | ChangeZoomLevel
   | TextClicked
@@ -206,6 +207,13 @@ type TieSelectedNotes = {
 }
 export function isTieSelectedNotes(e: ScoreEvent): e is TieSelectedNotes {
   return e.name === 'tie selected notes';
+}
+
+type AddTriplet = {
+  name: 'add triplet'
+}
+export function isAddTriplet(e: ScoreEvent): e is AddTriplet {
+  return e.name === 'add triplet';
 }
 
 type TextDragged = {

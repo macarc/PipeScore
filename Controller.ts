@@ -9,7 +9,7 @@ import * as ScoreEvent from './Event';
 import { ScoreModel } from './Score/model';
 import { StaveModel } from './Stave/model';
 import { BarModel } from './Bar/model';
-import { NoteModel } from './Note/model';
+import { GroupNoteModel, NoteModel } from './Note/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
@@ -141,6 +141,13 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (inputLength !== null) setInputLength(Note.toggleDot(inputLength));
     changed = true;
     recalculateNoteGroupings = true;
+  } else if (ScoreEvent.isAddTriplet(event)) {
+    if (selectedNotes.length > 0 && inputLength !== null) { 
+      const { groupNote, bar } = currentBar(selectedNotes[0]);
+      bar.notes.splice(bar.notes.indexOf(groupNote) + 1, 0, Note.initTriplet(inputLength));
+      changed = true;
+      recalculateNoteGroupings = true;
+    }
   } else if (ScoreEvent.isChangeZoomLevel(event)) {
     if (event.zoomLevel !== zoomLevel) {
       setZoomLevel(event.zoomLevel);
@@ -357,19 +364,22 @@ function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
   }
 }
 
-function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
+function currentBar(note: NoteModel): { groupNote: GroupNoteModel, stave: StaveModel, bar: BarModel } {
+  // This is extremely inefficient and should only be used in instances that don't occur regularly
   const staves = Score.staves(score);
   for (const stave of staves) {
     const bars = Stave.bars(stave);
     for (const bar of bars) {
-      const noteModels = Note.unGroupNotes(bar.notes);
-      if (noteModels.includes(note)) {
-        return { stave, bar };
+      const groupNoteModels = bar.notes;
+      for (const groupNote of groupNoteModels) {
+        if (groupNote.notes.includes(note)) {
+          return { groupNote, stave, bar };
+        }
       }
     }
   }
 
-  return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
+  return { groupNote: Stave.groupNotes(staves[0])[0], stave: staves[0], bar: Stave.bars(staves[0])[0] }
 }
 
 function currentNoteModels(): NoteModel[] {

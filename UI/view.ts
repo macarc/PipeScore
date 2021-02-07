@@ -21,7 +21,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
     onclick=${setNoteInput(length)}>
     </button>`;
 
-  const gracenoteInput = (name: string) => html`<button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: name })}>${name}</button>`;
+  const gracenoteInput = (name: string) => html`<button class="textual" onclick=${() => dispatch({ name: 'set gracenote', value: name })}>${name}</button>`;
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');
@@ -46,11 +46,12 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
       </div>
       <button id="toggle-dotted" class=${(inputLength && Note.hasDot(inputLength)) ? 'highlighted' : null} onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
       <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
+      <button id="triplet" onclick=${() => dispatch({ name: 'add triplet' })}>Triplet</button>
       <button id="delete-notes" class="delete" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
     </div>
     <div id="sidebar">
       <h2>Gracenote</h2>
-      <button class="gracenote-input" onclick=${() => dispatch({ name: 'set gracenote', value: null })}>Single</button>
+      <button class="textual" onclick=${() => dispatch({ name: 'set gracenote', value: null })}>single</button>
       ${gracenoteInput('doubling')}
       ${gracenoteInput('throw-d')}
       ${gracenoteInput('toarluath')}
