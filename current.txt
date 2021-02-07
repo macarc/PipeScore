@@ -15,7 +15,6 @@ Bugs to fix:
   [ ] put over correct bars
 [ ] Add options to override 'correct' functionality - e.g. automatic grouping, automatic gracenotes
 [ ] Better time signature editing (it should only change as far as the time signature is the same)
-[ ] Crotchet triplets act as if there is a beam
 
 
 
@@ -95,3 +94,4 @@ Bugs fixed:
   [X] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
 [X] I think for ties - no automatic insertion / deletion - it's too subjective
 [X] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
+[X] Crotchet triplets act as if there is a beam

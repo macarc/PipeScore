@@ -249,14 +249,16 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
       const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalBeatWidth(groupNote,previousPitch));
 
       const stemYOf = (note: NoteModel, index: number) =>
+        (Note.hasBeam(note) ?
         props.y
-          + (multipleLowest
-            // straight line if there is more than one lowest note
-            ? 0
-            // otherwise use a slant
-            : diff * relativeIndexOf(note,index) / totalBeatWidth(groupNote,previousPitch))
-          // offset so that the lowest note is always a constant height
-          + diffForLowest;
+        + (multipleLowest
+           // straight line if there is more than one lowest note
+             ? 0
+             // otherwise use a slant
+               : diff * relativeIndexOf(note,index) / totalBeatWidth(groupNote,previousPitch))
+               // offset so that the lowest note is always a constant height
+               + diffForLowest
+               : noteY(props.y, note.pitch) + 30)
 
       return svg`
         <g class="grouped-notes">
