@@ -13,9 +13,8 @@ Bugs to fix:
 [ ] Copy/paste
   [ ] have two types, 1 for reference and one for value?
   [ ] put over correct bars
-[ ] Add options to override 'correct' functionality - e.g. tie merging, automatic grouping, automatic gracenotes
+[ ] Add options to override 'correct' functionality - e.g. automatic grouping, automatic gracenotes
 [ ] Better time signature editing (it should only change as far as the time signature is the same)
-[ ] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
 
 
 
@@ -94,3 +93,4 @@ Bugs fixed:
 [X] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
   [X] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
 [X] I think for ties - no automatic insertion / deletion - it's too subjective
+[X] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
