@@ -15,6 +15,7 @@ Bugs to fix:
   [ ] put over correct bars
 [ ] Add options to override 'correct' functionality - e.g. automatic grouping, automatic gracenotes
 [ ] Better time signature editing (it should only change as far as the time signature is the same)
+[ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 
 
 

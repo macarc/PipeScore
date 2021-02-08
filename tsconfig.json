@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
         "target": "es2017",
-        "watch": true,
-        "noEmit": true,
         "moduleResolution": "node",
+        "noEmit": true,
         "strict": true,
         "noImplicitAny": true,
         "alwaysStrict": true

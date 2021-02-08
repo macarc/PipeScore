@@ -141,7 +141,6 @@ M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
 function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number): Svg {
   const midx = x1 + (x2 - x1) / 2;
   const height = 40;
-  const textHeight = 20;
   const midy = staveY - height;
   const gap = 15;
   const path = `

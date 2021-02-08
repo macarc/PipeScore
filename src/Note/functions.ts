@@ -12,7 +12,6 @@ function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
 
 function groupNotes(groupNotes: GroupNoteModel[], lengthOfGroup: number): GroupNoteModel[] {
   // TODO this could probably be cleaned up further
-  const notes = unGroupNotes(groupNotes);
   const pushNote = (group: GroupNoteModel, note: NoteModel): void => {
     if (hasBeam(note)) {
       group.notes.push(note);
