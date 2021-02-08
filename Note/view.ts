@@ -135,7 +135,22 @@ function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote
 M ${x0},${y0} S ${midx},${midhiy}, ${x1},${y1}
 M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
     `;
-  return svg`<path d=${path} stroke="black">`;
+  return svg`<path d=${path} stroke="black" />`;
+}
+
+function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number): Svg {
+  const midx = x1 + (x2 - x1) / 2;
+  const height = 40;
+  const textHeight = 20;
+  const midy = staveY - height;
+  const gap = 15;
+  const path = `
+M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}
+`
+  return svg`<g class="triplet">
+    <text x=${midx} y=${midy + 10} text-anchor="centre">3</text>
+    <path d=${path} stroke="black" fill="none" />
+  </g>`;
 }
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
@@ -262,6 +277,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
 
       return svg`
         <g class="grouped-notes">
+          ${(groupNote.triplet && groupNote.notes.length === 3) ? triplet(props.y,xOf(0), xOf(2), yOf(firstNote), yOf(lastNote)) : null}
           ${groupNote.notes.map(
             (note,index) => {
               setNoteXY(note, index);
