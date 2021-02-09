@@ -15,13 +15,14 @@ def add_note(doc, cfg):
     headx = hmid
     heady = 30 if stem else vmid
     strokew = 3
+    angle = -30 if stem else 0
     doc.add(doc.ellipse(
         center=(headx, heady),
         r=(10,7),
         stroke_width=strokew,
         stroke="black",
         fill="black" if filled else "white",
-        transform=f'rotate(-30 {headx} {heady})'
+        transform=f'rotate({angle} {headx} {heady})'
         ))
     stem_x_offset = 10 * math.cos(math.radians(30))
     stem_y_offset = 10 * math.sin(math.radians(30))
