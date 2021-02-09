@@ -49,14 +49,14 @@ label {
 }
 
 #tie {
-  background-image: url('./images/tie-icon.png');
+  background-image: url('./images/icons/tie.png');
 }
 
 .delete {
-  background-image: url('./images/bin-icon.png');
+  background-image: url('./images/icons/bin.png');
 }
 .add {
-  background-image: url('./images/plus-icon.jpg');
+  background-image: url('./images/icons/plus.jpg');
 }
 
 svg {
@@ -65,31 +65,31 @@ svg {
 
 
 #note-sb {
-  background-image: url('./images/semibreve-icon.jpg');
+  background-image: url('./images/icons/semibreve.svg');
 }
 
 #note-m {
-  background-image: url('./images/minim-icon.jpg');
+  background-image: url('./images/icons/minim.svg');
 }
 
 #note-c {
-  background-image: url('./images/crotchet-icon.png');
+  background-image: url('./images/icons/crotchet.svg');
 }
 
 #note-q {
-  background-image: url('./images/quaver-icon.png');
+  background-image: url('./images/icons/quaver.svg');
 }
 
 #note-sq {
-  background-image: url('./images/semiquaver-icon.png');
+  background-image: url('./images/icons/semiquaver.svg');
 }
 
 #note-ssq {
-  background-image: url('./images/demisemiquaver-icon.png');
+  background-image: url('./images/icons/demisemiquaver.svg');
 }
 
 #note-hdsq {
-  background-image: url('./images/hemidemisemiquaver-icon.png');
+  background-image: url('./images/icons/hemidemisemiquaver.svg');
 }
 .highlighted {
   background-color: yellow !important;
