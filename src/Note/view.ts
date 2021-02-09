@@ -82,7 +82,7 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
     // Draw note head, ledger line and dot
     const noteWidth = 5;
     const noteHeight = 4;
-    const rotation = 30;
+    const rotation = -30;
 
     const clickableWidth = 14;
     const clickableHeight = 12;

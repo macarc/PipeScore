@@ -102,6 +102,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const groupedNotes = Score.groupNotes(score);
       // quadratic!
       groupedNotes.forEach(g => {
+        if (g.triplet) return;
         // Need to slice it so that deleting inside the loop works
         const newNotes = g.notes.slice();
         g.notes.forEach(note => {
@@ -128,7 +129,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
        setInputLength(null);
      }
   } else if (ScoreEvent.isNoteAdded(event)) {
-    if (inputLength !== null) {
+    if (inputLength !== null && !event.groupNote.triplet) {
       const newNote = Note.initNote(event.pitch, inputLength);
       event.groupNote.notes.splice(event.index, 0, newNote);
       changed = true;
