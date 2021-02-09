@@ -1,5 +1,6 @@
 import math
 import os
+import random
 import svgwrite
 
 width = 100
@@ -16,13 +17,33 @@ def add_note(doc, cfg):
     heady = 30 if stem else vmid
     strokew = 3
     angle = -30 if stem else 0
+    mask_angle = 0 if stem else 60
+    rx = 10
+    ry = 7
+    maskrx = 10 if stem else 8
+    maskry = 4
+    maskid = str(random.randint(0,100000))
+    mask = doc.add(doc.mask(id = maskid))
+    mask.add(doc.rect(
+        insert=(0,0),
+        size=(width,height),
+        fill="white"
+        ))
+    mask.add(doc.ellipse(
+        center=(headx, heady),
+        r=(maskrx, maskry),
+        transform=f'rotate({mask_angle} {headx} {heady})',
+        fill="black"
+        ))
+
     doc.add(doc.ellipse(
         center=(headx, heady),
-        r=(10,7),
+        r=(rx,ry),
         stroke_width=strokew,
         stroke="black",
-        fill="black" if filled else "white",
-        transform=f'rotate({angle} {headx} {heady})'
+        fill="black",
+        transform=f'rotate({angle} {headx} {heady})',
+        mask='none' if filled else f'url(#{maskid})'
         ))
     stem_x_offset = 10 * math.cos(math.radians(30))
     stem_y_offset = 10 * math.sin(math.radians(30))

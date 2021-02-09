@@ -82,7 +82,11 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
     // Draw note head, ledger line and dot
     const noteWidth = 5;
     const noteHeight = 4;
-    const rotation = -30;
+    const rotation = Note.hasStem(note) ? -30 : 0;
+    const maskRotation = Note.hasStem(note) ? 0: rotation + 60;
+
+    const maskrx = Note.hasStem(note) ? 5 : 4;
+    const maskry = 2;
 
     const clickableWidth = 14;
     const clickableHeight = 12;
@@ -102,12 +106,19 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
 
     const filled = Note.isFilled(note);
 
-    const rotateText = `rotate(${rotation} ${Math.round(x)} ${Math.round(y)})`;
+    const rotateText = `rotate(${rotation} ${x} ${y})`;
+    const maskRotateText = `rotate(${maskRotation} ${x} ${y})`;
 
     const colour = selected ? "orange" : "black";
+    const maskId = Math.random();
+    const mask = `url(#${maskId})`;
 
     return svg`<g class="note-head">
-      <ellipse cx=${x} cy=${y} rx=${noteWidth} ry=${noteHeight} stroke=${colour} fill=${filled ? colour : "white"} transform=${rotateText} pointer-events=${pointerEvents} opacity=${opacity} />
+      <mask id=${maskId}>
+        <rect x=${x - 10} y=${y - 10} width=${20} height=${20} fill="white" />
+        <ellipse cx=${x} cy=${y} rx=${maskrx} ry=${maskry} stroke-width="0" fill="black" transform=${maskRotateText} />
+      </mask>
+      <ellipse cx=${x} cy=${y} rx=${noteWidth} ry=${noteHeight} stroke=${colour} fill=${colour} transform=${rotateText} pointer-events=${pointerEvents} opacity=${opacity} mask=${filled ? null : mask} />
 
       ${dotted ? svg`<circle cx=${x + dotXOffset} cy=${y + dotYOffset} r="1.5" fill=${colour} pointer-events="none" opacity=${opacity} />` : null}
 
@@ -193,7 +204,6 @@ interface NoteProps {
 
 
 export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
-
   const previousPitch = props.previousNote && props.previousNote.pitch;
 
   const canAddNotes = !groupNote.triplet;
