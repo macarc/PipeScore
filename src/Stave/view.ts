@@ -39,7 +39,7 @@ export default function render(stave: StaveModel, props: StaveProps): Svg {
 
   const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.length;
 
-  const getX = (barIdx: number): number => stave.bars.slice().splice(0, barIdx).reduce((soFar, bar) => {
+  const getX = (barIdx: number): number => stave.bars.slice(0, barIdx).reduce((soFar, bar) => {
     if (bar.isAnacrusis) {
       return soFar + widthOfAnacrusis(bar, null);
     } else {

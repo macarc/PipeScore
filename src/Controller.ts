@@ -193,7 +193,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (selection) {
       // todo delete all selected bars
       const { bar, stave } = currentBar(selection.start);
-      const newNotes = flatten(bar.notes.slice().map(n => n.notes));
+      const newNotes = flatten(bar.notes.map(n => n.notes));
       bar.notes.forEach(groupNote => groupNote.notes.forEach(note => deleteNote(note, newNotes)));
       deleteXY(bar.id);
       Stave.deleteBar(stave, bar);

@@ -4,8 +4,10 @@
   "description": "A web-based bagpipe notation app.",
   "main": "PipeScore.ts",
   "scripts": {
+    "deploy": "firebase deploy",
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
+    "watch": "rollup -c --watch",
     "build": "rollup -c",
     "lint": "eslint src --ext .ts",
     "circles": "madge -c --warning src/PipeScore.ts"
@@ -25,6 +27,7 @@
     "firebase-tools": "^9.3.0",
     "madge": "^4.0.0",
     "rollup": "^2.38.5",
+    "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.1.3"
   }
 }
