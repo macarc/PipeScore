@@ -8,7 +8,7 @@ import * as ScoreEvent from './Event';
 import { ScoreModel } from './Score/model';
 import { StaveModel } from './Stave/model';
 import { BarModel } from './Bar/model';
-import { GroupNoteModel, NoteModel } from './Note/model';
+import { NoteModel } from './Note/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
@@ -281,10 +281,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     return event;
   }
 
-  if (recalculateNoteGroupings) {
-    makeCorrectGroupings();
-  }
-
   if (changed) {
     updateView(score);
   }
@@ -319,15 +315,6 @@ function sortByPosition(notes: NoteModel[]) {
 
   notes.sort((a,b) => noteModels.indexOf(a) > noteModels.indexOf(b) ? 1 : -1);
   return notes;
-}
-
-function makeCorrectGroupings() {
-  const bars = Score.bars(score);
-  for (let i=0; i < bars.length; i++) {
-    // todo actually pass the correct time signature
-    // TODO TODO TODO
-    //bars[i].notes = Note.groupNotes(bars[i].notes, TimeSignature.beatDivision(bars[i].timeSignature));
-  }
 }
 
 function dragText(event: MouseEvent) {
@@ -431,6 +418,5 @@ const updateView = (score: ScoreModel) => {
 export default function startController(): void {
   window.addEventListener('mousemove', dragText);
   // initially set the notes to be the right groupings
-  makeCorrectGroupings();
   updateView(score);
 }

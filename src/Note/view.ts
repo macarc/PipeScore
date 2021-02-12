@@ -7,6 +7,7 @@ import { noteBoxes } from '../global/noteBoxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY, draggedNote } from '../global/state';
 import { Svg } from '../global/svg';
+import { nlast } from '../global/utils';
 
 import { NoteModel, PreviousNote } from './model';
 import { Dispatch } from '../Event';
@@ -225,7 +226,7 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
     const stemXOf = (index: number) => xOf(index) - noteHeadWidth;
 
     const firstNote: NoteModel = group[0];
-    const lastNote: NoteModel = group[group.length - 1];
+    const lastNote: NoteModel = nlast(group);
 
     const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
     const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index) - noteHeadWidth, xOf(index) + noteHeadWidth, props.y);

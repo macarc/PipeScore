@@ -32,6 +32,8 @@ export function flatten<T>(array: T[][]): T[] {
 }
 
 export const last = <T>(array: T[]): T | null => array[array.length - 1] || null;
+// ONLY use this if you have checked before hand that the array length is >= 1
+export const nlast = <T>(array: T[]): T => array[array.length - 1];
 
 // null functor :)
 export const nmap = <T, A>(a: T | null, f: (a: T) => A): A | null => a ? f(a) : null;

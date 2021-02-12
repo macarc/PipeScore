@@ -15,11 +15,6 @@ export interface NoteModel extends Item {
   tied: boolean
 }
 
-export interface GroupNoteModel {
-  notes: NoteModel[],
-  triplet: boolean
-}
-
 interface TripletNoteModel extends Item {
   pitch: Pitch,
   gracenote: GracenoteModel

@@ -1,11 +1,11 @@
 import { Pitch } from '../global/pitch';
-import { genId, flatten } from '../global/utils';
+import { genId, flatten, nmap, last } from '../global/utils';
 
-import { GroupNoteModel, NoteModel, NoteLength } from './model';
+import { NoteModel, NoteLength } from './model';
 
 import Gracenote from '../Gracenote/functions';
 
-const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
+//const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : nmap(last(groupNote.notes), n => n.pitch);
 
 function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
   return flatten(notes);
@@ -161,7 +161,7 @@ function toggleDot(length: NoteLength): NoteLength {
 
 const numberOfNotes = (notes: NoteModel[]): number => notes.length;
 
-const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
+const init = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
   pitch,
   length,
   gracenote: Gracenote.init(),
@@ -169,30 +169,18 @@ const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => 
   id: genId()
 });
 
-const initGroupNote = (): GroupNoteModel => ({
-	notes: [ ],
-  triplet: false
-});
-
-const groupNoteFrom = (notes: NoteModel[]): GroupNoteModel => ({
-  notes,
-  triplet: false
-});
-
-const initTriplet = (length: NoteLength): GroupNoteModel => ({
+const initTriplet = (length: NoteLength) => ({})
+/*const initTriplet = (length: NoteLength) => ({
   notes: [initNote(Pitch.A, length), initNote(Pitch.A, length), initNote(Pitch.A, length)],
   triplet: true
-})
+})*/
 
 export default {
-  initNote,
-  init: initNote,
+  init,
   initTriplet,
-  groupNoteFrom,
   numberOfNotes,
   unGroupNotes,
   groupNotes,
-  lastNoteOfGroupNote,
   lengthToNumTails,
   hasStem,
   hasDot,

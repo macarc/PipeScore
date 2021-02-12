@@ -19,7 +19,6 @@ Bugs to fix:
 [ ] It is too easy to accidentally add notes
 [ ] Possible triplets should have their own type since notes can't be added/destroyed/dotted/e.t.c.
 [ ] Adding notes after triplets doesn't work
-[ ] makeCorrectGroupings in Controller
 
 
 
@@ -100,3 +99,4 @@ Bugs fixed:
 [X] I think for ties - no automatic insertion / deletion - it's too subjective
 [X] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
 [X] Crotchet triplets act as if there is a beam
+[X] makeCorrectGroupings in Controller

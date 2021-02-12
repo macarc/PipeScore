@@ -4,7 +4,7 @@
 */
 import { Pitch } from './global/pitch';
 
-import { GroupNoteModel, NoteModel, NoteLength } from './Note/model';
+import { NoteModel, NoteLength } from './Note/model';
 import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';

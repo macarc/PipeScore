@@ -8,7 +8,7 @@ import { noteBoxes } from '../global/noteBoxes';
 import { Pitch, noteY } from '../global/pitch';
 import { setXY } from '../global/state';
 import { Svg } from '../global/svg';
-import { last, nmap } from '../global/utils';
+import { last, nlast, nmap } from '../global/utils';
 
 import { NoteModel, PreviousNote } from '../Note/model';
 import { BarModel, Barline } from './model';
@@ -35,8 +35,8 @@ interface BarProps {
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
-      const previous = index === 0 ? previousNote : nmap(last(bar.notes), n => n.pitch);
-      return [...nums, nums[nums.length - 1] + widthOfNote(n,previous || null)];
+      const previous = index === 0 ? previousNote : nlast(bar.notes).pitch;
+      return [...nums, nlast(nums) + widthOfNote(n,previous || null)];
     },
     [1]);
 
@@ -61,7 +61,7 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
 
 export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null): number {
   const beats = beatsOf(anacrusis, previousNote);
-  const totalNumberOfBeats = Math.max(beats[beats.length - 1], 2);
+  const totalNumberOfBeats = Math.max(last(beats) || 1, 2);
   return minimumBeatWidth * totalNumberOfBeats;
 }
 
@@ -118,7 +118,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
   const beats = beatsOf(bar, previousNote);
 
 
-  const totalNumberOfBeats = beats[beats.length - 1];
+  const totalNumberOfBeats = last(beats) || 1;
   const beatWidth = width / totalNumberOfBeats;
 
   const getX = (noteIndex: number) => xAfterBarline + beatWidth * beats[noteIndex];

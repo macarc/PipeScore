@@ -7,6 +7,7 @@ import { Pitch, noteY } from '../global/pitch';
 import { lineGap } from '../global/constants';
 import { draggedGracenote } from '../global/state';
 import { Svg } from '../global/svg';
+import { nlast } from '../global/utils';
 
 import { Dispatch } from '../Event';
 import { GracenoteModel, SingleGracenote } from './model';
@@ -76,11 +77,13 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
 
     const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth + gracenoteHeadWidth;
     const y = (note: Pitch) => noteY(props.y, note);
-    if (uniqueNotes.length === 1) {
+    if (uniqueNotes.length === 0) {
+      return svg`<g></g>`
+    } else if (uniqueNotes.length === 1) {
       return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, null);
     } else {
       return svg`<g class="reactive-gracenote">
-        ${[0,2,4].map(i => svg`<line x1=${xOf(uniqueNotes[0]) + tailXOffset} x2=${xOf(uniqueNotes[uniqueNotes.length - 1]) + tailXOffset} y1=${props.y - 3.5 * lineGap + i} y2=${props.y - 3.5 * lineGap + i} stroke="black" />`
+        ${[0,2,4].map(i => svg`<line x1=${xOf(uniqueNotes[0]) + tailXOffset} x2=${xOf(nlast(uniqueNotes)) + tailXOffset} y1=${props.y - 3.5 * lineGap + i} y2=${props.y - 3.5 * lineGap + i} stroke="black" />`
         )}
         ${uniqueNotes.map(
           noteObj => head(xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap, ! Gracenote.isInvalid(grace))
