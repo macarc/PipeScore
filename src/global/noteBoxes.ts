@@ -3,8 +3,8 @@ import { lineGap } from './constants';
 import { Pitch, pitchToHeight } from './pitch';
 import { Svg } from './svg';
 
+// Invisible rectangles that are used to detect note dragging
 export function noteBoxes(x: number,y: number,width: number, mouseOver: (pitch: Pitch) => void = () => null, mouseDown: (pitch: Pitch) => void = () => null): Svg {
-  // Invisible rectangles that are used to detect note dragging
   const height = lineGap / 2;
 
   const pitches = [Pitch.G,Pitch.A,Pitch.B,Pitch.C,Pitch.D,Pitch.E,Pitch.F,Pitch.HG,Pitch.HA];
