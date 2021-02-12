@@ -1,6 +1,6 @@
 import { svg } from 'uhtml';
-import { Svg } from '../all';
-import { getXY } from '../global';
+import { Svg } from '../global/svg';
+import { getXY } from '../global/state';
 
 import { SecondTimingModel } from './model';
 

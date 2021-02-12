@@ -1,4 +1,4 @@
-import { Pitch } from '../all';
+import { Pitch } from '../global/pitch';
 
 interface ReactiveGracenote {
   type: 'reactive',

@@ -3,7 +3,6 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
-import { flatten, deepcopy, scoreWidth } from './all';
 import * as ScoreEvent from './Event';
 
 import { ScoreModel } from './Score/model';
@@ -25,6 +24,7 @@ import SecondTiming from './SecondTiming/functions';
 import renderScore from './Score/view';
 import renderUI from './UI/view';
 
+import { scoreWidth } from './global/constants';
 import {
   inputLength, setInputLength,
   zoomLevel, setZoomLevel,
@@ -37,7 +37,8 @@ import {
   selectedText, setSelectedText,
   score,
   deleteXY
-} from './global';
+} from './global/state';
+import { flatten, deepcopy } from './global/utils';
 
 export function dispatch(event: ScoreEvent.ScoreEvent): void {
   /*

@@ -1,4 +1,5 @@
-import { Pitch, ID } from '../all';
+import { Pitch } from '../global/pitch';
+import { ID } from '../global/utils';
 import { GracenoteModel } from '../Gracenote/model';
 
 export interface PreviousNote {

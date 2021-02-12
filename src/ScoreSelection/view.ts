@@ -1,6 +1,7 @@
 import { svg } from 'uhtml';
-import { lineGap, Svg } from '../all';
-import { getXY } from '../global';
+import { Svg } from '../global/svg';
+import { lineGap } from '../global/constants';
+import { getXY } from '../global/state';
 
 import { ScoreSelectionModel } from './model';
 

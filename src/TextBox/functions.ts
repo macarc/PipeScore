@@ -1,4 +1,4 @@
-import { scoreWidth } from '../all';
+import { scoreWidth } from '../global/constants';
 
 import { TextBoxModel } from './model';
 

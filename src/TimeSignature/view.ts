@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Svg } from '../all';
+import { Svg } from '../global/svg';
 
 import { Dispatch } from '../Event';
 import { TimeSignatureModel } from './model';

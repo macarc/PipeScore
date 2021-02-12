@@ -1,4 +1,4 @@
-import { flatten } from '../all';
+import { flatten } from '../global/utils';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';

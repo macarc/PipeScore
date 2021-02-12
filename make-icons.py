@@ -1,3 +1,9 @@
+# This is a short script that generates the note input icons - i.e. it generates images of all the types of notes that can be input
+# These appear in the top left of the UI
+# It outputs them to /public/images/icons
+
+# You will need to install svgwrite via `pip3 install svgwrite` before running
+
 import math
 import os
 import random

@@ -2,13 +2,15 @@
   global.ts - Defines global mutable state variables for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { ID, SvgRef, scoreWidth } from './all';
+import { scoreWidth } from './constants';
+import { SvgRef } from './svg';
+import { ID } from './utils';
 
-import { ScoreModel } from './Score/model';
-import { NoteModel, NoteLength } from './Note/model';
-import { SingleGracenote } from './Gracenote/model';
-import { ScoreSelectionModel } from './ScoreSelection/model';
-import { TextBoxModel } from './TextBox/model';
+import { ScoreModel } from '../Score/model';
+import { NoteModel, NoteLength } from '../Note/model';
+import { SingleGracenote } from '../Gracenote/model';
+import { ScoreSelectionModel } from '../ScoreSelection/model';
+import { TextBoxModel } from '../TextBox/model';
 
 // This module contains all of the mutable global variables that are used to define the state of PipeScore
 

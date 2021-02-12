@@ -3,8 +3,10 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Pitch, lineGap, noteY, Svg } from '../all';
-import { draggedGracenote } from '../global';
+import { Pitch, noteY } from '../global/pitch';
+import { lineGap } from '../global/constants';
+import { draggedGracenote } from '../global/state';
+import { Svg } from '../global/svg';
 
 import { Dispatch } from '../Event';
 import { GracenoteModel, SingleGracenote } from './model';

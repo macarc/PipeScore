@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import startController from './Controller';
-import { setScore } from './global';
+import { setScore } from './global/state';
 import { keyHandler } from './KeyHandler';
 
 import Score from './Score/functions';

@@ -4,7 +4,7 @@
 */
 import { TimeSignatureModel } from '../TimeSignature/model';
 import { GroupNoteModel } from '../Note/model';
-import { ID } from '../all';
+import { ID } from '../global/utils';
 
 export enum Barline {
   RepeatFirst, RepeatLast, Normal

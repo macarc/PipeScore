@@ -1,4 +1,4 @@
-import { Pitch } from '../all';
+import { Pitch } from '../global/pitch';
 
 import { GracenoteModel, Gracenote, InvalidGracenote } from './model';
 

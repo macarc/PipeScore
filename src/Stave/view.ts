@@ -3,7 +3,8 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, Svg } from '../all';
+import { lineHeightOf } from '../global/constants';
+import { Svg } from '../global/svg';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';

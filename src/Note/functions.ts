@@ -1,4 +1,5 @@
-import { Pitch, genId, flatten } from '../all';
+import { Pitch } from '../global/pitch';
+import { genId, flatten } from '../global/utils';
 
 import { GroupNoteModel, NoteModel, NoteLength } from './model';
 

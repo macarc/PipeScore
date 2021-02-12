@@ -3,8 +3,8 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { html } from 'uhtml';
-import { Svg } from '../all';
-import { inputLength, zoomLevel } from '../global';
+import { Svg } from '../global/svg';
+import { inputLength, zoomLevel } from '../global/state';
 
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';

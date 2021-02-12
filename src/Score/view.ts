@@ -3,7 +3,8 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { Svg, SvgRef, scoreWidth, scoreHeight, staveGap } from '../all';
+import { Svg, SvgRef } from '../global/svg';
+import { scoreWidth, scoreHeight, staveGap } from '../global/constants';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';

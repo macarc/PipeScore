@@ -3,8 +3,11 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { lineHeightOf, Pitch, Svg, noteBoxes, noteY }  from '../all';
-import { setXY } from '../global';
+import { lineHeightOf } from '../global/constants';
+import { noteBoxes } from '../global/noteBoxes';
+import { Pitch, noteY } from '../global/pitch';
+import { setXY } from '../global/state';
+import { Svg } from '../global/svg';
 
 import { GroupNoteModel, PreviousNote } from '../Note/model';
 import { BarModel, Barline } from './model';

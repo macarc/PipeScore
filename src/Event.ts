@@ -2,7 +2,7 @@
   Event.ts - ScoreEvent type for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { Pitch } from './all';
+import { Pitch } from './global/pitch';
 
 import { GroupNoteModel, NoteModel, NoteLength } from './Note/model';
 import { SingleGracenote } from './Gracenote/model';
