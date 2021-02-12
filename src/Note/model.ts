@@ -1,5 +1,5 @@
 import { Pitch } from '../global/pitch';
-import { ID } from '../global/utils';
+import { Item } from '../global/types';
 import { GracenoteModel } from '../Gracenote/model';
 
 export interface PreviousNote {
@@ -8,17 +8,28 @@ export interface PreviousNote {
   y: number
 }
 
-export interface NoteModel {
+export interface NoteModel extends Item {
   pitch: Pitch,
   length: NoteLength,
   gracenote: GracenoteModel,
-  tied: boolean,
-  id: ID
+  tied: boolean
 }
 
 export interface GroupNoteModel {
   notes: NoteModel[],
   triplet: boolean
+}
+
+interface TripletNoteModel extends Item {
+  pitch: Pitch,
+  gracenote: GracenoteModel
+}
+
+export interface TripletModel {
+  length: NoteLength,
+  first: TripletNoteModel,
+  second: TripletNoteModel,
+  third: TripletNoteModel
 }
 
 // todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for

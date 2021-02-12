@@ -1,14 +1,7 @@
-import { flatten } from '../global/utils';
-
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
-import { GroupNoteModel } from '../Note/model';
 
 import Bar from '../Bar/functions';
-
-function groupNotes(stave: StaveModel): GroupNoteModel[] {
-  return flatten(stave.bars.map(b => Bar.groupNotes(b)));
-}
 
 function bars(stave: StaveModel): BarModel[] {
   return stave.bars;
@@ -31,7 +24,6 @@ const init: () => StaveModel = () => ({
 
 export default {
   init,
-  groupNotes,
   bars,
   addBar,
   deleteBar

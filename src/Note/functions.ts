@@ -7,57 +7,48 @@ import Gracenote from '../Gracenote/functions';
 
 const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : groupNote.notes[groupNote.notes.length - 1].pitch;
 
-function unGroupNotes(notes: GroupNoteModel[]): NoteModel[] {
-  return flatten(notes.map(note => note.notes));
+function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
+  return flatten(notes);
 }
 
-function groupNotes(groupNotes: GroupNoteModel[], lengthOfGroup: number): GroupNoteModel[] {
+function groupNotes(notes: NoteModel[], lengthOfGroup: number): NoteModel[][] {
   // TODO this could probably be cleaned up further
-  const pushNote = (group: GroupNoteModel, note: NoteModel): void => {
+  const pushNote = (group: NoteModel[], note: NoteModel): void => {
     if (hasBeam(note)) {
-      group.notes.push(note);
+      group.push(note);
     } else {
       // Push the note as its own group. This won't modify the currentLength,
       // which means that other groupings will still be correct
-      if (group.notes.length > 0) groupedNotes.push({ ...group });
-      group.notes = [note];
-      groupedNotes.push({ ...group });
-      group.notes = [];
+      if (group.length > 0) groupedNotes.push(group.slice());
+      group.splice(0, group.length, note);
+      groupedNotes.push(group.slice());
+      group.splice(0, group.length);
     }
   };
-  let currentGroup: GroupNoteModel = initGroupNote();
-  const groupedNotes: GroupNoteModel[] = [];
+  let currentGroup: NoteModel[] = [];
+  const groupedNotes: NoteModel[][] = [];
   let currentLength = 0;
-  groupNotes.forEach(groupNote => {
-    if (!groupNote.triplet) {
-      groupNote.notes.forEach(note => {
-        const length = lengthToNumber(note.length);
-        if (currentLength + length < lengthOfGroup) {
-          pushNote(currentGroup, note);
-          currentLength += length;
-        } else if (currentLength + length === lengthOfGroup) {
-          pushNote(currentGroup, note);
-          // this check is needed since pushNote could end up setting currentGroup to have no notes in it
-          if (currentGroup.notes.length > 0) groupedNotes.push(currentGroup);
-          currentLength = 0;
-          currentGroup = initGroupNote();
-        } else {
-          groupedNotes.push(currentGroup);
-          currentGroup = initGroupNote();
-          pushNote(currentGroup, note);
-          currentLength = length;
-          if (currentLength >= lengthOfGroup) {
-            groupedNotes.push(currentGroup);
-            currentGroup = initGroupNote();
-            currentLength = 0;
-          }
-        }
-      });
-    } else {
-      groupedNotes.push(currentGroup);
-      groupedNotes.push(groupNote);
-      currentGroup = initGroupNote();
+  notes.forEach(note => {
+    const length = lengthToNumber(note.length);
+    if (currentLength + length < lengthOfGroup) {
+      pushNote(currentGroup, note);
+      currentLength += length;
+    } else if (currentLength + length === lengthOfGroup) {
+      pushNote(currentGroup, note);
+      // this check is needed since pushNote could end up setting currentGroup to have no notes in it
+      if (currentGroup.length > 0) groupedNotes.push(currentGroup);
       currentLength = 0;
+      currentGroup = [];
+    } else {
+      if (currentGroup.length > 0) groupedNotes.push(currentGroup);
+      currentGroup = [];
+      pushNote(currentGroup, note);
+      currentLength = length;
+      if (currentLength >= lengthOfGroup) {
+        if (currentGroup.length > 0) groupedNotes.push(currentGroup);
+        currentGroup = [];
+        currentLength = 0;
+      }
     }
   });
   // pushes the last notes to the groupedNotes
@@ -168,7 +159,7 @@ function toggleDot(length: NoteLength): NoteLength {
   }
 }
 
-const numberOfNotes = (note: GroupNoteModel): number => note.notes.length;
+const numberOfNotes = (notes: NoteModel[]): number => notes.length;
 
 const initNote = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
   pitch,
@@ -195,7 +186,7 @@ const initTriplet = (length: NoteLength): GroupNoteModel => ({
 
 export default {
   initNote,
-  init: initGroupNote,
+  init: initNote,
   initTriplet,
   groupNoteFrom,
   numberOfNotes,

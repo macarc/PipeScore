@@ -3,8 +3,8 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { TimeSignatureModel } from '../TimeSignature/model';
-import { GroupNoteModel } from '../Note/model';
-import { ID } from '../global/utils';
+import { NoteModel } from '../Note/model';
+import { Item } from '../global/types';
 
 export enum Barline {
   RepeatFirst, RepeatLast, Normal
@@ -13,11 +13,10 @@ export enum Barline {
 export type FrontBarline = Barline.RepeatFirst | Barline.Normal;
 export type BackBarline = Barline.RepeatLast | Barline.Normal;
 
-export interface BarModel {
+export interface BarModel extends Item {
   timeSignature: TimeSignatureModel,
-  notes: GroupNoteModel[],
+  notes: NoteModel[],
   frontBarline: FrontBarline,
   backBarline: BackBarline,
-  isAnacrusis: boolean,
-  id: ID
+  isAnacrusis: boolean
 }

@@ -9,6 +9,13 @@ export default {
     file: './public/dist/PipeScore.js',
     format: 'iife'
   },
+  watch: {
+    include: './src/**',
+    chokidar: {
+      paths: './src/**',
+      usePolling: true
+    }
+  },
   plugins: [
     typescript(),
     commonjs(),

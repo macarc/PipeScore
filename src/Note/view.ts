@@ -8,7 +8,7 @@ import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY, draggedNote } from '../global/state';
 import { Svg } from '../global/svg';
 
-import { GroupNoteModel, NoteModel, PreviousNote } from './model';
+import { NoteModel, PreviousNote } from './model';
 import { Dispatch } from '../Event';
 
 import Note from './functions';
@@ -22,14 +22,15 @@ const shortTailLength = 10;
 // note that this is actually *half* the width
 const noteHeadWidth = 5;
 
-const noteAndGracenoteWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
-  notes.map((n,i) => 1 + (n.tied ? 0 :
-                          (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, i === 0 ? prevNote : notes[i - 1].pitch)))
-           ).reduce((a,b) => a + b, 0);
+export const widthOfNote = (note: NoteModel, prevNote: Pitch | null): number => 1 +
+  (note.tied
+    ?  0
+    : (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, prevNote)));
 
-export const totalBeatWidth = (note: GroupNoteModel,previousPitch: Pitch | null): number => noteAndGracenoteWidth(note.notes, previousPitch);
+export const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
+  notes.map((n,i) => widthOfNote(n, i === 0 ? prevNote : notes[i - 1].pitch)).reduce((a,b) => a + b, 0);
 
-export const lastNoteXOffset = (beatWidth: number, note: GroupNoteModel, previousPitch: Pitch | null): number => beatWidth * noteAndGracenoteWidth(note.notes, previousPitch) - beatWidth;
+export const lastNoteXOffset = (beatWidth: number, notes: NoteModel[], previousPitch: Pitch | null): number => beatWidth * totalWidth(notes, previousPitch) - beatWidth;
 
 function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
 	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
@@ -205,31 +206,31 @@ interface NoteProps {
 }
 
 
-export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg {
+export default function render(group: NoteModel[],props: NoteProps): Svg {
   const previousPitch = props.previousNote && props.previousNote.pitch;
 
-  const canAddNotes = !groupNote.triplet;
+  const canAddNotes = true;//!groupNote.triplet;
 
-  if (groupNote.notes.length === 0) {
+  if (group.length === 0) {
     return svg`<g></g>`;
   } else {
     // relativeIndex takes a note and returns not the actual index, but the index including
     // gracenoteToNoteWidthRatio * all the gracenotes up to it
     // useful for x calculations
 
-    const relativeIndexOfGracenote = (index: number) => noteAndGracenoteWidth(groupNote.notes.slice(0,index), previousPitch);
-    const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (Gracenote.numberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : groupNote.notes[index - 1].pitch)));
-    const xOf = (noteIndex: number) => props.x + relativeIndexOf(groupNote.notes[noteIndex],noteIndex) * props.noteWidth;
+    const relativeIndexOfGracenote = (index: number) => totalWidth(group.slice(0,index), previousPitch);
+    const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (Gracenote.numberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : group[index - 1].pitch)));
+    const xOf = (noteIndex: number) => props.x + relativeIndexOf(group[noteIndex],noteIndex) * props.noteWidth;
     const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
     const stemXOf = (index: number) => xOf(index) - noteHeadWidth;
 
-    const firstNote: NoteModel = groupNote.notes[0];
-    const lastNote: NoteModel = groupNote.notes[groupNote.notes.length - 1];
+    const firstNote: NoteModel = group[0];
+    const lastNote: NoteModel = group[group.length - 1];
 
     const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
     const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index) - noteHeadWidth, xOf(index) + noteHeadWidth, props.y);
 
-    if (Note.numberOfNotes(groupNote) === 1) {
+    if (Note.numberOfNotes(group) === 1) {
       setNoteXY(firstNote, 0);
       const gracenoteProps = ({
         // can just be props.x since it is the first note
@@ -241,7 +242,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         dispatch: props.dispatch
       });
 
-      const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: 1, groupNote })) : () => svg``;
+      const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : () => svg``;
 
       return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.dispatch);
     } else {
@@ -256,9 +257,9 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         // difference between first and last notes in a group
         noteOffset(lastNote.pitch)
         - noteOffset(firstNote.pitch),
-        30 / groupNote.notes.length);
+        30 / group.length);
 
-      const [lowestNote,lowestNoteIndex,multipleLowest]: [NoteModel,number,boolean] = groupNote.notes.reduce((last,next, index) => {
+      const [lowestNote,lowestNoteIndex,multipleLowest]: [NoteModel,number,boolean] = group.reduce((last,next, index) => {
         if (index === 0) {
           return last;
         }
@@ -272,7 +273,7 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
         }
       }, [firstNote,0, false] as [NoteModel,number,boolean]);
 
-      const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalBeatWidth(groupNote,previousPitch));
+      const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalWidth(group,previousPitch));
 
       const stemYOf = (note: NoteModel, index: number) =>
         (Note.hasBeam(note) ?
@@ -281,18 +282,18 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
            // straight line if there is more than one lowest note
              ? 0
              // otherwise use a slant
-               : diff * relativeIndexOf(note,index) / totalBeatWidth(groupNote,previousPitch))
+               : diff * relativeIndexOf(note,index) / totalWidth(group,previousPitch))
                // offset so that the lowest note is always a constant height
                + diffForLowest
                : noteY(props.y, note.pitch) + 30)
 
+       // ${(group.length === 3) ? triplet(props.y,xOf(0), xOf(2), yOf(firstNote), yOf(lastNote)) : null}
       return svg`
         <g class="grouped-notes">
-          ${(groupNote.triplet && groupNote.notes.length === 3) ? triplet(props.y,xOf(0), xOf(2), yOf(firstNote), yOf(lastNote)) : null}
-          ${groupNote.notes.map(
+          ${group.map(
             (note,index) => {
               setNoteXY(note, index);
-              const previousNote: NoteModel | null = groupNote.notes[index - 1] || null;
+              const previousNote: NoteModel | null = group[index - 1] || null;
               const gracenoteProps = ({
                 x: gracenoteX(index),
                 y: props.y,
@@ -318,11 +319,9 @@ export default function render(groupNote: GroupNoteModel,props: NoteProps): Svg 
 
                 ${noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }))}
 
-                ${
-                  (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null
-                }
+                ${(previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null}
 
-                ${canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, index: index + 1, groupNote })) : null}
+                ${canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : null}
 
                 <line
                   x1=${stemXOf(index)}

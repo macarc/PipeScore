@@ -4,7 +4,7 @@
 */
 import { scoreWidth } from './constants';
 import { SvgRef } from './svg';
-import { ID } from './utils';
+import { ID } from './types';
 
 import { ScoreModel } from '../Score/model';
 import { NoteModel, NoteLength } from '../Note/model';

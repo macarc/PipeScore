@@ -8,8 +8,9 @@ import { noteBoxes } from '../global/noteBoxes';
 import { Pitch, noteY } from '../global/pitch';
 import { setXY } from '../global/state';
 import { Svg } from '../global/svg';
+import { last, nmap } from '../global/utils';
 
-import { GroupNoteModel, PreviousNote } from '../Note/model';
+import { NoteModel, PreviousNote } from '../Note/model';
 import { BarModel, Barline } from './model';
 import { Dispatch } from '../Event';
 
@@ -18,7 +19,7 @@ import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
-import renderNote, { lastNoteXOffset, totalBeatWidth } from '../Note/view';
+import renderNote, { lastNoteXOffset, totalWidth, widthOfNote } from '../Note/view';
 
 
 
@@ -32,10 +33,10 @@ interface BarProps {
   dispatch: Dispatch
 }
 
-export const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
+const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
-      const previous = index === 0 ? previousNote : Note.lastNoteOfGroupNote(bar.notes[index - 1]);
-      return [...nums, nums[nums.length - 1] + totalBeatWidth(n,previous || null)];
+      const previous = index === 0 ? previousNote : nmap(last(bar.notes), n => n.pitch);
+      return [...nums, nums[nums.length - 1] + widthOfNote(n,previous || null)];
     },
     [1]);
 
@@ -44,14 +45,15 @@ const minimumBeatWidth = 30;
 
 
 export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
-  const lastNoteIndex = Bar.lastNoteIndex(bar);
-  const lastNote = Bar.lastNote(bar);
-  const previousBarLastNote = previousBar ? Bar.lastNote(previousBar) : null;
+  const lastNoteIndex = bar.notes.length - 1;
+  const lastNote = last(bar.notes);
+  const previousBarLastNote = nmap(previousBar, n => last(n.notes));
   if (lastNote !== null) {
     const beats = beatsOf(bar, null)
-    const totalNumberOfBeats = beats[beats.length - 1];
+    const totalNumberOfBeats = last(beats);
+    if (! totalNumberOfBeats) return 0;
     const beatWidth = width / totalNumberOfBeats;
-    return beatWidth * beats[lastNoteIndex] + lastNoteXOffset(beatWidth, bar.notes[lastNoteIndex], (Bar.numberOfGroupNotes(bar) === 1 ? previousBarLastNote : Note.lastNoteOfGroupNote(bar.notes[lastNoteIndex - 1])) || null);
+    return beatWidth * beats[lastNoteIndex];
   } else {
     return 0;
   }
@@ -108,20 +110,11 @@ export default function render(bar: BarModel,props: BarProps): Svg {
   const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
   const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.frontBarline);
 
+  const groupedNotes = Note.groupNotes(bar.notes, TimeSignature.beatDivision(bar.timeSignature));
 
 
-  const previousWholeNote = props.previousBar ? (() => {
-    const last = props.previousBar.notes[props.previousBar.notes.length - 1];
-    if (Note.numberOfNotes(last) === 0) {
-      // if all the notes add up to an even number, then the final note in the bar will have 0 length
-      // so in that case, return the second last note
-      return props.previousBar.notes[props.previousBar.notes.length - 2];
-    } else {
-      return last;
-    }
-  })() : null;
-  const previousNote = previousWholeNote ? Note.lastNoteOfGroupNote(previousWholeNote) : null;
 
+  const previousNote = props.previousBar ? nmap(last(props.previousBar.notes), n => n.pitch) : null;
   const beats = beatsOf(bar, previousNote);
 
 
@@ -132,7 +125,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
 
   function previousNoteData(index: number): PreviousNote | null {
-    const lastNote = (index > 0) ? Note.lastNoteOfGroupNote(bar.notes[index - 1]) : null;
+    const lastNote = (index > 0) ? nmap(last(groupedNotes[index - 1]), n => n.pitch) : null;
     if (index === 0) {
       if (previousNote !== null && props.lastNoteX !== null) {
         return ({
@@ -144,8 +137,8 @@ export default function render(bar: BarModel,props: BarProps): Svg {
         return null;
       }
     } else if (lastNote !== null) {
-      const noteBeforeThat = (index < 2) ? null : Note.lastNoteOfGroupNote(bar.notes[index - 2]);
-      const x = getX(index - 1) + lastNoteXOffset(beatWidth, bar.notes[index - 1], noteBeforeThat);
+      const noteBeforeThat = (index < 2) ? null : nmap(last(groupedNotes[index - 2]), n => n.pitch);
+      const x = getX(index - 1) + lastNoteXOffset(beatWidth, groupedNotes[index - 1], noteBeforeThat);
       return ({
         pitch: lastNote,
         x,
@@ -156,7 +149,7 @@ export default function render(bar: BarModel,props: BarProps): Svg {
     }
   }
 
-  const noteProps = (note: GroupNoteModel,index: number) => ({
+  const noteProps = (notes: NoteModel[],index: number) => ({
     x: getX(index),
     y: staveY,
     noteWidth: beatWidth,
@@ -167,11 +160,13 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
 
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
+
+  // TODO this won't work if there are no notes in the bar - have a separate event for that
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', index: 0, pitch, groupNote: bar.notes[0] }))}
-      ${bar.notes.map(
-        (note,idx) => svg.for(note)`${renderNote(note,noteProps(note,idx))}`
+      ${noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: groupedNotes[0][0] }))}
+      ${groupedNotes.map(
+        (notes,idx) => svg.for(notes)`${renderNote(notes,noteProps(notes,idx))}`
       )}
 
       ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}

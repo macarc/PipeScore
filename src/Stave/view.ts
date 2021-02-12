@@ -65,16 +65,14 @@ export default function render(stave: StaveModel, props: StaveProps): Svg {
   return svg`
     <g class="stave">
       ${trebleClef(props.x, props.y)}
-      <g class="notes">
+      <g class="bars">
         ${stave.bars.map(
           (bar,idx) => svg.for(bar)`${renderBar(bar, barProps(bar,idx))}`
         )}
       </g>
       <g class="stave-lines">
         ${staveLines.map(
-          y => svg`<g>
-            <line x1=${props.x} x2=${props.x + props.width} y1=${y} y2=${y} stroke="black" pointer-events="none" />
-          </g>`
+          y => svg`<line x1=${props.x} x2=${props.x + props.width} y1=${y} y2=${y} stroke="black" pointer-events="none" /> `
         )}
       </g>
     </g>

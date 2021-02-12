@@ -21,7 +21,7 @@ export type ScoreEvent
   | SetInputLength
   | StopInputtingNotes
   | SingleGracenoteClicked
-  | NoteAdded
+  | AddNote
   | TieSelectedNotes
   | AddTriplet
   | ToggleDotted
@@ -126,13 +126,12 @@ export function isStopInputtingNotes(e: ScoreEvent): e is StopInputtingNotes {
   return e.name === 'stop inputting notes';
 }
 
-type NoteAdded = {
+type AddNote = {
   name: 'note added',
   pitch: Pitch,
-  index: number,
-  groupNote: GroupNoteModel
+  noteBefore: NoteModel
 }
-export function isNoteAdded(e: ScoreEvent): e is NoteAdded {
+export function isAddNote(e: ScoreEvent): e is AddNote {
   return e.name === 'note added';
 }
 

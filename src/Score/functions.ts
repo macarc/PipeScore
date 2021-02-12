@@ -3,14 +3,10 @@ import { flatten } from '../global/utils';
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
 import { BarModel } from '../Bar/model';
-import { GroupNoteModel } from '../Note/model';
 
 import Stave from '../Stave/functions';
 
 
-function groupNotes(score: ScoreModel): GroupNoteModel[] {
-  return flatten(score.staves.map(stave => Stave.groupNotes(stave)));
-}
 function bars(score: ScoreModel): BarModel[] {
   return flatten(score.staves.map(stave => Stave.bars(stave)));
 }
@@ -45,5 +41,4 @@ export default {
   staves,
   addStave,
   deleteStave,
-  groupNotes,
 }

@@ -18,6 +18,8 @@ Bugs to fix:
 [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 [ ] It is too easy to accidentally add notes
 [ ] Possible triplets should have their own type since notes can't be added/destroyed/dotted/e.t.c.
+[ ] Adding notes after triplets doesn't work
+[ ] makeCorrectGroupings in Controller
 
 
 

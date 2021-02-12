@@ -100,18 +100,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isDeleteSelectedNotes(event)) {
     if (selectedNotes.length > 0) {
-      const groupedNotes = Score.groupNotes(score);
+      // TODO
       // quadratic!
-      groupedNotes.forEach(g => {
-        if (g.triplet) return;
-        // Need to slice it so that deleting inside the loop works
-        const newNotes = g.notes.slice();
-        g.notes.forEach(note => {
-          if (selectedNotes.includes(note)) {
-            deleteNote(note, newNotes);
-          }
-        });
-        g.notes = newNotes;
+      noteModels.forEach(note => {
+        if (selectedNotes.includes(note)) {
+          deleteNote(note);
+        }
       });
       setSelection(null);
       changed = true;
@@ -129,7 +123,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
      if (inputLength !== null) {
        setInputLength(null);
      }
-  } else if (ScoreEvent.isNoteAdded(event)) {
+  } else if (ScoreEvent.isAddNote(event)) {
+    /*
     if (inputLength !== null && !event.groupNote.triplet) {
       const newNote = Note.initNote(event.pitch, inputLength);
       event.groupNote.notes.splice(event.index, 0, newNote);
@@ -138,18 +133,22 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       makeCorrectTie(newNote);
       recalculateNoteGroupings = true
     }
+    */
   } else if (ScoreEvent.isToggleDotted(event)) {
     selectedNotes.forEach(note => note.length = Note.toggleDot(note.length));
     if (inputLength !== null) setInputLength(Note.toggleDot(inputLength));
     changed = true;
     recalculateNoteGroupings = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
+    // TODO
+    /*
     if (selectedNotes.length > 0 && inputLength !== null) { 
       const { groupNote, bar } = currentBar(selectedNotes[0]);
       bar.notes.splice(bar.notes.indexOf(groupNote) + 1, 0, Note.initTriplet(inputLength));
       changed = true;
       recalculateNoteGroupings = true;
     }
+    */
   } else if (ScoreEvent.isChangeZoomLevel(event)) {
     if (event.zoomLevel !== zoomLevel) {
       setZoomLevel(event.zoomLevel);
@@ -195,8 +194,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (selection) {
       // todo delete all selected bars
       const { bar, stave } = currentBar(selection.start);
-      const newNotes = flatten(bar.notes.map(n => n.notes));
-      bar.notes.forEach(groupNote => groupNote.notes.forEach(note => deleteNote(note, newNotes)));
+      const newNotes = bar.notes;
+      bar.notes.forEach(note => deleteNote(note));
       deleteXY(bar.id);
       Stave.deleteBar(stave, bar);
       changed = true;
@@ -211,9 +210,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (selection) {
       // todo delete all selected staves
       const { stave } = currentBar(selection.start);
-      const notes: NoteModel[] = flatten(stave.bars.map(bar => flatten(bar.notes.map(n => n.notes))));
-      const newNotes = notes.slice();
-      notes.forEach(note => deleteNote(note, newNotes));
+      const notes: NoteModel[] = flatten(stave.bars.map(bar => bar.notes));
+      notes.forEach(note => deleteNote(note));
       Score.deleteStave(score, stave);
       changed = true;
     }
@@ -260,8 +258,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isCopy(event)) {
-    setClipboard(JSON.parse(JSON.stringify(selectedNotes)));
+    // TODO
+    // setClipboard(JSON.parse(JSON.stringify(selectedNotes)));
   } else if (ScoreEvent.isPaste(event)) {
+    // TODO
+    /*
     if (! selection || ! clipboard) {
       return;
     }
@@ -275,6 +276,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     bar.notes.splice(bar.notes.length, 0, Note.groupNoteFrom(toPaste));
     changed = true;
     recalculateNoteGroupings = true;
+    */
   } else {
     return event;
   }
@@ -293,7 +295,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 function makeCorrectTie(noteModel: NoteModel) {
   // corrects the pitches of any notes tied to noteModel
   const bars = Score.bars(score);
-  const noteModels = flatten(bars.map(b => Note.unGroupNotes(b.notes)));
+  const noteModels = flatten(bars.map(b => b.notes));
   for (let i=0; i < noteModels.length; i++) {
     if (noteModels[i].id === noteModel.id) {
       let b = i;
@@ -313,7 +315,7 @@ function makeCorrectTie(noteModel: NoteModel) {
 
 function sortByPosition(notes: NoteModel[]) {
   const bars = Score.bars(score);
-  const noteModels = flatten(bars.map(b => Note.unGroupNotes(b.notes)));
+  const noteModels = flatten(bars.map(b => b.notes));
 
   notes.sort((a,b) => noteModels.indexOf(a) > noteModels.indexOf(b) ? 1 : -1);
   return notes;
@@ -323,7 +325,8 @@ function makeCorrectGroupings() {
   const bars = Score.bars(score);
   for (let i=0; i < bars.length; i++) {
     // todo actually pass the correct time signature
-    bars[i].notes = Note.groupNotes(bars[i].notes, TimeSignature.beatDivision(bars[i].timeSignature));
+    // TODO TODO TODO
+    //bars[i].notes = Note.groupNotes(bars[i].notes, TimeSignature.beatDivision(bars[i].timeSignature));
   }
 }
 
@@ -346,12 +349,9 @@ function dragText(event: MouseEvent) {
   }
 }
 
-function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
-  if (newNotes.indexOf(note) === -1) {
-    console.error("tried to delete a note that wasn't there");
-    return;
-  }
-  newNotes.splice(newNotes.indexOf(note), 1);
+function deleteNote(note: NoteModel) {
+  const { bar } = currentBar(note);
+  bar.notes.splice(bar.notes.indexOf(note), 1);
   deleteXY(note.id);
   const secondTimingsToDelete: SecondTimingModel[] = [];
   score.secondTimings.forEach(t => {
@@ -366,27 +366,24 @@ function deleteNote(note: NoteModel, newNotes: NoteModel[]) {
   }
 }
 
-function currentBar(note: NoteModel): { groupNote: GroupNoteModel, stave: StaveModel, bar: BarModel } {
+function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
   // This is extremely inefficient and should only be used in instances that don't occur regularly
   const staves = Score.staves(score);
   for (const stave of staves) {
     const bars = Stave.bars(stave);
     for (const bar of bars) {
-      const groupNoteModels = bar.notes;
-      for (const groupNote of groupNoteModels) {
-        if (groupNote.notes.includes(note)) {
-          return { groupNote, stave, bar };
-        }
+      if (bar.notes.includes(note)) {
+        return { stave, bar };
       }
     }
   }
 
-  return { groupNote: Stave.groupNotes(staves[0])[0], stave: staves[0], bar: Stave.bars(staves[0])[0] }
+  return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
 }
 
 function currentNoteModels(): NoteModel[] {
   const bars = Score.bars(score);
-  return flatten(bars.map(b => Note.unGroupNotes(b.notes)));
+  return flatten(bars.map(b => b.notes));
 }
 
 

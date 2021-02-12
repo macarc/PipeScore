@@ -1,4 +1,4 @@
-import { ID } from '../global/utils';
+import { ID } from '../global/types';
 
 import { SecondTimingModel } from './model';
 

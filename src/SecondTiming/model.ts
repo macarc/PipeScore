@@ -1,4 +1,4 @@
-import { ID } from '../global/utils';
+import { ID } from '../global/types';
 
 export interface SecondTimingModel {
   start: ID,
