@@ -2,13 +2,9 @@
   Bar/functions.ts - Defines functions that transform Bars
   Copyright (C) 2020 Archie Maclean
 */
-import { Pitch } from '../global/pitch';
 import { genId } from '../global/utils';
 import { BarModel, Barline } from './model';
 
-import { NoteModel } from '../Note/model';
-
-import Note from '../Note/functions';
 import TimeSignature from '../TimeSignature/functions';
 
 const numberOfNotes = (bar: BarModel): number => bar.notes.length;

@@ -46,7 +46,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
    */
   let changed = false;
-  let recalculateNoteGroupings = false;
   const noteModels = currentNoteModels();
   const selectedNotes = selectionToNotes(selection, noteModels);
   if (ScoreEvent.isMouseMovedOver(event)) {
@@ -109,7 +108,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       });
       setSelection(null);
       changed = true;
-      recalculateNoteGroupings = true;
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
     selectedNotes.forEach(note => note.gracenote = Gracenote.from(event.value));
@@ -131,14 +129,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
       // todo - should this need to be done?
       makeCorrectTie(newNote);
-      recalculateNoteGroupings = true
     }
     */
   } else if (ScoreEvent.isToggleDotted(event)) {
     selectedNotes.forEach(note => note.length = Note.toggleDot(note.length));
     if (inputLength !== null) setInputLength(Note.toggleDot(inputLength));
     changed = true;
-    recalculateNoteGroupings = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
     // TODO
     /*
@@ -146,7 +142,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const { groupNote, bar } = currentBar(selectedNotes[0]);
       bar.notes.splice(bar.notes.indexOf(groupNote) + 1, 0, Note.initTriplet(inputLength));
       changed = true;
-      recalculateNoteGroupings = true;
     }
     */
   } else if (ScoreEvent.isChangeZoomLevel(event)) {
@@ -194,7 +189,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (selection) {
       // todo delete all selected bars
       const { bar, stave } = currentBar(selection.start);
-      const newNotes = bar.notes;
       bar.notes.forEach(note => deleteNote(note));
       deleteXY(bar.id);
       Stave.deleteBar(stave, bar);
@@ -238,7 +232,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 
     if (!isNaN(asNumber) && asNumber > 0) {
       setTimeSignatureFrom(event.timeSignature, [asNumber, event.timeSignature[1]]);
-      recalculateNoteGroupings = true;
       changed = true;
     } else {
       alert('Invalid time signature');
@@ -254,7 +247,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       alert('Invalid time signature - PipeScore only supports 4 and 8 time signatures right now, sorry.');
     } else {
       setTimeSignatureFrom(event.timeSignature, [event.timeSignature[0], denom]);
-      recalculateNoteGroupings = true;
       changed = true;
     }
   } else if (ScoreEvent.isCopy(event)) {
@@ -275,7 +267,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     const { bar } = currentBar(pasteAfter);
     bar.notes.splice(bar.notes.length, 0, Note.groupNoteFrom(toPaste));
     changed = true;
-    recalculateNoteGroupings = true;
     */
   } else {
     return event;

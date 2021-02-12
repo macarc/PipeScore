@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { svg } from 'uhtml';
-import { noteBoxes } from '../global/noteBoxes';
+import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY, draggedNote } from '../global/state';
 import { Svg } from '../global/svg';

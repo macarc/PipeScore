@@ -4,7 +4,7 @@
 */
 import { svg } from 'uhtml';
 import { lineHeightOf } from '../global/constants';
-import { noteBoxes } from '../global/noteBoxes';
+import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteY } from '../global/pitch';
 import { setXY } from '../global/state';
 import { Svg } from '../global/svg';
@@ -14,12 +14,11 @@ import { NoteModel, PreviousNote } from '../Note/model';
 import { BarModel, Barline } from './model';
 import { Dispatch } from '../Event';
 
-import Bar from './functions';
 import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
-import renderNote, { lastNoteXOffset, totalWidth, widthOfNote } from '../Note/view';
+import renderNote, { lastNoteXOffset, widthOfNote } from '../Note/view';
 
 
 
@@ -48,8 +47,9 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
   const lastNoteIndex = bar.notes.length - 1;
   const lastNote = last(bar.notes);
   const previousBarLastNote = nmap(previousBar, n => last(n.notes));
+  const previousNote = nmap(previousBarLastNote, n => n.pitch);
   if (lastNote !== null) {
-    const beats = beatsOf(bar, null)
+    const beats = beatsOf(bar, previousNote)
     const totalNumberOfBeats = last(beats);
     if (! totalNumberOfBeats) return 0;
     const beatWidth = width / totalNumberOfBeats;

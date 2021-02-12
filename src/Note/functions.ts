@@ -1,5 +1,5 @@
 import { Pitch } from '../global/pitch';
-import { genId, flatten, nmap, last } from '../global/utils';
+import { genId, flatten } from '../global/utils';
 
 import { NoteModel, NoteLength } from './model';
 
@@ -169,7 +169,7 @@ const init = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
   id: genId()
 });
 
-const initTriplet = (length: NoteLength) => ({})
+const initTriplet = (): null => null;
 /*const initTriplet = (length: NoteLength) => ({
   notes: [initNote(Pitch.A, length), initNote(Pitch.A, length), initNote(Pitch.A, length)],
   triplet: true
