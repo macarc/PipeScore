@@ -5,6 +5,7 @@
 import { Pitch } from './global/pitch';
 
 import { NoteModel, NoteLength } from './Note/model';
+import { BarModel } from './Bar/model';
 import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
@@ -21,7 +22,8 @@ export type ScoreEvent
   | SetInputLength
   | StopInputtingNotes
   | SingleGracenoteClicked
-  | AddNote
+  | AddNoteAfter
+  | AddNoteToBarStart
   | TieSelectedNotes
   | AddTriplet
   | ToggleDotted
@@ -126,13 +128,22 @@ export function isStopInputtingNotes(e: ScoreEvent): e is StopInputtingNotes {
   return e.name === 'stop inputting notes';
 }
 
-type AddNote = {
+type AddNoteAfter = {
   name: 'note added',
   pitch: Pitch,
   noteBefore: NoteModel
 }
-export function isAddNote(e: ScoreEvent): e is AddNote {
+export function isAddNoteAfter(e: ScoreEvent): e is AddNoteAfter {
   return e.name === 'note added';
+}
+
+type AddNoteToBarStart = {
+  name: 'add note to beginning of bar',
+  pitch: Pitch,
+  bar: BarModel
+}
+export function isAddNoteToBarStart(e: ScoreEvent): e is AddNoteToBarStart {
+  return e.name === 'add note to beginning of bar';
 }
 
 type ToggleDotted = {

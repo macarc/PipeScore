@@ -7,7 +7,7 @@ import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY, draggedNote } from '../global/state';
 import { Svg } from '../global/svg';
-import { nlast } from '../global/utils';
+import { nlast, nmap } from '../global/utils';
 
 import { NoteModel, PreviousNote } from './model';
 import { Dispatch } from '../Event';
@@ -294,25 +294,20 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
           ${group.map(
             (note,index) => {
               setNoteXY(note, index);
-              const previousNote: NoteModel | null = group[index - 1] || null;
+              const previousNote = group[index - 1] || null;
               const gracenoteProps = ({
                 x: gracenoteX(index),
                 y: props.y,
                 gracenoteWidth: props.noteWidth * 0.6,
                 thisNote: note.pitch,
-                previousNote: previousNote ? previousNote.pitch : previousPitch,
+                previousNote: nmap(previousNote, p => p.pitch),
                 dispatch: props.dispatch
               });
-              const previousNoteObj: PreviousNote | null = (() => {
-                if (previousNote !== null)
-                  return ({
-                    pitch: previousNote.pitch,
+              const previousNoteObj = nmap(previousNote, p => ({
+                    pitch: p.pitch,
                     x: xOf(index - 1),
-                    y: yOf(previousNote)
-                  })
-                else
-                  return props.previousNote
-              })()
+                    y: yOf(p)
+                  }));
 
               return svg.for(note)`<g class="grouped-note">
                 ${shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null}

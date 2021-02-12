@@ -51,9 +51,7 @@ function groupNotes(notes: NoteModel[], lengthOfGroup: number): NoteModel[][] {
       }
     }
   });
-  // pushes the last notes to the groupedNotes
-  // this also ensures that the length will never be 0, even if there are 0 notes
-  groupedNotes.push(currentGroup);
+  if (currentGroup.length > 0) groupedNotes.push(currentGroup);
   return groupedNotes;
 }
 

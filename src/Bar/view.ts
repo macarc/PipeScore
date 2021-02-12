@@ -20,8 +20,6 @@ import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
 import renderNote, { lastNoteXOffset, widthOfNote } from '../Note/view';
 
-
-
 interface BarProps {
   x: number,
   y: number,
@@ -34,7 +32,7 @@ interface BarProps {
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
-      const previous = index === 0 ? previousNote : nlast(bar.notes).pitch;
+      const previous = (index === 0) ? previousNote : nlast(bar.notes).pitch;
       return [...nums, nlast(nums) + widthOfNote(n,previous || null)];
     },
     [1]);
@@ -112,8 +110,6 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
   const groupedNotes = Note.groupNotes(bar.notes, TimeSignature.beatDivision(bar.timeSignature));
 
-
-
   const previousNote = props.previousBar ? nmap(last(props.previousBar.notes), n => n.pitch) : null;
   const beats = beatsOf(bar, previousNote);
 
@@ -121,12 +117,13 @@ export default function render(bar: BarModel,props: BarProps): Svg {
   const totalNumberOfBeats = last(beats) || 1;
   const beatWidth = width / totalNumberOfBeats;
 
-  const getX = (noteIndex: number) => xAfterBarline + beatWidth * beats[noteIndex];
+  const xOf = (noteIndex: number) => xAfterBarline + beatWidth * beats[noteIndex];
 
 
-  function previousNoteData(index: number): PreviousNote | null {
-    const lastNote = (index > 0) ? nmap(last(groupedNotes[index - 1]), n => n.pitch) : null;
-    if (index === 0) {
+  function previousNoteData(groupNoteIndex: number, noteIndex: number): PreviousNote | null {
+    const lastGroup = groupedNotes[groupNoteIndex - 1];
+    const lastNote = (groupNoteIndex > 0) ? nmap(last(lastGroup), n => n.pitch) : null;
+    if (groupNoteIndex === 0) {
       if (previousNote !== null && props.lastNoteX !== null) {
         return ({
           pitch: previousNote,
@@ -137,8 +134,13 @@ export default function render(bar: BarModel,props: BarProps): Svg {
         return null;
       }
     } else if (lastNote !== null) {
-      const noteBeforeThat = (index < 2) ? null : nmap(last(groupedNotes[index - 2]), n => n.pitch);
-      const x = getX(index - 1) + lastNoteXOffset(beatWidth, groupedNotes[index - 1], noteBeforeThat);
+      const noteBeforeThat = (noteIndex < 2)
+        ? null
+        : (lastGroup.length > 1
+           ? lastGroup[lastGroup.length - 2].pitch
+           : nmap(last(groupedNotes[groupNoteIndex - 2]), n => n.pitch));
+
+      const x = xOf(noteIndex - 1) + lastNoteXOffset(beatWidth, groupedNotes[groupNoteIndex - 1], noteBeforeThat);
       return ({
         pitch: lastNote,
         x,
@@ -150,24 +152,21 @@ export default function render(bar: BarModel,props: BarProps): Svg {
   }
 
   const noteProps = (notes: NoteModel[],index: number) => ({
-    x: getX(index),
+    x: xOf(bar.notes.indexOf(notes[0])),
     y: staveY,
     noteWidth: beatWidth,
-    previousNote: previousNoteData(index),
+    previousNote: previousNoteData(index, bar.notes.indexOf(notes[0])),
     selectedNotes: [],
     dispatch: props.dispatch
   });
-
 
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
 
   // TODO this won't work if there are no notes in the bar - have a separate event for that
   return svg`
     <g class="bar">
-      ${noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: groupedNotes[0][0] }))}
-      ${groupedNotes.map(
-        (notes,idx) => svg.for(notes)`${renderNote(notes,noteProps(notes,idx))}`
-      )}
+      ${noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add note to beginning of bar', pitch, bar }))}
+      ${groupedNotes.map((notes,idx) => svg.for(notes)`${renderNote(notes,noteProps(notes,idx))}`)}
 
       ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
       ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}

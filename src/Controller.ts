@@ -121,16 +121,22 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
      if (inputLength !== null) {
        setInputLength(null);
      }
-  } else if (ScoreEvent.isAddNote(event)) {
-    /*
-    if (inputLength !== null && !event.groupNote.triplet) {
-      const newNote = Note.initNote(event.pitch, inputLength);
-      event.groupNote.notes.splice(event.index, 0, newNote);
+  } else if (ScoreEvent.isAddNoteAfter(event)) {
+    if (inputLength !== null) {
+      const { bar } = currentBar(event.noteBefore);
+      const newNote = Note.init(event.pitch, inputLength);
+      bar.notes.splice(bar.notes.indexOf(event.noteBefore) + 1, 0, newNote);
       changed = true;
       // todo - should this need to be done?
       makeCorrectTie(newNote);
     }
-    */
+  } else if (ScoreEvent.isAddNoteToBarStart(event)) {
+    if (inputLength) {
+      const newNote = Note.init(event.pitch, inputLength);
+      event.bar.notes.unshift(newNote);
+      changed = true;
+      makeCorrectTie(newNote);
+    }
   } else if (ScoreEvent.isToggleDotted(event)) {
     selectedNotes.forEach(note => note.length = Note.toggleDot(note.length));
     if (inputLength !== null) setInputLength(Note.toggleDot(inputLength));
