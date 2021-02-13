@@ -18,7 +18,7 @@ import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
-import renderNote, { lastNoteXOffset, widthOfNote } from '../Note/view';
+import renderNote, { lastNoteXOffset, widthOfNote, noteHeadOffset } from '../Note/view';
 
 interface BarProps {
   x: number,
@@ -32,7 +32,7 @@ interface BarProps {
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
-      const previous = (index === 0) ? previousNote : nlast(bar.notes).pitch;
+      const previous = (index === 0) ? previousNote : bar.notes[index - 1].pitch;
       return [...nums, nlast(nums) + widthOfNote(n,previous || null)];
     },
     [1]);
@@ -42,6 +42,7 @@ const minimumBeatWidth = 30;
 
 
 export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
+  // TODO this is probably wrong, I haven't checked it in a while
   const lastNoteIndex = bar.notes.length - 1;
   const lastNote = last(bar.notes);
   const previousBarLastNote = nmap(previousBar, n => last(n.notes));
@@ -121,8 +122,10 @@ export default function render(bar: BarModel,props: BarProps): Svg {
 
 
   function previousNoteData(groupNoteIndex: number, noteIndex: number): PreviousNote | null {
-    const lastGroup = groupedNotes[groupNoteIndex - 1];
-    const lastNote = (groupNoteIndex > 0) ? nmap(last(lastGroup), n => n.pitch) : null;
+    // this function assumes that it is being passed the noteIndex corresponding to the start of the groupNoteIndex
+    // enforce it somehow?
+
+    const lastNote = (noteIndex > 0) ? bar.notes[noteIndex - 1].pitch : null;
     if (groupNoteIndex === 0) {
       if (previousNote !== null && props.lastNoteX !== null) {
         return ({
@@ -134,19 +137,18 @@ export default function render(bar: BarModel,props: BarProps): Svg {
         return null;
       }
     } else if (lastNote !== null) {
-      const noteBeforeThat = (noteIndex < 2)
-        ? null
-        : (lastGroup.length > 1
-           ? lastGroup[lastGroup.length - 2].pitch
-           : nmap(last(groupedNotes[groupNoteIndex - 2]), n => n.pitch));
-
-      const x = xOf(noteIndex - 1) + lastNoteXOffset(beatWidth, groupedNotes[groupNoteIndex - 1], noteBeforeThat);
+      if (noteIndex === 0) throw new Error('noteIndex === 0');
+      const x =
+        (noteIndex === 1)
+          ? xOf(noteIndex - 1) + noteHeadOffset(beatWidth, bar.notes[noteIndex - 1], previousNote)
+          : xOf(noteIndex - 1) + noteHeadOffset(beatWidth, bar.notes[noteIndex - 1], bar.notes[noteIndex - 2].pitch);
       return ({
         pitch: lastNote,
         x,
         y: noteY(props.y, lastNote)
       })
     } else {
+      throw new Error('groupNoteIndex !== 0 && lastNote === null');
       return null;
     }
   }

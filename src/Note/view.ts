@@ -33,6 +33,8 @@ export const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): number =
 
 export const lastNoteXOffset = (beatWidth: number, notes: NoteModel[], previousPitch: Pitch | null): number => beatWidth * totalWidth(notes, previousPitch) - beatWidth;
 
+export const noteHeadOffset = (beatWidth: number, note: NoteModel, previousPitch: Pitch | null): number => beatWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch);
+
 function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
 	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
 	const leftIs1 = x1 < x2;
@@ -150,7 +152,7 @@ function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote
 M ${x0},${y0} S ${midx},${midhiy}, ${x1},${y1}
 M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
     `;
-  return svg`<path d=${path} stroke="black" />`;
+  return svg`<path class="note-tie" d=${path} stroke="black" />`;
 }
 
 function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number): Svg {
@@ -294,7 +296,7 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
           ${group.map(
             (note,index) => {
               setNoteXY(note, index);
-              const previousNote = group[index - 1] || null;
+              const previousNote = group[index - 1];
               const gracenoteProps = ({
                 x: gracenoteX(index),
                 y: props.y,
@@ -307,7 +309,7 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
                     pitch: p.pitch,
                     x: xOf(index - 1),
                     y: yOf(p)
-                  }));
+                  })) || props.previousNote;
 
               return svg.for(note)`<g class="grouped-note">
                 ${shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null}
