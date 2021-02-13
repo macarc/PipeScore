@@ -18,7 +18,7 @@ import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
-import renderNote, { lastNoteXOffset, widthOfNote, noteHeadOffset } from '../Note/view';
+import renderNote, { widthOfNote, noteHeadOffset } from '../Note/view';
 
 interface BarProps {
   x: number,

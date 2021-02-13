@@ -31,8 +31,6 @@ export const widthOfNote = (note: NoteModel, prevNote: Pitch | null): number => 
 export const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
   notes.map((n,i) => widthOfNote(n, i === 0 ? prevNote : notes[i - 1].pitch)).reduce((a,b) => a + b, 0);
 
-export const lastNoteXOffset = (beatWidth: number, notes: NoteModel[], previousPitch: Pitch | null): number => beatWidth * totalWidth(notes, previousPitch) - beatWidth;
-
 export const noteHeadOffset = (beatWidth: number, note: NoteModel, previousPitch: Pitch | null): number => beatWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch);
 
 function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
@@ -296,7 +294,7 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
           ${group.map(
             (note,index) => {
               setNoteXY(note, index);
-              const previousNote = group[index - 1];
+              const previousNote = group[index - 1] || null;
               const gracenoteProps = ({
                 x: gracenoteX(index),
                 y: props.y,
