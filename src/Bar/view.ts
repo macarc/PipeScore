@@ -2,12 +2,12 @@
   Bar/view.ts - defines how to display a bar
   Copyright (C) 2020 Archie Maclean
 */
-import { svg } from 'uhtml';
+import { svg, V } from '../render/h';
+
 import { lineHeightOf } from '../global/constants';
 import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteY } from '../global/pitch';
 import { setXY } from '../global/state';
-import { Svg } from '../global/svg';
 import { last, nlast, nmap } from '../global/utils';
 
 import { NoteModel, PreviousNote } from '../Note/model';
@@ -65,7 +65,7 @@ export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null
 }
 
 
-function renderBarline(type: Barline, x: number, y: number): Svg {
+function renderBarline(type: Barline, x: number, y: number): V {
   const height = lineHeightOf(4);
   const lineOffset = 6;
   const circleXOffset = 10;
@@ -74,23 +74,21 @@ function renderBarline(type: Barline, x: number, y: number): Svg {
   const circleRadius = 2;
   const thickLineWidth = 2.5;
   if (type === Barline.Normal) {
-    return svg`
-      <line x1=${x} x2=${x} y1=${y} y2=${y + height} stroke="black" />
-    `;
+    return svg('line', { x1: x, x2: x, y1: y, y2: (y + height), stroke: 'black' });
   } else if (type === Barline.RepeatFirst) {
-    return svg`<g class="barline-repeat-first">
-      <rect x=${x} y=${y} width=${thickLineWidth} height=${height} fill="black" />
-      <line x1=${x + lineOffset} x2=${x + lineOffset} y1=${y} y2=${y + height} stroke="black" />
-      <circle cx=${x + circleXOffset} cy=${topCircleY} r=${circleRadius} fill="black" />
-      <circle cx=${x + circleXOffset} cy=${bottomCircleY} r=${circleRadius} fill="black" />
-    </g>`;
+    return svg('g', { class: 'barline-repeat-first' }, [
+      svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
+      svg('line', { x1: x + lineOffset, x2: x + lineOffset, y1: y, y2: y + height, stroke: 'black' }),
+      svg('circle', { cx: x + circleXOffset, cy: topCircleY, r: circleRadius, fill: 'black' }),
+      svg('circle', { cx: x + circleXOffset, cy: bottomCircleY, r: circleRadius, fill: 'black' }),
+    ]);
   } else if (type === Barline.RepeatLast) {
-    return svg`<g class="barline-repeat-last">
-      <rect x=${x - thickLineWidth} y=${y} width=${thickLineWidth} height=${height} fill="black" />
-      <line x1=${x - lineOffset} x2=${x - lineOffset} y1=${y} y2=${y + height} stroke="black" />
-      <circle cx=${x - circleXOffset} cy=${topCircleY} r=${circleRadius} fill="black" />
-      <circle cx=${x - circleXOffset} cy=${bottomCircleY} r=${circleRadius} fill="black" />
-    </g>`;
+    return svg('g', { class: 'barline-repeat-last' }, [
+      svg('rect', { x: x - thickLineWidth, y, width: thickLineWidth, height, fill: 'black' }),
+      svg('line', { x1: x - lineOffset, x2: x - lineOffset, y1: y, y2: y + height, stroke: 'black' }),
+      svg('circle', { cx: x - circleXOffset, cy: topCircleY, r: circleRadius, fill: 'black' }),
+      svg('circle', { cx: x - circleXOffset, cy: bottomCircleY, r: circleRadius, fill: 'black' }),
+    ]);
   } else {
     // never
     return type;
@@ -101,7 +99,7 @@ function barlineWidth(barline: Barline) {
   return (barline === Barline.Normal ? 1 : 10);
 }
 
-export default function render(bar: BarModel,props: BarProps): Svg {
+export default function render(bar: BarModel,props: BarProps): V {
   setXY(bar.id, props.x, props.x + props.width, props.y);
   const staveY = props.y;
   const hasTimeSignature = props.previousBar !== null ? !(TimeSignature.equal(props.previousBar.timeSignature, bar.timeSignature)) : true;
@@ -165,14 +163,12 @@ export default function render(bar: BarModel,props: BarProps): Svg {
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
 
   // TODO this won't work if there are no notes in the bar - have a separate event for that
-  return svg`
-    <g class="bar">
-      ${noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add note to beginning of bar', pitch, bar }))}
-      ${groupedNotes.map((notes,idx) => svg.for(notes)`${renderNote(notes,noteProps(notes,idx))}`)}
+  return svg('g', { class: 'bar' }, [
+    noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add note to beginning of bar', pitch, bar })),
+    ...groupedNotes.map((notes, idx) => renderNote(notes, noteProps(notes, idx))),
 
-      ${renderBarline(bar.frontBarline, xAfterTimeSignature, props.y)}
-      ${((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null}
-      ${hasTimeSignature ? renderTimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null}
-    </g>`;
-
+    renderBarline(bar.frontBarline, xAfterTimeSignature, props.y),
+    ((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null,
+    hasTimeSignature ? renderTimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null
+  ]);
 }

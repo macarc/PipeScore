@@ -6,7 +6,7 @@ import { scoreWidth } from './constants';
 import { SvgRef } from './svg';
 import { ID } from './types';
 
-import { V, h } from '../render/h';
+import { V } from '../render/h';
 
 import { ScoreModel } from '../Score/model';
 import { NoteModel, NoteLength } from '../Note/model';

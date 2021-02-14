@@ -2,11 +2,10 @@
   Note.ts - Note implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { svg } from 'uhtml';
+import { svg, V } from '../render/h';
 import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY, draggedNote } from '../global/state';
-import { Svg } from '../global/svg';
 import { nlast, nmap } from '../global/utils';
 
 import { NoteModel, PreviousNote } from './model';
@@ -33,7 +32,7 @@ export const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): number =
 
 export const noteHeadOffset = (beatWidth: number, note: NoteModel, previousPitch: Pitch | null): number => beatWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch);
 
-function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): Svg {
+function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): V {
 	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
 	const leftIs1 = x1 < x2;
 	const leftTails = leftIs1 ? tails1 : tails2;
@@ -58,82 +57,92 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
 	: yR - shortTailLength / (xR - xL) * (yR - yL);
 
 
-	return svg`<g class="tails">
-    ${sharedTails.map(
-      i =>
-      svg`<line
-      x1=${xL}
-      x2=${xR}
-      y1=${yL - i * tailGap}
-      y2=${yR - i * tailGap}
-      stroke="black"
-      stroke-width="2" />`
-    )}
-    ${diffTails.map(
-      i =>
-      svg`<line
-      x1=${diffIsL ? xL : xR}
-      x2=${diffIsL ? xL + shortTailLength : xR - shortTailLength}
-      y1=${(diffIsL ? yL : yR) - i * tailGap}
-      y2=${tailEndY - i * tailGap}
-      stroke="black"
-      stroke-width="2" />`
-    )}
-	</g>`;
+  return svg('g', { class: 'tails' }, [
+    ...sharedTails.map(i =>
+      svg('line',
+          { x1: xL,
+            x2: xR,
+            y1: yL - i * tailGap,
+            y2: yR - i * tailGap,
+            stroke: 'black',
+            'stroke-width': 2
+          })),
+    ...diffTails.map(i =>
+      svg('line',
+          { x1: diffIsL ? xL : xR,
+            x2: diffIsL ? xL + shortTailLength : xR - shortTailLength,
+            y1: (diffIsL ? yL : yR) - i * tailGap,
+            y2: tailEndY - i * tailGap,
+            stroke: 'black',
+            'stroke-width': 2
+          }))
+  ]);
 }
 
-function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEvent) => void, opacity = 1): Svg {
-    // Draw note head, ledger line and dot
-    const noteWidth = 5;
-    const noteHeight = 4;
-    const rotation = Note.hasStem(note) ? -30 : 0;
-    const maskRotation = Note.hasStem(note) ? 0: rotation + 60;
+function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEvent) => void, opacity = 1): V {
+  // Draw note head, ledger line and dot
+  const noteWidth = 5;
+  const noteHeight = 4;
+  const rotation = Note.hasStem(note) ? -30 : 0;
+  const maskRotation = Note.hasStem(note) ? 0: rotation + 60;
 
-    const maskrx = Note.hasStem(note) ? 5 : 4;
-    const maskry = 2;
+  const maskrx = Note.hasStem(note) ? 5 : 4;
+  const maskry = 2;
 
-    const clickableWidth = 14;
-    const clickableHeight = 12;
+  const clickableWidth = 14;
+  const clickableHeight = 12;
 
-    const dotted = Note.hasDot(note.length);
-    const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
-    const dotXOffset = 10;
-    const dragged = note === draggedNote//todo isBeingDragged(note);
-    const selected = false//todo isSelected(note);
-
-
-    // pointer events must be set so that if it is being
-    // dragged, it shouldn't get pointer events because
-    // that interferes with the drag boxes (you can't
-    // drag downwards a single box)
-    const pointerEvents = dragged ? 'none' : 'visiblePainted';
-
-    const filled = Note.isFilled(note);
-
-    const rotateText = `rotate(${rotation} ${x} ${y})`;
-    const maskRotateText = `rotate(${maskRotation} ${x} ${y})`;
-
-    const colour = selected ? "orange" : "black";
-    const maskId = Math.random();
-    const mask = `url(#${maskId})`;
-
-    return svg`<g class="note-head">
-      <mask id=${maskId}>
-        <rect x=${x - 10} y=${y - 10} width=${20} height=${20} fill="white" />
-        <ellipse cx=${x} cy=${y} rx=${maskrx} ry=${maskry} stroke-width="0" fill="black" transform=${maskRotateText} />
-      </mask>
-      <ellipse cx=${x} cy=${y} rx=${noteWidth} ry=${noteHeight} stroke=${colour} fill=${colour} transform=${rotateText} pointer-events=${pointerEvents} opacity=${opacity} mask=${filled ? null : mask} />
-
-      ${dotted ? svg`<circle cx=${x + dotXOffset} cy=${y + dotYOffset} r="1.5" fill=${colour} pointer-events="none" opacity=${opacity} />` : null}
-
-      ${(note.pitch === Pitch.HA) ? svg`<line class="ledger" x1=${x - 8} x2=${x + 8} y1=${y} y2=${y} stroke=${colour} pointer-events="none" opacity=${opacity} />` : null}
+  const dotted = Note.hasDot(note.length);
+  const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
+  const dotXOffset = 10;
+  const dragged = note === draggedNote//todo isBeingDragged(note);
+  const selected = false//todo isSelected(note);
 
 
-      <rect x=${x - clickableWidth / 2} y=${y - clickableHeight / 2} width=${clickableWidth} height=${clickableHeight} onmousedown=${mousedown} pointer-events=${pointerEvents} opacity="0"/>
-    </g>`;
+  // pointer events must be set so that if it is being
+  // dragged, it shouldn't get pointer events because
+  // that interferes with the drag boxes (you can't
+  // drag downwards a single box)
+  const pointerEvents = dragged ? 'none' : 'visiblePainted';
+
+  const filled = Note.isFilled(note);
+
+  const rotateText = `rotate(${rotation} ${x} ${y})`;
+  const maskRotateText = `rotate(${maskRotation} ${x} ${y})`;
+
+  const colour = selected ? "orange" : "black";
+  const maskId = Math.random();
+  const mask = `url(#${maskId})`;
+  return svg('g', { class: 'note-head' }, [
+    svg('mask', { id: maskId }),
+    svg('rect', { x: x - 10, y: y - 10, width: 20, height: 20, fill: 'white' }, [
+      svg('ellipse', { cx: x, cy: y, rx: maskrx, ry: maskry, 'stroke-width': 0, fill: 'black', transform: maskRotateText }),
+    ]),
+    svg('ellipse', { cx: x, cy: y, rx: noteWidth, ry: noteHeight, stroke: colour, fill: colour, transform: rotateText, 'pointer-events': pointerEvents, opacity, mask: filled ? '' : mask }),
+    dotted ? svg('circle', { cx: x + dotXOffset, cy: y + dotYOffset, r: 1.5, fill: colour, 'pointer-events': 'none', opacity }) : null,
+    (note.pitch === Pitch.HA) ? svg('line', { class: 'ledger', x1: x - 8, x2: x + 8, y1: y, y2: y, stroke: colour, 'pointer-events': pointerEvents, opacity }) : null,
+
+    svg('rect', { x: x - clickableWidth / 2, y: y - clickableHeight / 2, width: clickableWidth, height: clickableHeight, 'pointer-events': pointerEvents, opacity: 0 }, { mousedown: mousedown as (e: Event) => void })
+  ]);
+  /*
+  return svg`<g class="note-head">
+<mask id=${maskId}>
+<rect x=${x - 10} y=${y - 10} width=${20} height=${20} fill="white" />
+<ellipse cx=${x} cy=${y} rx=${maskrx} ry=${maskry} stroke-width="0" fill="black" transform=${maskRotateText} />
+</mask>
+<ellipse cx=${x} cy=${y} rx=${noteWidth} ry=${noteHeight} stroke=${colour} fill=${colour} transform=${rotateText} pointer-events=${pointerEvents} opacity=${opacity} mask=${filled ? null : mask} />
+
+${dotted ? svg`<circle cx=${x + dotXOffset} cy=${y + dotYOffset} r="1.5" fill=${colour} pointer-events="none" opacity=${opacity} />` : null}
+
+${(note.pitch === Pitch.HA) ? svg`<line class="ledger" x1=${x - 8} x2=${x + 8} y1=${y} y2=${y} stroke=${colour} pointer-events="none" opacity=${opacity} />` : null}
+
+
+<rect x=${x - clickableWidth / 2} y=${y - clickableHeight / 2} width=${clickableWidth} height=${clickableHeight} onmousedown=${mousedown} pointer-events=${pointerEvents} opacity="0"/>
+</g>`;
+*/
 }
 
-function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote): Svg {
+function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote): V {
   const tieOffsetY = 10;
   const tieHeight = 15;
   const tieWidth = 8;
@@ -150,10 +159,10 @@ function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote
 M ${x0},${y0} S ${midx},${midhiy}, ${x1},${y1}
 M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
     `;
-  return svg`<path class="note-tie" d=${path} stroke="black" />`;
+  return svg('path', { class: 'note-tie', d: path, stroke: 'black' });
 }
 
-function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number): Svg {
+function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number): V {
   const midx = x1 + (x2 - x1) / 2;
   const height = 40;
   const midy = staveY - height;
@@ -161,21 +170,37 @@ function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number)
   const path = `
 M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}
 `
-  return svg`<g class="triplet">
-    <text x=${midx} y=${midy + 10} text-anchor="centre">3</text>
-    <path d=${path} stroke="black" fill="none" />
-  </g>`;
+  return svg('g', { class: 'triplet' }, [
+    svg('text', { x: midx, y: midy + 10, 'text-anchor': 'center' }, ['3']),
+    svg('path', { d: path, stroke: 'black', fill: 'none' })
+  ]);
 }
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-function singleton(note: NoteModel, x: number,y: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => Svg, dispatch: Dispatch): Svg {
+function singleton(note: NoteModel, x: number, staveY: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => V, dispatch: Dispatch): V {
   // todo this is complected with stemXOf in `render`
+  const y = noteY(staveY, note.pitch);
   const stemX = x - noteHeadWidth;
-  const stemY = noteY(y,note.pitch) + 30;
+  const stemY = y + 30;
   const numberOfTails = Note.lengthToNumTails(note.length);
 
 
+  return svg('g', { class: 'singleton' }, [
+    shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null,
+    shouldTie(note, previousNote) ?  null : renderGracenote(note.gracenote, gracenoteProps),
+
+    noteHead(x, y, note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event })),
+    Note.hasStem(note) ? svg('line', { x1: stemX, x2: stemX, y1: y, y2: stemY, stroke: 'black' }) : null,
+
+    (numberOfTails > 0)
+      ? svg('g', { class: 'tails' },
+            [...Array(numberOfTails).keys()].map(t => svg('line', { x1: stemX, x2: stemX + 10, y1: stemY - 5 * t, y2: stemY - 5 * t - 10, stroke: 'black', 'stroke-width': 2 })))
+      : null,
+
+    drawNoteBoxes()
+  ]);
+  /*
   return svg`<g class="singleton">
     ${shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null}
     ${shouldTie(note, previousNote) ?  null : renderGracenote(note.gracenote, gracenoteProps)}
@@ -194,6 +219,7 @@ function singleton(note: NoteModel, x: number,y: number, gracenoteProps: Graceno
 
     ${drawNoteBoxes()}
   </g>`;
+  */
 }
 
 
@@ -207,13 +233,13 @@ interface NoteProps {
 }
 
 
-export default function render(group: NoteModel[],props: NoteProps): Svg {
+export default function render(group: NoteModel[],props: NoteProps): V {
   const previousPitch = props.previousNote && props.previousNote.pitch;
 
   const canAddNotes = true;//!groupNote.triplet;
 
   if (group.length === 0) {
-    return svg`<g></g>`;
+    return svg('g')
   } else {
     // relativeIndex takes a note and returns not the actual index, but the index including
     // gracenoteToNoteWidthRatio * all the gracenotes up to it
@@ -243,7 +269,7 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
         dispatch: props.dispatch
       });
 
-      const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : () => svg``;
+      const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : () => svg('g');
 
       return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.dispatch);
     } else {
@@ -289,6 +315,42 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
                : noteY(props.y, note.pitch) + 30)
 
        // ${(group.length === 3) ? triplet(props.y,xOf(0), xOf(2), yOf(firstNote), yOf(lastNote)) : null}
+      return svg('g', { class: 'grouped-notes' },
+                 group.map((note, index) => {
+                   setNoteXY(note, index);
+                   const previousNote = group[index - 1] || null;
+                   const gracenoteProps = ({
+                     x: gracenoteX(index),
+                     y: props.y,
+                     gracenoteWidth: props.noteWidth * 0.6,
+                     thisNote: note.pitch,
+                     previousNote: nmap(previousNote, p => p.pitch),
+                     dispatch: props.dispatch
+                   });
+                   const previousNoteObj = nmap(previousNote, p => ({
+                     pitch: p.pitch,
+                     x: xOf(index - 1),
+                     y: yOf(p)
+                   })) || props.previousNote;
+
+                   return svg('g', { class: 'grouped-note' }, [
+                     shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null,
+                     shouldTie(note, previousNoteObj) ? null : renderGracenote(note.gracenote,gracenoteProps),
+
+                     (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null,
+
+                     noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event })),
+
+                     canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : null,
+
+                     svg('line', { x: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
+                   ])
+                   
+                 }));
+    }
+  }
+
+                   /*
       return svg`
         <g class="grouped-notes">
           ${group.map(
@@ -332,4 +394,5 @@ export default function render(group: NoteModel[],props: NoteProps): Svg {
       </g>`;
     }
   }
+  */
 }

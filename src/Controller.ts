@@ -2,7 +2,6 @@
   Controller.ts - Handles input and events for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { render } from 'uhtml';
 import patch from './render/vdom';
 import { h } from './render/h';
 import * as ScoreEvent from './Event';

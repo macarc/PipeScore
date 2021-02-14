@@ -1,5 +1,5 @@
 import { V } from './types';
-import { h, svg, cache } from './h';
+import { h, cache } from './h';
 import patch from './vdom';
 
 let st: V;

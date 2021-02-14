@@ -63,7 +63,7 @@ function diffuneven<A>(longer: A[], shorter: A[], addChange: Change, removeChang
 
 // the indexes it returns are intended to be used from right to left, insert/deleting along the way
 // TODO this is currently not the case for when before.length > after.length
-function difflist<A>(before: A[], after: A[]): Diff<A>[] {
+export function difflist<A>(before: A[], after: A[]): Diff<A>[] {
   if (before.length > after.length) {
     return diffuneven(before, after, Change.Added, Change.Removed);
   } else if (after.length > before.length) {

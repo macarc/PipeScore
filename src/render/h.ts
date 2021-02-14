@@ -1,6 +1,6 @@
 import { V, VElement, VCache, Attributes, Events } from './types';
 
-type Child = VElement | VCache | string | null
+type Child = VElement | VCache | string | null;
 
 function h(name: string): VElement
 function h(name: string, children: Child[]): VElement
@@ -10,7 +10,7 @@ function h(name: string, attrs: Attributes, events: Events): VElement
 function h(name: string, attrs: Attributes, events: Events, children: Child[]): VElement
 
 function h(name: string, a: Attributes | Child[] = {}, b: Events | Child[] = {}, c: Child[] = []): VElement {
-  let childrenOf = (children: Child[]) => children.map(s => (typeof s === 'string') ? { s, node: null } : s)
+  const childrenOf = (children: Child[]) => children.map(s => (typeof s === 'string') ? { s, node: null } : s)
   if (Array.isArray(a)) {
     return { name, attrs: {}, events: {}, children: childrenOf(a), node: null };
   } else {

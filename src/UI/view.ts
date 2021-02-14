@@ -90,7 +90,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): V {
       h('button', { class: 'textual' }, ['Download']),
       h('hr'),
       h('label', ['Zoom Level']),
-      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: zoomLevel.toString() }, { input: changeZoomLevel })
+      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: zoomLevel }, { input: changeZoomLevel })
     ])
   ]);
 }

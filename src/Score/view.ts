@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { V, svg } from '../render/h';
-import { Svg, SvgRef } from '../global/svg';
+import { SvgRef } from '../global/svg';
 import { scoreWidth, scoreHeight, staveGap } from '../global/constants';
 
 import { ScoreModel } from './model';
@@ -38,15 +38,20 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     dispatch: props.dispatch
   });
 
+  // TODO bind svgRef somehow
   return svg('svg',
-             { width: (scoreWidth * props.zoomLevel / 100).toString()
-             , height: (scoreHeight * props.zoomLevel / 100).toString()
-             , viewBox: `0 0 ${scoreWidth} ${scoreHeight}`
+             { width: (scoreWidth * props.zoomLevel / 100),
+               height: (scoreHeight * props.zoomLevel / 100),
+               viewBox: `0 0 ${scoreWidth} ${scoreHeight}`
              },
              { mouseup: () => props.dispatch({ name: 'mouse up' }) },
              [ svg('rect',
                    { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
-                   { mousedown: () => props.dispatch({ name: 'background clicked' }) })
+                   { mousedown: () => props.dispatch({ name: 'background clicked' }) }),
+               ...score.staves.map((stave, idx) => renderStave(stave, staveProps(stave, idx))),
+               ...score.textBoxes.map(textBox => TextBox(textBox, { dispatch: props.dispatch })),
+               ...score.secondTimings.map(secondTiming => SecondTiming(secondTiming)),
+               props.selection ? ScoreSelection(props.selection) : null
              ])
 
 

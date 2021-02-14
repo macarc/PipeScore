@@ -1,6 +1,6 @@
 
 export interface Attributes {
-  [attr: string]: string
+  [attr: string]: string | number
 }
 
 export interface Events {

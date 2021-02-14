@@ -9,18 +9,18 @@ function arraycmp<A>(a: A[], b: A[]): boolean {
   return a.every((el, i) => b[i] === el);
 }
 
-function patchNew(v: VElement) {
+function patchNew(v: VElement): Element {
   // todo - use DocumentFragment
-  console.log('creating element', v.name)
+  //console.log('creating element', v.name)
   let newElement: Element;
   if (v.attrs.ns) {
-    newElement = document.createElementNS(v.attrs.ns, v.name);
+    newElement = document.createElementNS(v.attrs.ns.toString(), v.name);
   } else {
     newElement = document.createElement(v.name);
   }
 
   for (const attr in v.attrs) {
-    newElement.setAttribute(attr, v.attrs[attr]);
+    newElement.setAttribute(attr, v.attrs[attr].toString());
   }
   for (const event in v.events) {
     newElement.addEventListener(event, v.events[event]);
@@ -48,13 +48,13 @@ function patchNew(v: VElement) {
   v.node = newElement;
   return newElement;
 }
-export default function patch(before: VElement, after: VElement) {
+export default function patch(before: VElement, after: VElement): Element {
   if (before.node === null) {
     return patchNew(after);
   }
   for (const attr in after.attrs) {
     if (before.attrs[attr] !== after.attrs[attr]) {
-      before.node.setAttribute(attr, after.attrs[attr]);
+      before.node.setAttribute(attr, after.attrs[attr].toString());
     }
   }
   for (const event in after.events) {
@@ -105,7 +105,7 @@ export default function patch(before: VElement, after: VElement) {
           }
           patch(bef.cachedVElement, aft.cachedVElement);
         } else {
-          console.log('skipping cache');
+          //console.log('skipping cache');
           aft.cachedVElement = bef.cachedVElement;
         }
       } else {
