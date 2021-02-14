@@ -2,8 +2,7 @@
   UI.ts - User interface for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { html } from 'uhtml';
-import { Svg } from '../global/svg';
+import { h, V } from '../render/h';
 import { inputLength, zoomLevel } from '../global/state';
 
 import { ScoreEvent } from '../Event';
@@ -11,17 +10,16 @@ import { NoteLength } from '../Note/model';
 
 import Note from '../Note/functions';
 
-export default function render(dispatch: (e: ScoreEvent) => void): Svg {
+export default function render(dispatch: (e: ScoreEvent) => void): V {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
   const isCurrentNoteInput = (length: NoteLength) => inputLength === null ? false : Note.equalOrDotted(inputLength, length);
 
-  const noteInputButton = (length: NoteLength) => html`<button
-    class=${`${isCurrentNoteInput(length) ? 'highlighted' : null} note-input`}
-    id=${`note-${length}`}
-    onclick=${setNoteInput(length)}>
-    </button>`;
-
-  const gracenoteInput = (name: string) => html`<button class="textual" onclick=${() => dispatch({ name: 'set gracenote', value: name })}>${name}</button>`;
+  const noteInputButton = (length: NoteLength) => h('button',
+                                                    { class: isCurrentNoteInput(length) ? 'highlighted': 'not-highlighted',
+                                                      id: `note-${length}` },
+                                                    { click: setNoteInput(length) });
+                                                    
+  const gracenoteInput = (name: string) => h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set gracenote', value: name }) }, [name]);
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');
@@ -33,54 +31,66 @@ export default function render(dispatch: (e: ScoreEvent) => void): Svg {
     }
   }
 
-  return html`
-    <div id="topbar">
-      <div id="note-inputs">
-        ${noteInputButton(NoteLength.Semibreve)}
-        ${noteInputButton(NoteLength.Minim)}
-        ${noteInputButton(NoteLength.Crotchet)}
-        ${noteInputButton(NoteLength.Quaver)}
-        ${noteInputButton(NoteLength.SemiQuaver)}
-        ${noteInputButton(NoteLength.DemiSemiQuaver)}
-        ${noteInputButton(NoteLength.HemiDemiSemiQuaver)}
-      </div>
-      <button id="toggle-dotted" class=${(inputLength && Note.hasDot(inputLength)) ? 'highlighted' : null} onclick=${() => dispatch({ name: 'toggle dotted' })}>•</button>
-      <button id="tie" onclick=${() => dispatch({ name: 'tie selected notes' })}></button>
-      <button id="triplet" onclick=${() => dispatch({ name: 'add triplet' })}>Triplet</button>
-      <button id="delete-notes" class="delete" onclick=${() => dispatch({ name: 'delete selected notes' })}></button>
-    </div>
-    <div id="sidebar">
-      <h2>Gracenote</h2>
-      <button class="textual" onclick=${() => dispatch({ name: 'set gracenote', value: null })}>single</button>
-      ${gracenoteInput('doubling')}
-      ${gracenoteInput('throw-d')}
-      ${gracenoteInput('toarluath')}
-      ${gracenoteInput('grip')}
-      ${gracenoteInput('birl')}
-      ${gracenoteInput('g-gracenote-birl')}
-      <hr />
-      <h2>Bar</h2>
-      <button class="add" onclick=${() => dispatch({ name: 'add bar' })}></button>
-      <button class="delete" onclick=${() => dispatch({ name: 'delete bar' })}></button>
-      <hr />
-      <h2>Stave</h2>
-      <button class="add" onclick=${() => dispatch({ name: 'add stave' })}></button>
-      <button class="delete" onclick=${() => dispatch({ name: 'delete stave' })}></button>
-      <hr />
-      <h2>Text</h2>
-      <button class="add" onclick=${() => dispatch({ name: 'add text' })}></button>
-      <button class="delete" onclick=${() => dispatch({ name: 'delete text' })}></button>
-      <button onclick=${() => dispatch({ name: 'centre text' })}>Centre</button>
-      <h2>Second Timing</h2>
-      <button class="add" onclick=${() => dispatch({ name: 'add second timing' })}></button>
-      <hr />
-      <h2>Document</h2>
-      <button class="textual">Print</button>
-      <button class="textual">Export</button>
-      <button class="textual">Download</button>
-      <hr />
-      <label>Zoom Level</label>
-      <input id="zoom-level" type="range" min="10" max="200" step="2" value=${zoomLevel} oninput=${changeZoomLevel} />
-    </div>
-  `;
+  return h('div',
+    h('div', { id: 'topbar' }, [
+      h('div', { id: 'note-inputs' }, [
+        noteInputButton(NoteLength.Semibreve),
+        noteInputButton(NoteLength.Minim),
+        noteInputButton(NoteLength.Crotchet),
+        noteInputButton(NoteLength.Quaver),
+        noteInputButton(NoteLength.SemiQuaver),
+        noteInputButton(NoteLength.DemiSemiQuaver),
+        noteInputButton(NoteLength.HemiDemiSemiQuaver),
+      ]),
+      h('button',
+        { id: 'toggle-dotted',
+          class: (inputLength && Note.hasDot(inputLength)) ? 'highlighted': 'not-highlighted' },
+        { click: () => dispatch({ name: 'toggle dotted' }) },
+        [ '•' ]),
+      h('button',
+        { id: 'tie' },
+        { click: () => dispatch({ name: 'tie selected notes' }) }),
+      h('button',
+        { id: 'triplet' },
+        { click: () => dispatch({ name: 'add triplet' }) },
+        [ 'triplet' ]),
+      h('button',
+        { id: 'delete-notes', class: 'delete' },
+        { click: () => dispatch({ name: 'delete selected notes' }) }),
+    ]),
+    h('div', { id: 'sidebar' }, [
+      h('h2', [ 'Gracenote' ]),
+      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }, [ 'single' ]),
+      gracenoteInput('doubling'),
+      gracenoteInput('throw-d'),
+      gracenoteInput('toarluath'),
+      gracenoteInput('grip'),
+      gracenoteInput('birl'),
+      gracenoteInput('g-gracenote-birl'),
+      h('hr'),
+      h('h2', ['Bar']),
+      h('button', { class: 'add' }, { click: () => dispatch({ name: 'add bar' }) }),
+      h('button', { class: 'delete' }, { click: () => dispatch({ name: 'delete bar' }) }),
+      h('hr'),
+      h('h2', ['Stave']),
+      h('button', { class: 'add' }, { click: () => dispatch({ name: 'add stave' }) }),
+      h('button', { class: 'delete' }, { click: () => dispatch({ name: 'delete stave' }) }),
+      h('hr'),
+      h('h2', ['text']),
+      h('button', { class: 'add' }, { click: () => dispatch({ name: 'add text' }) }),
+      h('button', { class: 'delete' }, { click: () => dispatch({ name: 'delete text' }) }),
+      h('button', { }, { click: () => dispatch({ name: 'centre text' }) }, [ 'centre' ]),
+      h('hr'),
+      h('h2', ['Second Timing']),
+      h('button', { class: 'add' }, { click: () => dispatch({ name: 'add second timing' }) }),
+      h('hr'),
+      h('h2', ['Document']),
+      h('button', { class: 'textual' }, ['Print']),
+      h('button', { class: 'textual' }, ['Export']),
+      h('button', { class: 'textual' }, ['Download']),
+      h('hr'),
+      h('label', ['Zoom Level']),
+      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: zoomLevel.toString() }, { input: changeZoomLevel })
+    ])
+  ]);
 }

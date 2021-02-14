@@ -3,7 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import startController from './Controller';
-import { setScore, setView } from './global/state';
+import { setScore, setView, setUIView } from './global/state';
 import { keyHandler } from './KeyHandler';
 
 import { hFrom } from './render/h';
@@ -14,5 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', keyHandler);
   setScore(Score.init());
   setView(hFrom('score'));
+  setUIView(hFrom('ui'));
   startController()
 });

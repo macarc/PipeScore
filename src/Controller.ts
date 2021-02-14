@@ -38,6 +38,7 @@ import {
   draggedText, setDraggedText,
   selectedText, setSelectedText,
   view, setView,
+  uiView, setUIView,
   score,
   deleteXY
 } from './global/state';
@@ -411,9 +412,11 @@ const updateView = (score: ScoreModel) => {
     dispatch
   }
   const newView = h('div', [renderScore(score, scoreProps)]);
+  const newUIView = renderUI(dispatch);
   patch(view, newView);
   setView(newView);
-  render(uiRoot, renderUI(dispatch));
+  patch(uiView, newUIView);
+  setUIView(newUIView);
 }
 
 

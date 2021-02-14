@@ -85,3 +85,9 @@ export const setView = (v: V): void => {
   // todo update view here
   view = v;
 }
+
+export let uiView: V;
+export const setUIView = (v: V): void => {
+  // todo update view here
+  uiView = v;
+}
