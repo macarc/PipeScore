@@ -17,7 +17,7 @@ interface VElement {
 interface VCache {
   data: any[],
   fn: (...args: any) => VElement,
-  cachedVElement: VElement
+  cachedVElement: VElement | null
 }
 
 interface VString {
@@ -35,10 +35,7 @@ const isVElement = (a: AnyV): a is VElement => (a as VElement).name !== undefine
 
 function arraycmp(a: any[], b: any[]): boolean {
   if (a.length !== b.length) return false;
-  for (let i=0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
+  return a.every((el, i) => b[i] === el);
 }
 
 function h(name: string, attrs: Attributes, events: Events, children: (VElement | VCache | string | null)[]): VElement {
@@ -48,7 +45,7 @@ function cache<Fn extends (...a: any) => VElement>(args: Parameters<Fn>, fn: Fn)
   return ({
     data: args,
     fn: fn,
-    cachedVElement: fn(args)
+    cachedVElement: null
   });
 }
 
@@ -191,7 +188,8 @@ function patch(before: VElement, after: VElement) {
   for (const child in after.children) {
     const aft = after.children[child];
     const bef = before.children[child];
-    let domChild = bef && (isVCache(bef) ? (bef.cachedVElement.node) : bef.node);
+    // TODO nmap
+    let domChild = bef && (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node);
     if (aft === null) {
       if (bef && domChild) {
         before.node.removeChild(domChild);
@@ -220,7 +218,18 @@ function patch(before: VElement, after: VElement) {
       } else if (isVElement(bef) && isVElement(aft)) {
         patch(bef, aft)
       } else if (isVCache(bef) && isVCache(aft)) {
-        throw Error('no caches warg');
+        if (! arraycmp(bef.data, aft.data)) {
+          if (! bef.cachedVElement) {
+            bef.cachedVElement = bef.fn(bef.data);
+          }
+          if (! aft.cachedVElement) {
+            aft.cachedVElement = aft.fn(aft.data);
+          }
+          patch(bef.cachedVElement, aft.cachedVElement);
+        } else {
+          console.log('skipping cache');
+          aft.cachedVElement = bef.cachedVElement;
+        }
       } else {
         throw Error('can\'t deal with different things right now');
       }
@@ -239,8 +248,20 @@ function Note(c: string) {
 }
 
 function Score(counter: number): V {
-  //return h('div', { id: 'score' }, { mousedown: () => dispatch(counter) }, ['hello, world!', Note(counter.toString())]);
-  return h('div', { id: 'score' }, { mousedown: () => dispatch(counter) }, ['hello, world!', (Math.random() < 0.5 ? h('p', {}, {}, ['hi']) : null), Note(counter.toString())]);
+  return h('div',
+           { id: 'score' },
+           { },
+             [ 'hello, world!',
+               h('button',
+                 { },
+                 { click: () => dispatch(counter) },
+                 [ 'increment counter' ]),
+               h('button',
+                 { },
+                 { click: () => dispatch(counter - 1) },
+                 ['do nothing']),
+                cache([counter], (counter) => Note(counter.toString()))]);
+  //return h('div', { id: 'score' }, { mousedown: () => dispatch(counter) }, ['hello, world!', (Math.random() < 0.5 ? h('p', {}, {}, ['hi']) : null), Note(counter.toString())]);
 }
 
 function dispatch(c: number) {
