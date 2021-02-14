@@ -31,7 +31,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): V {
     }
   }
 
-  return h('div',
+  return h('div', [
     h('div', { id: 'topbar' }, [
       h('div', { id: 'note-inputs' }, [
         noteInputButton(NoteLength.Semibreve),
