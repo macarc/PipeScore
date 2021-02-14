@@ -54,9 +54,13 @@ label {
 
 .delete {
   background-image: url('./images/icons/bin.png');
+  background-position: .6rem .6rem !important;
+  background-size: 1.5rem 1.5rem !important;
 }
 .add {
   background-image: url('./images/icons/plus.jpg');
+  background-position: .6rem .6rem !important;
+  background-size: 1.5rem 1.5rem !important;
 }
 
 svg {
