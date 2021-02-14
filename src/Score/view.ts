@@ -2,7 +2,7 @@
   Score.ts - Score implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { svg } from 'uhtml';
+import { V, svg } from '../render/h';
 import { Svg, SvgRef } from '../global/svg';
 import { scoreWidth, scoreHeight, staveGap } from '../global/constants';
 
@@ -25,7 +25,7 @@ interface ScoreProps {
   dispatch: Dispatch
 }
 
-export default function render(score: ScoreModel, props: ScoreProps): Svg {
+export default function render(score: ScoreModel, props: ScoreProps): V {
   const margin = 30;
   const topOffset = 150;
 
@@ -38,6 +38,19 @@ export default function render(score: ScoreModel, props: ScoreProps): Svg {
     dispatch: props.dispatch
   });
 
+  return svg('svg',
+             { width: (scoreWidth * props.zoomLevel / 100).toString()
+             , height: (scoreHeight * props.zoomLevel / 100).toString()
+             , viewBox: `0 0 ${scoreWidth} ${scoreHeight}`
+             },
+             { mouseup: () => props.dispatch({ name: 'mouse up' }) },
+             [ svg('rect',
+                   { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
+                   { mousedown: () => props.dispatch({ name: 'background clicked' }) })
+             ])
+
+
+             /*
   return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => props.dispatch({ name: 'mouse up' })}>
     <rect x="0" y="0" width="100%" onmousedown=${() => props.dispatch({ name: 'background clicked' })} height="100%" fill="white" />
 
@@ -52,5 +65,6 @@ export default function render(score: ScoreModel, props: ScoreProps): Svg {
 
     ${props.selection ? ScoreSelection(props.selection) : null}
   </svg>`;
+  */
 }
 

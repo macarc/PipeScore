@@ -6,6 +6,8 @@ import { scoreWidth } from './constants';
 import { SvgRef } from './svg';
 import { ID } from './types';
 
+import { V, h } from '../render/h';
+
 import { ScoreModel } from '../Score/model';
 import { NoteModel, NoteLength } from '../Note/model';
 import { SingleGracenote } from '../Gracenote/model';
@@ -77,4 +79,9 @@ export const setSelectedText = (t: TextBoxModel | null): void => {
 export let score: ScoreModel;
 export const setScore = (s: ScoreModel): void => {
   score = s;
+}
+export let view: V;
+export const setView = (v: V): void => {
+  // todo update view here
+  view = v;
 }

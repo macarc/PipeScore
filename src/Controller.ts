@@ -3,6 +3,8 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { render } from 'uhtml';
+import patch from './render/vdom';
+import { h } from './render/h';
 import * as ScoreEvent from './Event';
 
 import { ScoreModel } from './Score/model';
@@ -35,6 +37,7 @@ import {
   selection, setSelection,
   draggedText, setDraggedText,
   selectedText, setSelectedText,
+  view, setView,
   score,
   deleteXY
 } from './global/state';
@@ -407,7 +410,9 @@ const updateView = (score: ScoreModel) => {
     updateView: () => null,
     dispatch
   }
-  render(scoreRoot, renderScore(score, scoreProps));
+  const newView = h('div', [renderScore(score, scoreProps)]);
+  patch(view, newView);
+  setView(newView);
   render(uiRoot, renderUI(dispatch));
 }
 
