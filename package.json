@@ -7,7 +7,7 @@
     "deploy": "firebase deploy",
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
-    "watch": "rollup -c --watch",
+    "watch": "parcel watch src/PipeScore.ts --out-dir public/dist",
     "build": "rollup -c",
     "lint": "eslint src --ext .ts",
     "circles": "madge -c --warning src/PipeScore.ts"
@@ -26,5 +26,8 @@
     "rollup": "^2.38.5",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "parcel-bundler": "^1.12.4"
   }
 }

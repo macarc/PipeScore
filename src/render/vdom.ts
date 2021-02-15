@@ -1,3 +1,4 @@
+import { log } from '../global/utils';
 import { VElement, VString, VCache, AnyV } from './types';
 
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;
@@ -9,7 +10,7 @@ function arraycmp<A>(a: A[], b: A[]): boolean {
   return a.every((el, i) => b[i] === el);
 }
 
-function patchNew(v: VElement): Element {
+function patchNew(v: VElement, topLevel = false): Element {
   // todo - use DocumentFragment
   //console.log('creating element', v.name)
   let newElement: Element;
@@ -26,75 +27,92 @@ function patchNew(v: VElement): Element {
     newElement.addEventListener(event, v.events[event]);
   }
 
+  let parent: DocumentFragment | Element;
+  if (topLevel) {
+    parent = new DocumentFragment();
+  } else {
+    parent = newElement;
+  }
   for (const child in v.children) {
     const aft = v.children[child];
     if (aft === null) continue;
 
     if (isVString(aft)) {
       const d = document.createTextNode(aft.s);
-      newElement.appendChild(d);
+      parent.appendChild(d);
       aft.node = d;
     } else if (isVCache(aft)) {
       if (!aft.cachedVElement) {
         // todo do I need to check for cmp?
+        // do I need to call the fn?
         aft.cachedVElement = aft.fn(aft.data);
       }
-      patchNew(aft.cachedVElement);
+      const nu = patchNew(aft.cachedVElement);
+      parent.appendChild(nu);
     } else {
       const d = patchNew(aft);
-      newElement.appendChild(d);
+      parent.appendChild(d);
     }
+  }
+  if (topLevel) {
+    newElement.appendChild(parent);
   }
   v.node = newElement;
   return newElement;
 }
-export default function patch(before: VElement, after: VElement): Element {
-  if (before.node === null) {
-    return patchNew(after);
+// returns true if the after.node !== before.node (i.e. the node needs to be replaced
+export default function patch(before: VElement, after: VElement): boolean {
+  if (before.node === null || before.name.toLowerCase() !== after.name.toLowerCase()) {
+    patchNew(after, true);
+    return true;
   }
+  after.node = before.node;
   for (const attr in after.attrs) {
     if (before.attrs[attr] !== after.attrs[attr]) {
       before.node.setAttribute(attr, after.attrs[attr].toString());
     }
   }
   for (const event in after.events) {
-    if (before.node) {
-      before.node.removeEventListener(event,before.events[event])
+    if (before.events[event] !== after.events[event]) {
+      after.node.removeEventListener(event, before.events[event]);
+        after.node.addEventListener(event, after.events[event]);
     }
-    before.node.addEventListener(event, after.events[event]);
   }
   for (const child in after.children) {
     const aft = after.children[child];
     const bef = before.children[child];
     // todo nmap
-    const domChild = bef && (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node);
+    const oldNode: Node | null = bef && (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node);
     if (aft === null) {
-      if (bef && domChild) {
-        before.node.removeChild(domChild);
+      if (bef && oldNode) {
+        after.node.removeChild(oldNode);
       }
-    } else if (! bef || ! domChild) {
+    } else if (! bef || ! oldNode) {
       if (isVElement(aft)) {
-        const newElement = patchNew(aft);
-        before.node.appendChild(newElement);
+        const newElement = patchNew(aft, true);
+        after.node.appendChild(newElement);
         aft.node = newElement;
       } else if (isVString(aft)) {
         const d = document.createTextNode(aft.s);
-        before.node.appendChild(d);
+        after.node.appendChild(d);
         aft.node = d;
       } else if (isVCache(aft)) {
         // can maybe be skipped
         aft.cachedVElement = aft.fn(aft.data);
-        const newElement = patchNew(aft.cachedVElement);
-        before.node.appendChild(newElement);
+        const newElement = patchNew(aft.cachedVElement, true);
+        after.node.appendChild(newElement);
       }
     } else {
       if (isVString(bef) || isVString(aft)) {
         if (aft !== bef && isVString(aft)) {
-          domChild.nodeValue = aft.s;
-          aft.node = domChild;
+          oldNode.nodeValue = aft.s;
+          aft.node = oldNode;
         }
       } else if (isVElement(bef) && isVElement(aft)) {
-        patch(bef, aft)
+        const isNewNode = patch(bef, aft)
+        if (isNewNode && aft.node && bef.node) {
+          after.node.replaceChild(aft.node, bef.node);
+        }
       } else if (isVCache(bef) && isVCache(aft)) {
         if (! arraycmp(bef.data, aft.data)) {
           if (! bef.cachedVElement) {
@@ -103,7 +121,10 @@ export default function patch(before: VElement, after: VElement): Element {
           if (! aft.cachedVElement) {
             aft.cachedVElement = aft.fn(aft.data);
           }
-          patch(bef.cachedVElement, aft.cachedVElement);
+          const isNewNode = patch(bef.cachedVElement, aft.cachedVElement);
+          if (isNewNode && aft.cachedVElement.node && bef.cachedVElement.node) {
+            after.node.replaceChild(aft.cachedVElement.node, bef.cachedVElement.node);
+          }
         } else {
           //console.log('skipping cache');
           aft.cachedVElement = bef.cachedVElement;
@@ -113,6 +134,5 @@ export default function patch(before: VElement, after: VElement): Element {
       }
     }
   }
-  after.node = before.node;
-  return after.node;
+  return false;
 }

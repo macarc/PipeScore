@@ -41,6 +41,7 @@ import {
   score,
   deleteXY
 } from './global/state';
+
 import { flatten, deepcopy } from './global/utils';
 
 export function dispatch(event: ScoreEvent.ScoreEvent): void {

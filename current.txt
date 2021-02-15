@@ -1,5 +1,8 @@
 Notes
 
+Perf:
+* add/removeEventListener
+* replaceChild
 
 Bugs to fix:
 [ ] Dotted note can get crushed into next gracenote
