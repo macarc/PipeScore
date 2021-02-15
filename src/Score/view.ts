@@ -11,18 +11,22 @@ import { StaveModel } from '../Stave/model';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
 import { Dispatch } from '../Event';
 
-import TextBox  from '../TextBox/view';
-import SecondTiming  from '../SecondTiming/view';
-import ScoreSelection from '../ScoreSelection/view';
-
+import renderTextBox, { TextBoxState }  from '../TextBox/view';
+import renderSecondTiming  from '../SecondTiming/view';
+import renderScoreSelection from '../ScoreSelection/view';
 import renderStave  from '../Stave/view';
+import { NoteState } from '../Note/view';
+import { GracenoteState } from '../Gracenote/view';
 
 interface ScoreProps {
   updateView: (score: ScoreModel) => void,
   svgRef: SvgRef,
   zoomLevel: number,
   selection: ScoreSelectionModel | null,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  noteState: NoteState,
+  gracenoteState: GracenoteState,
+  textBoxState: TextBoxState
 }
 
 export default function render(score: ScoreModel, props: ScoreProps): V {
@@ -35,7 +39,9 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     width: scoreWidth - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
-    dispatch: props.dispatch
+    dispatch: props.dispatch,
+    noteState: props.noteState,
+    gracenoteState: props.gracenoteState
   });
 
   // TODO bind svgRef somehow
@@ -49,9 +55,9 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
                    { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
                    { mousedown: () => props.dispatch({ name: 'background clicked' }) }),
                ...score.staves.map((stave, idx) => renderStave(stave, staveProps(stave, idx))),
-               ...score.textBoxes.map(textBox => TextBox(textBox, { dispatch: props.dispatch })),
-               ...score.secondTimings.map(secondTiming => SecondTiming(secondTiming)),
-               props.selection ? ScoreSelection(props.selection) : null
+               ...score.textBoxes.map(textBox => renderTextBox(textBox, { dispatch: props.dispatch, state: props.textBoxState })),
+               ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming)),
+               props.selection ? renderScoreSelection(props.selection) : null
              ])
 
 

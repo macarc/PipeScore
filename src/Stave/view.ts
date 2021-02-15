@@ -11,13 +11,17 @@ import { BarModel } from '../Bar/model';
 import { Dispatch } from '../Event';
 
 import renderBar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
+import { NoteState } from '../Note/view';
+import { GracenoteState } from '../Gracenote/view';
 
 interface StaveProps {
   x: number,
   y: number,
   width: number,
   previousStave: StaveModel | null,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  noteState: NoteState,
+  gracenoteState: GracenoteState
 }
 
 
@@ -58,7 +62,9 @@ export default function render(stave: StaveModel, props: StaveProps): V {
     lastNoteX: index === 0 ? null : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1),
-    dispatch: props.dispatch
+    dispatch: props.dispatch,
+    noteState: props.noteState,
+    gracenoteState: props.gracenoteState
   });
 
   return svg('g', { class: 'stave' }, [

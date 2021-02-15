@@ -5,7 +5,6 @@
 import { svg, V } from '../render/h';
 import { Pitch, noteY } from '../global/pitch';
 import { lineGap } from '../global/constants';
-import { draggedGracenote } from '../global/state';
 import { nlast } from '../global/utils';
 
 import { Dispatch } from '../Event';
@@ -46,7 +45,7 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean)
 const stemXOf = (x: number) => x + 3;
 const stemYOf = (y: number) => y - 2;
 
-function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: SingleGracenote | null): V {
+function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: SingleGracenote | null, draggedGracenote: SingleGracenote | null): V {
   const y = noteY(staveY, note);
   const boxWidth = 2.5 * gracenoteHeadWidth;
   const boxHeight = 6;
@@ -76,18 +75,22 @@ function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, grac
   */
 }
 
+export interface GracenoteState {
+  dragged: SingleGracenote | null
+}
 export interface GracenoteProps {
   thisNote: Pitch,
   previousNote: Pitch | null,
   y: number,
   x: number,
   gracenoteWidth: number,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  state: GracenoteState
 }
 
 export default function render(gracenote: GracenoteModel, props: GracenoteProps): V {
   if (gracenote.type === 'single') {
-    return single(gracenote.note, props.x, props.y, props.dispatch, gracenote);
+    return single(gracenote.note, props.x, props.y, props.dispatch, gracenote, props.state.dragged);
   } else if (gracenote.type === 'reactive') {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
@@ -100,7 +103,7 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     if (uniqueNotes.length === 0) {
       return svg('g');
     } else if (uniqueNotes.length === 1) {
-      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, null);
+      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, null, props.state.dragged);
     } else {
       return svg('g', { class: 'reactive-gracenote' }, [
         ...[0,2,4].map(i => svg('line', { x1: xOf(uniqueNotes[0]) + tailXOffset, x2: xOf(nlast(uniqueNotes)) + tailXOffset, y1: props.y - 3.5 * lineGap + i, y2: props.y - 3.5 * lineGap + i, stroke: 'black' })),

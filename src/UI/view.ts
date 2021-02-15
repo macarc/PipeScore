@@ -3,16 +3,20 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { h, V } from '../render/h';
-import { inputLength, zoomLevel } from '../global/state';
 
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
 
 import Note from '../Note/functions';
 
-export default function render(dispatch: (e: ScoreEvent) => void): V {
+export interface UIState {
+  inputLength: NoteLength | null,
+  zoomLevel: number
+}
+
+export default function render(dispatch: (e: ScoreEvent) => void, state: UIState): V {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
-  const isCurrentNoteInput = (length: NoteLength) => inputLength === null ? false : Note.equalOrDotted(inputLength, length);
+  const isCurrentNoteInput = (length: NoteLength) => state.inputLength === null ? false : Note.equalOrDotted(state.inputLength, length);
 
   const noteInputButton = (length: NoteLength) => h('button',
                                                     { class: isCurrentNoteInput(length) ? 'highlighted': 'not-highlighted',
@@ -44,7 +48,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): V {
       ]),
       h('button',
         { id: 'toggle-dotted',
-          class: (inputLength && Note.hasDot(inputLength)) ? 'highlighted': 'not-highlighted' },
+          class: (state.inputLength && Note.hasDot(state.inputLength)) ? 'highlighted': 'not-highlighted' },
         { click: () => dispatch({ name: 'toggle dotted' }) },
         [ '•' ]),
       h('button',
@@ -90,7 +94,7 @@ export default function render(dispatch: (e: ScoreEvent) => void): V {
       h('button', { class: 'textual' }, ['Download']),
       h('hr'),
       h('label', ['Zoom Level']),
-      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: zoomLevel }, { input: changeZoomLevel })
+      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })
     ])
   ]);
 }

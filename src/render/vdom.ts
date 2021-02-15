@@ -1,4 +1,3 @@
-import { log } from '../global/utils';
 import { VElement, VString, VCache, AnyV } from './types';
 
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;

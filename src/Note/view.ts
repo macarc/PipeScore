@@ -5,7 +5,7 @@
 import { svg, V } from '../render/h';
 import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
-import { setXY, draggedNote } from '../global/state';
+import { setXY } from '../global/state';
 import { nlast, nmap } from '../global/utils';
 
 import { NoteModel, PreviousNote } from './model';
@@ -14,7 +14,7 @@ import { Dispatch } from '../Event';
 import Note from './functions';
 import Gracenote from '../Gracenote/functions';
 
-import renderGracenote, { GracenoteProps } from '../Gracenote/view';
+import renderGracenote, { GracenoteProps, GracenoteState } from '../Gracenote/view';
 
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
@@ -79,7 +79,7 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
   ]);
 }
 
-function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEvent) => void, opacity = 1): V {
+function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEvent) => void, draggedNote: NoteModel | null, opacity = 1): V {
   // Draw note head, ledger line and dot
   const noteWidth = 5;
   const noteHeight = 4;
@@ -178,7 +178,7 @@ M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-function singleton(note: NoteModel, x: number, staveY: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => V, dispatch: Dispatch): V {
+function singleton(note: NoteModel, x: number, staveY: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => V, draggedNote: NoteModel | null, dispatch: Dispatch): V {
   // todo this is complected with stemXOf in `render`
   const y = noteY(staveY, note.pitch);
   const stemX = x - noteHeadWidth;
@@ -190,7 +190,7 @@ function singleton(note: NoteModel, x: number, staveY: number, gracenoteProps: G
     shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null,
     shouldTie(note, previousNote) ?  null : renderGracenote(note.gracenote, gracenoteProps),
 
-    noteHead(x, y, note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event })),
+    noteHead(x, y, note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }), draggedNote),
     Note.hasStem(note) ? svg('line', { x1: stemX, x2: stemX, y1: y, y2: stemY, stroke: 'black' }) : null,
 
     (numberOfTails > 0)
@@ -222,14 +222,18 @@ function singleton(note: NoteModel, x: number, staveY: number, gracenoteProps: G
   */
 }
 
-
+export interface NoteState {
+  dragged: NoteModel | null
+}
 
 interface NoteProps {
   x: number,
   y: number,
   previousNote: PreviousNote | null,
   noteWidth: number,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  state: NoteState,
+  gracenoteState: GracenoteState
 }
 
 
@@ -266,12 +270,13 @@ export default function render(group: NoteModel[],props: NoteProps): V {
         gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
         thisNote: firstNote.pitch,
         previousNote: previousPitch,
-        dispatch: props.dispatch
+        dispatch: props.dispatch,
+        state: props.gracenoteState
       });
 
       const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : () => svg('g');
 
-      return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.dispatch);
+      return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.state.dragged, props.dispatch);
     } else {
 
       const cap = (n: number, max: number) =>
@@ -325,7 +330,8 @@ export default function render(group: NoteModel[],props: NoteProps): V {
                      gracenoteWidth: props.noteWidth * 0.6,
                      thisNote: note.pitch,
                      previousNote: nmap(previousNote, p => p.pitch),
-                     dispatch: props.dispatch
+                     dispatch: props.dispatch,
+                     state: props.gracenoteState
                    });
                    const previousNoteObj = nmap(previousNote, p => ({
                      pitch: p.pitch,
@@ -339,7 +345,7 @@ export default function render(group: NoteModel[],props: NoteProps): V {
 
                      (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null,
 
-                     noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event })),
+                     noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }), props.state.dragged),
 
                      canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : null,
 

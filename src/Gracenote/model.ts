@@ -1,3 +1,4 @@
+import { Dispatch } from '../Event';
 import { Pitch } from '../global/pitch';
 
 interface ReactiveGracenote {
@@ -22,4 +23,3 @@ export type Gracenote = Pitch[];
 export interface InvalidGracenote {
   gracenote: Gracenote
 }
-

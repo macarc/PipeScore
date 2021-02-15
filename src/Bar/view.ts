@@ -18,7 +18,8 @@ import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 
-import renderNote, { widthOfNote, noteHeadOffset } from '../Note/view';
+import { GracenoteState } from '../Gracenote/view';
+import renderNote, { widthOfNote, noteHeadOffset, NoteState } from '../Note/view';
 
 interface BarProps {
   x: number,
@@ -27,7 +28,9 @@ interface BarProps {
   previousBar: BarModel | null,
   lastNoteX: number | null,
   shouldRenderLastBarline: boolean,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  noteState: NoteState,
+  gracenoteState: GracenoteState
 }
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
@@ -157,7 +160,9 @@ export default function render(bar: BarModel,props: BarProps): V {
     noteWidth: beatWidth,
     previousNote: previousNoteData(index, bar.notes.indexOf(notes[0])),
     selectedNotes: [],
-    dispatch: props.dispatch
+    dispatch: props.dispatch,
+    state: props.noteState,
+    gracenoteState: props.gracenoteState
   });
 
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
