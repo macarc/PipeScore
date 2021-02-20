@@ -29,6 +29,7 @@ import renderUI from './UI/view';
 import { scoreWidth } from './global/constants';
 import { deleteXY } from './global/state';
 import { SvgRef } from './global/svg';
+import { ID } from './global/types';
 
 import { flatten, deepcopy } from './global/utils';
 
@@ -78,10 +79,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
       const newNote = { ...state.noteState.dragged, pitch: event.pitch };
       changeNote(state.noteState.dragged, newNote);
-      if (state.selection) {
-        if (state.selection.start === state.noteState.dragged) state.selection.start = newNote;
-        if (state.selection.end === state.noteState.dragged) state.selection.end = newNote;
-      }
       state.noteState.dragged = newNote;
       makeCorrectTie(state.noteState.dragged);
     }
@@ -93,16 +90,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.noteState.dragged = event.note;
     changed = true;
     if (! event.event.shiftKey) {
-      state.selection = { start: event.note, end: event.note };
+      state.selection = { start: event.note.id, end: event.note.id };
     } else {
       if (state.selection === null) {
-        state.selection = { start: event.note, end: event.note };
+        state.selection = { start: event.note.id, end: event.note.id };
       } else {
         const ind = noteModels.indexOf(event.note);
-        if (ind < noteModels.indexOf(state.selection.start)) {
-          state.selection.start = event.note;
-        } else if (ind > noteModels.indexOf(state.selection.end)) {
-          state.selection.end = event.note;
+        if (ind < indexOfId(state.selection.start, noteModels)) {
+          state.selection.start = event.note.id;
+        } else if (ind > indexOfId(state.selection.end, noteModels)) {
+          state.selection.end = event.note.id;
         }
       }
     }
@@ -316,6 +313,14 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 }
 
 
+function indexOfId(id: ID, noteModels: NoteModel[]): number {
+  for (let i=0; i<noteModels.length; i++) {
+    if (noteModels[i].id === id) {
+      return i;
+    } 
+  }
+  return -1;
+}
 
 function makeCorrectTie(noteModel: NoteModel) {
   // corrects the pitches of any notes tied to noteModel
@@ -390,19 +395,32 @@ function deleteNote(note: NoteModel) {
   });
   secondTimingsToDelete.forEach(t =>
     state.score.secondTimings.splice(state.score.secondTimings.indexOf(t), 1));
-  if (state.selection && (note === state.selection.start || note === state.selection.end)) {
+  if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
     state.selection = null;
   }
 }
 
-function currentBar(note: NoteModel): { stave: StaveModel, bar: BarModel } {
+function currentBar(note: NoteModel | ID): { stave: StaveModel, bar: BarModel } {
   // This is extremely inefficient and should only be used in instances that don't occur regularly
   const staves = Score.staves(state.score);
-  for (const stave of staves) {
-    const bars = Stave.bars(stave);
-    for (const bar of bars) {
-      if (bar.notes.includes(note)) {
-        return { stave, bar };
+  if (typeof note === 'number') {
+    for (const stave of staves) {
+      const bars = Stave.bars(stave);
+      for (const bar of bars) {
+        for (const noteModel of bar.notes) {
+          if (noteModel.id === note) {
+            return { stave, bar };
+          }
+        }
+      }
+    }
+  } else {
+    for (const stave of staves) {
+      const bars = Stave.bars(stave);
+      for (const bar of bars) {
+        if (bar.notes.includes(note)) {
+          return { stave, bar };
+        }
       }
     }
   }
@@ -418,8 +436,8 @@ function currentNoteModels(): NoteModel[] {
 
 function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: NoteModel[]): NoteModel[] {
   if (state.selection === null) return [];
-  const startInd = noteModels.indexOf(state.selection.start);
-  const endInd = noteModels.indexOf(state.selection.end);
+  const startInd = indexOfId(state.selection.start, noteModels);
+  const endInd = indexOfId(state.selection.end, noteModels);
   if (startInd !== -1 && endInd !== -1) {
     return noteModels.slice(startInd, endInd + 1);
   } else {

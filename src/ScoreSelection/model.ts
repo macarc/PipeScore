@@ -1,8 +1,8 @@
-import { NoteModel } from '../Note/model';
+import { ID } from '../global/types'
 
 export interface ScoreSelectionModel {
-  start: NoteModel,
-  end: NoteModel
+  start: ID,
+  end: ID
 }
 
 

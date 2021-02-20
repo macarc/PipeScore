@@ -7,8 +7,8 @@ import { ScoreSelectionModel } from './model';
 
 
 export default function render(selection: ScoreSelectionModel): V {
-  const start = getXY(selection.start.id);
-  const end = getXY(selection.end.id);
+  const start = getXY(selection.start);
+  const end = getXY(selection.end);
   if (!start || !end) {
     return svg('g');
   }
