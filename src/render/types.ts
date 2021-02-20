@@ -16,6 +16,7 @@ export interface VElement {
 }
 
 export interface VCache {
+  // while this isn't type-safe, it should only be created from the h/cache() function which is
   data: any[],
   fn: (...args: any) => VElement,
   cachedVElement: VElement | null

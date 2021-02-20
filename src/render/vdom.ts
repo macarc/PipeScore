@@ -11,7 +11,6 @@ function arraycmp<A>(a: A[], b: A[]): boolean {
 
 function patchNew(v: VElement, topLevel = false): Element {
   // todo - use DocumentFragment
-  //console.log('creating element', v.name)
   let newElement: Element;
   if (v.attrs.ns) {
     newElement = document.createElementNS(v.attrs.ns.toString(), v.name);
@@ -77,6 +76,12 @@ export default function patch(before: VElement, after: VElement): boolean {
         after.node.addEventListener(event, after.events[event]);
     }
   }
+  // todo this could probably be more efficient
+  let childrenDiffLength = before.children.length - after.children.length;
+  for (let i = 0; i < childrenDiffLength; i++) {
+    before.node.removeChild(before.node.children[before.node.children.length - 1]);
+  }
+  let reachedEndOfBeforeChildren = false;
   for (const child in after.children) {
     const aft = after.children[child];
     const bef = before.children[child];
@@ -86,7 +91,8 @@ export default function patch(before: VElement, after: VElement): boolean {
       if (bef && oldNode) {
         after.node.removeChild(oldNode);
       }
-    } else if (! bef || ! oldNode) {
+    } else if (! bef || ! oldNode || reachedEndOfBeforeChildren) {
+      reachedEndOfBeforeChildren = true;
       if (isVElement(aft)) {
         const newElement = patchNew(aft, true);
         after.node.appendChild(newElement);

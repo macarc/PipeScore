@@ -1,4 +1,3 @@
-import { Dispatch } from '../Event';
 import { Pitch } from '../global/pitch';
 
 interface ReactiveGracenote {

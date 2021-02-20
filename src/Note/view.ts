@@ -95,8 +95,8 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
   const dotted = Note.hasDot(note.length);
   const dotYOffset = ([Pitch.G,Pitch.B,Pitch.D,Pitch.F,Pitch.HA].includes(note.pitch)) ? -3 : 0;
   const dotXOffset = 10;
-  const dragged = note === draggedNote//todo isBeingDragged(note);
-  const selected = false//todo isSelected(note);
+  const dragged = note === draggedNote;
+  const selected = false;
 
 
   // pointer events must be set so that if it is being
@@ -114,8 +114,8 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
   const maskId = Math.random();
   const mask = `url(#${maskId})`;
   return svg('g', { class: 'note-head' }, [
-    svg('mask', { id: maskId }),
-    svg('rect', { x: x - 10, y: y - 10, width: 20, height: 20, fill: 'white' }, [
+    svg('mask', { id: maskId }, [
+      svg('rect', { x: x - 10, y: y - 10, width: 20, height: 20, fill: 'white' }),
       svg('ellipse', { cx: x, cy: y, rx: maskrx, ry: maskry, 'stroke-width': 0, fill: 'black', transform: maskRotateText }),
     ]),
     svg('ellipse', { cx: x, cy: y, rx: noteWidth, ry: noteHeight, stroke: colour, fill: colour, transform: rotateText, 'pointer-events': pointerEvents, opacity, mask: filled ? '' : mask }),
@@ -318,7 +318,6 @@ export default function render(group: NoteModel[],props: NoteProps): V {
                // offset so that the lowest note is always a constant height
                + diffForLowest
                : noteY(props.y, note.pitch) + 30)
-
        // ${(group.length === 3) ? triplet(props.y,xOf(0), xOf(2), yOf(firstNote), yOf(lastNote)) : null}
       return svg('g', { class: 'grouped-notes' },
                  group.map((note, index) => {
@@ -339,7 +338,7 @@ export default function render(group: NoteModel[],props: NoteProps): V {
                      y: yOf(p)
                    })) || props.previousNote;
 
-                   return svg('g', { class: 'grouped-note' }, [
+                   return svg('g', { class: `grouped-note ${note.pitch}` }, [
                      shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null,
                      shouldTie(note, previousNoteObj) ? null : renderGracenote(note.gracenote,gracenoteProps),
 
@@ -349,7 +348,7 @@ export default function render(group: NoteModel[],props: NoteProps): V {
 
                      canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : null,
 
-                     svg('line', { x: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
+                     svg('line', { x1: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
                    ])
                    
                  }));

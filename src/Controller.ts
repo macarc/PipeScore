@@ -51,7 +51,7 @@ interface State {
   uiView: V | null
 }
 
-let state: State = {
+const state: State = {
   noteState: { dragged: null },
   gracenoteState: { dragged: null },
   uiState: { zoomLevel: 100 * (0.75 * window.outerWidth) / scoreWidth, inputLength: null },
@@ -76,7 +76,13 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   if (ScoreEvent.isMouseMovedOver(event)) {
     if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
       changed = true;
-      state.noteState.dragged.pitch = event.pitch;
+      const newNote = { ...state.noteState.dragged, pitch: event.pitch };
+      changeNote(state.noteState.dragged, newNote);
+      if (state.selection) {
+        if (state.selection.start === state.noteState.dragged) state.selection.start = newNote;
+        if (state.selection.end === state.noteState.dragged) state.selection.end = newNote;
+      }
+      state.noteState.dragged = newNote;
       makeCorrectTie(state.noteState.dragged);
     }
     if (state.gracenoteState.dragged !== null && event.pitch !== state.gracenoteState.dragged.note) {
@@ -355,6 +361,19 @@ function dragText(event: MouseEvent) {
       const svgPt = pt.matrixTransform(CTM.inverse());
 
       dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
+    }
+  }
+}
+
+function changeNote(oldNote: NoteModel, newNote: NoteModel): void {
+  const staves = Score.staves(state.score);
+  for (const stave of staves) {
+    const bars = Stave.bars(stave);
+    for (const bar of bars) {
+      const ind = bar.notes.indexOf(oldNote);
+      if (ind !== -1) {
+        bar.notes.splice(ind, 1, newNote);
+      }
     }
   }
 }

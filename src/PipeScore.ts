@@ -5,10 +5,6 @@
 import startController from './Controller';
 import { keyHandler } from './KeyHandler';
 
-import { hFrom } from './render/h';
-
-import Score from './Score/functions';
-
 document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', keyHandler);
   startController()
