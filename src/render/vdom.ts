@@ -76,6 +76,11 @@ export default function patch(before: VElement, after: VElement): boolean {
         after.node.addEventListener(event, after.events[event]);
     }
   }
+  const notNull = <A>(a: A | null): a is A => a !== null;
+
+  before.children = before.children.filter(notNull);
+  after.children = after.children.filter(notNull);
+
   // todo this could probably be more efficient
   const childrenDiffLength = before.children.length - after.children.length;
   for (let i = 0; i < childrenDiffLength; i++) {

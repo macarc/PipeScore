@@ -22,9 +22,6 @@ Bugs to fix:
 [ ] It is too easy to accidentally add notes
 [ ] Possible triplets should have their own type since notes can't be added/destroyed/dotted/e.t.c.
 [ ] Adding notes after triplets doesn't work
-[ ] dragging a single gracenote up then down again causes a render bug
-[ ] tie causes a render bug
-
 
 
 
@@ -105,3 +102,6 @@ Bugs fixed:
 [X] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
 [X] Crotchet triplets act as if there is a beam
 [X] makeCorrectGroupings in Controller
+[X] Dragging a single gracenote up then down again causes a render bug
+[X] Tie causes a render bug
+[X] Bug where adding an odd number of notes then deleting breaks it

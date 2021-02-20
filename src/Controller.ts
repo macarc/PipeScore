@@ -10,6 +10,7 @@ import { ScoreModel } from './Score/model';
 import { StaveModel } from './Stave/model';
 import { BarModel } from './Bar/model';
 import { NoteModel } from './Note/model';
+import { GracenoteModel } from './Gracenote/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
@@ -38,6 +39,8 @@ import { GracenoteState } from './Gracenote/view';
 import { UIState } from './UI/view';
 import { TextBoxState } from './TextBox/view';
 
+// Apart from state.score, all of these can be modified
+// state.score should not be modified, but copied, so that it can be diffed quickly
 interface State {
   noteState: NoteState,
   gracenoteState: GracenoteState,
@@ -66,26 +69,59 @@ const state: State = {
   uiView: null
 }
 
-function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel {
-  // todo put makeCorrectTie here
-  for (const i in score.staves) {
+
+function noteMap(f: (note: NoteModel,
+                     bar: BarModel,
+                     stave: StaveModel,
+                     score: ScoreModel,
+                     inote: number,
+                     ibar: number,
+                     istave: number
+                     // if it returns true, then stop mapping
+                    ) => [ScoreModel, boolean], score: ScoreModel): ScoreModel {
+  for (let i=0; i < score.staves.length; i++) {
     const stave = score.staves[i];
-    for (const j in stave.bars) {
+    for (let j=0; j < stave.bars.length; j++) {
       const bar = stave.bars[j];
-      for (const k in bar.notes) {
+      for (let k=0; k < bar.notes.length; k++) {
         const n = bar.notes[k];
-        if (n.id === id) {
-          bar.notes[k] = note;
-          stave.bars[j] = { ...bar };
-          score.staves[i] = { ...stave };
-          return { ...score }
-        }
+        const [ns, done] = f(n,bar,stave,score,k,j,i);
+        score = ns;
+        if (done) return score;
       }
     }
   }
-  // todo do this in single pass (i.e. in the above loop);
-  makeCorrectTie(note);
   return score;
+}
+
+function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel {
+  return noteMap((n,bar,stave,score,inote,ibar,istave) => {
+    if (n.id === id) {
+      bar.notes[inote] = note;
+      stave.bars[ibar] = { ...bar };
+      score.staves[istave] = { ...stave };
+
+      // todo do this in single pass (i.e. in this loop);
+      makeCorrectTie(note);
+
+      return [{ ...score }, true];
+    } else {
+      return [ score, false ];
+    }
+  }, score);
+}
+
+function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: GracenoteModel, score: ScoreModel): ScoreModel {
+  return noteMap((n,bar,stave,score,inote,ibar,istave) => {
+    if (n.gracenote === oldGracenote) {
+      bar.notes[inote] = { ...n, gracenote: newGracenote };
+      stave.bars[ibar] = { ...bar };
+      score.staves[istave] = { ...stave };
+      return [{ ...score }, true];
+    } else {
+      return [ score, false ];
+    }
+  }, score);
 }
 
 function makeCorrectTie(noteModel: NoteModel) {
@@ -110,6 +146,61 @@ function makeCorrectTie(noteModel: NoteModel) {
 }
 
 
+function deleteNote(note: NoteModel) {
+  const { bar } = currentBar(note);
+  bar.notes.splice(bar.notes.indexOf(note), 1);
+  deleteXY(note.id);
+  const secondTimingsToDelete: SecondTimingModel[] = [];
+  state.score.secondTimings.forEach(t => {
+    if (t.start === note.id || t.middle === note.id || t.end === note.id) {
+      secondTimingsToDelete.push(t);
+    }
+  });
+  secondTimingsToDelete.forEach(t =>
+    state.score.secondTimings.splice(state.score.secondTimings.indexOf(t), 1));
+  if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
+    state.selection = null;
+  }
+}
+
+function deleteNotes(notesToDelete: NoteModel[], score: ScoreModel): ScoreModel {
+  let numberDeleted = 0;
+  for (let i=0; i < score.staves.length; i++) {
+    const stave = score.staves[i];
+    for (let j=0; j < stave.bars.length; j++) {
+      const bar = stave.bars[j];
+      for (let k=0; k < bar.notes.length; ) {
+        const note = bar.notes[k];
+        if (notesToDelete.includes(note)) {
+          bar.notes.splice(k, 1);
+          stave.bars[j] = { ...bar };
+          score.staves[i] = { ...stave };
+          const secondTimingsToDelete: SecondTimingModel[] = [];
+          score.secondTimings.forEach(t => {
+            if (t.start === note.id || t.middle === note.id || t.end === note.id) {
+              secondTimingsToDelete.push(t);
+            }
+          });
+          secondTimingsToDelete.forEach(t =>
+            score.secondTimings.splice(score.secondTimings.indexOf(t), 1));
+          if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
+            state.selection = null;
+          }
+
+          numberDeleted++;
+          if (numberDeleted === notesToDelete.length) {
+            return { ...score };
+          }
+        } else {
+          k++;
+        }
+      }
+    }
+  }
+
+  return { ...score };
+}
+
 export function dispatch(event: ScoreEvent.ScoreEvent): void {
   /*
      The global event handler.
@@ -118,18 +209,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   let changed = false;
   const noteModels = currentNoteModels();
   const selectedNotes = selectionToNotes(state.selection, noteModels);
-  if (ScoreEvent.isMouseMovedOver(event)) {
-    if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
-      changed = true;
-      const newNote = { ...state.noteState.dragged, pitch: event.pitch };
-      state.score = changeNoteFrom(state.noteState.dragged.id, newNote, state.score);
-      state.noteState.dragged = newNote;
-    }
-    if (state.gracenoteState.dragged !== null && event.pitch !== state.gracenoteState.dragged.note) {
-      changed = true;
-      state.gracenoteState.dragged.note = event.pitch;
-    }
-  } else if (ScoreEvent.isNoteClicked(event)) {
+
+  //
+  // STATE events
+  // Events that modify the state rather than the score
+  //
+  if (ScoreEvent.isNoteClicked(event)) {
     state.noteState.dragged = event.note;
     changed = true;
     if (! event.event.shiftKey) {
@@ -168,15 +253,34 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.gracenoteState.dragged = null;
       changed = true;
     }
+  } else if (ScoreEvent.isTextClicked(event)) {
+    state.textBoxState.selectedText = event.text
+    state.draggedText = event.text;
+    changed = true;
+  } else if (ScoreEvent.isTextMouseUp(event)) {
+    state.draggedText = null;
+
+  //
+  // SCORE events
+  // Events that modify the score
+  //
+  } else if (ScoreEvent.isMouseMovedOver(event)) {
+    if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
+      changed = true;
+      const newNote = { ...state.noteState.dragged, pitch: event.pitch };
+      state.score = changeNoteFrom(state.noteState.dragged.id, newNote, state.score);
+      state.noteState.dragged = newNote;
+    }
+    if (state.gracenoteState.dragged !== null && event.pitch !== state.gracenoteState.dragged.note) {
+      changed = true;
+      const newGracenote = { ...state.gracenoteState.dragged, note: event.pitch };
+      state.score = changeGracenoteFrom(state.gracenoteState.dragged, newGracenote, state.score);
+      state.gracenoteState.dragged = newGracenote;
+    }
   } else if (ScoreEvent.isDeleteSelectedNotes(event)) {
     if (selectedNotes.length > 0) {
-      // TODO
       // quadratic!
-      noteModels.forEach(note => {
-        if (selectedNotes.includes(note)) {
-          deleteNote(note);
-        }
-      });
+      state.score = deleteNotes(selectedNotes, state.score);
       state.selection = null;
       changed = true;
     }
@@ -227,12 +331,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.uiState.zoomLevel = event.zoomLevel;
       changed = true;
     }
-  } else if (ScoreEvent.isTextClicked(event)) {
-    state.textBoxState.selectedText = event.text
-    state.draggedText = event.text;
-    changed = true;
-  } else if (ScoreEvent.isTextMouseUp(event)) {
-    state.draggedText = null;
   } else if (ScoreEvent.isTextDragged(event)) {
     if (state.draggedText !== null) {
       TextBox.setCoords(state.draggedText, event.x, event.y);
@@ -401,23 +499,6 @@ function changeNote(oldNote: NoteModel, newNote: NoteModel): void {
         bar.notes.splice(ind, 1, newNote);
       }
     }
-  }
-}
-
-function deleteNote(note: NoteModel) {
-  const { bar } = currentBar(note);
-  bar.notes.splice(bar.notes.indexOf(note), 1);
-  deleteXY(note.id);
-  const secondTimingsToDelete: SecondTimingModel[] = [];
-  state.score.secondTimings.forEach(t => {
-    if (t.start === note.id || t.middle === note.id || t.end === note.id) {
-      secondTimingsToDelete.push(t);
-    }
-  });
-  secondTimingsToDelete.forEach(t =>
-    state.score.secondTimings.splice(state.score.secondTimings.indexOf(t), 1));
-  if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
-    state.selection = null;
   }
 }
 
