@@ -66,6 +66,50 @@ const state: State = {
   uiView: null
 }
 
+function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel {
+  // todo put makeCorrectTie here
+  for (const i in score.staves) {
+    const stave = score.staves[i];
+    for (const j in stave.bars) {
+      const bar = stave.bars[j];
+      for (const k in bar.notes) {
+        const n = bar.notes[k];
+        if (n.id === id) {
+          bar.notes[k] = note;
+          stave.bars[j] = { ...bar };
+          score.staves[i] = { ...stave };
+          return { ...score }
+        }
+      }
+    }
+  }
+  // todo do this in single pass (i.e. in the above loop);
+  makeCorrectTie(note);
+  return score;
+}
+
+function makeCorrectTie(noteModel: NoteModel) {
+  // corrects the pitches of any notes tied to noteModel
+  const bars = Score.bars(state.score);
+  const noteModels = flatten(bars.map(b => b.notes));
+  for (let i=0; i < noteModels.length; i++) {
+    if (noteModels[i].id === noteModel.id) {
+      let b = i;
+      while ((b > 0) && noteModels[b].tied) {
+        noteModels[b - 1].pitch = noteModel.pitch;
+        b -= 1;
+      }
+      let a = i;
+      while ((a < noteModels.length - 1) && noteModels[a + 1].tied) {
+        noteModels[a + 1].pitch = noteModel.pitch;
+        a += 1;
+      }
+      break;
+    }
+  }
+}
+
+
 export function dispatch(event: ScoreEvent.ScoreEvent): void {
   /*
      The global event handler.
@@ -78,9 +122,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
       changed = true;
       const newNote = { ...state.noteState.dragged, pitch: event.pitch };
-      changeNote(state.noteState.dragged, newNote);
+      state.score = changeNoteFrom(state.noteState.dragged.id, newNote, state.score);
       state.noteState.dragged = newNote;
-      makeCorrectTie(state.noteState.dragged);
     }
     if (state.gracenoteState.dragged !== null && event.pitch !== state.gracenoteState.dragged.note) {
       changed = true;
@@ -321,28 +364,6 @@ function indexOfId(id: ID, noteModels: NoteModel[]): number {
   }
   return -1;
 }
-
-function makeCorrectTie(noteModel: NoteModel) {
-  // corrects the pitches of any notes tied to noteModel
-  const bars = Score.bars(state.score);
-  const noteModels = flatten(bars.map(b => b.notes));
-  for (let i=0; i < noteModels.length; i++) {
-    if (noteModels[i].id === noteModel.id) {
-      let b = i;
-      while ((b > 0) && noteModels[b].tied) {
-        noteModels[b - 1].pitch = noteModel.pitch;
-        b -= 1;
-      }
-      let a = i;
-      while ((a < noteModels.length - 1) && noteModels[a + 1].tied) {
-        noteModels[a + 1].pitch = noteModel.pitch;
-        a += 1;
-      }
-      break;
-    }
-  }
-}
-
 function sortByPosition(notes: NoteModel[]) {
   const bars = Score.bars(state.score);
   const noteModels = flatten(bars.map(b => b.notes));

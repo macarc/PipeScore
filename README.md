@@ -5,14 +5,14 @@ I started building this a while ago since I wasn't satisfied with other bagpipe 
 
 PipeScore's "killer feature" is reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
 
-PipeScore is written in TypeScript and currently uses [uhtml](https://github.com/WebReflection/uhtml) for rendering, though `src/render` will be the new VDOM soon.
-
 It is currently under development - see `current.txt` for a rough roadmap.
 
 
 ## Project Structure
 
 All of the main code is in the `src/` directory.
+
+PipeScore uses a custom virtual DOM diff algorithm, in `src/render`. There are still quite a few bugs/cases to handle with it currently.
 
 Each component of a score (e.g. note, gracenote, stave) gets its own folder, with 3 files:
 * `model` - this defines the type associated with the component

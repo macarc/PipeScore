@@ -21,6 +21,7 @@ const tailXOffset = 3;
 const gracenoteHeadWidth = 3.5;
 
 
+// this is actually head & stem
 function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean): V {
   const ledgerLeft = 5;
   const ledgerRight = 5.2;
@@ -56,7 +57,7 @@ function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, grac
       ? svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': gracenote === draggedGracenote ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'gracenote clicked', gracenote }) })
       : null,
 
-    svg('line', { x1: stemXOf(x), x2: stemXOf(x), y1: stemYOf(y), y2: stemYOf(y) - 20, stroke: 'black' }),
+    //svg('line', { x1: stemXOf(x), x2: stemXOf(x), y1: stemYOf(y), y2: stemYOf(y) - 20, stroke: 'black' }),
 
     ...[0,1,2].map(n => svg('line', { x1: stemXOf(x), x2: stemXOf(x) + 5, y1: stemYOf(y) - 20 + 3 *  n, y2: stemYOf(y) - 16 + 3 * n, stroke: 'black' }))
   ]);

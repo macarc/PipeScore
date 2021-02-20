@@ -77,22 +77,32 @@ export default function patch(before: VElement, after: VElement): boolean {
     }
   }
   // todo this could probably be more efficient
-  let childrenDiffLength = before.children.length - after.children.length;
+  const childrenDiffLength = before.children.length - after.children.length;
   for (let i = 0; i < childrenDiffLength; i++) {
     before.node.removeChild(before.node.children[before.node.children.length - 1]);
   }
   let reachedEndOfBeforeChildren = false;
-  for (const child in after.children) {
+  const beforeChildrenLength = before.children.length;
+  for (let child = 0; child < after.children.length; child++) {
     const aft = after.children[child];
-    const bef = before.children[child];
+    const bef = before.children[child] || null;
     // todo nmap
     const oldNode: Node | null = bef && (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node);
+
+    reachedEndOfBeforeChildren = child >= beforeChildrenLength;
     if (aft === null) {
       if (bef && oldNode) {
         after.node.removeChild(oldNode);
       }
+    } else if (bef === null && !reachedEndOfBeforeChildren) {
+      if (isVElement(aft)) {
+        const newElement = patchNew(aft, true);
+        after.node.insertBefore(newElement, before.node.children[child] || null);
+        aft.node = newElement;
+      } else {
+        console.error("Haven't handled this case yet");
+      }
     } else if (! bef || ! oldNode || reachedEndOfBeforeChildren) {
-      reachedEndOfBeforeChildren = true;
       if (isVElement(aft)) {
         const newElement = patchNew(aft, true);
         after.node.appendChild(newElement);
