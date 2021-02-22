@@ -22,6 +22,7 @@ Bugs to fix:
 [ ] It is too easy to accidentally add notes
 [ ] Possible triplets should have their own type since notes can't be added/destroyed/dotted/e.t.c.
 [ ] Adding notes after triplets doesn't work
+[ ] Remove all the state.score = { ...state.score } from Controller
 
 
 

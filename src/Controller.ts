@@ -111,6 +111,25 @@ function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel 
   }, score);
 }
 
+function changeNotes(notes: NoteModel[], f: (note: NoteModel) => NoteModel, score: ScoreModel): ScoreModel {
+  let notesChanged = 0;
+  return noteMap((n,bar,stave,score,inote,ibar,istave) => {
+    if (notes.includes(n)) {
+      const newNote = f(n);
+      bar.notes[inote] = newNote;
+      stave.bars[ibar] = { ...bar };
+      score.staves[istave] = { ...stave };
+      if (newNote.tied !== n.tied || newNote.length !== n.length) makeCorrectTie(newNote, score);
+
+      notesChanged++;
+
+      return [{ ...score }, notesChanged === notes.length];
+    } else {
+      return [ score, false ];
+    }
+  }, score);
+}
+
 function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: GracenoteModel, score: ScoreModel): ScoreModel {
   return noteMap((n,bar,stave,score,inote,ibar,istave) => {
     if (n.gracenote === oldGracenote) {
@@ -124,9 +143,9 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
   }, score);
 }
 
-function makeCorrectTie(noteModel: NoteModel) {
+  function makeCorrectTie(noteModel: NoteModel, score = state.score) {
   // corrects the pitches of any notes tied to noteModel
-  const bars = Score.bars(state.score);
+  const bars = Score.bars(score);
   const noteModels = flatten(bars.map(b => b.notes));
   for (let i=0; i < noteModels.length; i++) {
     if (noteModels[i].id === noteModel.id) {
@@ -142,24 +161,6 @@ function makeCorrectTie(noteModel: NoteModel) {
       }
       break;
     }
-  }
-}
-
-
-function deleteNote(note: NoteModel) {
-  const { bar } = currentBar(note);
-  bar.notes.splice(bar.notes.indexOf(note), 1);
-  deleteXY(note.id);
-  const secondTimingsToDelete: SecondTimingModel[] = [];
-  state.score.secondTimings.forEach(t => {
-    if (t.start === note.id || t.middle === note.id || t.end === note.id) {
-      secondTimingsToDelete.push(t);
-    }
-  });
-  secondTimingsToDelete.forEach(t =>
-    state.score.secondTimings.splice(state.score.secondTimings.indexOf(t), 1));
-  if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
-    state.selection = null;
   }
 }
 
@@ -259,12 +260,28 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     changed = true;
   } else if (ScoreEvent.isTextMouseUp(event)) {
     state.draggedText = null;
+  } else if (ScoreEvent.isSetInputLength(event)) {
+    if (event.length !== state.uiState.inputLength) {
+      state.uiState.inputLength = event.length;
+      changed = true;
+    }
+  } else if (ScoreEvent.isStopInputtingNotes(event)) {
+     if (state.uiState.inputLength !== null) {
+       state.uiState.inputLength = null;
+       changed = true;
+     }
+  } else if (ScoreEvent.isChangeZoomLevel(event)) {
+    if (event.zoomLevel !== state.uiState.zoomLevel) {
+      state.uiState.zoomLevel = event.zoomLevel;
+      changed = true;
+    }
+  }
 
   //
   // SCORE events
   // Events that modify the score
   //
-  } else if (ScoreEvent.isMouseMovedOver(event)) {
+  else if (ScoreEvent.isMouseMovedOver(event)) {
     if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
       changed = true;
       const newNote = { ...state.noteState.dragged, pitch: event.pitch };
@@ -279,29 +296,21 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isDeleteSelectedNotes(event)) {
     if (selectedNotes.length > 0) {
-      // quadratic!
       state.score = deleteNotes(selectedNotes, state.score);
       state.selection = null;
       changed = true;
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
-    selectedNotes.forEach(note => note.gracenote = Gracenote.from(event.value));
+    state.score = changeNotes(selectedNotes, note => ({ ...note, gracenote: Gracenote.from(event.value) }), state.score);
     changed = true;
-  } else if (ScoreEvent.isSetInputLength(event)) {
-    if (event.length !== state.uiState.inputLength) {
-      state.uiState.inputLength = event.length;
-      changed = true;
-    }
-  } else if (ScoreEvent.isStopInputtingNotes(event)) {
-     if (state.uiState.inputLength !== null) {
-       state.uiState.inputLength = null;
-       changed = true;
-     }
   } else if (ScoreEvent.isAddNoteAfter(event)) {
     if (state.uiState.inputLength !== null) {
-      const { bar } = currentBar(event.noteBefore);
+      const { bar, stave } = currentBar(event.noteBefore);
       const newNote = Note.init(event.pitch, state.uiState.inputLength);
       bar.notes.splice(bar.notes.indexOf(event.noteBefore) + 1, 0, newNote);
+      stave.bars[stave.bars.indexOf(bar)] = { ...bar };
+      state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
+      state.score = { ...state.score };
       changed = true;
       // todo - should this need to be done?
       makeCorrectTie(newNote);
@@ -314,7 +323,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       makeCorrectTie(newNote);
     }
   } else if (ScoreEvent.isToggleDotted(event)) {
-    selectedNotes.forEach(note => note.length = Note.toggleDot(note.length));
+    state.score = changeNotes(selectedNotes,note => ({ ...note, length:  Note.toggleDot(note.length) }), state.score);
     if (state.uiState.inputLength !== null) state.uiState.inputLength = Note.toggleDot(state.uiState.inputLength);
     changed = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
@@ -326,23 +335,20 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
     */
-  } else if (ScoreEvent.isChangeZoomLevel(event)) {
-    if (event.zoomLevel !== state.uiState.zoomLevel) {
-      state.uiState.zoomLevel = event.zoomLevel;
-      changed = true;
-    }
   } else if (ScoreEvent.isTextDragged(event)) {
     if (state.draggedText !== null) {
-      TextBox.setCoords(state.draggedText, event.x, event.y);
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 0, TextBox.setCoords(state.draggedText, event.x, event.y));
+      state.score = { ...state.score };
       changed = true
     }
   } else if (ScoreEvent.isCentreText(event)) {
     if (state.textBoxState.selectedText !== null) {
-      TextBox.centre(state.textBoxState.selectedText, scoreWidth);
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 0, TextBox.centre(state.textBoxState.selectedText, scoreWidth));
+      state.score = { ...state.score };
       changed = true;
     }
   } else if (ScoreEvent.isAddText(event)) {
-    state.score.textBoxes.push(TextBox.init());
+    state.score = { ...state.score, textBoxes: [ ...state.score.textBoxes, TextBox.init() ] };
     changed = true;
   } else if (ScoreEvent.isDeleteText(event)) {
     if (state.textBoxState.selectedText !== null) {
@@ -352,7 +358,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isEditText(event)) {
     const newText = prompt("Enter new text:", event.text.text);
     if (newText && newText !== event.text.text) {
-      event.text.text = newText;
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(event.text), 0, { ...event.text, text: newText });
+      state.score = { ...state.score };
       changed = true;
     }
   } else if (ScoreEvent.isAddBar(event)) {
@@ -365,7 +372,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (state.selection) {
       // todo delete all selected bars
       const { bar, stave } = currentBar(state.selection.start);
-      bar.notes.forEach(note => deleteNote(note));
+      state.score = deleteNotes(bar.notes, state.score);
       deleteXY(bar.id);
       Stave.deleteBar(stave, bar);
       changed = true;
@@ -381,22 +388,20 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       // todo delete all selected staves
       const { stave } = currentBar(state.selection.start);
       const notes: NoteModel[] = flatten(stave.bars.map(bar => bar.notes));
-      notes.forEach(note => deleteNote(note));
+      state.score = deleteNotes(notes, state.score);
       Score.deleteStave(state.score, stave);
       changed = true;
     }
   } else if (ScoreEvent.isTieSelectedNotes(event)) {
     if (selectedNotes.length > 0) {
-      selectedNotes.forEach(note => {
-        note.tied = !note.tied
-        makeCorrectTie(note);
-      });
+      state.score = changeNotes(selectedNotes, note => ({ ...note, tied: !note.tied }), state.score);
       changed = true;
     }
   } else if (ScoreEvent.isAddSecondTiming(event)) {
     if (selectedNotes.length >= 3) {
       const notes = sortByPosition(selectedNotes);
       state.score.secondTimings.push(SecondTiming.init(notes[0].id, notes[1].id, notes[2].id));
+      state.score = { ...state.score };
       changed = true;
     }
   } else if (ScoreEvent.isEditTimeSignatureNumerator(event)) {
