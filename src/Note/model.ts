@@ -8,23 +8,22 @@ export interface PreviousNote {
   y: number
 }
 
-export interface NoteModel extends Item {
-  pitch: Pitch,
-  length: NoteLength,
-  gracenote: GracenoteModel,
-  tied: boolean
-}
-
-interface TripletNoteModel extends Item {
+export interface BaseNote extends Item {
   pitch: Pitch,
   gracenote: GracenoteModel
 }
 
-export interface TripletModel {
+export interface NoteModel extends BaseNote {
   length: NoteLength,
-  first: TripletNoteModel,
-  second: TripletNoteModel,
-  third: TripletNoteModel
+  tied: boolean
+}
+
+// TODO - should this be an item?
+export interface TripletModel extends Item {
+  length: NoteLength,
+  first: BaseNote,
+  second: BaseNote,
+  third: BaseNote
 }
 
 // todo - dottedHemiDemiSemiQuaver should probably be removed since if it is used it is impossible for

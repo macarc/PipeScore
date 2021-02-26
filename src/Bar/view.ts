@@ -10,7 +10,7 @@ import { Pitch, noteY } from '../global/pitch';
 import { setXY } from '../global/state';
 import { last, nlast, nmap } from '../global/utils';
 
-import { NoteModel, PreviousNote } from '../Note/model';
+import { NoteModel, TripletModel, PreviousNote } from '../Note/model';
 import { BarModel, Barline } from './model';
 import { Dispatch } from '../Event';
 
@@ -35,7 +35,7 @@ interface BarProps {
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
-      const previous = (index === 0) ? previousNote : bar.notes[index - 1].pitch;
+      const previous = (index === 0) ? previousNote : Note.pitchOf(bar.notes[index - 1]);
       return [...nums, nlast(nums) + widthOfNote(n,previous || null)];
     },
     [1]);
@@ -49,7 +49,7 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
   const lastNoteIndex = bar.notes.length - 1;
   const lastNote = last(bar.notes);
   const previousBarLastNote = nmap(previousBar, n => last(n.notes));
-  const previousNote = nmap(previousBarLastNote, n => n.pitch);
+  const previousNote = nmap(previousBarLastNote, n => Note.pitchOf(n));
   if (lastNote !== null) {
     const beats = beatsOf(bar, previousNote)
     const totalNumberOfBeats = last(beats);
@@ -112,7 +112,7 @@ export default function render(bar: BarModel,props: BarProps): V {
 
   const groupedNotes = Note.groupNotes(bar.notes, TimeSignature.beatDivision(bar.timeSignature));
 
-  const previousNote = props.previousBar ? nmap(last(props.previousBar.notes), n => n.pitch) : null;
+  const previousNote = props.previousBar ? nmap(last(props.previousBar.notes), n => Note.pitchOf(n)) : null;
   const beats = beatsOf(bar, previousNote);
 
 
@@ -126,8 +126,15 @@ export default function render(bar: BarModel,props: BarProps): V {
     // this function assumes that it is being passed the noteIndex corresponding to the start of the groupNoteIndex
     // enforce it somehow?
 
-    const lastNote = (noteIndex > 0) ? bar.notes[noteIndex - 1].pitch : null;
-    if (groupNoteIndex === 0) {
+    const lastNoteModel = bar.notes[noteIndex - 1];
+    const lastNote = (noteIndex > 0) ? Note.pitchOf(lastNoteModel) : null;
+    if (lastNoteModel && Note.isTriplet(lastNoteModel)) {
+      return ({
+        pitch: lastNoteModel.third.pitch,
+        x: xOf(noteIndex - 1) + 2 * beatWidth + noteHeadOffset(beatWidth, lastNoteModel.third, lastNoteModel.second.pitch),
+        y: noteY(props.y, lastNoteModel.third.pitch)
+      });
+    } else if (groupNoteIndex === 0) {
       if (previousNote !== null && props.lastNoteX !== null) {
         return ({
           pitch: previousNote,
@@ -141,8 +148,8 @@ export default function render(bar: BarModel,props: BarProps): V {
       if (noteIndex === 0) throw new Error('noteIndex === 0');
       const x =
         (noteIndex === 1)
-          ? xOf(noteIndex - 1) + noteHeadOffset(beatWidth, bar.notes[noteIndex - 1], previousNote)
-          : xOf(noteIndex - 1) + noteHeadOffset(beatWidth, bar.notes[noteIndex - 1], bar.notes[noteIndex - 2].pitch);
+          ? xOf(noteIndex - 1) + noteHeadOffset(beatWidth, lastNoteModel, previousNote)
+          : xOf(noteIndex - 1) + noteHeadOffset(beatWidth, lastNoteModel, Note.pitchOf(bar.notes[noteIndex - 2]));
       return ({
         pitch: lastNote,
         x,
@@ -154,16 +161,19 @@ export default function render(bar: BarModel,props: BarProps): V {
     }
   }
 
-  const noteProps = (notes: NoteModel[],index: number) => ({
-    x: xOf(bar.notes.indexOf(notes[0])),
-    y: staveY,
-    noteWidth: beatWidth,
-    previousNote: previousNoteData(index, bar.notes.indexOf(notes[0])),
-    selectedNotes: [],
-    dispatch: props.dispatch,
-    state: props.noteState,
-    gracenoteState: props.gracenoteState
-  });
+  const noteProps = (notes: (NoteModel[] | TripletModel),index: number) => {
+    const firstNote = Note.isTriplet(notes) ? notes : notes[0];
+    return ({
+      x: xOf(bar.notes.indexOf(firstNote)),
+      y: staveY,
+      noteWidth: beatWidth,
+      previousNote: previousNoteData(index, bar.notes.indexOf(firstNote)),
+      selectedNotes: [],
+      dispatch: props.dispatch,
+      state: props.noteState,
+      gracenoteState: props.gracenoteState
+    });
+  }
 
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
 

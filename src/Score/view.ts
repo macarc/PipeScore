@@ -59,23 +59,5 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
                ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming)),
                props.selection ? renderScoreSelection(props.selection) : null
              ])
-
-
-             /*
-  return svg`<svg ref=${props.svgRef} width=${scoreWidth * props.zoomLevel / 100} height=${scoreHeight * props.zoomLevel / 100} viewBox=${`0 0 ${scoreWidth} ${scoreHeight}`} onmouseup=${() => props.dispatch({ name: 'mouse up' })}>
-    <rect x="0" y="0" width="100%" onmousedown=${() => props.dispatch({ name: 'background clicked' })} height="100%" fill="white" />
-
-    ${score.staves.map((stave,idx) => svg.for(stave)`
-      ${renderStave(stave, staveProps(stave,idx))}
-    `)}
-
-    ${score.textBoxes.map(textBox => svg.for(textBox)`${TextBox(textBox, { dispatch: props.dispatch })}`)}
-
-
-    ${score.secondTimings.map(secondTiming => svg.for(secondTiming)`${SecondTiming(secondTiming)}`)}
-
-    ${props.selection ? ScoreSelection(props.selection) : null}
-  </svg>`;
-  */
 }
 

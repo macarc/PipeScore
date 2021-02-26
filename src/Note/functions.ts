@@ -1,17 +1,21 @@
 import { Pitch } from '../global/pitch';
 import { genId, flatten } from '../global/utils';
 
-import { NoteModel, NoteLength } from './model';
+import { NoteModel, NoteLength, TripletModel, BaseNote } from './model';
 
 import Gracenote from '../Gracenote/functions';
 
 //const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : nmap(last(groupNote.notes), n => n.pitch);
 
+function isTriplet(note: NoteModel | NoteModel[] | TripletModel): note is TripletModel {
+  return (note as TripletModel).first !== undefined;
+}
+
 function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
   return flatten(notes);
 }
 
-function groupNotes(notes: NoteModel[], lengthOfGroup: number): NoteModel[][] {
+function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number): (NoteModel[] | TripletModel)[] {
   // TODO this could probably be cleaned up further
   const pushNote = (group: NoteModel[], note: NoteModel): void => {
     if (hasBeam(note)) {
@@ -26,28 +30,35 @@ function groupNotes(notes: NoteModel[], lengthOfGroup: number): NoteModel[][] {
     }
   };
   let currentGroup: NoteModel[] = [];
-  const groupedNotes: NoteModel[][] = [];
+  const groupedNotes: (NoteModel[] | TripletModel)[] = [];
   let currentLength = 0;
   notes.forEach(note => {
-    const length = lengthToNumber(note.length);
-    if (currentLength + length < lengthOfGroup) {
-      pushNote(currentGroup, note);
-      currentLength += length;
-    } else if (currentLength + length === lengthOfGroup) {
-      pushNote(currentGroup, note);
-      // this check is needed since pushNote could end up setting currentGroup to have no notes in it
+    if (isTriplet(note)) {
       if (currentGroup.length > 0) groupedNotes.push(currentGroup);
+      groupedNotes.push(note);
+      currentGroup = [];
       currentLength = 0;
-      currentGroup = [];
     } else {
-      if (currentGroup.length > 0) groupedNotes.push(currentGroup);
-      currentGroup = [];
-      pushNote(currentGroup, note);
-      currentLength = length;
-      if (currentLength >= lengthOfGroup) {
+      const length = lengthToNumber(note.length);
+      if (currentLength + length < lengthOfGroup) {
+        pushNote(currentGroup, note);
+        currentLength += length;
+      } else if (currentLength + length === lengthOfGroup) {
+        pushNote(currentGroup, note);
+        // this check is needed since pushNote could end up setting currentGroup to have no notes in it
+        if (currentGroup.length > 0) groupedNotes.push(currentGroup);
+        currentLength = 0;
+        currentGroup = [];
+      } else {
         if (currentGroup.length > 0) groupedNotes.push(currentGroup);
         currentGroup = [];
-        currentLength = 0;
+        pushNote(currentGroup, note);
+        currentLength = length;
+        if (currentLength >= lengthOfGroup) {
+          if (currentGroup.length > 0) groupedNotes.push(currentGroup);
+          currentGroup = [];
+          currentLength = 0;
+        }
       }
     }
   });
@@ -157,6 +168,10 @@ function toggleDot(length: NoteLength): NoteLength {
   }
 }
 
+const lastNoteIn = (notes: NoteModel[] | TripletModel): BaseNote => isTriplet(notes) ? notes.third : notes[notes.length - 1];
+const pitchOf = (note: NoteModel | TripletModel): Pitch => isTriplet(note) ? note.third.pitch : note.pitch;
+
+
 const numberOfNotes = (notes: NoteModel[]): number => notes.length;
 
 const init = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
@@ -176,7 +191,10 @@ const initTriplet = (): null => null;
 export default {
   init,
   initTriplet,
+  isTriplet,
   numberOfNotes,
+  lastNoteIn,
+  pitchOf,
   unGroupNotes,
   groupNotes,
   lengthToNumTails,

@@ -22,9 +22,4 @@ export default function render(tx: TextBoxModel, props: TextBoxProps): V {
              { x: tx.x, y: tx.y, 'text-anchor': 'middle', fill: (tx === props.state.selectedText) ? 'orange' : '' },
              { dblclick: () => props.dispatch({ name: 'edit text', text: tx }), mousedown: () => props.dispatch({ name: 'text clicked', text: tx }), mouseup: () => props.dispatch({ name: 'text mouse up' }) },
             [tx.text])
-  /*
-  return svg`
-    <text x=${tx.x} y=${tx.y} text-anchor="middle" ondblclick=${() => props.dispatch({ name: 'edit text', text: tx })} onmousedown=${() => props.dispatch({ name: 'text clicked', text: tx })} onmouseup=${() => props.dispatch({ name: 'text mouse up' })} fill=${tx === selectedText ? 'orange' : null}>${tx.text}</text>
-  `;
-  */
 }

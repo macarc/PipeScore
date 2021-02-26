@@ -19,10 +19,4 @@ export default function render(selection: ScoreSelectionModel): V {
   return svg('g', { class: 'selection' }, [
              svg('rect', { x: start.beforeX, y: start.y - lineGap, width, height, fill: 'orange', opacity: 0.5, 'pointer-events': 'none' })
   ]);
-
-  /*
-  return svg`<g class="selection">
-    <rect x=${start.beforeX} y=${start.y - lineGap} width=${width} height=${height} fill="orange" opacity="0.4" pointer-events="none" />
-  </g>`
-  */
 }
