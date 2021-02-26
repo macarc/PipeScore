@@ -202,14 +202,46 @@ interface NoteProps {
   gracenoteState: GracenoteState
 }
 
+function renderTriplet(triplet: TripletModel, props: NoteProps): V {
+  // This is mostly just repetitive
+  const notes = Note.tripletNoteModels(triplet);
+  const firstX = props.x + props.noteWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.first.gracenote, triplet.first.pitch, nmap(props.previousNote, n => n.pitch));
+  const secondX = firstX + props.noteWidth * (1 + gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.second.gracenote, triplet.second.pitch, triplet.first.pitch));
+  const thirdX = secondX + props.noteWidth * (1 + gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.third.gracenote, triplet.third.pitch, triplet.second.pitch));
 
-export default function render(group: (NoteModel[] | TripletModel),props: NoteProps): V {
+  const firstY = noteY(props.y, triplet.first.pitch);
+  const secondY = noteY(props.y, triplet.second.pitch);
+  const thirdY = noteY(props.y, triplet.third.pitch);
+
+  const firstStemY = Math.max(noteY(props.y, triplet.first.pitch) + 30, secondY + 20);
+  const thirdStemY = Math.max(noteY(props.y, triplet.third.pitch) + 30, secondY + 20);
+  const secondStemY = (secondX - firstX) / (thirdX - firstX) * (thirdStemY - firstStemY) + firstStemY
+
+  return svg('g', { class: 'triplet' }, [
+    svg('g', { class: 'first' }, [
+      noteHead(firstX, firstY, notes[0], () => null, props.state.dragged),
+      svg('line', { x1: firstX - noteHeadWidth, x2: firstX - noteHeadWidth, y1: firstY, y2: firstStemY, stroke: 'black' }),
+    ]),
+    svg('g', { class: 'second' }, [
+      noteHead(secondX, secondY, notes[1], () => null, props.state.dragged),
+      svg('line', { x1: secondX - noteHeadWidth, x2: secondX - noteHeadWidth, y1: secondY, y2: secondStemY, stroke: 'black' }),
+      beamFrom(firstX - noteHeadWidth, firstStemY, secondX - noteHeadWidth, secondStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
+    ]),
+    svg('g', { class: 'first' }, [
+      noteHead(thirdX, thirdY, notes[2], () => null, props.state.dragged),
+      svg('line', { x1: thirdX - noteHeadWidth, x2: thirdX - noteHeadWidth, y1: thirdY, y2: thirdStemY, stroke: 'black' }),
+      beamFrom(secondX - noteHeadWidth, secondStemY, thirdX - noteHeadWidth, thirdStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
+    ]),
+    noteBoxes(thirdX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet }))
+  ]);
+}
+
+
+export default function render(group: (NoteModel[] | TripletModel), props: NoteProps): V {
   if (Note.isTriplet(group)) {
-    return svg('g');
+    return renderTriplet(group, props);
   } else {
     const previousPitch = props.previousNote && props.previousNote.pitch;
-
-    const canAddNotes = true;//!groupNote.triplet;
 
     if (group.length === 0) {
       return svg('g')
@@ -243,7 +275,7 @@ export default function render(group: (NoteModel[] | TripletModel),props: NotePr
           state: props.gracenoteState
         });
 
-        const nb = canAddNotes ? () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : () => svg('g');
+        const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote }));
 
         return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.state.dragged, props.dispatch);
       } else {
@@ -315,7 +347,7 @@ export default function render(group: (NoteModel[] | TripletModel),props: NotePr
 
                        noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }), props.state.dragged),
 
-                       canAddNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : null,
+                       noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })),
 
                        svg('line', { x1: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
                      ])

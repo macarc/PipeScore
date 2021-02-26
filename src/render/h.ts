@@ -50,6 +50,8 @@ export function hFrom(id: string): V {
   return { name: el.tagName, attrs: {}, events: {}, children: [], node: el };
 }
 
+// This is safe, but eslint can't work that out
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function cache<Fn extends (...a: any) => VElement>(args: Parameters<Fn>, fn: Fn): VCache {
   return ({
     data: args,

@@ -11,6 +11,10 @@ function isTriplet(note: NoteModel | NoteModel[] | TripletModel): note is Triple
   return (note as TripletModel).first !== undefined;
 }
 
+function tripletNoteModels(triplet: TripletModel): [NoteModel, NoteModel, NoteModel] {
+  return [{ ...triplet.first, length: triplet.length, tied: false }, { ...triplet.second, length: triplet.length, tied: false }, { ...triplet.third, length: triplet.length, tied: false }];
+}
+
 function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
   return flatten(notes);
 }
@@ -182,16 +186,25 @@ const init = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
   id: genId()
 });
 
-const initTriplet = (): null => null;
-/*const initTriplet = (length: NoteLength) => ({
-  notes: [initNote(Pitch.A, length), initNote(Pitch.A, length), initNote(Pitch.A, length)],
-  triplet: true
-})*/
+const initBase = (pitch = Pitch.A): BaseNote => ({
+  id: genId(),
+  pitch,
+  gracenote: Gracenote.init()
+});
+
+const initTriplet = (length = NoteLength.Quaver): TripletModel => ({
+  id: genId(),
+  first: initBase(),
+  second: initBase(),
+  third: initBase(),
+  length
+});
 
 export default {
   init,
   initTriplet,
   isTriplet,
+  tripletNoteModels,
   numberOfNotes,
   lastNoteIn,
   pitchOf,

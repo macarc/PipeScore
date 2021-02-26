@@ -520,7 +520,7 @@ function changeNote(oldNote: NoteModel, newNote: NoteModel): void {
   }
 }
 
-function currentBar(note: NoteModel | ID): { stave: StaveModel, bar: BarModel } {
+function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, bar: BarModel } {
   // This is extremely inefficient and should only be used in instances that don't occur regularly
   const staves = Score.staves(state.score);
   if (typeof note === 'number') {

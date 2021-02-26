@@ -4,7 +4,7 @@
 */
 import { Pitch } from './global/pitch';
 
-import { NoteModel, NoteLength } from './Note/model';
+import { NoteModel, TripletModel, NoteLength } from './Note/model';
 import { BarModel } from './Bar/model';
 import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
@@ -131,7 +131,7 @@ export function isStopInputtingNotes(e: ScoreEvent): e is StopInputtingNotes {
 type AddNoteAfter = {
   name: 'note added',
   pitch: Pitch,
-  noteBefore: NoteModel
+  noteBefore: NoteModel | TripletModel
 }
 export function isAddNoteAfter(e: ScoreEvent): e is AddNoteAfter {
   return e.name === 'note added';
