@@ -7,8 +7,12 @@ import Gracenote from '../Gracenote/functions';
 
 //const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : nmap(last(groupNote.notes), n => n.pitch);
 
-function isTriplet(note: NoteModel | NoteModel[] | TripletModel): note is TripletModel {
+function isTriplet(note: NoteModel | BaseNote | NoteModel[] | TripletModel): note is TripletModel {
   return (note as TripletModel).first !== undefined;
+}
+
+function isNoteModel(note: BaseNote): note is NoteModel {
+  return (note as NoteModel).length !== undefined;
 }
 
 function tripletNoteModels(triplet: TripletModel): [NoteModel, NoteModel, NoteModel] {
@@ -204,6 +208,7 @@ export default {
   init,
   initTriplet,
   isTriplet,
+  isNoteModel,
   tripletNoteModels,
   numberOfNotes,
   lastNoteIn,

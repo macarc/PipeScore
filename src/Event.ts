@@ -4,7 +4,7 @@
 */
 import { Pitch } from './global/pitch';
 
-import { NoteModel, TripletModel, NoteLength } from './Note/model';
+import { NoteModel, TripletModel, NoteLength, BaseNote } from './Note/model';
 import { BarModel } from './Bar/model';
 import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
@@ -77,7 +77,7 @@ export function isSingleGracenoteClicked(e: ScoreEvent): e is SingleGracenoteCli
 
 type NoteClicked = {
   name: 'note clicked',
-  note: NoteModel,
+  note: BaseNote,
   event: MouseEvent
 }
 export function isNoteClicked(e: ScoreEvent): e is NoteClicked {

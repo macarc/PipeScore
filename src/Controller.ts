@@ -9,7 +9,7 @@ import * as ScoreEvent from './Event';
 import { ScoreModel } from './Score/model';
 import { StaveModel } from './Stave/model';
 import { BarModel } from './Bar/model';
-import { NoteModel, TripletModel } from './Note/model';
+import { NoteModel, TripletModel, BaseNote } from './Note/model';
 import { GracenoteModel } from './Gracenote/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
@@ -105,6 +105,29 @@ function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel 
       makeCorrectTie(note);
 
       return [{ ...score }, true];
+    } else {
+      return [ score, false ];
+    }
+  }, score);
+}
+
+function changeTripletNoteFrom(id: ID, newNote: BaseNote, score: ScoreModel): ScoreModel {
+  return noteMap((n,bar,stave,score,inote,ibar,istave) => {
+    if (Note.isTriplet(n)) {
+      if (n.first.id === id) {
+        n = { ...n, first: newNote };
+      } else if (n.second.id === id) {
+        n = { ...n, second: newNote };
+      } else if (n.third.id === id) {
+        n = { ...n, third: newNote };
+      } else {
+        return [ score, false ];
+      }
+      bar.notes[inote] = n;
+      stave.bars[ibar] = { ...bar };
+      score.staves[istave] = { ...stave };
+
+      return [ { ...score }, true ];
     } else {
       return [ score, false ];
     }
@@ -234,11 +257,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       if (state.selection === null) {
         state.selection = { start: event.note.id, end: event.note.id };
       } else {
-        const ind = noteModels.indexOf(event.note);
-        if (ind < indexOfId(state.selection.start, noteModels)) {
-          state.selection.start = event.note.id;
-        } else if (ind > indexOfId(state.selection.end, noteModels)) {
-          state.selection.end = event.note.id;
+        if (Note.isNoteModel(event.note)) {
+          const ind = noteModels.indexOf(event.note);
+          if (ind < indexOfId(state.selection.start, noteModels)) {
+            state.selection.start = event.note.id;
+          } else if (ind > indexOfId(state.selection.end, noteModels)) {
+            state.selection.end = event.note.id;
+          }
+        } else {
+          // If it's a tripleted note, you can only select it on its own
+          state.selection = { start: event.note.id, end: event.note.id };
         }
       }
     }
@@ -294,9 +322,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   else if (ScoreEvent.isMouseMovedOver(event)) {
     if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
       changed = true;
-      const newNote = { ...state.noteState.dragged, pitch: event.pitch };
-      state.score = changeNoteFrom(state.noteState.dragged.id, newNote, state.score);
-      state.noteState.dragged = newNote;
+      if (Note.isNoteModel(state.noteState.dragged)) {
+        const newNote = { ...state.noteState.dragged, pitch: event.pitch };
+        state.score = changeNoteFrom(state.noteState.dragged.id, newNote, state.score);
+        state.noteState.dragged = newNote;
+      } else {
+        // It must be a triplet
+        const newNote = { ...state.noteState.dragged, pitch: event.pitch };
+        state.score = changeTripletNoteFrom(state.noteState.dragged.id, newNote, state.score);
+        state.noteState.dragged = newNote;
+      }
     }
     if (state.gracenoteState.dragged !== null && event.pitch !== state.gracenoteState.dragged.note) {
       changed = true;
@@ -312,7 +347,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
     // TODO fix triplets
-    state.score = changeNotes(selectedNotes, note => Note.isTriplet(note) ? note : ({ ...note, gracenote: Gracenote.from(event.value) }), state.score);
+    const newGracenote = Gracenote.from(event.value);
+    state.score = changeNotes(selectedNotes, note => Note.isTriplet(note) ? note : ({ ...note, gracenote: newGracenote }), state.score);
     changed = true;
   } else if (ScoreEvent.isAddNoteAfter(event)) {
     if (state.uiState.inputLength !== null) {
