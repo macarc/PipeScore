@@ -5,7 +5,7 @@
 import startController from './Controller';
 import { keyHandler } from './KeyHandler';
 
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', keyHandler);
   startController()
 });

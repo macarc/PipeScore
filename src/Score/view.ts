@@ -3,7 +3,6 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { V, svg } from '../render/h';
-import { SvgRef } from '../global/svg';
 import { scoreWidth, scoreHeight, staveGap } from '../global/constants';
 
 import { ScoreModel } from './model';
@@ -20,7 +19,6 @@ import { GracenoteState } from '../Gracenote/view';
 
 interface ScoreProps {
   updateView: (score: ScoreModel) => void,
-  svgRef: SvgRef,
   zoomLevel: number,
   selection: ScoreSelectionModel | null,
   dispatch: Dispatch,
@@ -46,7 +44,8 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
 
   // TODO bind svgRef somehow
   return svg('svg',
-             { width: (scoreWidth * props.zoomLevel / 100),
+             { id: 'score-svg',
+               width: (scoreWidth * props.zoomLevel / 100),
                height: (scoreHeight * props.zoomLevel / 100),
                viewBox: `0 0 ${scoreWidth} ${scoreHeight}`
              },

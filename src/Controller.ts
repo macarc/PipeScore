@@ -29,7 +29,6 @@ import renderUI from './UI/view';
 
 import { scoreWidth } from './global/constants';
 import { deleteXY } from './global/state';
-import { SvgRef } from './global/svg';
 import { ID, Item } from './global/types';
 
 import { flatten, deepcopy } from './global/utils';
@@ -46,7 +45,6 @@ interface State {
   gracenoteState: GracenoteState,
   uiState: UIState,
   textBoxState: TextBoxState,
-  currentSvg: SvgRef,
   clipboard: NoteModel[] | null,
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
@@ -58,9 +56,8 @@ interface State {
 const state: State = {
   noteState: { dragged: null },
   gracenoteState: { dragged: null },
-  uiState: { zoomLevel: 100 * (0.75 * window.outerWidth) / scoreWidth, inputLength: null },
+  uiState: { zoomLevel: 100 * (0.75 * Math.max(window.outerWidth, 800)) / scoreWidth, inputLength: null },
   textBoxState: { selectedText: null },
-  currentSvg: { current: null },
   clipboard: null,
   selection: null,
   draggedText: null,
@@ -383,13 +380,17 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isTextDragged(event)) {
     if (state.draggedText !== null) {
-      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 0, TextBox.setCoords(state.draggedText, event.x, event.y));
+      const newText = TextBox.setCoords(state.draggedText, event.x, event.y);
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 1, newText);
+      state.textBoxState.selectedText = newText;
       state.score = { ...state.score };
       changed = true
     }
   } else if (ScoreEvent.isCentreText(event)) {
     if (state.textBoxState.selectedText !== null) {
-      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 0, TextBox.centre(state.textBoxState.selectedText, scoreWidth));
+      const newText = TextBox.centre(state.textBoxState.selectedText, scoreWidth);
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1, newText);
+      state.textBoxState.selectedText = newText;
       state.score = { ...state.score };
       changed = true;
     }
@@ -399,13 +400,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isDeleteText(event)) {
     if (state.textBoxState.selectedText !== null) {
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
+      state.textBoxState.selectedText = null;
+      state.draggedText = null;
       changed = true;
     }
   } else if (ScoreEvent.isEditText(event)) {
     const newText = prompt("Enter new text:", event.text.text);
     if (newText && newText !== event.text.text) {
-      state.score.textBoxes.splice(state.score.textBoxes.indexOf(event.text), 0, { ...event.text, text: newText });
-      state.score = { ...state.score };
+      const newTextBox = { ...event.text, text: newText };
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(event.text), 1, newTextBox);
+      state.textBoxState.selectedText = newTextBox;
       changed = true;
     }
   } else if (ScoreEvent.isAddBar(event)) {
@@ -524,10 +528,10 @@ function sortByPosition(notes: (NoteModel | TripletModel)[]) {
 
 function dragText(event: MouseEvent) {
   if (state.draggedText !== null) {
-    const svg = state.currentSvg.current;
+    const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
-    } else {
+    } else if (svg instanceof SVGSVGElement) {
       const CTM = svg.getScreenCTM();
       if (CTM == null) return;
       const pt = svg.createSVGPoint();
@@ -618,7 +622,6 @@ const updateView = (score: ScoreModel) => {
   if (!scoreRoot || !uiRoot) return;
 
   const scoreProps = {
-    svgRef: state.currentSvg,
     zoomLevel: state.uiState.zoomLevel,
     selection: state.selection,
     updateView: () => null,

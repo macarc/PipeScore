@@ -73,7 +73,7 @@ export default function patch(before: VElement, after: VElement): boolean {
   for (const event in after.events) {
     if (before.events[event] !== after.events[event]) {
       after.node.removeEventListener(event, before.events[event]);
-        after.node.addEventListener(event, after.events[event]);
+      after.node.addEventListener(event, after.events[event]);
     }
   }
   const notNull = <A>(a: A | null): a is A => a !== null;

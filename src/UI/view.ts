@@ -80,7 +80,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('button', { class: 'add' }, { click: () => dispatch({ name: 'add stave' }) }),
       h('button', { class: 'delete' }, { click: () => dispatch({ name: 'delete stave' }) }),
       h('hr'),
-      h('h2', ['text']),
+      h('h2', ['Text']),
       h('button', { class: 'add' }, { click: () => dispatch({ name: 'add text' }) }),
       h('button', { class: 'delete' }, { click: () => dispatch({ name: 'delete text' }) }),
       h('button', { }, { click: () => dispatch({ name: 'centre text' }) }, [ 'centre' ]),
