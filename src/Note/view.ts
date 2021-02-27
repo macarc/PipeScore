@@ -91,7 +91,7 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
   const maskrx = Note.hasStem(note) ? 5 : 4;
   const maskry = 2;
 
-  const clickableWidth = 14;
+  const clickableWidth = 20;
   const clickableHeight = 12;
 
   const dotted = Note.hasDot(note.length);
@@ -215,9 +215,10 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   const secondY = noteY(props.y, triplet.second.pitch);
   const thirdY = noteY(props.y, triplet.third.pitch);
 
-  const firstStemY = Math.max(noteY(props.y, triplet.first.pitch) + 30, secondY + 20);
-  const thirdStemY = Math.max(noteY(props.y, triplet.third.pitch) + 30, secondY + 20);
-  const secondStemY = (secondX - firstX) / (thirdX - firstX) * (thirdStemY - firstStemY) + firstStemY
+  const defaultHeight = (pitch: Pitch) => noteY(props.y, pitch) + 30;
+  const firstStemY = Note.hasBeam(triplet.length) ? Math.max(defaultHeight(triplet.first.pitch), secondY + 20) : defaultHeight(triplet.first.pitch);
+  const thirdStemY = Note.hasBeam(triplet.length) ? Math.max(defaultHeight(triplet.third.pitch), secondY + 20) : defaultHeight(triplet.third.pitch);
+  const secondStemY = Note.hasBeam(triplet.length) ? (secondX - firstX) / (thirdX - firstX) * (thirdStemY - firstStemY) + firstStemY : defaultHeight(triplet.second.pitch);
 
   // todo fix this
   setXY(triplet.first.id, firstX - noteHeadWidth, firstX, props.y);
@@ -338,7 +339,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
         const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalWidth(group,previousPitch));
 
         const stemYOf = (note: NoteModel, index: number) =>
-          (Note.hasBeam(note) ?
+          (Note.hasBeam(note.length) ?
           props.y
           + (multipleLowest
              // straight line if there is more than one lowest note

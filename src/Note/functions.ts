@@ -26,7 +26,7 @@ function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
 function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number): (NoteModel[] | TripletModel)[] {
   // TODO this could probably be cleaned up further
   const pushNote = (group: NoteModel[], note: NoteModel): void => {
-    if (hasBeam(note)) {
+    if (hasBeam(note.length)) {
       group.push(note);
     } else {
       // Push the note as its own group. This won't modify the currentLength,
@@ -85,8 +85,8 @@ function hasDot(note: NoteLength): boolean {
   return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(note));
 }
 
-function hasBeam(note: NoteModel): boolean {
-  return lengthToNumber(note.length) < 1;
+function hasBeam(note: NoteLength): boolean {
+  return lengthToNumber(note) < 1;
 }
 
 function isFilled(note: NoteModel): boolean {
