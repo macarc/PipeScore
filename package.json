@@ -8,7 +8,7 @@
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
     "watch": "parcel watch src/PipeScore.ts --out-dir public/dist",
-    "build": "rollup -c",
+    "build": "rm public/dist/* && rollup -c",
     "lint": "eslint src --ext .ts",
     "circles": "madge -c --warning src/PipeScore.ts"
   },

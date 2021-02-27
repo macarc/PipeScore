@@ -274,7 +274,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.gracenoteState.dragged = event.gracenote;
     changed = true;
   } else if (ScoreEvent.isBackgroundClicked(event)) {
-    if (selectedNotes.length > 0) {
+    if (state.selection) {
       state.selection = null
       changed = true;
     }
@@ -370,19 +370,17 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       makeCorrectTie(newNote);
     }
   } else if (ScoreEvent.isToggleDotted(event)) {
-    // TODO fix triplets
     state.score = changeNotes(selectedNotes,note => Note.isTriplet(note) ? note : ({ ...note, length:  Note.toggleDot(note.length) }), state.score);
     if (state.uiState.inputLength !== null) state.uiState.inputLength = Note.toggleDot(state.uiState.inputLength);
     changed = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
-    // todo
-    /*
-    if (selectedNotes.length > 0 && inputLength !== null) { 
-      const { groupNote, bar } = currentBar(selectedNotes[0]);
-      bar.notes.splice(bar.notes.indexOf(groupNote) + 1, 0, Note.initTriplet(inputLength));
+    if (selectedNotes.length > 0 && state.uiState.inputLength !== null) {
+      const { bar, stave } = currentBar(selectedNotes[0]);
+      bar.notes.splice(bar.notes.indexOf(selectedNotes[0]) + 1, 0, Note.initTriplet(state.uiState.inputLength));
+      stave.bars[stave.bars.indexOf(bar)] = { ...bar };
+      state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
       changed = true;
     }
-    */
   } else if (ScoreEvent.isTextDragged(event)) {
     if (state.draggedText !== null) {
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 0, TextBox.setCoords(state.draggedText, event.x, event.y));

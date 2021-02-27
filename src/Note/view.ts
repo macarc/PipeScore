@@ -150,7 +150,7 @@ M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
   return svg('path', { class: 'note-tie', d: path, stroke: 'black' });
 }
 
-function triplet(staveY: number, x1: number, x2: number, y1: number, y2: number): V {
+function tripletLine(staveY: number, x1: number, x2: number, y1: number, y2: number): V {
   const midx = x1 + (x2 - x1) / 2;
   const height = 40;
   const midy = staveY - height;
@@ -260,6 +260,7 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
       svg('line', { x1: thirdX - noteHeadWidth, x2: thirdX - noteHeadWidth, y1: thirdY, y2: thirdStemY, stroke: 'black' }),
       beamFrom(secondX - noteHeadWidth, secondStemY, thirdX - noteHeadWidth, thirdStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
     ]),
+    tripletLine(props.y, firstX, thirdX, firstY, thirdY),
     noteBoxes(thirdX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet }))
   ]);
 }

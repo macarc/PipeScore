@@ -12,7 +12,7 @@ const numberOfNotes = (bar: BarModel): number => bar.notes.length;
 
 const init = (isAnacrusis = false): BarModel => ({
   timeSignature: TimeSignature.init(),
-  notes: [Note.initTriplet()],
+  notes: [],
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,
   isAnacrusis,
