@@ -146,7 +146,6 @@ export default function patch(before: VElement, after: VElement): boolean {
             after.node.replaceChild(aft.cachedVElement.node, bef.cachedVElement.node);
           }
         } else {
-          //console.log('skipping cache');
           aft.cachedVElement = bef.cachedVElement;
         }
       } else {

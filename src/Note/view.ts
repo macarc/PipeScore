@@ -130,7 +130,7 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
   ]);
 }
 
-function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote): V {
+function tie(staveY: number, pitch: Pitch, x: number, noteWidth: number, previousNote: PreviousNote, lastStaveX: number): V {
   const tieOffsetY = 10;
   const tieHeight = 15;
   const tieWidth = 8;
@@ -143,9 +143,17 @@ function tie(staveY: number, pitch: Pitch, x: number, previousNote: PreviousNote
   const midy = y0 + (y1 - y0) / 2.0;
   const midloy = midy - tieHeight;
   const midhiy = midy - tieHeight - tieWidth;
-  const path = `
+  const path = (y0 === y1) ? `
 M ${x0},${y0} S ${midx},${midhiy}, ${x1},${y1}
 M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
+    `
+    // using noteWidth in the previous note is bad
+    : `
+M ${x0},${y0} S ${x0 - (noteWidth / 2)},${y0 - tieHeight - tieWidth}, ${x0 - noteWidth},${y0}
+M ${x0 - noteWidth},${y0} S ${x0 - (noteWidth / 2)},${y0 - tieHeight}, ${x0},${y0}
+
+M ${x1},${y1} S ${(lastStaveX - x1) / 2 + x1},${y1- tieHeight - tieWidth}, ${lastStaveX},${y1}
+M ${lastStaveX},${y1} S ${(lastStaveX - x1) / 2 + x1},${y1 - tieHeight}, ${x1},${y1}
     `;
   return svg('path', { class: 'note-tie', d: path, stroke: 'black' });
 }
@@ -166,16 +174,15 @@ M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}
 
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
-function singleton(note: NoteModel, x: number, staveY: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, drawNoteBoxes: () => V, draggedNote: BaseNote | null, dispatch: Dispatch): V {
+function singleton(note: NoteModel, x: number, staveY: number, noteWidth: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, lastStaveX: number, drawNoteBoxes: () => V, draggedNote: BaseNote | null, dispatch: Dispatch): V {
   // todo this is complected with stemXOf in `render`
   const y = noteY(staveY, note.pitch);
   const stemX = x - noteHeadWidth;
   const stemY = y + 30;
   const numberOfTails = Note.lengthToNumTails(note.length);
 
-
   return svg('g', { class: 'singleton' }, [
-    shouldTie(note, previousNote) ? tie(y, note.pitch, x, previousNote) : null,
+    shouldTie(note, previousNote) ? tie(staveY, note.pitch, x, noteWidth, previousNote, lastStaveX) : null,
     shouldTie(note, previousNote) ?  null : renderGracenote(note.gracenote, gracenoteProps),
 
     noteHead(x, y, note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }), draggedNote),
@@ -199,9 +206,10 @@ interface NoteProps {
   y: number,
   previousNote: PreviousNote | null,
   noteWidth: number,
+  endOfLastStave: number
   dispatch: Dispatch,
   state: NoteState,
-  gracenoteState: GracenoteState
+  gracenoteState: GracenoteState,
 }
 
 function renderTriplet(triplet: TripletModel, props: NoteProps): V {
@@ -307,7 +315,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
 
         const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote }));
 
-        return singleton(firstNote,xOf(0),props.y,gracenoteProps, props.previousNote, nb, props.state.dragged, props.dispatch);
+        return singleton(firstNote,xOf(0),props.y,props.noteWidth, gracenoteProps, props.previousNote, props.endOfLastStave, nb, props.state.dragged, props.dispatch);
       } else {
 
         const cap = (n: number, max: number) =>
@@ -370,7 +378,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
                      })) || props.previousNote;
 
                      return svg('g', { class: `grouped-note ${note.pitch}` }, [
-                       shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), previousNoteObj) : null,
+                       shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), props.noteWidth, previousNoteObj, props.endOfLastStave) : null,
                        shouldTie(note, previousNoteObj) ? null : renderGracenote(note.gracenote,gracenoteProps),
 
                        (previousNote !== null && index > 0) ? beamFrom(stemXOf(index),stemYOf(note, index), stemXOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null,

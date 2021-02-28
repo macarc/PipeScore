@@ -1,4 +1,4 @@
-Notes
+# Notes
 
 Perf:
 * add/removeEventListener
@@ -6,7 +6,7 @@ Perf:
 
 Bugs to fix:
 [ ] Dotted note can get crushed into next gracenote
-[ ] Deal with things (ties, second timings, selection, ...) going over stave break
+[ ] Deal with things (second timings, selection, ...) going over stave break
 [ ] Cut time
 [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
 [ ] Preview note for current placement
@@ -16,13 +16,11 @@ Bugs to fix:
 [ ] Copy/paste
   [ ] have two types, 1 for reference and one for value?
   [ ] put over correct bars
-[ ] Add options to override 'correct' functionality - e.g. automatic grouping, automatic gracenotes
 [ ] Better time signature editing (it should only change as far as the time signature is the same)
 [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 [ ] It is too easy to accidentally add notes
-[ ] Remove all the state.score = { ...state.score } from Controller
 [ ] Add optimised list render
-[ ] Ties to triplets
+[ ] Ties to triplets, gracenotes on triplets
 
 
 
@@ -106,3 +104,4 @@ Bugs fixed:
 [X] Dragging a single gracenote up then down again causes a render bug
 [X] Tie causes a render bug
 [X] Bug where adding an odd number of notes then deleting breaks it
+[X] Remove all the state.score = { ...state.score } from Controller

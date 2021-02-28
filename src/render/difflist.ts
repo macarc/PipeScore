@@ -45,7 +45,6 @@ function diffuneven<A>(longer: A[], shorter: A[], addChange: Change, removeChang
           lengthDiff -= j;
           so -= j;
         } else {
-          console.log(shorter[i + so], longer[i]);
           const diff = {
             index: i,
             change: Change.Modified,

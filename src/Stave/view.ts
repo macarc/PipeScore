@@ -3,6 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { lineHeightOf } from '../global/constants';
+import { nmap } from '../global/utils';
 
 import { svg, V } from '../render/h';
 
@@ -18,6 +19,7 @@ interface StaveProps {
   x: number,
   y: number,
   width: number,
+  previousStaveY: number,
   previousStave: StaveModel | null,
   dispatch: Dispatch,
   noteState: NoteState,
@@ -55,13 +57,29 @@ export default function render(stave: StaveModel, props: StaveProps): V {
     ? (props.previousStave ? props.previousStave.bars[props.previousStave.bars.length - 1] : null)
     : stave.bars[barIdx - 1];
 
+
+  const lastStaveLastNoteX = nmap(props.previousStave, stave => {
+    const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, null) : 0), 0);
+    const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.length;
+    const barStartX = stave.bars.slice(0, stave.bars.length - 1).reduce((soFar, bar) => {
+      if (bar.isAnacrusis) {
+        return soFar + widthOfAnacrusis(bar, null);
+      } else {
+        return soFar + barWidth;
+      }
+    }, props.x + trebleClefWidth)
+    return barStartX + xOffsetOfLastNote(stave.bars[stave.bars.length - 1], barWidth, stave.bars[stave.bars.length - 2]);
+  });
+
   const barProps = (bar: BarModel, index: number) => ({
     x: getX(index),
     y: staveHeight,
     width: bar.isAnacrusis ? widthOfAnacrusis(bar, null) : barWidth,
-    lastNoteX: index === 0 ? null : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
+    lastNoteX: index === 0 ? lastStaveLastNoteX : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1),
+    endOfLastStave: props.x + props.width, // should always be the same
+    previousStaveY: props.previousStaveY,
     dispatch: props.dispatch,
     noteState: props.noteState,
     gracenoteState: props.gracenoteState

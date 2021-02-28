@@ -37,6 +37,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     width: scoreWidth - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
+    previousStaveY: (index - 1) * staveGap + topOffset,
     dispatch: props.dispatch,
     noteState: props.noteState,
     gracenoteState: props.gracenoteState

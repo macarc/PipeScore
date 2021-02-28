@@ -25,12 +25,14 @@ interface BarProps {
   x: number,
   y: number,
   width: number,
+  previousStaveY: number,
   previousBar: BarModel | null,
   lastNoteX: number | null,
   shouldRenderLastBarline: boolean,
+  endOfLastStave: number
   dispatch: Dispatch,
   noteState: NoteState,
-  gracenoteState: GracenoteState
+  gracenoteState: GracenoteState,
 }
 
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
@@ -139,7 +141,7 @@ export default function render(bar: BarModel,props: BarProps): V {
         return ({
           pitch: previousNote,
           x: props.lastNoteX,
-          y: noteY(props.y, previousNote)
+          y: noteY(props.previousStaveY, previousNote)
         });
       } else {
         return null;
@@ -154,7 +156,7 @@ export default function render(bar: BarModel,props: BarProps): V {
         pitch: lastNote,
         x,
         y: noteY(props.y, lastNote)
-      })
+      });
     } else {
       throw new Error('groupNoteIndex !== 0 && lastNote === null');
       return null;
@@ -169,9 +171,10 @@ export default function render(bar: BarModel,props: BarProps): V {
       noteWidth: beatWidth,
       previousNote: previousNoteData(index, bar.notes.indexOf(firstNote)),
       selectedNotes: [],
+      endOfLastStave: props.endOfLastStave,
       dispatch: props.dispatch,
       state: props.noteState,
-      gracenoteState: props.gracenoteState
+      gracenoteState: props.gracenoteState,
     });
   }
 

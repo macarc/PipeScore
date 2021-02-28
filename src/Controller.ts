@@ -344,9 +344,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
     // TODO fix triplets
-    const newGracenote = Gracenote.from(event.value);
-    state.score = changeNotes(selectedNotes, note => Note.isTriplet(note) ? note : ({ ...note, gracenote: newGracenote }), state.score);
-    changed = true;
+    if (state.selection) {
+      const newGracenote = Gracenote.from(event.value);
+      state.score = changeNotes(selectedNotes, note => Note.isTriplet(note) ? note : ({ ...note, gracenote: newGracenote }), state.score);
+      changed = true;
+    }
   } else if (ScoreEvent.isAddNoteAfter(event)) {
     if (state.uiState.inputLength !== null) {
       const { bar, stave } = currentBar(event.noteBefore);
@@ -354,7 +356,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       bar.notes.splice(bar.notes.indexOf(event.noteBefore) + 1, 0, newNote);
       stave.bars[stave.bars.indexOf(bar)] = { ...bar };
       state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
-      state.score = { ...state.score };
       changed = true;
       // todo - should this need to be done?
       makeCorrectTie(newNote);
@@ -383,7 +384,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const newText = TextBox.setCoords(state.draggedText, event.x, event.y);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 1, newText);
       state.textBoxState.selectedText = newText;
-      state.score = { ...state.score };
       changed = true
     }
   } else if (ScoreEvent.isCentreText(event)) {
@@ -391,7 +391,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const newText = TextBox.centre(state.textBoxState.selectedText, scoreWidth);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1, newText);
       state.textBoxState.selectedText = newText;
-      state.score = { ...state.score };
       changed = true;
     }
   } else if (ScoreEvent.isAddText(event)) {
@@ -452,7 +451,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (selectedNotes.length >= 3) {
       const notes = sortByPosition(selectedNotes);
       state.score.secondTimings.push(SecondTiming.init(notes[0].id, notes[1].id, notes[2].id));
-      state.score = { ...state.score };
       changed = true;
     }
   } else if (ScoreEvent.isEditTimeSignatureNumerator(event)) {
@@ -545,19 +543,6 @@ function dragText(event: MouseEvent) {
   }
 }
 
-function changeNote(oldNote: NoteModel, newNote: NoteModel): void {
-  const staves = Score.staves(state.score);
-  for (const stave of staves) {
-    const bars = Stave.bars(stave);
-    for (const bar of bars) {
-      const ind = bar.notes.indexOf(oldNote);
-      if (ind !== -1) {
-        bar.notes.splice(ind, 1, newNote);
-      }
-    }
-  }
-}
-
 function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, bar: BarModel } {
   // This is extremely inefficient and should only be used in instances that don't occur regularly
   const staves = Score.staves(state.score);
@@ -566,7 +551,7 @@ function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, b
       const bars = Stave.bars(stave);
       for (const bar of bars) {
         for (const noteModel of bar.notes) {
-          if (!Note.isTriplet(noteModel) && noteModel.id === note) {
+          if (noteModel.id === note) {
             return { stave, bar };
           }
         }
