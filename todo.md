@@ -1,10 +1,11 @@
-# Notes
+# To-do list
 
-Perf:
+## Perf
+Bottlenecks:
 * add/removeEventListener
 * replaceChild
 
-Bugs to fix:
+## Bugs to fix
 - [ ] Dotted note can get crushed into next gracenote
 - [ ] Deal with things (second timings, selection, ...) going over stave break
 - [ ] Cut time
@@ -24,7 +25,7 @@ Bugs to fix:
 
 
 
-General features:
+## General features
 - [X] Single notes
 - [X] Note groups
 - [X] Modifying notes
@@ -55,7 +56,7 @@ General features:
 
 
 
-Bugs fixed:
+## Bugs fixed
 - [X] fix slanted beams
 - [X] cap should be dependent on how many notes are in the group
 - [X] check / fix gaps between notes
@@ -96,7 +97,7 @@ Bugs fixed:
 - [X] Correct zoom on page load
 - [X] HG -> HA gracenote on next note looks a bit crushed
 - [X] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
--   [X] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
+  - [X] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
 - [X] I think for ties - no automatic insertion / deletion - it's too subjective
 - [X] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
 - [X] Crotchet triplets act as if there is a beam
