@@ -4,7 +4,7 @@
   "description": "A web-based bagpipe notation app.",
   "main": "PipeScore.ts",
   "scripts": {
-    "deploy": "firebase deploy",
+    "deploy": "npm run build && firebase deploy",
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
     "watch": "parcel watch src/PipeScore.ts --out-dir public/dist",
