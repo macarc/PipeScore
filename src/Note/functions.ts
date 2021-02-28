@@ -176,6 +176,20 @@ function toggleDot(length: NoteLength): NoteLength {
   }
 }
 
+function copyNote(note: NoteModel | TripletModel): NoteModel | TripletModel {
+  if (isTriplet(note)) {
+    return {
+      first: { ...note.first, id: genId() },
+      second: { ...note.second, id: genId() },
+      third: { ...note.third, id: genId() },
+      id: genId(),
+      length: note.length
+    };
+  } else {
+    return { ...note, id: genId() };
+  }
+}
+
 const lastNoteIn = (notes: NoteModel[] | TripletModel): BaseNote => isTriplet(notes) ? notes.third : notes[notes.length - 1];
 const pitchOf = (note: NoteModel | TripletModel): Pitch => isTriplet(note) ? note.third.pitch : note.pitch;
 
@@ -209,6 +223,7 @@ export default {
   initTriplet,
   isTriplet,
   isNoteModel,
+  copyNote,
   tripletNoteModels,
   numberOfNotes,
   lastNoteIn,

@@ -30,6 +30,7 @@ import renderUI from './UI/view';
 import { scoreWidth } from './global/constants';
 import { deleteXY } from './global/state';
 import { ID, Item } from './global/types';
+import { genId } from './global/utils';
 
 import { flatten, deepcopy } from './global/utils';
 
@@ -45,7 +46,7 @@ interface State {
   gracenoteState: GracenoteState,
   uiState: UIState,
   textBoxState: TextBoxState,
-  clipboard: NoteModel[] | null,
+  clipboard: (NoteModel | TripletModel)[] | null,
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
   score: ScoreModel,
@@ -480,24 +481,17 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isCopy(event)) {
-    // TODO
-    // setClipboard(JSON.parse(JSON.stringify(selectedNotes)));
+    state.clipboard = deepcopy(selectedNotes);
   } else if (ScoreEvent.isPaste(event)) {
-    // TODO
-    /*
-    if (! selection || ! clipboard) {
+    if (! state.selection || ! state.clipboard) {
       return;
     }
-    const toPaste = clipboard.map(note => {
-      const n = Note.initNote(note.pitch, note.length, note.tied);
-      n.gracenote = deepcopy(note.gracenote);
-      return n;
-    });
-    const pasteAfter = selection.end;
-    const { bar } = currentBar(pasteAfter);
-    bar.notes.splice(bar.notes.length, 0, Note.groupNoteFrom(toPaste));
+    const toPaste = state.clipboard.map(n => Note.copyNote(n));
+    const id = state.selection.end;
+    const { bar } = currentBar(id);
+    const pasteAfter = bar.notes.find(n => n.id === id);
+    if (pasteAfter) bar.notes.splice(bar.notes.indexOf(pasteAfter) + 1, 0, ...toPaste);
     changed = true;
-    */
   } else {
     return event;
   }
@@ -617,7 +611,6 @@ const updateView = (score: ScoreModel) => {
   }
   const newView = h('div', [renderScore(score, scoreProps)]);
   const newUIView = renderUI(dispatch, state.uiState);
-  // todo 
   if (state.view) patch(state.view, newView);
   if (state.uiView) patch(state.uiView, newUIView);
   state.view = newView;

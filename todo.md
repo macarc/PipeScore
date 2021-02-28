@@ -19,7 +19,6 @@ Bottlenecks:
   - [ ] put over correct bars
 - [ ] Better time signature editing (it should only change as far as the time signature is the same)
 - [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
-- [ ] It is too easy to accidentally add notes
 - [ ] Add optimised list render
 - [ ] Ties to triplets, gracenotes on triplets
 
@@ -106,3 +105,4 @@ Bottlenecks:
 - [X] Tie causes a render bug
 - [X] Bug where adding an odd number of notes then deleting breaks it
 - [X] Remove all the state.score = { ...state.score } from Controller
+- [X] It is too easy to accidentally add notes
