@@ -18,6 +18,7 @@ Bottlenecks:
 - [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 - [ ] Add optimised list render
 - [ ] Ties to triplets
+- [ ] Make a script to generate gracenote icons
 
 
 

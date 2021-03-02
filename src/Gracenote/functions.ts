@@ -8,6 +8,7 @@ function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is Invali
 type GracenoteFn = (note: Pitch, prev: Pitch | null) => Gracenote | InvalidGracenote;
 
 const invalidateIf = (pred: boolean, gracenote: Gracenote): Gracenote | InvalidGracenote => pred ? ({ gracenote }) : gracenote;
+const invalid = (gracenote: Gracenote): InvalidGracenote => ({ gracenote });
 
 const gracenotes: Map<string, GracenoteFn> = new Map();
 
@@ -41,6 +42,22 @@ gracenotes.set('doubling', (note, prev) => {
 
   return pitches;
 });
+gracenotes.set('edre', (note, prev) => {
+  if (prev === Pitch.G && (note === Pitch.E || note === Pitch.HG)) {
+    return [Pitch.E,Pitch.G,Pitch.F,Pitch.G];
+  } else if (prev === Pitch.F && note === Pitch.HG) {
+    return [Pitch.E,Pitch.HG,Pitch.E,Pitch.F,Pitch.E];
+  } else if (prev === Pitch.E && note === Pitch.HG) {
+    return [Pitch.F,Pitch.E,Pitch.HG,Pitch.E,Pitch.F,Pitch.E];
+  } else if (note === Pitch.E || note === Pitch.HG) {
+    return [Pitch.E,Pitch.A,Pitch.F,Pitch.A];
+  } else if (note === Pitch.F) {
+    return [Pitch.F,Pitch.E,Pitch.HG,Pitch.E];
+  } else {
+    return invalid([Pitch.E,Pitch.A,Pitch.F,Pitch.A])
+  }
+
+});
 gracenotes.set('grip', note => {
   if (note === Pitch.D) {
     return [Pitch.G, Pitch.B, Pitch.G];
@@ -59,6 +76,19 @@ gracenotes.set('toarluath', (note, prev) => {
     pitches = pitches.slice(0,3);
   }
   return pitches;
+});
+gracenotes.set('crunluath', (note, prev) => {
+  let pitches = []
+  if (!prev) {
+    return invalid([Pitch.G,Pitch.D,Pitch.G,Pitch.E,Pitch.A,Pitch.F,Pitch.A])
+  } if (prev === Pitch.D) {
+    pitches = [Pitch.G,Pitch.B,Pitch.G,Pitch.E,Pitch.A,Pitch.F,Pitch.A];
+  } else if (prev === Pitch.G) {
+    pitches = [Pitch.D,Pitch.A,Pitch.E,Pitch.A,Pitch.F,Pitch.A];
+  } else {
+    pitches = [Pitch.G,Pitch.D,Pitch.G,Pitch.E,Pitch.A,Pitch.F,Pitch.A];
+  }
+  return invalidateIf(note !== Pitch.E, pitches);
 });
 gracenotes.set('birl', (note, prev) => {
   return invalidateIf(note !== Pitch.A, prev === Pitch.A ? [Pitch.G, Pitch.A, Pitch.G] : [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
