@@ -29,16 +29,9 @@ label {
   top: 0;
   height: 100vh;
   width: 15vw;
+  overflow: scroll;
   padding: 1rem;
   background-color: lightblue;
-  overflow: scroll;
-}
-
-/* a hack to fix the bottom of the menu being off-screen */
-#ui #sidebar:after {
-  content: "";
-  height:50px;
-  display: block;
 }
 
 #ui #topbar {
@@ -46,7 +39,7 @@ label {
   left: 0;
   top: 0;
   display: block;
-  width: calc(100vw - 15vw - 3rem);
+  width: 90vw;
   padding: 1rem;
   background: lightblue;
   margin: 0;
@@ -131,17 +124,10 @@ text {
 #browser-size-warning {
   display: none;
 }
-@media only screen and (max-width: 800px) {
-  html {
-    background: white;
-  }
+@media only screen and (max-width: 600px) {
   #browser-size-warning {
     display: block;
-    width: 80%;
-    line-height: 2rem;
-    text-align: center;
-    margin: 30% auto;
-    font-size: 1.5rem;
+    width: 60%;
   }
   #score { display: none; }
   #ui { display: none; }

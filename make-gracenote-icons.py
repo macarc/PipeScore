@@ -1,4 +1,4 @@
-# This is a short script that generates the gracenote input icons - i.e. it generates images of all the types of gracenotes that can be input
+# This is a short, hacky script that generates the gracenote input icons - i.e. it generates images of all the types of gracenotes that can be input
 # It outputs them to /public/images/icons
 
 # You will need to install svgwrite via `pip3 install svgwrite` before running
