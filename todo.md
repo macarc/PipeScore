@@ -14,13 +14,11 @@ Bottlenecks:
 - [ ] Use correct previous note in all calls to widthOfAnacrusis
 - [ ] Better second timing usage - you should click to add, then be able to drag the sections around
 - [ ] Stricter bar lengths
-- [ ] Copy/paste
-  - [ ] have two types, 1 for reference and one for value?
-  - [ ] put over correct bars
+- [ ] Put copy/paste over correct bar
 - [ ] Better time signature editing (it should only change as far as the time signature is the same)
 - [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 - [ ] Add optimised list render
-- [ ] Ties to triplets, gracenotes on triplets
+- [ ] Ties to triplets
 
 
 
@@ -106,3 +104,4 @@ Bottlenecks:
 - [X] Bug where adding an odd number of notes then deleting breaks it
 - [X] Remove all the state.score = { ...state.score } from Controller
 - [X] It is too easy to accidentally add notes
+- [X] Gracenotes on triplets

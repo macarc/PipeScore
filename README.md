@@ -23,8 +23,6 @@ PipeScore uses a global controller (in `Controller.ts`) rather than individual c
 
 When events are dispatched, all the parts of the score that change are replaced rather than modified. This means that it will be easy to add optimisation later, by doing a simple equality check to see changes.
 
-The UI component defines the user interface - the top and sidebar.
-
 `Event.ts` defines all the possible events that the controller will take.
 
 The entry point is `PipeScore.ts` which starts the controller.

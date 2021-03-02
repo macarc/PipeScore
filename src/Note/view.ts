@@ -215,9 +215,12 @@ interface NoteProps {
 function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   // This is mostly just repetitive, but there's enough different that it isn't worth trying to reuse code
   const notes = Note.tripletNoteModels(triplet);
-  const firstX = props.x + props.noteWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.first.gracenote, triplet.first.pitch, nmap(props.previousNote, n => n.pitch));
-  const secondX = firstX + props.noteWidth * (1 + gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.second.gracenote, triplet.second.pitch, triplet.first.pitch));
-  const thirdX = secondX + props.noteWidth * (1 + gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.third.gracenote, triplet.third.pitch, triplet.second.pitch));
+  const firstGracenoteX = props.x;
+  const firstX = firstGracenoteX + props.noteWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.first.gracenote, triplet.first.pitch, nmap(props.previousNote, n => n.pitch));
+  const secondGracenoteX = firstX + props.noteWidth;
+  const secondX = secondGracenoteX + props.noteWidth * (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.second.gracenote, triplet.second.pitch, triplet.first.pitch));
+  const thirdGracenoteX = secondX + props.noteWidth;
+  const thirdX = thirdGracenoteX + props.noteWidth * (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.third.gracenote, triplet.third.pitch, triplet.second.pitch));
 
   const firstY = noteY(props.y, triplet.first.pitch);
   const secondY = noteY(props.y, triplet.second.pitch);
@@ -234,19 +237,19 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   setXY(triplet.third.id, thirdX - noteHeadWidth, thirdX, props.y);
 
   const firstGracenoteProps = ({
-    x: firstX, y: props.y,
+    x: firstGracenoteX, y: props.y,
     gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
     thisNote: triplet.first.pitch, previousNote: props.previousNote && props.previousNote.pitch,
     dispatch: props.dispatch, state: props.gracenoteState
   });
   const secondGracenoteProps = ({
-    x: secondX, y: props.y,
+    x: secondGracenoteX, y: props.y,
     gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
     thisNote: triplet.second.pitch, previousNote: triplet.first.pitch,
     dispatch: props.dispatch, state: props.gracenoteState
   });
   const thirdGracenoteProps = ({
-    x: thirdX, y: props.y,
+    x: thirdGracenoteX, y: props.y,
     gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
     thisNote: triplet.third.pitch, previousNote: triplet.second.pitch,
     dispatch: props.dispatch, state: props.gracenoteState

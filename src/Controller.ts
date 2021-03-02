@@ -30,7 +30,6 @@ import renderUI from './UI/view';
 import { scoreWidth } from './global/constants';
 import { deleteXY } from './global/state';
 import { ID, Item } from './global/types';
-import { genId } from './global/utils';
 
 import { flatten, deepcopy } from './global/utils';
 
@@ -153,14 +152,34 @@ function changeNotes(notes: (NoteModel | TripletModel)[], f: (note: NoteModel | 
 
 function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: GracenoteModel, score: ScoreModel): ScoreModel {
   return noteMap((n,bar,stave,score,inote,ibar,istave) => {
-    if (!Note.isTriplet(n) && n.gracenote === oldGracenote) {
+    if (Note.isTriplet(n)) {
+      if (n.first.gracenote === oldGracenote) {
+        const newNote = { ...n.first, gracenote: newGracenote };
+        bar.notes[inote] = { ...n, first: newNote };
+        stave.bars[ibar] = { ...bar };
+        score.staves[istave] = { ...stave };
+        return [{ ...score }, true];
+      } else if (n.second.gracenote === oldGracenote) {
+        const newNote = { ...n.second, gracenote: newGracenote };
+        bar.notes[inote] = { ...n, second: newNote };
+        stave.bars[ibar] = { ...bar };
+        score.staves[istave] = { ...stave };
+        return [{ ...score }, true];
+      } else if (n.third.gracenote === oldGracenote) {
+        const newNote = { ...n.third, gracenote: newGracenote };
+        bar.notes[inote] = { ...n, third: newNote };
+        stave.bars[ibar] = { ...bar };
+        score.staves[istave] = { ...stave };
+        return [{ ...score }, true];
+      }
+    } else if (n.gracenote === oldGracenote) {
       bar.notes[inote] = { ...n, gracenote: newGracenote };
       stave.bars[ibar] = { ...bar };
       score.staves[istave] = { ...stave };
       return [{ ...score }, true];
-    } else {
-      return [ score, false ];
     }
+
+    return [ score, false ];
   }, score);
 }
 
