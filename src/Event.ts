@@ -19,6 +19,7 @@ export type ScoreEvent
   | NoteClicked
   | BackgroundClicked
   | MouseUp
+  | UpdateDemoNote
   | DeleteSelectedNotes
   | SetGracenoteOnSelected
   | SetInputLength
@@ -293,4 +294,13 @@ type Redo = {
 }
 export function isRedo(e: ScoreEvent): e is Redo {
   return e.name === 'redo';
+}
+
+type UpdateDemoNote = {
+  name: 'update demo note',
+  x: number,
+  staveIndex: number
+}
+export function isUpdateDemoNote(e: ScoreEvent): e is UpdateDemoNote {
+  return e.name === 'update demo note';
 }

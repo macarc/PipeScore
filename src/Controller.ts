@@ -15,6 +15,7 @@ import { ScoreSelectionModel } from './ScoreSelection/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
+import { DemoNoteModel } from './DemoNote/model';
 
 import Score from './Score/functions';
 import Stave from './Stave/functions';
@@ -23,8 +24,9 @@ import Gracenote from './Gracenote/functions';
 import TimeSignature from './TimeSignature/functions';
 import TextBox from './TextBox/functions';
 import SecondTiming from './SecondTiming/functions';
+import DemoNote from './DemoNote/functions';
 
-import renderScore from './Score/view';
+import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
 import { scoreWidth } from './global/constants';
@@ -42,6 +44,7 @@ import { TextBoxState } from './TextBox/view';
 // state.score should not be modified, but copied, so that it can be diffed quickly
 interface State {
   noteState: NoteState,
+  demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
   uiState: UIState,
   textBoxState: TextBoxState,
@@ -69,6 +72,7 @@ const state: State = {
   gracenoteState: { dragged: null },
   uiState: { zoomLevel: 100 * (0.75 * Math.max(window.outerWidth, 800)) / scoreWidth, inputLength: null },
   textBoxState: { selectedText: null },
+  demoNote: null,
   clipboard: null,
   selection: null,
   draggedText: null,
@@ -299,6 +303,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
         }
       }
     }
+  } else if (ScoreEvent.isUpdateDemoNote(event)) {
+    if (state.demoNote) {
+      state.demoNote.staveIndex = event.staveIndex;
+      state.demoNote.x = event.x;
+      changed = true;
+    }
   } else if (ScoreEvent.isSingleGracenoteClicked(event)) {
     state.gracenoteState.dragged = event.gracenote;
     changed = true;
@@ -309,6 +319,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
     if (state.uiState.inputLength !== null) {
       state.uiState.inputLength = null;
+      state.demoNote = null;
       changed = true;
     }
     if (state.textBoxState.selectedText !== null) {
@@ -330,11 +341,13 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isSetInputLength(event)) {
     if (event.length !== state.uiState.inputLength) {
       state.uiState.inputLength = event.length;
+      state.demoNote = DemoNote.init()
       changed = true;
     }
   } else if (ScoreEvent.isStopInputtingNotes(event)) {
      if (state.uiState.inputLength !== null) {
        state.uiState.inputLength = null;
+       state.demoNote = null;
        changed = true;
      }
   } else if (ScoreEvent.isChangeZoomLevel(event)) {
@@ -364,6 +377,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isMouseMovedOver(event)) {
+    if (state.demoNote && state.demoNote.pitch !== event.pitch) {
+      state.demoNote.pitch = event.pitch;
+      changed = true;
+    }
+
     if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
       changed = true;
       if (Note.isNoteModel(state.noteState.dragged)) {
@@ -568,7 +586,7 @@ function sortByPosition(notes: (NoteModel | TripletModel)[]) {
 }
 
 function dragText(event: MouseEvent) {
-  if (state.draggedText !== null) {
+  if (state.draggedText !== null || state.demoNote !== null) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -581,7 +599,13 @@ function dragText(event: MouseEvent) {
 
       const svgPt = pt.matrixTransform(CTM.inverse());
 
-      dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
+      // these should be mutually exclusive so else/if works fine
+      if (state.draggedText !== null) {
+        dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
+      } else if (state.demoNote) {
+        const newStaveIndex = coordinateToStaveIndex(svgPt.y);
+        dispatch({ name: 'update demo note', x: svgPt.x, staveIndex: newStaveIndex });
+      }
     }
   }
 }
@@ -656,6 +680,7 @@ const updateView = (score: ScoreModel) => {
     noteState: state.noteState,
     gracenoteState: state.gracenoteState,
     textBoxState: state.textBoxState,
+    demoNote: state.demoNote,
     dispatch
   }
   const newView = h('div', [renderScore(score, scoreProps)]);
