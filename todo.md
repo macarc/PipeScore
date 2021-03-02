@@ -6,7 +6,6 @@ Bottlenecks:
 * replaceChild
 
 ## Bugs to fix
-- [ ] Dotted note can get crushed into next gracenote
 - [ ] Deal with things (second timings, selection, ...) going over stave break
 - [ ] Cut time
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath)
@@ -38,7 +37,7 @@ Bottlenecks:
 - [ ] Triplets
 - [ ] Harmony Stave
 - [ ] Resizable interface
-- [ ] Copy/paste/undo/redo
+- [X] Copy/paste/undo/redo
 - [ ] A easy way to input all of the above
 - [ ] Multiple scores per page
 - [ ] Documentation
@@ -105,3 +104,4 @@ Bottlenecks:
 - [X] Remove all the state.score = { ...state.score } from Controller
 - [X] It is too easy to accidentally add notes
 - [X] Gracenotes on triplets
+- [X] Dotted note can get crushed into next gracenote

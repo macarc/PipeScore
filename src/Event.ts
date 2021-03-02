@@ -14,6 +14,8 @@ export type ScoreEvent
   = MouseMovedOver
   | Copy
   | Paste
+  | Undo
+  | Redo
   | NoteClicked
   | BackgroundClicked
   | MouseUp
@@ -279,3 +281,16 @@ export function isEditTimeSignatureDenominator(e: ScoreEvent): e is EditTimeSign
   return e.name === 'edit time signature denominator';
 }
 
+type Undo = {
+  name: 'undo'
+}
+export function isUndo(e: ScoreEvent): e is Undo {
+  return e.name === 'undo';
+}
+
+type Redo = {
+  name: 'redo'
+}
+export function isRedo(e: ScoreEvent): e is Redo {
+  return e.name === 'redo';
+}

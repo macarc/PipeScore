@@ -49,8 +49,19 @@ interface State {
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
   score: ScoreModel,
+  history: ScoreModel[],
+  future: ScoreModel[],
   view: V | null,
   uiView: V | null
+}
+
+function removeState(state: State) {
+  // removes parts of the state that could be dirty after undo / redo
+  state.noteState.dragged = null;
+  state.gracenoteState.dragged = null;
+  state.textBoxState.selectedText = null;
+  state.selection = null;
+  state.draggedText = null;
 }
 
 const state: State = {
@@ -62,10 +73,11 @@ const state: State = {
   selection: null,
   draggedText: null,
   score: Score.init(),
+  history: [Score.init()],
+  future: [],
   view: null,
   uiView: null
 }
-
 
 function noteMap(f: (note: NoteModel | TripletModel,
                      bar: BarModel,
@@ -336,7 +348,22 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   // SCORE events
   // Events that modify the score
   //
-  else if (ScoreEvent.isMouseMovedOver(event)) {
+  else if (ScoreEvent.isUndo(event)) {
+    if (state.history.length > 1) {
+      state.score = state.history[state.history.length - 2];
+      const last = state.history.pop();
+      if (last) state.future.push(last);
+      removeState(state);
+      changed = true;
+    }
+  } else if (ScoreEvent.isRedo(event)) {
+    const last = state.future.pop();
+    if (last) {
+      state.score = last;
+      removeState(state);
+      changed = true;
+    }
+  } else if (ScoreEvent.isMouseMovedOver(event)) {
     if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
       changed = true;
       if (Note.isNoteModel(state.noteState.dragged)) {
@@ -516,6 +543,9 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   }
 
   if (changed) {
+    if (JSON.stringify(state.history[state.history.length - 1]) !== JSON.stringify(state.score)) {
+      state.history.push(JSON.parse(JSON.stringify(state.score)));
+    }
     updateView(state.score);
   }
 }

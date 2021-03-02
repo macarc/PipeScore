@@ -95,6 +95,18 @@ svg {
 #note-hdsq {
   background-image: url('./images/icons/hemidemisemiquaver.svg');
 }
+#undo, #redo {
+  background-position: .6rem .6rem !important;
+  background-size: 1.5rem 1.5rem !important;
+}
+#undo {
+  background-image: url('./images/icons/undo.png');
+}
+#redo {
+  background-image: url('./images/icons/undo.png');
+  transform: scaleX(-1);
+}
+
 .highlighted {
   background-color: yellow !important;
 }

@@ -61,6 +61,12 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('button',
         { id: 'delete-notes', class: 'delete' },
         { click: () => dispatch({ name: 'delete selected notes' }) }),
+      h('button',
+        { id: 'undo' },
+        { click: () => dispatch({ name: 'undo' }) }),
+      h('button',
+        { id: 'redo' },
+        { click: () => dispatch({ name: 'redo' }) }),
     ]),
     h('div', { id: 'sidebar' }, [
       h('h2', [ 'Gracenote' ]),
