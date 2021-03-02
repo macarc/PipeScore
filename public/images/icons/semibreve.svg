@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<svg baseProfile="full" height="100" version="1.1" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink"><defs /><mask id="21710"><rect fill="white" height="100" width="100" x="0" y="0" /><ellipse cx="50" cy="50" fill="black" rx="8" ry="4" transform="rotate(60 50 50)" /></mask><ellipse cx="50" cy="50" fill="black" mask="url(#21710)" rx="10" ry="7" stroke="black" stroke-width="3" transform="rotate(0 50 50)" /></svg>

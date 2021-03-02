@@ -49,16 +49,16 @@ label {
 }
 
 #tie {
-  background-image: url('./images/icons/tie.png');
+  background-image: url('./images/tie.png');
 }
 
 .delete {
-  background-image: url('./images/icons/bin.png');
+  background-image: url('./images/bin.png');
   background-position: .6rem .6rem !important;
   background-size: 1.5rem 1.5rem !important;
 }
 .add {
-  background-image: url('./images/icons/plus.jpg');
+  background-image: url('./images/plus.jpg');
   background-position: .6rem .6rem !important;
   background-size: 1.5rem 1.5rem !important;
 }
@@ -100,11 +100,15 @@ svg {
   background-size: 1.5rem 1.5rem !important;
 }
 #undo {
-  background-image: url('./images/icons/undo.png');
+  background-image: url('./images/undo.png');
 }
 #redo {
-  background-image: url('./images/icons/undo.png');
+  background-image: url('./images/undo.png');
   transform: scaleX(-1);
+}
+
+.single-gracenote {
+  background-image: url('./images/icons/single.svg');
 }
 
 .highlighted {

@@ -2,6 +2,7 @@ node_modules
 *~
 dist
 .cache
+icons
 package-lock.json
 firebase-debug.log
 .firebase

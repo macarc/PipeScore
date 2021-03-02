@@ -23,7 +23,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
                                                       id: `note-${length}` },
                                                     { click: setNoteInput(length) });
                                                     
-  const gracenoteInput = (name: string) => h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set gracenote', value: name }) }, [name]);
+  const gracenoteInput = (name: string) => h('button', { class: 'gracenote-input', style: `background-image: url("./images/icons/gracenote-${name}.svg")` }, { click: () => dispatch({ name: 'set gracenote', value: name }) });
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');
@@ -70,7 +70,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     ]),
     h('div', { id: 'sidebar' }, [
       h('h2', [ 'Gracenote' ]),
-      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }, [ 'single' ]),
+      h('button', { class: 'single-gracenote' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
       gracenoteInput('doubling'),
       gracenoteInput('throw-d'),
       gracenoteInput('grip'),

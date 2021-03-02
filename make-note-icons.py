@@ -51,8 +51,8 @@ def add_note(doc, cfg):
         transform=f'rotate({angle} {headx} {heady})',
         mask='none' if filled else f'url(#{maskid})'
         ))
-    stem_x_offset = 10 * math.cos(math.radians(30))
-    stem_y_offset = 10 * math.sin(math.radians(30))
+    stem_x_offset = rx * math.cos(math.radians(30))
+    stem_y_offset = rx * math.sin(math.radians(30))
     if stem:
         doc.add(doc.line(
             start=(headx - stem_x_offset, heady + stem_y_offset),
@@ -73,9 +73,6 @@ def add_note(doc, cfg):
             stroke="black"
             ))
     return ""
-
-
-doc = svgwrite.Drawing(filename="test.svg", size=(100, 100))
 
 
 notes = {
