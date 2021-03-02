@@ -420,8 +420,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     changed = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
     if (selectedNotes.length > 0 && state.uiState.inputLength !== null) {
-      const { bar, stave } = currentBar(selectedNotes[0]);
-      bar.notes.splice(bar.notes.indexOf(selectedNotes[0]) + 1, 0, Note.initTriplet(state.uiState.inputLength));
+      const { bar, stave } = currentBar(selectedNotes[selectedNotes.length - 1]);
+      bar.notes.splice(bar.notes.indexOf(selectedNotes[selectedNotes.length - 1]) + 1, 0, Note.initTriplet(state.uiState.inputLength));
       stave.bars[stave.bars.indexOf(bar)] = { ...bar };
       state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
       changed = true;

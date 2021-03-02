@@ -148,7 +148,9 @@ const from = (name: string | null): GracenoteModel =>
       type: 'single',
       note: Pitch.HG
     })
-    : ({
+    : (name === 'none') ? ({
+      type: 'none'
+    }) : ({
       type: 'reactive',
       name
     });
