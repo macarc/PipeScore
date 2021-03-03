@@ -14,7 +14,7 @@ export default function dialogueBox<A>(inner: string, serialise: (form: HTMLForm
   parent.appendChild(back);
   parent.appendChild(box);
   document.body.append(parent);
-  return new Promise((res, rej) => {
+  return new Promise((res) => {
     const form = document.getElementById('dialogue-form');
     if (form) form.addEventListener('submit', (e) => {
       e.preventDefault();

@@ -21,7 +21,6 @@ import Score from './Score/functions';
 import Stave from './Stave/functions';
 import Note from './Note/functions';
 import Gracenote from './Gracenote/functions';
-import TimeSignature from './TimeSignature/functions';
 import TextBox from './TextBox/functions';
 import SecondTiming from './SecondTiming/functions';
 import DemoNote from './DemoNote/functions';

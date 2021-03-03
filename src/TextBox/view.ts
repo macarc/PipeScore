@@ -4,7 +4,7 @@
 */
 import { svg, V } from '../render/h';
 
-import dialogueBox from '../DialogueBox';
+import dialogueBox from '../global/dialogueBox';
 
 import { Dispatch } from '../Event';
 import { TextBoxModel } from './model';
