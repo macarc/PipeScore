@@ -6,11 +6,14 @@ import { h, V } from '../render/h';
 
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
+import { GracenoteModel } from '../Gracenote/model';
 
+import Gracenote from '../Gracenote/functions';
 import Note from '../Note/functions';
 
 export interface UIState {
   inputLength: NoteLength | null,
+  gracenoteInput: GracenoteModel | null,
   zoomLevel: number
 }
 
@@ -23,7 +26,11 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
                                                       id: `note-${length}` },
                                                     { click: setNoteInput(length) });
                                                     
-  const gracenoteInput = (name: string) => h('button', { class: 'gracenote-input', style: `background-image: url("./images/icons/gracenote-${name}.svg")` }, { click: () => dispatch({ name: 'set gracenote', value: name }) });
+  const isGracenoteInput = (name: string) => state.gracenoteInput && Gracenote.isReactive(state.gracenoteInput) && (state.gracenoteInput.name === name);
+  const gracenoteInput = (name: string) => h('button',
+                                             { class: isGracenoteInput(name) ? 'highlighted' : 'not-highlighted',
+                                             style: `background-image: url("./images/icons/gracenote-${name}.svg")` },
+                                             { click: () => dispatch({ name: 'set gracenote', value: name }) });
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');

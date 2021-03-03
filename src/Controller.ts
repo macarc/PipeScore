@@ -33,7 +33,7 @@ import { scoreWidth } from './global/constants';
 import { deleteXY } from './global/state';
 import { ID, Item } from './global/types';
 
-import { flatten, deepcopy } from './global/utils';
+import { flatten, deepcopy, nmap } from './global/utils';
 
 import { NoteState } from './Note/view';
 import { GracenoteState } from './Gracenote/view';
@@ -46,11 +46,12 @@ interface State {
   noteState: NoteState,
   demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
-  uiState: UIState,
+  zoomLevel: number,
   textBoxState: TextBoxState,
   clipboard: (NoteModel | TripletModel)[] | null,
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
+  inputGracenote: GracenoteModel | null,
   score: ScoreModel,
   history: ScoreModel[],
   future: ScoreModel[],
@@ -70,8 +71,9 @@ function removeState(state: State) {
 const state: State = {
   noteState: { dragged: null },
   gracenoteState: { dragged: null },
-  uiState: { zoomLevel: 100 * (0.75 * Math.max(window.outerWidth, 800)) / scoreWidth, inputLength: null },
+  zoomLevel: 100 * (0.75 * Math.max(window.outerWidth, 800)) / scoreWidth,
   textBoxState: { selectedText: null },
+  inputGracenote: null,
   demoNote: null,
   clipboard: null,
   selection: null,
@@ -282,24 +284,31 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   // Events that modify the state rather than the score
   //
   if (ScoreEvent.isNoteClicked(event)) {
-    state.noteState.dragged = event.note;
-    changed = true;
-    if (! event.event.shiftKey) {
-      state.selection = { start: event.note.id, end: event.note.id };
+    if (state.inputGracenote) {
+      if (Note.isNoteModel(event.note)) {
+        state.score = changeNoteFrom(event.note.id, { ...event.note, gracenote: state.inputGracenote }, state.score);
+        changed = true;
+      }
     } else {
-      if (state.selection === null) {
+      state.noteState.dragged = event.note;
+      changed = true;
+      if (! event.event.shiftKey) {
         state.selection = { start: event.note.id, end: event.note.id };
       } else {
-        if (Note.isNoteModel(event.note)) {
-          const ind = noteModels.indexOf(event.note);
-          if (ind < indexOfId(state.selection.start, noteModels)) {
-            state.selection.start = event.note.id;
-          } else if (ind > indexOfId(state.selection.end, noteModels)) {
-            state.selection.end = event.note.id;
-          }
-        } else {
-          // If it's a tripleted note, you can only select it on its own
+        if (state.selection === null) {
           state.selection = { start: event.note.id, end: event.note.id };
+        } else {
+          if (Note.isNoteModel(event.note)) {
+            const ind = noteModels.indexOf(event.note);
+            if (ind < indexOfId(state.selection.start, noteModels)) {
+              state.selection.start = event.note.id;
+            } else if (ind > indexOfId(state.selection.end, noteModels)) {
+              state.selection.end = event.note.id;
+            }
+          } else {
+            // If it's a tripleted note, you can only select it on its own
+            state.selection = { start: event.note.id, end: event.note.id };
+          }
         }
       }
     }
@@ -317,13 +326,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.selection = null
       changed = true;
     }
-    if (state.uiState.inputLength !== null) {
-      state.uiState.inputLength = null;
+    if (state.demoNote !== null) {
       state.demoNote = null;
       changed = true;
     }
     if (state.textBoxState.selectedText !== null) {
       state.textBoxState.selectedText = null;
+      changed = true;
+    }
+    if (state.inputGracenote !== null) {
+      state.inputGracenote = null;
       changed = true;
     }
   } else if (ScoreEvent.isMouseUp(event)) {
@@ -339,20 +351,22 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isTextMouseUp(event)) {
     state.draggedText = null;
   } else if (ScoreEvent.isSetInputLength(event)) {
-    if (event.length !== state.uiState.inputLength) {
-      state.uiState.inputLength = event.length;
-      state.demoNote = DemoNote.init()
+    state.inputGracenote = null;
+    if (!state.demoNote) {
+      state.demoNote = DemoNote.init(event.length)
+    } else if (event.length !== state.demoNote.length) {
+      state.demoNote.length = event.length;
       changed = true;
     }
   } else if (ScoreEvent.isStopInputtingNotes(event)) {
-     if (state.uiState.inputLength !== null) {
-       state.uiState.inputLength = null;
+     if (state.demoNote !== null) {
        state.demoNote = null;
+       state.inputGracenote = null;
        changed = true;
      }
   } else if (ScoreEvent.isChangeZoomLevel(event)) {
-    if (event.zoomLevel !== state.uiState.zoomLevel) {
-      state.uiState.zoomLevel = event.zoomLevel;
+    if (event.zoomLevel !== state.zoomLevel) {
+      state.zoomLevel = event.zoomLevel;
       changed = true;
     }
   }
@@ -413,11 +427,15 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const newGracenote = Gracenote.from(event.value);
       state.score = changeNotes(selectedNotes, note => Note.isTriplet(note) ? note : ({ ...note, gracenote: newGracenote }), state.score);
       changed = true;
+    } else {
+      state.inputGracenote = Gracenote.from(event.value);
+      state.demoNote = null;
+      changed = true;
     }
   } else if (ScoreEvent.isAddNoteAfter(event)) {
-    if (state.uiState.inputLength !== null) {
+    if (state.demoNote !== null) {
       const { bar, stave } = currentBar(event.noteBefore);
-      const newNote = Note.init(event.pitch, state.uiState.inputLength);
+      const newNote = Note.init(event.pitch, state.demoNote.length);
       bar.notes.splice(bar.notes.indexOf(event.noteBefore) + 1, 0, newNote);
       stave.bars[stave.bars.indexOf(bar)] = { ...bar };
       state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
@@ -426,20 +444,20 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       makeCorrectTie(newNote);
     }
   } else if (ScoreEvent.isAddNoteToBarStart(event)) {
-    if (state.uiState.inputLength) {
-      const newNote = Note.init(event.pitch, state.uiState.inputLength);
+    if (state.demoNote) {
+      const newNote = Note.init(event.pitch, state.demoNote.length);
       event.bar.notes.unshift(newNote);
       changed = true;
       makeCorrectTie(newNote);
     }
   } else if (ScoreEvent.isToggleDotted(event)) {
     state.score = changeNotes(selectedNotes,note => Note.isTriplet(note) ? note : ({ ...note, length:  Note.toggleDot(note.length) }), state.score);
-    if (state.uiState.inputLength !== null) state.uiState.inputLength = Note.toggleDot(state.uiState.inputLength);
+    if (state.demoNote !== null) state.demoNote.length = Note.toggleDot(state.demoNote.length);
     changed = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
-    if (selectedNotes.length > 0 && state.uiState.inputLength !== null) {
+    if (selectedNotes.length > 0 && state.demoNote !== null) {
       const { bar, stave } = currentBar(selectedNotes[selectedNotes.length - 1]);
-      bar.notes.splice(bar.notes.indexOf(selectedNotes[selectedNotes.length - 1]) + 1, 0, Note.initTriplet(state.uiState.inputLength));
+      bar.notes.splice(bar.notes.indexOf(selectedNotes[selectedNotes.length - 1]) + 1, 0, Note.initTriplet(state.demoNote.length));
       stave.bars[stave.bars.indexOf(bar)] = { ...bar };
       state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
       changed = true;
@@ -674,7 +692,7 @@ const updateView = (score: ScoreModel) => {
   if (!scoreRoot || !uiRoot) return;
 
   const scoreProps = {
-    zoomLevel: state.uiState.zoomLevel,
+    zoomLevel: state.zoomLevel,
     selection: state.selection,
     updateView: () => null,
     noteState: state.noteState,
@@ -683,8 +701,13 @@ const updateView = (score: ScoreModel) => {
     demoNote: state.demoNote,
     dispatch
   }
+  const uiProps = {
+    zoomLevel: state.zoomLevel,
+    inputLength: nmap(state.demoNote, n => n.length),
+    gracenoteInput: state.inputGracenote
+  }
   const newView = h('div', [renderScore(score, scoreProps)]);
-  const newUIView = renderUI(dispatch, state.uiState);
+  const newUIView = renderUI(dispatch, uiProps);
   if (state.view) patch(state.view, newView);
   if (state.uiView) patch(state.uiView, newUIView);
   state.view = newView;

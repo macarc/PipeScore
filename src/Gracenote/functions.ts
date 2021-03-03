@@ -1,6 +1,6 @@
 import { Pitch } from '../global/pitch';
 
-import { GracenoteModel, Gracenote, InvalidGracenote } from './model';
+import { GracenoteModel, Gracenote, InvalidGracenote, ReactiveGracenote } from './model';
 
 function isInvalid(gracenote: Gracenote | InvalidGracenote): gracenote is InvalidGracenote {
   return (gracenote as InvalidGracenote).gracenote != null;
@@ -138,6 +138,8 @@ function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch
   }
 }
 
+const isReactive = (g: GracenoteModel): g is ReactiveGracenote => g.type === 'reactive';
+
 const init = (): GracenoteModel => ({
   type: 'none'
 });
@@ -158,6 +160,7 @@ const from = (name: string | null): GracenoteModel =>
 export default {
   init,
   from,
+  isReactive,
   notesOf,
   numberOfNotes,
   isInvalid

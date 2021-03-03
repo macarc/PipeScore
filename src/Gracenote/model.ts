@@ -1,6 +1,6 @@
 import { Pitch } from '../global/pitch';
 
-interface ReactiveGracenote {
+export interface ReactiveGracenote {
   type: 'reactive',
   name: string
 }

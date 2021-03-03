@@ -1,9 +1,12 @@
 import { Pitch } from '../global/pitch';
+import { NoteLength } from '../Note/model';
+
 import { DemoNoteModel } from './model';
 
 
-const init = (): DemoNoteModel => ({
+const init = (length: NoteLength): DemoNoteModel => ({
   pitch: Pitch.A,
+  length,
   x: 0,
   staveIndex: 0
 });
