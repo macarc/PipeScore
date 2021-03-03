@@ -32,8 +32,14 @@ interface ScoreProps {
 const margin = 30;
 const topOffset = 150;
 
-export function coordinateToStaveIndex(y: number): number {
-  return Math.max(Math.floor((y + 4 * lineGap - topOffset) / staveGap), 0);
+export function coordinateToStaveIndex(y: number): number | null {
+  const offset = (y + 4 * lineGap - topOffset);
+  console.log(offset);
+  if (offset > 0 && (offset % staveGap) <= (12 * lineGap)) {
+    return Math.max(Math.floor(offset / staveGap), 0);
+  } else {
+    return null;
+  }
 }
 
 

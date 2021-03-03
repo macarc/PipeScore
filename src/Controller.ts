@@ -314,7 +314,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isUpdateDemoNote(event)) {
     if (state.demoNote) {
-      state.demoNote.staveIndex = event.staveIndex;
+      state.demoNote.staveIndex = event.staveIndex || 0;
+      if (event.staveIndex === null) state.demoNote.pitch = null;
       state.demoNote.x = event.x;
       changed = true;
     }

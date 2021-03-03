@@ -5,7 +5,7 @@ import { DemoNoteModel } from './model';
 
 
 const init = (length: NoteLength): DemoNoteModel => ({
-  pitch: Pitch.A,
+  pitch: null,
   length,
   x: 0,
   staveIndex: 0

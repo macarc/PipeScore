@@ -299,7 +299,7 @@ export function isRedo(e: ScoreEvent): e is Redo {
 type UpdateDemoNote = {
   name: 'update demo note',
   x: number,
-  staveIndex: number
+  staveIndex: number | null
 }
 export function isUpdateDemoNote(e: ScoreEvent): e is UpdateDemoNote {
   return e.name === 'update demo note';
