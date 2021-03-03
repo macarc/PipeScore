@@ -64,7 +64,37 @@ gracenotes.set('grip', note => {
   } else {
     return [Pitch.G, Pitch.D, Pitch.G];
   }
-})
+});
+gracenotes.set('shake', (note, prev) => {
+  let pitches = [];
+  pitches = [Pitch.HG,note,Pitch.E,note,Pitch.G];
+
+  if (note === Pitch.E) {
+    pitches = [Pitch.HG,note,Pitch.F,note,Pitch.A];
+  }
+  // I'm not sure these are even gracenotes
+  else if (note === Pitch.G) {
+    pitches = [Pitch.HG,note,Pitch.D,note,Pitch.E];
+  } else if (note === Pitch.F) {
+    pitches = [Pitch.HG,note,Pitch.HG,note,Pitch.E];
+  } else if (note === Pitch.HG) {
+    pitches = [Pitch.HA,note,Pitch.HA,note,Pitch.F];
+  } else if (note === Pitch.HA) {
+    pitches = [Pitch.HA,Pitch.HG];
+  }
+
+  else {
+    pitches = [Pitch.HG,note,Pitch.E,note,Pitch.G];
+  }
+
+  if (prev === Pitch.HA) {
+    pitches.shift();
+  } else if (prev === Pitch.HG) {
+    pitches[0] = Pitch.HA;
+  }
+
+  return pitches;
+});
 gracenotes.set('toarluath', (note, prev) => {
   let pitches = [];
   if (prev === Pitch.D) {
