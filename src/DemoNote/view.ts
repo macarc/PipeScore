@@ -11,8 +11,8 @@ export default function render(demoNote: DemoNoteModel, props: DemoNoteProps): V
     const y = noteY(props.staveY, demoNote.pitch);
     const ledgerWidth = 10;
     return svg('g', { class: 'demo-note' }, [
-      svg('ellipse', { cx: demoNote.x, cy: y, rx: 5, ry: 4, fill: 'black', 'pointer-events': 'none' }),
-      demoNote.pitch === Pitch.HA ? svg('line', { x1: demoNote.x - ledgerWidth, x2: demoNote.x + ledgerWidth, y1: y, y2: y, stroke: 'black', 'pointer-events': 'none' }) : svg('g')
+      svg('ellipse', { cx: demoNote.x, cy: y, rx: 5, ry: 4, fill: 'orange', 'pointer-events': 'none', opacity: 0.85 }),
+      demoNote.pitch === Pitch.HA ? svg('line', { x1: demoNote.x - ledgerWidth, x2: demoNote.x + ledgerWidth, y1: y, y2: y, stroke: 'orange', 'pointer-events': 'none', opacity: 0.6 }) : svg('g')
     ]);
   } else {
     return svg('g');

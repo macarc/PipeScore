@@ -77,7 +77,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     ]),
     h('div', { id: 'sidebar' }, [
       h('h2', [ 'Gracenote' ]),
-      h('button', { class: 'single-gracenote' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
+      h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("./images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
       gracenoteInput('doubling'),
       gracenoteInput('throw-d'),
       gracenoteInput('grip'),

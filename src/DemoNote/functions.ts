@@ -1,4 +1,3 @@
-import { Pitch } from '../global/pitch';
 import { NoteLength } from '../Note/model';
 
 import { DemoNoteModel } from './model';

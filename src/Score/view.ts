@@ -34,7 +34,6 @@ const topOffset = 150;
 
 export function coordinateToStaveIndex(y: number): number | null {
   const offset = (y + 4 * lineGap - topOffset);
-  console.log(offset);
   if (offset > 0 && (offset % staveGap) <= (12 * lineGap)) {
     return Math.max(Math.floor(offset / staveGap), 0);
   } else {
@@ -60,7 +59,6 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     staveY: topOffset + staveGap * props.demoNote.staveIndex
   });
 
-  // TODO bind svgRef somehow
   return svg('svg',
              { id: 'score-svg',
                width: (scoreWidth * props.zoomLevel / 100),

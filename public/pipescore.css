@@ -124,10 +124,6 @@ svg {
   width: 6.4rem !important; /* 6.4 = 2 x normal width + gap between them */
 }
 
-.single-gracenote {
-  background-image: url('./images/icons/single.svg');
-}
-
 .highlighted {
   background-color: yellow !important;
 }

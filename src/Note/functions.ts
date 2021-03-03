@@ -11,8 +11,8 @@ function isTriplet(note: NoteModel | BaseNote | NoteModel[] | TripletModel): not
   return (note as TripletModel).first !== undefined;
 }
 
-function isNoteModel(note: BaseNote): note is NoteModel {
-  return (note as NoteModel).length !== undefined;
+function isNoteModel(note: BaseNote | TripletModel): note is NoteModel {
+  return (note as NoteModel).tied !== undefined;
 }
 
 function tripletNoteModels(triplet: TripletModel): [NoteModel, NoteModel, NoteModel] {
@@ -21,6 +21,19 @@ function tripletNoteModels(triplet: TripletModel): [NoteModel, NoteModel, NoteMo
 
 function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
   return flatten(notes);
+}
+
+function flattenTriplets(notes: (NoteModel | TripletModel)[]): (NoteModel | BaseNote)[] {
+  const final = [];
+  for (let i=0; i < notes.length; i++) {
+    const note = notes[i];
+    if (isTriplet(note)) {
+      final.push(note.first,note.second,note.third);
+    } else {
+      final.push(note);
+    }
+  }
+  return final;
 }
 
 function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number): (NoteModel[] | TripletModel)[] {
@@ -223,6 +236,7 @@ export default {
   initTriplet,
   isTriplet,
   isNoteModel,
+  flattenTriplets,
   copyNote,
   tripletNoteModels,
   numberOfNotes,

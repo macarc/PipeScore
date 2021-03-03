@@ -9,7 +9,6 @@ Bottlenecks:
 - [ ] Deal with things (second timings, selection, ...) going over stave break
 - [ ] Cut time
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
-- [ ] Preview note for current placement
 - [ ] Use correct previous note in all calls to widthOfAnacrusis
 - [ ] Better second timing usage - you should click to add, then be able to drag the sections around
 - [ ] Stricter bar lengths
@@ -19,6 +18,7 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] When adding triplets, use notes on stave rather than creating new notes
+- [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
 
 
 
@@ -107,3 +107,4 @@ Bottlenecks:
 - [X] Gracenotes on triplets
 - [X] Dotted note can get crushed into next gracenote
 - [X] Make a script to generate gracenote icons
+- [X] Preview note for current placement
