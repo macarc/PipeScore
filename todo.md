@@ -17,7 +17,6 @@ Bottlenecks:
 - [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 - [ ] Add optimised list render
 - [ ] Ties to triplets
-- [ ] When adding triplets, use notes on stave rather than creating new notes
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
 
 
@@ -35,7 +34,7 @@ Bottlenecks:
 - [X] Note ties
 - [X] Adding staves / bars
 - [X] Text boxes
-- [ ] Triplets
+- [X] Triplets
 - [ ] Harmony Stave
 - [ ] Resizable interface
 - [X] Copy/paste/undo/redo
@@ -108,3 +107,4 @@ Bottlenecks:
 - [X] Dotted note can get crushed into next gracenote
 - [X] Make a script to generate gracenote icons
 - [X] Preview note for current placement
+- [X] When adding triplets, use notes on stave rather than creating new notes

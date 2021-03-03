@@ -223,12 +223,12 @@ const initBase = (pitch = Pitch.A): BaseNote => ({
   gracenote: Gracenote.init()
 });
 
-const initTriplet = (length = NoteLength.Quaver): TripletModel => ({
+const initTriplet = (first: NoteModel, second: NoteModel, third: NoteModel): TripletModel => ({
   id: genId(),
-  first: initBase(),
-  second: initBase(),
-  third: initBase(),
-  length
+  first: { id: first.id, pitch: first.pitch, gracenote: first.gracenote },
+  second: { id: second.id, pitch: second.pitch, gracenote: second.gracenote },
+  third: { id: third.id, pitch: third.pitch, gracenote: third.gracenote },
+  length: first.length
 });
 
 export default {

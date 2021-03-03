@@ -449,11 +449,13 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (state.demoNote !== null) state.demoNote.length = Note.toggleDot(state.demoNote.length);
     changed = true;
   } else if (ScoreEvent.isAddTriplet(event)) {
-    if (selectedNotes.length > 0) {
-      const noteBefore = selectedNotes[selectedNotes.length - 1];
-      if (Note.isNoteModel(noteBefore)) {
-        const { bar, stave } = currentBar(noteBefore);
-        bar.notes.splice(bar.notes.indexOf(noteBefore) + 1, 0, Note.initTriplet(noteBefore.length));
+    if (selectedNotes.length >= 3) {
+      const first = selectedNotes[0];
+      const second = selectedNotes[1];
+      const third = selectedNotes[2];
+      if (Note.isNoteModel(first) && Note.isNoteModel(second) && Note.isNoteModel(third)) {
+        const { bar, stave } = currentBar(first);
+        bar.notes.splice(bar.notes.indexOf(first), 3, Note.initTriplet(first,second,third));
         stave.bars[stave.bars.indexOf(bar)] = { ...bar };
         state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
         changed = true;
