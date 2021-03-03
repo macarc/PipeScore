@@ -486,10 +486,9 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isEditText(event)) {
-    const newText = prompt("Enter new text:", event.text.text);
-    if (newText && newText !== event.text.text) {
-      const newTextBox = { ...event.text, text: newText };
-      state.score.textBoxes.splice(state.score.textBoxes.indexOf(event.text), 1, newTextBox);
+    if (event.newText !== event.text.text) {
+      const newTextBox = { ...event.text, text: event.newText };
+      state.score.textBoxes[state.score.textBoxes.indexOf(event.text)] = newTextBox;
       state.textBoxState.selectedText = newTextBox;
       changed = true;
     }
@@ -534,32 +533,10 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.score.secondTimings.push(SecondTiming.init(selectedNotes[0].id, selectedNotes[1].id, selectedNotes[2].id));
       changed = true;
     }
-  } else if (ScoreEvent.isEditTimeSignatureNumerator(event)) {
-    const newNumerator = prompt('Enter new top number:', event.timeSignature[0].toString());
-    if (! newNumerator) return;
-    const asNumber = parseInt(newNumerator, 10);
-
-    if (asNumber === event.timeSignature[0]) return;
-
-    if (!isNaN(asNumber) && asNumber > 0) {
-      setTimeSignatureFrom(event.timeSignature, [asNumber, event.timeSignature[1]]);
-      changed = true;
-    } else {
-      alert('Invalid time signature');
-    }
-  } else if (ScoreEvent.isEditTimeSignatureDenominator(event)) {
-    const newDenominator = prompt('Enter new bottom number:', event.timeSignature[1].toString());
-    if (! newDenominator) return;
-    const denom = TimeSignature.parseDenominator(newDenominator);
-
-    if (denom === event.timeSignature[1]) return;
-
-    if (denom === null) {
-      alert('Invalid time signature - PipeScore only supports 4 and 8 time signatures right now, sorry.');
-    } else {
-      setTimeSignatureFrom(event.timeSignature, [event.timeSignature[0], denom]);
-      changed = true;
-    }
+  } else if (ScoreEvent.isEditTimeSignature(event)) {
+    // TODO make this immutable
+    setTimeSignatureFrom(event.timeSignature, event.newTimeSignature);
+    changed = true;
   } else if (ScoreEvent.isCopy(event)) {
     state.clipboard = deepcopy(rawSelectedNotes);
   } else if (ScoreEvent.isPaste(event)) {

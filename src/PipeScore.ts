@@ -5,6 +5,8 @@
 import startController from './Controller';
 import { keyHandler } from './KeyHandler';
 
+import dialogueBox from './DialogueBox';
+
 window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', keyHandler);
   startController()

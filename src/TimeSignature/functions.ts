@@ -32,10 +32,13 @@ function equal(ts0: TimeSignatureModel, ts1: TimeSignatureModel): boolean {
   return ts0[0] === ts1[0] && ts0[1] === ts1[1];
 }
 
-export const init: () => TimeSignatureModel = () => [2,4];
+const init = (): TimeSignatureModel => [2,4];
+
+const from = (a: [number, Denominator]): TimeSignatureModel => a;
 
 export default {
   init,
+  from,
   numberOfBeats,
   beatDivision,
   parseDenominator,

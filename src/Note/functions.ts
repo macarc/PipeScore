@@ -217,12 +217,6 @@ const init = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
   id: genId()
 });
 
-const initBase = (pitch = Pitch.A): BaseNote => ({
-  id: genId(),
-  pitch,
-  gracenote: Gracenote.init()
-});
-
 const initTriplet = (first: NoteModel, second: NoteModel, third: NoteModel): TripletModel => ({
   id: genId(),
   first: { id: first.id, pitch: first.pitch, gracenote: first.gracenote },

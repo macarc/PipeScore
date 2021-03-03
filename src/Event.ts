@@ -39,8 +39,7 @@ export type ScoreEvent
   | DeleteText
   | AddSecondTiming
   | EditText
-  | EditTimeSignatureNumerator
-  | EditTimeSignatureDenominator
+  | EditTimeSignature
   | AddBar
   | AddStave
   | DeleteBar
@@ -174,6 +173,7 @@ export function isTextClicked(e: ScoreEvent): e is TextClicked {
 
 type EditText = {
   name: 'edit text',
+  newText: string,
   text: TextBoxModel
 }
 export function isEditText(e: ScoreEvent): e is EditText {
@@ -266,20 +266,13 @@ export function isAddSecondTiming(e: ScoreEvent): e is AddSecondTiming {
   return e.name === 'add second timing';
 }
 
-type EditTimeSignatureNumerator = {
-  name: 'edit time signature numerator',
-  timeSignature: TimeSignatureModel
+type EditTimeSignature = {
+  name: 'edit time signature',
+  timeSignature: TimeSignatureModel,
+  newTimeSignature: TimeSignatureModel
 }
-export function isEditTimeSignatureNumerator(e: ScoreEvent): e is EditTimeSignatureNumerator {
-  return e.name === 'edit time signature numerator';
-}
-
-type EditTimeSignatureDenominator = {
-  name: 'edit time signature denominator',
-  timeSignature: TimeSignatureModel
-}
-export function isEditTimeSignatureDenominator(e: ScoreEvent): e is EditTimeSignatureDenominator {
-  return e.name === 'edit time signature denominator';
+export function isEditTimeSignature(e: ScoreEvent): e is EditTimeSignature {
+  return e.name === 'edit time signature';
 }
 
 type Undo = {
