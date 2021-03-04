@@ -1,7 +1,6 @@
 /*
-  Bar/model.ts - Defines the Bar model
-  Copyright (C) 2020 Archie Maclean
-*/
+   Copyright (C) 2020 Archie Maclean
+ */
 import { TimeSignatureModel } from '../TimeSignature/model';
 import { NoteModel, TripletModel } from '../Note/model';
 import { Item } from '../global/types';

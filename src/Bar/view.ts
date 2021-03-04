@@ -35,6 +35,7 @@ interface BarProps {
   gracenoteState: GracenoteState,
 }
 
+// Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
 const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
       const previous = (index === 0) ? previousNote : Note.pitchOf(bar.notes[index - 1]);
@@ -47,6 +48,8 @@ const minimumBeatWidth = 30;
 
 
 export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
+  // Finds the x offset from the start of the bar for the last note in the bar
+
   // TODO this is probably wrong, I haven't checked it in a while
   const lastNoteIndex = bar.notes.length - 1;
   const lastNote = last(bar.notes);
@@ -64,6 +67,8 @@ export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: Bar
 }
 
 export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null): number {
+  // Finds the width of the bar (assumes it is an anacrusis)
+
   const beats = beatsOf(anacrusis, previousNote);
   const totalNumberOfBeats = Math.max(last(beats) || 1, 2);
   return minimumBeatWidth * totalNumberOfBeats;
@@ -71,6 +76,8 @@ export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null
 
 
 function renderBarline(type: Barline, x: number, y: number): V {
+  // Draws a barline
+
   const height = lineHeightOf(4);
   const lineOffset = 6;
   const circleXOffset = 10;
@@ -101,6 +108,8 @@ function renderBarline(type: Barline, x: number, y: number): V {
 }
 
 function barlineWidth(barline: Barline) {
+  // Finds the width of the barline (
+
   return (barline === Barline.Normal ? 1 : 10);
 }
 
@@ -179,8 +188,6 @@ export default function render(bar: BarModel,props: BarProps): V {
   }
 
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
-
-  // TODO this won't work if there are no notes in the bar - have a separate event for that
   return svg('g', { class: 'bar' }, [
     noteBoxes(xAfterBarline, staveY, width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add note to beginning of bar', pitch, bar })),
     ...groupedNotes.map((notes, idx) => renderNote(notes, noteProps(notes, idx))),

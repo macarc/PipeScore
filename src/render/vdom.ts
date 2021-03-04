@@ -1,3 +1,7 @@
+/*
+   Virtual DOM implementation - still needs work
+   Copyright (C) 2020 Archie Maclean
+ */
 import { VElement, VString, VCache, AnyV } from './types';
 
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;
@@ -5,12 +9,16 @@ const isVCache = (a: AnyV): a is VCache => (a as VCache).data !== undefined;
 const isVElement = (a: AnyV): a is VElement => (a as VElement).name !== undefined;
 
 function arraycmp<A>(a: A[], b: A[]): boolean {
+  // Compare to arrays
+
   if (a.length !== b.length) return false;
   return a.every((el, i) => b[i] === el);
 }
 
 function patchNew(v: VElement, topLevel = false): Element {
-  // todo - use DocumentFragment
+  // Create a new element from a virtual node
+  // Uses DocumentFragment for good-ish performance
+
   let newElement: Element;
   if (v.attrs.ns) {
     newElement = document.createElementNS(v.attrs.ns.toString(), v.name);
@@ -58,8 +66,11 @@ function patchNew(v: VElement, topLevel = false): Element {
   v.node = newElement;
   return newElement;
 }
-// returns true if the after.node !== before.node (i.e. the node needs to be replaced
 export default function patch(before: VElement, after: VElement): boolean {
+  // Patches after onto before
+  // Compares both virtual DOM and efficiently updates the real DOM (actual DOM mutation is slow)
+  // Returns true if after.node !== before.node (i.e. the node needs to be replaced)
+
   if (before.node === null || before.name.toLowerCase() !== after.name.toLowerCase()) {
     patchNew(after, true);
     return true;

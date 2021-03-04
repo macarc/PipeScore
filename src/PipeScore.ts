@@ -6,6 +6,7 @@ import startController from './Controller';
 import { keyHandler } from './KeyHandler';
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Set the key handler here rather than in Controller to avoid circular dependency
   window.addEventListener('keydown', keyHandler);
   startController()
 });

@@ -1,4 +1,6 @@
-
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
 export interface Attributes {
   [attr: string]: string | number
 }

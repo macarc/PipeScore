@@ -1,3 +1,6 @@
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
 import { Pitch } from '../global/pitch';
 import { Item } from '../global/types';
 import { GracenoteModel } from '../Gracenote/model';
@@ -18,7 +21,6 @@ export interface NoteModel extends BaseNote {
   tied: boolean
 }
 
-// TODO - should this be an item?
 export interface TripletModel extends Item {
   length: NoteLength,
   first: BaseNote,

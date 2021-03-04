@@ -1,9 +1,13 @@
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
 import { svg, V } from '../render/h';
 import { lineGap } from './constants';
 import { Pitch, pitchToHeight } from './pitch';
 
-// Invisible rectangles that are used to detect note dragging
 export function noteBoxes(x: number,y: number,width: number, mouseOver: (pitch: Pitch) => void = () => null, mouseDown: (pitch: Pitch) => void = () => null): V {
+  // Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
+
   const height = lineGap / 2;
 
   const pitches = [Pitch.G,Pitch.A,Pitch.B,Pitch.C,Pitch.D,Pitch.E,Pitch.F,Pitch.HG,Pitch.HA];

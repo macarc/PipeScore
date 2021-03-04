@@ -17,6 +17,8 @@ interface TimeSignatureProps {
 }
 
 function edit(timeSignature: TimeSignatureModel, dispatch: Dispatch) {
+  // Makes a dialogue box for the user to edit the text, then updates the text
+
   dialogueBox(`<input type="number" name="numerator" value="${timeSignature[0]}" /><br /><input type="number" name="denominator" value="${timeSignature[1]}" />`, form => {
     const numElement = form.querySelector('input[name = "numerator"]');
     const denomElement = form.querySelector('input[name = "denominator"]');

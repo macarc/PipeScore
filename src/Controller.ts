@@ -24,6 +24,7 @@ import Gracenote from './Gracenote/functions';
 import TextBox from './TextBox/functions';
 import SecondTiming from './SecondTiming/functions';
 import DemoNote from './DemoNote/functions';
+import TimeSignature from './TimeSignature/functions';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
@@ -37,6 +38,7 @@ import { flatten, deepcopy, nmap } from './global/utils';
 import { NoteState } from './Note/view';
 import { GracenoteState } from './Gracenote/view';
 import { TextBoxState } from './TextBox/view';
+
 
 // Apart from state.score, all of these can be modified
 // state.score should not be modified, but copied, so that it can be diffed quickly
@@ -56,16 +58,6 @@ interface State {
   view: V | null,
   uiView: V | null
 }
-
-function removeState(state: State) {
-  // removes parts of the state that could be dirty after undo / redo
-  state.noteState.dragged = null;
-  state.gracenoteState.dragged = null;
-  state.textBoxState.selectedText = null;
-  state.selection = null;
-  state.draggedText = null;
-}
-
 const state: State = {
   noteState: { dragged: null },
   gracenoteState: { dragged: null },
@@ -83,8 +75,21 @@ const state: State = {
   uiView: null
 }
 
+
+function removeState(state: State) {
+  // Removes parts of the state that could be dirty after undo / redo
+
+  state.noteState.dragged = null;
+  state.gracenoteState.dragged = null;
+  state.textBoxState.selectedText = null;
+  state.selection = null;
+  state.draggedText = null;
+}
+
 function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote: A) => void
                                                     ) => boolean, score: ScoreModel): ScoreModel {
+  // Maps over every NoteModel and BaseNote in the score, calling f(note) with each one
+
   for (let i=0; i < score.staves.length; i++) {
     const stave = score.staves[i];
     for (let j=0; j < stave.bars.length; j++) {
@@ -103,7 +108,7 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
           });
           if (done) return score;
         } else if (Note.isTriplet(n)) {
-          let ns: ScoreModel, done: boolean;
+          let done: boolean = false;
           done = f(n.first, (newNote: BaseNote) => {
             n.first = { ...newNote };
             bar.notes[k] = { ...n };
@@ -133,6 +138,8 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
 }
 
 function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel {
+  // Replaces note in score
+
   return noteMap(<A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
     if (Note.isNoteModel(n) && n.id === id) {
       replace(note as A);
@@ -145,6 +152,8 @@ function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel 
 }
 
 function changeTripletNoteFrom(id: ID, newNote: BaseNote, score: ScoreModel): ScoreModel {
+  // Replaces triplet note with newNote in the score
+
   return noteMap(<A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
     if (! Note.isNoteModel(n) && n.id === id) {
       replace(newNote as A);
@@ -156,6 +165,8 @@ function changeTripletNoteFrom(id: ID, newNote: BaseNote, score: ScoreModel): Sc
 }
 
 function changeNotes(notes: (NoteModel | BaseNote)[], f: <T extends NoteModel | BaseNote>(note: T) => T, score: ScoreModel): ScoreModel {
+  // Replaces each note with f(note) in the score
+
   let notesChanged = 0;
   return noteMap((n,replace) => {
     if (notes.includes(n)) {
@@ -171,6 +182,8 @@ function changeNotes(notes: (NoteModel | BaseNote)[], f: <T extends NoteModel | 
 }
 
 function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: GracenoteModel, score: ScoreModel): ScoreModel {
+  // Replaces oldGracenote with newGracenote
+
   return noteMap((n,replace) => {
     if (Note.isNoteModel(n) && n.gracenote === oldGracenote) {
       replace({ ...n, gracenote: newGracenote });
@@ -182,7 +195,8 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
 }
 
   function makeCorrectTie(noteModel: NoteModel, score = state.score) {
-  // corrects the pitches of any notes tied to noteModel
+  // Corrects the pitches of any notes tied to noteModel
+
   const bars = Score.bars(score);
   const noteModels = flatten(bars.map(b => b.notes));
   for (let i=0; i < noteModels.length; i++) {
@@ -213,6 +227,8 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
 }
 
 function deleteNotes(notes: (NoteModel | TripletModel)[], score: ScoreModel): ScoreModel {
+  // Deletes the notes from the score, modifies and returns it
+
   for (let i=0; i < score.staves.length; i++) {
     const stave = score.staves[i];
     for (let j=0; j < stave.bars.length; j++) {
@@ -229,9 +245,7 @@ function deleteNotes(notes: (NoteModel | TripletModel)[], score: ScoreModel): Sc
       }
     }
   }
-
   score = purgeItems(Note.flattenTriplets(notes), score);
-
   return { ...score };
 }
 
@@ -247,13 +261,11 @@ function purgeItems(items: Item[], oldScore: ScoreModel): ScoreModel {
         secondTimingsToDelete.push(t);
       }
     });
-    secondTimingsToDelete.forEach(t =>
-                                  score.secondTimings.splice(score.secondTimings.indexOf(t), 1));
-                                  if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
-                                    state.selection = null;
-                                  }
+    secondTimingsToDelete.forEach(t => score.secondTimings.splice(score.secondTimings.indexOf(t), 1));
+    if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
+      state.selection = null;
+    }
   }
-
   return score;
 }
 
@@ -561,6 +573,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 
 
 function indexOfId(id: ID, noteModels: Item[]): number {
+  // Finds the index of the item with the specified ID in noteModels
+
   for (let i=0; i<noteModels.length; i++) {
     if (noteModels[i].id === id) {
       return i;
@@ -568,33 +582,9 @@ function indexOfId(id: ID, noteModels: Item[]): number {
   }
   return -1;
 }
-function mouseMove(event: MouseEvent) {
-  if (state.draggedText !== null || state.demoNote !== null) {
-    const svg = document.getElementById('score-svg');
-    if (svg == null) {
-      return;
-    } else if (svg instanceof SVGSVGElement) {
-      const CTM = svg.getScreenCTM();
-      if (CTM == null) return;
-      const pt = svg.createSVGPoint();
-      pt.x = event.clientX;
-      pt.y = event.clientY;
-
-      const svgPt = pt.matrixTransform(CTM.inverse());
-
-      // these should be mutually exclusive so else/if works fine
-      if (state.draggedText !== null) {
-        dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
-      } else if (state.demoNote) {
-        const newStaveIndex = coordinateToStaveIndex(svgPt.y);
-        dispatch({ name: 'update demo note', x: svgPt.x, staveIndex: newStaveIndex });
-      }
-    }
-  }
-}
-
 function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, bar: BarModel } {
-  // This is extremely inefficient and should only be used in instances that don't occur regularly
+  // Finds the parent bar and stave of the note passed
+
   const staves = Score.staves(state.score);
   if (typeof note === 'number') {
     for (const stave of staves) {
@@ -622,11 +612,15 @@ function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, b
 }
 
 function currentNoteModels(): (NoteModel | TripletModel)[] {
+  // Flattens all the notes in the score into an array
+
   const bars = Score.bars(state.score);
   return flatten(bars.map(b => b.notes));
 }
 
-function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: (NoteModel | TripletModel)[]): (NoteModel | BaseNote)[] {
+function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: (NoteModel | TripletModel)[]): BaseNote[] {
+  // Finds all the notes (including notes within triplets) that are selected within noteModels
+
   if (state.selection === null) return [];
   const notes = Note.flattenTriplets(noteModels);
   const startInd = indexOfId(state.selection.start, notes);
@@ -639,6 +633,8 @@ function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: (No
 }
 
 function rawSelectionToNotes(selection: ScoreSelectionModel | null, noteModels: (NoteModel | TripletModel)[]): (NoteModel | TripletModel)[] {
+  // Finds all the notes and Triplets that are selected within noteModels
+
   if (state.selection === null) return [];
   const startInd = indexOfId(state.selection.start, noteModels);
   const endInd = indexOfId(state.selection.end, noteModels);
@@ -650,6 +646,8 @@ function rawSelectionToNotes(selection: ScoreSelectionModel | null, noteModels: 
 }
 
 function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignature: TimeSignatureModel) {
+  // Replaces timeSignature with newTimeSignature, and flows forward
+
   const bars = Score.bars(state.score);
   let atTimeSignature = false;
   for (const bar of bars) {
@@ -657,12 +655,18 @@ function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignatur
       atTimeSignature = true;
     }
     if (atTimeSignature) {
-      bar.timeSignature = newTimeSignature;
+      if (TimeSignature.equal(bar.timeSignature, timeSignature)) {
+        bar.timeSignature = newTimeSignature;
+      } else {
+        break;
+      }
     }
   }
 }
 
 const updateView = (score: ScoreModel) => {
+  // Redraws the view
+
   const scoreRoot = document.getElementById("score");
   const uiRoot = document.getElementById("ui");
   if (!scoreRoot || !uiRoot) return;
@@ -690,8 +694,38 @@ const updateView = (score: ScoreModel) => {
   state.uiView = newUIView;
 }
 
+function mouseMove(event: MouseEvent) {
+  // The callback that occurs on mouse move
+  // - drags text (if necessary)
+  // - moves demo note (if necessary)
+
+  if (state.draggedText !== null || state.demoNote !== null) {
+    const svg = document.getElementById('score-svg');
+    if (svg == null) {
+      return;
+    } else if (svg instanceof SVGSVGElement) {
+      const CTM = svg.getScreenCTM();
+      if (CTM == null) return;
+      const pt = svg.createSVGPoint();
+      pt.x = event.clientX;
+      pt.y = event.clientY;
+
+      const svgPt = pt.matrixTransform(CTM.inverse());
+
+      // these should be mutually exclusive so else/if works fine
+      if (state.draggedText !== null) {
+        dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
+      } else if (state.demoNote) {
+        const newStaveIndex = coordinateToStaveIndex(svgPt.y);
+        dispatch({ name: 'update demo note', x: svgPt.x, staveIndex: newStaveIndex });
+      }
+    }
+  }
+}
 
 export default function startController(): void {
+  // Initial render, hooks event listeners
+
   window.addEventListener('mousemove', mouseMove);
   // initially set the notes to be the right groupings
   state.view = hFrom('score');

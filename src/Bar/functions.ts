@@ -1,7 +1,6 @@
 /*
-  Bar/functions.ts - Defines functions that transform Bars
-  Copyright (C) 2020 Archie Maclean
-*/
+   Copyright (C) 2020 Archie Maclean
+ */
 import { genId } from '../global/utils';
 import { BarModel, Barline } from './model';
 

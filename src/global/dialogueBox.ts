@@ -1,3 +1,7 @@
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
+
 // A simple, raw HTML dialogue box
 // It uses raw HTML because it's outside the main dispatch loop and it's not very complicated, so there's no real reason to use VDOM
 // It also is not built for speed (uses set innerHTML), but that's OK since it will never be called lots of times very quickly

@@ -1,10 +1,12 @@
+/*
+   ScoreSelection/view.ts - selection (orange box)
+   Copyright (C) 2020 Archie Maclean
+ */
 import { svg, V } from '../render/h';
 import { lineGap } from '../global/constants';
 import { getXY } from '../global/state';
 
 import { ScoreSelectionModel } from './model';
-
-
 
 export default function render(selection: ScoreSelectionModel): V {
   const start = getXY(selection.start);

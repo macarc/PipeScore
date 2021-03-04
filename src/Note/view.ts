@@ -1,5 +1,5 @@
 /*
-  Note.ts - Note implementation for PipeScore
+  Note/view.ts - Note implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
 import { svg, V } from '../render/h';
@@ -22,6 +22,7 @@ const shortTailLength = 10;
 // note that this is actually *half* the width
 const noteHeadWidth = 5;
 
+// Finds the width of the note in beat widths
 export const widthOfNote = (note: NoteModel | TripletModel, prevNote: Pitch | null): number => Note.isTriplet(note) ?
   3 + [{ n: note.first, p: prevNote }, { n: note.second, p: note.first.pitch }, { n: note.third, p: note.second.pitch }].reduce((acc, { n, p }) => acc + gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, p), 0)
  : 1 +
@@ -29,39 +30,42 @@ export const widthOfNote = (note: NoteModel | TripletModel, prevNote: Pitch | nu
     ?  0
     : (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, prevNote)));
 
+// Finds the total width of the note array in beat widths
 export const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
   notes.map((n,i) => widthOfNote(n, i === 0 ? prevNote : notes[i - 1].pitch)).reduce((a,b) => a + b, 0);
 
+// Finds the offset that the note head has due to its gracenote
 export const noteHeadOffset = (beatWidth: number, note: BaseNote, previousPitch: Pitch | null): number => beatWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch);
 
 function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): V {
-	// draw beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
-	const leftIs1 = x1 < x2;
-	const leftTails = leftIs1 ? tails1 : tails2;
-	const rightTails = leftIs1 ? tails2 : tails1;
-	const xL = leftIs1 ? x1 : x2;
-	const xR = leftIs1 ? x2 : x1;
-	const yL = leftIs1 ? y1 : y2;
-	const yR = leftIs1 ? y2 : y1;
+  // Draws beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
+
+  const leftIs1 = x1 < x2;
+  const leftTails = leftIs1 ? tails1 : tails2;
+  const rightTails = leftIs1 ? tails2 : tails1;
+  const xL = leftIs1 ? x1 : x2;
+  const xR = leftIs1 ? x2 : x1;
+  const yL = leftIs1 ? y1 : y2;
+  const yR = leftIs1 ? y2 : y1;
 
 
-	const diffIsL = leftTails > rightTails;
+  const diffIsL = leftTails > rightTails;
 
-	// tails shared by both notes
-	const sharedTails = diffIsL ? [...Array(rightTails).keys()] : [...Array(leftTails).keys()];
-	// tails extra tails for one note
-	const diffTails = diffIsL ? [...Array(leftTails).keys()].splice(rightTails) : [...Array(rightTails).keys()].splice(leftTails);
+  // tails shared by both notes
+  const sharedTails = diffIsL ? [...Array(rightTails).keys()] : [...Array(leftTails).keys()];
+  // tails extra tails for one note
+  const diffTails = diffIsL ? [...Array(leftTails).keys()].splice(rightTails) : [...Array(rightTails).keys()].splice(leftTails);
 
-	const tailEndY =
-	diffIsL
-	// because similar triangles
-	? yL + shortTailLength / (xR - xL) * (yR - yL)
-	: yR - shortTailLength / (xR - xL) * (yR - yL);
+  const tailEndY =
+    diffIsL
+  // because similar triangles
+    ? yL + shortTailLength / (xR - xL) * (yR - yL)
+    : yR - shortTailLength / (xR - xL) * (yR - yL);
 
 
-  return svg('g', { class: 'tails' }, [
-    ...sharedTails.map(i =>
-      svg('line',
+    return svg('g', { class: 'tails' }, [
+      ...sharedTails.map(i =>
+        svg('line',
           { x1: xL,
             x2: xR,
             y1: yL - i * tailGap,
@@ -69,8 +73,8 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
             stroke: 'black',
             'stroke-width': 2
           })),
-    ...diffTails.map(i =>
-      svg('line',
+      ...diffTails.map(i =>
+        svg('line',
           { x1: diffIsL ? xL : xR,
             x2: diffIsL ? xL + shortTailLength : xR - shortTailLength,
             y1: (diffIsL ? yL : yR) - i * tailGap,
@@ -78,11 +82,12 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
             stroke: 'black',
             'stroke-width': 2
           }))
-  ]);
+        ]);
 }
 
 function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEvent) => void, draggedNote: BaseNote | null, opacity = 1): V {
-  // Draw note head, ledger line and dot
+  // Draws note head, ledger line and dot, as well as mouse event box
+
   const noteWidth = 5;
   const noteHeight = 4;
   const rotation = Note.hasStem(note) ? -30 : 0;
@@ -131,6 +136,8 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
 }
 
 function tie(staveY: number, pitch: Pitch, x: number, noteWidth: number, previousNote: PreviousNote, lastStaveX: number): V {
+  // Draws a tie to previousNote
+
   const tieOffsetY = 10;
   const tieHeight = 15;
   const tieWidth = 8;
@@ -159,6 +166,8 @@ M ${lastStaveX},${y1} S ${(lastStaveX - x1) / 2 + x1},${y1 - tieHeight}, ${x1},$
 }
 
 function tripletLine(staveY: number, x1: number, x2: number, y1: number, y2: number): V {
+  // Draws a triplet marking from x1,y1 to x2,y2
+
   const midx = x1 + (x2 - x1) / 2;
   const height = 40;
   const midy = staveY - height;
@@ -175,7 +184,8 @@ M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}
 const shouldTie = (note: NoteModel, previous: PreviousNote | null): previous is PreviousNote => note.tied && (previous || false) && previous.pitch === note.pitch;
 
 function singleton(note: NoteModel, x: number, staveY: number, noteWidth: number, gracenoteProps: GracenoteProps, previousNote: PreviousNote | null, lastStaveX: number, drawNoteBoxes: () => V, draggedNote: BaseNote | null, dispatch: Dispatch): V {
-  // todo this is complected with stemXOf in `render`
+  // Draws a single note
+
   const y = noteY(staveY, note.pitch);
   const stemX = x - noteHeadWidth;
   const stemY = y + 30;
@@ -213,6 +223,8 @@ interface NoteProps {
 }
 
 function renderTriplet(triplet: TripletModel, props: NoteProps): V {
+  // Draws a triplet
+
   // This is mostly just repetitive, but there's enough different that it isn't worth trying to reuse code
   const notes = Note.tripletNoteModels(triplet);
   const firstGracenoteX = props.x;
@@ -392,7 +404,6 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
 
                        svg('line', { x1: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
                      ])
-                     
                    }));
       }
     }

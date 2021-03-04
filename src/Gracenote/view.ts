@@ -1,5 +1,5 @@
 /*
-  Gracenote.ts - Gracenote implementation for PipeScore
+  Gracenote/view.ts - Gracenote implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
 import { svg, V } from '../render/h';
@@ -19,8 +19,9 @@ const tailXOffset = 3;
 const gracenoteHeadWidth = 3.5;
 
 
-// this is actually head & stem
 function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean): V {
+  // Draws head and stem
+
   const ledgerLeft = 5;
   const ledgerRight = 5.2;
   // todo: make ledger line the correct length
@@ -33,10 +34,13 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean)
   ])
 }
 
+// Offsets from the centre of the gracenote head to the point where the stem touches it
 const stemXOf = (x: number) => x + 3;
 const stemYOf = (y: number) => y - 2;
 
 function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: SingleGracenote | null, draggedGracenote: SingleGracenote | null): V {
+  // Draws a single gracenote
+
   const y = noteY(staveY, note);
   const boxWidth = 2.5 * gracenoteHeadWidth;
   const boxHeight = 6;

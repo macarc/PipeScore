@@ -1,3 +1,6 @@
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
 import { NoteLength } from '../Note/model';
 
 import { DemoNoteModel } from './model';

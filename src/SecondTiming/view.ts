@@ -1,3 +1,7 @@
+/*
+   SecondTiming/view.ts - second timing implementation
+   Copyright (C) 2020 Archie Maclean
+ */
 import { svg, V } from '../render/h';
 import { getXY } from '../global/state';
 

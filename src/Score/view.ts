@@ -33,6 +33,9 @@ const margin = 30;
 const topOffset = 150;
 
 export function coordinateToStaveIndex(y: number): number | null {
+  // Converts the y coordinate to the index of stave that the y coordinate lies in
+  // If it is below 0, it returns 0; if it doesn't lie on any stave it returns null
+
   const offset = (y + 4 * lineGap - topOffset);
   if (offset > 0 && (offset % staveGap) <= (12 * lineGap)) {
     return Math.max(Math.floor(offset / staveGap), 0);

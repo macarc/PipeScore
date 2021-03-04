@@ -1,3 +1,7 @@
+/*
+  KeyHandler.ts - dispatches to Controller when key presses occur
+  Copyright (C) 2020 Archie Maclean
+ */
 import { dispatch } from './Controller';
 
 import { NoteLength } from './Note/model';

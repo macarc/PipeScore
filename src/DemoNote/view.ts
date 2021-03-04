@@ -1,3 +1,7 @@
+/*
+   DemoNote/view.ts - a note that previews note placement (i.e. shows what pitch the mouse is hovering over currently)
+   Copyright (C) 2020 Archie Maclean
+ */
 import { svg, V } from '../render/h';
 import { Pitch, noteY } from '../global/pitch';
 import { DemoNoteModel } from './model';

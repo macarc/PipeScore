@@ -1,3 +1,6 @@
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
 import { Pitch } from '../global/pitch';
 
 import { GracenoteModel, Gracenote, InvalidGracenote, ReactiveGracenote } from './model';
@@ -10,6 +13,9 @@ type GracenoteFn = (note: Pitch, prev: Pitch | null) => Gracenote | InvalidGrace
 const invalidateIf = (pred: boolean, gracenote: Gracenote): Gracenote | InvalidGracenote => pred ? ({ gracenote }) : gracenote;
 const invalid = (gracenote: Gracenote): InvalidGracenote => ({ gracenote });
 
+// gracenotes is a map containing all the possible embellishments in the form of functions
+// To get the notes of an embellishment, first get the gracenote type you want, e.g. gracenote["doubling"]
+// Then call the resulting function with two arguments: pitch of the note it is on, and pitch of previous note (or null)
 const gracenotes: Map<string, GracenoteFn> = new Map();
 
 gracenotes.set('throw-d', note => invalidateIf(note !== Pitch.D, [Pitch.G,Pitch.D,Pitch.C]));
@@ -135,6 +141,8 @@ gracenotes.set('g-gracenote-birl', (note, prev) => {
 
 
 function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): number {
+  // Find the number of notes in the gracenote
+
   const grace = notesOf(gracenote,thisNote,previousNote);
   if (isInvalid(grace)) {
     if (grace.gracenote.length > 0) {
@@ -152,6 +160,8 @@ function numberOfNotes(gracenote: GracenoteModel, thisNote: Pitch, previousNote:
 }
 
 function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Pitch[] | InvalidGracenote {
+  // Find the notes of a gracenote as an array
+
   if (gracenote.type === 'single') {
     return [gracenote.note];
   } else if (gracenote.type === 'reactive') {
@@ -174,6 +184,7 @@ const init = (): GracenoteModel => ({
   type: 'none'
 });
 
+// Convert from name to gracenote
 const from = (name: string | null): GracenoteModel =>
   (name === null)
     ? ({

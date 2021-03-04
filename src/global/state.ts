@@ -1,7 +1,6 @@
 /*
-  global.ts - Defines global mutable state variables for PipeScore
-  Copyright (C) 2020 Archie Maclean
-*/
+   Copyright (C) 2020 Archie Maclean
+ */
 import { ID } from './types';
 
 interface XY {
@@ -9,6 +8,9 @@ interface XY {
   afterX: number,
   y: number
 }
+
+// itemCoords holds the coordinates of all items on the score
+// Useful for components such as selection boxes that need access to multiple items' coordinates
 const itemCoords: Map<ID, XY> = new Map();
 // the y value will be the stave's y rather than the actual y value of the note
 export const setXY = (item: ID, beforeX: number, afterX: number, y: number): void => {

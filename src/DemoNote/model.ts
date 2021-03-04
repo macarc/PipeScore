@@ -1,3 +1,6 @@
+/*
+   Copyright (C) 2020 Archie Maclean
+ */
 import { Pitch } from '../global/pitch';
 import { NoteLength } from '../Note/model';
 

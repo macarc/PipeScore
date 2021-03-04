@@ -1,3 +1,7 @@
+/*
+   Virtual DOM API
+   Copyright (C) 2020 Archie Maclean
+ */
 import { V, VElement, VCache, Attributes, Events } from './types';
 
 type Child = VElement | VCache | string | null;
@@ -10,6 +14,8 @@ function h(name: string, attrs: Attributes, events: Events): VElement
 function h(name: string, attrs: Attributes, events: Events, children: Child[]): VElement
 
 function h(name: string, a: Attributes | Child[] = {}, b: Events | Child[] = {}, c: Child[] = []): VElement {
+  // Creates a virtual DOM node
+
   const childrenOf = (children: Child[]) => children.map(s => (typeof s === 'string') ? { s, node: null } : s)
   if (Array.isArray(a)) {
     return { name, attrs: {}, events: {}, children: childrenOf(a), node: null };
@@ -30,6 +36,8 @@ function svg(name: string, attrs: Attributes, events: Events): VElement
 function svg(name: string, attrs: Attributes, events: Events, children: Child[]): VElement
 
 function svg(name: string, a: Attributes | Child[] = {}, b: Events | Child[] = {}, c: Child[] = []): VElement {
+  // Creates a virtual DOM node that is an SVG element
+
   if (Array.isArray(a)) {
     return h(name, { ns: 'http://www.w3.org/2000/svg' }, {}, a);
   } else {
@@ -42,8 +50,9 @@ function svg(name: string, a: Attributes | Child[] = {}, b: Events | Child[] = {
   }
 }
 
-// element with the id MUST be empty
 export function hFrom(id: string): V {
+  // Converts an empty element to a virtual DOM element
+
   const el = document.getElementById(id);
   if (! el) return h('div');
 
@@ -53,6 +62,9 @@ export function hFrom(id: string): V {
 // This is safe, but eslint can't work that out
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function cache<Fn extends (...a: any) => VElement>(args: Parameters<Fn>, fn: Fn): VCache {
+  // Create an effecient cache
+  // During patch, if the new args !== the old args, then it will be skipped, saving time
+
   return ({
     data: args,
     fn: fn,
