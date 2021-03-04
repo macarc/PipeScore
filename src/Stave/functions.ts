@@ -12,10 +12,12 @@ function addBar(stave: StaveModel, bar: BarModel): void {
   if (ind !== -1)
     stave.bars.splice(ind + 1, 0, Bar.init());
 }
-function deleteBar(stave: StaveModel, bar: BarModel): void {
-  const ind = stave.bars.indexOf(bar);
+function deleteBar(stave: StaveModel, bar: BarModel): StaveModel {
+  const newStave = { ...stave };
+  const ind = newStave.bars.indexOf(bar);
   if (ind !== -1)
-    stave.bars.splice(ind, 1);
+    newStave.bars.splice(ind, 1);
+  return newStave;
 }
 
 const init: () => StaveModel = () => ({

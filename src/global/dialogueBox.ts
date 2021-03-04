@@ -3,7 +3,6 @@
 // It also is not built for speed (uses set innerHTML), but that's OK since it will never be called lots of times very quickly
 
 export default function dialogueBox<A>(inner: string, serialise: (form: HTMLFormElement) => A | null, blank: A): Promise<A> {
-  // using raw HTML because it's quick :)
   const parent = document.createElement('div');
   parent.id = 'dialogue-parent';
   const back = document.createElement('div');

@@ -18,6 +18,7 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
+- [ ] Deleting bar doesn't work
 
 
 

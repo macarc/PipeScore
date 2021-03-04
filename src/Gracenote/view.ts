@@ -14,8 +14,6 @@ import Gracenote from './functions';
 
 
 
-
-
 const tailXOffset = 3;
 // actually this is half of the head width
 const gracenoteHeadWidth = 3.5;

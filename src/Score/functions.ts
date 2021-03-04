@@ -20,10 +20,12 @@ function addStave(score: ScoreModel, afterStave: StaveModel): void {
     score.staves.splice(ind + 1, 0, Stave.init());
 }
 
-function deleteStave(score: ScoreModel, stave: StaveModel): void {
-  const ind = score.staves.indexOf(stave);
+function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
+  const newScore = { ...score };
+  const ind = newScore.staves.indexOf(stave);
   if (ind !== -1)
-    score.staves.splice(ind, 1);
+    newScore.staves.splice(ind, 1);
+  return newScore;
 }
 
 

@@ -83,8 +83,8 @@ const state: State = {
   uiView: null
 }
 
-function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote: A) => ScoreModel
-                                                    ) => [ScoreModel, boolean], score: ScoreModel): ScoreModel {
+function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote: A) => void
+                                                    ) => boolean, score: ScoreModel): ScoreModel {
   for (let i=0; i < score.staves.length; i++) {
     const stave = score.staves[i];
     for (let j=0; j < stave.bars.length; j++) {
@@ -93,42 +93,37 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
         const n = bar.notes[k];
 
         if (Note.isNoteModel(n)) {
-          const [ns, done] = f(n, (newNote: NoteModel) => {
+          const done = f(n, (newNote: NoteModel) => {
             bar.notes[k] = { ...newNote };
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
-            return { ...score };
+            if (Note.isNoteModel(newNote) && Note.isNoteModel(n) && (newNote.tied !== n.tied || newNote.length !== n.length)) {
+              makeCorrectTie(newNote, score);
+            }
           });
-          score = ns;
           if (done) return score;
         } else if (Note.isTriplet(n)) {
           let ns: ScoreModel, done: boolean;
-          [ns, done] = f(n.first, (newNote: BaseNote) => {
+          done = f(n.first, (newNote: BaseNote) => {
             n.first = { ...newNote };
             bar.notes[k] = { ...n };
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
-            return { ...score };
           });
-          score = ns;
           if (done) return score;
-          [ns, done] = f(n.second, (newNote: BaseNote) => {
+          done = f(n.second, (newNote: BaseNote) => {
             n.second = { ...newNote };
             bar.notes[k] = { ...n };
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
-            return { ...score };
           });
-          score = ns;
           if (done) return score;
-          [ns, done] = f(n.third, (newNote: BaseNote) => {
+          done = f(n.third, (newNote: BaseNote) => {
             n.third = { ...newNote };
             bar.notes[k] = { ...n };
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
-            return { ...score };
           });
-          score = ns;
           if (done) return score;
         }
       }
@@ -138,25 +133,24 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
 }
 
 function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel {
-  return noteMap(<A extends NoteModel | BaseNote>(n: A,replace: (newNote: A) => ScoreModel) => {
+  return noteMap(<A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
     if (Note.isNoteModel(n) && n.id === id) {
-      score = replace(note as A);
+      replace(note as A);
       // todo do this in single pass (i.e. in this loop);
-      makeCorrectTie(note, score);
-      return [{ ...score }, true];
+      return true;
     } else {
-      return [ score, false ];
+      return false;
     }
   }, score);
 }
 
 function changeTripletNoteFrom(id: ID, newNote: BaseNote, score: ScoreModel): ScoreModel {
-  return noteMap(<A extends NoteModel | BaseNote>(n: A,replace: (newNote: A) => ScoreModel) => {
+  return noteMap(<A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
     if (! Note.isNoteModel(n) && n.id === id) {
-      score = replace(newNote as A);
-      return [ { ...score }, true ];
+      replace(newNote as A);
+      return true;
     } else {
-      return [ score, false ];
+      return false;
     }
   }, score);
 }
@@ -166,16 +160,12 @@ function changeNotes(notes: (NoteModel | BaseNote)[], f: <T extends NoteModel | 
   return noteMap((n,replace) => {
     if (notes.includes(n)) {
       const newNote = f(n);
-      score = replace(newNote);
-      if (Note.isNoteModel(newNote) && Note.isNoteModel(n) && (newNote.tied !== n.tied || newNote.length !== n.length)) {
-        makeCorrectTie(newNote, score);
-      }
-
+      replace(newNote);
       notesChanged++;
 
-      return [{ ...score }, notesChanged === notes.length];
+      return notesChanged === notes.length;
     } else {
-      return [ score, false ];
+      return false;
     }
   }, score);
 }
@@ -183,11 +173,11 @@ function changeNotes(notes: (NoteModel | BaseNote)[], f: <T extends NoteModel | 
 function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: GracenoteModel, score: ScoreModel): ScoreModel {
   return noteMap((n,replace) => {
     if (Note.isNoteModel(n) && n.gracenote === oldGracenote) {
-      score = replace({ ...n, gracenote: newGracenote });
-      return [{ ...score }, true];
+      replace({ ...n, gracenote: newGracenote });
+      return true;
     }
 
-    return [ score, false ];
+    return false;
   }, score);
 }
 
@@ -222,34 +212,17 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
   }
 }
 
-function deleteNotes(notesToDelete: (NoteModel | TripletModel)[], score: ScoreModel): ScoreModel {
-  let numberDeleted = 0;
+function deleteNotes(notes: (NoteModel | TripletModel)[], score: ScoreModel): ScoreModel {
   for (let i=0; i < score.staves.length; i++) {
     const stave = score.staves[i];
     for (let j=0; j < stave.bars.length; j++) {
       const bar = stave.bars[j];
       for (let k=0; k < bar.notes.length; ) {
-        const note = bar.notes[k];
-        if (notesToDelete.includes(note)) {
-          bar.notes.splice(k, 1);
+        const n = bar.notes[k];
+        if (notes.includes(n)) {
+          bar.notes.splice(k,1);
           stave.bars[j] = { ...bar };
           score.staves[i] = { ...stave };
-          const secondTimingsToDelete: SecondTimingModel[] = [];
-          score.secondTimings.forEach(t => {
-            if (t.start === note.id || t.middle === note.id || t.end === note.id) {
-              secondTimingsToDelete.push(t);
-            }
-          });
-          secondTimingsToDelete.forEach(t =>
-            score.secondTimings.splice(score.secondTimings.indexOf(t), 1));
-          if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
-            state.selection = null;
-          }
-
-          numberDeleted++;
-          if (numberDeleted === notesToDelete.length) {
-            return { ...score };
-          }
         } else {
           k++;
         }
@@ -257,7 +230,31 @@ function deleteNotes(notesToDelete: (NoteModel | TripletModel)[], score: ScoreMo
     }
   }
 
+  score = purgeItems(Note.flattenTriplets(notes), score);
+
   return { ...score };
+}
+
+function purgeItems(items: Item[], oldScore: ScoreModel): ScoreModel {
+  // Deletes all references to the items in the array
+
+  const score = { ...oldScore };
+  for (const note of items) {
+    deleteXY(note.id);
+    const secondTimingsToDelete: SecondTimingModel[] = [];
+    score.secondTimings.forEach(t => {
+      if (t.start === note.id || t.middle === note.id || t.end === note.id) {
+        secondTimingsToDelete.push(t);
+      }
+    });
+    secondTimingsToDelete.forEach(t =>
+                                  score.secondTimings.splice(score.secondTimings.indexOf(t), 1));
+                                  if (state.selection && (note.id === state.selection.start || note.id === state.selection.end)) {
+                                    state.selection = null;
+                                  }
+  }
+
+  return score;
 }
 
 export function dispatch(event: ScoreEvent.ScoreEvent): void {
@@ -500,10 +497,10 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isDeleteBar(event)) {
     if (state.selection) {
       // todo delete all selected bars
+      // todo remove XY of notes/bars
       const { bar, stave } = currentBar(state.selection.start);
-      state.score = deleteNotes(bar.notes, state.score);
-      deleteXY(bar.id);
-      Stave.deleteBar(stave, bar);
+      state.score = purgeItems(Note.flattenTriplets(bar.notes), state.score);
+      state.score.staves[state.score.staves.indexOf(stave)] = Stave.deleteBar(stave, bar);
       changed = true;
     }
   } else if (ScoreEvent.isAddStave(event)) {
@@ -515,10 +512,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isDeleteStave(event)) {
     if (state.selection) {
       // todo delete all selected staves
+      // todo remove XY of notes/bars
       const { stave } = currentBar(state.selection.start);
-      const notes: (NoteModel | TripletModel)[] = flatten(stave.bars.map(bar => bar.notes));
-      state.score = deleteNotes(notes, state.score);
-      Score.deleteStave(state.score, stave);
+      for (const bar of stave.bars) {
+        state.score = purgeItems([bar, ...Note.flattenTriplets(bar.notes)], state.score);
+      }
+      state.score = Score.deleteStave(state.score, stave);
       changed = true;
     }
   } else if (ScoreEvent.isTieSelectedNotes(event)) {
@@ -565,7 +564,7 @@ function indexOfId(id: ID, noteModels: Item[]): number {
   for (let i=0; i<noteModels.length; i++) {
     if (noteModels[i].id === id) {
       return i;
-    } 
+    }
   }
   return -1;
 }
