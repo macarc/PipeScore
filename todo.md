@@ -10,12 +10,12 @@ Bottlenecks:
 - [ ] Cut time
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Use correct previous note in all calls to widthOfAnacrusis
-- [ ] Better second timing usage - you should click to add, then be able to drag the sections around
 - [ ] Stricter bar lengths
 - [ ] Put copy/paste over correct bar
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
+- [ ] Second timing dragging will be a bar ahead for start, since it uses beforeX whereas the others use afterX
 
 
 
@@ -109,3 +109,4 @@ Bottlenecks:
 - [X] Better time signature editing (it should only change as far as the time signature is the same)
 - [X] Deleting bar doesn't work
 - [X] Remove forced no-caching once images/js/e.t.c. is in a stable state
+- [X] Better second timing usage - you should click to add, then be able to drag the sections around

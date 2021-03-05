@@ -20,3 +20,18 @@ export const getXY = (item: ID): XY | null => itemCoords.get(item) || null;
 export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 }
+
+export const closestItem = (x: number, y: number): ID => {
+  let closestDistance = Infinity;
+  let closestID = 0;
+  for (const [id, xy] of itemCoords) {
+    const xDistance = Math.min(Math.abs(xy.beforeX - x), Math.abs(xy.afterX - x));
+    const yDistance = xy.y - y;
+    const dist = xDistance**2 + yDistance**2;
+    if (dist < closestDistance) {
+      closestDistance = dist;
+      closestID = id;
+    }
+  }
+  return closestID;
+}

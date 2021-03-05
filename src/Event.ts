@@ -3,12 +3,14 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { Pitch } from './global/pitch';
+import { ID } from './global/types';
 
 import { NoteModel, TripletModel, NoteLength, BaseNote } from './Note/model';
 import { BarModel } from './Bar/model';
 import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
+import { SecondTimingModel } from './SecondTiming/model';
 
 export type ScoreEvent
   = MouseMovedOver
@@ -25,6 +27,7 @@ export type ScoreEvent
   | SetInputLength
   | StopInputtingNotes
   | SingleGracenoteClicked
+  | DragSecondTiming
   | AddNoteAfter
   | AddNoteToBarStart
   | TieSelectedNotes
@@ -38,6 +41,7 @@ export type ScoreEvent
   | AddText
   | DeleteText
   | AddSecondTiming
+  | ClickSecondTiming
   | EditText
   | EditTimeSignature
   | AddBar
@@ -266,6 +270,15 @@ export function isAddSecondTiming(e: ScoreEvent): e is AddSecondTiming {
   return e.name === 'add second timing';
 }
 
+type ClickSecondTiming = {
+  name: 'click second timing',
+  secondTiming: SecondTimingModel,
+  part: 'start' | 'middle' | 'end'
+}
+export function isClickSecondTiming(e: ScoreEvent): e is ClickSecondTiming {
+  return e.name === 'click second timing';
+}
+
 type EditTimeSignature = {
   name: 'edit time signature',
   timeSignature: TimeSignatureModel,
@@ -296,4 +309,12 @@ type UpdateDemoNote = {
 }
 export function isUpdateDemoNote(e: ScoreEvent): e is UpdateDemoNote {
   return e.name === 'update demo note';
+}
+
+type DragSecondTiming = {
+  name: 'drag second timing',
+  closest: ID
+}
+export function isDragSecondTiming(e: ScoreEvent): e is DragSecondTiming {
+  return e.name === 'drag second timing';
 }

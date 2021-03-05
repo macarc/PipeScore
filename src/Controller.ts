@@ -12,7 +12,7 @@ import { BarModel } from './Bar/model';
 import { NoteModel, TripletModel, BaseNote } from './Note/model';
 import { GracenoteModel } from './Gracenote/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
-import { SecondTimingModel } from './SecondTiming/model';
+import { SecondTimingModel, DraggedSecondTiming } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { DemoNoteModel } from './DemoNote/model';
@@ -30,7 +30,7 @@ import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
 import { scoreWidth } from './global/constants';
-import { deleteXY } from './global/state';
+import { deleteXY, closestItem } from './global/state';
 import { ID, Item } from './global/types';
 
 import { flatten, deepcopy, nmap } from './global/utils';
@@ -55,6 +55,7 @@ interface State {
   score: ScoreModel,
   history: ScoreModel[],
   future: ScoreModel[],
+  draggedSecondTiming: DraggedSecondTiming | null,
   view: V | null,
   uiView: V | null
 }
@@ -68,6 +69,7 @@ const state: State = {
   clipboard: null,
   selection: null,
   draggedText: null,
+  draggedSecondTiming: null,
   score: Score.init(),
   history: [Score.init()],
   future: [],
@@ -84,6 +86,7 @@ function removeState(state: State) {
   state.textBoxState.selectedText = null;
   state.selection = null;
   state.draggedText = null;
+  state.draggedSecondTiming = null;
 }
 
 function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote: A) => void
@@ -342,9 +345,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isMouseUp(event)) {
-    if (state.noteState.dragged !== null || state.gracenoteState.dragged !== null) {
+    if (state.noteState.dragged || state.gracenoteState.dragged || state.draggedText || state.draggedSecondTiming) {
       state.noteState.dragged = null;
       state.gracenoteState.dragged = null;
+      state.draggedText = null;
+      state.draggedSecondTiming = null;
       changed = true;
     }
   } else if (ScoreEvent.isTextClicked(event)) {
@@ -353,6 +358,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     changed = true;
   } else if (ScoreEvent.isTextMouseUp(event)) {
     state.draggedText = null;
+    changed = true;
   } else if (ScoreEvent.isSetInputLength(event)) {
     state.inputGracenote = null;
     if (!state.demoNote) {
@@ -469,6 +475,15 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
         changed = true;
       }
     }
+  } else if (ScoreEvent.isDragSecondTiming(event)) {
+    if (state.draggedSecondTiming) {
+      if (state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] !== event.closest) {
+        if (SecondTiming.isValid({ ...state.draggedSecondTiming.secondTiming, [state.draggedSecondTiming.dragged]: event.closest })) {
+          state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] = event.closest;
+          changed = true;
+        }
+      }
+    }
   } else if (ScoreEvent.isTextDragged(event)) {
     if (state.draggedText !== null) {
       const newText = TextBox.setCoords(state.draggedText, event.x, event.y);
@@ -538,9 +553,13 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.score = changeNotes(selectedNotes, note => Note.isNoteModel(note) ? ({ ...note, tied: !note.tied }) : note, state.score);
       changed = true;
     }
+  } else if (ScoreEvent.isClickSecondTiming(event)) {
+    state.draggedSecondTiming = { secondTiming: event.secondTiming, dragged: event.part };
+    changed = true;
   } else if (ScoreEvent.isAddSecondTiming(event)) {
     if (selectedNotes.length >= 3) {
-      state.score.secondTimings.push(SecondTiming.init(selectedNotes[0].id, selectedNotes[1].id, selectedNotes[2].id));
+      const newSecondTiming = SecondTiming.init(selectedNotes[0].id, selectedNotes[1].id, selectedNotes[2].id);
+      state.score.secondTimings.push(newSecondTiming);
       changed = true;
     }
   } else if (ScoreEvent.isEditTimeSignature(event)) {
@@ -567,7 +586,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (JSON.stringify(state.history[state.history.length - 1]) !== JSON.stringify(state.score)) {
       state.history.push(JSON.parse(JSON.stringify(state.score)));
     }
-    updateView(state.score);
+    updateView();
   }
 }
 
@@ -664,7 +683,7 @@ function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignatur
   }
 }
 
-const updateView = (score: ScoreModel) => {
+const updateView = () => {
   // Redraws the view
 
   const scoreRoot = document.getElementById("score");
@@ -686,7 +705,7 @@ const updateView = (score: ScoreModel) => {
     inputLength: nmap(state.demoNote, n => n.length),
     gracenoteInput: state.inputGracenote
   }
-  const newView = h('div', [renderScore(score, scoreProps)]);
+  const newView = h('div', [renderScore(state.score, scoreProps)]);
   const newUIView = renderUI(dispatch, uiProps);
   if (state.view) patch(state.view, newView);
   if (state.uiView) patch(state.uiView, newUIView);
@@ -699,7 +718,7 @@ function mouseMove(event: MouseEvent) {
   // - drags text (if necessary)
   // - moves demo note (if necessary)
 
-  if (state.draggedText !== null || state.demoNote !== null) {
+  if (state.draggedText !== null || state.demoNote !== null || state.draggedSecondTiming !== null) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -715,6 +734,9 @@ function mouseMove(event: MouseEvent) {
       // these should be mutually exclusive so else/if works fine
       if (state.draggedText !== null) {
         dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
+      } else if (state.draggedSecondTiming) {
+        dispatch({ name: 'drag second timing', closest: closestItem(svgPt.x, svgPt.y) });
+        updateView();
       } else if (state.demoNote) {
         const newStaveIndex = coordinateToStaveIndex(svgPt.y);
         dispatch({ name: 'update demo note', x: svgPt.x, staveIndex: newStaveIndex });
@@ -730,5 +752,5 @@ export default function startController(): void {
   // initially set the notes to be the right groupings
   state.view = hFrom('score');
   state.uiView = hFrom('ui');
-  updateView(state.score);
+  updateView();
 }

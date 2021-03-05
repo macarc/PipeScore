@@ -62,6 +62,10 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     staveY: topOffset + staveGap * props.demoNote.staveIndex
   });
 
+  const secondTimingProps = {
+    dispatch: props.dispatch
+  };
+
   return svg('svg',
              { id: 'score-svg',
                width: (scoreWidth * props.zoomLevel / 100),
@@ -74,7 +78,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
                      { mousedown: () => props.dispatch({ name: 'background clicked' }) }),
                        ...score.staves.map((stave, idx) => renderStave(stave, staveProps(stave, idx))),
                        ...score.textBoxes.map(textBox => renderTextBox(textBox, { dispatch: props.dispatch, state: props.textBoxState })),
-                       ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming)),
+                       ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming, secondTimingProps)),
                        props.selection ? renderScoreSelection(props.selection) : null,
                        (props.demoNote && demoNoteProps) ? renderDemoNote(props.demoNote, demoNoteProps) : svg('g')
              ])
