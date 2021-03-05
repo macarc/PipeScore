@@ -13,12 +13,9 @@ Bottlenecks:
 - [ ] Better second timing usage - you should click to add, then be able to drag the sections around
 - [ ] Stricter bar lengths
 - [ ] Put copy/paste over correct bar
-- [ ] Better time signature editing (it should only change as far as the time signature is the same)
-- [ ] Remove forced no-caching once images/js/e.t.c. is in a stable state
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
-- [ ] Deleting bar doesn't work
 
 
 
@@ -109,3 +106,6 @@ Bottlenecks:
 - [X] Make a script to generate gracenote icons
 - [X] Preview note for current placement
 - [X] When adding triplets, use notes on stave rather than creating new notes
+- [X] Better time signature editing (it should only change as far as the time signature is the same)
+- [X] Deleting bar doesn't work
+- [X] Remove forced no-caching once images/js/e.t.c. is in a stable state
