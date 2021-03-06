@@ -5,6 +5,14 @@ html {
   font-family: sans-serif;
 }
 
+noscript {
+  position: static;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
 #score {
   margin-top: 6rem;
 }

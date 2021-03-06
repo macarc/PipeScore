@@ -9,10 +9,19 @@
     <script src="/dist/PipeScore.js"></script>
   </head>
   <body>
+    <noscript>
+      It looks like you have disabled JavaScript in your browser. PipeScore needs JavaScript to provide the complex interactivity of music notation, so please enable it if you want to use PipeScore!
+    </noscript>
     <div id="browser-size-warning">
       PipeScore doesn't work on mobile devices or other small screens yet (maybe never will). Sorry about that.
     </div>
     <div id="score"></div>
     <div id="ui"></div>
+
+    <script>
+      if (window.Map == undefined || window.DocumentFragment == undefined) {
+        alert('It looks like you are using an old browser. Unfortunately PipeScore does not work on older browsers, so please upgrade!');
+      }
+    </script>
   </body>
 </html>

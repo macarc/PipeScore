@@ -3,6 +3,7 @@
   Copyright (C) 2020 Archie Maclean
 */
 import { lineHeightOf } from '../global/constants';
+import { Pitch } from '../global/pitch';
 import { nmap } from '../global/utils';
 
 import { svg, V } from '../render/h';
@@ -10,6 +11,8 @@ import { svg, V } from '../render/h';
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
 import { Dispatch } from '../Event';
+
+import Bar from '../Bar/functions';
 
 import renderBar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
 import { NoteState } from '../Note/view';
@@ -41,29 +44,38 @@ export default function render(stave: StaveModel, props: StaveProps): V {
 
   const staveLines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
 
-  const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, null) : 0), 0);
+  const previousBar = (barIdx: number) => barIdx === 0
+    ? (props.previousStave ? props.previousStave.bars[props.previousStave.bars.length - 1] : null)
+    : stave.bars[barIdx - 1];
 
-  const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.length;
+  const previousBarLastNote = (index: number): Pitch | null => {
+    const bar = previousBar(index);
+    if (bar) {
+      return Bar.lastPitch(bar);
+    } else {
+      return null;
+    }
+  };
+
+  const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(i)) : 0), 0);
+
+  const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.filter(bar => !bar.isAnacrusis).length;
 
   const getX = (barIdx: number): number => stave.bars.slice(0, barIdx).reduce((soFar, bar) => {
     if (bar.isAnacrusis) {
-      return soFar + widthOfAnacrusis(bar, null);
+      return soFar + widthOfAnacrusis(bar, previousBarLastNote(barIdx));
     } else {
       return soFar + barWidth;
     }
   }, props.x + trebleClefWidth);
 
-  const previousBar = (barIdx: number) => barIdx === 0
-    ? (props.previousStave ? props.previousStave.bars[props.previousStave.bars.length - 1] : null)
-    : stave.bars[barIdx - 1];
-
 
   const lastStaveLastNoteX = nmap(props.previousStave, stave => {
-    const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, null) : 0), 0);
+    const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(i)) : 0), 0);
     const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.length;
-    const barStartX = stave.bars.slice(0, stave.bars.length - 1).reduce((soFar, bar) => {
+    const barStartX = stave.bars.slice(0, stave.bars.length - 1).reduce((soFar, bar, i) => {
       if (bar.isAnacrusis) {
-        return soFar + widthOfAnacrusis(bar, null);
+        return soFar + widthOfAnacrusis(bar, previousBarLastNote(i));
       } else {
         return soFar + barWidth;
       }
@@ -74,7 +86,7 @@ export default function render(stave: StaveModel, props: StaveProps): V {
   const barProps = (bar: BarModel, index: number) => ({
     x: getX(index),
     y: staveHeight,
-    width: bar.isAnacrusis ? widthOfAnacrusis(bar, null) : barWidth,
+    width: bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(index)) : barWidth,
     lastNoteX: index === 0 ? lastStaveLastNoteX : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1),

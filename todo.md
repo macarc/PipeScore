@@ -9,7 +9,6 @@ Bottlenecks:
 - [ ] Deal selection going over stave break
 - [ ] Cut time
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
-- [ ] Use correct previous note in all calls to widthOfAnacrusis
 - [ ] Stricter bar lengths
 - [ ] Put copy/paste over correct bar
 - [ ] Add optimised list render
@@ -111,3 +110,4 @@ Bottlenecks:
 - [X] Better second timing usage - you should click to add, then be able to drag the sections around
 - [X] Second timing dragging will be a bar ahead for start, since it uses beforeX whereas the others use afterX
 - [X] Make second timing dragging immutable
+- [X] Use correct previous note in all calls to widthOfAnacrusis
