@@ -5,7 +5,7 @@
 import { svg, V } from '../render/h';
 import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
-import { setXY } from '../global/state';
+import { setXY } from '../global/xy';
 import { nlast, nmap } from '../global/utils';
 
 import { NoteModel, TripletModel, BaseNote, PreviousNote } from './model';

@@ -2,7 +2,7 @@
    Copyright (C) 2020 Archie Maclean
  */
 import { ID } from '../global/types';
-import { getXY } from '../global/state';
+import { getXY } from '../global/xy';
 
 import { SecondTimingModel } from './model';
 

@@ -14,6 +14,7 @@ import Note from '../Note/functions';
 export interface UIState {
   inputLength: NoteLength | null,
   gracenoteInput: GracenoteModel | null,
+  width: number,
   zoomLevel: number
 }
 
@@ -43,7 +44,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
   }
 
   return h('div', [
-    h('div', { id: 'topbar' }, [
+    h('div', { id: 'topbar', style: `width: calc(${window.innerWidth - state.width}px - 5rem)` }, [
       h('div', { id: 'note-inputs' }, [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
@@ -79,7 +80,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         { id: 'redo' },
         { click: () => dispatch({ name: 'redo' }) }),
     ]),
-    h('div', { id: 'sidebar' }, [
+    h('div', { id: 'sidebar', style: `width: ${state.width}px` }, { 'mousedown': () => dispatch({ name: 'start resizing user interface' }) }, [
       h('h2', [ 'Gracenote' ]),
       h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("./images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
       gracenoteInput('doubling'),

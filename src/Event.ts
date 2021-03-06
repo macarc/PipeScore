@@ -12,42 +12,54 @@ import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { SecondTimingModel } from './SecondTiming/model';
 
-export type ScoreEvent
-  = MouseMovedOver
-  | Copy
-  | Paste
-  | Undo
-  | Redo
+export type ScoreEvent =
+  MouseMovedOver
   | NoteClicked
-  | BackgroundClicked
-  | MouseUp
-  | UpdateDemoNote
   | DeleteSelectedNotes
-  | SetGracenoteOnSelected
-  | SetInputLength
   | StopInputtingNotes
-  | SingleGracenoteClicked
-  | DragSecondTiming
+  | SetGracenoteOnSelected
   | AddNoteAfter
   | AddNoteToBarStart
   | TieSelectedNotes
   | AddTriplet
   | ToggleDotted
-  | ChangeZoomLevel
+  | SingleGracenoteClicked
+
+  | UpdateDemoNote
+
+  | AddBar
+  | DeleteBar
+
+  | AddStave
+  | DeleteStave
+
+  | EditText
   | TextClicked
   | TextMouseUp
   | TextDragged
   | CentreText
   | AddText
   | DeleteText
+
   | AddSecondTiming
   | ClickSecondTiming
-  | EditText
+  | DragSecondTiming
+
   | EditTimeSignature
-  | AddBar
-  | AddStave
-  | DeleteBar
-  | DeleteStave;
+
+
+  | MouseUp
+  | BackgroundClicked
+
+  | SetInputLength
+  | ChangeZoomLevel
+  | StartResizingUserInterface
+  | ResizeUserInterface
+
+  | Copy
+  | Paste
+  | Undo
+  | Redo;
 
 export type Dispatch = (e: ScoreEvent) => void
 
@@ -317,4 +329,18 @@ type DragSecondTiming = {
 }
 export function isDragSecondTiming(e: ScoreEvent): e is DragSecondTiming {
   return e.name === 'drag second timing';
+}
+
+type StartResizingUserInterface = {
+  name: 'start resizing user interface'
+}
+export function isStartResizingUserInterface(e: ScoreEvent):e is StartResizingUserInterface {
+  return e.name === 'start resizing user interface';
+}
+type ResizeUserInterface = {
+  name: 'resize user interface',
+  width: number
+}
+export function isResizeUserInterface(e: ScoreEvent):e is ResizeUserInterface {
+  return e.name === 'resize user interface';
 }

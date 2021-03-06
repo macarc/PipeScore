@@ -30,8 +30,9 @@ label {
   right: 0;
   top: 0;
   height: 100vh;
-  width: 15vw;
+  /* width: 15vw; */
   padding: 1rem;
+  padding-left: 2rem;
   background-color: lightblue;
   overflow: scroll;
 }
@@ -48,7 +49,6 @@ label {
   left: 0;
   top: 0;
   display: block;
-  width: calc(100vw - 15vw - 3rem);
   padding: 1rem;
   background: lightblue;
   margin: 0;

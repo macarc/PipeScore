@@ -3,7 +3,7 @@
    Copyright (C) 2020 Archie Maclean
  */
 import { svg, V } from '../render/h';
-import { getXY } from '../global/state';
+import { getXY } from '../global/xy';
 
 import { Dispatch } from '../Event';
 

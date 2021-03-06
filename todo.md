@@ -15,7 +15,6 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
-- [ ] Make second timing dragging immutable
 
 
 
@@ -27,14 +26,14 @@ Bottlenecks:
 - [X] Reactive gracenotes
 - [X] Time signatures
 - [X] Repeat marks
-- [ ] Second timings
+- [X] Second timings
 - [X] Anacrusis
 - [X] Note ties
 - [X] Adding staves / bars
 - [X] Text boxes
 - [X] Triplets
 - [ ] Harmony Stave
-- [ ] Resizable interface
+- [X] Resizable interface
 - [X] Copy/paste/undo/redo
 - [ ] A easy way to input all of the above
 - [ ] Multiple scores per page
@@ -111,3 +110,4 @@ Bottlenecks:
 - [X] Remove forced no-caching once images/js/e.t.c. is in a stable state
 - [X] Better second timing usage - you should click to add, then be able to drag the sections around
 - [X] Second timing dragging will be a bar ahead for start, since it uses beforeX whereas the others use afterX
+- [X] Make second timing dragging immutable

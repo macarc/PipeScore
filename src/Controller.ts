@@ -30,7 +30,7 @@ import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
 import { scoreWidth } from './global/constants';
-import { deleteXY, closestItem } from './global/state';
+import { deleteXY, closestItem } from './global/xy';
 import { ID, Item } from './global/types';
 
 import { flatten, deepcopy, nmap } from './global/utils';
@@ -47,6 +47,8 @@ interface State {
   demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
   zoomLevel: number,
+  interfaceWidth: number,
+  resizingInterface: boolean,
   textBoxState: TextBoxState,
   clipboard: (NoteModel | TripletModel)[] | null,
   selection: ScoreSelectionModel | null,
@@ -65,6 +67,8 @@ const state: State = {
   zoomLevel: 100 * (0.75 * Math.max(window.outerWidth, 800)) / scoreWidth,
   textBoxState: { selectedText: null },
   inputGracenote: null,
+  interfaceWidth: 300,
+  resizingInterface: false,
   demoNote: null,
   clipboard: null,
   selection: null,
@@ -87,6 +91,7 @@ function removeState(state: State) {
   state.selection = null;
   state.draggedText = null;
   state.draggedSecondTiming = null;
+  state.resizingInterface = false;
 }
 
 function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote: A) => void
@@ -328,28 +333,15 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.gracenoteState.dragged = event.gracenote;
     changed = true;
   } else if (ScoreEvent.isBackgroundClicked(event)) {
-    if (state.selection) {
-      state.selection = null
-      changed = true;
-    }
-    if (state.demoNote !== null) {
-      state.demoNote = null;
-      changed = true;
-    }
-    if (state.textBoxState.selectedText !== null) {
-      state.textBoxState.selectedText = null;
-      changed = true;
-    }
-    if (state.inputGracenote !== null) {
-      state.inputGracenote = null;
-      changed = true;
-    }
+    removeState(state);
+    changed = true;
   } else if (ScoreEvent.isMouseUp(event)) {
-    if (state.noteState.dragged || state.gracenoteState.dragged || state.draggedText || state.draggedSecondTiming) {
+    if (state.noteState.dragged || state.gracenoteState.dragged || state.draggedText || state.draggedSecondTiming || state.resizingInterface) {
       state.noteState.dragged = null;
       state.gracenoteState.dragged = null;
       state.draggedText = null;
       state.draggedSecondTiming = null;
+      state.resizingInterface = false;
       changed = true;
     }
   } else if (ScoreEvent.isTextClicked(event)) {
@@ -580,6 +572,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     const pasteAfter = bar.notes.find(n => n.id === id);
     if (pasteAfter) bar.notes.splice(bar.notes.indexOf(pasteAfter) + 1, 0, ...toPaste);
     changed = true;
+  } else if (ScoreEvent.isStartResizingUserInterface(event)) {
+    state.resizingInterface = true;
+  } else if (ScoreEvent.isResizeUserInterface(event)) {
+    state.interfaceWidth = event.width;
+    changed = true;
   } else {
     return event;
   }
@@ -705,6 +702,7 @@ const updateView = () => {
   const uiProps = {
     zoomLevel: state.zoomLevel,
     inputLength: nmap(state.demoNote, n => n.length),
+    width: state.interfaceWidth,
     gracenoteInput: state.inputGracenote
   }
   const newView = h('div', [renderScore(state.score, scoreProps)]);
@@ -720,7 +718,10 @@ function mouseMove(event: MouseEvent) {
   // - drags text (if necessary)
   // - moves demo note (if necessary)
 
-  if (state.draggedText !== null || state.demoNote !== null || state.draggedSecondTiming !== null) {
+  if (state.resizingInterface) {
+    dispatch({ name: 'resize user interface', width: window.innerWidth - event.clientX });
+
+  } else if (state.draggedText !== null || state.demoNote !== null || state.draggedSecondTiming !== null) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -751,6 +752,7 @@ export default function startController(): void {
   // Initial render, hooks event listeners
 
   window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('mouseup', () => dispatch({ name: 'mouse up' }));
   // initially set the notes to be the right groupings
   state.view = hFrom('score');
   state.uiView = hFrom('ui');

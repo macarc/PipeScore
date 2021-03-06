@@ -4,7 +4,7 @@
  */
 import { svg, V } from '../render/h';
 import { lineGap } from '../global/constants';
-import { getXY } from '../global/state';
+import { getXY } from '../global/xy';
 
 import { ScoreSelectionModel } from './model';
 
