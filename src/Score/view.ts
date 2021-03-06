@@ -63,6 +63,8 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
   });
 
   const secondTimingProps = {
+    staveStartX: margin,
+    staveEndX: scoreWidth - margin,
     dispatch: props.dispatch
   };
 

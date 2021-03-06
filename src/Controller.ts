@@ -111,7 +111,7 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
           });
           if (done) return score;
         } else if (Note.isTriplet(n)) {
-          let done: boolean = false;
+          let done = false;
           done = f(n.first, (newNote: BaseNote) => {
             n.first = { ...newNote };
             bar.notes[k] = { ...n };
@@ -478,8 +478,10 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isDragSecondTiming(event)) {
     if (state.draggedSecondTiming) {
       if (state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] !== event.closest) {
-        if (SecondTiming.isValid({ ...state.draggedSecondTiming.secondTiming, [state.draggedSecondTiming.dragged]: event.closest })) {
-          state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] = event.closest;
+        const newSecondTiming = { ...state.draggedSecondTiming.secondTiming, [state.draggedSecondTiming.dragged]: event.closest };
+        if (SecondTiming.isValid(newSecondTiming)) {
+          state.score.secondTimings.splice(state.score.secondTimings.indexOf(state.draggedSecondTiming.secondTiming), 1, newSecondTiming);
+          state.draggedSecondTiming.secondTiming = newSecondTiming;
           changed = true;
         }
       }
@@ -735,7 +737,7 @@ function mouseMove(event: MouseEvent) {
       if (state.draggedText !== null) {
         dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
       } else if (state.draggedSecondTiming) {
-        dispatch({ name: 'drag second timing', closest: closestItem(svgPt.x, svgPt.y) });
+        dispatch({ name: 'drag second timing', closest: closestItem(svgPt.x, svgPt.y, state.draggedSecondTiming.dragged !== 'end') });
         updateView();
       } else if (state.demoNote) {
         const newStaveIndex = coordinateToStaveIndex(svgPt.y);

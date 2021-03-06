@@ -21,14 +21,20 @@ export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 }
 
-export const closestItem = (x: number, y: number): ID => {
+export const closestItem = (x: number, y: number, rightMost: boolean): ID => {
+  // This finds the item the closest to the point (x,y)
+  // rightMost should be set to true if it should (in the case of a tie) favour the right-most element
+
   let closestDistance = Infinity;
   let closestID = 0;
-  for (const [id, xy] of itemCoords) {
+  const itemCoordinates = [...itemCoords].sort((a, b) => (b[1].beforeX < a[1].beforeX) ? 1 : -1);
+  for (const [id, xy] of itemCoordinates) {
     const xDistance = Math.min(Math.abs(xy.beforeX - x), Math.abs(xy.afterX - x));
     const yDistance = xy.y - y;
     const dist = xDistance**2 + yDistance**2;
-    if (dist < closestDistance) {
+    const cmp = (a: number,b: number) => rightMost ? a <= b : a < b;
+
+    if (cmp(dist, closestDistance)) {
       closestDistance = dist;
       closestID = id;
     }
