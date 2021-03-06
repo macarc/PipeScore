@@ -6,7 +6,6 @@ Bottlenecks:
 * replaceChild
 
 ## Bugs to fix
-- [ ] Deal with selection going over stave break
 - [ ] Cut time
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
@@ -15,9 +14,6 @@ Bottlenecks:
 - [ ] Ties to triplets
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
 - [ ] Bars/staves should be selectable
-- [ ] Clicking on gracenote button then clicking off should unhighlight box
-- [ ] Clicking on gracenote button then clicking on note button is really slow??
-
 
 
 ## General features
@@ -114,3 +110,6 @@ Bottlenecks:
 - [X] Second timing dragging will be a bar ahead for start, since it uses beforeX whereas the others use afterX
 - [X] Make second timing dragging immutable
 - [X] Use correct previous note in all calls to widthOfAnacrusis
+- [X] Clicking on gracenote button then clicking off should unhighlight box
+- [X] Clicking on gracenote button then clicking on note button is really slow??
+- [X] Deal with selection going over stave break

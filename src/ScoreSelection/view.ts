@@ -8,7 +8,14 @@ import { getXY } from '../global/xy';
 
 import { ScoreSelectionModel } from './model';
 
-export default function render(selection: ScoreSelectionModel): V {
+
+interface ScoreSelectionProps {
+  staveStartX: number,
+  staveEndX: number,
+  staveGap: number
+}
+
+export default function render(selection: ScoreSelectionModel, props: ScoreSelectionProps): V {
   const start = getXY(selection.start);
   const end = getXY(selection.end);
   if (!start || !end) {
@@ -16,10 +23,21 @@ export default function render(selection: ScoreSelectionModel): V {
     return svg('g');
   }
 
-  const width = end.afterX - start.beforeX;
   const height = 6 * lineGap;
 
-  return svg('g', { class: 'selection' }, [
-             svg('rect', { x: start.beforeX, y: start.y - lineGap, width, height, fill: 'orange', opacity: 0.5, 'pointer-events': 'none' })
-  ]);
+  if (end.y !== start.y) {
+    const higher = start.y > end.y ? end : start;
+    const lower = start.y > end.y ? start : end;
+    const numStavesBetween = Math.round((lower.y - higher.y) / props.staveGap) - 1;
+    return svg('g', { class: 'selection' }, [
+               svg('rect', { x: higher.beforeX, y: higher.y - lineGap, width: props.staveEndX - higher.beforeX, height, fill: 'orange', opacity: 0.5, 'pointer-events': 'none' }),
+               svg('rect', { x: props.staveStartX, y: lower.y - lineGap, width: lower.afterX - props.staveStartX, height, fill: 'orange', opacity: 0.5, 'pointer-events': 'none' }),
+               ...[...Array(numStavesBetween).keys()].map(i => i + 1).map(i => svg('rect', { x: props.staveStartX, y: higher.y + i * props.staveGap - lineGap, width: props.staveEndX - props.staveStartX, height, fill: 'orange', opacity: 0.5, 'pointer-events': 'none' }))
+    ]);
+  } else {
+    const width = end.afterX - start.beforeX;
+    return svg('g', { class: 'selection' }, [
+               svg('rect', { x: start.beforeX, y: start.y - lineGap, width, height, fill: 'orange', opacity: 0.5, 'pointer-events': 'none' })
+    ]);
+  }
 }
