@@ -6,7 +6,7 @@ Bottlenecks:
 * replaceChild
 
 ## Bugs to fix
-- [ ] Deal selection going over stave break
+- [ ] Deal with selection going over stave break
 - [ ] Cut time
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
@@ -14,6 +14,9 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
+- [ ] Bars/staves should be selectable
+- [ ] Clicking on gracenote button then clicking off should unhighlight box
+- [ ] Clicking on gracenote button then clicking on note button is really slow??
 
 
 

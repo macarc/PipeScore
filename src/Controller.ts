@@ -64,7 +64,7 @@ interface State {
 const state: State = {
   noteState: { dragged: null },
   gracenoteState: { dragged: null },
-  zoomLevel: 100 * (0.75 * Math.max(window.outerWidth, 800)) / scoreWidth,
+  zoomLevel: 100 * (0.75 * Math.max(window.innerWidth, 800)) / scoreWidth,
   textBoxState: { selectedText: null },
   inputGracenote: null,
   interfaceWidth: 300,
@@ -334,6 +334,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     changed = true;
   } else if (ScoreEvent.isBackgroundClicked(event)) {
     removeState(state);
+    state.demoNote = null;
+    state.inputGracenote = null;
     changed = true;
   } else if (ScoreEvent.isMouseUp(event)) {
     if (state.noteState.dragged || state.gracenoteState.dragged || state.draggedText || state.draggedSecondTiming || state.resizingInterface) {
@@ -355,6 +357,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.inputGracenote = null;
     if (!state.demoNote) {
       state.demoNote = DemoNote.init(event.length)
+      changed = true;
     } else if (event.length !== state.demoNote.length) {
       state.demoNote.length = event.length;
       changed = true;

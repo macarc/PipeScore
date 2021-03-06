@@ -31,7 +31,7 @@ function deleteBar(stave: StaveModel, bar: BarModel): StaveModel {
 }
 
 const init: () => StaveModel = () => ({
-  bars: [Bar.initAnacrusis(),Bar.init(),Bar.init(),Bar.init()]
+  bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
 })
 
 export default {
