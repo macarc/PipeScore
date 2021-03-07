@@ -7,10 +7,27 @@ PipeScore's "killer feature" is reactive gracenotes - pipe embellishments that a
 
 It is currently under development - see `todo.md` for a rough roadmap.
 
+PipeScore uses [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite) and [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite) for a smaller, faster experience.
+
+## Features
+
+Piping features:
+* Reactive embellishments
+* Ties
+* Triplets
+* Repeats and Second timings
+* Time signatures
+* Text boxes
+* Bars/Staves/e.t.c.
+
+Programming features:
+* ~3000 lines of TypeScript
+* Custom virtual DOM
+* Tiny - less than 20kB JS, minified + gzipped
 
 ## Project Structure
 
-All of the main code is in the `src/` directory.
+All of the main code is in the `src/PipeScore` directory.
 
 PipeScore uses a custom virtual DOM diff algorithm, in the `render` directory. There are still quite a few bugs/cases to handle with it currently.
 

@@ -91,9 +91,9 @@ label {
   background-size: 1.5rem 1.5rem !important;
 }
 .add {
-  background-image: url('./images/plus.jpg');
-  background-position: .6rem .6rem !important;
-  background-size: 1.5rem 1.5rem !important;
+  background-image: url('./images/plus.svg');
+  background-position: .5rem .5rem !important;
+  background-size: 1.7rem 1.7rem !important;
 }
 
 svg {

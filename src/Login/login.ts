@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Please enter email and password');
       } else {
         auth.signIn(email, passwd)
-          //.then(() => window.location.replace('/scores'))
           .catch(() => alert('Invalid username or password'));
       }
     }

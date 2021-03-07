@@ -115,3 +115,4 @@ Bottlenecks:
 - [X] Clicking on gracenote button then clicking off should unhighlight box
 - [X] Clicking on gracenote button then clicking on note button is really slow??
 - [X] Deal with selection going over stave break
+- [X] Replace plus icon with an icon that is a smaller size than the code :) bin icon too maybe
