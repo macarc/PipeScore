@@ -21,7 +21,9 @@ const updateScores = (scores: string[]) => {
   }
 }
 
+// This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
+
 const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });

@@ -13,15 +13,17 @@ PipeScore uses [firebase](https://firebase.google.com) for saving, user accounts
 
 Piping features:
 * Reactive embellishments
+* Undo / redo
 * Ties
 * Triplets
 * Repeats and Second timings
 * Time signatures
 * Text boxes
+* Automatic note grouping
 * Bars/Staves/e.t.c.
 
 Programming features:
-* ~3000 lines of TypeScript
+* ~3500 lines of TypeScript
 * Custom virtual DOM
 * Tiny - less than 20kB JS, minified + gzipped
 

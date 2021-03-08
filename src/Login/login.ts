@@ -1,5 +1,6 @@
 import Auth from 'firebase-auth-lite';
 
+// This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 const auth = new Auth({ apiKey: apiToken });
 
