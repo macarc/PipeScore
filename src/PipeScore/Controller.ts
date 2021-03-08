@@ -650,12 +650,33 @@ function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: (No
 
   if (state.selection === null) return [];
   const notes = Note.flattenTriplets(noteModels);
-  const startInd = indexOfId(state.selection.start, notes);
-  const endInd = indexOfId(state.selection.end, notes);
+  let startInd = indexOfId(state.selection.start, notes);
+  let endInd = indexOfId(state.selection.end, notes);
   if (startInd !== -1 && endInd !== -1) {
     return notes.slice(startInd, endInd + 1);
   } else {
-    return [];
+    const bars = Score.bars(state.score);
+    if (startInd === -1) {
+      const barIdx = indexOfId(state.selection.start, bars);
+      if (barIdx !== -1) {
+        const firstNote = bars[barIdx].notes[0];
+        if (firstNote) startInd = indexOfId(firstNote.id, notes)
+      }
+    }
+    if (endInd === -1) {
+      const barIdx = indexOfId(state.selection.end, bars);
+      if (barIdx !== -1) {
+        const lastNote = bars[barIdx].notes[bars[barIdx].notes.length - 1];
+        if (lastNote) endInd = indexOfId(lastNote.id, notes)
+      }
+    }
+
+    if (startInd !== -1 && endInd !== -1) {
+      return notes.slice(startInd, endInd + 1);
+    } else {
+      console.log('no notes selected');
+      return [];
+    }
   }
 }
 

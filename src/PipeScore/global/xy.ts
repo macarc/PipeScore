@@ -21,7 +21,10 @@ export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 }
 
-export const itemBefore = (a: ID, b: ID): boolean => { const f = getXY(a); const g = getXY(b);
+export const itemBefore = (a: ID, b: ID): boolean => {
+  const f = getXY(a);
+  const g = getXY(b);
+
   if (f && g) {
     if (g.y > f.y) return true;
     else if (f.y > g.y) return false;
