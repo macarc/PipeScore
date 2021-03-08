@@ -86,7 +86,7 @@ declare module 'firebase-auth-lite' {
     sendOobCode(requestType: 'EMAIL_SIGNIN' | 'VERIFY_EMAIL'): void
 
     fetchProvidersForEmail(email: string): ProvidersForEmailResponse
-    fetchProfile(tokenManager?: object): Promise<User>
+    fetchProfile(tokenManager?: TokenManager): Promise<User>
     updateProfile(newData: User): Promise<User>
 
     listen(callback: (user: User) => void): () => void;

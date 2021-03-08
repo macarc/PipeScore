@@ -118,3 +118,4 @@ Bottlenecks:
 - [X] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
 - [X] Deleting triplets
 - [X] Add before/after capability for bars, staves, anacrusis
+- [X] Clicking after gracenote should not add to the first note in the bar

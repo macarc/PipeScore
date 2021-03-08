@@ -33,7 +33,7 @@ import { scoreWidth } from './global/constants';
 import { deleteXY, closestItem, itemBefore } from './global/xy';
 import { ID, Item } from './global/types';
 
-import { flatten, deepcopy, nmap } from './global/utils';
+import { flatten, deepcopy } from './global/utils';
 
 import { GracenoteState } from './Gracenote/view';
 import { TextBoxState } from './TextBox/view';
@@ -324,6 +324,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isSingleGracenoteClicked(event)) {
     state.gracenoteState.dragged = event.gracenote;
+    state.demoNote = null;
     changed = true;
   } else if (ScoreEvent.isBackgroundClicked(event)) {
     removeState(state);
@@ -356,8 +357,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isStopInputtingNotes(event)) {
-     if (state.demoNote !== null) {
+     if (state.demoNote) {
        state.demoNote = null;
+       changed = true;
+     }
+     if (state.inputGracenote) {
        state.inputGracenote = null;
        changed = true;
      }
