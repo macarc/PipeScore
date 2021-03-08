@@ -12,7 +12,6 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Deleting triplets
-- [ ] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
 
 
 ## General features
@@ -117,3 +116,4 @@ Bottlenecks:
 - [X] Replace plus icon with an icon that is a smaller size than the code :) bin icon too maybe
 - [X] Cut time
 - [X] Bars/staves should be selectable
+- [X] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch

@@ -283,8 +283,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
    */
   let changed = false;
   const noteModels = currentNoteModels();
-  const rawSelectedNotes = rawSelectionToNotes(state.selection, noteModels);
-  const selectedNotes = selectionToNotes(state.selection, noteModels);
+  const rawSelectedNotes = rawSelectionToNotes(noteModels);
+  const selectedNotes = selectionToNotes(noteModels);
 
   //
   // STATE events
@@ -645,8 +645,10 @@ function currentNoteModels(): (NoteModel | TripletModel)[] {
   return flatten(bars.map(b => b.notes));
 }
 
-function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: (NoteModel | TripletModel)[]): BaseNote[] {
+function selectionToNotes(noteModels: (NoteModel | TripletModel)[]): BaseNote[] {
   // Finds all the notes (including notes within triplets) that are selected within noteModels
+  // This can't just flatten rawSelectionToNotes because it takes into account that only part of a triplet may be selected,
+  // whereas rawSelectionToNotes doesn't
 
   if (state.selection === null) return [];
   const notes = Note.flattenTriplets(noteModels);
@@ -674,22 +676,55 @@ function selectionToNotes(selection: ScoreSelectionModel | null, noteModels: (No
     if (startInd !== -1 && endInd !== -1) {
       return notes.slice(startInd, endInd + 1);
     } else {
-      console.log('no notes selected');
       return [];
     }
   }
 }
 
-function rawSelectionToNotes(selection: ScoreSelectionModel | null, noteModels: (NoteModel | TripletModel)[]): (NoteModel | TripletModel)[] {
-  // Finds all the notes and Triplets that are selected within noteModels
+function rawSelectionToNotes(noteModels: (NoteModel | TripletModel)[]): (NoteModel | TripletModel)[] {
+  // Finds all the notes and triplets that are selected within noteModels
 
   if (state.selection === null) return [];
-  const startInd = indexOfId(state.selection.start, noteModels);
-  const endInd = indexOfId(state.selection.end, noteModels);
+
+  let startInd = indexOfId(state.selection.start, noteModels);
+  let endInd = indexOfId(state.selection.end, noteModels);
   if (startInd !== -1 && endInd !== -1) {
     return noteModels.slice(startInd, endInd + 1);
   } else {
-    return [];
+    const bars = Score.bars(state.score);
+    const untripletedNotes = Note.flattenTriplets(noteModels);
+    if (startInd === -1) {
+      const barIdx = indexOfId(state.selection.start, bars);
+      if (barIdx !== -1) {
+        const firstNote = bars[barIdx].notes[0];
+        if (firstNote) startInd = indexOfId(firstNote.id, noteModels)
+      } else {
+        for (const note of noteModels) {
+          if (Note.isTriplet(note) && [note.first.id,note.second.id,note.third.id].includes(state.selection.start)) {
+            startInd = indexOfId(note.id, noteModels);
+          }
+        }
+      }
+    }
+    if (endInd === -1) {
+      const barIdx = indexOfId(state.selection.end, bars);
+      if (barIdx !== -1) {
+        const lastNote = bars[barIdx].notes[bars[barIdx].notes.length - 1];
+        if (lastNote) endInd = indexOfId(lastNote.id, noteModels)
+      } else {
+        for (const note of noteModels) {
+          if (Note.isTriplet(note) && [note.first.id,note.second.id,note.third.id].includes(state.selection.end)) {
+            endInd = indexOfId(note.id, noteModels);
+          }
+        }
+      }
+    }
+
+    if (startInd !== -1 && endInd !== -1) {
+      return noteModels.slice(startInd, endInd + 1);
+    } else {
+      return [];
+    }
   }
 }
 
