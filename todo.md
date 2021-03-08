@@ -11,7 +11,6 @@ Bottlenecks:
 - [ ] Put copy/paste over correct bar
 - [ ] Add optimised list render
 - [ ] Ties to triplets
-- [ ] Deleting triplets
 
 
 ## General features
@@ -117,3 +116,5 @@ Bottlenecks:
 - [X] Cut time
 - [X] Bars/staves should be selectable
 - [X] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
+- [X] Deleting triplets
+- [X] Add before/after capability for bars, staves, anacrusis

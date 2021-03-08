@@ -22,12 +22,12 @@ function staves(score: ScoreModel): StaveModel[] {
   return score.staves;
 }
 
-function addStave(score: ScoreModel, afterStave: StaveModel): void {
+function addStave(score: ScoreModel, afterStave: StaveModel, before: boolean): void {
   // Appends a stave after afterStave
 
   const ind = score.staves.indexOf(afterStave);
   if (ind !== -1)
-    score.staves.splice(ind + 1, 0, Stave.init());
+    score.staves.splice(before ? ind : ind + 1, 0, Stave.init());
 }
 
 function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {

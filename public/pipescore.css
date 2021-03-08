@@ -96,6 +96,12 @@ label {
   background-size: 1.7rem 1.7rem !important;
 }
 
+.add.text {
+  width: 6.4rem !important; /* 6.4 = 2 x normal width + gap between them */
+  text-align: center;
+  padding-left: 3.4rem; /* 1 * normal width + gap */
+}
+
 svg {
   margin: 2vw;
 }

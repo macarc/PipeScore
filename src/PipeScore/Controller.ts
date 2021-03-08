@@ -505,10 +505,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.textBoxState.selectedText = newTextBox;
       changed = true;
     }
+  } else if (ScoreEvent.isAddAnacrusis(event)) {
+    if (state.selection) {
+      const { bar, stave } = currentBar(state.selection.start);
+      Stave.addAnacrusis(stave, bar, event.before);
+      changed = true;
+    }
   } else if (ScoreEvent.isAddBar(event)) {
     if (state.selection) {
       const { bar, stave } = currentBar(state.selection.start);
-      Stave.addBar(stave, bar);
+      Stave.addBar(stave, bar, event.before);
       changed = true;
     }
   } else if (ScoreEvent.isDeleteBar(event)) {
@@ -532,7 +538,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isAddStave(event)) {
     if (state.selection) {
       const { stave } = currentBar(state.selection.start);
-      Score.addStave(state.score, stave);
+      Score.addStave(state.score, stave, event.before);
       changed = true;
     }
   } else if (ScoreEvent.isDeleteStave(event)) {

@@ -27,6 +27,7 @@ export type ScoreEvent =
 
   | UpdateDemoNote
 
+  | AddAnacrusis
   | AddBar
   | DeleteBar
   | BarClicked
@@ -204,8 +205,16 @@ export function isAddText(e: ScoreEvent): e is AddText {
   return e.name === 'add text';
 }
 
+type AddAnacrusis = {
+  name: 'add anacrusis',
+  before: boolean
+}
+export function isAddAnacrusis(e: ScoreEvent): e is AddAnacrusis {
+  return e.name === 'add anacrusis';
+}
 type AddBar = {
-  name: 'add bar'
+  name: 'add bar',
+  before: boolean
 }
 export function isAddBar(e: ScoreEvent): e is AddBar {
   return e.name === 'add bar';
@@ -227,7 +236,8 @@ export function isBarClicked(e: ScoreEvent): e is BarClicked {
 }
 
 type AddStave = {
-  name: 'add stave'
+  name: 'add stave',
+  before: boolean
 }
 export function isAddStave(e: ScoreEvent): e is AddStave {
   return e.name === 'add stave';

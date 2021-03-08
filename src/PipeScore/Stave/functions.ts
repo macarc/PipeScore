@@ -12,12 +12,19 @@ function bars(stave: StaveModel): BarModel[] {
   return stave.bars;
 }
 
-function addBar(stave: StaveModel, bar: BarModel): void {
+function addBar(stave: StaveModel, bar: BarModel, before: boolean): void {
   // Adds a new bar after the bar given
 
   const ind = stave.bars.indexOf(bar);
   if (ind !== -1)
-    stave.bars.splice(ind + 1, 0, Bar.init());
+    stave.bars.splice(before ? ind : ind + 1, 0, Bar.init());
+}
+function addAnacrusis(stave: StaveModel, bar: BarModel, before: boolean): void {
+  // Adds a new anacrusis before the bar given
+
+  const ind = stave.bars.indexOf(bar);
+  if (ind !== -1)
+    stave.bars.splice(before ? ind : ind + 1, 0, Bar.initAnacrusis());
 }
 function deleteBar(stave: StaveModel, bar: BarModel): StaveModel {
   // Deletes the bar from the stave
@@ -38,5 +45,6 @@ export default {
   init,
   bars,
   addBar,
+  addAnacrusis,
   deleteBar
 }
