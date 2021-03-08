@@ -1,0 +1,22 @@
+html {
+  font-family: sans-serif;
+}
+
+main {
+  width: 30vw;
+  margin: 2vh auto;
+}
+
+#sign-out {
+  font-size: 1rem;
+}
+
+li {
+  margin: .6rem 0;
+}
+
+@media only screen and (max-width: 1200px) {
+  main {
+    width: 80vw;
+  }
+}

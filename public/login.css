@@ -14,3 +14,18 @@ main {
   width: 30vw;
   margin: 2vh auto;
 }
+p {
+  line-height: 1.5rem;
+}
+
+button, input[type='submit'] {
+  padding: .3rem;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 1200px) {
+  main {
+    width: 80vw;
+  }
+}
