@@ -110,6 +110,7 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
             if (Note.isNoteModel(newNote) && Note.isNoteModel(n) && (newNote.tied !== n.tied || newNote.length !== n.length)) {
+              // todo do this in single pass (i.e. in this loop);
               makeCorrectTie(newNote, score);
             }
           });
@@ -150,7 +151,6 @@ function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel 
   return noteMap(<A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
     if (Note.isNoteModel(n) && n.id === id) {
       replace(note as A);
-      // todo do this in single pass (i.e. in this loop);
       return true;
     } else {
       return false;
@@ -513,10 +513,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isDeleteBar(event)) {
     if (state.selection) {
-      // todo delete all selected bars
-      // todo remove XY of notes/bars
       const { bar, stave } = currentBar(state.selection.start);
-      state.score = purgeItems(Note.flattenTriplets(bar.notes), state.score);
+      state.score = purgeItems([bar, ...Note.flattenTriplets(bar.notes)], state.score);
       state.score.staves[state.score.staves.indexOf(stave)] = Stave.deleteBar(stave, bar);
       changed = true;
     }
@@ -563,7 +561,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isEditTimeSignature(event)) {
-    // TODO make this immutable
     setTimeSignatureFrom(event.timeSignature, event.newTimeSignature);
     changed = true;
   } else if (ScoreEvent.isCopy(event)) {
@@ -692,7 +689,6 @@ function rawSelectionToNotes(noteModels: (NoteModel | TripletModel)[]): (NoteMod
     return noteModels.slice(startInd, endInd + 1);
   } else {
     const bars = Score.bars(state.score);
-    const untripletedNotes = Note.flattenTriplets(noteModels);
     if (startInd === -1) {
       const barIdx = indexOfId(state.selection.start, bars);
       if (barIdx !== -1) {
@@ -731,6 +727,7 @@ function rawSelectionToNotes(noteModels: (NoteModel | TripletModel)[]): (NoteMod
 function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignature: TimeSignatureModel) {
   // Replaces timeSignature with newTimeSignature, and flows forward
 
+  // TODO make this immutable
   const bars = Score.bars(state.score);
   let atTimeSignature = false;
   for (const bar of bars) {

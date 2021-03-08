@@ -23,8 +23,7 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean)
   // Draws head and stem
 
   const ledgerLeft = 5;
-  const ledgerRight = 5.2;
-  // todo: make ledger line the correct length
+  const ledgerRight = 5.1;
   const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg('g', { class: 'gracenote-head' }, [
     (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: 'black' }) : null,

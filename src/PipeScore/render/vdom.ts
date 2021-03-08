@@ -3,6 +3,7 @@
    Copyright (C) 2020 Archie Maclean
  */
 import { VElement, VString, VCache, AnyV } from './types';
+import { nmap } from '../global/utils';
 
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;
 const isVCache = (a: AnyV): a is VCache => (a as VCache).data !== undefined;
@@ -102,8 +103,7 @@ export default function patch(before: VElement, after: VElement): boolean {
   for (let child = 0; child < after.children.length; child++) {
     const aft = after.children[child];
     const bef = before.children[child] || null;
-    // todo nmap
-    const oldNode: Node | null = bef && (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node);
+    const oldNode: Node | null = nmap(bef, bef => (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node));
 
     reachedEndOfBeforeChildren = child >= beforeChildrenLength;
     if (aft === null) {

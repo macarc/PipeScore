@@ -154,7 +154,6 @@ function tie(staveY: number, pitch: Pitch, x: number, noteWidth: number, previou
 M ${x0},${y0} S ${midx},${midhiy}, ${x1},${y1}
 M ${x1},${y1} S ${midx},${midloy}, ${x0},${y0}
     `
-    // using noteWidth in the previous note is bad
     : `
 M ${x0},${y0} S ${x0 - (noteWidth / 2)},${y0 - tieHeight - tieWidth}, ${x0 - noteWidth},${y0}
 M ${x0 - noteWidth},${y0} S ${x0 - (noteWidth / 2)},${y0 - tieHeight}, ${x0},${y0}
@@ -244,10 +243,9 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   const thirdStemY = Note.hasBeam(triplet.length) ? Math.max(defaultHeight(triplet.third.pitch), secondY + 20) : defaultHeight(triplet.third.pitch);
   const secondStemY = Note.hasBeam(triplet.length) ? (secondX - firstX) / (thirdX - firstX) * (thirdStemY - firstStemY) + firstStemY : defaultHeight(triplet.second.pitch);
 
-  // todo fix this
-  setXY(triplet.first.id, firstX - noteHeadWidth, firstX, props.y);
-  setXY(triplet.second.id, secondX - noteHeadWidth, secondX, props.y);
-  setXY(triplet.third.id, thirdX - noteHeadWidth, thirdX, props.y);
+  setXY(triplet.first.id, firstGracenoteX - noteHeadWidth, firstX + noteHeadWidth, props.y);
+  setXY(triplet.second.id, secondGracenoteX - noteHeadWidth, secondX + noteHeadWidth, props.y);
+  setXY(triplet.third.id, thirdGracenoteX - noteHeadWidth, thirdX + noteHeadWidth, props.y);
 
   const firstGracenoteProps = ({
     x: firstGracenoteX, y: props.y,

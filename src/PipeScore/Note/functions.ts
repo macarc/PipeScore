@@ -8,8 +8,6 @@ import { NoteModel, NoteLength, TripletModel, BaseNote } from './model';
 
 import Gracenote from '../Gracenote/functions';
 
-//const lastNoteOfGroupNote = (groupNote: GroupNoteModel): Pitch | null => (groupNote.notes.length === 0) ? null : nmap(last(groupNote.notes), n => n.pitch);
-
 function isTriplet(note: NoteModel | BaseNote | NoteModel[] | TripletModel): note is TripletModel {
   return (note as TripletModel).first !== undefined;
 }
@@ -40,7 +38,6 @@ function flattenTriplets(notes: (NoteModel | TripletModel)[]): (NoteModel | Base
 }
 
 function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number): (NoteModel[] | TripletModel)[] {
-  // TODO this could probably be cleaned up further
   const pushNote = (group: NoteModel[], note: NoteModel): void => {
     if (hasBeam(note.length)) {
       group.push(note);
@@ -55,6 +52,9 @@ function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number):
   };
   let currentGroup: NoteModel[] = [];
   const groupedNotes: (NoteModel[] | TripletModel)[] = [];
+  // This must be separate from currentGroup in the case that , e.g. it goes Quaver,Crotchet,Quaver,Quaver
+  // In this case, the last two quavers should not be tied. If currentLength was tied to currentGroup, that
+  // behaviour would not be achievable
   let currentLength = 0;
   notes.forEach(note => {
     if (isTriplet(note)) {
@@ -110,27 +110,11 @@ function isFilled(note: NoteModel): boolean {
 }
 
 function equalOrDotted(a: NoteLength, b: NoteLength): boolean {
-  if (a === b)
+  if (a === b) {
     return true;
-
-  let conv;
-
-  switch (a) {
-    case NoteLength.Semibreve: conv = NoteLength.Semibreve; break;
-    case NoteLength.DottedMinim: conv = NoteLength.Minim; break;
-    case NoteLength.Minim: conv = NoteLength.DottedMinim; break;
-    case NoteLength.DottedCrotchet: conv = NoteLength.Crotchet; break;
-    case NoteLength.Crotchet: conv = NoteLength.DottedCrotchet; break;
-    case NoteLength.DottedQuaver: conv = NoteLength.Quaver; break;
-    case NoteLength.Quaver: conv = NoteLength.DottedQuaver; break;
-    case NoteLength.DottedSemiQuaver: conv = NoteLength.SemiQuaver; break;
-    case NoteLength.SemiQuaver: conv = NoteLength.DottedSemiQuaver; break;
-    case NoteLength.DottedDemiSemiQuaver: conv = NoteLength.DemiSemiQuaver; break;
-    case NoteLength.DemiSemiQuaver: conv = NoteLength.DottedDemiSemiQuaver; break;
-    case NoteLength.DottedHemiDemiSemiQuaver: conv = NoteLength.HemiDemiSemiQuaver; break;
-    case NoteLength.HemiDemiSemiQuaver: conv = NoteLength.DottedHemiDemiSemiQuaver; break;
+  } else {
+    return a === toggleDot(b);
   }
-  return b === conv;
 }
 
 function lengthToNumber(length: NoteLength): number {
