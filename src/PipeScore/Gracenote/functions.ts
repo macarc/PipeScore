@@ -184,6 +184,11 @@ const init = (): GracenoteModel => ({
   type: 'none'
 });
 
+const initSingle = (note: Pitch): GracenoteModel => ({
+  type: 'single',
+  note
+});
+
 // Convert from name to gracenote
 const from = (name: string | null): GracenoteModel =>
   (name === null)
@@ -200,6 +205,7 @@ const from = (name: string | null): GracenoteModel =>
 
 export default {
   init,
+  initSingle,
   from,
   isReactive,
   notesOf,

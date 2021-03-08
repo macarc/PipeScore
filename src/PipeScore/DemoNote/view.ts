@@ -13,9 +13,12 @@ export interface DemoNoteProps {
 export default function render(demoNote: DemoNoteModel, props: DemoNoteProps): V {
   if (demoNote.pitch) {
     const y = noteY(props.staveY, demoNote.pitch);
-    const ledgerWidth = 10;
+    const ledgerWidth = demoNote.type === 'note' ? 10 : 7;
+    const rx = demoNote.type === 'note' ? 5 : 4.5;
+    const ry = demoNote.type === 'note' ? 4 : 3.5;
+
     return svg('g', { class: 'demo-note' }, [
-      svg('ellipse', { cx: demoNote.x, cy: y, rx: 5, ry: 4, fill: 'orange', 'pointer-events': 'none', opacity: 0.85 }),
+      svg('ellipse', { cx: demoNote.x, cy: y, rx, ry, fill: 'orange', 'pointer-events': 'none', opacity: 0.85 }),
       demoNote.pitch === Pitch.HA ? svg('line', { x1: demoNote.x - ledgerWidth, x2: demoNote.x + ledgerWidth, y1: y, y2: y, stroke: 'orange', 'pointer-events': 'none', opacity: 0.6 }) : svg('g')
     ]);
   } else {

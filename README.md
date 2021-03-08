@@ -44,8 +44,21 @@ Each component of a score (e.g. note, gracenote, stave) gets its own folder, wit
 
 PipeScore uses a global controller (in `Controller.ts`) rather than individual controllers for each component because sheet music has a lot of parts that interact very heavily with each other, and it is simpler to have a single controller than separate ones trying to communicate somehow with each other.
 
-When events are dispatched, all the parts of the score that change are replaced rather than modified. This means that it will be easy to add optimisation later, by doing a simple equality check to see changes.
+When events are dispatched, all the parts of the score that change are replaced rather than modified. This means that it will be easy to add optimisation later, by doing a simple equality check to see changes. While this isn't actually immutability, it is called that in code comments just to give a name to it.
 
 `Event.ts` defines all the possible events that the controller will take.
 
 The entry point is `PipeScore.ts` which starts the controller.
+ 
+## Running locally
+
+Run the following commands to run locally, ideally in separate terminals:
+* `npm run dev` - to run the development server
+* `npm run watch` - to rebuild JS on changes
+* `tsc --watch` - to typecheck
+
+To deploy:
+* `npm run build` - to build minified bundle
+* `npm run deploy` - to deploy to Firebase
+
+The Firebase functionality (saving/user accounts/e.t.c.) will not work when running locally.
