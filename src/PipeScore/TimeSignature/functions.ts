@@ -52,7 +52,7 @@ function equal(ts0: TimeSignatureModel, ts1: TimeSignatureModel): boolean {
   return ts0[0] === ts1[0] && ts0[1] === ts1[1];
 }
 
-const init = (): TimeSignatureModel => 'cut time'//[2,4];
+const init = (): TimeSignatureModel => [2,4];
 
 // This is needed because TypeScript tends to assume that
 // [1 :: number, 3 :: Denominator] is (number | Denominator)[] rather than [number, Denominator]

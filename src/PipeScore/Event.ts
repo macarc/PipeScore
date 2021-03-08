@@ -29,6 +29,7 @@ export type ScoreEvent =
 
   | AddBar
   | DeleteBar
+  | BarClicked
 
   | AddStave
   | DeleteStave
@@ -215,6 +216,14 @@ type DeleteBar = {
 }
 export function isDeleteBar(e: ScoreEvent): e is DeleteBar {
   return e.name === 'delete bar';
+}
+type BarClicked = {
+  name: 'bar clicked',
+  bar: BarModel,
+  mouseEvent: MouseEvent
+}
+export function isBarClicked(e: ScoreEvent): e is BarClicked {
+  return e.name === 'bar clicked';
 }
 
 type AddStave = {

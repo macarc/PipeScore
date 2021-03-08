@@ -30,12 +30,11 @@ import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
 import { scoreWidth } from './global/constants';
-import { deleteXY, closestItem } from './global/xy';
+import { deleteXY, closestItem, itemBefore } from './global/xy';
 import { ID, Item } from './global/types';
 
 import { flatten, deepcopy, nmap } from './global/utils';
 
-import { NoteState } from './Note/view';
 import { GracenoteState } from './Gracenote/view';
 import { TextBoxState } from './TextBox/view';
 
@@ -43,7 +42,7 @@ import { TextBoxState } from './TextBox/view';
 // Apart from state.score, all of these can be modified
 // state.score should not be modified, but copied, so that it can be diffed quickly
 interface State {
-  noteState: NoteState,
+  draggedNote: BaseNote | null,
   demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
   zoomLevel: number,
@@ -62,7 +61,7 @@ interface State {
   uiView: V | null
 }
 const state: State = {
-  noteState: { dragged: null },
+  draggedNote: null,
   gracenoteState: { dragged: null },
   zoomLevel: 100 * (0.75 * Math.max(window.innerWidth, 800)) / scoreWidth,
   textBoxState: { selectedText: null },
@@ -85,7 +84,7 @@ const state: State = {
 function removeState(state: State) {
   // Removes parts of the state that could be dirty after undo / redo
 
-  state.noteState.dragged = null;
+  state.draggedNote = null;
   state.gracenoteState.dragged = null;
   state.textBoxState.selectedText = null;
   state.selection = null;
@@ -301,23 +300,17 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       }
     } else {
       state.demoNote = null;
-      state.noteState.dragged = event.note;
+      state.draggedNote = event.note;
       if (! event.event.shiftKey) {
         state.selection = { start: event.note.id, end: event.note.id };
       } else {
         if (state.selection === null) {
           state.selection = { start: event.note.id, end: event.note.id };
         } else {
-          if (Note.isNoteModel(event.note)) {
-            const ind = noteModels.indexOf(event.note);
-            if (ind < indexOfId(state.selection.start, noteModels)) {
-              state.selection.start = event.note.id;
-            } else if (ind > indexOfId(state.selection.end, noteModels)) {
-              state.selection.end = event.note.id;
-            }
-          } else {
-            // If it's a tripleted note, you can only select it on its own
-            state.selection = { start: event.note.id, end: event.note.id };
+          if (itemBefore(state.selection.end, event.note.id)) {
+            state.selection.end = event.note.id;
+          } else if (itemBefore(event.note.id, state.selection.start)) {
+            state.selection.start = event.note.id;
           }
         }
       }
@@ -338,8 +331,8 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.inputGracenote = null;
     changed = true;
   } else if (ScoreEvent.isMouseUp(event)) {
-    if (state.noteState.dragged || state.gracenoteState.dragged || state.draggedText || state.draggedSecondTiming || state.resizingInterface) {
-      state.noteState.dragged = null;
+    if (state.draggedNote || state.gracenoteState.dragged || state.draggedText || state.draggedSecondTiming || state.resizingInterface) {
+      state.draggedNote = null;
       state.gracenoteState.dragged = null;
       state.draggedText = null;
       state.draggedSecondTiming = null;
@@ -400,17 +393,17 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
 
-    if (state.noteState.dragged !== null && event.pitch !== state.noteState.dragged.pitch) {
+    if (state.draggedNote !== null && event.pitch !== state.draggedNote.pitch) {
       changed = true;
-      if (Note.isNoteModel(state.noteState.dragged)) {
-        const newNote = { ...state.noteState.dragged, pitch: event.pitch };
-        state.score = changeNoteFrom(state.noteState.dragged.id, newNote, state.score);
-        state.noteState.dragged = newNote;
+      if (Note.isNoteModel(state.draggedNote)) {
+        const newNote = { ...state.draggedNote, pitch: event.pitch };
+        state.score = changeNoteFrom(state.draggedNote.id, newNote, state.score);
+        state.draggedNote = newNote;
       } else {
         // It must be a triplet
-        const newNote = { ...state.noteState.dragged, pitch: event.pitch };
-        state.score = changeTripletNoteFrom(state.noteState.dragged.id, newNote, state.score);
-        state.noteState.dragged = newNote;
+        const newNote = { ...state.draggedNote, pitch: event.pitch };
+        state.score = changeTripletNoteFrom(state.draggedNote.id, newNote, state.score);
+        state.draggedNote = newNote;
       }
     }
     if (state.gracenoteState.dragged !== null && event.pitch !== state.gracenoteState.dragged.note) {
@@ -527,6 +520,17 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.score.staves[state.score.staves.indexOf(stave)] = Stave.deleteBar(stave, bar);
       changed = true;
     }
+  } else if (ScoreEvent.isBarClicked(event)) {
+    if (event.mouseEvent.shiftKey && state.selection) {
+      if (itemBefore(state.selection.end, event.bar.id)) {
+        state.selection = { ...state.selection, end: event.bar.id };
+      } else if (itemBefore(event.bar.id, state.selection.end)) {
+        state.selection = { ...state.selection, start: event.bar.id };
+      }
+    } else {
+      state.selection = { start: event.bar.id, end: event.bar.id };
+    }
+    changed = true;
   } else if (ScoreEvent.isAddStave(event)) {
     if (state.selection) {
       const { stave } = currentBar(state.selection.start);
@@ -536,7 +540,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   } else if (ScoreEvent.isDeleteStave(event)) {
     if (state.selection) {
       // todo delete all selected staves
-      // todo remove XY of notes/bars
       const { stave } = currentBar(state.selection.start);
       for (const bar of stave.bars) {
         state.score = purgeItems([bar, ...Note.flattenTriplets(bar.notes)], state.score);
@@ -611,6 +614,9 @@ function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, b
     for (const stave of staves) {
       const bars = Stave.bars(stave);
       for (const bar of bars) {
+        if (bar.id === note) {
+          return { stave, bar };
+        }
         for (const noteModel of bar.notes) {
           if (noteModel.id === note) {
             return { stave, bar };
@@ -696,7 +702,7 @@ const updateView = () => {
     zoomLevel: state.zoomLevel,
     selection: state.selection,
     updateView: () => null,
-    noteState: state.noteState,
+    noteState: { dragged: state.draggedNote, inputtingNotes: state.demoNote !== null },
     gracenoteState: state.gracenoteState,
     textBoxState: state.textBoxState,
     demoNote: state.demoNote,

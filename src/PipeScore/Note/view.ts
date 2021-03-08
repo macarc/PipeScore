@@ -208,7 +208,8 @@ function singleton(note: NoteModel, x: number, staveY: number, noteWidth: number
 }
 
 export interface NoteState {
-  dragged: BaseNote | null
+  dragged: BaseNote | null,
+  inputtingNotes: boolean
 }
 
 interface NoteProps {
@@ -285,7 +286,7 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
       beamFrom(secondX - noteHeadWidth, secondStemY, thirdX - noteHeadWidth, thirdStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
     ]),
     tripletLine(props.y, firstX, thirdX, firstY, thirdY),
-    noteBoxes(thirdX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet }))
+    props.state.inputtingNotes ? noteBoxes(thirdX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet })) : null
   ]);
 }
 
@@ -328,7 +329,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
           state: props.gracenoteState
         });
 
-        const nb = () => noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote }));
+        const nb = () => props.state.inputtingNotes ? noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : svg('g');
 
         return singleton(firstNote,xOf(0),props.y,props.noteWidth, gracenoteProps, props.previousNote, props.endOfLastStave, nb, props.state.dragged, props.dispatch);
       } else {
@@ -400,7 +401,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
 
                        noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }), props.state.dragged),
 
-                       noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })),
+                       props.state.inputtingNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : svg('g'),
 
                        svg('line', { x1: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
                      ])

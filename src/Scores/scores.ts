@@ -3,7 +3,7 @@ import { Database } from 'firebase-firestore-lite';
 
 const makeUrlString = (st: string): string => {
   st = st.split(' ').join('-')
-  for (const c of [['>','right'],['<','left'],['/','forward'],['?','question'],['|','pipe'],['\\','back'],['\'','single'],['\"','double'], ['=','equals'],['#','hash'],['%','percent'],['@','at'],['&','ampersand'], [',','comma']]) {
+  for (const c of [['>','right'],['<','left'],['/','forward'],['?','question'],['|','pipe'],['\\','back'],['\'','single'],['"','double'], ['=','equals'],['#','hash'],['%','percent'],['@','at'],['&','ampersand'], [',','comma']]) {
     st = st.split(c[0]).join(c[1]);
   }
   return st;

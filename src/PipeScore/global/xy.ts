@@ -21,6 +21,16 @@ export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 }
 
+export const itemBefore = (a: ID, b: ID): boolean => { const f = getXY(a); const g = getXY(b);
+  if (f && g) {
+    if (g.y > f.y) return true;
+    else if (f.y > g.y) return false;
+    else return (g.beforeX > f.beforeX)
+  } else {
+    return false;
+  }
+}
+
 export const closestItem = (x: number, y: number, rightMost: boolean): ID => {
   // This finds the item the closest to the point (x,y)
   // rightMost should be set to true if it should (in the case of a tie) favour the right-most element

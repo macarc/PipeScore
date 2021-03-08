@@ -2,23 +2,13 @@
    Copyright (C) 2020 Archie Maclean
  */
 import { ID } from '../global/types';
-import { getXY } from '../global/xy';
+import { itemBefore } from '../global/xy';
 
 import { SecondTimingModel } from './model';
 
-function isValid(st: SecondTimingModel): boolean {
-  // This function checks if a second timing model is valid
-  // It checks that start, middle, and end are in a valid order
-
-  const start = getXY(st.start);
-  const middle = getXY(st.middle);
-  const end = getXY(st.end);
-  if (start && middle && end) {
-    return (((start.beforeX < middle.beforeX) && (start.y === middle.y)) || (start.y < middle.y)) && (((middle.beforeX < end.afterX) && (middle.y === end.y)) || (middle.y < end.y));
-  } else {
-    return false;
-  }
-}
+// This function checks if a second timing model is valid
+// It checks that start, middle, and end are in a valid order
+const isValid = (st: SecondTimingModel): boolean => itemBefore(st.start, st.middle) && (itemBefore(st.middle, st.end) || st.middle === st.end);
 
 const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
   start,
