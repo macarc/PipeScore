@@ -1,6 +1,6 @@
 /*
    Virtual DOM API
-   Copyright (C) 2020 Archie Maclean
+   Copyright (C) 2021 Archie Maclean
  */
 import { V, VElement, VCache, Attributes, Events } from './types';
 

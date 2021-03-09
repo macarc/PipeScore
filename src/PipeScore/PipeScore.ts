@@ -1,6 +1,6 @@
 /*
   PipeScore.ts - the entry point for PipeScore
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';

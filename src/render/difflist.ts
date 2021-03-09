@@ -1,6 +1,6 @@
 /*
    The beginning of a more efficient list render for PipeScore
-   Copyright (C) 2020 Archie Maclean
+   Copyright (C) 2021 Archie Maclean
  */
 const enum Change { Modified, Removed, Added }
 

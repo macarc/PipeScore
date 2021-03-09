@@ -1,6 +1,6 @@
 /*
   Gracenote/view.ts - Gracenote implementation for PipeScore
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
 import { Pitch, noteY } from '../global/pitch';

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Archie Maclean
+   Copyright (C) 2021 Archie Maclean
  */
 import { TimeSignatureModel } from '../TimeSignature/model';
 import { NoteModel, TripletModel } from '../Note/model';

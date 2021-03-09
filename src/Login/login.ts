@@ -1,3 +1,7 @@
+/*
+   Logging in functionality for PipeScore
+   Copyright (C) 2021 Archie Maclean
+ */
 import Auth from 'firebase-auth-lite';
 
 // This can be safely public

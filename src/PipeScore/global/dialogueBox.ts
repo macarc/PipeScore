@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Archie Maclean
+   Copyright (C) 2021 Archie Maclean
  */
 
 // A simple, raw HTML dialogue box

@@ -1,6 +1,6 @@
 /*
   Event.ts - ScoreEvent type for PipeScore
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import { Pitch } from './global/pitch';
 import { ID } from './global/types';

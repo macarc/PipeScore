@@ -1,6 +1,6 @@
 /*
   Bar/view.ts - defines how to display a bar
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
 

@@ -1,3 +1,7 @@
+/*
+   The page that allows the user to view and delete all their scores
+   Copyright (C) 2021 Archie Maclean
+ */
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { h, hFrom, V } from '../render/h';

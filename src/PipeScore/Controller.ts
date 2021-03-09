@@ -1,6 +1,6 @@
 /*
   Controller.ts - Handles input and events for PipeScore
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import patch from '../render/vdom';
 import { h, hFrom, V } from '../render/h';

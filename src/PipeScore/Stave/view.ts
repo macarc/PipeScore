@@ -1,6 +1,6 @@
 /*
   Stave.ts - Stave implementation for PipeScore
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import { lineHeightOf } from '../global/constants';
 import { Pitch } from '../global/pitch';

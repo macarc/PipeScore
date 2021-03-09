@@ -1,6 +1,6 @@
 /*
   Note/view.ts - Note implementation for PipeScore
-  Copyright (C) 2020 Archie Maclean
+  Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
 import { noteBoxes } from '../global/noteboxes';

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2020 Archie Maclean
+   Copyright (C) 2021 Archie Maclean
  */
 export const scoreWidth = 210 * 5;
 export const scoreHeight = 297 * 5;
