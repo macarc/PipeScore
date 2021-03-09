@@ -17,11 +17,13 @@ const updateScores = async () => {
     const oldScoreRoot = scoreRoot;
     scoreRoot = h('section', { id: 'scores' }, [
       h('p', ['Scores:']),
+      scores.length === 0 ? h('p', ['You have no scores.']) : null,
       h('ul', [
         ...scores.map(score =>
           h('li', [
             h('a', { href: '/pipescore' + score[1].replace('/scores/', '/') }, [ score[0] ]),
             h('section', { class: 'functions' }, [
+              h('button', { class: 'rename' }, { click: () => renameScore(score[1]) }, ['Rename']),
               h('button', { class: 'edit' }, { click: () => window.location.assign('/pipescore' + score[1].replace('/scores/', '/')) }, [ 'Edit' ]),
                 h('button', { class: 'delete' }, { click: () => deleteScore(score[1]) }, [ 'Delete' ])
             ])
@@ -42,6 +44,18 @@ const db = new Database({ projectId: 'pipe-score', auth });
 async function deleteScore(path: string) {
   await db.ref(`scores${path}`).delete();
   updateScores();
+}
+async function renameScore(path: string) {
+  const score = await db.ref(`scores${path}`).get();
+  const newName = prompt('Rename:', score.name);
+  if (newName) {
+    score.name = newName;
+    if (score.textBoxes[0]) {
+      score.textBoxes[0].text = newName;
+    }
+    await db.ref(`scores${path}`).set(score);
+    updateScores();
+  }
 }
 auth.listen(async (user) => {
   if (user) {
