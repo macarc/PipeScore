@@ -2,7 +2,7 @@
   Score.ts - Score implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { V, svg } from '../render/h';
+import { V, svg } from '../../render/h';
 import { scoreWidth, scoreHeight, staveGap, lineGap } from '../global/constants';
 
 import { ScoreModel } from './model';

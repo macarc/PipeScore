@@ -2,7 +2,7 @@
   Gracenote/view.ts - Gracenote implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { svg, V } from '../render/h';
+import { svg, V } from '../../render/h';
 import { Pitch, noteY } from '../global/pitch';
 import { lineGap } from '../global/constants';
 import { nlast } from '../global/utils';

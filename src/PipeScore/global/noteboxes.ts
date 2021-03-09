@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2020 Archie Maclean
  */
-import { svg, V } from '../render/h';
+import { svg, V } from '../../render/h';
 import { lineGap } from './constants';
 import { Pitch, pitchToHeight } from './pitch';
 

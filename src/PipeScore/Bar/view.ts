@@ -2,7 +2,7 @@
   Bar/view.ts - defines how to display a bar
   Copyright (C) 2020 Archie Maclean
 */
-import { svg, V } from '../render/h';
+import { svg, V } from '../../render/h';
 
 import { lineHeightOf } from '../global/constants';
 import { noteBoxes } from '../global/noteboxes';

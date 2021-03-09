@@ -2,7 +2,7 @@
    ScoreSelection/view.ts - selection (orange box)
    Copyright (C) 2020 Archie Maclean
  */
-import { svg, V } from '../render/h';
+import { svg, V } from '../../render/h';
 import { lineGap } from '../global/constants';
 import { getXY } from '../global/xy';
 

@@ -2,7 +2,7 @@
   UI.ts - User interface for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { h, V } from '../render/h';
+import { h, V } from '../../render/h';
 
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
@@ -30,7 +30,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
   const isGracenoteInput = (name: string) => state.gracenoteInput && Gracenote.isReactive(state.gracenoteInput) && (state.gracenoteInput.name === name);
   const gracenoteInput = (name: string) => h('button',
                                              { class: isGracenoteInput(name) ? 'highlighted' : 'not-highlighted',
-                                             style: `background-image: url("./images/icons/gracenote-${name}.svg")` },
+                                             style: `background-image: url("/images/icons/gracenote-${name}.svg")` },
                                              { click: () => dispatch({ name: 'set gracenote', value: name }) });
 
   const changeZoomLevel = () => {
@@ -83,7 +83,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     h('div', { id: 'resize-ui', style: `right: ${state.width + 25}px` }, { 'mousedown': () => dispatch({ name: 'start resizing user interface' }) }),
     h('div', { id: 'sidebar', style: `width: ${state.width}px` }, [
       h('h2', [ 'Gracenote' ]),
-      h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("./images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
+      h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("/images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
       gracenoteInput('doubling'),
       gracenoteInput('throw-d'),
       gracenoteInput('grip'),

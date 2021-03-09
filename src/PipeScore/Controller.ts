@@ -2,8 +2,8 @@
   Controller.ts - Handles input and events for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import patch from './render/vdom';
-import { h, hFrom, V } from './render/h';
+import patch from '../render/vdom';
+import { h, hFrom, V } from '../render/h';
 import * as ScoreEvent from './Event';
 
 import { ScoreModel } from './Score/model';

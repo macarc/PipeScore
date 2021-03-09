@@ -2,7 +2,7 @@
   TimeSignature.ts - Time Signature implementation for PipeScore
   Copyright (C) 2020 Archie Maclean
 */
-import { svg, V } from '../render/h';
+import { svg, V } from '../../render/h';
 
 import dialogueBox from '../global/dialogueBox';
 import { Dispatch } from '../Event';

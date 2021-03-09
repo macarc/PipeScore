@@ -1,15 +1,30 @@
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
+import { h, hFrom, V } from '../render/h';
+import patch from '../render/vdom';
 
-const updateScores = (userId: string, scores: [string,string][]) => {
-  const scoreRoot = document.getElementById('scores');
+let userId = '';
+
+let scoreRoot: V | null = null;
+const updateScores = async () => {
+  const collection = await db.ref(`scores/${userId}/scores`).list();
+  const scores = collection.documents.map(doc => [doc.name, doc.__meta__.path.replace('/scores', '')]);
   if (scoreRoot) {
-    let innerHTML = '<ul>';
-    for (const score of scores) {
-      innerHTML += `<li><a href="${'/pipescore' + score[1]}">${score[0]}</a></li>`;
-    }
-    innerHTML += '</ul>';
-    scoreRoot.innerHTML = innerHTML;
+    const oldScoreRoot = scoreRoot;
+    scoreRoot = h('section', { id: 'scores' }, [
+      h('p', ['Scores:']),
+      h('ul', [
+        ...scores.map(score =>
+          h('li', [
+            h('a', { href: '/pipescore' + score[1].replace('/scores/', '/') }, [ score[0] ]),
+            h('section', { class: 'functions' }, [
+              h('button', { class: 'edit' }, { click: () => window.location.assign('/pipescore' + score[1].replace('/scores/', '/')) }, [ 'Edit' ]),
+                h('button', { class: 'delete' }, { click: () => deleteScore(score[1]) }, [ 'Delete' ])
+            ])
+          ]))
+      ])
+    ])
+    patch(oldScoreRoot, scoreRoot);
   }
 }
 
@@ -20,17 +35,32 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
+async function deleteScore(path: string) {
+  await db.ref(`scores${path}`).delete();
+  updateScores();
+}
 auth.listen(async (user) => {
   if (user) {
-    const collection = await db.ref(`scores/${user.localId}/scores`).list();
-    const scores = collection.documents;
-    updateScores(user.localId, scores.map(doc => [doc.name, doc.__meta__.path.split('/scores').join('')]));
+    userId = user.localId;
+    updateScores();
   } else {
-    window.location.replace('/login');
+    window.location.assign('/login');
   }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  const root = hFrom('scores');
+  scoreRoot = h('section', { id: 'scores' }, [h('p', ['Loading...'])]);
+  patch(root, scoreRoot);
   const signOutBtn = document.getElementById('sign-out');
   if (signOutBtn) signOutBtn.addEventListener('click', () => auth.signOut());
+
+  const newScoreBtn = document.getElementById('new-score');
+  if (newScoreBtn) newScoreBtn.addEventListener('click', async () => {
+    const collection = await db.ref(`scores/${userId}/scores`);
+    const newScore = await collection.add({ });
+    if (newScore) {
+      window.location.assign(`/pipescore/${userId}/${newScore.id}`);
+    }
+  });
 });

@@ -6,7 +6,7 @@ import { lineHeightOf } from '../global/constants';
 import { Pitch } from '../global/pitch';
 import { nmap } from '../global/utils';
 
-import { svg, V } from '../render/h';
+import { svg, V } from '../../render/h';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';

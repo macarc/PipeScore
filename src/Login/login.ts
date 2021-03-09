@@ -5,7 +5,7 @@ const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 const auth = new Auth({ apiKey: apiToken });
 
 auth.listen(user => {
-  if (user) window.location.replace('/scores')
+  if (user) window.location.assign('/scores')
 });
 
 

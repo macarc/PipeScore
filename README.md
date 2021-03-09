@@ -60,5 +60,3 @@ Run the following commands to run locally, ideally in separate terminals:
 To deploy:
 * `npm run build` - to build minified bundle
 * `npm run deploy` - to deploy to Firebase
-
-The Firebase functionality (saving/user accounts/e.t.c.) will not work when running locally.

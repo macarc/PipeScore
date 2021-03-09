@@ -36,12 +36,16 @@ window.addEventListener('DOMContentLoaded', async () => {
         const get = (): Promise<ScoreModel> => db.ref(`scores/${userId}/scores/${scoreId}`).get().then(s => s as unknown as ScoreModel).catch(() => save(Score.init()));
 
         let score = await get();
+
+        // If is a new score, it will not have staves, so save a blank score
+        if (!score.staves) {
+          score = await save(Score.init());
+        }
         if (score && !startedController) {
           startController(score, save);
           startedController = true;
         } else if (!startedController) {
-          await save(Score.init());
-          score = await get();
+          score = await save(Score.init());
           startController(score as unknown as ScoreModel, save);
           startedController = true;
         }
