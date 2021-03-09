@@ -2,8 +2,8 @@
 
 ## Perf
 Bottlenecks:
-* add/removeEventListener
-* replaceChild
+* add/removeEventListener - this is the main one, since every patch replaces every event listener. Caching/caching list render will help. Is there a way to avoid doing this without caching?
+* setAttribute
 
 ## Bugs to fix
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
@@ -11,6 +11,11 @@ Bottlenecks:
 - [ ] Put copy/paste over correct bar
 - [ ] Add optimised list render
 - [ ] Ties to triplets
+- [ ] Note placing in middle of bar is bad
+- [ ] Copy/paste bars
+- [ ] Shift-right/left should expand selection?
+- [ ] Adding 2nds could be better
+- [ ] Adding gracenotes to triplets by clicking in between
 
 
 ## General features
@@ -119,3 +124,9 @@ Bottlenecks:
 - [X] Deleting triplets
 - [X] Add before/after capability for bars, staves, anacrusis
 - [X] Clicking after gracenote should not add to the first note in the bar
+- [X] Clicking/dragging on another text while first is selected breaks it
+- [X] Clicking between notes should add gracenote
+- [X] Delete should delete all selected things
+- [X] Adding text should not be above other texts
+- [X] Clicking on note head shouldn't change note value
+- [X] Text font size

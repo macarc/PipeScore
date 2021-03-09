@@ -20,7 +20,7 @@ export function keyHandler(e: KeyboardEvent): void {
         dispatch({ name: 'paste' });
       break;
     case "Delete":
-      dispatch({ name: 'delete selected notes' });
+      dispatch({ name: 'delete selected' });
       break;
     case ".":
       dispatch({ name: 'toggle dotted' });

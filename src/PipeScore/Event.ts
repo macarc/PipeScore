@@ -13,9 +13,9 @@ import { TextBoxModel } from './TextBox/model';
 import { SecondTimingModel } from './SecondTiming/model';
 
 export type ScoreEvent =
-  MouseMovedOver
+  DeleteSelected
+  | MouseMovedOver
   | NoteClicked
-  | DeleteSelectedNotes
   | StopInputtingNotes
   | SetGracenoteOnSelected
   | AddNoteAfter
@@ -29,11 +29,9 @@ export type ScoreEvent =
 
   | AddAnacrusis
   | AddBar
-  | DeleteBar
   | BarClicked
 
   | AddStave
-  | DeleteStave
 
   | EditText
   | TextClicked
@@ -41,7 +39,6 @@ export type ScoreEvent =
   | TextDragged
   | CentreText
   | AddText
-  | DeleteText
 
   | AddSecondTiming
   | ClickSecondTiming
@@ -118,11 +115,11 @@ export function isMouseUp(e: ScoreEvent): e is MouseUp {
   return e.name === 'mouse up';
 }
 
-type DeleteSelectedNotes = {
-  name: 'delete selected notes'
+type DeleteSelected = {
+  name: 'delete selected'
 }
-export function isDeleteSelectedNotes(e: ScoreEvent): e is DeleteSelectedNotes {
-  return e.name === 'delete selected notes';
+export function isDeleteSelected(e: ScoreEvent): e is DeleteSelected {
+  return e.name === 'delete selected';
 }
 
 type SetGracenoteOnSelected = {
@@ -192,6 +189,7 @@ export function isTextClicked(e: ScoreEvent): e is TextClicked {
 type EditText = {
   name: 'edit text',
   newText: string,
+  newSize: number,
   text: TextBoxModel
 }
 export function isEditText(e: ScoreEvent): e is EditText {
@@ -220,12 +218,6 @@ export function isAddBar(e: ScoreEvent): e is AddBar {
   return e.name === 'add bar';
 }
 
-type DeleteBar = {
-  name: 'delete bar'
-}
-export function isDeleteBar(e: ScoreEvent): e is DeleteBar {
-  return e.name === 'delete bar';
-}
 type BarClicked = {
   name: 'bar clicked',
   bar: BarModel,
@@ -241,13 +233,6 @@ type AddStave = {
 }
 export function isAddStave(e: ScoreEvent): e is AddStave {
   return e.name === 'add stave';
-}
-
-type DeleteStave = {
-  name: 'delete stave'
-}
-export function isDeleteStave(e: ScoreEvent): e is DeleteStave {
-  return e.name === 'delete stave';
 }
 
 type TieSelectedNotes = {
@@ -285,13 +270,6 @@ type CentreText = {
 }
 export function isCentreText(e: ScoreEvent): e is CentreText {
   return e.name === 'centre text';
-}
-
-type DeleteText = {
-  name: 'delete text'
-}
-export function isDeleteText(e: ScoreEvent): e is DeleteText {
-  return e.name === 'delete text';
 }
 
 type AddSecondTiming = {

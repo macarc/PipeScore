@@ -14,7 +14,7 @@ noscript {
 }
 
 #score {
-  margin-top: 6rem;
+  margin-top: 8rem;
 }
 label {
   font-size: 0.8rem;
@@ -30,7 +30,6 @@ label {
   vertical-align: middle;
   width: 3rem;
   height: 3rem;
-  word-break: break-all;
   font-size: 0.8rem;
 }
 #ui #sidebar {
@@ -99,6 +98,7 @@ label {
 .add.text {
   width: 6.4rem !important; /* 6.4 = 2 x normal width + gap between them */
   text-align: center;
+  word-break: keep-all;
   padding-left: 3.4rem; /* 1 * normal width + gap */
 }
 

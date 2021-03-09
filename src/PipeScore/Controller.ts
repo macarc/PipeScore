@@ -46,6 +46,7 @@ interface State {
   demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
   zoomLevel: number,
+  justClickedNote: boolean,
   interfaceWidth: number,
   resizingInterface: boolean,
   textBoxState: TextBoxState,
@@ -63,8 +64,9 @@ interface State {
 const state: State = {
   draggedNote: null,
   gracenoteState: { dragged: null },
-  zoomLevel: 100 * (0.75 * Math.max(window.innerWidth, 800)) / scoreWidth,
+  zoomLevel: 100 * .9 * (Math.max(window.innerWidth, 800) - 300) / scoreWidth,
   textBoxState: { selectedText: null },
+  justClickedNote: false,
   inputGracenote: null,
   interfaceWidth: 300,
   resizingInterface: false,
@@ -235,26 +237,57 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
   }
 }
 
-function deleteNotes(notes: (NoteModel | TripletModel)[], score: ScoreModel): ScoreModel {
-  // Deletes the notes from the score, modifies and returns it
+function deleteSelection(selection: ScoreSelectionModel, score: ScoreModel): ScoreModel {
+  // Deletes the selected notes/bars/staves from the score, purges them, modifies and returns the score
 
+  let started = false;
+  let deletingBars = false;
+  const itemsDeleted: Item[] = [];
+
+  all:
   for (let i=0; i < score.staves.length; i++) {
     const stave = score.staves[i];
-    for (let j=0; j < stave.bars.length; j++) {
+    for (let j = 0; j < stave.bars.length; ) {
       const bar = stave.bars[j];
+      if (selection.start === bar.id) {
+        deletingBars = true;
+        started = true;
+      }
       for (let k=0; k < bar.notes.length; ) {
         const n = bar.notes[k];
-        if (notes.includes(n)) {
-          bar.notes.splice(k,1);
-          stave.bars[j] = { ...bar };
-          score.staves[i] = { ...stave };
+        if (selection.start === n.id) {
+          started = true;
+        } else if (Note.isTriplet(n) && [n.first.id,n.second.id,n.third.id].includes(selection.start)) {
+          started = true;
+        }
+
+        if (started) {
+          itemsDeleted.push(...bar.notes.splice(k, 1));
         } else {
           k++;
         }
+
+        if (selection.end === n.id) {
+          break all;
+        } else if (Note.isTriplet(n) && [n.first.id,n.second.id,n.third.id].includes(selection.end)) {
+          break all;
+        }
       }
+
+      if (started && deletingBars) {
+        itemsDeleted.push(...stave.bars.splice(j, 1));
+        if (stave.bars.length === 0) {
+          score.staves.splice(i, 1);
+        }
+      } else {
+        j++;
+      }
+
+      if (selection.end === bar.id) break all;
+
     }
   }
-  score = purgeItems(Note.flattenTriplets(notes), score);
+  score = purgeItems(itemsDeleted, score);
   return { ...score };
 }
 
@@ -292,7 +325,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   // STATE events
   // Events that modify the state rather than the score
   //
-  if (ScoreEvent.isNoteClicked(event)) {
+  if (state.justClickedNote && ScoreEvent.isMouseMovedOver(event)) {
+    // This occurs when the note's head is changed from receiving pointer events to not receiving them.
+    // That triggers a mouseOver on the note box below, which is undesirable as it moves the note head.
+    state.justClickedNote = false;
+  } else if (ScoreEvent.isNoteClicked(event)) {
     changed = true;
     if (state.inputGracenote) {
       if (Note.isNoteModel(event.note)) {
@@ -303,6 +340,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     } else {
       state.demoNote = null;
       state.draggedNote = event.note;
+      state.justClickedNote = true;
       if (! event.event.shiftKey) {
         state.selection = { start: event.note.id, end: event.note.id };
       } else {
@@ -351,6 +389,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     changed = true;
   } else if (ScoreEvent.isSetInputLength(event)) {
     state.inputGracenote = null;
+    state.score = changeNotes(selectedNotes, note => ({ ...note, length: event.length }), state.score);
     if (!state.demoNote || state.demoNote.type === 'gracenote') {
       state.demoNote = DemoNote.init(event.length)
       changed = true;
@@ -418,10 +457,16 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.score = changeGracenoteFrom(state.gracenoteState.dragged, newGracenote, state.score);
       state.gracenoteState.dragged = newGracenote;
     }
-  } else if (ScoreEvent.isDeleteSelectedNotes(event)) {
-    if (selectedNotes.length > 0) {
-      state.score = deleteNotes(rawSelectedNotes, state.score);
+  } else if (ScoreEvent.isDeleteSelected(event)) {
+    if (state.selection) {
+      state.score = deleteSelection(state.selection, state.score);
       state.selection = null;
+      changed = true;
+    }
+    if (state.textBoxState.selectedText !== null) {
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
+      state.textBoxState.selectedText = null;
+      state.draggedText = null;
       changed = true;
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
@@ -451,6 +496,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const note = noteModels[noteModels.indexOf(event.noteBefore) + 1];
       if (note && Note.isNoteModel(note)) {
         state.score = changeNoteFrom(note.id, { ...note, gracenote: Gracenote.initSingle(event.pitch) }, state.score);
+        changed = true;
+      }
+    } else if (state.inputGracenote) {
+      const note = noteModels[noteModels.indexOf(event.noteBefore) + 1];
+      if (Note.isNoteModel(note)) {
+        state.score = changeNoteFrom(note.id, ({ ...note, gracenote: state.inputGracenote }), state.score);
         changed = true;
       }
     }
@@ -501,6 +552,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const newText = TextBox.setCoords(state.draggedText, event.x, event.y);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 1, newText);
       state.textBoxState.selectedText = newText;
+      state.draggedText = newText;
       changed = true
     }
   } else if (ScoreEvent.isCentreText(event)) {
@@ -508,21 +560,15 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const newText = TextBox.centre(state.textBoxState.selectedText, scoreWidth);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1, newText);
       state.textBoxState.selectedText = newText;
+      state.draggedText = null;
       changed = true;
     }
   } else if (ScoreEvent.isAddText(event)) {
     state.score = { ...state.score, textBoxes: [ ...state.score.textBoxes, TextBox.init() ] };
     changed = true;
-  } else if (ScoreEvent.isDeleteText(event)) {
-    if (state.textBoxState.selectedText !== null) {
-      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
-      state.textBoxState.selectedText = null;
-      state.draggedText = null;
-      changed = true;
-    }
   } else if (ScoreEvent.isEditText(event)) {
-    if (event.newText !== event.text.text) {
-      const newTextBox = { ...event.text, text: event.newText };
+    if (event.newText !== event.text.text || event.newSize !== event.text.size) {
+      const newTextBox = { ...event.text, size: event.newSize, text: event.newText };
       state.score.textBoxes[state.score.textBoxes.indexOf(event.text)] = newTextBox;
       state.textBoxState.selectedText = newTextBox;
       changed = true;
@@ -537,13 +583,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (state.selection) {
       const { bar, stave } = currentBar(state.selection.start);
       Stave.addBar(stave, bar, event.before);
-      changed = true;
-    }
-  } else if (ScoreEvent.isDeleteBar(event)) {
-    if (state.selection) {
-      const { bar, stave } = currentBar(state.selection.start);
-      state.score = purgeItems([bar, ...Note.flattenTriplets(bar.notes)], state.score);
-      state.score.staves[state.score.staves.indexOf(stave)] = Stave.deleteBar(stave, bar);
       changed = true;
     }
   } else if (ScoreEvent.isBarClicked(event)) {
@@ -561,16 +600,6 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     if (state.selection) {
       const { stave } = currentBar(state.selection.start);
       Score.addStave(state.score, stave, event.before);
-      changed = true;
-    }
-  } else if (ScoreEvent.isDeleteStave(event)) {
-    if (state.selection) {
-      // todo delete all selected staves
-      const { stave } = currentBar(state.selection.start);
-      for (const bar of stave.bars) {
-        state.score = purgeItems([bar, ...Note.flattenTriplets(bar.notes)], state.score);
-      }
-      state.score = Score.deleteStave(state.score, stave);
       changed = true;
     }
   } else if (ScoreEvent.isTieSelectedNotes(event)) {
@@ -787,7 +816,7 @@ const updateView = () => {
     zoomLevel: state.zoomLevel,
     selection: state.selection,
     updateView: () => null,
-    noteState: { dragged: state.draggedNote, inputtingNotes: state.demoNote !== null },
+    noteState: { dragged: state.draggedNote, inputtingNotes: state.demoNote !== null || state.inputGracenote !== null },
     gracenoteState: state.gracenoteState,
     textBoxState: state.textBoxState,
     demoNote: state.demoNote,

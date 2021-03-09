@@ -3,6 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
+
 import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY } from '../global/xy';
@@ -96,7 +97,7 @@ function noteHead(x: number, y: number, note: NoteModel, mousedown: (e: MouseEve
   const maskrx = Note.hasStem(note) ? 5 : 4;
   const maskry = 2;
 
-  const clickableWidth = 20;
+  const clickableWidth = 30;
   const clickableHeight = 12;
 
   const dotted = Note.hasDot(note.length);
