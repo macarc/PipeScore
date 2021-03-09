@@ -17,10 +17,10 @@ function setCoords(tx: TextBoxModel, x: number, y: number): TextBoxModel {
   return { ...tx, x, y };
 }
 
-const init = (): TextBoxModel => ({
+const init = (text = '<Double Click to Edit>'): TextBoxModel => ({
   x: scoreWidth / 2,
   y: 100,
-  text: "<Double Click to edit>"
+  text
 });
 
 export default {

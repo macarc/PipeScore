@@ -81,6 +81,8 @@ const state: State = {
 }
 
 
+let save: (score: ScoreModel) => void = () => null;
+
 function removeState(state: State) {
   // Removes parts of the state that could be dirty after undo / redo
 
@@ -611,8 +613,12 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
   }
 
   if (changed) {
+    if (state.score.textBoxes[0]) {
+      state.score.name = state.score.textBoxes[0].text;
+    }
     if (JSON.stringify(state.history[state.history.length - 1]) !== JSON.stringify(state.score)) {
       state.history.push(JSON.parse(JSON.stringify(state.score)));
+      save(state.score);
     }
     updateView();
   }
@@ -836,9 +842,11 @@ function mouseMove(event: MouseEvent) {
   }
 }
 
-export default function startController(): void {
+export default function startController(score: ScoreModel, saveDB: (score: ScoreModel) => void): void {
   // Initial render, hooks event listeners
 
+  save = saveDB;
+  state.score = score;
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch({ name: 'mouse up' }));
   // initially set the notes to be the right groupings

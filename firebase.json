@@ -9,6 +9,10 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "rewrites": [{
+      "source": "/pipescore/**/**",
+      "destination": "/pipescore.html"
+    }],
     "headers": [
       {
         "source": "/**",

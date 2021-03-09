@@ -9,6 +9,7 @@ import { StaveModel } from '../Stave/model';
 import { BarModel } from '../Bar/model';
 
 import Stave from '../Stave/functions';
+import TextBox from '../TextBox/functions';
 
 
 function bars(score: ScoreModel): BarModel[] {
@@ -42,9 +43,10 @@ function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
 }
 
 
-const init: () => ScoreModel = () => ({
+const init = (name = 'Blank Score'): ScoreModel => ({
+  name,
   staves: [Stave.init(),Stave.init()],
-  textBoxes: [],
+  textBoxes: [TextBox.init(name)],
   secondTimings: []
 });
 

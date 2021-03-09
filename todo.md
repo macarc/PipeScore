@@ -33,7 +33,7 @@ Bottlenecks:
 - [ ] A easy way to input all of the above
 - [ ] Multiple scores per page
 - [ ] Documentation
-- [ ] Saving / Loading
+- [X] Saving / Loading
 - [ ] Printing
 
 
