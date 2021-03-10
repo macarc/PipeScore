@@ -8,13 +8,9 @@ Bottlenecks:
 ## Bugs to fix
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
-- [ ] Put copy/paste over correct bar
 - [ ] Add optimised list render
 - [ ] Ties to triplets
-- [ ] Note placing in middle of bar is bad
-- [ ] Copy/paste bars
 - [ ] Shift-right/left should expand selection?
-- [ ] Adding 2nds could be better
 - [ ] Adding gracenotes to triplets by clicking in between
 
 
@@ -130,3 +126,7 @@ Bottlenecks:
 - [X] Adding text should not be above other texts
 - [X] Clicking on note head shouldn't change note value
 - [X] Text font size
+- [X] Note placing in middle of bar is bad
+- [X] Copy/paste bars
+- [X] Put copy/paste over correct bar
+- [X] Adding 2nds could be better

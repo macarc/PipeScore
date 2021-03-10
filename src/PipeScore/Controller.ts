@@ -50,7 +50,7 @@ interface State {
   interfaceWidth: number,
   resizingInterface: boolean,
   textBoxState: TextBoxState,
-  clipboard: (NoteModel | TripletModel)[] | null,
+  clipboard: (NoteModel | TripletModel | 'bar-break')[] | null,
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
   inputGracenote: GracenoteModel | null,
@@ -235,6 +235,39 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
       break;
     }
   }
+}
+
+function pasteNotes(notes: (NoteModel | TripletModel | 'bar-break')[], start: BarModel, score: ScoreModel): ScoreModel {
+  // Puts all the notes in the notes array into the score with the correct bar breaks
+  // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
+
+  let startedPasting = false;
+
+  for (let i=0; i < score.staves.length; i++) {
+    const stave = score.staves[i];
+    for (let j = 0; j < stave.bars.length; j++) {
+      const bar = stave.bars[j];
+      if ((bar.id === start.id) || startedPasting) {
+        startedPasting = true;
+        let currentPastingNote = notes.shift();
+        while (currentPastingNote && currentPastingNote !== 'bar-break') {
+          bar.notes.push(currentPastingNote);
+          currentPastingNote = notes.shift();
+        }
+        if (notes.length === 0) {
+          stave.bars[j] = { ...bar };
+          score.staves[i] = { ...stave };
+          return score;
+        }
+      }
+
+      if (startedPasting) stave.bars[j] = { ...bar };
+    }
+
+    if (startedPasting) score.staves[i] = { ...stave };
+  }
+
+  return score;
 }
 
 function deleteSelection(selection: ScoreSelectionModel, score: ScoreModel): ScoreModel {
@@ -596,6 +629,21 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       state.selection = { start: event.bar.id, end: event.bar.id };
     }
     changed = true;
+  } else if (ScoreEvent.isSetBarRepeat(event)) {
+    if (state.selection) {
+      const { bar, stave } = currentBar(state.selection.start);
+
+      // This has to be done because TypeScript :/
+      if (event.which === 'frontBarline') {
+        bar[event.which] = event.what;
+      } else if (event.which === 'backBarline') {
+        bar[event.which] = event.what;
+      }
+
+      stave.bars[stave.bars.indexOf(bar)] = { ...bar };
+      state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
+      changed = true;
+    }
   } else if (ScoreEvent.isAddStave(event)) {
     if (state.selection) {
       const { stave } = currentBar(state.selection.start);
@@ -612,25 +660,61 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.draggedSecondTiming = { secondTiming: event.secondTiming, dragged: event.part };
     changed = true;
   } else if (ScoreEvent.isAddSecondTiming(event)) {
-    if (selectedNotes.length >= 3) {
-      const newSecondTiming = SecondTiming.init(selectedNotes[0].id, selectedNotes[1].id, selectedNotes[2].id);
-      state.score.secondTimings.push(newSecondTiming);
-      changed = true;
+    if (state.selection) {
+      const { bar: start } = currentBar(state.selection.start);
+      let middle: ID | null = null;
+      let end: ID | null = null;
+      let started = false;
+      all:
+      for (const stave of state.score.staves) {
+        for (const bar of stave.bars) {
+          if (started) {
+            middle = bar.id;
+            end = bar.id;
+            break all;
+          }
+          if (bar === start) {
+            started = true;
+          }
+        }
+      }
+      if (middle && end) {
+        const newSecondTiming = SecondTiming.init(start.id, middle, end);
+        state.score.secondTimings.push(newSecondTiming);
+        changed = true;
+      }
     }
   } else if (ScoreEvent.isEditTimeSignature(event)) {
     setTimeSignatureFrom(event.timeSignature, event.newTimeSignature);
     changed = true;
   } else if (ScoreEvent.isCopy(event)) {
-    state.clipboard = deepcopy(rawSelectedNotes);
+    if (rawSelectedNotes.length > 0) {
+      state.clipboard = [];
+      const { bar: initBar } = currentBar(rawSelectedNotes[0]);
+      let currentBarId = initBar.id;
+      for (const note of rawSelectedNotes) {
+        const { bar } = currentBar(note.id)
+        if (currentBarId !== bar.id) {
+          state.clipboard.push('bar-break');
+        }
+        state.clipboard.push(deepcopy(note));
+      }
+    }
   } else if (ScoreEvent.isPaste(event)) {
     if (! state.selection || ! state.clipboard) {
       return;
     }
-    const toPaste = state.clipboard.map(n => Note.copyNote(n));
+    const toPaste = state.clipboard.map(n => n === 'bar-break' ? n : Note.copyNote(n));
     const id = state.selection.end;
-    const { bar } = currentBar(id);
-    const pasteAfter = bar.notes.find(n => n.id === id);
-    if (pasteAfter) bar.notes.splice(bar.notes.indexOf(pasteAfter) + 1, 0, ...toPaste);
+    const { bar, stave } = currentBar(id);
+    const indexInBar = bar.notes.findIndex(n => n.id === id);
+    if (indexInBar !== (bar.notes.length - 1)) {
+      bar.notes.splice(indexInBar + 1, 0, ...toPaste.filter(n => n !== 'bar-break') as (NoteModel | TripletModel)[]);
+      stave.bars[stave.bars.indexOf(bar)] = { ...bar };
+      state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
+    } else {
+      state.score = pasteNotes(toPaste, bar, state.score);
+    }
     changed = true;
   } else if (ScoreEvent.isStartResizingUserInterface(event)) {
     state.resizingInterface = true;

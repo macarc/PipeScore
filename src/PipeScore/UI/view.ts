@@ -6,6 +6,7 @@ import { h, V } from '../../render/h';
 
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
+import { Barline } from '../Bar/model';
 import { GracenoteModel } from '../Gracenote/model';
 
 import Gracenote from '../Gracenote/functions';
@@ -98,6 +99,17 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('h2', ['Bar']),
       h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add bar', before: true }) }, ['before']),
       h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add bar', before: false }) }, ['after']),
+      h('h3', ['Repeat']),
+      h('label', [
+        'Start:',
+        h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.Normal }) }, ['Normal']),
+        h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.Repeat }) }, ['Repeat']),
+      ]),
+      h('label', { style: 'display: block' }, [
+        'End: ',
+        h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Normal }) }, ['Normal']),
+        h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Repeat }) }, ['Repeat']),
+      ]),
       h('h3', ['Lead In']),
       h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add anacrusis', before: true }) }, ['before bar']),
       h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add anacrusis', before: false }) }, ['after bar']),

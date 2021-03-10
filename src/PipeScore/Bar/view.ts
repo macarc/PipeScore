@@ -75,26 +75,26 @@ export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null
 }
 
 
-function renderBarline(type: Barline, x: number, y: number): V {
+function renderBarline(type: Barline, atStart: boolean, x: number, y: number): V {
   // Draws a barline
 
   const height = lineHeightOf(4);
   const lineOffset = 6;
   const circleXOffset = 10;
-  const topCircleY = y + lineHeightOf(1);
-  const bottomCircleY = y + lineHeightOf(3);
+  const topCircleY = y + lineHeightOf(1.3);
+  const bottomCircleY = y + lineHeightOf(2.7);
   const circleRadius = 2;
   const thickLineWidth = 2.5;
   if (type === Barline.Normal) {
     return svg('line', { x1: x, x2: x, y1: y, y2: (y + height), stroke: 'black' });
-  } else if (type === Barline.RepeatFirst) {
+  } else if (type === Barline.Repeat && atStart) {
     return svg('g', { class: 'barline-repeat-first' }, [
       svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
       svg('line', { x1: x + lineOffset, x2: x + lineOffset, y1: y, y2: y + height, stroke: 'black' }),
       svg('circle', { cx: x + circleXOffset, cy: topCircleY, r: circleRadius, fill: 'black' }),
       svg('circle', { cx: x + circleXOffset, cy: bottomCircleY, r: circleRadius, fill: 'black' }),
     ]);
-  } else if (type === Barline.RepeatLast) {
+  } else if (type === Barline.Repeat) {
     return svg('g', { class: 'barline-repeat-last' }, [
       svg('rect', { x: x - thickLineWidth, y, width: thickLineWidth, height, fill: 'black' }),
       svg('line', { x1: x - lineOffset, x2: x - lineOffset, y1: y, y2: y + height, stroke: 'black' }),
@@ -130,7 +130,7 @@ export default function render(bar: BarModel,props: BarProps): V {
   const totalNumberOfBeats = last(beats) || 1;
   const beatWidth = width / totalNumberOfBeats;
 
-  const xOf = (noteIndex: number) => xAfterBarline + beatWidth * beats[noteIndex];
+  const xOf = (noteIndex: number) => (bar.notes.length === 1) ? xAfterBarline + beatWidth / 2 : xAfterBarline + beatWidth * beats[noteIndex];
 
 
   function previousNoteData(groupNoteIndex: number, noteIndex: number): PreviousNote | null {
@@ -195,8 +195,8 @@ export default function render(bar: BarModel,props: BarProps): V {
     noteBoxes(xAfterBarline, staveY, props.noteState.inputtingNotes ? beatWidth : width, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), clickNoteBox),
     ...groupedNotes.map((notes, idx) => renderNote(notes, noteProps(notes, idx))),
 
-    renderBarline(bar.frontBarline, xAfterTimeSignature, props.y),
-    ((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, props.x + props.width, props.y) : null,
+    renderBarline(bar.frontBarline, true, xAfterTimeSignature, props.y),
+    ((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, false, props.x + props.width, props.y) : null,
     hasTimeSignature ? renderTimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null
   ]);
 }

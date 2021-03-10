@@ -6,7 +6,7 @@ import { Pitch } from './global/pitch';
 import { ID } from './global/types';
 
 import { NoteModel, TripletModel, NoteLength, BaseNote } from './Note/model';
-import { BarModel } from './Bar/model';
+import { BarModel, Barline } from './Bar/model';
 import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
@@ -30,6 +30,7 @@ export type ScoreEvent =
   | AddAnacrusis
   | AddBar
   | BarClicked
+  | SetBarRepeat
 
   | AddStave
 
@@ -225,6 +226,16 @@ type BarClicked = {
 }
 export function isBarClicked(e: ScoreEvent): e is BarClicked {
   return e.name === 'bar clicked';
+}
+
+type SetBarRepeat = {
+  name: 'set bar repeat',
+  which: 'frontBarline' | 'backBarline',
+  what: Barline
+}
+
+export function isSetBarRepeat(e: ScoreEvent): e is SetBarRepeat {
+  return e.name === 'set bar repeat';
 }
 
 type AddStave = {
