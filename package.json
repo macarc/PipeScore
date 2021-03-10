@@ -7,29 +7,22 @@
     "deploy": "firebase deploy",
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
-    "watch": "parcel watch src/PipeScore/PipeScore.ts --out-dir public/dist",
-    "build": "rm public/dist/* && rollup -c",
+    "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
+    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist",
     "lint": "eslint src --ext .ts",
     "circles": "madge -c --warning src/PipeScore/PipeScore.ts"
   },
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@rollup/plugin-node-resolve": "^11.1.1",
-    "@rollup/plugin-typescript": "^8.1.1",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
     "@typescript-eslint/parser": "^4.14.1",
+    "esbuild": "^0.9.0",
     "eslint": "^7.18.0",
     "firebase-auth-lite": "^0.8.8",
     "firebase-firestore-lite": "^1.0.3",
     "firebase-tools": "^9.3.0",
     "madge": "^4.0.0",
-    "rollup": "^2.38.5",
-    "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.1.3"
-  },
-  "dependencies": {
-    "parcel-bundler": "^1.3.1"
   }
 }
