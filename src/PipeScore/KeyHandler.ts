@@ -30,25 +30,25 @@ export function keyHandler(e: KeyboardEvent): void {
       break;
 
     case "1":
-      dispatch({ name: 'set note input length', length: NoteLength.HemiDemiSemiQuaver });
+      dispatch({ name: 'set note input length', length: NoteLength.Semibreve });
       break;
     case "2":
-      dispatch({ name: 'set note input length', length: NoteLength.DemiSemiQuaver });
+      dispatch({ name: 'set note input length', length: NoteLength.Minim });
       break;
     case "3":
-      dispatch({ name: 'set note input length', length: NoteLength.SemiQuaver });
+      dispatch({ name: 'set note input length', length: NoteLength.Crotchet });
       break;
     case "4":
       dispatch({ name: 'set note input length', length: NoteLength.Quaver });
       break;
     case "5":
-      dispatch({ name: 'set note input length', length: NoteLength.Crotchet });
+      dispatch({ name: 'set note input length', length: NoteLength.SemiQuaver });
       break;
     case "6":
-      dispatch({ name: 'set note input length', length: NoteLength.Minim });
+      dispatch({ name: 'set note input length', length: NoteLength.DemiSemiQuaver });
       break;
     case "7":
-      dispatch({ name: 'set note input length', length: NoteLength.Semibreve });
+      dispatch({ name: 'set note input length', length: NoteLength.HemiDemiSemiQuaver });
       break;
   }
 }

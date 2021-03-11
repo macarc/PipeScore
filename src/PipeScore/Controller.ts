@@ -113,7 +113,7 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
             bar.notes[k] = { ...newNote };
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
-            if (Note.isNoteModel(newNote) && Note.isNoteModel(n) && (newNote.tied !== n.tied || newNote.length !== n.length)) {
+            if (Note.isNoteModel(newNote) && Note.isNoteModel(n)) {
               // todo do this in single pass (i.e. in this loop);
               makeCorrectTie(newNote, score);
             }
@@ -149,11 +149,11 @@ function noteMap(f: <A extends NoteModel | BaseNote>(note: A, replace: (newNote:
   return score;
 }
 
-function changeNoteFrom(id: ID, note: NoteModel, score: ScoreModel): ScoreModel {
+function changeNoteFrom(id: ID, note: NoteModel | BaseNote, score: ScoreModel): ScoreModel {
   // Replaces note in score
 
   return noteMap(<A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
-    if (Note.isNoteModel(n) && n.id === id) {
+    if (n.id === id) {
       replace(note as A);
       return true;
     } else {
@@ -515,6 +515,14 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       }
       changed = true;
     }
+  } else if (ScoreEvent.isAddGracenoteToTriplet(event)) {
+    if (state.demoNote && state.demoNote.type === 'gracenote') {
+      state.score = changeNoteFrom(event.triplet[event.which].id, { ...event.triplet[event.which], gracenote: Gracenote.initSingle(event.pitch) }, state.score);
+      changed = true;
+    } else if (state.inputGracenote) {
+      state.score = changeNoteFrom(event.triplet[event.which].id, { ...event.triplet[event.which], gracenote: state.inputGracenote }, state.score);
+      changed = true;
+    }
   } else if (ScoreEvent.isAddNoteAfter(event)) {
     if (state.demoNote && state.demoNote.type === 'note') {
       const { bar, stave } = currentBar(event.noteBefore);
@@ -533,8 +541,11 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       }
     } else if (state.inputGracenote) {
       const note = noteModels[noteModels.indexOf(event.noteBefore) + 1];
-      if (Note.isNoteModel(note)) {
+      if (note && Note.isNoteModel(note)) {
         state.score = changeNoteFrom(note.id, ({ ...note, gracenote: state.inputGracenote }), state.score);
+        changed = true;
+      } else if (note && Note.isTriplet(note)) {
+        state.score = changeNoteFrom(note.first.id, ({ ...note.first, gracenote: state.inputGracenote }), state.score);
         changed = true;
       }
     }
@@ -549,6 +560,18 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       const note = event.bar.notes[0];
       if (note && Note.isNoteModel(note)) {
         state.score = changeNoteFrom(note.id, { ...note, gracenote: Gracenote.initSingle(event.pitch) }, state.score);
+        changed = true;
+      } else if (note && Note.isTriplet(note)) {
+        state.score = changeNoteFrom(note.first.id, { ...note.first, gracenote: Gracenote.initSingle(event.pitch) }, state.score);
+        changed = true;
+      }
+    } else if (state.inputGracenote) {
+      const note = event.bar.notes[0]
+      if (note && Note.isNoteModel(note)) {
+        state.score = changeNoteFrom(note.id, ({ ...note, gracenote: state.inputGracenote }), state.score);
+        changed = true;
+      } else if (note && Note.isTriplet(note)) {
+        state.score = changeNoteFrom(note.first.id, ({ ...note.first, gracenote: state.inputGracenote }), state.score);
         changed = true;
       }
     }

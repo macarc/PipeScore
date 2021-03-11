@@ -11,7 +11,7 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Shift-right/left should expand selection?
-- [ ] Adding gracenotes to triplets by clicking in between
+- [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 
 
 ## General features
@@ -36,10 +36,7 @@ Bottlenecks:
 - [ ] Documentation
 - [X] Saving / Loading
 - [ ] Printing
-
-
-
-- [ ] Playback
+- [ ] Playback?
 
 
 
@@ -130,3 +127,5 @@ Bottlenecks:
 - [X] Copy/paste bars
 - [X] Put copy/paste over correct bar
 - [X] Adding 2nds could be better
+- [X] Tripleting three notes makes them move to the left
+- [X] Adding gracenotes to triplets by clicking in between

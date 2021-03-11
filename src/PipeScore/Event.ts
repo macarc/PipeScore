@@ -18,6 +18,7 @@ export type ScoreEvent =
   | NoteClicked
   | StopInputtingNotes
   | SetGracenoteOnSelected
+  | AddGracenoteToTriplet
   | AddNoteAfter
   | AddNoteToBarStart
   | TieSelectedNotes
@@ -162,6 +163,16 @@ type AddNoteToBarStart = {
 }
 export function isAddNoteToBarStart(e: ScoreEvent): e is AddNoteToBarStart {
   return e.name === 'add note to beginning of bar';
+}
+
+type AddGracenoteToTriplet = {
+  name: 'add gracenote to triplet',
+  which: 'second' | 'third', // first is dealt with by AddNoteAfter the note before
+  triplet: TripletModel,
+  pitch: Pitch
+}
+export function isAddGracenoteToTriplet(e: ScoreEvent): e is AddGracenoteToTriplet {
+  return e.name === 'add gracenote to triplet';
 }
 
 type ToggleDotted = {

@@ -130,8 +130,7 @@ export default function render(bar: BarModel,props: BarProps): V {
   const totalNumberOfBeats = last(beats) || 1;
   const beatWidth = width / totalNumberOfBeats;
 
-  const xOf = (noteIndex: number) => (bar.notes.length === 1) ? xAfterBarline + beatWidth / 2 : xAfterBarline + beatWidth * beats[noteIndex];
-
+  const xOf = (noteIndex: number) => (bar.notes.length === 1 && !Note.isTriplet(bar.notes[0])) ? xAfterBarline + beatWidth / 2 : xAfterBarline + beatWidth * beats[noteIndex];
 
   function previousNoteData(groupNoteIndex: number, noteIndex: number): PreviousNote | null {
     // this function assumes that it is being passed the noteIndex corresponding to the start of the groupNoteIndex
