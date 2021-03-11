@@ -32,7 +32,7 @@ Bottlenecks:
 - [X] Resizable interface
 - [X] Copy/paste/undo/redo
 - [ ] A easy way to input all of the above
-- [ ] Multiple scores per page
+- [ ] Multiple scores per page?
 - [ ] Documentation
 - [X] Saving / Loading
 - [ ] Printing
@@ -129,3 +129,9 @@ Bottlenecks:
 - [X] Adding 2nds could be better
 - [X] Tripleting three notes makes them move to the left
 - [X] Adding gracenotes to triplets by clicking in between
+- [X] Beaming on compound time doesn't work
+- [X] Copying bars
+- [X] Adding stave/bar doesn't have the correct time signature
+- [X] Copy/paste button
+- [X] Landscape
+- [X] Add time signature adding

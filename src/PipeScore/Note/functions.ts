@@ -38,16 +38,18 @@ function flattenTriplets(notes: (NoteModel | TripletModel)[]): (NoteModel | Base
 }
 
 function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number): (NoteModel[] | TripletModel)[] {
-  const pushNote = (group: NoteModel[], note: NoteModel): void => {
+  const pushNote = (group: NoteModel[], note: NoteModel, currentLength: number, lengthOfNote: number): number => {
     if (hasBeam(note.length)) {
       group.push(note);
+      return currentLength + lengthOfNote;
     } else {
-      // Push the note as its own group. This won't modify the currentLength,
-      // which means that other groupings will still be correct
+      // Push the note as its own group.
       if (group.length > 0) groupedNotes.push(group.slice());
       group.splice(0, group.length, note);
       groupedNotes.push(group.slice());
       group.splice(0, group.length);
+
+      return (currentLength + lengthOfNote) % lengthOfGroup;
     }
   };
   let currentGroup: NoteModel[] = [];
@@ -65,10 +67,9 @@ function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number):
     } else {
       const length = lengthToNumber(note.length);
       if (currentLength + length < lengthOfGroup) {
-        pushNote(currentGroup, note);
-        currentLength += length;
+        currentLength = pushNote(currentGroup, note, currentLength, length);
       } else if (currentLength + length === lengthOfGroup) {
-        pushNote(currentGroup, note);
+        currentLength = pushNote(currentGroup, note, currentLength, length);
         // this check is needed since pushNote could end up setting currentGroup to have no notes in it
         if (currentGroup.length > 0) groupedNotes.push(currentGroup);
         currentLength = 0;
@@ -76,8 +77,7 @@ function groupNotes(notes: (NoteModel | TripletModel)[], lengthOfGroup: number):
       } else {
         if (currentGroup.length > 0) groupedNotes.push(currentGroup);
         currentGroup = [];
-        pushNote(currentGroup, note);
-        currentLength = length;
+        currentLength = pushNote(currentGroup, note, currentLength, length);
         if (currentLength >= lengthOfGroup) {
           if (currentGroup.length > 0) groupedNotes.push(currentGroup);
           currentGroup = [];

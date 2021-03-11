@@ -146,6 +146,17 @@ svg {
   transform: scaleX(-1);
 }
 
+#copy, #paste {
+  background-position: .6rem .6rem !important;
+  background-size: 1.5rem 1.5rem !important;
+}
+#copy {
+  background-image: url('./images/copy.png');
+}
+#paste {
+  background-image: url('./images/paste.svg');
+}
+
 #centre-text {
   width: 6.4rem !important; /* 6.4 = 2 x normal width + gap between them */
 }

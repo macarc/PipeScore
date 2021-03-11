@@ -32,6 +32,7 @@ export type ScoreEvent =
   | AddBar
   | BarClicked
   | SetBarRepeat
+  | EditBarTimeSignature
 
   | AddStave
 
@@ -56,6 +57,8 @@ export type ScoreEvent =
   | ChangeZoomLevel
   | StartResizingUserInterface
   | ResizeUserInterface
+
+  | ToggleLandscape
 
   | Copy
   | Paste
@@ -249,6 +252,13 @@ export function isSetBarRepeat(e: ScoreEvent): e is SetBarRepeat {
   return e.name === 'set bar repeat';
 }
 
+type EditBarTimeSignature = {
+  name: 'edit bar time signature'
+}
+export function isEditBarTimeSignature(e: ScoreEvent): e is EditBarTimeSignature {
+  return e.name === 'edit bar time signature';
+}
+
 type AddStave = {
   name: 'add stave',
   before: boolean
@@ -360,6 +370,13 @@ type ResizeUserInterface = {
   name: 'resize user interface',
   width: number
 }
-export function isResizeUserInterface(e: ScoreEvent):e is ResizeUserInterface {
+export function isResizeUserInterface(e: ScoreEvent): e is ResizeUserInterface {
   return e.name === 'resize user interface';
+}
+
+type ToggleLandscape = {
+  name: 'toggle landscape'
+}
+export function isToggleLandscape(e: ScoreEvent): e is ToggleLandscape {
+  return e.name === 'toggle landscape';
 }

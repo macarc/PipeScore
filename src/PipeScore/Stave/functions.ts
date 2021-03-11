@@ -3,6 +3,7 @@
  */
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
+import TimeSignature from '../TimeSignature/functions';
 
 import Bar from '../Bar/functions';
 
@@ -17,14 +18,14 @@ function addBar(stave: StaveModel, bar: BarModel, before: boolean): void {
 
   const ind = stave.bars.indexOf(bar);
   if (ind !== -1)
-    stave.bars.splice(before ? ind : ind + 1, 0, Bar.init());
+    stave.bars.splice(before ? ind : ind + 1, 0, Bar.init(bar.timeSignature));
 }
 function addAnacrusis(stave: StaveModel, bar: BarModel, before: boolean): void {
   // Adds a new anacrusis before the bar given
 
   const ind = stave.bars.indexOf(bar);
   if (ind !== -1)
-    stave.bars.splice(before ? ind : ind + 1, 0, Bar.initAnacrusis());
+    stave.bars.splice(before ? ind : ind + 1, 0, Bar.initAnacrusis(bar.timeSignature));
 }
 function deleteBar(stave: StaveModel, bar: BarModel): StaveModel {
   // Deletes the bar from the stave
@@ -37,8 +38,8 @@ function deleteBar(stave: StaveModel, bar: BarModel): StaveModel {
   return newStave;
 }
 
-const init: () => StaveModel = () => ({
-  bars: [Bar.init(),Bar.init(),Bar.init(),Bar.init()]
+const init = (timeSignature = TimeSignature.init()): StaveModel => ({
+  bars: [Bar.init(timeSignature),Bar.init(timeSignature),Bar.init(timeSignature),Bar.init(timeSignature)]
 })
 
 export default {

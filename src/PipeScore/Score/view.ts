@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { V, svg } from '../../render/h';
-import { scoreWidth, scoreHeight, staveGap, lineGap } from '../global/constants';
+import { staveGap, lineGap } from '../global/constants';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
@@ -49,7 +49,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
   const staveProps = (stave: StaveModel, index: number) => ({
     x: margin,
     y: index * staveGap + topOffset,
-    width: scoreWidth - 2 * margin,
+    width: score.width - 2 * margin,
     // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
     previousStaveY: (index - 1) * staveGap + topOffset,
@@ -64,28 +64,28 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
 
   const secondTimingProps = {
     staveStartX: margin,
-    staveEndX: scoreWidth - margin,
+    staveEndX: score.width - margin,
     staveGap,
     dispatch: props.dispatch
   };
   const scoreSelectionProps = {
     staveStartX: margin,
-    staveEndX: scoreWidth - margin,
+    staveEndX: score.width - margin,
     staveGap
   };
 
   return svg('svg',
              { id: 'score-svg',
-               width: (scoreWidth * props.zoomLevel / 100),
-               height: (scoreHeight * props.zoomLevel / 100),
-               viewBox: `0 0 ${scoreWidth} ${scoreHeight}`
+               width: (score.width * props.zoomLevel / 100),
+               height: (score.height * props.zoomLevel / 100),
+               viewBox: `0 0 ${score.width} ${score.height}`
              },
              { mouseup: () => props.dispatch({ name: 'mouse up' }) },
                [ svg('rect',
                      { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
                      { mousedown: () => props.dispatch({ name: 'background clicked' }) }),
                        ...score.staves.map((stave, idx) => renderStave(stave, staveProps(stave, idx))),
-                       ...score.textBoxes.map(textBox => renderTextBox(textBox, { dispatch: props.dispatch, state: props.textBoxState })),
+                       ...score.textBoxes.map(textBox => renderTextBox(textBox, { dispatch: props.dispatch, scoreWidth: score.width, state: props.textBoxState })),
                        ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming, secondTimingProps)),
                        props.selection ? renderScoreSelection(props.selection, scoreSelectionProps) : null,
                        (props.demoNote && demoNoteProps) ? renderDemoNote(props.demoNote, demoNoteProps) : svg('g')

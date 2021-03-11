@@ -29,7 +29,6 @@ import TimeSignature from './TimeSignature/functions';
 import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
-import { scoreWidth } from './global/constants';
 import { deleteXY, closestItem, itemBefore } from './global/xy';
 import { ID, Item } from './global/types';
 
@@ -64,7 +63,7 @@ interface State {
 const state: State = {
   draggedNote: null,
   gracenoteState: { dragged: null },
-  zoomLevel: 100 * .9 * (Math.max(window.innerWidth, 800) - 300) / scoreWidth,
+  zoomLevel: 0,
   textBoxState: { selectedText: null },
   justClickedNote: false,
   inputGracenote: null,
@@ -344,7 +343,18 @@ function purgeItems(items: Item[], oldScore: ScoreModel): ScoreModel {
   return score;
 }
 
-export function dispatch(event: ScoreEvent.ScoreEvent): void {
+function removeNoteState() {
+  state.demoNote = null;
+  state.draggedNote = null;
+  state.inputGracenote = null;
+}
+
+function removeTextState() {
+  state.draggedText = null;
+  state.textBoxState.selectedText = null;
+}
+
+export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   /*
      The global event handler.
      Takes an event, processes it to create a new state, then rerenders the view if necessary.
@@ -364,6 +374,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     state.justClickedNote = false;
   } else if (ScoreEvent.isNoteClicked(event)) {
     changed = true;
+    removeTextState();
     if (state.inputGracenote) {
       if (Note.isNoteModel(event.note)) {
         state.score = changeNoteFrom(event.note.id, { ...event.note, gracenote: state.inputGracenote }, state.score);
@@ -414,6 +425,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
       changed = true;
     }
   } else if (ScoreEvent.isTextClicked(event)) {
+    removeNoteState();
     state.textBoxState.selectedText = event.text
     state.draggedText = event.text;
     changed = true;
@@ -613,7 +625,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     }
   } else if (ScoreEvent.isCentreText(event)) {
     if (state.textBoxState.selectedText !== null) {
-      const newText = TextBox.centre(state.textBoxState.selectedText, scoreWidth);
+      const newText = TextBox.centre(state.textBoxState.selectedText, state.score.width);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1, newText);
       state.textBoxState.selectedText = newText;
       state.draggedText = null;
@@ -665,6 +677,13 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
 
       stave.bars[stave.bars.indexOf(bar)] = { ...bar };
       state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
+      changed = true;
+    }
+  } else if (ScoreEvent.isEditBarTimeSignature(event)) {
+    if (state.selection !== null) {
+      const { bar, stave } = currentBar(state.selection.start);
+      const newTimeSignature = await TimeSignature.edit(bar.timeSignature)
+      setTimeSignatureFrom(bar.timeSignature, newTimeSignature);
       changed = true;
     }
   } else if (ScoreEvent.isAddStave(event)) {
@@ -719,6 +738,7 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
         const { bar } = currentBar(note.id)
         if (currentBarId !== bar.id) {
           state.clipboard.push('bar-break');
+          currentBarId = bar.id;
         }
         state.clipboard.push(deepcopy(note));
       }
@@ -731,20 +751,20 @@ export function dispatch(event: ScoreEvent.ScoreEvent): void {
     const id = state.selection.end;
     const { bar, stave } = currentBar(id);
     const indexInBar = bar.notes.findIndex(n => n.id === id);
-    if (indexInBar !== (bar.notes.length - 1)) {
-      bar.notes.splice(indexInBar + 1, 0, ...toPaste.filter(n => n !== 'bar-break') as (NoteModel | TripletModel)[]);
-      stave.bars[stave.bars.indexOf(bar)] = { ...bar };
-      state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
-    } else {
-      state.score = pasteNotes(toPaste, bar, state.score);
-    }
+    state.score = pasteNotes(toPaste, bar, state.score);
     changed = true;
   } else if (ScoreEvent.isStartResizingUserInterface(event)) {
     state.resizingInterface = true;
   } else if (ScoreEvent.isResizeUserInterface(event)) {
     state.interfaceWidth = event.width;
     changed = true;
+  } else if (ScoreEvent.isToggleLandscape(event)) {
+    const tmp = state.score.width;
+    state.score.width = state.score.height;
+    state.score.height = tmp;
+    changed = true;
   } else {
+    // never
     return event;
   }
 
@@ -983,6 +1003,7 @@ export default function startController(score: ScoreModel, saveDB: (score: Score
 
   save = saveDB;
   state.score = score;
+  state.zoomLevel = 100 * .9 * (Math.max(window.innerWidth, 800) - 300) / score.width;
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch({ name: 'mouse up' }));
   // initially set the notes to be the right groupings

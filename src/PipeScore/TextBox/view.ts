@@ -16,6 +16,7 @@ export interface TextBoxState {
 
 interface TextBoxProps {
   dispatch: Dispatch,
+  scoreWidth: number,
   state: TextBoxState
 }
 
@@ -36,7 +37,7 @@ function editText(dispatch: Dispatch, currentText: TextBoxModel) {//() => props.
 
 export default function render(tx: TextBoxModel, props: TextBoxProps): V {
   return svg('text',
-             { x: tx.x, y: tx.y, style: `font-size: ${tx.size}px`, 'text-anchor': 'middle', fill: (tx === props.state.selectedText) ? 'orange' : '' },
+             { x: (tx.x === 'centre') ? props.scoreWidth / 2 : tx.x, y: tx.y, style: `font-size: ${tx.size}px`, 'text-anchor': 'middle', fill: (tx === props.state.selectedText) ? 'orange' : '' },
              { dblclick: () => editText(props.dispatch, tx), mousedown: () => props.dispatch({ name: 'text clicked', text: tx }), mouseup: () => props.dispatch({ name: 'text mouse up' }) },
             [tx.text])
 }

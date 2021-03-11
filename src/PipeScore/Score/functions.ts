@@ -28,7 +28,7 @@ function addStave(score: ScoreModel, afterStave: StaveModel, before: boolean): v
 
   const ind = score.staves.indexOf(afterStave);
   if (ind !== -1)
-    score.staves.splice(before ? ind : ind + 1, 0, Stave.init());
+    score.staves.splice(before ? ind : ind + 1, 0, Stave.init(afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined));
 }
 
 function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
@@ -45,6 +45,8 @@ function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
 
 const init = (name = 'Blank Score'): ScoreModel => ({
   name,
+  width: 210 * 5,
+  height: 297 * 5,
   staves: [Stave.init(),Stave.init()],
   textBoxes: [TextBox.init(name, true)],
   secondTimings: []
