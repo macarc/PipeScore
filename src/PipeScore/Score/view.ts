@@ -30,7 +30,7 @@ interface ScoreProps {
   textBoxState: TextBoxState
 }
 const margin = 30;
-const topOffset = 150;
+const topOffset = 200;
 
 export function coordinateToStaveIndex(y: number): number | null {
   // Converts the y coordinate to the index of stave that the y coordinate lies in

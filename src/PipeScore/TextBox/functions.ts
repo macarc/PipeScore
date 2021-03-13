@@ -3,10 +3,10 @@
  */
 import { TextBoxModel } from './model';
 
-function centre(tx: TextBoxModel, pageWidth: number): TextBoxModel {
-  // Centre the textbox on the page
+function toggleCentre(tx: TextBoxModel, pageWidth: number): TextBoxModel {
+  // Toggle centring the textbox on the page
 
-  return { ...tx, x: 'centre' };
+  return { ...tx, x: (tx.x === 'centre') ? (pageWidth / 2) : 'centre' };
 }
 
 function setCoords(tx: TextBoxModel, x: number, y: number): TextBoxModel {
@@ -25,5 +25,5 @@ const init = (text = '<Double Click to Edit>', predictable = false): TextBoxMode
 export default {
   init,
   setCoords,
-  centre
+  toggleCentre
 }

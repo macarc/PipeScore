@@ -20,7 +20,7 @@ export default function render(secondTiming: SecondTimingModel, props: SecondTim
   const start = getXY(secondTiming.start);
   const middle = getXY(secondTiming.middle);
   const end = getXY(secondTiming.end);
-  const height = 35;
+  const height = 45;
   const mid = 20;
   const clickWidth = 10;
   if (start && middle && end) {

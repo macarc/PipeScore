@@ -616,7 +616,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       }
     }
   } else if (ScoreEvent.isTextDragged(event)) {
-    if (state.draggedText !== null) {
+    if (state.draggedText !== null && state.draggedText.x !== 'centre') {
       const newText = TextBox.setCoords(state.draggedText, event.x, event.y);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 1, newText);
       state.textBoxState.selectedText = newText;
@@ -625,7 +625,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     }
   } else if (ScoreEvent.isCentreText(event)) {
     if (state.textBoxState.selectedText !== null) {
-      const newText = TextBox.centre(state.textBoxState.selectedText, state.score.width);
+      const newText = TextBox.toggleCentre(state.textBoxState.selectedText, state.score.width);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1, newText);
       state.textBoxState.selectedText = newText;
       state.draggedText = null;
@@ -690,8 +690,11 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     if (state.selection) {
       const { stave } = currentBar(state.selection.start);
       Score.addStave(state.score, stave, event.before);
-      changed = true;
+    } else {
+      Score.addStave(state.score, state.score.staves[state.score.staves.length - 1], event.before);
     }
+
+    changed = true;
   } else if (ScoreEvent.isTieSelectedNotes(event)) {
     if (selectedNotes.length > 0) {
       // TODO fix triplets
@@ -820,7 +823,8 @@ function currentBar(note: NoteModel | ID | TripletModel): { stave: StaveModel, b
     }
   }
 
-  return { stave: staves[0], bar: Stave.bars(staves[0])[0] }
+  const lastStaveBars = Stave.bars(staves[staves.length - 1]);
+  return { stave: staves[staves.length - 1], bar: lastStaveBars[lastStaveBars.length - 1] }
 }
 
 function currentNoteModels(): (NoteModel | TripletModel)[] {
@@ -920,11 +924,13 @@ function setTimeSignatureFrom(timeSignature: TimeSignatureModel, newTimeSignatur
   let atTimeSignature = false;
   for (const bar of bars) {
     if (bar.timeSignature === timeSignature) {
+      bar.timeSignature = newTimeSignature;
       atTimeSignature = true;
+      continue;
     }
     if (atTimeSignature) {
       if (TimeSignature.equal(bar.timeSignature, timeSignature)) {
-        bar.timeSignature = newTimeSignature;
+        bar.timeSignature = TimeSignature.copy(newTimeSignature);
       } else {
         break;
       }

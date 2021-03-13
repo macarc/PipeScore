@@ -23,7 +23,7 @@ function lastPitch(bar: BarModel): Pitch | null {
 }
 
 const init = (timeSignature = TimeSignature.init()): BarModel => ({
-  timeSignature,
+  timeSignature: TimeSignature.copy(timeSignature),
   notes: [],
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,
@@ -32,7 +32,7 @@ const init = (timeSignature = TimeSignature.init()): BarModel => ({
 });
 
 const initAnacrusis = (timeSignature = TimeSignature.init()): BarModel => ({
-  timeSignature,
+  timeSignature: TimeSignature.copy(timeSignature),
   notes: [],
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,

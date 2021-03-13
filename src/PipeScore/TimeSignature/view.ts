@@ -22,16 +22,16 @@ export default function render(timeSignature: TimeSignatureModel, props: TimeSig
 
   if (timeSignature === 'cut time') {
     return svg('g', { class: 'time-signature' }, [
-      svg('text', { style: 'font-family: serif;', 'text-anchor': 'middle', x: props.x, y: props.y + 23, 'font-size': 30 }, { click: edit }, ['C'])
+      svg('text', { style: 'font-family: serif; font-weight: bold;', 'text-anchor': 'middle', x: props.x, y: props.y + 23, 'font-size': 30 }, { click: edit }, ['C'])
     ]);
   } else {
     return svg('g', { class: 'time-signature' }, [
       svg('text',
-          { 'text-anchor': 'middle', x: props.x, y, style: 'font-family: serif', 'font-size': 21 },
+          { 'text-anchor': 'middle', x: props.x, y, style: 'font-family: serif; font-weight: bold;', 'font-size': 23 },
           { click: edit },
           [timeSignature[0].toString()]),
       svg('text',
-          { 'text-anchor': 'middle', x: props.x, y: y + 13, style: 'font-family: serif', 'font-size': 21 },
+          { 'text-anchor': 'middle', x: props.x, y: y + 13, style: 'font-family: serif; font-weight: bold;', 'font-size': 23 },
           { click: edit },
           [timeSignature[1].toString()]),
     ]);

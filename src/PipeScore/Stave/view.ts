@@ -2,8 +2,8 @@
   Stave.ts - Stave implementation for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
-import { lineHeightOf } from '../global/constants';
-import { Pitch } from '../global/pitch';
+import { lineHeightOf, staveGap } from '../global/constants';
+import { Pitch, noteY } from '../global/pitch';
 import { nmap } from '../global/utils';
 
 import { svg, V } from '../../render/h';
@@ -87,7 +87,8 @@ export default function render(stave: StaveModel, props: StaveProps): V {
     x: getX(index),
     y: staveHeight,
     width: bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(index)) : barWidth,
-    lastNoteX: index === 0 ? lastStaveLastNoteX : getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null),
+    // TODO this won't work for tieing to previous stave
+    lastNote: index === 0 ? null/*{ x: lastStaveLastNoteX, y: props.y - staveGap, pitch:  }*/ : nmap(Bar.lastPitch(stave.bars[index - 1]), pitch => ({ x: getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null), y: noteY(staveHeight, pitch), pitch })),
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1),
     endOfLastStave: props.x + props.width, // should always be the same

@@ -102,6 +102,12 @@ label {
   padding-left: 3.4rem; /* 1 * normal width + gap */
 }
 
+.twice-width {
+  width: 6.4rem !important; /* 6.4 = 2 x normal width + gap between them */
+  text-align: center;
+  word-break: keep-all;
+}
+
 svg {
   margin: 2vw;
 }

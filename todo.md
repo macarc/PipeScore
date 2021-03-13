@@ -11,7 +11,15 @@ Bottlenecks:
 - [ ] Add optimised list render
 - [ ] Ties to triplets
 - [ ] Shift-right/left should expand selection?
+- [ ] Making centred text more intuitive
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
+- [ ] Note to far forward in lead-in with time signature
+- [ ] Add option to force breaks (e.g. for irregular time signatures)
+- [ ] Make triplets removable
+- [ ] Only correct notes after placing? It's annoying how they jump.
+- [ ] Tieing to first/second note in bar doesn't work
+- [ ] Tieing sometimes adds massive ties on the stave above
+- [ ] Shouldn't be able to put second timings over each other
 
 
 ## General features
@@ -135,3 +143,14 @@ Bottlenecks:
 - [X] Copy/paste button
 - [X] Landscape
 - [X] Add time signature adding
+- [X] Mouse events being blocked dragging single
+  - [X] Note heads shouldn't sink mouse events if other notes/gracenotes are being dragged
+- [X] + Stave After should add to end by default
+- [X] Bin -> 'Remove Gracenote'
+- [X] Negative time signatures should be disallowed
+- [X] Better denominator input (not input number)
+- [X] 1st/2nd should be higher
+- [X] End/Start of part barline
+- [X] Changing time signatures doesn't work (at start of stave)
+- [X] Centred text box shouldn't be draggable
+- [X] Highlight single notes being dragged

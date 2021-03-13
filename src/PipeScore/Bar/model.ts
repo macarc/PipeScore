@@ -6,7 +6,7 @@ import { NoteModel, TripletModel } from '../Note/model';
 import { Item } from '../global/types';
 
 export enum Barline {
-  Repeat, Normal
+  Repeat, Normal, End
 }
 
 export interface BarModel extends Item {

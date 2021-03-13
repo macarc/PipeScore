@@ -27,8 +27,9 @@ function addStave(score: ScoreModel, afterStave: StaveModel, before: boolean): v
   // Appends a stave after afterStave
 
   const ind = score.staves.indexOf(afterStave);
+  const newStave = Stave.init(afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined);
   if (ind !== -1)
-    score.staves.splice(before ? ind : ind + 1, 0, Stave.init(afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined));
+    score.staves.splice(before ? ind : ind + 1, 0, newStave);
 }
 
 function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {

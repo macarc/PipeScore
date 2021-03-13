@@ -61,13 +61,13 @@ function edit(timeSignature: TimeSignatureModel): Promise<TimeSignatureModel> {
   const bottom = timeSignature === 'cut time' ? 4 : timeSignature[1];
   const isCutTime = timeSignature === 'cut time';
 
-  return new Promise((res, rej) => dialogueBox(`<input type="number" name="numerator" value="${top}" /><br /><input type="number" name="denominator" value="${bottom}" /><label>Cut time <input type="checkbox" ${isCutTime ? 'checked' : ''}/></label>`, form => {
+  return new Promise((res, rej) => dialogueBox(`<input type="number" name="numerator" min="1" value="${top}" /><br /><select name="denominator"><option value="4" name="denominator" ${(bottom === 4) ? 'selected' : ''}>4</option><option value="8" name="denominator" ${(bottom === 8) ? 'selected' : ''}>8</option></select><label>Cut time <input type="checkbox" ${isCutTime ? 'checked' : ''}/></label>`, form => {
     const numElement = form.querySelector('input[name = "numerator"]');
-    const denomElement = form.querySelector('input[name = "denominator"]');
+    const denomElement = form.querySelector('select');
     const isCutTime = form.querySelector('input[type="checkbox"]');
     if (isCutTime && isCutTime instanceof HTMLInputElement && isCutTime.checked) {
       return 'cut time';
-    } else if (numElement && denomElement && numElement instanceof HTMLInputElement && denomElement instanceof HTMLInputElement) {
+    } else if (numElement && denomElement && numElement instanceof HTMLInputElement && denomElement instanceof HTMLSelectElement) {
       const num = parseInt(numElement.value);
       const denom = parseDenominator(denomElement.value);
       if (num && denom) return from([num,denom]);
@@ -84,9 +84,12 @@ const init = (): TimeSignatureModel => [2,4];
 // [1 :: number, 3 :: Denominator] is (number | Denominator)[] rather than [number, Denominator]
 const from = (a: [number, Denominator]): TimeSignatureModel => a;
 
+const copy = (ts: TimeSignatureModel): TimeSignatureModel => [...ts] as [number, Denominator];
+
 export default {
   init,
   from,
+  copy,
   edit,
   numberOfBeats,
   beatDivision,

@@ -19,17 +19,20 @@ const tailXOffset = 3;
 const gracenoteHeadWidth = 3.5;
 
 
-function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean): V {
+function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean, isBeingDragged = false): V {
   // Draws head and stem
 
   const ledgerLeft = 5;
   const ledgerRight = 5.1;
   const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg('g', { class: 'gracenote-head' }, [
+    isBeingDragged ? svg('rect', { x: x - 1.5 * gracenoteHeadWidth, y: y - 5, width: 3 * gracenoteHeadWidth, height: 10, fill: 'orange', opacity: 0.9 }) : null,
+
     (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: 'black' }) : null,
     svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadWidth, ry: 2.5, transform: rotateText, fill: isValid ? 'black' : 'red', 'pointer-events': 'none' }),
 
     svg('line', { x1: x + tailXOffset, x2: x + tailXOffset, y1: y, y2: beamY, stroke: 'black' })
+
   ])
 }
 
@@ -43,11 +46,13 @@ function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, grac
   const y = noteY(staveY, note);
   const boxWidth = 2.5 * gracenoteHeadWidth;
   const boxHeight = 6;
+
+  console.log(draggedGracenote, gracenote);
   return svg('g', { class: 'gracenote' }, [
-    head(x, y, note, y - 3 * lineGap, true),
+    head(x, y, note, y - 3 * lineGap, true, (draggedGracenote !== null) && (draggedGracenote === gracenote)),
 
     (gracenote !== null)
-      ? svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': gracenote === draggedGracenote ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'gracenote clicked', gracenote }) })
+      ? svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': draggedGracenote ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'gracenote clicked', gracenote }) })
       : null,
 
     //svg('line', { x1: stemXOf(x), x2: stemXOf(x), y1: stemYOf(y), y2: stemYOf(y) - 20, stroke: 'black' }),

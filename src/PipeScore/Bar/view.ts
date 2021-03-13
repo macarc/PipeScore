@@ -27,7 +27,7 @@ interface BarProps {
   width: number,
   previousStaveY: number,
   previousBar: BarModel | null,
-  lastNoteX: number | null,
+  lastNote: PreviousNote | null,
   shouldRenderLastBarline: boolean,
   endOfLastStave: number
   dispatch: Dispatch,
@@ -50,19 +50,24 @@ const minimumBeatWidth = 30;
 export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
   // Finds the x offset from the start of the bar for the last note in the bar
 
-  // TODO this is probably wrong, I haven't checked it in a while
-  const lastNoteIndex = bar.notes.length - 1;
-  const lastNote = last(bar.notes);
-  const previousBarLastNote = nmap(previousBar, n => last(n.notes));
-  const previousNote = nmap(previousBarLastNote, n => Note.pitchOf(n));
-  if (lastNote !== null) {
-    const beats = beatsOf(bar, previousNote)
-    const totalNumberOfBeats = last(beats);
-    if (! totalNumberOfBeats) return 0;
-    const beatWidth = width / totalNumberOfBeats;
-    return beatWidth * beats[lastNoteIndex];
+  const preludeWidth = timeSignatureWidth + barlineWidth(bar.frontBarline);
+
+  if (bar.notes.length === 1 && !Note.isTriplet(bar.notes[0])) {
+    return preludeWidth + width / 4;
   } else {
-    return 0;
+    const lastNoteIndex = bar.notes.length - 1;
+    const lastNote = last(bar.notes);
+    const previousBarLastNote = nmap(previousBar, n => last(n.notes));
+    const previousNote = nmap(previousBarLastNote, n => Note.pitchOf(n));
+    if (lastNote !== null) {
+      const beats = beatsOf(bar, previousNote)
+      const totalNumberOfBeats = last(beats);
+      if (! totalNumberOfBeats) return 0;
+      const beatWidth = width / totalNumberOfBeats;
+      return preludeWidth + beatWidth * beats[lastNoteIndex];
+    } else {
+      return 0;
+    }
   }
 }
 
@@ -87,6 +92,16 @@ function renderBarline(type: Barline, atStart: boolean, x: number, y: number): V
   const thickLineWidth = 2.5;
   if (type === Barline.Normal) {
     return svg('line', { x1: x, x2: x, y1: y, y2: (y + height), stroke: 'black' });
+  } else if (type === Barline.End && atStart) {
+    return svg('g', { class: 'barline-end-first' }, [
+      svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
+      svg('line', { x1: x + lineOffset, x2: x + lineOffset, y1: y, y2: y + height, stroke: 'black' })
+    ]);
+  } else if (type === Barline.End) {
+    return svg('g', { class: 'barline-repeat-last' }, [
+      svg('rect', { x: x - thickLineWidth, y, width: thickLineWidth, height, fill: 'black' }),
+      svg('line', { x1: x - lineOffset, x2: x - lineOffset, y1: y, y2: y + height, stroke: 'black' })
+    ]);
   } else if (type === Barline.Repeat && atStart) {
     return svg('g', { class: 'barline-repeat-first' }, [
       svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
@@ -145,12 +160,12 @@ export default function render(bar: BarModel,props: BarProps): V {
         y: noteY(props.y, lastNoteModel.third.pitch)
       });
     } else if (groupNoteIndex === 0) {
-      if (previousNote !== null && props.lastNoteX !== null) {
-        return ({
+      if (previousNote !== null && props.lastNote !== null) {
+        return props.lastNote;/*({
           pitch: previousNote,
           x: props.lastNoteX,
           y: noteY(props.previousStaveY, previousNote)
-        });
+        });*/
       } else {
         return null;
       }
