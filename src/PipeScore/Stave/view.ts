@@ -4,17 +4,18 @@
 */
 import { lineHeightOf, staveGap } from '../global/constants';
 import { Pitch, noteY } from '../global/pitch';
-import { nmap } from '../global/utils';
+import { last, nmap, log2 } from '../global/utils';
 
 import { svg, V } from '../../render/h';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
+import { NoteModel, TripletModel } from '../Note/model';
 import { Dispatch } from '../Event';
 
 import Bar from '../Bar/functions';
 
-import renderBar, { xOffsetOfLastNote, widthOfAnacrusis } from '../Bar/view';
+import renderBar, { widthOfAnacrusis } from '../Bar/view';
 import { NoteState } from '../Note/view';
 import { GracenoteState } from '../Gracenote/view';
 
@@ -44,55 +45,38 @@ export default function render(stave: StaveModel, props: StaveProps): V {
 
   const staveLines = [...Array(5).keys()].map(idx => lineHeightOf(idx) + staveHeight);
 
-  const previousBar = (barIdx: number) => barIdx === 0
-    ? (props.previousStave ? props.previousStave.bars[props.previousStave.bars.length - 1] : null)
-    : stave.bars[barIdx - 1];
+  const previousBar = (barIdx: number): BarModel | null => barIdx === 0
+    ? (props.previousStave ? last(props.previousStave.bars) : null)
+    : (stave.bars[barIdx - 1] || null);
 
-  const previousBarLastNote = (index: number): Pitch | null => {
-    const bar = previousBar(index);
-    if (bar) {
-      return Bar.lastPitch(bar);
-    } else {
-      return null;
-    }
-  };
+  const previousBarLastPitch = (index: number): Pitch | null => nmap(previousBar(index), b => Bar.lastPitch(b));
+  const previousBarLastNote = (index: number): NoteModel | TripletModel | null => nmap(previousBar(index), b => Bar.lastNote(b));
 
-  const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(i)) : 0), 0);
+  const lastStaveTimeSignature = nmap(props.previousStave, previousStave => nmap(last(previousStave.bars), bar => bar.timeSignature));
+  console.log(lastStaveTimeSignature);
+
+  const lastBarTimeSignature = (index: number) => (index === 0) ? lastStaveTimeSignature : stave.bars[index - 1].timeSignature;
+
+  const totalAnacrusisWidth = stave.bars.reduce((width, bar, i) => width + (bar.isAnacrusis ? widthOfAnacrusis(bar, lastBarTimeSignature(i), previousBarLastPitch(i)) : 0), 0);
 
   const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.filter(bar => !bar.isAnacrusis).length;
 
   const getX = (barIdx: number): number => stave.bars.slice(0, barIdx).reduce((soFar, bar) => {
     if (bar.isAnacrusis) {
-      return soFar + widthOfAnacrusis(bar, previousBarLastNote(barIdx));
+      return soFar + widthOfAnacrusis(bar, lastBarTimeSignature(barIdx), previousBarLastPitch(barIdx));
     } else {
       return soFar + barWidth;
     }
   }, props.x + trebleClefWidth);
 
 
-  const lastStaveLastNoteX = nmap(props.previousStave, stave => {
-    const totalAnacrusisWidth = stave.bars.reduce((i, bar) => i + (bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(i)) : 0), 0);
-    const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.length;
-    const barStartX = stave.bars.slice(0, stave.bars.length - 1).reduce((soFar, bar, i) => {
-      if (bar.isAnacrusis) {
-        return soFar + widthOfAnacrusis(bar, previousBarLastNote(i));
-      } else {
-        return soFar + barWidth;
-      }
-    }, props.x + trebleClefWidth)
-    return barStartX + xOffsetOfLastNote(stave.bars[stave.bars.length - 1], barWidth, stave.bars[stave.bars.length - 2]);
-  });
-
   const barProps = (bar: BarModel, index: number) => ({
     x: getX(index),
     y: staveHeight,
-    width: bar.isAnacrusis ? widthOfAnacrusis(bar, previousBarLastNote(index)) : barWidth,
-    // TODO this won't work for tieing to previous stave
-    lastNote: index === 0 ? null/*{ x: lastStaveLastNoteX, y: props.y - staveGap, pitch:  }*/ : nmap(Bar.lastPitch(stave.bars[index - 1]), pitch => ({ x: getX(index - 1) + xOffsetOfLastNote(stave.bars[index - 1], barWidth, stave.bars[index - 2] || null), y: noteY(staveHeight, pitch), pitch })),
+    width: bar.isAnacrusis ? widthOfAnacrusis(bar, lastBarTimeSignature(index), previousBarLastPitch(index)) : barWidth,
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === (stave.bars.length - 1),
     endOfLastStave: props.x + props.width, // should always be the same
-    previousStaveY: props.previousStaveY,
     dispatch: props.dispatch,
     noteState: props.noteState,
     gracenoteState: props.gracenoteState

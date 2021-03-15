@@ -606,9 +606,10 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     }
   } else if (ScoreEvent.isDragSecondTiming(event)) {
     if (state.draggedSecondTiming) {
+      const oldSecondTiming = state.draggedSecondTiming.secondTiming;
       if (state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] !== event.closest) {
         const newSecondTiming = { ...state.draggedSecondTiming.secondTiming, [state.draggedSecondTiming.dragged]: event.closest };
-        if (SecondTiming.isValid(newSecondTiming)) {
+        if (SecondTiming.isValid(newSecondTiming, state.score.secondTimings.filter(st => st !== oldSecondTiming))) {
           state.score.secondTimings.splice(state.score.secondTimings.indexOf(state.draggedSecondTiming.secondTiming), 1, newSecondTiming);
           state.draggedSecondTiming.secondTiming = newSecondTiming;
           changed = true;
@@ -616,7 +617,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       }
     }
   } else if (ScoreEvent.isTextDragged(event)) {
-    if (state.draggedText !== null && state.draggedText.x !== 'centre') {
+    if (state.draggedText !== null) {
       const newText = TextBox.setCoords(state.draggedText, event.x, event.y);
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.draggedText), 1, newText);
       state.textBoxState.selectedText = newText;
@@ -725,8 +726,10 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       }
       if (middle && end) {
         const newSecondTiming = SecondTiming.init(start.id, middle, end);
-        state.score.secondTimings.push(newSecondTiming);
-        changed = true;
+        if (SecondTiming.isValid(newSecondTiming, state.score.secondTimings)) {
+          state.score.secondTimings.push(newSecondTiming);
+          changed = true;
+        }
       }
     }
   } else if (ScoreEvent.isEditTimeSignature(event)) {

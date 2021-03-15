@@ -2,9 +2,10 @@
    Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
-import { genId } from '../global/utils';
+import { genId, last } from '../global/utils';
 
 import { BarModel, Barline } from './model';
+import { NoteModel, TripletModel } from '../Note/model';
 
 import Note from '../Note/functions';
 import TimeSignature from '../TimeSignature/functions';
@@ -20,6 +21,10 @@ function lastPitch(bar: BarModel): Pitch | null {
   } else {
     return lastNote.pitch;
   }
+}
+
+function lastNote(bar: BarModel): NoteModel | TripletModel | null {
+  return last(bar.notes);
 }
 
 const init = (timeSignature = TimeSignature.init()): BarModel => ({
@@ -44,6 +49,7 @@ export default {
   init,
   initAnacrusis,
   lastPitch,
+  lastNote,
   numberOfNotes,
 }
 

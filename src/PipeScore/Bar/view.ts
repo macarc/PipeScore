@@ -7,7 +7,7 @@ import { svg, V } from '../../render/h';
 import { lineHeightOf } from '../global/constants';
 import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteY } from '../global/pitch';
-import { setXY } from '../global/xy';
+import { setXY, getXY } from '../global/xy';
 import { last, nlast, nmap } from '../global/utils';
 
 import { NoteModel, TripletModel, PreviousNote } from '../Note/model';
@@ -17,6 +17,7 @@ import { Dispatch } from '../Event';
 import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
+import { TimeSignatureModel } from '../TimeSignature/model';
 
 import { GracenoteState } from '../Gracenote/view';
 import renderNote, { widthOfNote, noteHeadOffset, NoteState } from '../Note/view';
@@ -25,9 +26,7 @@ interface BarProps {
   x: number,
   y: number,
   width: number,
-  previousStaveY: number,
   previousBar: BarModel | null,
-  lastNote: PreviousNote | null,
   shouldRenderLastBarline: boolean,
   endOfLastStave: number
   dispatch: Dispatch,
@@ -36,9 +35,9 @@ interface BarProps {
 }
 
 // Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
-const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.notes
+const beatsOf = (bar: BarModel, previousPitch: Pitch | null): number[] => bar.notes
     .reduce((nums, n, index) => {
-      const previous = (index === 0) ? previousNote : Note.pitchOf(bar.notes[index - 1]);
+      const previous = (index === 0) ? previousPitch : Note.pitchOf(bar.notes[index - 1]);
       return [...nums, nlast(nums) + widthOfNote(n,previous || null)];
     },
     [1]);
@@ -47,36 +46,12 @@ const beatsOf = (bar: BarModel, previousNote: Pitch | null): number[] => bar.not
 const minimumBeatWidth = 30;
 
 
-export function xOffsetOfLastNote(bar: BarModel, width: number, previousBar: BarModel | null): number {
-  // Finds the x offset from the start of the bar for the last note in the bar
-
-  const preludeWidth = timeSignatureWidth + barlineWidth(bar.frontBarline);
-
-  if (bar.notes.length === 1 && !Note.isTriplet(bar.notes[0])) {
-    return preludeWidth + width / 4;
-  } else {
-    const lastNoteIndex = bar.notes.length - 1;
-    const lastNote = last(bar.notes);
-    const previousBarLastNote = nmap(previousBar, n => last(n.notes));
-    const previousNote = nmap(previousBarLastNote, n => Note.pitchOf(n));
-    if (lastNote !== null) {
-      const beats = beatsOf(bar, previousNote)
-      const totalNumberOfBeats = last(beats);
-      if (! totalNumberOfBeats) return 0;
-      const beatWidth = width / totalNumberOfBeats;
-      return preludeWidth + beatWidth * beats[lastNoteIndex];
-    } else {
-      return 0;
-    }
-  }
-}
-
-export function widthOfAnacrusis(anacrusis: BarModel, previousNote: Pitch | null): number {
+export function widthOfAnacrusis(anacrusis: BarModel, previousTimeSignature: TimeSignatureModel | null, previousPitch: Pitch | null): number {
   // Finds the width of the bar (assumes it is an anacrusis)
 
-  const beats = beatsOf(anacrusis, previousNote);
+  const beats = beatsOf(anacrusis, previousPitch);
   const totalNumberOfBeats = Math.max(last(beats) || 1, 2);
-  return minimumBeatWidth * totalNumberOfBeats;
+  return minimumBeatWidth * totalNumberOfBeats + (previousTimeSignature && !TimeSignature.equal(anacrusis.timeSignature, previousTimeSignature) ? 0 : timeSignatureWidth);
 }
 
 
@@ -138,14 +113,15 @@ export default function render(bar: BarModel,props: BarProps): V {
 
   const groupedNotes = Note.groupNotes(bar.notes, TimeSignature.beatDivision(bar.timeSignature));
 
-  const previousNote = props.previousBar ? nmap(last(props.previousBar.notes), n => Note.pitchOf(n)) : null;
-  const beats = beatsOf(bar, previousNote);
+  const previousNote = nmap(props.previousBar, b => last(b.notes));
+  const previousPitch = props.previousBar ? nmap(last(props.previousBar.notes), n => Note.pitchOf(n)) : null;
+  const beats = beatsOf(bar, previousPitch);
 
 
   const totalNumberOfBeats = last(beats) || 1;
   const beatWidth = width / totalNumberOfBeats;
 
-  const xOf = (noteIndex: number) => (bar.notes.length === 1 && !Note.isTriplet(bar.notes[0])) ? xAfterBarline + beatWidth / 2 : xAfterBarline + beatWidth * beats[noteIndex];
+  const xOf = (noteIndex: number) => /*(bar.notes.length === 1 && !bar.isAnacrusis && !Note.isTriplet(bar.notes[0])) ? xAfterBarline + beatWidth / 2 : */xAfterBarline + beatWidth * beats[noteIndex];
 
   function previousNoteData(groupNoteIndex: number, noteIndex: number): PreviousNote | null {
     // this function assumes that it is being passed the noteIndex corresponding to the start of the groupNoteIndex
@@ -154,32 +130,36 @@ export default function render(bar: BarModel,props: BarProps): V {
     const lastNoteModel = bar.notes[noteIndex - 1];
     const lastNote = (noteIndex > 0) ? Note.pitchOf(lastNoteModel) : null;
     if (lastNoteModel && Note.isTriplet(lastNoteModel)) {
-      return ({
+      const xy = getXY(lastNoteModel.third.id);
+      return nmap(xy, xy => ({
         pitch: lastNoteModel.third.pitch,
-        x: xOf(noteIndex - 1) + 2 * beatWidth + noteHeadOffset(beatWidth, lastNoteModel.third, lastNoteModel.second.pitch),
-        y: noteY(props.y, lastNoteModel.third.pitch)
-      });
+        x: xy.afterX,
+        y: noteY(xy.y, lastNoteModel.third.pitch)
+      }));
     } else if (groupNoteIndex === 0) {
-      if (previousNote !== null && props.lastNote !== null) {
-        return props.lastNote;/*({
-          pitch: previousNote,
-          x: props.lastNoteX,
-          y: noteY(props.previousStaveY, previousNote)
-        });*/
+      if (previousPitch !== null && previousNote !== null) {
+        if (previousNote) {
+          const pitch = Note.isNoteModel(previousNote) ? previousNote.pitch : previousNote.third.pitch;
+          const id = Note.isNoteModel(previousNote) ? previousNote.id : previousNote.third.id;
+          const xy = getXY(id);
+          return nmap(xy, xy => ({
+            pitch,
+            x: xy.afterX,
+            y: noteY(xy.y, pitch),
+          }));
+        } else {
+          return null;
+        }
       } else {
         return null;
       }
     } else if (lastNote !== null) {
-      if (noteIndex === 0) throw new Error('noteIndex === 0');
-      const x =
-        (noteIndex === 1)
-          ? xOf(noteIndex - 1) + noteHeadOffset(beatWidth, lastNoteModel, previousNote)
-          : xOf(noteIndex - 1) + noteHeadOffset(beatWidth, lastNoteModel, Note.pitchOf(bar.notes[noteIndex - 2]));
-      return ({
+      const xy = getXY(lastNoteModel.id);
+      return nmap(xy, xy => ({
         pitch: lastNote,
-        x,
-        y: noteY(props.y, lastNote)
-      });
+        x: xy.afterX,
+        y: noteY(xy.y, lastNote)
+      }));
     } else {
       throw new Error('groupNoteIndex !== 0 && lastNote === null');
       return null;
