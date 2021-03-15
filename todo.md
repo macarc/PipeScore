@@ -9,11 +9,9 @@ Bottlenecks:
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
 - [ ] Add optimised list render
-- [ ] Ties to triplets
 - [ ] Shift-right/left should expand selection?
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Add option to force breaks (e.g. for irregular time signatures)
-- [ ] Make triplets removable
 - [ ] Only correct notes after placing? It's annoying how they jump.
 - [ ] Work out a good way to have the first note go nearer to the start of the bar
 
@@ -154,3 +152,5 @@ Bottlenecks:
 - [X] Making centred text more intuitive
 - [X] Shouldn't be able to put second timings over each other
 - [X] Tieing to first/second note in bar doesn't work, tieing to previous stave doesn't work
+- [X] Make triplets removable
+- [X] Ties to triplets

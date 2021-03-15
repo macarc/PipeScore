@@ -47,7 +47,6 @@ function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, grac
   const boxWidth = 2.5 * gracenoteHeadWidth;
   const boxHeight = 6;
 
-  console.log(draggedGracenote, gracenote);
   return svg('g', { class: 'gracenote' }, [
     head(x, y, note, y - 3 * lineGap, true, (draggedGracenote !== null) && (draggedGracenote === gracenote)),
 

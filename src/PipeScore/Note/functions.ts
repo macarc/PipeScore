@@ -13,7 +13,7 @@ function isTriplet(note: NoteModel | BaseNote | NoteModel[] | TripletModel): not
 }
 
 function isNoteModel(note: BaseNote | TripletModel): note is NoteModel {
-  return (note as NoteModel).tied !== undefined;
+  return ((note as TripletModel).first === undefined) && ((note as NoteModel).tied !== undefined);
 }
 
 function tripletNoteModels(triplet: TripletModel): [NoteModel, NoteModel, NoteModel] {
@@ -183,6 +183,7 @@ function copyNote(note: NoteModel | TripletModel): NoteModel | TripletModel {
       second: { ...note.second, id: genId() },
       third: { ...note.third, id: genId() },
       id: genId(),
+      tied: false,
       length: note.length
     };
   } else {
@@ -196,16 +197,17 @@ const pitchOf = (note: NoteModel | TripletModel): Pitch => isTriplet(note) ? not
 
 const numberOfNotes = (notes: NoteModel[]): number => notes.length;
 
-const init = (pitch: Pitch, length: NoteLength, tied = false): NoteModel => ({
+const init = (pitch: Pitch, length: NoteLength, tied = false, gracenote = Gracenote.init()): NoteModel => ({
   pitch,
   length,
-  gracenote: Gracenote.init(),
+  gracenote,
   tied,
   id: genId()
 });
 
 const initTriplet = (first: NoteModel, second: NoteModel, third: NoteModel): TripletModel => ({
   id: genId(),
+  tied: false,
   first: { id: first.id, pitch: first.pitch, gracenote: first.gracenote },
   second: { id: second.id, pitch: second.pitch, gracenote: second.gracenote },
   third: { id: third.id, pitch: third.pitch, gracenote: third.gracenote },

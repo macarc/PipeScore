@@ -53,7 +53,6 @@ export default function render(stave: StaveModel, props: StaveProps): V {
   const previousBarLastNote = (index: number): NoteModel | TripletModel | null => nmap(previousBar(index), b => Bar.lastNote(b));
 
   const lastStaveTimeSignature = nmap(props.previousStave, previousStave => nmap(last(previousStave.bars), bar => bar.timeSignature));
-  console.log(lastStaveTimeSignature);
 
   const lastBarTimeSignature = (index: number) => (index === 0) ? lastStaveTimeSignature : stave.bars[index - 1].timeSignature;
 

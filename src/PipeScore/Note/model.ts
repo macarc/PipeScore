@@ -23,6 +23,7 @@ export interface NoteModel extends BaseNote {
 
 export interface TripletModel extends Item {
   length: NoteLength,
+  tied: boolean,
   first: BaseNote,
   second: BaseNote,
   third: BaseNote

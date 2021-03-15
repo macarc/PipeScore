@@ -12,7 +12,9 @@ interface XY {
 // itemCoords holds the coordinates of all items on the score
 // Useful for components such as selection boxes that need access to multiple items' coordinates
 const itemCoords: Map<ID, XY> = new Map();
-// the y value will be the stave's y rather than the actual y value of the note
+// The y value will be the stave's y rather than the actual y value of the note
+// The y value of the note can always be calculated from this, but it's harder to do it in reverse
+// Also it makes things like checking order easier
 export const setXY = (item: ID, beforeX: number, afterX: number, y: number): void => {
   itemCoords.set(item, { beforeX, afterX, y });
 }
@@ -36,16 +38,17 @@ export const itemBefore = (a: ID, b: ID): boolean => {
 
 export const closestItem = (x: number, y: number, rightMost: boolean): ID => {
   // This finds the item the closest to the point (x,y)
-  // rightMost should be set to true if it should (in the case of a tie) favour the right-most element
+  // rightMost should be set to true if it should (in the case of a draw) favour the right-most element
 
   let closestDistance = Infinity;
   let closestID = 0;
+  const cmp = (a: number,b: number) => rightMost ? a <= b : a < b;
   const itemCoordinates = [...itemCoords].sort((a, b) => (b[1].beforeX < a[1].beforeX) ? 1 : -1);
+
   for (const [id, xy] of itemCoordinates) {
     const xDistance = Math.min(Math.abs(xy.beforeX - x), Math.abs(xy.afterX - x));
     const yDistance = xy.y - y;
     const dist = xDistance**2 + yDistance**2;
-    const cmp = (a: number,b: number) => rightMost ? a <= b : a < b;
 
     if (cmp(dist, closestDistance)) {
       closestDistance = dist;

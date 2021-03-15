@@ -25,7 +25,7 @@ Piping features:
 * Bars/Staves/e.t.c.
 
 Programming features:
-* ~3500 lines of TypeScript
+* ~4000 lines of TypeScript
 * Custom virtual DOM
 * Tiny - less than 25kB JS, minified + gzipped
 
@@ -50,7 +50,7 @@ When events are dispatched, all the parts of the score that change are replaced 
 
 To keep track of all the x/y coordinates, there is a global map containing `afterX`/`beforeX`/`y` coordinates of each item. Using a global mutable variable like this means that code duplication is less - for example, when tieing to a previous note, looking up the x value in the map is simple, whereas trying to recalculate where the note was placed introduces more code, and dependency between that code and the code that actually calculated where it was in the first place.
 
-Since the score is rendered from the start to the end, looking up x/y of items ahead will probably result in the wrong answer, so that should be not be done.
+Since the score is rendered from the start to the end, looking up x/y of items ahead will probably result in the wrong answer, so that should not be done.
 
 The entry point is `PipeScore.ts` which starts the controller.
 

@@ -266,6 +266,7 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
     dispatch: props.dispatch, state: props.gracenoteState
   });
   return svg('g', { class: 'triplet' }, [
+    (triplet.tied && props.previousNote) ? tie(props.y, triplet.first.pitch, firstX, props.noteWidth, props.previousNote, props.endOfLastStave) : null,
     svg('g', { class: 'first' }, [
       noteHead(firstX, firstY, notes[0], (event) => props.dispatch({ name: 'note clicked', note: triplet.first, event }), props.state.dragged, props.gracenoteState.dragged !== null),
       renderGracenote(triplet.first.gracenote, firstGracenoteProps),
