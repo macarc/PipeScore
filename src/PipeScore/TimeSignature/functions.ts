@@ -61,7 +61,7 @@ function edit(timeSignature: TimeSignatureModel): Promise<TimeSignatureModel> {
   const bottom = timeSignature === 'cut time' ? 4 : timeSignature[1];
   const isCutTime = timeSignature === 'cut time';
 
-  return new Promise((res, rej) => dialogueBox(`<input type="number" name="numerator" min="1" value="${top}" /><br /><select name="denominator"><option value="4" name="denominator" ${(bottom === 4) ? 'selected' : ''}>4</option><option value="8" name="denominator" ${(bottom === 8) ? 'selected' : ''}>8</option></select><label>Cut time <input type="checkbox" ${isCutTime ? 'checked' : ''}/></label>`, form => {
+  return new Promise((res, _) => dialogueBox(`<input type="number" name="numerator" min="1" value="${top}" /><br /><select name="denominator"><option value="4" name="denominator" ${(bottom === 4) ? 'selected' : ''}>4</option><option value="8" name="denominator" ${(bottom === 8) ? 'selected' : ''}>8</option></select><label>Cut time <input type="checkbox" ${isCutTime ? 'checked' : ''}/></label>`, form => {
     const numElement = form.querySelector('input[name = "numerator"]');
     const denomElement = form.querySelector('select');
     const isCutTime = form.querySelector('input[type="checkbox"]');

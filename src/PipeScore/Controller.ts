@@ -130,6 +130,7 @@ function noteMap(f: BaseNoteCallback | TripletModelCallback, score: ScoreModel, 
               score.staves[i] = { ...stave };
               makeCorrectTie(newTriplet, score);
             });
+            if (done) return score;
           } else if (coerceToBaseCallback(f)) {
             let done = false;
             done = f(n.first, (newNote: BaseNote) => {
@@ -281,7 +282,7 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
   }
 }
 
-function pasteNotes(notes: (NoteModel | TripletModel | 'bar-break')[], start: BarModel, score: ScoreModel): ScoreModel {
+function pasteNotes(notes: (NoteModel | TripletModel | 'bar-break')[], start: BarModel, index: number, score: ScoreModel): ScoreModel {
   // Puts all the notes in the notes array into the score with the correct bar breaks
   // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
 
@@ -292,6 +293,16 @@ function pasteNotes(notes: (NoteModel | TripletModel | 'bar-break')[], start: Ba
     for (let j = 0; j < stave.bars.length; j++) {
       const bar = stave.bars[j];
       if ((bar.id === start.id) || startedPasting) {
+        if (bar.id === start.id) {
+          if (index !== bar.notes.length) {
+            bar.notes.splice(index, 0, ...notes.filter(note => note !== 'bar-break') as (NoteModel | TripletModel)[])
+            stave.bars[j] = { ...bar };
+            score.staves[i] = { ...stave };
+            return score;
+          }
+        } else {
+          bar.notes = [];
+        }
         startedPasting = true;
         let currentPastingNote = notes.shift();
         while (currentPastingNote && currentPastingNote !== 'bar-break') {
@@ -739,7 +750,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     }
   } else if (ScoreEvent.isEditBarTimeSignature(event)) {
     if (state.selection !== null) {
-      const { bar, stave } = currentBar(state.selection.start);
+      const { bar } = currentBar(state.selection.start);
       const newTimeSignature = await TimeSignature.edit(bar.timeSignature)
       setTimeSignatureFrom(bar.timeSignature, newTimeSignature);
       changed = true;
@@ -811,9 +822,10 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     }
     const toPaste = state.clipboard.map(n => n === 'bar-break' ? n : Note.copyNote(n));
     const id = state.selection.end;
-    const { bar, stave } = currentBar(id);
+    const { bar } = currentBar(id);
     const indexInBar = bar.notes.findIndex(n => n.id === id);
-    state.score = pasteNotes(toPaste, bar, state.score);
+    const indexToPlace = indexInBar === -1 ? bar.notes.length : indexInBar + 1;
+    state.score = pasteNotes(toPaste, bar, indexToPlace, state.score);
     changed = true;
   } else if (ScoreEvent.isStartResizingUserInterface(event)) {
     state.resizingInterface = true;

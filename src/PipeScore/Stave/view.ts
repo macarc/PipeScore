@@ -2,15 +2,14 @@
   Stave.ts - Stave implementation for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
-import { lineHeightOf, staveGap } from '../global/constants';
-import { Pitch, noteY } from '../global/pitch';
-import { last, nmap, log2 } from '../global/utils';
+import { lineHeightOf } from '../global/constants';
+import { Pitch } from '../global/pitch';
+import { last, nmap } from '../global/utils';
 
 import { svg, V } from '../../render/h';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
-import { NoteModel, TripletModel } from '../Note/model';
 import { Dispatch } from '../Event';
 
 import Bar from '../Bar/functions';
@@ -50,7 +49,6 @@ export default function render(stave: StaveModel, props: StaveProps): V {
     : (stave.bars[barIdx - 1] || null);
 
   const previousBarLastPitch = (index: number): Pitch | null => nmap(previousBar(index), b => Bar.lastPitch(b));
-  const previousBarLastNote = (index: number): NoteModel | TripletModel | null => nmap(previousBar(index), b => Bar.lastNote(b));
 
   const lastStaveTimeSignature = nmap(props.previousStave, previousStave => nmap(last(previousStave.bars), bar => bar.timeSignature));
 

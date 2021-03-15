@@ -4,7 +4,6 @@
 */
 import { V, svg } from '../../render/h';
 import { staveGap, lineGap } from '../global/constants';
-import { last, nmap } from '../global/utils';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';

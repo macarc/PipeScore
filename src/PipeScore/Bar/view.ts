@@ -20,7 +20,7 @@ import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
 import { TimeSignatureModel } from '../TimeSignature/model';
 
 import { GracenoteState } from '../Gracenote/view';
-import renderNote, { widthOfNote, noteHeadOffset, NoteState } from '../Note/view';
+import renderNote, { widthOfNote, NoteState } from '../Note/view';
 
 interface BarProps {
   x: number,

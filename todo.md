@@ -1,10 +1,5 @@
 # To-do list
 
-## Perf
-Bottlenecks:
-* add/removeEventListener - this is the main one, since every patch replaces every event listener. Caching/caching list render will help. Is there a way to avoid doing this without caching?
-* setAttribute
-
 ## Bugs to fix
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
