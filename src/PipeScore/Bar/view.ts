@@ -176,6 +176,7 @@ export default function render(bar: BarModel,props: BarProps): V {
       selectedNotes: [],
       endOfLastStave: props.endOfLastStave,
       dispatch: props.dispatch,
+      onlyNoteInBar: bar.notes.length === 1,
       state: props.noteState,
       gracenoteState: props.gracenoteState,
     });

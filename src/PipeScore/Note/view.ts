@@ -217,6 +217,7 @@ interface NoteProps {
   noteWidth: number,
   endOfLastStave: number
   dispatch: Dispatch,
+  onlyNoteInBar: boolean,
   state: NoteState,
   gracenoteState: GracenoteState,
 }
@@ -318,10 +319,11 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
       const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index) - noteHeadWidth, xOf(index) + noteHeadWidth, props.y);
 
       if (Note.numberOfNotes(group) === 1) {
-        setNoteXY(firstNote, 0);
+        const xOffset = (props.onlyNoteInBar) ? -props.noteWidth/2.0 : 0;
+        setXY(firstNote.id, gracenoteX(0) - noteHeadWidth + xOffset, xOf(0) + noteHeadWidth + xOffset, props.y);
         const gracenoteProps = ({
           // can just be props.x since it is the first note
-          x: props.x,
+          x: props.x + xOffset,
           y: props.y,
           gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
           thisNote: firstNote.pitch,
@@ -330,9 +332,9 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
           state: props.gracenoteState
         });
 
-        const nb = () => props.state.inputtingNotes ? noteBoxes(xOf(0) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : svg('g');
+        const nb = () => props.state.inputtingNotes ? noteBoxes(xOf(0) + noteHeadWidth + xOffset, props.y, props.noteWidth - xOffset, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : svg('g');
 
-        return singleton(firstNote,xOf(0),props.y,props.noteWidth, gracenoteProps, props.previousNote, props.endOfLastStave, nb, props.state.dragged, props.dispatch);
+        return singleton(firstNote,xOf(0) + xOffset,props.y,props.noteWidth, gracenoteProps, props.previousNote, props.endOfLastStave, nb, props.state.dragged, props.dispatch);
       } else {
 
         const cap = (n: number, max: number) =>

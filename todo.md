@@ -7,8 +7,6 @@
 - [ ] Shift-right/left should expand selection?
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Add option to force breaks (e.g. for irregular time signatures)
-- [ ] Only correct notes after placing? It's annoying how they jump.
-- [ ] Work out a good way to have the first note go nearer to the start of the bar
 
 ## General features
 - [X] Single notes
@@ -149,3 +147,4 @@
 - [X] Tieing to first/second note in bar doesn't work, tieing to previous stave doesn't work
 - [X] Make triplets removable
 - [X] Ties to triplets
+- [X] Work out a good way to have the first note go nearer to the start of the bar

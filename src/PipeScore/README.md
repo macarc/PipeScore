@@ -9,7 +9,7 @@ Each component of a score (e.g. note, gracenote, stave) gets its own folder, wit
 * `functions` - this defines a set of functions for transforming the type defined in model
 * `view` - this defines a render function which takes the model defined in model, along with a props object defined in this file, and returns the virtual dom associated with the view
 
-`Note/render` is slightly different - since notes are used in groups rather than individually, `Note/render` takes either a list of notes (that will be rendered in a group) or a triplet.
+The `Note` render function is slightly different - since notes are used in groups rather than individually, the `Note` render function takes either a list of notes (that will be rendered in a group) or a triplet.
 
 PipeScore uses a global controller (in `Controller.ts`) rather than individual controllers for each component because sheet music has a lot of parts that interact very heavily with each other, and it is simpler to have a single controller than separate ones trying to communicate somehow with each other.
 

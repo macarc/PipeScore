@@ -1,3 +1,4 @@
+/* Type declarations for firebase-auth-lite */
 declare module 'firebase-auth-lite' {
 
   export type ProviderUser = {
