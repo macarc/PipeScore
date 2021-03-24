@@ -20,7 +20,7 @@ export default function render(timeSignature: TimeSignatureModel, props: TimeSig
 
   const edit = () => TimeSignature.edit(timeSignature).then(newTimeSignature => props.dispatch({ name: 'edit time signature', timeSignature, newTimeSignature }));
 
-  if (timeSignature === 'cut time') {
+  if (timeSignature.ts === 'cut time') {
     return svg('g', { class: 'time-signature' }, [
       svg('text', { style: 'font-family: serif; font-weight: bold;', 'text-anchor': 'middle', x: props.x, y: props.y + 23, 'font-size': 30 }, { click: edit }, ['C'])
     ]);
@@ -29,11 +29,11 @@ export default function render(timeSignature: TimeSignatureModel, props: TimeSig
       svg('text',
           { 'text-anchor': 'middle', x: props.x, y, style: 'font-family: serif; font-weight: bold;', 'font-size': 23 },
           { click: edit },
-          [timeSignature[0].toString()]),
+          [TimeSignature.top(timeSignature).toString()]),
       svg('text',
           { 'text-anchor': 'middle', x: props.x, y: y + 13, style: 'font-family: serif; font-weight: bold;', 'font-size': 23 },
           { click: edit },
-          [timeSignature[1].toString()]),
+          [TimeSignature.bottom(timeSignature).toString()]),
     ]);
   }
 }

@@ -403,6 +403,7 @@ function removeNoteState() {
   state.demoNote = null;
   state.draggedNote = null;
   state.inputGracenote = null;
+  state.selection = null;
 }
 
 function removeTextState() {
