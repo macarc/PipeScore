@@ -52,6 +52,7 @@ function parseDenominator(text: string): Denominator | null {
   // Turns a string into a Denominator
 
   switch (text) {
+    case '2': return 2;
     case '4': return 4;
     case '8': return 8;
     default: return null;
@@ -71,7 +72,13 @@ function edit(timeSignature: TimeSignatureModel): Promise<TimeSignatureModel> {
   const oldTop = isCutTime ? 2 : top(timeSignature);
   const oldBottom = isCutTime ? 4 : bottom(timeSignature);
 
-  return new Promise((res, _) => dialogueBox(`<input type="number" name="numerator" min="1" value="${oldTop}" /><br /><select name="denominator"><option value="4" name="denominator" ${(oldBottom === 4) ? 'selected' : ''}>4</option><option value="8" name="denominator" ${(oldBottom === 8) ? 'selected' : ''}>8</option></select><label>Cut time <input type="checkbox" ${isCutTime ? 'checked' : ''}/></label><label>Custom breaks (comma separated numbers): <input type="text" name="breaks" pattern="^((([1-9][0-9]*(\.[0-9+])?)(,[1-9][0-9]*(\.[0-9+])?)*)|())$" value="${timeSignature.breaks}" /></label>`, form => {
+  const denominatorOption = (i: Denominator) => `<option value="${i}" name="denominator" ${(oldBottom === i) ? 'selected' : ''}>${i}</option>`;
+
+  return new Promise((res, _) =>
+     /* eslint-disable no-useless-escape */
+     dialogueBox(`<input type="number" name="numerator" min="1" value="${oldTop}" /><br /><select name="denominator">${denominatorOption(2)}${denominatorOption(4)}${denominatorOption(8)}</select><label>Cut time <input type="checkbox" ${isCutTime ? 'checked' : ''}/></label><details><summary>Advanced</summary><label>Custom breaks (comma separated numbers): <input type="text" name="breaks" pattern="^((([1-9][0-9]*(\.[0-9+])?)(,[1-9][0-9]*(\.[0-9+])?)*)|())$" value="${timeSignature.breaks}" /></label></details>`,
+     /* eslint-enable */
+     form => {
     const numElement = form.querySelector('input[name = "numerator"]');
     const denomElement = form.querySelector('select');
     const isCutTime = form.querySelector('input[type="checkbox"]');
@@ -79,7 +86,7 @@ function edit(timeSignature: TimeSignatureModel): Promise<TimeSignatureModel> {
     const breaks = (breaksElement && breaksElement instanceof HTMLInputElement) ?
       // map(parseInt) passes in the index as a radix :)
       // glad I new that already and didn't have to debug...
-      breaksElement.value.split(',').map(i => parseInt(i))
+      breaksElement.value.split(',').filter(l => l.length > 0).map(i => parseInt(i))
     : timeSignature.breaks;
     if (isCutTime && isCutTime instanceof HTMLInputElement && isCutTime.checked) {
       return { ...from('cut time'), breaks };
@@ -94,12 +101,12 @@ function edit(timeSignature: TimeSignatureModel): Promise<TimeSignatureModel> {
   .then(newTimeSignature => res(newTimeSignature || timeSignature)));
 }
 
-const top = (ts: TimeSignatureModel) => {
-  let t = ts.ts;
+const top = (ts: TimeSignatureModel): number => {
+  const t = ts.ts;
   return (t === 'cut time') ? 2 : t[0];
 }
 const bottom = (ts: TimeSignatureModel): Denominator => {
-  let t = ts.ts;
+  const t = ts.ts;
   return (t === 'cut time') ? 2 : t[1];
 }
 

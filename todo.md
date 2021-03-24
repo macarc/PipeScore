@@ -6,7 +6,6 @@
 - [ ] Add optimised list render
 - [ ] Shift-right/left should expand selection?
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
-- [ ] Add option to force breaks (e.g. for irregular time signatures)
 
 ## General features
 - [X] Single notes
@@ -148,3 +147,4 @@
 - [X] Make triplets removable
 - [X] Ties to triplets
 - [X] Work out a good way to have the first note go nearer to the start of the bar
+- [X] Add option to force breaks (e.g. for irregular time signatures)
