@@ -2,7 +2,7 @@
    Copyright (C) 2021 Archie Maclean
  */
 export interface Attributes {
-  [attr: string]: string | number
+  [attr: string]: string | number | boolean
 }
 
 export interface Events {

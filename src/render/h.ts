@@ -50,10 +50,11 @@ function svg(name: string, a: Attributes | Child[] = {}, b: Events | Child[] = {
   }
 }
 
-export function hFrom(id: string): V {
+export function hFrom(element: string | HTMLElement): V {
   // Converts an empty element to a virtual DOM element
+  // If a string is passed, uses that as an id
 
-  const el = document.getElementById(id);
+  const el = (typeof element === 'string') ? document.getElementById(element) : element;
   if (! el) return h('div');
 
   return { name: el.tagName, attrs: {}, events: {}, children: [], node: el };

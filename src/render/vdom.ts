@@ -27,7 +27,11 @@ function patchNew(v: VElement, topLevel = false): Element {
   }
 
   for (const attr in v.attrs) {
-    newElement.setAttribute(attr, v.attrs[attr].toString());
+    if (typeof v.attrs[attr] === 'boolean') {
+      if (v.attrs[attr]) newElement.setAttribute(attr, v.attrs[attr].toString());
+    } else {
+      newElement.setAttribute(attr, v.attrs[attr].toString());
+    }
   }
   for (const event in v.events) {
     newElement.addEventListener(event, v.events[event]);
@@ -78,7 +82,14 @@ export default function patch(before: VElement, after: VElement): boolean {
   after.node = before.node;
   for (const attr in after.attrs) {
     if (before.attrs[attr] !== after.attrs[attr]) {
-      before.node.setAttribute(attr, after.attrs[attr].toString());
+      if (typeof after.attrs[attr] === 'boolean') {
+        if (after.attrs[attr]) before.node.setAttribute(attr, after.attrs[attr].toString());
+        else if (before.attrs[attr]) {
+          before.node.removeAttribute(attr);
+        }
+      } else {
+        before.node.setAttribute(attr, after.attrs[attr].toString());
+      }
     }
   }
   for (const event in after.events) {

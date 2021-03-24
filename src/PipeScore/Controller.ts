@@ -25,6 +25,7 @@ import TextBox from './TextBox/functions';
 import SecondTiming from './SecondTiming/functions';
 import DemoNote from './DemoNote/functions';
 import TimeSignature from './TimeSignature/functions';
+import { editTimeSignature } from './TimeSignature/view';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
@@ -752,7 +753,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   } else if (ScoreEvent.isEditBarTimeSignature(event)) {
     if (state.selection !== null) {
       const { bar } = currentBar(state.selection.start);
-      const newTimeSignature = await TimeSignature.edit(bar.timeSignature)
+      const newTimeSignature = await editTimeSignature(bar.timeSignature)
       setTimeSignatureFrom(bar.timeSignature, newTimeSignature);
       changed = true;
     }

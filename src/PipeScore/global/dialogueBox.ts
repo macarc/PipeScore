@@ -2,35 +2,41 @@
    Copyright (C) 2021 Archie Maclean
  */
 
-// A simple, raw HTML dialogue box
-// It uses raw HTML because it's outside the main dispatch loop and it's not very complicated, so there's no real reason to use VDOM
-// It also is not built for speed (uses set innerHTML), but that's OK since it will never be called lots of times very quickly
+// A simple HTML dialogue box
+// todo: I'm using this more extensively now, could probably do with using VDOM
 
-export default function dialogueBox<A>(inner: string, serialise: (form: HTMLFormElement) => A | null, blank: A): Promise<A> {
+import { h, hFrom, V } from '../../render/h';
+import patch from '../../render/vdom';
+
+export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormElement) => A | null, blank: A): Promise<A> {
   const parent = document.createElement('div');
   parent.id = 'dialogue-parent';
   const back = document.createElement('div');
   back.id = 'dialogue-modal';
   const box = document.createElement('div');
   box.id = 'dialogue-box';
-  box.innerHTML = '<form id="dialogue-form" onsubmit="">' + inner + '<input type="button" id="cancel-btn" value="Cancel" /><input type="submit" class="continue" value="Continue" /></form>';
   parent.appendChild(back);
   parent.appendChild(box);
   document.body.append(parent);
-  return new Promise((res) => {
-    const form = document.getElementById('dialogue-form');
-    if (form) form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      let data: A | null = blank;
-      if (form instanceof HTMLFormElement) data = serialise(form);
-      document.body.removeChild(parent);
-      res(data || blank);
-    });
+  const root = hFrom(box);
+  return new Promise(res => {
+    patch(root, h('div', { id: 'dialogue-box' }, [
+      h('form', { id: 'dialogue-form' }, { submit: (e: Event) => {
+        e.preventDefault();
+        let data: A | null = blank;
+        const form = e.target;
+        if (form instanceof HTMLFormElement) data = serialise(form);
+        document.body.removeChild(parent);
+        res(data || blank);
+      } }, [
+        ...inner,
+        h('input', { type: 'button', id: 'cancel-btn', value: 'Cancel' }, { click: () => {
+          document.body.removeChild(parent);
+          res(blank);
+        } }),
+        h('input', { type: 'submit', class: 'continue', value: 'Continue' })
+      ])
 
-    const cancelBtn = document.getElementById('cancel-btn');
-    if (cancelBtn) cancelBtn.addEventListener('click', () => {
-      document.body.removeChild(parent);
-      res(blank);
-    });
+    ]));
   });
 }

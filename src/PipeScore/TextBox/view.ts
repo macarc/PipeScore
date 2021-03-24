@@ -2,7 +2,7 @@
   TextBox.ts - Text Box functionality for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
-import { svg, V } from '../../render/h';
+import { svg, h, V } from '../../render/h';
 
 import dialogueBox from '../global/dialogueBox';
 
@@ -20,15 +20,17 @@ interface TextBoxProps {
   state: TextBoxState
 }
 
-function editText(dispatch: Dispatch, currentText: TextBoxModel) {//() => props.dispatch({ name: 'edit text', text: tx })
-  dialogueBox(`
-<label>New text value:
-  <input type="text" value="${currentText.text}" onfocus="this.select();" />
-</label>
-<label>Font size:
-  <input type="number" min="5" max="50" value="${currentText.size}"/>
-</label>
-`, (form) => ({
+function editText(dispatch: Dispatch, currentText: TextBoxModel) {
+  dialogueBox([
+    h('label', [
+      'New text value:',
+      h('input', { type: 'text', value: currentText.text })
+    ]),
+    h('label', [
+      'Font size:',
+      h('input', { type: 'number', min: 5, max: 50, value: currentText.size })
+    ])
+  ], (form) => ({
   size: parseInt((form.querySelector('input[type="number"]') as HTMLInputElement).value),
   text: (form.querySelector('input[type="text"]') as HTMLInputElement).value
 }), { size: currentText.size, text: currentText.text })

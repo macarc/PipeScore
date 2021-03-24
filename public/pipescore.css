@@ -228,9 +228,9 @@ text {
   margin: 1rem;
 }
 #dialogue-box input[type="number"] {
-  width: 2rem !important;
+  width: 3rem !important;
 }
 
 #dialogue-box select {
-  width: 2.5rem;
+  width: 3.5rem;
 }
