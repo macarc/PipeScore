@@ -6,7 +6,6 @@
 - [ ] Add optimised list render
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
-- [ ] changing grouping should be kept but also not show the time signature
 
 Hard to reproduce:
 - [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes
@@ -31,7 +30,7 @@ Hard to reproduce:
 - [X] Copy/paste/undo/redo
 - [ ] A easy way to input all of the above
 - [ ] Multiple scores per page?
-- [ ] Documentation
+- [X] Documentation
 - [X] Saving / Loading
 - [ ] Printing
 - [ ] Playback?

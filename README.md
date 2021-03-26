@@ -9,7 +9,9 @@ PipeScore's "killer feature" is reactive gracenotes - pipe embellishments that a
 
 It is currently under development - see `todo.md` for a rough roadmap.
 
-PipeScore uses [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite) and [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite) for a smaller, faster experience.
+PipeScore is written in [TypeScript](https://www.typescriptlang.org/). It uses [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite) and [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite) for a smaller, faster experience.
+
+Building is done with the amazing [esbuild](https://github.com/evanw/esbuild), linting with [eslint](https://eslint.org/), and circular dependency detection with [madge](https://github.com/pahen/madge).
 
 To learn more about how it works, have a look at the READMEs in `src/PipeScore` and `src/render`.
 
