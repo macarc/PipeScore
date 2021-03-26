@@ -126,7 +126,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('hr'),
       h('h2', ['Text']),
       h('button', { class: 'add' }, { click: () => dispatch({ name: 'add text' }) }),
-      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'centre text' }) }, [ 'Toggle centre text' ]),
+      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'centre text' }) }, [ 'Centre text' ]),
       h('hr'),
       h('h2', ['Document']),
       h('button', { class: 'textual' }, ['Print']),

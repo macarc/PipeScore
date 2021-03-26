@@ -18,6 +18,11 @@ button {
   right: 5rem;
 }
 
+#help-page {
+  display: block;
+  margin: 1rem;
+}
+
 .functions {
   display: block;
   padding: .5rem;
