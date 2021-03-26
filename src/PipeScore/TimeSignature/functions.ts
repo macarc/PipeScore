@@ -29,7 +29,7 @@ function beatDivision(ts: TimeSignatureModel): (i: number) => number {
 
   return (i: number) => {
     if (i < ts.breaks.length) {
-      return ts.breaks[i];
+      return ts.breaks[i] / 2.0;
     }
     switch (ts.ts) {
       case 'cut time':

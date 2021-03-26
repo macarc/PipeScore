@@ -3,10 +3,13 @@
   Copyright (C) 2021 Archie Maclean
  */
 import { dispatch } from './Controller';
+import { dialogueBoxIsOpen } from './global/dialogueBox';
 
 import { NoteLength } from './Note/model';
 
 export function keyHandler(e: KeyboardEvent): void {
+  if (dialogueBoxIsOpen) return;
+
   switch (e.key) {
     case "Escape":
       dispatch({ name: 'stop inputting notes' });
@@ -19,9 +22,20 @@ export function keyHandler(e: KeyboardEvent): void {
       if (e.ctrlKey)
         dispatch({ name: 'paste' });
       break;
+    case "Backspace":
     case "Delete":
       dispatch({ name: 'delete selected' });
       break;
+
+    case "ArrowRight":
+      if (e.shiftKey)
+        dispatch({ name: 'expand selection' })
+      break;
+    case "ArrowLeft":
+      if (e.shiftKey)
+        dispatch({ name: 'detract selection' })
+      break;
+
     case ".":
       dispatch({ name: 'toggle dotted' });
       break;

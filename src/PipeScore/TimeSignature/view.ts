@@ -44,13 +44,12 @@ export function editTimeSignature(timeSignature: TimeSignatureModel): Promise<Ti
        h('details', [
          h('summary', ['Advanced']),
          h('label', [
-           'Custom breaks (comma separated numbers): ',
+           'Custom grouping (the number of quavers in each group, separated by `,`)',
            h('input', {
              type: 'text',
              name: 'breaks',
              // Need to do \. for the pattern regex
-             /* eslint-disable-next-line no-useless-escape */
-             pattern: '^((([1-9][0-9]*(\.[0-9+])?)(,[1-9][0-9]*(\.[0-9+])?)*)|())$',
+             pattern: '^([1-9][0-9]*(,\\s*[1-9][0-9]*)*|())$',
              value: timeSignature.breaks.toString()
            })
          ])
@@ -64,7 +63,7 @@ export function editTimeSignature(timeSignature: TimeSignatureModel): Promise<Ti
     const breaks = (breaksElement && breaksElement instanceof HTMLInputElement) ?
       // map(parseInt) passes in the index as a radix :)
       // glad I new that already and didn't have to debug...
-      breaksElement.value.split(',').filter(l => l.length > 0).map(i => parseInt(i))
+      breaksElement.value.split(/,\s*/).filter(l => l.length > 0).map(i => parseInt(i))
     : timeSignature.breaks;
     if (isCutTime && isCutTime instanceof HTMLInputElement && isCutTime.checked) {
       return { ...TimeSignature.from('cut time'), breaks };
@@ -81,7 +80,7 @@ export function editTimeSignature(timeSignature: TimeSignatureModel): Promise<Ti
 
 
 export default function render(timeSignature: TimeSignatureModel, props: TimeSignatureProps): V {
-  const y = props.y + 15;
+  const y = props.y + 14;
 
   const edit = () => editTimeSignature(timeSignature).then(newTimeSignature => props.dispatch({ name: 'edit time signature', timeSignature, newTimeSignature }));
 
@@ -92,11 +91,11 @@ export default function render(timeSignature: TimeSignatureModel, props: TimeSig
   } else {
     return svg('g', { class: 'time-signature' }, [
       svg('text',
-          { 'text-anchor': 'middle', x: props.x, y, style: 'font-family: serif; font-weight: bold;', 'font-size': 23 },
+          { 'text-anchor': 'middle', x: props.x, y, style: 'font-family: serif; font-weight: bold;', 'font-size': 22 },
           { click: edit },
           [TimeSignature.top(timeSignature).toString()]),
       svg('text',
-          { 'text-anchor': 'middle', x: props.x, y: y + 13, style: 'font-family: serif; font-weight: bold;', 'font-size': 23 },
+          { 'text-anchor': 'middle', x: props.x, y: y + 13, style: 'font-family: serif; font-weight: bold;', 'font-size': 22 },
           { click: edit },
           [TimeSignature.bottom(timeSignature).toString()]),
     ]);

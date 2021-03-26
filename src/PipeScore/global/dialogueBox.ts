@@ -8,7 +8,10 @@
 import { h, hFrom, V } from '../../render/h';
 import patch from '../../render/vdom';
 
+export let dialogueBoxIsOpen = false;
+
 export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormElement) => A | null, blank: A): Promise<A> {
+  dialogueBoxIsOpen = true;
   const parent = document.createElement('div');
   parent.id = 'dialogue-parent';
   const back = document.createElement('div');
@@ -22,6 +25,7 @@ export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormEle
   return new Promise(res => {
     patch(root, h('div', { id: 'dialogue-box' }, [
       h('form', { id: 'dialogue-form' }, { submit: (e: Event) => {
+        dialogueBoxIsOpen = false;
         e.preventDefault();
         let data: A | null = blank;
         const form = e.target;
@@ -31,6 +35,7 @@ export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormEle
       } }, [
         ...inner,
         h('input', { type: 'button', id: 'cancel-btn', value: 'Cancel' }, { click: () => {
+          dialogueBoxIsOpen = false;
           document.body.removeChild(parent);
           res(blank);
         } }),

@@ -4,8 +4,12 @@
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
 - [ ] Add optimised list render
-- [ ] Shift-right/left should expand selection?
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
+- [ ] Better time signature font
+
+Hard to reproduce:
+- [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes
+
 
 ## General features
 - [X] Single notes
@@ -148,3 +152,14 @@
 - [X] Ties to triplets
 - [X] Work out a good way to have the first note go nearer to the start of the bar
 - [X] Add option to force breaks (e.g. for irregular time signatures)
+- [X] Set zoom on toggling landscape
+- [X] Demo note is being blocked by note
+- [X] Disable keyboard shortcuts when dialogue box is showing
+- [X] Disable keyboard shortcuts when dialogue box is showing
+- [X] Disable keyboard shortcuts when dialogue box is showing
+- [X] Disable keyboard shortcuts when dialogue box is showing
+- [X] Backspace should work as well as delete
+- [X] Home button
+- [X] 1.5, 2 doesn't work, also 0.5
+- [X] Work in quavers rather than crotchets for grouping
+- [X] Shift-right/left should expand selection

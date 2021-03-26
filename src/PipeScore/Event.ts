@@ -34,6 +34,9 @@ export type ScoreEvent =
   | SetBarRepeat
   | EditBarTimeSignature
 
+  | ExpandSelection
+  | DetractSelection
+
   | AddStave
 
   | EditText
@@ -118,6 +121,20 @@ type MouseUp = {
 }
 export function isMouseUp(e: ScoreEvent): e is MouseUp {
   return e.name === 'mouse up';
+}
+
+type ExpandSelection = {
+  name: 'expand selection'
+}
+export function isExpandSelection(e: ScoreEvent): e is ExpandSelection {
+  return e.name === 'expand selection'
+}
+
+type DetractSelection = {
+  name: 'detract selection'
+}
+export function isDetractSelection(e: ScoreEvent): e is DetractSelection {
+  return e.name === 'detract selection'
 }
 
 type DeleteSelected = {

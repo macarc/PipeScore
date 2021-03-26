@@ -46,6 +46,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
 
   return h('div', [
     h('div', { id: 'topbar', style: `width: calc(${window.innerWidth - state.width}px - 5rem)` }, [
+      h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ]),
       h('div', { id: 'note-inputs' }, [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
