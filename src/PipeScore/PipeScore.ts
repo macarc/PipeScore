@@ -41,12 +41,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         const get = (): Promise<ScoreModel> => db.ref(`scores/${userId}/scores/${scoreId}`).get().then(s => s as unknown as ScoreModel).catch(() => save(Score.init()));
 
         let score = await get();
-        let isNew = false;
 
         // If is a new score, it will not have staves, so save a blank score
         if (!score.staves) {
-          isNew = true;
-          let values = await blankForm();
+          const values = await blankForm();
           score = await save(Score.init(values.name, values.numberOfStaves, values.timeSignature));
         }
         if (score) {

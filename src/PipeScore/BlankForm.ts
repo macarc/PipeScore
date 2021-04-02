@@ -15,7 +15,7 @@ const defaultOptions: ScoreOptions = {
   numberOfStaves: 4,
   timeSignature: TimeSignature.from('cut time')
 }
-const blankForm = async () => {
+const blankForm = async (): Promise<ScoreOptions> => {
   const ts = await dialogueBox([
     h('h1', { style: 'font-size: 2rem' }, ['Quick Start']),
     h('p', ['These values may all be changed later if necessary']),
@@ -41,7 +41,7 @@ const blankForm = async () => {
       'Cut time?'
     ])
   ],
-  (form: HTMLFormElement) => {
+  () => {
     const nameElement = document.getElementById('name');
     const stavesElement = document.getElementById('stave-number');
     const numElement = document.getElementById('num');

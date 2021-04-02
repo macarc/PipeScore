@@ -49,7 +49,7 @@ const init = (name = 'My Tune', numberOfStaves = 2, timeSignature: TimeSignature
   name,
   width: 210 * 5,
   height: 297 * 5,
-  staves: [...Array(numberOfStaves).keys()].map(_ => Stave.init(timeSignature)),
+  staves: [...Array(numberOfStaves).keys()].map(() => Stave.init(timeSignature)),
   textBoxes: [TextBox.init(name, true)],
   secondTimings: []
 });

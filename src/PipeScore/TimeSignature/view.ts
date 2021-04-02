@@ -24,11 +24,9 @@ export function editTimeSignature(timeSignature: TimeSignatureModel): Promise<Ti
   const oldTop = isCutTime ? 2 : TimeSignature.top(timeSignature);
   const oldBottom = isCutTime ? 4 : TimeSignature.bottom(timeSignature);
 
-  // TODO selected and checked (further down) won't work
-
   const denominatorOption = (i: Denominator) => h('option', { value: i, name: 'denominator', selected: oldBottom === i }, [i.toString()]);
 
-  return new Promise((res, _) =>
+  return new Promise(res =>
      dialogueBox([
        h('input', { type: 'number', name: 'numerator', min: 1, value: oldTop }),
        h('br'),

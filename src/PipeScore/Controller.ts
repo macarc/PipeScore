@@ -31,6 +31,7 @@ import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
 import { deleteXY, closestItem, itemBefore } from './global/xy';
+import dialogueBox from './global/dialogueBox';
 import { ID, Item } from './global/types';
 
 import { flatten, deepcopy } from './global/utils';
@@ -599,17 +600,35 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       changed = true;
     }
   } else if (ScoreEvent.isPrint(event)) {
-    const el = document.getElementsByTagName('svg')[0];
+    // Printing is a bit annoying on browsers - to print the SVG element, a new window is created
+    // and that window is printed
+    // That doesn't allow all the control I need though - e.g. margins are there by default which
+    // makes it uncentred, and that can't be changed in JS. So I'm just adding a plea to the user to fix it :)
 
-    // Set width/height to not be affected by zoom
-    el.setAttribute('width', state.score.width.toString());
-    el.setAttribute('height', state.score.height.toString());
+    const blankEl = document.createElement('div');
+    const blankH = hFrom(blankEl);
+    const props = {
+      zoomLevel: 100,
+      selection: null,
+      noteState: { dragged: null, inputtingNotes: false },
+      gracenoteState: { dragged: null },
+      textBoxState: { selectedText: null },
+      demoNote: null,
+      dispatch: () => null
+    };
 
-    const contents = el.outerHTML;
+    // Patch it onto a new element with none of the state (e.g. zoom, selected elements)
+    patch(blankH, h('div', [renderScore(state.score, props)]));
+    const contents = blankEl.innerHTML;
+
+    await dialogueBox([
+      h('p', ["When printing, please ensure you set 'Margins' to 'None', for best results."]),
+      h('p', ['This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.'
+      ])], () => null, null, false);
     const popupWindow = window.open('', '_blank', 'scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no,resizable');
     if (popupWindow) {
       popupWindow.document.open();
-      popupWindow.document.write('<style>* { font-family: sans-serif; }</style>' + contents);
+      popupWindow.document.write(`<style>* { font-family: sans-serif; margin: 0; padding: 0; } @page { size: ${state.score.width > state.score.height ? 'landscape' : 'portrait'}; }</style>` + contents);
       popupWindow.print();
       popupWindow.document.close();
     }
@@ -1148,7 +1167,6 @@ const updateView = () => {
   const scoreProps = {
     zoomLevel: state.zoomLevel,
     selection: state.selection,
-    updateView: () => null,
     noteState: { dragged: state.draggedNote, inputtingNotes: state.demoNote !== null || state.inputGracenote !== null },
     gracenoteState: state.gracenoteState,
     textBoxState: state.textBoxState,

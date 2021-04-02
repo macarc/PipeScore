@@ -20,7 +20,6 @@ import { NoteState } from '../Note/view';
 import { GracenoteState } from '../Gracenote/view';
 
 interface ScoreProps {
-  updateView: (score: ScoreModel) => void,
   zoomLevel: number,
   selection: ScoreSelectionModel | null,
   dispatch: Dispatch,
