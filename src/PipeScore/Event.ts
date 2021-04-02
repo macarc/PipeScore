@@ -66,7 +66,9 @@ export type ScoreEvent =
   | Copy
   | Paste
   | Undo
-  | Redo;
+  | Redo
+
+  | Print;
 
 export type Dispatch = (e: ScoreEvent) => void
 
@@ -396,4 +398,11 @@ type ToggleLandscape = {
 }
 export function isToggleLandscape(e: ScoreEvent): e is ToggleLandscape {
   return e.name === 'toggle landscape';
+}
+
+type Print = {
+  name: 'print'
+}
+export function isPrint(e: ScoreEvent): e is Print {
+  return e.name === 'print';
 }

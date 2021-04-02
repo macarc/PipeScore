@@ -598,6 +598,21 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       state.zoomLevel = event.zoomLevel;
       changed = true;
     }
+  } else if (ScoreEvent.isPrint(event)) {
+    const el = document.getElementsByTagName('svg')[0];
+
+    // Set width/height to not be affected by zoom
+    el.setAttribute('width', state.score.width.toString());
+    el.setAttribute('height', state.score.height.toString());
+
+    const contents = el.outerHTML;
+    const popupWindow = window.open('', '_blank', 'scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no,resizable');
+    if (popupWindow) {
+      popupWindow.document.open();
+      popupWindow.document.write('<style>* { font-family: sans-serif; }</style>' + contents);
+      popupWindow.print();
+      popupWindow.document.close();
+    }
   }
 
   //

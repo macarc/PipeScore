@@ -32,7 +32,7 @@ Hard to reproduce:
 - [ ] Multiple scores per page?
 - [X] Documentation
 - [X] Saving / Loading
-- [ ] Printing
+- [X] Printing
 - [ ] Playback?
 
 

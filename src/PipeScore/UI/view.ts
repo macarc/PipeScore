@@ -129,7 +129,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('button', { class: 'textual' }, { click: () => dispatch({ name: 'centre text' }) }, [ 'Centre text' ]),
       h('hr'),
       h('h2', ['Document']),
-      h('button', { class: 'textual' }, ['Print']),
+      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'print' }) }, ['Print']),
       h('button', { class: 'textual' }, ['Export']),
       h('button', { class: 'textual' }, ['Download']),
       h('button', { class: 'textual' }, { click: () => dispatch({ name: 'toggle landscape' }) }, ['Toggle landscape']),

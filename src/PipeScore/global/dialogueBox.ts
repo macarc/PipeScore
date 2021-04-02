@@ -10,7 +10,7 @@ import patch from '../../render/vdom';
 
 export let dialogueBoxIsOpen = false;
 
-export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormElement) => A | null, blank: A): Promise<A> {
+export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormElement) => A | null, blank: A, cancelable = true): Promise<A> {
   dialogueBoxIsOpen = true;
   const parent = document.createElement('div');
   parent.id = 'dialogue-parent';
@@ -34,14 +34,13 @@ export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormEle
         res(data || blank);
       } }, [
         ...inner,
-        h('input', { type: 'button', id: 'cancel-btn', value: 'Cancel' }, { click: () => {
+        cancelable ? h('input', { type: 'button', id: 'cancel-btn', value: 'Cancel' }, { click: () => {
           dialogueBoxIsOpen = false;
           document.body.removeChild(parent);
           res(blank);
-        } }),
+        } }) : null,
         h('input', { type: 'submit', class: 'continue', value: 'Continue' })
       ])
-
     ]));
   });
 }
