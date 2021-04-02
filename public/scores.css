@@ -22,13 +22,11 @@ button {
   display: block;
   margin: 1rem 0;
 }
-
-.functions {
-  display: block;
-  padding: .5rem;
+table {
+  border-spacing: 1rem 1rem;
 }
-.functions button {
-  margin: .5rem;
+.td-name {
+  width: 50vw;
 }
 li {
   margin: .6rem 0;

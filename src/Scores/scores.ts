@@ -18,16 +18,14 @@ const updateScores = async () => {
     scoreRoot = h('section', { id: 'scores' }, [
       h('p', ['Scores:']),
       scores.length === 0 ? h('p', ['You have no scores.']) : null,
-      h('ul', [
+      h('table', [
         ...scores.map(score =>
-          h('li', [
-            h('a', { href: '/pipescore' + score[1].replace('/scores/', '/') }, [ score[0] ]),
-            h('section', { class: 'functions' }, [
-              h('button', { class: 'rename' }, { click: () => renameScore(score[1]) }, ['Rename']),
-              h('button', { class: 'edit' }, { click: () => window.location.assign('/pipescore' + score[1].replace('/scores/', '/')) }, [ 'Edit' ]),
-                h('button', { class: 'delete' }, { click: () => deleteScore(score[1]) }, [ 'Delete' ])
-            ])
-          ]))
+          h('tr', [
+            h('td', { class: 'td-name' }, [h('a', { href: '/pipescore' + score[1].replace('/scores/', '/') }, [ score[0] ])]),
+            h('td', [h('button', { class: 'rename' }, { click: () => renameScore(score[1]) }, ['Rename'])]),
+            h('td', [h('button', { class: 'edit' }, { click: () => window.location.assign('/pipescore' + score[1].replace('/scores/', '/')) }, [ 'Edit' ])]),
+            h('td', [h('button', { class: 'delete' }, { click: () => deleteScore(score[1]) }, [ 'Delete' ])])
+            ]))
       ])
     ])
     patch(oldScoreRoot, scoreRoot);
