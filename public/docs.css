@@ -1,6 +1,11 @@
-
 main {
   font-family: sans-serif;
   width: 60vw;
   margin: auto;
+}
+
+@media only screen and (max-width: 800px) {
+  main {
+    width: 90vw;
+  }
 }

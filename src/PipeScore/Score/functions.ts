@@ -7,6 +7,7 @@ import { flatten } from '../global/utils';
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
 import { BarModel } from '../Bar/model';
+import { TimeSignatureModel } from '../TimeSignature/model';
 
 import Stave from '../Stave/functions';
 import TextBox from '../TextBox/functions';
@@ -44,11 +45,11 @@ function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
 }
 
 
-const init = (name = 'Blank Score'): ScoreModel => ({
+const init = (name = 'My Tune', numberOfStaves = 2, timeSignature: TimeSignatureModel | undefined = undefined): ScoreModel => ({
   name,
   width: 210 * 5,
   height: 297 * 5,
-  staves: [Stave.init(),Stave.init()],
+  staves: [...Array(numberOfStaves).keys()].map(_ => Stave.init(timeSignature)),
   textBoxes: [TextBox.init(name, true)],
   secondTimings: []
 });

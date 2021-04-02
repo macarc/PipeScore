@@ -8,6 +8,7 @@ import startController from './Controller';
 import { keyHandler } from './KeyHandler';
 import Score from './Score/functions';
 import { ScoreModel } from './Score/model';
+import blankForm from './BlankForm';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 window.addEventListener('DOMContentLoaded', async () => {
@@ -20,10 +21,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   let startedController = false;
 
   auth.listen(async (user) => {
-    if (!user && !startedController) {
-      startController(Score.init(), () => null);
+    if (!user) {
+      if (!startedController) {
+        startController(Score.init(), () => null);
+        startedController = true;
+      }
+    } else if (!startedController) {
       startedController = true;
-    } else {
+
       const path = window.location.pathname.split('/').slice(2);
       if (path.length < 2) {
         window.location.replace('/scores');
@@ -36,18 +41,20 @@ window.addEventListener('DOMContentLoaded', async () => {
         const get = (): Promise<ScoreModel> => db.ref(`scores/${userId}/scores/${scoreId}`).get().then(s => s as unknown as ScoreModel).catch(() => save(Score.init()));
 
         let score = await get();
+        let isNew = false;
 
         // If is a new score, it will not have staves, so save a blank score
         if (!score.staves) {
-          score = await save(Score.init());
+          isNew = true;
+          let values = await blankForm();
+          score = await save(Score.init(values.name, values.numberOfStaves, values.timeSignature));
         }
-        if (score && !startedController) {
+        if (score) {
           startController(score, save);
           startedController = true;
-        } else if (!startedController) {
+        } else {
           score = await save(Score.init());
           startController(score as unknown as ScoreModel, save);
-          startedController = true;
         }
       }
     }
