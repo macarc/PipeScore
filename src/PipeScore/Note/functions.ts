@@ -24,6 +24,14 @@ function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
   return flatten(notes);
 }
 
+function pitchOfNote(note: NoteModel | TripletModel): Pitch {
+  if (isNoteModel(note)) {
+    return note.pitch;
+  } else {
+    return note.third.pitch;
+  }
+}
+
 function flattenTriplets(notes: (NoteModel | TripletModel)[]): (NoteModel | BaseNote)[] {
   const final = [];
   for (let i=0; i < notes.length; i++) {
@@ -230,6 +238,7 @@ export default {
   init,
   initTriplet,
   isTriplet,
+  pitchOfNote,
   isNoteModel,
   flattenTriplets,
   copyNote,

@@ -1,10 +1,13 @@
 import { BarModel } from './model';
+import Bar from './functions';
+
+import Note from '../Note/functions';
 import { PlaybackElement } from '../Playback';
-import { flatten } from '../global/utils';
+import { flatten, nmap } from '../global/utils';
 
 import playNote from '../Note/play';
 
 
-export default function play(bar: BarModel): PlaybackElement[] {
-  return flatten(bar.notes.map(playNote));
+export default function play(bar: BarModel, previous: BarModel | null): PlaybackElement[] {
+  return flatten(bar.notes.map((note, i) => playNote(note, i === 0 ? nmap(previous, p => Bar.lastPitch(p)) : nmap(bar.notes[i - 1], Note.pitchOfNote))));
 }

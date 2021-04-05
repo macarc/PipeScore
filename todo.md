@@ -6,6 +6,7 @@
 - [ ] Add optimised list render
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
+- [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 
 Hard to reproduce:
 - [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes
@@ -33,7 +34,7 @@ Hard to reproduce:
 - [X] Documentation
 - [X] Saving / Loading
 - [X] Printing
-- [ ] Playback?
+- [ ] Playback
 
 
 

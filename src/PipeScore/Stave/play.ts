@@ -1,10 +1,12 @@
 import { StaveModel } from './model';
+import Stave from './functions';
+
 import { PlaybackElement } from '../Playback';
-import { flatten } from '../global/utils';
+import { flatten, nmap } from '../global/utils';
 
 import playBar from '../Bar/play';
 
 
-export default function play(stave: StaveModel): PlaybackElement[] {
-  return flatten(stave.bars.map(playBar));
+export default function play(stave: StaveModel, previous: StaveModel | null): PlaybackElement[] {
+  return flatten(stave.bars.map((b, i) => playBar(b, i === 0 ? nmap(previous, p => Stave.lastBar(p)) : stave.bars[i - 1])));
 }

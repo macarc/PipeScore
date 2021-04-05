@@ -45,7 +45,7 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
   let current = lowa;
   for (const el of elements) {
     if (audioStopped) {
-      audioStopped = true;
+      audioStopped = false;
       break;
     }
     current = pitchToAudio(el.pitch);
