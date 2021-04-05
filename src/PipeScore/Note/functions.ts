@@ -239,6 +239,7 @@ export default {
   pitchOf,
   unGroupNotes,
   groupNotes,
+  lengthToNumber,
   lengthToNumTails,
   hasStem,
   hasDot,

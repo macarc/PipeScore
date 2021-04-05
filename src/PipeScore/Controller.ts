@@ -17,6 +17,8 @@ import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { DemoNoteModel } from './DemoNote/model';
 
+import playScore from './Score/play';
+
 import Score from './Score/functions';
 import Stave from './Stave/functions';
 import Note from './Note/functions';
@@ -39,6 +41,8 @@ import { flatten, deepcopy } from './global/utils';
 import { GracenoteState } from './Gracenote/view';
 import { TextBoxState } from './TextBox/view';
 
+import { PlaybackState, stopAudio, playback } from './Playback';
+
 
 // Apart from state.score, all of these can be modified
 // state.score should not be modified, but copied, so that it can be diffed quickly
@@ -46,6 +50,7 @@ interface State {
   draggedNote: BaseNote | null,
   demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
+  playbackState: PlaybackState,
   zoomLevel: number,
   justClickedNote: boolean,
   interfaceWidth: number,
@@ -65,6 +70,7 @@ interface State {
 const state: State = {
   draggedNote: null,
   gracenoteState: { dragged: null },
+  playbackState: { bpm: 100 },
   zoomLevel: 0,
   textBoxState: { selectedText: null },
   justClickedNote: false,
@@ -599,6 +605,12 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       state.zoomLevel = event.zoomLevel;
       changed = true;
     }
+  } else if (ScoreEvent.isStartPlayback(event)) {
+    playback(state.playbackState, playScore(state.score));
+  } else if (ScoreEvent.isStopPlayback(event)) {
+    stopAudio();
+  } else if (ScoreEvent.isSetPlaybackBpm(event)) {
+    state.playbackState.bpm = event.bpm;
   } else if (ScoreEvent.isPrint(event)) {
     // Printing is a bit annoying on browsers - to print the SVG element, a new window is created
     // and that window is printed
@@ -999,7 +1011,9 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       save(state.score);
     }
   }
-  updateView();
+  if (changed) {
+    updateView();
+  }
 }
 
 
@@ -1176,6 +1190,7 @@ const updateView = () => {
   const uiProps = {
     zoomLevel: state.zoomLevel,
     inputLength: (state.demoNote && state.demoNote.type === 'note') ? state.demoNote.length : null,
+    playbackBpm: state.playbackState.bpm,
     width: state.interfaceWidth,
     gracenoteInput: state.inputGracenote
   }

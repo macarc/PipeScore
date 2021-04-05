@@ -15,6 +15,7 @@ import Note from '../Note/functions';
 export interface UIState {
   inputLength: NoteLength | null,
   gracenoteInput: GracenoteModel | null,
+  playbackBpm: number,
   width: number,
   zoomLevel: number
 }
@@ -128,6 +129,13 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('button', { class: 'add' }, { click: () => dispatch({ name: 'add text' }) }),
       h('button', { class: 'textual' }, { click: () => dispatch({ name: 'centre text' }) }, [ 'Centre text' ]),
       h('hr'),
+      h('h2', ['Playback (work in progress)']),
+      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'start playback' }) }, ['Play']),
+      h('button', { class: 'textual' }, { click: () => dispatch({ name: 'stop playback' }) }, ['Stop']),
+      h('label', { style: 'display: block' }, [
+        'Playback speed:',
+        h('input', { type: 'range', min: '30', max: '200', step: '1', value: state.playbackBpm }, { input: e => dispatch({ name: 'set playback bpm', bpm: parseInt((e.target as HTMLInputElement).value) }) }),
+      ]),
       h('h2', ['Document']),
       h('button', { class: 'textual' }, { click: () => dispatch({ name: 'print' }) }, ['Print']),
       h('button', { class: 'textual' }, ['Export']),

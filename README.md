@@ -29,7 +29,7 @@ Piping features:
 * Bars/Staves/e.t.c.
 
 Programming features:
-* ~4000 lines of TypeScript
+* ~4500 source lines of TypeScript
 * Custom virtual DOM
 * Tiny - less than 25kB JS, minified + gzipped
 

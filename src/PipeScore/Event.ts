@@ -68,7 +68,11 @@ export type ScoreEvent =
   | Undo
   | Redo
 
-  | Print;
+  | Print
+
+  | StartPlayback
+  | StopPlayback
+  | SetPlaybackBpm;
 
 export type Dispatch = (e: ScoreEvent) => void
 
@@ -405,4 +409,26 @@ type Print = {
 }
 export function isPrint(e: ScoreEvent): e is Print {
   return e.name === 'print';
+}
+
+type StartPlayback = {
+  name: 'start playback'
+}
+export function isStartPlayback(e: ScoreEvent): e is StartPlayback {
+  return e.name === 'start playback';
+}
+
+type StopPlayback = {
+  name: 'stop playback'
+}
+export function isStopPlayback(e: ScoreEvent): e is StopPlayback {
+  return e.name === 'stop playback';
+}
+
+type SetPlaybackBpm = {
+  name: 'set playback bpm',
+  bpm: number
+}
+export function isSetPlaybackBpm(e: ScoreEvent): e is SetPlaybackBpm {
+  return e.name === 'set playback bpm';
 }
