@@ -34,12 +34,13 @@ doc.save()
 
 ## HOME icon
 doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/home.svg', size=(width,height))
-house_width = 60
-door_width = 20
+house_width = 50
+door_width = 15
 door_height = 30
 house_height = 40
 house_y = 40
-roof_y = 20
+roof_y = 15
+overhang_size = 10
 
 margin = (width - house_width) / 2.0
 house_wall_size = (house_width - door_width) / 2.0
@@ -60,7 +61,7 @@ doc.add(doc.rect(
     fill="black"
     ))
 doc.add(doc.polygon(
-    points=[(margin,house_y),(width - margin,house_y),(margin + house_width / 2,roof_y)],
+    points=[(margin - overhang_size,house_y),(width - margin + overhang_size,house_y),(margin + house_width / 2,roof_y)],
     fill="black"
     ))
 doc.save()

@@ -18,10 +18,18 @@ noscript {
 }
 label {
   font-size: 0.8rem;
+  margin: 0.2rem;
 }
 
-#ui button:not(.textual) {
+button {
+  border: none;
+  outline: none;
   margin: 0.2rem;
+}
+input[type="range"] {
+  display: block;
+}
+#ui button:not(.textual) {
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -31,6 +39,9 @@ label {
   width: 3rem;
   height: 3rem;
   font-size: 0.8rem;
+}
+#ui button.textual {
+  vertical-align: top;
 }
 #ui #sidebar {
   position: fixed;
@@ -86,7 +97,7 @@ label {
 
 .delete {
   background-image: url('./images/bin.png');
-  background-position: .6rem .6rem !important;
+  background-position: .75rem .75rem !important;
   background-size: 1.5rem 1.5rem !important;
 }
 .add {
@@ -152,7 +163,7 @@ svg {
 }
 
 #copy, #paste {
-  background-position: .6rem .6rem !important;
+  background-position: .75rem .75rem !important;
   background-size: 1.5rem 1.5rem !important;
 }
 #copy {
