@@ -7,7 +7,13 @@
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
-
+- [ ] Widths:
+    - [ ] Gap before gracenotes
+    - [ ] Anacruses
+    - [ ] Gracenote not properly relying on note before
+    - [ ] Start of bar
+    - [ ] Note boxes at end of bar weirdness
+ 
 Hard to reproduce:
 - [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes
 

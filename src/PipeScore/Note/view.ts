@@ -8,6 +8,7 @@ import { noteBoxes } from '../global/noteboxes';
 import { Pitch, noteOffset, noteY } from '../global/pitch';
 import { setXY } from '../global/xy';
 import { nlast, nmap } from '../global/utils';
+import width, { Width } from '../global/width';
 
 import { NoteModel, TripletModel, BaseNote, PreviousNote } from './model';
 import { Dispatch } from '../Event';
@@ -15,28 +16,32 @@ import { Dispatch } from '../Event';
 import Note from './functions';
 import Gracenote from '../Gracenote/functions';
 
-import renderGracenote, { GracenoteProps, GracenoteState } from '../Gracenote/view';
+import renderGracenote, { GracenoteProps, GracenoteState, gracenoteWidth } from '../Gracenote/view';
 
 const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
 // note that this is actually *half* the width
-const noteHeadWidth = 5;
+const noteHeadRadius = 5;
+const noteHeadWidth = 2 * noteHeadRadius;
 
-// Finds the width of the note in beat widths
-export const widthOfNote = (note: BaseNote | NoteModel | TripletModel, prevNote: Pitch | null): number => Note.isTriplet(note) ?
-  3 + [{ n: note.first, p: prevNote }, { n: note.second, p: note.first.pitch }, { n: note.third, p: note.second.pitch }].reduce((acc, { n, p }) => acc + gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(n.gracenote, n.pitch, p), 0)
- : 1 +
-  ((Note.isNoteModel(note) && note.tied)
-    ?  0
-    : (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, prevNote)));
+const widthOfGracenote = (note: BaseNote | NoteModel, prevNote: Pitch | null) => (Note.isNoteModel(note) && note.tied)
+  ? width.init(0,0)
+  : gracenoteWidth(note.gracenote, note.pitch, prevNote);
+
+export const widthOfNote = (note: NoteModel | TripletModel, prevNote: Pitch | null): Width => Note.isTriplet(note) ?
+    [{ n: note.first, tied: note.tied, p: prevNote },
+     { n: note.second, p: note.first.pitch },
+     { n: note.third, p: note.second.pitch }]
+    .reduce((acc, { n, p }) => width.add(acc, widthOfGracenote(n, p)), width.init(3 * noteHeadWidth, 3))
+ : width.add(width.init(noteHeadWidth, 1), Note.hasDot(note.length) ? width.init(5, 0) : width.init(0, 0), widthOfGracenote(note, prevNote));
 
 // Finds the total width of the note array in beat widths
-export const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): number =>
-  notes.map((n,i) => widthOfNote(n, i === 0 ? prevNote : notes[i - 1].pitch)).reduce((a,b) => a + b, 0);
+const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): Width =>
+  notes.map((n,i) => widthOfNote(n, i === 0 ? prevNote : notes[i - 1].pitch)).reduce((a,b) => width.add(a, b), width.zero());
 
 // Finds the offset that the note head has due to its gracenote
-export const noteHeadOffset = (beatWidth: number, note: BaseNote, previousPitch: Pitch | null): number => beatWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(note.gracenote, note.pitch, previousPitch);
+export const noteHeadOffset = (beatWidth: number, note: BaseNote, previousPitch: Pitch | null): number => width.reify(gracenoteWidth(note.gracenote, note.pitch, previousPitch), beatWidth);
 
 function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): V {
   // Draws beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
@@ -185,7 +190,7 @@ function singleton(note: NoteModel, x: number, staveY: number, noteWidth: number
   // Draws a single note
 
   const y = noteY(staveY, note.pitch);
-  const stemX = x - noteHeadWidth;
+  const stemX = x - noteHeadRadius;
   const stemY = y + 30;
   const numberOfTails = Note.lengthToNumTails(note.length);
 
@@ -227,12 +232,16 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
 
   // This is mostly just repetitive, but there's enough different that it isn't worth trying to reuse code
   const notes = Note.tripletNoteModels(triplet);
+  const firstGracenoteWidth = width.reify(gracenoteWidth(triplet.first.gracenote, triplet.first.pitch, nmap(props.previousNote, n => n.pitch)), props.noteWidth);
+  const secondGracenoteWidth = width.reify(gracenoteWidth(triplet.second.gracenote, triplet.second.pitch, triplet.first.pitch), props.noteWidth);
+  const thirdGracenoteWidth = width.reify(gracenoteWidth(triplet.third.gracenote, triplet.third.pitch, triplet.second.pitch), props.noteWidth);
+
   const firstGracenoteX = props.x;
-  const firstX = firstGracenoteX + props.noteWidth * gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.first.gracenote, triplet.first.pitch, nmap(props.previousNote, n => n.pitch));
+  const firstX = firstGracenoteX + firstGracenoteWidth;
   const secondGracenoteX = firstX + props.noteWidth;
-  const secondX = secondGracenoteX + props.noteWidth * (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.second.gracenote, triplet.second.pitch, triplet.first.pitch));
+  const secondX = secondGracenoteX + secondGracenoteWidth;
   const thirdGracenoteX = secondX + props.noteWidth;
-  const thirdX = thirdGracenoteX + props.noteWidth * (gracenoteToNoteWidthRatio * Gracenote.numberOfNotes(triplet.third.gracenote, triplet.third.pitch, triplet.second.pitch));
+  const thirdX = thirdGracenoteX + thirdGracenoteWidth;
 
 
   const firstY = noteY(props.y, triplet.first.pitch);
@@ -244,25 +253,25 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   const thirdStemY = Note.hasBeam(triplet.length) ? Math.max(defaultHeight(triplet.third.pitch), secondY + 20) : defaultHeight(triplet.third.pitch);
   const secondStemY = Note.hasBeam(triplet.length) ? (secondX - firstX) / (thirdX - firstX) * (thirdStemY - firstStemY) + firstStemY : defaultHeight(triplet.second.pitch);
 
-  setXY(triplet.first.id, firstGracenoteX - noteHeadWidth, firstX + noteHeadWidth, props.y);
-  setXY(triplet.second.id, secondGracenoteX - noteHeadWidth, secondX + noteHeadWidth, props.y);
-  setXY(triplet.third.id, thirdGracenoteX - noteHeadWidth, thirdX + noteHeadWidth, props.y);
+  setXY(triplet.first.id, firstGracenoteX - noteHeadRadius, firstX + noteHeadRadius, props.y);
+  setXY(triplet.second.id, secondGracenoteX - noteHeadRadius, secondX + noteHeadRadius, props.y);
+  setXY(triplet.third.id, thirdGracenoteX - noteHeadRadius, thirdX + noteHeadRadius, props.y);
 
   const firstGracenoteProps = ({
     x: firstGracenoteX, y: props.y,
-    gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
+    noteWidth: props.noteWidth,
     thisNote: triplet.first.pitch, previousNote: props.previousNote && props.previousNote.pitch,
     dispatch: props.dispatch, state: props.gracenoteState
   });
   const secondGracenoteProps = ({
     x: secondGracenoteX, y: props.y,
-    gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
+    noteWidth: props.noteWidth,
     thisNote: triplet.second.pitch, previousNote: triplet.first.pitch,
     dispatch: props.dispatch, state: props.gracenoteState
   });
   const thirdGracenoteProps = ({
     x: thirdGracenoteX, y: props.y,
-    gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
+    noteWidth: props.noteWidth,
     thisNote: triplet.third.pitch, previousNote: triplet.second.pitch,
     dispatch: props.dispatch, state: props.gracenoteState
   });
@@ -271,24 +280,24 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
     svg('g', { class: 'first' }, [
       noteHead(firstX, firstY, notes[0], (event) => props.dispatch({ name: 'note clicked', note: triplet.first, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.first.gracenote, firstGracenoteProps),
-      svg('line', { x1: firstX - noteHeadWidth, x2: firstX - noteHeadWidth, y1: firstY, y2: firstStemY, stroke: 'black' }),
+      svg('line', { x1: firstX - noteHeadRadius, x2: firstX - noteHeadRadius, y1: firstY, y2: firstStemY, stroke: 'black' }),
     ]),
-    props.state.inputtingNotes ? noteBoxes(firstX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'second', triplet })) : svg('g'),
+    props.state.inputtingNotes ? noteBoxes(firstX + noteHeadRadius, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'second', triplet })) : svg('g'),
     svg('g', { class: 'second' }, [
       noteHead(secondX, secondY, notes[1], (event) => props.dispatch({ name: 'note clicked', note: triplet.second, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.second.gracenote, secondGracenoteProps),
-      svg('line', { x1: secondX - noteHeadWidth, x2: secondX - noteHeadWidth, y1: secondY, y2: secondStemY, stroke: 'black' }),
-      beamFrom(firstX - noteHeadWidth, firstStemY, secondX - noteHeadWidth, secondStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
+      svg('line', { x1: secondX - noteHeadRadius, x2: secondX - noteHeadRadius, y1: secondY, y2: secondStemY, stroke: 'black' }),
+      beamFrom(firstX - noteHeadRadius, firstStemY, secondX - noteHeadRadius, secondStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
     ]),
-    props.state.inputtingNotes ? noteBoxes(secondX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'third', triplet })) : svg('g'),
+    props.state.inputtingNotes ? noteBoxes(secondX + noteHeadRadius, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'third', triplet })) : svg('g'),
     svg('g', { class: 'first' }, [
       noteHead(thirdX, thirdY, notes[2], (event) => props.dispatch({ name: 'note clicked', note: triplet.third, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.third.gracenote, thirdGracenoteProps),
-      svg('line', { x1: thirdX - noteHeadWidth, x2: thirdX - noteHeadWidth, y1: thirdY, y2: thirdStemY, stroke: 'black' }),
-      beamFrom(secondX - noteHeadWidth, secondStemY, thirdX - noteHeadWidth, thirdStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
+      svg('line', { x1: thirdX - noteHeadRadius, x2: thirdX - noteHeadRadius, y1: thirdY, y2: thirdStemY, stroke: 'black' }),
+      beamFrom(secondX - noteHeadRadius, secondStemY, thirdX - noteHeadRadius, thirdStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
     ]),
     tripletLine(props.y, firstX, thirdX, firstY, thirdY),
-    props.state.inputtingNotes ? noteBoxes(thirdX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet })) : svg('g')
+    props.state.inputtingNotes ? noteBoxes(thirdX + noteHeadRadius, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet })) : svg('g')
   ]);
 }
 
@@ -302,37 +311,38 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
     if (group.length === 0) {
       return svg('g')
     } else {
-      // relativeIndex takes a note and returns not the actual index, but the index including
-      // gracenoteToNoteWidthRatio * all the gracenotes up to it
-      // useful for x calculations
-
-      const relativeIndexOfGracenote = (index: number) => totalWidth(group.slice(0,index), previousPitch);
-      const relativeIndexOf = (note: NoteModel,index: number) => relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (Gracenote.numberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : group[index - 1].pitch)));
-      const xOf = (noteIndex: number) => props.x + relativeIndexOf(group[noteIndex],noteIndex) * props.noteWidth;
+      // totalWidth(group.slice(0,index), previousPitch).extend * beatWidth;
+      // relativeIndexOfGracenote(index) + (note.tied ? 0 : gracenoteToNoteWidthRatio * (Gracenote.numberOfNotes(note.gracenote,note.pitch, index === 0 ? previousPitch : group[index - 1].pitch)));
+      const xOfGracenote = (noteIndex: number) => props.x + width.reify(totalWidth(group.slice(0, noteIndex), noteIndex === 0 ? previousPitch : group[noteIndex - 1].pitch), props.noteWidth);
+      const xOf = (noteIndex: number) => {
+          const note = group[noteIndex];
+          return xOfGracenote(noteIndex) + width.reify(gracenoteWidth(note.gracenote,note.pitch,noteIndex === 0 ? previousPitch : group[noteIndex - 1].pitch), props.noteWidth);
+      }
       const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
-      const stemXOf = (index: number) => xOf(index) - noteHeadWidth;
+      const stemXOf = (index: number) => xOf(index) - noteHeadRadius;
+
+      const totalXWidth = width.reify(totalWidth(group, previousPitch), props.noteWidth);
 
       const firstNote: NoteModel = group[0];
       const lastNote: NoteModel = nlast(group);
 
-      const gracenoteX = (index: number) => props.x + props.noteWidth * relativeIndexOfGracenote(index);
-      const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, gracenoteX(index) - noteHeadWidth, xOf(index) + noteHeadWidth, props.y);
+      const setNoteXY = (note: NoteModel, index: number) => setXY(note.id, xOfGracenote(index) - noteHeadRadius, xOf(index) + noteHeadRadius, props.y);
 
       if (Note.numberOfNotes(group) === 1) {
-        const xOffset = (props.onlyNoteInBar) ? -props.noteWidth/2.0 : 0;
-        setXY(firstNote.id, gracenoteX(0) - noteHeadWidth + xOffset, xOf(0) + noteHeadWidth + xOffset, props.y);
+        const xOffset = (props.onlyNoteInBar) ? -props.noteWidth / 2.0 : 0;
+        setXY(firstNote.id, xOfGracenote(0) - noteHeadRadius + xOffset, xOf(0) + noteHeadRadius + xOffset, props.y);
         const gracenoteProps = ({
           // can just be props.x since it is the first note
           x: props.x + xOffset,
           y: props.y,
-          gracenoteWidth: props.noteWidth * gracenoteToNoteWidthRatio,
+          noteWidth: props.noteWidth,
           thisNote: firstNote.pitch,
           previousNote: previousPitch,
           dispatch: props.dispatch,
           state: props.gracenoteState
         });
 
-        const nb = () => props.state.inputtingNotes ? noteBoxes(xOf(0) + noteHeadWidth + xOffset, props.y, props.noteWidth - xOffset, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : svg('g');
+        const nb = () => props.state.inputtingNotes ? noteBoxes(xOf(0) + noteHeadRadius + xOffset, props.y, props.noteWidth - xOffset, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: firstNote })) : svg('g');
 
         return singleton(firstNote,xOf(0) + xOffset,props.y,props.noteWidth, gracenoteProps, props.previousNote, props.endOfLastStave, nb, props.state.dragged, props.dispatch);
       } else {
@@ -363,7 +373,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
           }
         }, [firstNote,0, false] as [NoteModel,number,boolean]);
 
-        const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * relativeIndexOf(lowestNote,lowestNoteIndex) / totalWidth(group,previousPitch));
+        const diffForLowest = 30 + noteOffset(lowestNote.pitch) - (multipleLowest ? 0 : diff * xOf(lowestNoteIndex) / totalXWidth);
 
         const stemYOf = (note: NoteModel, index: number) =>
           (Note.hasBeam(note.length) ?
@@ -372,7 +382,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
              // straight line if there is more than one lowest note
                ? 0
                // otherwise use a slant
-                 : diff * relativeIndexOf(note,index) / totalWidth(group,previousPitch))
+                 : diff * xOf(index) / totalXWidth)
                  // offset so that the lowest note is always a constant height
                  + diffForLowest
                  : noteY(props.y, note.pitch) + 30)
@@ -382,9 +392,9 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
                      setNoteXY(note, index);
                      const previousNote = group[index - 1] || null;
                      const gracenoteProps = ({
-                       x: gracenoteX(index),
+                       x: xOfGracenote(index),
                        y: props.y,
-                       gracenoteWidth: props.noteWidth * 0.6,
+                       noteWidth: props.noteWidth,
                        thisNote: note.pitch,
                        previousNote: nmap(previousNote, p => p.pitch),
                        dispatch: props.dispatch,
@@ -404,7 +414,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
 
                        noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
 
-                       props.state.inputtingNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : svg('g'),
+                       props.state.inputtingNotes ? noteBoxes(xOf(index) + noteHeadRadius, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : svg('g'),
 
                        svg('line', { x1: stemXOf(index), x2: stemXOf(index), y1: yOf(note), y2: stemYOf(note, index), stroke: 'black' })
                      ])

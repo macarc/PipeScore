@@ -83,7 +83,7 @@ const state: State = {
   draggedText: null,
   draggedSecondTiming: null,
   score: Score.init(),
-  history: [Score.init()],
+  history: [],
   future: [],
   view: null,
   uiView: null
@@ -498,6 +498,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       } else {
         state.score = changeTripletNoteFrom(event.note.id, { ...event.note, gracenote: state.inputGracenote }, state.score);
       }
+      shouldSave = true;
     } else {
       state.demoNote = null;
       state.draggedNote = event.note;
@@ -652,8 +653,9 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   //
   else if (ScoreEvent.isUndo(event)) {
     if (state.history.length > 1) {
-      state.score = state.history[state.history.length - 2];
       const last = state.history.pop();
+      const beforeLast = state.history.pop();
+      state.score = beforeLast as ScoreModel;
       if (last) state.future.push(last);
       removeState(state);
       changed = true;
@@ -1242,6 +1244,7 @@ export default function startController(score: ScoreModel, saveDB: (score: Score
 
   save = saveDB;
   state.score = score;
+  state.history = [JSON.parse(JSON.stringify(score))];
   state.zoomLevel = 100 * .9 * (Math.max(window.innerWidth, 800) - 300) / score.width;
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch({ name: 'mouse up' }));

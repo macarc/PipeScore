@@ -5,7 +5,8 @@
 import { svg, V } from '../../render/h';
 import { Pitch, noteY } from '../global/pitch';
 import { lineGap } from '../global/constants';
-import { nlast } from '../global/utils';
+import { nlast, log } from '../global/utils';
+import width, { Width } from '../global/width';
 
 import { Dispatch } from '../Event';
 import { GracenoteModel, SingleGracenote } from './model';
@@ -16,7 +17,15 @@ import Gracenote from './functions';
 
 const tailXOffset = 3;
 // actually this is half of the head width
-const gracenoteHeadWidth = 3.5;
+const gracenoteHeadRadius = 3.5;
+const gracenoteHeadWidth = 2 * gracenoteHeadRadius
+const gracenoteToNoteWidthRatio = 0.6;
+
+export function gracenoteWidth(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Width {
+    const notes = Gracenote.notesOf(gracenote, thisNote, previousNote);
+    const length = Gracenote.isInvalid(notes) ? notes.gracenote.length : notes.length
+    return width.init(2 * gracenoteHeadRadius * length, gracenoteToNoteWidthRatio * (length === 0 ? length : length + 1));
+}
 
 
 function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean, isBeingDragged = false): V {
@@ -26,10 +35,10 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean,
   const ledgerRight = 5.1;
   const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg('g', { class: 'gracenote-head' }, [
-    isBeingDragged ? svg('rect', { x: x - 1.5 * gracenoteHeadWidth, y: y - 5, width: 3 * gracenoteHeadWidth, height: 10, fill: 'orange', opacity: 0.9 }) : null,
+    isBeingDragged ? svg('rect', { x: x - 1.5 * gracenoteHeadRadius, y: y - 5, width: 3 * gracenoteHeadRadius, height: 10, fill: 'orange', opacity: 0.9 }) : null,
 
     (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: 'black' }) : null,
-    svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadWidth, ry: 2.5, transform: rotateText, fill: isValid ? 'black' : 'red', 'pointer-events': 'none' }),
+    svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadRadius, ry: 2.5, transform: rotateText, fill: isValid ? 'black' : 'red', 'pointer-events': 'none' }),
 
     svg('line', { x1: x + tailXOffset, x2: x + tailXOffset, y1: y, y2: beamY, stroke: 'black' })
 
@@ -44,7 +53,7 @@ function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, grac
   // Draws a single gracenote
 
   const y = noteY(staveY, note);
-  const boxWidth = 2.5 * gracenoteHeadWidth;
+  const boxWidth = 2.5 * gracenoteHeadRadius;
   const boxHeight = 6;
 
   return svg('g', { class: 'gracenote' }, [
@@ -68,7 +77,7 @@ export interface GracenoteProps {
   previousNote: Pitch | null,
   y: number,
   x: number,
-  gracenoteWidth: number,
+  noteWidth: number,
   dispatch: Dispatch,
   state: GracenoteState
 }
@@ -83,7 +92,9 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     const grace = Gracenote.notesOf(gracenote, props.thisNote, props.previousNote);
     const uniqueNotes: { note: Pitch }[] = Gracenote.isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
 
-    const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * props.gracenoteWidth + gracenoteHeadWidth;
+    const width = gracenoteToNoteWidthRatio * props.noteWidth;
+
+    const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * (width + gracenoteHeadWidth);
     const y = (note: Pitch) => noteY(props.y, note);
     if (uniqueNotes.length === 0) {
       return svg('g');

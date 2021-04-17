@@ -25,6 +25,7 @@ button {
   border: none;
   outline: none;
   margin: 0.2rem;
+  cursor: pointer;
 }
 input[type="range"] {
   display: block;
