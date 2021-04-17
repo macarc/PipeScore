@@ -44,7 +44,7 @@ const beatsOf = (bar: BarModel, previousPitch: Pitch | null): Width[] => bar.not
     [width.init(0,1)]);
 
 
-const minimumBeatWidth = 30;
+const minimumBeatWidth = 15;
 
 
 export function widthOfAnacrusis(anacrusis: BarModel, previousTimeSignature: TimeSignatureModel | null, previousPitch: Pitch | null): number {
@@ -181,7 +181,7 @@ export default function render(bar: BarModel,props: BarProps): V {
       selectedNotes: [],
       endOfLastStave: props.endOfLastStave,
       dispatch: props.dispatch,
-      onlyNoteInBar: bar.notes.length === 1,
+      onlyNoteInBar: !bar.isAnacrusis && (bar.notes.length === 1),
       state: props.noteState,
       gracenoteState: props.gracenoteState,
     });

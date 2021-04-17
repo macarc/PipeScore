@@ -7,12 +7,6 @@
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
-- [ ] Widths:
-    - [ ] Gap before gracenotes
-    - [ ] Anacruses
-    - [ ] Gracenote not properly relying on note before
-    - [ ] Start of bar
-    - [ ] Note boxes at end of bar weirdness
  
 Hard to reproduce:
 - [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes
@@ -162,11 +156,14 @@ Hard to reproduce:
 - [X] Set zoom on toggling landscape
 - [X] Demo note is being blocked by note
 - [X] Disable keyboard shortcuts when dialogue box is showing
-- [X] Disable keyboard shortcuts when dialogue box is showing
-- [X] Disable keyboard shortcuts when dialogue box is showing
-- [X] Disable keyboard shortcuts when dialogue box is showing
 - [X] Backspace should work as well as delete
 - [X] Home button
 - [X] 1.5, 2 doesn't work, also 0.5
 - [X] Work in quavers rather than crotchets for grouping
 - [X] Shift-right/left should expand selection
+- [X] Widths:
+    - [X] Gap before gracenotes
+    - [X] Anacruses
+    - [X] Gracenote not properly relying on note before
+    - [X] Start of bar
+    - [X] Note boxes at end of bar weirdness
