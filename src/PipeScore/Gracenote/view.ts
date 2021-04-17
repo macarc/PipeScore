@@ -5,7 +5,7 @@
 import { svg, V } from '../../render/h';
 import { Pitch, noteY } from '../global/pitch';
 import { lineGap } from '../global/constants';
-import { nlast, log } from '../global/utils';
+import { nlast } from '../global/utils';
 import width, { Width } from '../global/width';
 
 import { Dispatch } from '../Event';
@@ -24,7 +24,7 @@ const gracenoteToNoteWidthRatio = 0.6;
 export function gracenoteWidth(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Width {
     const notes = Gracenote.notesOf(gracenote, thisNote, previousNote);
     const length = Gracenote.isInvalid(notes) ? notes.gracenote.length : notes.length
-    return width.init(2 * gracenoteHeadRadius * length, gracenoteToNoteWidthRatio * (length === 0 ? length : length));
+    return width.init(2 * gracenoteHeadRadius * length, gracenoteToNoteWidthRatio * (length + 1));
 }
 
 

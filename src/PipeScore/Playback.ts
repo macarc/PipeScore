@@ -39,9 +39,11 @@ function pitchToAudio(pitch: Pitch): HTMLAudioElement {
 
 let audioStopped = false;
 
-export const stopAudio = () => audioStopped = true;
+export const stopAudio = (): void => {
+    audioStopped = true;
+}
 
-export async function playback(state: PlaybackState, elements: PlaybackElement[]) {
+export async function playback(state: PlaybackState, elements: PlaybackElement[]): Promise<void> {
   let current = lowa;
   for (const el of elements) {
     if (audioStopped) {

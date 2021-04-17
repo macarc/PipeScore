@@ -15,7 +15,7 @@ export interface Width {
   min: number,
   // extend - the relative fraction that the element takes up when expanded (like fr in display: flex)
   extend: number
-};
+}
 
 function init(min: number, extend: number): Width {
     return { min, extend };
@@ -36,7 +36,8 @@ function mul(width: Width, val: number): Width {
 }
 
 function reify(width: Width, beatWidth: number): number {
-    return width.min + beatWidth * width.extend;
+    const reified = beatWidth * width.extend;
+    return (reified > width.min) ? reified : width.min;
 }
 
 function zero(): Width {

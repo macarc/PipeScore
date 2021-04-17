@@ -14,11 +14,9 @@ import { NoteModel, TripletModel, BaseNote, PreviousNote } from './model';
 import { Dispatch } from '../Event';
 
 import Note from './functions';
-import Gracenote from '../Gracenote/functions';
 
 import renderGracenote, { GracenoteProps, GracenoteState, gracenoteWidth } from '../Gracenote/view';
 
-const gracenoteToNoteWidthRatio = 0.6;
 const tailGap = 5;
 const shortTailLength = 10;
 // note that this is half the width of the note, note the actual radius

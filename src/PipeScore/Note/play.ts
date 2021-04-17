@@ -6,9 +6,6 @@ import Note from './functions';
 import playGracenote from '../Gracenote/play';
 
 import { PlaybackElement } from '../Playback';
-import { flatten } from '../global/utils';
-
-import playNote from '../Note/play';
 
 
 export default function play(note: NoteModel | TripletModel, previous: Pitch | null): PlaybackElement[] {
