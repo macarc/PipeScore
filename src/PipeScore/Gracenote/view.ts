@@ -24,7 +24,7 @@ const gracenoteToNoteWidthRatio = 0.6;
 export function gracenoteWidth(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch | null): Width {
     const notes = Gracenote.notesOf(gracenote, thisNote, previousNote);
     const length = Gracenote.isInvalid(notes) ? notes.gracenote.length : notes.length
-    return width.init(2 * gracenoteHeadRadius * length, gracenoteToNoteWidthRatio * (length + 1));
+    return width.init(2 * gracenoteHeadRadius * length, gracenoteToNoteWidthRatio * length);
 }
 
 

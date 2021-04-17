@@ -19,8 +19,8 @@ import renderGracenote, { GracenoteProps, GracenoteState, gracenoteWidth } from 
 
 const tailGap = 5;
 const shortTailLength = 10;
-// note that this is half the width of the note, note the actual radius
-// (it will actually be slightly larger since it's slanted slightly)
+// note that this is half the width of the note, not the actual radius
+// (the actual radius will actually be slightly larger since the note head is slanted slightly)
 const noteHeadRadius = 4;
 const noteHeadWidth = 2 * noteHeadRadius;
 

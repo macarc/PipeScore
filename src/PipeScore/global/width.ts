@@ -36,8 +36,7 @@ function mul(width: Width, val: number): Width {
 }
 
 function reify(width: Width, beatWidth: number): number {
-    const reified = beatWidth * width.extend;
-    return (reified > width.min) ? reified : width.min;
+    return width.min + beatWidth * width.extend;
 }
 
 function zero(): Width {
