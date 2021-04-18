@@ -2,10 +2,9 @@
    Virtual DOM implementation - still needs work
    Copyright (C) 2021 Archie Maclean
  */
-import { VElement, VString, VCache, AnyV } from './types';
+import { VElement, VString, AnyV } from './types';
 
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;
-const isVCache = (a: AnyV): a is VCache => (a as VCache).data !== undefined;
 const isVElement = (a: AnyV): a is VElement => (a as VElement).name !== undefined;
 
 function arraycmp<A>(a: A[], b: A[]): boolean {
@@ -51,14 +50,6 @@ function patchNew(v: VElement, topLevel = false): Element {
       const d = document.createTextNode(aft.s);
       parent.appendChild(d);
       aft.node = d;
-    } else if (isVCache(aft)) {
-      if (!aft.cachedVElement) {
-        // todo do I need to check for cmp?
-        // do I need to call the fn?
-        aft.cachedVElement = aft.fn(aft.data);
-      }
-      const nu = patchNew(aft.cachedVElement);
-      parent.appendChild(nu);
     } else {
       const d = patchNew(aft);
       parent.appendChild(d);
@@ -113,7 +104,7 @@ export default function patch(before: VElement, after: VElement): boolean {
   for (let child = 0; child < after.children.length; child++) {
     const aft = after.children[child];
     const bef = before.children[child] || null;
-    const oldNode: Node | null = bef && (isVCache(bef) ? (bef.cachedVElement ? bef.cachedVElement.node : null) : bef.node);
+    const oldNode: Node | null = bef && bef.node;
 
     reachedEndOfBeforeChildren = child >= beforeChildrenLength;
     if (aft === null) {
@@ -137,11 +128,6 @@ export default function patch(before: VElement, after: VElement): boolean {
         const d = document.createTextNode(aft.s);
         after.node.appendChild(d);
         aft.node = d;
-      } else if (isVCache(aft)) {
-        // can maybe be skipped
-        aft.cachedVElement = aft.fn(aft.data);
-        const newElement = patchNew(aft.cachedVElement, true);
-        after.node.appendChild(newElement);
       }
     } else {
       if (isVString(bef) || isVString(aft)) {
@@ -153,21 +139,6 @@ export default function patch(before: VElement, after: VElement): boolean {
         const isNewNode = patch(bef, aft)
         if (isNewNode && aft.node && bef.node) {
           after.node.replaceChild(aft.node, bef.node);
-        }
-      } else if (isVCache(bef) && isVCache(aft)) {
-        if (! arraycmp(bef.data, aft.data)) {
-          if (! bef.cachedVElement) {
-            bef.cachedVElement = bef.fn(bef.data);
-          }
-          if (! aft.cachedVElement) {
-            aft.cachedVElement = aft.fn(aft.data);
-          }
-          const isNewNode = patch(bef.cachedVElement, aft.cachedVElement);
-          if (isNewNode && aft.cachedVElement.node && bef.cachedVElement.node) {
-            after.node.replaceChild(aft.cachedVElement.node, bef.cachedVElement.node);
-          }
-        } else {
-          aft.cachedVElement = bef.cachedVElement;
         }
       } else {
         throw Error('can\'t deal with different things right now');

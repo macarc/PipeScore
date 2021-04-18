@@ -2,9 +2,9 @@
    Virtual DOM API
    Copyright (C) 2021 Archie Maclean
  */
-import { V, VElement, VCache, Attributes, Events } from './types';
+import { V, VElement, Attributes, Events } from './types';
 
-type Child = VElement | VCache | string | null;
+type Child = VElement | string | null;
 
 function h(name: string): VElement
 function h(name: string, children: Child[]): VElement
@@ -58,19 +58,6 @@ export function hFrom(element: string | HTMLElement): V {
   if (! el) return h('div');
 
   return { name: el.tagName, attrs: {}, events: {}, children: [], node: el };
-}
-
-// This is safe, but eslint can't work that out
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function cache<Fn extends (...a: any) => VElement>(args: Parameters<Fn>, fn: Fn): VCache {
-  // Create an effecient cache
-  // During patch, if the new args !== the old args, then it will be skipped, saving time
-
-  return ({
-    data: args,
-    fn: fn,
-    cachedVElement: null
-  });
 }
 
 export { V, h, svg };

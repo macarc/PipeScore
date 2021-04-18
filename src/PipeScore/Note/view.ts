@@ -236,11 +236,13 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   const secondGracenoteWidth = width.reify(gracenoteWidth(triplet.second.gracenote, triplet.second.pitch, triplet.first.pitch), props.noteWidth);
   const thirdGracenoteWidth = width.reify(gracenoteWidth(triplet.third.gracenote, triplet.third.pitch, triplet.second.pitch), props.noteWidth);
 
+  const widthOfNote = width.reify(width.init(noteHeadWidth, 1), props.noteWidth);
+
   const firstGracenoteX = props.x;
   const firstX = firstGracenoteX + firstGracenoteWidth;
-  const secondGracenoteX = firstX + props.noteWidth;
+  const secondGracenoteX = firstX + widthOfNote;
   const secondX = secondGracenoteX + secondGracenoteWidth;
-  const thirdGracenoteX = secondX + props.noteWidth;
+  const thirdGracenoteX = secondX + widthOfNote;
   const thirdX = thirdGracenoteX + thirdGracenoteWidth;
 
 

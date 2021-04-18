@@ -17,21 +17,12 @@ export interface VElement {
   node: Element | null
 }
 
-export interface VCache {
-  // while this isn't type-safe, it should only be created from the h/cache() function which is
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fn: (...args: any) => VElement,
-  cachedVElement: VElement | null
-}
-
 export interface VString {
   s: string,
   node: Node | null
 }
 
-export type AnyV = VElement | VCache | VString;
+export type AnyV = VElement | VString;
 
 export type V = VElement;
 

@@ -1,3 +1,8 @@
+/*
+
+  This pops up when a user creates a new score, to give them a few default options to choose from.
+
+*/
 import { h } from '../render/h';
 import dialogueBox from './global/dialogueBox';
 

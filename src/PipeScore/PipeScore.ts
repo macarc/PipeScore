@@ -8,7 +8,7 @@ import startController from './Controller';
 import { keyHandler } from './KeyHandler';
 import Score from './Score/functions';
 import { ScoreModel } from './Score/model';
-import blankForm from './BlankForm';
+import quickStart from './QuickStart';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 window.addEventListener('DOMContentLoaded', async () => {
@@ -44,7 +44,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         // If is a new score, it will not have staves, so save a blank score
         if (!score.staves) {
-          const values = await blankForm();
+          const values = await quickStart();
           score = await save(Score.init(values.name, values.numberOfStaves, values.timeSignature));
         }
         if (score) {
