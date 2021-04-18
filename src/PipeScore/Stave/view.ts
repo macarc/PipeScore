@@ -58,9 +58,9 @@ export default function render(stave: StaveModel, props: StaveProps): V {
 
   const barWidth = (props.width - trebleClefWidth - totalAnacrusisWidth) / stave.bars.filter(bar => !bar.isAnacrusis).length;
 
-  const getX = (barIdx: number): number => stave.bars.slice(0, barIdx).reduce((soFar, bar) => {
+  const getX = (barIdx: number): number => stave.bars.slice(0, barIdx).reduce((soFar, bar, idx) => {
     if (bar.isAnacrusis) {
-      return soFar + widthOfAnacrusis(bar, lastBarTimeSignature(barIdx), previousBarLastPitch(barIdx));
+      return soFar + widthOfAnacrusis(bar, lastBarTimeSignature(idx), previousBarLastPitch(idx));
     } else {
       return soFar + barWidth;
     }

@@ -61,8 +61,8 @@ interface State {
   draggedText: TextBoxModel | null,
   inputGracenote: GracenoteModel | null,
   score: ScoreModel,
-  history: ScoreModel[],
-  future: ScoreModel[],
+  history: string[],
+  future: string[],
   draggedSecondTiming: DraggedSecondTiming | null,
   view: V | null,
   uiView: V | null
@@ -655,16 +655,18 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     if (state.history.length > 1) {
       const last = state.history.pop();
       const beforeLast = state.history.pop();
-      state.score = beforeLast as ScoreModel;
-      if (last) state.future.push(last);
-      removeState(state);
-      changed = true;
-      shouldSave = true;
+      if (beforeLast) {
+        state.score = JSON.parse(beforeLast);
+        if (last) state.future.push(last);
+        removeState(state);
+        changed = true;
+        shouldSave = true;
+      }
     }
   } else if (ScoreEvent.isRedo(event)) {
     const last = state.future.pop();
     if (last) {
-      state.score = last;
+      state.score = JSON.parse(last);
       removeState(state);
       changed = true;
       shouldSave = true;
@@ -1008,8 +1010,9 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     if (state.score.textBoxes[0]) {
       state.score.name = state.score.textBoxes[0].text;
     }
-    if (JSON.stringify(state.history[state.history.length - 1]) !== JSON.stringify(state.score)) {
-      state.history.push(JSON.parse(JSON.stringify(state.score)));
+    const asJSON = JSON.stringify(state.score);
+    if (state.history[state.history.length - 1] !== asJSON) {
+      state.history.push(asJSON);
       save(state.score);
     }
   }

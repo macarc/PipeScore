@@ -167,3 +167,4 @@ Hard to reproduce:
     - [X] Gracenote not properly relying on note before
     - [X] Start of bar
     - [X] Note boxes at end of bar weirdness
+- [X] If the last note in a bar is a high a, then the bar gets shorter...

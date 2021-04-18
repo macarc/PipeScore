@@ -8,7 +8,9 @@ import { Pitch, pitchToHeight } from './pitch';
 export function noteBoxes(x: number,y: number,width: number, mouseOver: (pitch: Pitch, event: MouseEvent) => void = () => null, mouseDown: (pitch: Pitch, event: MouseEvent) => void = () => null): V {
   // Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
 
-  const height = lineGap / 2;
+  // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap
+  // and there are 0 pixel gaps between that can nevertheless be hovered over
+  const height = lineGap / 2 + 0.1;
 
   const pitches = [Pitch.G,Pitch.A,Pitch.B,Pitch.C,Pitch.D,Pitch.E,Pitch.F,Pitch.HG,Pitch.HA];
 
