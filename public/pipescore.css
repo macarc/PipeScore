@@ -56,6 +56,28 @@ input[type="range"] {
   overflow: scroll;
 }
 
+summary {
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: .3rem 0;
+}
+summary.inner {
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: .2rem 0;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: semibold;
+}
+details {
+  padding: .3rem 0;
+  margin: .3rem 0;
+  border-bottom: 1px solid black;
+}
+
 /* a hack to fix the bottom of the menu being off-screen */
 #ui #sidebar:after {
   content: "";
@@ -115,6 +137,11 @@ input[type="range"] {
   text-align: center;
   word-break: keep-all;
   padding-left: 3.4rem; /* 1 * normal width + gap */
+}
+.double-width.text {
+  width: 6.4rem !important;
+  text-align: center;
+  word-break: keep-all;
 }
 
 .twice-width {

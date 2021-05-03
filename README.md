@@ -35,6 +35,12 @@ Programming features:
 
 ## Running locally
 
+To make the icons, run:
+* `pip3 install svgwrite`
+* `python3 make-icons.py`
+* `python3 make-note-icons.py`
+* `python3 make-gracenote-icons.py`
+
 Run the following commands to run locally, ideally in separate terminals:
 * `npm run dev` - to run the development server
 * `npm run watch` - to rebuild JS on changes

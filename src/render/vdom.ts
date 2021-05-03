@@ -7,13 +7,6 @@ import { VElement, VString, AnyV } from './types';
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;
 const isVElement = (a: AnyV): a is VElement => (a as VElement).name !== undefined;
 
-function arraycmp<A>(a: A[], b: A[]): boolean {
-  // Compare to arrays
-
-  if (a.length !== b.length) return false;
-  return a.every((el, i) => b[i] === el);
-}
-
 function patchNew(v: VElement, topLevel = false): Element {
   // Create a new element from a virtual node
   // Uses DocumentFragment for good-ish performance

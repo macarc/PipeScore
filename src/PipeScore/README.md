@@ -20,6 +20,7 @@ The following components are here:
 * `TextBox` - text boxes
 * `ScoreSelection` - the orange rectangle that shows the current selection
 * `SecondTiming` - First/second timings
+* `UI` - the top/side panel, containing user controls
 
 
 PipeScore uses a global controller (in `Controller.ts`) rather than individual controllers for each component because sheet music has a lot of parts that interact very heavily with each other, and it is simpler to have a single controller than separate ones trying to communicate somehow with each other.
