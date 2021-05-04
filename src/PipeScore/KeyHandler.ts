@@ -35,6 +35,16 @@ export function keyHandler(e: KeyboardEvent): void {
       if (e.shiftKey)
         dispatch({ name: 'detract selection' })
       break;
+    case "ArrowUp":
+      // Prevent scrolling
+      e.preventDefault();
+      dispatch({ name: 'move note up' });
+      break;
+    case "ArrowDown":
+      // Prevent scrolling
+      e.preventDefault();
+      dispatch({ name: 'move note down' });
+      break;
 
     case ".":
       dispatch({ name: 'toggle dotted' });

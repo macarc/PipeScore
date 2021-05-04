@@ -25,6 +25,8 @@ export type ScoreEvent =
   | AddTriplet
   | ToggleDotted
   | SingleGracenoteClicked
+  | MoveNoteUp
+  | MoveNoteDown
 
   | UpdateDemoNote
 
@@ -114,6 +116,20 @@ type NoteClicked = {
 export function isNoteClicked(e: ScoreEvent): e is NoteClicked {
   return e.name === 'note clicked';
 }
+
+type MoveNoteUp = {
+  name: 'move note up'
+}
+export function isMoveNoteUp(e: ScoreEvent): e is MoveNoteUp {
+  return e.name === 'move note up';
+}
+
+type MoveNoteDown = {
+  name: 'move note down'
+}
+export function isMoveNoteDown(e: ScoreEvent): e is MoveNoteDown {
+  return e.name === 'move note down';
+} 
 
 type BackgroundClicked = {
   name: 'background clicked'

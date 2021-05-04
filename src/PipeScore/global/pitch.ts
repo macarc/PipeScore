@@ -22,6 +22,33 @@ export function pitchToHeight(pitch: Pitch): number {
   }
 }
 
+export function pitchUp(pitch: Pitch): Pitch {
+  switch (pitch) {
+    case Pitch.G: return Pitch.A;
+    case Pitch.A: return Pitch.B;
+    case Pitch.B: return Pitch.C;
+    case Pitch.C: return Pitch.D;
+    case Pitch.D: return Pitch.E;
+    case Pitch.E: return Pitch.F;
+    case Pitch.F: return Pitch.HG;
+    case Pitch.HG: return Pitch.HA;
+    case Pitch.HA: return Pitch.HA;
+  }
+}
+export function pitchDown(pitch: Pitch): Pitch {
+  switch (pitch) {
+    case Pitch.G: return Pitch.G;
+    case Pitch.A: return Pitch.G;
+    case Pitch.B: return Pitch.A;
+    case Pitch.C: return Pitch.B;
+    case Pitch.D: return Pitch.C;
+    case Pitch.E: return Pitch.D;
+    case Pitch.F: return Pitch.E;
+    case Pitch.HG: return Pitch.F;
+    case Pitch.HA: return Pitch.HG;
+  }
+}
+
 // Calculate the difference from the top of the stave
 // to the note
 export const noteOffset = (note: Pitch): number => lineHeightOf(pitchToHeight(note));

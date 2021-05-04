@@ -7,6 +7,7 @@
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
+- [ ] Hoverable documentation
  
 Hard to reproduce:
 - [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes
@@ -168,3 +169,4 @@ Hard to reproduce:
     - [X] Start of bar
     - [X] Note boxes at end of bar weirdness
 - [X] If the last note in a bar is a high a, then the bar gets shorter...
+- [X] Up/Down should move notes

@@ -35,6 +35,7 @@ import renderUI from './UI/view';
 import { deleteXY, closestItem, itemBefore } from './global/xy';
 import dialogueBox from './global/dialogueBox';
 import { ID, Item } from './global/types';
+import { pitchUp, pitchDown } from './global/pitch';
 
 import { flatten, deepcopy } from './global/utils';
 
@@ -733,6 +734,18 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       changed = true;
     } else if (state.inputGracenote) {
       state.score = changeNoteFrom(event.triplet[event.which].id, { ...event.triplet[event.which], gracenote: state.inputGracenote }, state.score);
+      changed = true;
+      shouldSave = true;
+    }
+  } else if (ScoreEvent.isMoveNoteUp(event)) {
+    if (selectedNotes.length > 0) {
+      changeNotes(selectedNotes, note => ({ ...note, pitch: pitchUp(note.pitch) }), state.score);
+      changed = true;
+      shouldSave = true;
+    }
+  } else if (ScoreEvent.isMoveNoteDown(event)) {
+    if (selectedNotes.length > 0) {
+      changeNotes(selectedNotes, note => ({ ...note, pitch: pitchDown(note.pitch) }), state.score);
       changed = true;
       shouldSave = true;
     }
