@@ -8,6 +8,8 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Hoverable documentation
+- [ ] Fix bottom of sidebar overlapping with docs
+- [ ] Firefox adding a gracenote to F doesn't work
  
 Hard to reproduce:
 - [ ] Dragging text doesn't save or something? After dragging then going back to home, progress is deleted sometimes

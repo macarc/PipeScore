@@ -42,6 +42,8 @@ import { flatten, deepcopy } from './global/utils';
 import { GracenoteState } from './Gracenote/view';
 import { TextBoxState } from './TextBox/view';
 
+import Documentation from './Documentation';
+
 import { PlaybackState, stopAudio, playback } from './Playback';
 
 
@@ -57,6 +59,7 @@ interface State {
   interfaceWidth: number,
   resizingInterface: boolean,
   textBoxState: TextBoxState,
+  currentDocumentation: string | null,
   clipboard: (NoteModel | TripletModel | 'bar-break')[] | null,
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
@@ -74,6 +77,7 @@ const state: State = {
   playbackState: { bpm: 100 },
   zoomLevel: 0,
   textBoxState: { selectedText: null },
+  currentDocumentation: null,
   justClickedNote: false,
   inputGracenote: null,
   interfaceWidth: 300,
@@ -646,6 +650,9 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       popupWindow.print();
       popupWindow.document.close();
     }
+  } else if (ScoreEvent.isDocHover(event)) {
+    state.currentDocumentation = event.element;
+    changed = true;
   }
 
   //
@@ -1208,6 +1215,7 @@ const updateView = () => {
   const uiProps = {
     zoomLevel: state.zoomLevel,
     inputLength: (state.demoNote && state.demoNote.type === 'note') ? state.demoNote.length : null,
+    docs: Documentation.get(state.currentDocumentation || '') || 'Hover over anything to view the help documentation here.',
     playbackBpm: state.playbackState.bpm,
     width: state.interfaceWidth,
     gracenoteInput: state.inputGracenote

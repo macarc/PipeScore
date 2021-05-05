@@ -72,6 +72,8 @@ export type ScoreEvent =
 
   | Print
 
+  | DocHover
+
   | StartPlayback
   | StopPlayback
   | SetPlaybackBpm;
@@ -447,4 +449,12 @@ type SetPlaybackBpm = {
 }
 export function isSetPlaybackBpm(e: ScoreEvent): e is SetPlaybackBpm {
   return e.name === 'set playback bpm';
+}
+
+type DocHover = {
+  name: 'doc hover',
+  element: string
+}
+export function isDocHover(e: ScoreEvent): e is DocHover {
+  return e.name === 'doc hover';
 }

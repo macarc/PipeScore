@@ -4,6 +4,8 @@
 */
 import { h, V } from '../../render/h';
 
+import { help as dochelp } from '../global/docs';
+
 import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
 import { Barline } from '../Bar/model';
@@ -15,6 +17,7 @@ import Note from '../Note/functions';
 export interface UIState {
   inputLength: NoteLength | null,
   gracenoteInput: GracenoteModel | null,
+  docs: string,
   playbackBpm: number,
   width: number,
   zoomLevel: number
@@ -24,16 +27,16 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
   const isCurrentNoteInput = (length: NoteLength) => state.inputLength === null ? false : Note.equalOrDotted(state.inputLength, length);
 
-  const noteInputButton = (length: NoteLength) => h('button',
+  const noteInputButton = (length: NoteLength) => help(length, h('button',
                                                     { class: isCurrentNoteInput(length) ? 'highlighted': 'not-highlighted',
                                                       id: `note-${length}` },
-                                                    { click: setNoteInput(length) });
+                                                    { click: setNoteInput(length) }));
 
   const isGracenoteInput = (name: string) => state.gracenoteInput && Gracenote.isReactive(state.gracenoteInput) && (state.gracenoteInput.name === name);
-  const gracenoteInput = (name: string) => h('button',
+  const gracenoteInput = (name: string) => help(name, h('button',
                                              { class: isGracenoteInput(name) ? 'highlighted' : 'not-highlighted',
                                              style: `background-image: url("/images/icons/gracenote-${name}.svg")` },
-                                             { click: () => dispatch({ name: 'set gracenote', value: name }) });
+                                             { click: () => dispatch({ name: 'set gracenote', value: name }) }));
 
   const changeZoomLevel = () => {
     const element = document.getElementById('zoom-level');
@@ -45,9 +48,11 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     }
   }
 
+  const help = (s: string, v: V): V => dochelp(dispatch, s, v);
+
   return h('div', [
     h('div', { id: 'topbar', style: `width: calc(${window.innerWidth - state.width}px - 5rem)` }, [
-      h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ]),
+      help('home', h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ])),
       h('div', { id: 'note-inputs' }, [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
@@ -57,39 +62,40 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         noteInputButton(NoteLength.DemiSemiQuaver),
         noteInputButton(NoteLength.HemiDemiSemiQuaver),
       ]),
-      h('button',
+      help('dot', h('button',
         { id: 'toggle-dotted',
           class: (state.inputLength && Note.hasDot(state.inputLength)) ? 'highlighted': 'not-highlighted' },
         { click: () => dispatch({ name: 'toggle dotted' }) },
-        [ '•' ]),
-      h('button',
+        [ '•' ])),
+      help('tie', h('button',
         { id: 'tie' },
-        { click: () => dispatch({ name: 'tie selected notes' }) }),
-      h('button',
+        { click: () => dispatch({ name: 'tie selected notes' }) })),
+      help('triplet', h('button',
         { id: 'triplet' },
         { click: () => dispatch({ name: 'add triplet' }) },
-        [ '3' ]),
-      h('button',
+        [ '3' ])),
+      help('second timing', h('button',
         { id: 'add-second-timing' },
         { click: () => dispatch({ name: 'add second timing' }) },
-       [ '1st / 2nd' ]),
-      h('button',
+        [ '1st / 2nd' ])),
+      help('delete', h('button',
         { id: 'delete-notes', class: 'delete' },
-        { click: () => dispatch({ name: 'delete selected' }) }),
-      h('button', { id: 'copy' }, { click: () => dispatch({ name: 'copy' }) }),
-      h('button', { id: 'paste' }, { click: () => dispatch({ name: 'paste' }) }),
-      h('button',
+        { click: () => dispatch({ name: 'delete selected' }) })),
+      help('copy', h('button', { id: 'copy' }, { click: () => dispatch({ name: 'copy' }) })),
+      help('paste', h('button', { id: 'paste' }, { click: () => dispatch({ name: 'paste' }) })),
+      help('undo', h('button',
         { id: 'undo' },
-        { click: () => dispatch({ name: 'undo' }) }),
-      h('button',
+        { click: () => dispatch({ name: 'undo' }) })),
+      help('redo', h('button',
         { id: 'redo' },
-        { click: () => dispatch({ name: 'redo' }) }),
+        { click: () => dispatch({ name: 'redo' }) })),
     ]),
     h('div', { id: 'resize-ui', style: `right: ${state.width + 25}px` }, { 'mousedown': () => dispatch({ name: 'start resizing user interface' }) }),
     h('div', { id: 'sidebar', style: `width: ${state.width}px` }, [
+      h('div', { id: 'doc' }, [state.docs]),
       h('details', [
         h('summary', ['Gracenote']),
-        h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("/images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) }),
+        help('single', h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("/images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) })),
         gracenoteInput('doubling'),
         gracenoteInput('throw-d'),
         gracenoteInput('grip'),
@@ -99,7 +105,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),
         gracenoteInput('edre'),
-        h('button', { class: 'twice-width' }, { click: () => dispatch({ name: 'set gracenote', value: 'none' }) }, ['Remove Gracenote']),
+        help('remove gracenote', h('button', { class: 'twice-width' }, { click: () => dispatch({ name: 'set gracenote', value: 'none' }) }, ['Remove Gracenote'])),
       ]),
       h('details', [
         h('summary', ['Bar']),
@@ -154,7 +160,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         h('button', { class: 'textual' }, { click: () => dispatch({ name: 'toggle landscape' }) }, ['Toggle landscape']),
       ]),
       h('label', ['Zoom Level']),
-      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })
+      h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel }),
     ])
   ]);
 }

@@ -49,7 +49,6 @@ input[type="range"] {
   right: 0;
   top: 0;
   height: 100vh;
-  /* width: 15vw; */
   padding: 1rem;
   padding-left: 2rem;
   background-color: lightblue;
@@ -154,6 +153,18 @@ svg {
   margin: 2vw;
 }
 
+#doc {
+  background: white;
+  position: absolute;
+  bottom: 0rem;
+  left: 0rem;
+  right: 0rem;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  min-height: 3rem;
+  font-size: .8rem;
+  white-space: pre-line;
+}
 
 #note-sb {
   background-image: url('./images/icons/semibreve.svg');
