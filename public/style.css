@@ -1,4 +1,5 @@
 html {
+  font-family: sans-serif;
   width: 100vw;
   height: 100vh;
 }
@@ -19,7 +20,6 @@ main {
 
 .message {
   text-align: right;
-  font-family: sans-serif;
   margin: 0;
   padding: 0;
   position: absolute;
@@ -38,6 +38,27 @@ p {
 
 button {
   font-size: 1.1rem;
+}
+
+header ul {
+    position: static;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    background: lightblue;
+    display: flex;
+}
+
+header ul li {
+    list-style: none;
+    padding: .5rem;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+header ul li a {
+    color: black;
+    text-decoration: none;
 }
 
 @media only screen and (max-width: 1000px) {
