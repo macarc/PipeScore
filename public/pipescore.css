@@ -49,39 +49,22 @@ input[type="range"] {
   right: 0;
   top: 0;
   height: 100vh;
-  padding: 1rem;
   padding-left: 2rem;
   background-color: lightblue;
-  overflow: scroll;
+  overflow-y: scroll;
+  padding-right: .8rem;
+  padding-bottom: 2rem;
 }
 
 summary {
   cursor: pointer;
   font-size: 1.3rem;
   font-weight: bold;
-  margin: .3rem 0;
-}
-summary.inner {
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  margin: .2rem 0;
-}
-h3 {
-  font-size: 1rem;
-  font-weight: semibold;
+  margin: 0 0 1rem;
 }
 details {
   padding: .3rem 0;
   margin: .3rem 0;
-  border-bottom: 1px solid black;
-}
-
-/* a hack to fix the bottom of the menu being off-screen */
-#ui #sidebar:after {
-  content: "";
-  height:50px;
-  display: block;
 }
 
 #resize-ui {
@@ -124,7 +107,7 @@ details {
 }
 .add {
   background-image: url('./images/plus.svg');
-  background-position: .5rem .5rem !important;
+  background-position: .8rem .6rem !important;
   background-size: 1.7rem 1.7rem !important;
 }
 .home {
@@ -153,19 +136,10 @@ svg {
   margin: 2vw;
 }
 
-#doc {
-  background: white;
-  position: absolute;
-  bottom: 0rem;
-  left: 0rem;
-  right: 0rem;
-  padding: 1rem;
-  padding-bottom: 2rem;
-  min-height: 3rem;
-  font-size: .8rem;
-  white-space: pre-line;
+h2 {
+    font-size: 1.1rem;
+    user-select: none;
 }
-
 #note-sb {
   background-image: url('./images/icons/semibreve.svg');
 }
@@ -280,4 +254,16 @@ text {
 
 #dialogue-box select {
   width: 3.5rem;
+}
+
+#doc {
+  background: white;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  border-top: 2px solid black;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  min-height: 3rem;
+  white-space: pre-line;
 }

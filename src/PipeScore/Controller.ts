@@ -1215,7 +1215,7 @@ const updateView = () => {
   const uiProps = {
     zoomLevel: state.zoomLevel,
     inputLength: (state.demoNote && state.demoNote.type === 'note') ? state.demoNote.length : null,
-    docs: Documentation.get(state.currentDocumentation || '') || 'Hover over anything to view the help documentation here.',
+    docs: Documentation.get(state.currentDocumentation || '') || 'Hover over different parts of the user interface to view the help documentation here.',
     playbackBpm: state.playbackState.bpm,
     width: state.interfaceWidth,
     gracenoteInput: state.inputGracenote

@@ -7,8 +7,6 @@
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
-- [ ] Hoverable documentation
-- [ ] Fix bottom of sidebar overlapping with docs
 - [ ] Firefox adding a gracenote to F doesn't work
  
 Hard to reproduce:
@@ -172,3 +170,5 @@ Hard to reproduce:
     - [X] Note boxes at end of bar weirdness
 - [X] If the last note in a bar is a high a, then the bar gets shorter...
 - [X] Up/Down should move notes
+- [X] Hoverable documentation
+- [X] Fix bottom of sidebar overlapping with docs
