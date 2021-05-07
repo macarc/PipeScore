@@ -17,7 +17,7 @@ import Note from '../Note/functions';
 export interface UIState {
   inputLength: NoteLength | null,
   gracenoteInput: GracenoteModel | null,
-  docs: string,
+  docs: string | null,
   playbackBpm: number,
   width: number,
   zoomLevel: number
@@ -158,7 +158,9 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       ]),
       h('label', ['Zoom Level']),
       help('zoom', h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })),
+      h('label', ['Disable Help']),
+      help('disable help', h('input', { type: 'checkbox' }, { click: () => dispatch({ name: 'toggle doc' }) }))
     ]),
-    h('div', { id: 'doc', style: `width: calc(${window.innerWidth - state.width}px - 5.8rem)` }, [state.docs])
+    state.docs ? h('div', { id: 'doc', style: `width: calc(${window.innerWidth - state.width}px - 5.8rem)` }, [state.docs]) : null
   ]);
 }

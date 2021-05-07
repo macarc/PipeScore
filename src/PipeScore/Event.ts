@@ -73,6 +73,7 @@ export type ScoreEvent =
   | Print
 
   | DocHover
+  | ToggleDoc
 
   | StartPlayback
   | StopPlayback
@@ -457,4 +458,10 @@ type DocHover = {
 }
 export function isDocHover(e: ScoreEvent): e is DocHover {
   return e.name === 'doc hover';
+}
+type ToggleDoc = {
+  name: 'toggle doc'
+}
+export function isToggleDoc(e: ScoreEvent): e is ToggleDoc {
+  return e.name === 'toggle doc';
 }

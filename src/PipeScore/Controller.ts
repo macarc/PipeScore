@@ -60,6 +60,7 @@ interface State {
   resizingInterface: boolean,
   textBoxState: TextBoxState,
   currentDocumentation: string | null,
+  showDocumentation: boolean,
   clipboard: (NoteModel | TripletModel | 'bar-break')[] | null,
   selection: ScoreSelectionModel | null,
   draggedText: TextBoxModel | null,
@@ -78,6 +79,7 @@ const state: State = {
   zoomLevel: 0,
   textBoxState: { selectedText: null },
   currentDocumentation: null,
+  showDocumentation: true,
   justClickedNote: false,
   inputGracenote: null,
   interfaceWidth: 300,
@@ -653,6 +655,9 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   } else if (ScoreEvent.isDocHover(event)) {
     state.currentDocumentation = event.element;
     changed = true;
+  } else if (ScoreEvent.isToggleDoc(event)) {
+    state.showDocumentation = !state.showDocumentation;
+    changed = true;
   }
 
   //
@@ -1215,7 +1220,7 @@ const updateView = () => {
   const uiProps = {
     zoomLevel: state.zoomLevel,
     inputLength: (state.demoNote && state.demoNote.type === 'note') ? state.demoNote.length : null,
-    docs: Documentation.get(state.currentDocumentation || '') || 'Hover over different parts of the user interface to view the help documentation here.',
+    docs: state.showDocumentation ? Documentation.get(state.currentDocumentation || '') || 'Hover over different parts of the user interface to view the help documentation here.' : null,
     playbackBpm: state.playbackState.bpm,
     width: state.interfaceWidth,
     gracenoteInput: state.inputGracenote

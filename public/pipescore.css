@@ -263,7 +263,7 @@ text {
   left: 0;
   border-top: 2px solid black;
   padding: 1rem;
-  padding-bottom: 2rem;
-  min-height: 3rem;
+  padding-bottom: 1.5rem;
+  min-height: 4rem;
   white-space: pre-line;
 }
