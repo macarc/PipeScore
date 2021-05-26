@@ -4,7 +4,7 @@ header-includes:
   <link rel="icon" href="/images/favicon.ico" />
 
 ---
-This page contains information about how to use PipeScore. You can search through this page using the `Ctrl-F` keyboard shortcut in your browser. It currently isn't very easy to read - in future there will be an introductory video showing the basics here.
+Welcome! This page contains information about how to use PipeScore. You can search through this page using the `Ctrl-F` keyboard shortcut in your browser. It currently isn't very easy to read - in future there will be an introductory video showing the basics here.
 
 If you can't find what you're looking for, don't hesitate to contact me and ask!
 
@@ -73,22 +73,22 @@ PipeScore automatically places notes the correct space apart. This means that it
 
 You can use the keyboard shortcuts 1-7 to select different note lengths.
 
-To stop inputting notes, press a blank area of the page, or press the `esc` key.
+To stop inputting notes, press a blank area of the page, or press the `Escape` (`esc`) key.
 
-To change a note's length, select it then click the note length you want under the `Note` menu. To change a note's pitch, select the note, then drag the note up or down to the correct note
+To change a note's length, select it then click the note length you want under the `Note` menu. To change a note's pitch, select the note, then drag the note up or down.
 
 You can delete a note by selecting it, then pressing the bin icon in the top panel.
 
-You can create a triplet by adding three notes, selecting all three, then icon the triplet icon in the top panel. You can make a triplet turn back into normal notes by selecting any note in the triplet, then clicking the triplet icon.
+You can create a triplet by adding three notes, selecting all three, then pressing the triplet icon under the `Note` menu. You can make a triplet turn back into normal notes by selecting any note in the triplet, then clicking the triplet icon.
 
 You can tie a note to the note before it by selecting the note, then pressing the tie icon in the top panel.
 
 You can add a dot to any note (making the note 50% longer) by selecting the note then pressing the `.` icon in the top panel.
 
 ## Copying/Pasting
-You can copy notes by selecting all the notes (or bars) you want to copy (see [Selection](#selection) above), then pressing the copy button in the top panel (two pages next to each other). You can also use the `Ctrl-C` shortcut if you want.
+You can copy notes by selecting all the notes (or bars) you want to copy (see [Selection](#selection) above), then pressing the copy button in the top panel (the icon looks like two pages next to each other). You can also use the `Ctrl-C` shortcut if you want.
 
-Then, select either the bar you want to paste them to, or a note that you want to paste them after, and press the paste button in the top panel (the clipboard). You can use the `Ctrl-V` shortcut if you prefer.
+Then, select either the bar you want to paste them to, or a note that you want to paste them after, and press the paste button in the top panel (the icon loooks like a clipboard). You can use the `Ctrl-V` shortcut if you prefer.
 
 PipeScore will automatically keep the same bar breaks in the notes that you paste.
 
@@ -101,30 +101,31 @@ You can drag single gracenotes up and down to change the pitch.
 ### Embellishments
 Embellishments in PipeScore are added in 'sets'. An example of a set is 'doubling', or 'toarluath'. PipeScore will then make sure that the embellishment placed on the score is the correct type based on the note that it's on. If you drag the note that the embellishment is on, it will update automatically.
 
-To add an embellishment, select the gracenote you want in the top right. Remember that PipeScore will choose the correct embellishment based on the note that you place it on, so for example, the C doubling button will place a B doubling if you add it to a B.
+To add an embellishment:
 
-Then click either on the note you want to place it on, or just before the note you want to place it on. That will place the embellishment
+* Select the gracenote you want under the `Gracenote` menu. Remember that PipeScore will choose the correct embellishment based on the note that you place it on, so for example, the C doubling button will place a B doubling if you add it to a B.
+* Click either on the note you want to place it on, or just before the note you want to place it on. That will place the embellishment
 
 In the future, you will be able to create custom embellishments. That is not the case right now however.
 
-You can change which gracenote is on a note by selecting the note, and then clicking the gracenote type you want in the top right.
+You can change which gracenote is on a note by selecting the note, and then clicking the gracenote type you want under the `Gracenote` menu.
 
-You can delete a gracenote by selecting the note that the gracenote is on, then pressing the `Remove Gracenote` button in the top right.
+You can delete a gracenote by selecting the note that the gracenote is on, then pressing the `Remove Gracenote` button under the `Gracenote` menu.
 
 ## Bars
-You can place a bar by selecting the bar before where you want to place it, then pressing `+ After` under the Bar menu on the right. Alternatively, you can select the bar after where you want to place it and click `+ Before` under the Bar menu on the right.
+You can place a bar by selecting the bar before where you want to place it, then pressing `+ After` under the `Bar` menu. Alternatively, you can select the bar after where you want to place it and click `+ Before` under the Bar menu on the right.
 
 You can delete a bar by selecting the bar, then pressing the bin icon in the top panel. The other bars in the stave will then be made to fill up the rest of the space
 
 You can change the repeats on a bar using the controls under the bar menu on the right panel - you can change the start and end of the bar to either have a normal barline, a repeating start/end of part, or a non-repeating start/end of part.
 
 ## Lead ins
-You can add lead-ins similar to adding bars, using the `+ Before Bar` and `+ After Bar` buttons on the right. This will add a lead-in bar, which you can add notes to.
+You can add lead-ins similar to adding bars, using the `+ Before Bar` and `+ After Bar` buttons under the `Bar` menu. This will add a lead-in bar, which you can add notes to.
 
 Like bars, you can delete these by selecting them, then pressing the bin icon in the top panel.
 
 ## Time Signatures
-You can edit the time signature of a bar by selecting the bar and then pressing `Edit Time Signature` under the bar menu on the right. This will bring up a edit menu that allows you to change what the time signature will be.
+You can edit the time signature of a bar by selecting the bar and then pressing `Edit Time Signature` under the `Bar` menu. This will bring up a edit menu that allows you to change what the time signature will be.
 
 You can bring up this edit menu of any time signature on the score by clicking the time signature.
 
@@ -133,7 +134,7 @@ On the edit menu, checking the `Cut time` box will set the time signature to use
 On the edit menu, under `Advanced`, you can change the note grouping. By default PipeScore will group notes based on the bottom number of the time signature (for example, 8 always uses 3-quaver length groups). However, in certain cases, such as irregular time signatures, this needs to be changed. In the `Custom Grouping` box, you can enter the number of quavers that should be in each group. For example, if you want to have a group of 4 quavers then a group of 3, type `4,3` in to the box. PipeScore will then group the notes in that bar (and any bars immediately afterwards that have the same time signature) with that grouping. PipeScore will also handle other note lengths (e.g. semiquavers) correctly based on the group lengths you gave.
 
 ## Staves
-You can add a stave by selecting a bar on the stave above where you want to place it and clicking the `+ After` button. Alternatively, you can select a bar on the stave below where you want to place it and click `+ Before`.
+You can add a stave by selecting a bar on the stave above where you want to place it and clicking the `+ After` button under the `Stave` menu. Alternatively, you can select a bar on the stave below where you want to place it and click `+ Before`.
 
 You can delete a stave by selecting and deleting all the bars on the stave.
 

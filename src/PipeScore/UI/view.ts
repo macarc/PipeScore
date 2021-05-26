@@ -205,7 +205,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
 
   return h('div', [
     h('div', { id: 'menu' }, [
-      h('button', menuClass('normal'), { mousedown: () => dispatch({ name: 'set menu', menu: 'normal' }) }, ['Home']),
+      h('button', menuClass('normal'), { mousedown: () => dispatch({ name: 'set menu', menu: 'normal' }) }, ['Note']),
       h('button', menuClass('gracenote'), { mousedown: () => dispatch({ name: 'set menu', menu: 'gracenote' }) }, ['Gracenote']),
       h('button', menuClass('bar'), { mousedown: () => dispatch({ name: 'set menu', menu: 'bar' }) }, ['Bar']),
       h('button', menuClass('stave'), { mousedown: () => dispatch({ name: 'set menu', menu: 'stave' }) }, ['Stave']),
@@ -215,7 +215,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     ]),
     h('div', { id: 'topbar' }, [
       h('section', { id: 'home-section' }, [
-        h('h2', ['Home']),
+        h('h2', ['Note']),
         help('home', h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ])),
       ]),
       h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
