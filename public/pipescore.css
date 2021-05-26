@@ -14,7 +14,7 @@ noscript {
 }
 
 #score {
-  margin-top: 8rem;
+  margin-top: 10rem;
 }
 label {
   font-size: 0.8rem;
@@ -30,7 +30,7 @@ button {
 input[type="range"] {
   display: block;
 }
-#ui button:not(.textual) {
+#ui #topbar button:not(.textual) {
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -80,17 +80,58 @@ details {
 #ui #topbar {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 2rem;
+  width: 100vw;
   display: block;
   padding: 1rem;
   background: lightblue;
   margin: 0;
 }
 
+#menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background: white;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+#menu button {
+    height: 2rem;
+    margin: 0;
+}
+
+#menu .selected {
+    background: lightblue;
+}
+
 #ui #topbar div {
   display: inline;
-  margin: 0 2rem;
+  margin: 0;
 }
+
+#ui #topbar label, #ui #topbar input {
+  display: inline;
+}
+
+#ui #topbar {
+  display: inline-flex;
+}
+
+#ui #topbar section {
+  display: inline-flex;
+  flex-direction: column;
+  margin: 0 1.5rem;
+}
+div .flex {
+  display: inline-flex !important;
+  flex-direction: column;
+}
+
 
 #tie {
   background-image: url('./images/tie.png');
@@ -139,6 +180,7 @@ svg {
 h2 {
     font-size: 1.1rem;
     user-select: none;
+    margin: 0 0 .3rem;
 }
 #note-sb {
   background-image: url('./images/icons/semibreve.svg');
@@ -260,10 +302,16 @@ text {
   background: white;
   position: fixed;
   bottom: 0;
-  left: 0;
-  border-top: 2px solid black;
+  right: 0;
+  width: 10vw;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
   padding: 1rem;
   padding-bottom: 1.5rem;
   min-height: 4rem;
   white-space: pre-line;
+}
+ 
+#general-commands {
+  float: right;
 }

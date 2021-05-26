@@ -30,7 +30,7 @@ import TimeSignature from './TimeSignature/functions';
 import { editTimeSignature } from './TimeSignature/view';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
-import renderUI from './UI/view';
+import renderUI, { Menu } from './UI/view';
 
 import { deleteXY, closestItem, itemBefore } from './global/xy';
 import dialogueBox from './global/dialogueBox';
@@ -54,6 +54,7 @@ interface State {
   demoNote: DemoNoteModel | null,
   gracenoteState: GracenoteState,
   playbackState: PlaybackState,
+  currentMenu: Menu,
   zoomLevel: number,
   justClickedNote: boolean,
   interfaceWidth: number,
@@ -76,6 +77,7 @@ const state: State = {
   draggedNote: null,
   gracenoteState: { dragged: null },
   playbackState: { bpm: 100 },
+  currentMenu: 'normal',
   zoomLevel: 0,
   textBoxState: { selectedText: null },
   currentDocumentation: null,
@@ -652,6 +654,14 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       popupWindow.print();
       popupWindow.document.close();
     }
+  } else if (ScoreEvent.isStartResizingUserInterface(event)) {
+    state.resizingInterface = true;
+  } else if (ScoreEvent.isResizeUserInterface(event)) {
+    state.interfaceWidth = event.width;
+    changed = true;
+  } else if (ScoreEvent.isSetMenu(event)) {
+    state.currentMenu = event.menu;
+    changed = true;
   } else if (ScoreEvent.isDocHover(event)) {
     state.currentDocumentation = event.element;
     changed = true;
@@ -1009,11 +1019,6 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     state.score = pasteNotes(toPaste, bar, indexToPlace, state.score);
     changed = true;
     shouldSave = true;
-  } else if (ScoreEvent.isStartResizingUserInterface(event)) {
-    state.resizingInterface = true;
-  } else if (ScoreEvent.isResizeUserInterface(event)) {
-    state.interfaceWidth = event.width;
-    changed = true;
   } else if (ScoreEvent.isToggleLandscape(event)) {
     const tmp = state.score.width;
     state.score.width = state.score.height;
@@ -1221,6 +1226,7 @@ const updateView = () => {
     zoomLevel: state.zoomLevel,
     inputLength: (state.demoNote && state.demoNote.type === 'note') ? state.demoNote.length : null,
     docs: state.showDocumentation ? Documentation.get(state.currentDocumentation || '') || 'Hover over different parts of the user interface to view the help documentation here.' : null,
+    currentMenu: state.currentMenu,
     playbackBpm: state.playbackState.bpm,
     width: state.interfaceWidth,
     gracenoteInput: state.inputGracenote

@@ -2,7 +2,7 @@
   UI.ts - User interface for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
-import { h, V } from '../../render/h';
+import { h, V, Attributes } from '../../render/h';
 
 import { help as dochelp } from '../global/docs';
 
@@ -17,11 +17,13 @@ import Note from '../Note/functions';
 export interface UIState {
   inputLength: NoteLength | null,
   gracenoteInput: GracenoteModel | null,
+  currentMenu: Menu,
   docs: string | null,
   playbackBpm: number,
-  width: number,
   zoomLevel: number
 }
+
+export type Menu = 'normal' | 'gracenote' | 'bar' | 'stave' | 'text' | 'playback' | 'document';
 
 export default function render(dispatch: (e: ScoreEvent) => void, state: UIState): V {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })
@@ -50,10 +52,10 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
 
   const help = (s: string, v: V): V => dochelp(dispatch, s, v);
 
-  return h('div', [
-    h('div', { id: 'topbar', style: `width: calc(${window.innerWidth - state.width}px - 5rem)` }, [
-      help('home', h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ])),
-      h('div', { id: 'note-inputs' }, [
+  const normalMenu = [
+    h('section', [
+      h('h2', ['Input Notes']),
+      h('div', { class: 'section-content note-inputs' }, [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
         noteInputButton(NoteLength.Crotchet),
@@ -62,38 +64,34 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         noteInputButton(NoteLength.DemiSemiQuaver),
         noteInputButton(NoteLength.HemiDemiSemiQuaver),
       ]),
-      help('dot', h('button',
-                    { id: 'toggle-dotted',
-                      class: (state.inputLength && Note.hasDot(state.inputLength)) ? 'highlighted': 'not-highlighted' },
-                    { click: () => dispatch({ name: 'toggle dotted' }) },
-                    [ '•' ])),
-      help('tie', h('button',
-                    { id: 'tie' },
-                    { click: () => dispatch({ name: 'tie selected notes' }) })),
-      help('triplet', h('button',
-                        { id: 'triplet' },
-                        { click: () => dispatch({ name: 'add triplet' }) },
-                        [ '3' ])),
-      help('second timing', h('button',
-                              { id: 'add-second-timing' },
-                              { click: () => dispatch({ name: 'add second timing' }) },
-                              [ '1st / 2nd' ])),
-      help('delete', h('button',
-                       { id: 'delete-notes', class: 'delete' },
-                       { click: () => dispatch({ name: 'delete selected' }) })),
-      help('copy', h('button', { id: 'copy' }, { click: () => dispatch({ name: 'copy' }) })),
-      help('paste', h('button', { id: 'paste' }, { click: () => dispatch({ name: 'paste' }) })),
-      help('undo', h('button',
-                     { id: 'undo' },
-                     { click: () => dispatch({ name: 'undo' }) })),
-      help('redo', h('button',
-                     { id: 'redo' },
-                     { click: () => dispatch({ name: 'redo' }) })),
     ]),
-    h('div', { id: 'resize-ui', style: `right: ${state.width + 25}px` }, { 'mousedown': () => dispatch({ name: 'start resizing user interface' }) }),
-    h('div', { id: 'sidebar', style: `width: ${state.width}px` }, [
-      h('details', [
-        h('summary', ['Gracenote']),
+    h('section', [
+      h('h2', ['Modify Notes']),
+      h('div', { class: 'section-content' }, [
+        help('dot', h('button',
+                        { id: 'toggle-dotted',
+                        class: (state.inputLength && Note.hasDot(state.inputLength)) ? 'highlighted': 'not-highlighted' },
+                        { click: () => dispatch({ name: 'toggle dotted' }) },
+                        [ '•' ])),
+        help('tie', h('button',
+                        { id: 'tie' },
+                        { click: () => dispatch({ name: 'tie selected notes' }) })),
+        help('triplet', h('button',
+                            { id: 'triplet' },
+                            { click: () => dispatch({ name: 'add triplet' }) },
+                            [ '3' ])),
+        help('second timing', h('button',
+                                { id: 'add-second-timing' },
+                                { click: () => dispatch({ name: 'add second timing' }) },
+                                [ '1st / 2nd' ])),
+      ])
+    ])
+  ];
+
+  const gracenoteMenu = [
+    h('section', [
+      h('h2', ['Add Gracenote']),
+      h('div', { class: 'section-content' }, [
         help('single', h('button', { class: (state.gracenoteInput && state.gracenoteInput.type === 'single') ? 'highlighted' : 'not-highlighted', style: 'background-image: url("/images/icons/single.svg")' }, { click: () => dispatch({ name: 'set gracenote', value: null }) })),
         gracenoteInput('doubling'),
         gracenoteInput('throw-d'),
@@ -104,63 +102,149 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),
         gracenoteInput('edre'),
-        help('remove gracenote', h('button', { class: 'twice-width' }, { click: () => dispatch({ name: 'set gracenote', value: 'none' }) }, ['Remove Gracenote'])),
       ]),
-      h('details', [
-        h('summary', ['Bar']),
+    ]),
+    h('section', [
+      h('h2', ['Modify Gracenote']),
+      help('remove gracenote', h('button', { class: 'twice-width' }, { click: () => dispatch({ name: 'set gracenote', value: 'none' }) }, ['Remove Gracenote'])),
+    ])
+  ];
+
+  const barMenu = [
+    h('section', [
+      h('h2', ['Bar']),
+      h('div', { class: 'section-content' }, [
         help('add bar before', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add bar', before: true }) }, ['before'])),
         help('add bar after', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add bar', before: false }) }, ['after'])),
+        // TODO this should maybe be in its own menu
         help('edit bar time signature', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'edit bar time signature' }) }, ['Edit Time Signature'])),
-        h('h2', ['Repeat']),
-        h('label', [
-          'Start:',
-          help('normal barline', h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.Normal }) }, ['Normal'])),
-          help('repeat barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.Repeat }) }, ['Repeat'])),
-          help('part barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.End }) }, ['Part'])),
-          h('label', { style: 'display: block' }, [
-            'End: ',
-            help('normal barline', h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Normal }) }, ['Normal'])),
-            help('repeat barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Repeat }) }, ['Repeat'])),
-            help('part barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.End }) }, ['Part'])),
-          ]),
+      ])
+    ]),
+    h('section', [
+      h('h2', { style: 'display: inline' }, ['Repeat']),
+      h('div', { class: 'section-content flex' }, [
+        h('div', [
+            h('label', ['Start:']),
+            help('normal barline', h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.Normal }) }, ['Normal'])),
+            help('repeat barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.Repeat }) }, ['Repeat'])),
+            help('part barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.End }) }, ['Part'])),
         ]),
-      ]),
-      h('details', [
-        h('summary', ['Lead In']),
+        h('div', [
+            h('label', ['End:']),
+            help('normal barline', h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Normal }) }, ['Normal'])),
+          help('repeat barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Repeat }) }, ['Repeat'])),
+          help('part barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.End }) }, ['Part'])),
+        ]),
+      ])
+    ]),
+    h('section', [
+      h('h2', ['Lead In']),
+      h('div', { class: 'section-content' }, [
         help('add lead in before', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add anacrusis', before: true }) }, ['before bar'])),
         help('add lead in after', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add anacrusis', before: false }) }, ['after bar'])),
-        h('p', ['You can also use the bar controls to edit other aspects of lead ins'])
-      ]),
-      h('details', [
-        h('summary', ['Stave']),
+      ])
+    ])
+  ];
+
+  const staveMenu = [
+    h('section', [
+      h('h2', ['Stave']),
+      h('div', { class: 'section-content' }, [
         help('add stave before', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add stave', before: true }) }, ['before'])),
         help('add stave after', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add stave', before: false }) }, ['after'])),
-      ]),
-      h('details', [
-        h('summary', ['Text box']),
+      ])
+    ])
+  ];
+
+  const textMenu = [
+    h('section', [
+      h('h2', ['Text']),
+      h('div', { class: 'section-content' }, [
         help('add text', h('button', { class: 'add' }, { click: () => dispatch({ name: 'add text' }) })),
         help('centre text', h('button', { class: 'double-width text' }, { click: () => dispatch({ name: 'centre text' }) }, [ 'Centre text' ])),
-      ]),
-      h('details', [
-        h('Summary', ['Playback (work in progress)']),
+      ])
+    ])
+  ];
+
+  const playBackMenu = [
+    h('section', [
+      h('h2', ['Playback (Work in Progress)']),
+      h('div', { class: 'section-content' }, [
         help('play', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'start playback' }) }, ['Play'])),
         help('stop', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'stop playback' }) }, ['Stop'])),
-        help('playback speed', h('label', { style: 'display: block' }, [
+        help('playback speed', h('label', [
           'Playback speed:',
           h('input', { type: 'range', min: '30', max: '200', step: '1', value: state.playbackBpm }, { input: e => dispatch({ name: 'set playback bpm', bpm: parseInt((e.target as HTMLInputElement).value) }) }),
-        ])),
+        ]))
       ]),
-      h('details', [
-        h('summary', ['Document']),
+    ])
+  ];
+
+  const documentMenu = [
+    h('section', [
+      h('h2', ['Document']),
+      h('div', { class: 'section-content' }, [
         help('print', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'print' }) }, ['Print'])),
         help('download', h('button', { class: 'textual' }, ['Download'])),
         help('landscape', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'toggle landscape' }) }, ['Toggle landscape'])),
-      ]),
-      h('label', ['Zoom Level']),
-      help('zoom', h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })),
-      h('label', ['Disable Help']),
-      help('disable help', h('input', { type: 'checkbox' }, { click: () => dispatch({ name: 'toggle doc' }) }))
+      ])
+    ])
+  ];
+
+  const menuMap: Record<Menu, V[]> = {
+    'normal': normalMenu,
+    'gracenote': gracenoteMenu,
+    'bar': barMenu,
+    'stave': staveMenu,
+    'text': textMenu,
+    'playback': playBackMenu,
+    'document': documentMenu
+  };
+
+  const menuClass = (s: Menu): Attributes => s === state.currentMenu ? { class: 'selected' } : { };
+
+  return h('div', [
+    h('div', { id: 'menu' }, [
+      h('button', menuClass('normal'), { mousedown: () => dispatch({ name: 'set menu', menu: 'normal' }) }, ['Home']),
+      h('button', menuClass('gracenote'), { mousedown: () => dispatch({ name: 'set menu', menu: 'gracenote' }) }, ['Gracenote']),
+      h('button', menuClass('bar'), { mousedown: () => dispatch({ name: 'set menu', menu: 'bar' }) }, ['Bar']),
+      h('button', menuClass('stave'), { mousedown: () => dispatch({ name: 'set menu', menu: 'stave' }) }, ['Stave']),
+      h('button', menuClass('text'), { mousedown: () => dispatch({ name: 'set menu', menu: 'text' }) }, ['Text']),
+      h('button', menuClass('playback'), { mousedown: () => dispatch({ name: 'set menu', menu: 'playback' }) }, ['Playback']),
+      h('button', menuClass('document'), { mousedown: () => dispatch({ name: 'set menu', menu: 'document' }) }, ['Document']),
     ]),
-    state.docs ? h('div', { id: 'doc', style: `width: calc(${window.innerWidth - state.width}px - 5.8rem)` }, [state.docs]) : null
+    h('div', { id: 'topbar' }, [
+      h('section', { id: 'home-section' }, [
+        h('h2', ['Home']),
+        help('home', h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ])),
+      ]),
+      h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
+      h('section', { id: 'general-commands' }, [
+        h('h2', ['General Commands']),
+        h('div', { class: 'section-content' }, [
+          help('delete', h('button',
+                           { id: 'delete-notes', class: 'delete' },
+                           { click: () => dispatch({ name: 'delete selected' }) })),
+          help('copy', h('button', { id: 'copy' }, { click: () => dispatch({ name: 'copy' }) })),
+          help('paste', h('button', { id: 'paste' }, { click: () => dispatch({ name: 'paste' }) })),
+          help('undo', h('button',
+                         { id: 'undo' },
+                         { click: () => dispatch({ name: 'undo' }) })),
+          help('redo', h('button',
+                         { id: 'redo' },
+                         { click: () => dispatch({ name: 'redo' }) })),
+        ])
+      ]),
+      h('section', [
+        h('h2', ['View']),
+        h('div', { class: 'section-content' }, [
+          h('label', ['Zoom']),
+          help('zoom', h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })),
+          h('label', ['Disable Help']),
+          help('disable help', h('input', { type: 'checkbox' }, { click: () => dispatch({ name: 'toggle doc' }) }))
+        ])
+      ])
+    ]),
+    state.docs ? h('div', { id: 'doc' }, [state.docs]) : null
   ]);
 }

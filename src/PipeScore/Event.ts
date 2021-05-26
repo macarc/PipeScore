@@ -11,6 +11,7 @@ import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { SecondTimingModel } from './SecondTiming/model';
+import { Menu } from './UI/view';
 
 export type ScoreEvent =
   DeleteSelected
@@ -62,6 +63,7 @@ export type ScoreEvent =
   | ChangeZoomLevel
   | StartResizingUserInterface
   | ResizeUserInterface
+  | SetMenu
 
   | ToggleLandscape
 
@@ -414,6 +416,14 @@ type ResizeUserInterface = {
 }
 export function isResizeUserInterface(e: ScoreEvent): e is ResizeUserInterface {
   return e.name === 'resize user interface';
+}
+
+type SetMenu = {
+  name: 'set menu',
+  menu: Menu
+};
+export function isSetMenu(e: ScoreEvent): e is SetMenu {
+  return e.name === 'set menu';
 }
 
 type ToggleLandscape = {

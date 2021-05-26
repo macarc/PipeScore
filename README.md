@@ -31,7 +31,6 @@ Piping features:
 Programming features:
 * ~4500 source lines of TypeScript
 * Custom virtual DOM
-* Tiny - less than 25kB JS, minified + gzipped
 
 ## Running locally
 

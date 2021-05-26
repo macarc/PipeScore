@@ -64,13 +64,12 @@ export default function patch(before: VElement, after: VElement): boolean {
     return true;
   }
   after.node = before.node;
-  for (const attr in after.attrs) {
+  for (const attr in { ...before.attrs, ...after.attrs }) {
     if (before.attrs[attr] !== after.attrs[attr]) {
-      if (typeof after.attrs[attr] === 'boolean') {
-        if (after.attrs[attr]) before.node.setAttribute(attr, after.attrs[attr].toString());
-        else if (before.attrs[attr]) {
-          before.node.removeAttribute(attr);
-        }
+      if (!after.attrs[attr]) {
+        before.node.removeAttribute(attr);
+      } else if (typeof after.attrs[attr] === 'boolean') {
+        before.node.setAttribute(attr, after.attrs[attr].toString());
       } else {
         before.node.setAttribute(attr, after.attrs[attr].toString());
       }
@@ -90,7 +89,7 @@ export default function patch(before: VElement, after: VElement): boolean {
   // todo this could probably be more efficient
   const childrenDiffLength = before.children.length - after.children.length;
   for (let i = 0; i < childrenDiffLength; i++) {
-    before.node.removeChild(before.node.children[before.node.children.length - 1]);
+    before.node.removeChild(before.node.childNodes[before.node.childNodes.length - 1]);
   }
   let reachedEndOfBeforeChildren = false;
   const beforeChildrenLength = before.children.length;

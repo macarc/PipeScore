@@ -60,4 +60,4 @@ export function hFrom(element: string | HTMLElement): V {
   return { name: el.tagName, attrs: {}, events: {}, children: [], node: el };
 }
 
-export { V, h, svg };
+export { V, h, svg, Attributes };
