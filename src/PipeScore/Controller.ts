@@ -578,12 +578,12 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   } else if (ScoreEvent.isSetInputLength(event)) {
     state.inputGracenote = null;
     state.score = changeNotesAndTriplets(rawSelectedNotes, note => ({ ...note, length: event.length }), state.score);
+    changed = true;
+    shouldSave = true;
     if (!state.demoNote || state.demoNote.type === 'gracenote') {
       state.demoNote = DemoNote.init(event.length)
-      changed = true;
     } else if (state.demoNote.type === 'note' && event.length !== state.demoNote.length) {
       state.demoNote.length = event.length;
-      changed = true;
     }
   } else if (ScoreEvent.isStopInputtingNotes(event)) {
      if (state.demoNote) {

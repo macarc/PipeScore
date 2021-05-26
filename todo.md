@@ -8,7 +8,6 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Firefox adding a gracenote to F doesn't work
-- [ ] Barlines -- top button is slightly offset
 - [ ] Make general commands always be on the far right
  
 Hard to reproduce:

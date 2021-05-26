@@ -30,7 +30,47 @@ button {
 input[type="range"] {
   display: block;
 }
-#ui #topbar button:not(.textual) {
+
+#menu, #topbar {
+  display: flex;
+  margin: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+}
+
+#menu {
+  background: white;
+  height: 2rem;
+  padding: 0;
+}
+#topbar {
+  background: lightblue;
+  padding: 1rem;
+  top: 2rem;
+  width: 100vw;
+}
+
+#menu button {
+  height: 2rem;
+  margin: 0;
+}
+
+#menu .selected {
+  background: lightblue;
+}
+
+#topbar div {
+  display: inline;
+  margin: 0;
+}
+#topbar section {
+  display: inline-flex;
+  flex-direction: column;
+  margin: 0 1.5rem;
+}
+#topbar button:not(.textual) {
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -41,91 +81,12 @@ input[type="range"] {
   height: 3rem;
   font-size: 0.8rem;
 }
-#ui button.textual {
+button.textual {
   vertical-align: top;
 }
-#ui #sidebar {
-  position: fixed;
-  right: 0;
-  top: 0;
-  height: 100vh;
-  padding-left: 2rem;
-  background-color: lightblue;
-  overflow-y: scroll;
-  padding-right: .8rem;
-  padding-bottom: 2rem;
-}
 
-summary {
-  cursor: pointer;
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin: 0 0 1rem;
-}
-details {
-  padding: .3rem 0;
-  margin: .3rem 0;
-}
-
-#resize-ui {
-  position: fixed;
-  top: 0;
-  left: auto;
-  height: 100vh;
-  width: 1rem;
-  z-index: 1;
-  cursor: col-resize;
-}
-
-#ui #topbar {
-  position: fixed;
-  left: 0;
-  top: 2rem;
-  width: 100vw;
-  display: block;
-  padding: 1rem;
-  background: lightblue;
-  margin: 0;
-}
-
-#menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  background: white;
-  height: 2rem;
-  margin: 0;
-  padding: 0;
-  display: flex;
-}
-
-#menu button {
-    height: 2rem;
-    margin: 0;
-}
-
-#menu .selected {
-    background: lightblue;
-}
-
-#ui #topbar div {
+#topbar label, #topbar input {
   display: inline;
-  margin: 0;
-}
-
-#ui #topbar label, #ui #topbar input {
-  display: inline;
-}
-
-#ui #topbar {
-  display: inline-flex;
-}
-
-#ui #topbar section {
-  display: inline-flex;
-  flex-direction: column;
-  margin: 0 1.5rem;
 }
 div .flex {
   display: inline-flex !important;
@@ -178,9 +139,9 @@ svg {
 }
 
 h2 {
-    font-size: 1.1rem;
-    user-select: none;
-    margin: 0 0 .3rem;
+  font-size: 1.1rem;
+  user-select: none;
+  margin: 0 0 .3rem;
 }
 #note-sb {
   background-image: url('./images/icons/semibreve.svg');
@@ -243,22 +204,6 @@ text {
 #browser-size-warning {
   display: none;
 }
-@media only screen and (max-width: 800px) {
-  html {
-    background: white;
-  }
-  #browser-size-warning {
-    display: block;
-    width: 80%;
-    line-height: 2rem;
-    text-align: center;
-    margin: 30% auto;
-    font-size: 1.5rem;
-  }
-  #score { display: none; }
-  #ui { display: none; }
-}
-
 #dialogue-parent {
   position: fixed;
   left: 0;
@@ -311,7 +256,18 @@ text {
   min-height: 4rem;
   white-space: pre-line;
 }
- 
-#general-commands {
-  float: right;
+@media only screen and (max-width: 800px) {
+  html {
+    background: white;
+  }
+  #browser-size-warning {
+    display: block;
+    width: 80%;
+    line-height: 2rem;
+    text-align: center;
+    margin: 30% auto;
+    font-size: 1.5rem;
+  }
+  #score, #ui, #doc { display: none; }
 }
+
