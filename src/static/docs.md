@@ -152,8 +152,5 @@ You can place a second timing by clicking on a bar that is not at the end of the
 
 You can then drag the individual parts of the second timing around by clicking and dragging on the vertical lines of the second timing. PipeScore automatically snaps the lines to the closest note or bar on the score.
 
-## Other
+## Page Orientation
 You can change a score between portait and landscape by pressing the `Toggle Landscape` button under the Document menu.
-
-## Source Code
-PipeScore is open source, so you can view all the code if you want - [here](https://github.com/macarc/PipeScore).

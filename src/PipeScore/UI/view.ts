@@ -4,6 +4,8 @@
 */
 import { h, V, Attributes } from '../../render/h';
 
+import { Menu } from './model';
+
 import { help as dochelp } from '../global/docs';
 
 import { ScoreEvent } from '../Event';
@@ -22,8 +24,6 @@ export interface UIState {
   playbackBpm: number,
   zoomLevel: number
 }
-
-export type Menu = 'normal' | 'gracenote' | 'bar' | 'stave' | 'text' | 'playback' | 'document';
 
 export default function render(dispatch: (e: ScoreEvent) => void, state: UIState): V {
   const setNoteInput = (length: NoteLength) => () => dispatch({ name: 'set note input length', length })

@@ -34,6 +34,12 @@ Programming features:
 
 ## Running locally
 
+You will need:
+* `pandoc`
+* `python3` (and `pip3`)
+* `npm`
+* `tsc`
+
 To make the icons, run:
 * `pip3 install svgwrite`
 * `python3 make-icons.py`

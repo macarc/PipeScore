@@ -16,6 +16,7 @@ import { SecondTimingModel, DraggedSecondTiming } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { DemoNoteModel } from './DemoNote/model';
+import { Menu } from './UI/model';
 
 import playScore from './Score/play';
 
@@ -30,7 +31,7 @@ import TimeSignature from './TimeSignature/functions';
 import { editTimeSignature } from './TimeSignature/view';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
-import renderUI, { Menu } from './UI/view';
+import renderUI from './UI/view';
 
 import { deleteXY, closestItem, itemBefore } from './global/xy';
 import dialogueBox from './global/dialogueBox';

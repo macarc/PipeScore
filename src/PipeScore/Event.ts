@@ -11,7 +11,7 @@ import { SingleGracenote } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { SecondTimingModel } from './SecondTiming/model';
-import { Menu } from './UI/view';
+import { Menu } from './UI/model';
 
 export type ScoreEvent =
   DeleteSelected
