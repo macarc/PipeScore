@@ -35,7 +35,7 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean,
   const ledgerRight = 5.1;
   const rotateText = "rotate(-30 " + x + " " + y + ")";
   return svg('g', { class: 'gracenote-head' }, [
-    isBeingDragged ? svg('rect', { x: x - 1.5 * gracenoteHeadRadius, y: y - 5, width: 3 * gracenoteHeadRadius, height: 10, fill: 'orange', opacity: 0.9 }) : null,
+    isBeingDragged ? svg('rect', { x: x - 1.5 * gracenoteHeadRadius, y: y - 5, width: 3 * gracenoteHeadRadius, height: 10, fill: 'orange', opacity: 0.9, 'pointer-events': 'none' }) : null,
 
     (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: 'black' }) : null,
     svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadRadius, ry: 2.5, transform: rotateText, fill: isValid ? 'black' : 'red', 'pointer-events': 'none' }),

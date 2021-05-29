@@ -61,8 +61,6 @@ export type ScoreEvent =
 
   | SetInputLength
   | ChangeZoomLevel
-  | StartResizingUserInterface
-  | ResizeUserInterface
   | SetMenu
 
   | ToggleLandscape
@@ -402,20 +400,6 @@ type DragSecondTiming = {
 }
 export function isDragSecondTiming(e: ScoreEvent): e is DragSecondTiming {
   return e.name === 'drag second timing';
-}
-
-type StartResizingUserInterface = {
-  name: 'start resizing user interface'
-}
-export function isStartResizingUserInterface(e: ScoreEvent):e is StartResizingUserInterface {
-  return e.name === 'start resizing user interface';
-}
-type ResizeUserInterface = {
-  name: 'resize user interface',
-  width: number
-}
-export function isResizeUserInterface(e: ScoreEvent): e is ResizeUserInterface {
-  return e.name === 'resize user interface';
 }
 
 type SetMenu = {
