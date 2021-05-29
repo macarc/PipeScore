@@ -8,7 +8,6 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Firefox adding a gracenote to F doesn't work
-- [ ] Make general commands always be on the far right
 
 
 ## General features
@@ -170,3 +169,4 @@
 - [X] Up/Down should move notes
 - [X] Hoverable documentation
 - [X] Fix bottom of sidebar overlapping with docs
+- [X] Make general commands always be on the far right

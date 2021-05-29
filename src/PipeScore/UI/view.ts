@@ -215,7 +215,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     ]),
     h('div', { id: 'topbar' }, [
       h('section', { id: 'home-section' }, [
-        h('h2', ['Note']),
+        h('h2', ['Home']),
         help('home', h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ])),
       ]),
       h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),

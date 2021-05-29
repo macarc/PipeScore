@@ -64,6 +64,7 @@ input[type="range"] {
 #topbar div {
   display: inline;
   margin: 0;
+  padding: 0;
 }
 #topbar section {
   display: inline-flex;
@@ -88,6 +89,19 @@ button.textual {
 #topbar label, #topbar input {
   display: inline;
 }
+#topbar {
+  padding-left: 0;
+}
+
+#topbar-main {
+  flex: 1;
+}
+
+#home-section {
+  width: 3rem;
+  margin: 0 .5rem !important;
+}
+
 div .flex {
   display: inline-flex !important;
   flex-direction: column;
