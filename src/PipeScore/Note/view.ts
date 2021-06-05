@@ -147,9 +147,9 @@ function tie(staveY: number, pitch: Pitch, x: number, noteWidth: number, previou
   const tieHeight = 15;
   const tieWidth = 8;
   const y = noteY(staveY, pitch);
-  const x0 = x - 1;
+  const x0 = x - 1 + noteHeadRadius;
   const y0 = y - tieOffsetY;
-  const x1 = previousNote.x + 1;
+  const x1 = previousNote.x + 1 - noteHeadRadius;
   const y1 = previousNote.y - tieOffsetY;
   const midx = previousNote.x + (x - previousNote.x) / 2.0;
   const midy = y0 + (y1 - y0) / 2.0;

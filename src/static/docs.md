@@ -94,7 +94,7 @@ PipeScore will automatically keep the same bar breaks in the notes that you past
 
 ## Gracenotes
 ### Single Gracenotes
-You can add single a single gracenote by clicking the single gracenote in the top right, then clicking on the place you want to place the single.
+You can add single a single gracenote by clicking the single gracenote under the `Gracenote` menu, then clicking on the place you want to place the single.
 
 You can drag single gracenotes up and down to change the pitch.
 
@@ -113,11 +113,11 @@ You can change which gracenote is on a note by selecting the note, and then clic
 You can delete a gracenote by selecting the note that the gracenote is on, then pressing the `Remove Gracenote` button under the `Gracenote` menu.
 
 ## Bars
-You can place a bar by selecting the bar before where you want to place it, then pressing `+ After` under the `Bar` menu. Alternatively, you can select the bar after where you want to place it and click `+ Before` under the Bar menu on the right.
+You can place a bar by selecting the bar before where you want to place it, then pressing `+ After` under the `Bar` menu. Alternatively, you can select the bar after where you want to place it and click `+ Before` under the `Bar` menu.
 
 You can delete a bar by selecting the bar, then pressing the bin icon in the top panel. The other bars in the stave will then be made to fill up the rest of the space
 
-You can change the repeats on a bar using the controls under the bar menu on the right panel - you can change the start and end of the bar to either have a normal barline, a repeating start/end of part, or a non-repeating start/end of part.
+You can change the repeats on a bar using the controls under the `Bar` menu - you can change the start and end of the bar to either have a normal barline, a repeating start/end of part, or a non-repeating start/end of part.
 
 ## Lead ins
 You can add lead-ins similar to adding bars, using the `+ Before Bar` and `+ After Bar` buttons under the `Bar` menu. This will add a lead-in bar, which you can add notes to.

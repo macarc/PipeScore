@@ -51,7 +51,7 @@ export function widthOfAnacrusis(anacrusis: BarModel, previousTimeSignature: Tim
   // Finds the width of the bar (assumes it is an anacrusis)
 
   const beats = beatsOf(anacrusis, previousPitch);
-  const totalNumberOfBeats = Math.max(nmap(last(beats), b => b.extend) || 1, 2);
+  const totalNumberOfBeats = Math.max((nmap(last(beats), b => b.extend) || 1) + 1, 2);
   return minimumBeatWidth * totalNumberOfBeats + (previousTimeSignature && !TimeSignature.equal(anacrusis.timeSignature, previousTimeSignature) ? 0 : timeSignatureWidth);
 }
 

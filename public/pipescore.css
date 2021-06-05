@@ -99,7 +99,7 @@ button.textual {
 
 #home-section {
   width: 3rem;
-  margin: 0 .5rem !important;
+  margin: 0 1rem !important;
 }
 
 div .flex {
@@ -199,8 +199,13 @@ h2 {
 #copy {
   background-image: url('./images/copy.png');
 }
+
 #paste {
   background-image: url('./images/paste.svg');
+}
+
+#copy:active, #paste:active {
+  background-color: yellow !important;
 }
 
 #centre-text {
