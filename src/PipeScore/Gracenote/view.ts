@@ -92,9 +92,11 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     const grace = Gracenote.notesOf(gracenote, props.thisNote, props.previousNote);
     const uniqueNotes: { note: Pitch }[] = Gracenote.isInvalid(grace) ? grace.gracenote.map(note => ({ note })) : grace.map(note => ({ note }));
 
-    const width = gracenoteToNoteWidthRatio * props.noteWidth;
+    // If the width gets too large, it looks bad, so limit the maximum gap between gracenote heads to 10
+    const width = Math.min(gracenoteToNoteWidthRatio * props.noteWidth, 10);
+    const offset = uniqueNotes.length * (gracenoteToNoteWidthRatio * props.noteWidth - width);
 
-    const xOf = (noteObj: { note: Pitch}) => props.x + uniqueNotes.indexOf(noteObj) * (width + gracenoteHeadWidth);
+    const xOf = (noteObj: { note: Pitch}) => props.x + offset + uniqueNotes.indexOf(noteObj) * (width + gracenoteHeadWidth);
     const y = (note: Pitch) => noteY(props.y, note);
     if (uniqueNotes.length === 0) {
       return svg('g');

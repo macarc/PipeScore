@@ -8,7 +8,6 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Firefox adding a gracenote to F doesn't work
-- [ ] Minimum width for gracenotes
 
 
 ## General features
@@ -175,3 +174,4 @@
 - [X] More gap before first note in lead in
 - [X] Copy/Paste should highlight on click
 - [X] Second Timings over multiple staves
+- [X] Maximum width for gracenotes

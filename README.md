@@ -29,7 +29,7 @@ Piping features:
 * Bars/Staves/e.t.c.
 
 Programming features:
-* ~4500 source lines of TypeScript
+* ~5000 source lines of TypeScript
 * Custom virtual DOM
 
 ## Running locally
