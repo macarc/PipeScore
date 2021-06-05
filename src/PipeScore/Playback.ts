@@ -13,20 +13,6 @@ function sleep(length: number): Promise<void> {
   return new Promise(res => setTimeout(res, length));
 }
 
-function pitchToAudio(pitch: Pitch): HTMLAudioElement {
-  switch (pitch) {
-    case Pitch.G: return lowg;
-    case Pitch.A: return lowa;
-    case Pitch.B: return b;
-    case Pitch.C: return c;
-    case Pitch.D: return d;
-    case Pitch.E: return e;
-    case Pitch.F: return f;
-    case Pitch.HG: return highg;
-    case Pitch.HA: return higha;
-  }
-}
-
 let audioStopped = false;
 
 export const stopAudio = (): void => {
@@ -43,6 +29,30 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
   const f = new Audio('/audio/f.mp3');
   const highg = new Audio('/audio/highg.mp3');
   const higha = new Audio('/audio/higha.mp3');
+
+  lowg.load();
+  lowa.load();
+  b.load();
+  c.load();
+  d.load();
+  e.load();
+  f.load();
+  highg.load();
+  higha.load();
+
+  function pitchToAudio(pitch: Pitch): HTMLAudioElement {
+    switch (pitch) {
+      case Pitch.G: return lowg;
+      case Pitch.A: return lowa;
+      case Pitch.B: return b;
+      case Pitch.C: return c;
+      case Pitch.D: return d;
+      case Pitch.E: return e;
+      case Pitch.F: return f;
+      case Pitch.HG: return highg;
+      case Pitch.HA: return higha;
+    }
+  }
 
   let current = lowa;
   for (const el of elements) {
