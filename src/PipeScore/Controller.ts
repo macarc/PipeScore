@@ -656,6 +656,8 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     }
   } else if (ScoreEvent.isSetMenu(event)) {
     state.currentMenu = event.menu;
+    state.demoNote = null;
+    state.inputGracenote = null;
   } else if (ScoreEvent.isDocHover(event)) {
     state.currentDocumentation = event.element;
   } else if (ScoreEvent.isToggleDoc(event)) {

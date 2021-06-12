@@ -80,10 +80,6 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
                             { id: 'triplet' },
                             { click: () => dispatch({ name: 'add triplet' }) },
                             [ '3' ])),
-        help('second timing', h('button',
-                                { id: 'add-second-timing' },
-                                { click: () => dispatch({ name: 'add second timing' }) },
-                                [ '1st / 2nd' ])),
       ])
     ])
   ];
@@ -102,23 +98,32 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),
         gracenoteInput('edre'),
-      ]),
-    ]),
-    h('section', [
-      h('h2', ['Modify Gracenote']),
-      help('remove gracenote', h('button', { class: 'twice-width' }, { click: () => dispatch({ name: 'set gracenote', value: 'none' }) }, ['Remove Gracenote'])),
+      ])
     ])
   ];
 
+  const addBarOrAnacrusis = (which: 'bar' | 'anacrusis') => {
+    const text = which === 'bar' ? 'add bar' : 'add anacrusis';
+    return [
+      help(text, h('button', { class: 'add' }, { click: () => dispatch({ name: text, before: (() => {
+        let el = document.getElementById(`${which}-add-where`)
+        if (el && el instanceof HTMLSelectElement) {
+          return el.value === 'before';
+        } else {
+          return true;
+        }
+      })() }) })),
+      h('select', { id: `${which}-add-where`, class: 'fit-nicely' }, [
+        h('option', { name: `add-${which}`, value: 'before' }, ['before']),
+        h('option', { name: `add-${which}`, value: 'after' }, ['after']),
+      ]),
+    ];
+  };
+  
   const barMenu = [
     h('section', [
       h('h2', ['Bar']),
-      h('div', { class: 'section-content' }, [
-        help('add bar before', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add bar', before: true }) }, ['before'])),
-        help('add bar after', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add bar', before: false }) }, ['after'])),
-        // TODO this should maybe be in its own menu
-        help('edit bar time signature', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'edit bar time signature' }) }, ['Edit Time Signature'])),
-      ])
+      h('div', { class: 'section-content' }, addBarOrAnacrusis('bar'))
     ]),
     h('section', [
       h('h2', { style: 'display: inline' }, ['Repeat']),
@@ -130,7 +135,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
             help('part barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'frontBarline', what: Barline.End }) }, ['Part'])),
         ]),
         h('div', [
-            h('label', ['End:']),
+            h('label', ['End: ']),
             help('normal barline', h('button', { class: 'textual', style: 'margin-left: .5rem;' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Normal }) }, ['Normal'])),
           help('repeat barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.Repeat }) }, ['Repeat'])),
           help('part barline', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'set bar repeat', which: 'backBarline', what: Barline.End }) }, ['Part'])),
@@ -139,9 +144,12 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     ]),
     h('section', [
       h('h2', ['Lead In']),
+      h('div', { class: 'section-content' }, addBarOrAnacrusis('anacrusis'))
+    ]),
+    h('section', [
+      h('h2', ['Time Signature']),
       h('div', { class: 'section-content' }, [
-        help('add lead in before', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add anacrusis', before: true }) }, ['before bar'])),
-        help('add lead in after', h('button', { class: 'add text' }, { click: () => dispatch({ name: 'add anacrusis', before: false }) }, ['after bar'])),
+        help('edit bar time signature', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'edit bar time signature' }) }, ['Edit Time Signature'])),
       ])
     ])
   ];
@@ -188,7 +196,31 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         help('download', h('button', { class: 'textual' }, ['Download'])),
         help('landscape', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'toggle landscape' }) }, ['Toggle landscape'])),
       ])
+    ]),
+    h('section', [
+      h('h2', ['View']),
+      h('div', { class: 'section-content' }, [
+        h('label', ['Zoom']),
+        help('zoom', h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })),
+        h('label', ['Disable Help']),
+        help('disable help', h('input', { type: 'checkbox' }, { click: () => dispatch({ name: 'toggle doc' }) }))
+      ])
     ])
+  ];
+
+  // This is currently mostly a dumping ground for things I can't fit in elsewhere
+  // Will need to be tidied up in the future
+  const miscMenu = [
+    h('section', [
+      h('h2', ['Miscellaneous']),
+      h('div', { class: 'section-content' }, [
+        help('second timing', h('button',
+                                { id: 'add-second-timing' },
+                                { click: () => dispatch({ name: 'add second timing' }) },
+                                  [ '1st/ 2nd' ])),
+
+      ])
+    ]),
   ];
 
   const menuMap: Record<Menu, V[]> = {
@@ -198,13 +230,15 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     'stave': staveMenu,
     'text': textMenu,
     'playback': playBackMenu,
-    'document': documentMenu
+    'document': documentMenu,
+    'misc': miscMenu
   };
 
   const menuClass = (s: Menu): Attributes => s === state.currentMenu ? { class: 'selected' } : { };
 
   return h('div', [
     h('div', { id: 'menu' }, [
+      help('Return to Scores page', h('button', [h('a', { href: '/scores' }, ['Home'])])),
       h('button', menuClass('normal'), { mousedown: () => dispatch({ name: 'set menu', menu: 'normal' }) }, ['Note']),
       h('button', menuClass('gracenote'), { mousedown: () => dispatch({ name: 'set menu', menu: 'gracenote' }) }, ['Gracenote']),
       h('button', menuClass('bar'), { mousedown: () => dispatch({ name: 'set menu', menu: 'bar' }) }, ['Bar']),
@@ -212,12 +246,9 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('button', menuClass('text'), { mousedown: () => dispatch({ name: 'set menu', menu: 'text' }) }, ['Text']),
       h('button', menuClass('playback'), { mousedown: () => dispatch({ name: 'set menu', menu: 'playback' }) }, ['Playback']),
       h('button', menuClass('document'), { mousedown: () => dispatch({ name: 'set menu', menu: 'document' }) }, ['Document']),
+      h('button', menuClass('misc'), { mousedown: () => dispatch({ name: 'set menu', menu: 'misc' }) }, ['Misc']),
     ]),
     h('div', { id: 'topbar' }, [
-      h('section', { id: 'home-section' }, [
-        h('h2', ['Home']),
-        help('home', h('a', { href: '/scores' }, [ h('button', { class: 'home' }) ])),
-      ]),
       h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
       h('section', { id: 'general-commands' }, [
         h('h2', ['General Commands']),
@@ -235,15 +266,6 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
                          { click: () => dispatch({ name: 'redo' }) })),
         ])
       ]),
-      h('section', [
-        h('h2', ['View']),
-        h('div', { class: 'section-content' }, [
-          h('label', ['Zoom']),
-          help('zoom', h('input', { id: 'zoom-level', type: 'range', min: '10', max: '200', step: '2', value: state.zoomLevel }, { input: changeZoomLevel })),
-          h('label', ['Disable Help']),
-          help('disable help', h('input', { type: 'checkbox' }, { click: () => dispatch({ name: 'toggle doc' }) }))
-        ])
-      ])
     ]),
     state.docs ? h('div', { id: 'doc' }, [state.docs]) : null
   ]);

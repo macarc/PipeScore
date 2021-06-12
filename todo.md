@@ -8,6 +8,7 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Firefox adding a gracenote to F doesn't work
+- [ ] Make TODO DWIM
 
 
 ## General features
