@@ -722,18 +722,24 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   } else if (ScoreEvent.isDeleteSelected(event)) {
     viewChanged = false;
 
-    if (state.selection) {
+    if (state.selection && state.currentMenu === 'gracenote') {
+      state.score = changeNotes(selectedNotes, note => ({ ...note, gracenote: Gracenote.init() }), state.score);
       viewChanged = true;
-      state.score = deleteSelection(state.selection, state.score);
-      state.selection = null;
       shouldSave = true;
-    }
-    if (state.textBoxState.selectedText !== null) {
-      viewChanged = true;
-      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
-      state.textBoxState.selectedText = null;
-      state.draggedText = null;
-      shouldSave = true;
+    } else {
+      if (state.selection) {
+        viewChanged = true;
+        state.score = deleteSelection(state.selection, state.score);
+        state.selection = null;
+        shouldSave = true;
+      }
+      if (state.textBoxState.selectedText !== null) {
+        viewChanged = true;
+        state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
+        state.textBoxState.selectedText = null;
+        state.draggedText = null;
+        shouldSave = true;
+      }
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
     if (state.selection) {

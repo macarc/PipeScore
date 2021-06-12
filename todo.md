@@ -8,7 +8,6 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Firefox adding a gracenote to F doesn't work
-- [ ] Make TODO DWIM
 
 
 ## General features
@@ -176,3 +175,4 @@
 - [X] Copy/Paste should highlight on click
 - [X] Second Timings over multiple staves
 - [X] Maximum width for gracenotes
+- [X] Make TODO DWIM
