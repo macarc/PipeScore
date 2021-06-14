@@ -75,7 +75,7 @@ interface State {
 }
 const state: State = {
   draggedNote: null,
-  gracenoteState: { dragged: null },
+  gracenoteState: { dragged: null, selected: null },
   playbackState: { bpm: 100 },
   currentMenu: 'normal',
   zoomLevel: 0,
@@ -105,6 +105,7 @@ function removeState(state: State) {
 
   state.draggedNote = null;
   state.gracenoteState.dragged = null;
+  state.gracenoteState.selected = null;
   state.textBoxState.selectedText = null;
   state.selection = null;
   state.draggedText = null;
@@ -532,9 +533,10 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     } else {
       viewChanged = false;
     }
-  } else if (ScoreEvent.isSingleGracenoteClicked(event)) {
+  } else if (ScoreEvent.isGracenoteClicked(event)) {
     state.justClickedNote = true;
-    state.gracenoteState.dragged = event.gracenote;
+    if (event.gracenote.type === 'single') state.gracenoteState.dragged = event.gracenote;
+    state.gracenoteState.selected = event.gracenote;
     state.demoNote = null;
   } else if (ScoreEvent.isBackgroundClicked(event)) {
     removeState(state);
@@ -633,7 +635,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       zoomLevel: 100,
       selection: null,
       noteState: { dragged: null, inputtingNotes: false },
-      gracenoteState: { dragged: null },
+      gracenoteState: { dragged: null, selected: null },
       textBoxState: { selectedText: null },
       demoNote: null,
       dispatch: () => null
@@ -718,28 +720,28 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       const newGracenote = { ...state.gracenoteState.dragged, note: event.pitch };
       state.score = changeGracenoteFrom(state.gracenoteState.dragged, newGracenote, state.score);
       state.gracenoteState.dragged = newGracenote;
+      state.gracenoteState.selected = newGracenote;
     }
   } else if (ScoreEvent.isDeleteSelected(event)) {
     viewChanged = false;
 
-    if (state.selection && state.currentMenu === 'gracenote') {
-      state.score = changeNotes(selectedNotes, note => ({ ...note, gracenote: Gracenote.init() }), state.score);
+    if (state.gracenoteState.selected) {
+      state.score = changeGracenoteFrom(state.gracenoteState.selected, { type: 'none' }, state.score);
       viewChanged = true;
       shouldSave = true;
-    } else {
-      if (state.selection) {
-        viewChanged = true;
-        state.score = deleteSelection(state.selection, state.score);
-        state.selection = null;
-        shouldSave = true;
-      }
-      if (state.textBoxState.selectedText !== null) {
-        viewChanged = true;
-        state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
-        state.textBoxState.selectedText = null;
-        state.draggedText = null;
-        shouldSave = true;
-      }
+    }
+    if (state.selection) {
+      state.score = deleteSelection(state.selection, state.score);
+      state.selection = null;
+      viewChanged = true;
+      shouldSave = true;
+    }
+    if (state.textBoxState.selectedText !== null) {
+      state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
+      state.textBoxState.selectedText = null;
+      state.draggedText = null;
+      viewChanged = true;
+      shouldSave = true;
     }
   } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
     if (state.selection) {

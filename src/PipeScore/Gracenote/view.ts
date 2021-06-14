@@ -27,20 +27,24 @@ export function gracenoteWidth(gracenote: GracenoteModel, thisNote: Pitch, previ
     return width.init(2 * gracenoteHeadRadius * length, gracenoteToNoteWidthRatio * length);
 }
 
+const colourOf = (selected: boolean) => selected ? 'orange' : 'black';
 
-function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean, isBeingDragged = false): V {
+function head(dispatch: Dispatch, gracenote: GracenoteModel, x: number,y: number, note: Pitch, beamY: number, isValid: boolean, isSelected: boolean): V {
   // Draws head and stem
 
   const ledgerLeft = 5;
   const ledgerRight = 5.1;
   const rotateText = "rotate(-30 " + x + " " + y + ")";
+  const boxWidth = 2.5 * gracenoteHeadRadius;
+  const boxHeight = 6;
+  const colour = colourOf(isSelected);
+
   return svg('g', { class: 'gracenote-head' }, [
-    isBeingDragged ? svg('rect', { x: x - 1.5 * gracenoteHeadRadius, y: y - 5, width: 3 * gracenoteHeadRadius, height: 10, fill: 'orange', opacity: 0.9, 'pointer-events': 'none' }) : null,
+    (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: colour }) : null,
+    svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadRadius, ry: 2.5, transform: rotateText, fill: isValid ? colour : 'red', 'pointer-events': 'none' }),
 
-    (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: 'black' }) : null,
-    svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadRadius, ry: 2.5, transform: rotateText, fill: isValid ? 'black' : 'red', 'pointer-events': 'none' }),
-
-    svg('line', { x1: x + tailXOffset, x2: x + tailXOffset, y1: y, y2: beamY, stroke: 'black' })
+    svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': isSelected ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'gracenote clicked', gracenote }) }),
+    svg('line', { x1: x + tailXOffset, x2: x + tailXOffset, y1: y, y2: beamY, stroke: colour })
 
   ])
 }
@@ -49,28 +53,25 @@ function head(x: number,y: number, note: Pitch, beamY: number, isValid: boolean,
 const stemXOf = (x: number) => x + 3;
 const stemYOf = (y: number) => y - 2;
 
-function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: SingleGracenote | null, draggedGracenote: SingleGracenote | null): V {
+function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: GracenoteModel, selected: boolean): V {
   // Draws a single gracenote
 
   const y = noteY(staveY, note);
-  const boxWidth = 2.5 * gracenoteHeadRadius;
-  const boxHeight = 6;
+
+  const colour = colourOf(selected);
 
   return svg('g', { class: 'gracenote' }, [
-    head(x, y, note, y - 3 * lineGap, true, (draggedGracenote !== null) && (draggedGracenote === gracenote)),
-
-    (gracenote !== null)
-      ? svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': draggedGracenote ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'gracenote clicked', gracenote }) })
-      : null,
+    head(dispatch, gracenote, x, y, note, y - 3 * lineGap, true, selected),
 
     //svg('line', { x1: stemXOf(x), x2: stemXOf(x), y1: stemYOf(y), y2: stemYOf(y) - 20, stroke: 'black' }),
 
-    ...[0,1,2].map(n => svg('line', { x1: stemXOf(x), x2: stemXOf(x) + 5, y1: stemYOf(y) - 20 + 3 *  n, y2: stemYOf(y) - 16 + 3 * n, stroke: 'black' }))
+    ...[0,1,2].map(n => svg('line', { x1: stemXOf(x), x2: stemXOf(x) + 5, y1: stemYOf(y) - 20 + 3 *  n, y2: stemYOf(y) - 16 + 3 * n, stroke: colour }))
   ]);
 }
 
 export interface GracenoteState {
-  dragged: SingleGracenote | null
+  dragged: SingleGracenote | null,
+  selected: GracenoteModel | null
 }
 export interface GracenoteProps {
   thisNote: Pitch,
@@ -83,8 +84,9 @@ export interface GracenoteProps {
 }
 
 export default function render(gracenote: GracenoteModel, props: GracenoteProps): V {
+  const selected = props.state.dragged === gracenote || props.state.selected === gracenote;
   if (gracenote.type === 'single') {
-    return single(gracenote.note, props.x, props.y, props.dispatch, gracenote, props.state.dragged);
+    return single(gracenote.note, props.x, props.y, props.dispatch, gracenote, selected);
   } else if (gracenote.type === 'reactive') {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
@@ -101,13 +103,14 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     if (uniqueNotes.length === 0) {
       return svg('g');
     } else if (uniqueNotes.length === 1) {
-      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, null, props.state.dragged);
+      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, gracenote, selected);
     } else {
+      const colour = colourOf(selected);
       return svg('g', { class: 'reactive-gracenote' }, [
-        ...[0,2,4].map(i => svg('line', { x1: xOf(uniqueNotes[0]) + tailXOffset, x2: xOf(nlast(uniqueNotes)) + tailXOffset, y1: props.y - 3.5 * lineGap + i, y2: props.y - 3.5 * lineGap + i, stroke: 'black' })),
+        ...[0,2,4].map(i => svg('line', { x1: xOf(uniqueNotes[0]) + tailXOffset, x2: xOf(nlast(uniqueNotes)) + tailXOffset, y1: props.y - 3.5 * lineGap + i, y2: props.y - 3.5 * lineGap + i, stroke: colour })),
 
         ...uniqueNotes.map(
-          noteObj => head(xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap, ! Gracenote.isInvalid(grace)))
+          noteObj => head(props.dispatch, gracenote, xOf(noteObj), y(noteObj.note), noteObj.note, props.y - 3.5 * lineGap, ! Gracenote.isInvalid(grace), selected))
       ]);
     }
   } else if (gracenote.type === 'none') {

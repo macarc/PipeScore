@@ -7,7 +7,7 @@ import { ID } from './global/types';
 
 import { NoteModel, TripletModel, NoteLength, BaseNote } from './Note/model';
 import { BarModel, Barline } from './Bar/model';
-import { SingleGracenote } from './Gracenote/model';
+import { GracenoteModel } from './Gracenote/model';
 import { TimeSignatureModel } from './TimeSignature/model';
 import { TextBoxModel } from './TextBox/model';
 import { SecondTimingModel } from './SecondTiming/model';
@@ -25,7 +25,7 @@ export type ScoreEvent =
   | TieSelectedNotes
   | AddTriplet
   | ToggleDotted
-  | SingleGracenoteClicked
+  | GracenoteClicked
   | MoveNoteUp
   | MoveNoteDown
 
@@ -103,11 +103,11 @@ export function isMouseMovedOver(e: ScoreEvent): e is MouseMovedOver {
   return e.name === 'mouse over pitch';
 }
 
-type SingleGracenoteClicked = {
+type GracenoteClicked = {
   name: 'gracenote clicked',
-  gracenote: SingleGracenote
+  gracenote: GracenoteModel
 }
-export function isSingleGracenoteClicked(e: ScoreEvent): e is SingleGracenoteClicked {
+export function isGracenoteClicked(e: ScoreEvent): e is GracenoteClicked {
   return e.name === 'gracenote clicked';
 }
 

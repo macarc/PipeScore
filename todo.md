@@ -8,6 +8,7 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Firefox adding a gracenote to F doesn't work
+- [ ] Deleteable second timings
 
 
 ## General features
@@ -176,3 +177,4 @@
 - [X] Second Timings over multiple staves
 - [X] Maximum width for gracenotes
 - [X] Make TODO DWIM
+- [X] Make gracenotes selectable (to delete)
