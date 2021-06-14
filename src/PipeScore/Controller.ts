@@ -999,7 +999,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
         const newSecondTiming = SecondTiming.init(start.id, middle, end);
         if (SecondTiming.isValid(newSecondTiming, state.score.secondTimings)) {
           state.score.secondTimings.push(newSecondTiming);
-          viewChanged = false;
+          viewChanged = true;
           shouldSave = true;
         }
       }
@@ -1238,7 +1238,7 @@ const updateView = () => {
   const uiProps = {
     zoomLevel: state.zoomLevel,
     inputLength: (state.demoNote && state.demoNote.type === 'note') ? state.demoNote.length : null,
-    docs: state.showDocumentation ? Documentation.get(state.currentDocumentation || '') || 'Hover over different parts of the user interface to view the help documentation here.' : null,
+    docs: state.showDocumentation ? Documentation.get(state.currentDocumentation || '') || 'Hover over different icons to view Help here.' : null,
     currentMenu: state.currentMenu,
     playbackBpm: state.playbackState.bpm,
     width: state.interfaceWidth,

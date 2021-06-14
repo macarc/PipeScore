@@ -71,7 +71,7 @@ input[type="range"] {
   flex-direction: column;
   margin: 0 .5rem;
 }
-#topbar button:not(.textual) {
+#topbar button:not(.textual), .fit-nicely {
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -81,6 +81,9 @@ input[type="range"] {
   width: 3rem;
   height: 3rem;
   font-size: 0.8rem;
+}
+.fit-nicely {
+  width: auto;
 }
 button.textual {
   vertical-align: top;

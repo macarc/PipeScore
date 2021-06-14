@@ -106,7 +106,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     const text = which === 'bar' ? 'add bar' : 'add anacrusis';
     return [
       help(text, h('button', { class: 'add' }, { click: () => dispatch({ name: text, before: (() => {
-        let el = document.getElementById(`${which}-add-where`)
+        const el = document.getElementById(`${which}-add-where`)
         if (el && el instanceof HTMLSelectElement) {
           return el.value === 'before';
         } else {
@@ -151,7 +151,17 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('div', { class: 'section-content' }, [
         help('edit bar time signature', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'edit bar time signature' }) }, ['Edit Time Signature'])),
       ])
-    ])
+    ]),
+    h('section', [
+      h('h2', ['Second Timing']),
+      h('div', { class: 'section-content' }, [
+        help('second timing', h('button',
+                                { id: 'add-second-timing' },
+                                { click: () => dispatch({ name: 'add second timing' }) },
+                                  [ '1st/ 2nd' ])),
+
+      ])
+    ]),
   ];
 
   const staveMenu = [
@@ -208,21 +218,6 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     ])
   ];
 
-  // This is currently mostly a dumping ground for things I can't fit in elsewhere
-  // Will need to be tidied up in the future
-  const miscMenu = [
-    h('section', [
-      h('h2', ['Miscellaneous']),
-      h('div', { class: 'section-content' }, [
-        help('second timing', h('button',
-                                { id: 'add-second-timing' },
-                                { click: () => dispatch({ name: 'add second timing' }) },
-                                  [ '1st/ 2nd' ])),
-
-      ])
-    ]),
-  ];
-
   const menuMap: Record<Menu, V[]> = {
     'normal': normalMenu,
     'gracenote': gracenoteMenu,
@@ -230,8 +225,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
     'stave': staveMenu,
     'text': textMenu,
     'playback': playBackMenu,
-    'document': documentMenu,
-    'misc': miscMenu
+    'document': documentMenu
   };
 
   const menuClass = (s: Menu): Attributes => s === state.currentMenu ? { class: 'selected' } : { };
@@ -246,7 +240,6 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       h('button', menuClass('text'), { mousedown: () => dispatch({ name: 'set menu', menu: 'text' }) }, ['Text']),
       h('button', menuClass('playback'), { mousedown: () => dispatch({ name: 'set menu', menu: 'playback' }) }, ['Playback']),
       h('button', menuClass('document'), { mousedown: () => dispatch({ name: 'set menu', menu: 'document' }) }, ['Document']),
-      h('button', menuClass('misc'), { mousedown: () => dispatch({ name: 'set menu', menu: 'misc' }) }, ['Misc']),
     ]),
     h('div', { id: 'topbar' }, [
       h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),

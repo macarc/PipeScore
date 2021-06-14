@@ -15,7 +15,7 @@ function setCoords(tx: TextBoxModel, x: number, y: number): TextBoxModel {
   return { ...tx, x, y };
 }
 
-const init = (text = '<Double Click to Edit>', predictable = false): TextBoxModel => ({
+const init = (text = '', predictable = false): TextBoxModel => ({
   x: predictable ? 'centre' : Math.random() * 100,
   y: predictable ? 100 : Math.random() * 150,
   size: 20,

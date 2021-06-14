@@ -316,7 +316,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
       const xOfGracenote = (noteIndex: number) => props.x + width.reify(totalWidth(group.slice(0, noteIndex), previousPitch), props.noteWidth);
       const xOf = (noteIndex: number) => {
           const note = group[noteIndex];
-          return xOfGracenote(noteIndex) + width.reify(gracenoteWidth(note.gracenote,note.pitch,noteIndex === 0 ? previousPitch : group[noteIndex - 1].pitch), props.noteWidth);
+          return xOfGracenote(noteIndex) + (note.tied ? 0 : width.reify(gracenoteWidth(note.gracenote,note.pitch,noteIndex === 0 ? previousPitch : group[noteIndex - 1].pitch), props.noteWidth));
       }
       const yOf = (note: NoteModel) => noteY(props.y, note.pitch);
 
