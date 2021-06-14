@@ -124,9 +124,6 @@ div .flex {
   background-position: .8rem .6rem !important;
   background-size: 1.7rem 1.7rem !important;
 }
-.home {
-  background-image: url('./images/home.svg');
-}
 
 .add.text {
   width: 6.4rem !important; /* 6.4 = 2 x normal width + gap between them */

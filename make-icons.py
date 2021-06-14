@@ -32,40 +32,6 @@ doc.add(doc.line(
     ))
 doc.save()
 
-## HOME icon
-doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/home.svg', size=(width,height))
-house_width = 50
-door_width = 15
-door_height = 30
-house_height = 40
-house_y = 40
-roof_y = 15
-overhang_size = 10
-
-margin = (width - house_width) / 2.0
-house_wall_size = (house_width - door_width) / 2.0
-
-doc.add(doc.rect(
-    insert=(margin, house_y),
-    size=(house_wall_size, house_height),
-    fill="black"
-    ))
-doc.add(doc.rect(
-    insert=(margin + house_wall_size + door_width, house_y),
-    size=(house_wall_size, house_height),
-    fill="black"
-    ))
-doc.add(doc.rect(
-    insert=(margin + house_wall_size, house_y),
-    size=(door_width, house_height - door_height),
-    fill="black"
-    ))
-doc.add(doc.polygon(
-    points=[(margin - overhang_size,house_y),(width - margin + overhang_size,house_y),(margin + house_width / 2,roof_y)],
-    fill="black"
-    ))
-doc.save()
-
 ## UNDO/REDO icon
 doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/undo.svg', size=(width,height))
 
