@@ -7,8 +7,8 @@
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
-- [ ] Firefox adding a gracenote to F doesn't work
 - [ ] Deleteable second timings
+- [ ] Can't drag single before a triplet
 
 
 ## General features
@@ -33,7 +33,7 @@
 - [X] Documentation
 - [X] Saving / Loading
 - [X] Printing
-- [ ] Playback
+- [X] Playback
 
 
 

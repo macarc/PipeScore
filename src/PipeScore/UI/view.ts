@@ -119,7 +119,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
       ]),
     ];
   };
-  
+
   const barMenu = [
     h('section', [
       h('h2', ['Bar']),
@@ -186,7 +186,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
 
   const playBackMenu = [
     h('section', [
-      h('h2', ['Playback (Work in Progress)']),
+      h('h2', ['Playback']),
       h('div', { class: 'section-content' }, [
         help('play', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'start playback' }) }, ['Play'])),
         help('stop', h('button', { class: 'textual' }, { click: () => dispatch({ name: 'stop playback' }) }, ['Stop'])),

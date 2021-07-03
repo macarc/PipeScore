@@ -52,6 +52,14 @@ export function keyHandler(e: KeyboardEvent): void {
     case "t":
       dispatch({ name: 'tie selected notes' });
       break;
+    case "z":
+      if (e.ctrlKey)
+        dispatch({ name: 'undo' });
+      break;
+    case "y":
+      if (e.ctrlKey)
+        dispatch({ name: 'redo' });
+      break;
 
     case "1":
       dispatch({ name: 'set note input length', length: NoteLength.Semibreve });
