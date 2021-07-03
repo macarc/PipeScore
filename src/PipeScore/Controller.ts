@@ -247,7 +247,7 @@ function changeGracenoteFrom(oldGracenote: GracenoteModel, newGracenote: Graceno
   // Replaces oldGracenote with newGracenote
 
   return noteMap((n,replace) => {
-    if (Note.isNoteModel(n) && n.gracenote === oldGracenote) {
+    if (n.gracenote === oldGracenote) {
       replace({ ...n, gracenote: newGracenote });
       return true;
     }

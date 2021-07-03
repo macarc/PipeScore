@@ -8,7 +8,6 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Deleteable second timings
-- [ ] Can't drag single before a triplet
 
 
 ## General features
@@ -179,3 +178,4 @@
 - [X] Make TODO DWIM
 - [X] Make gracenotes selectable (to delete)
 - [X] Gracenotes seem to be closer to the note in front
+- [X] Can't drag single before a triplet

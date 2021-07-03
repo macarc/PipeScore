@@ -31,6 +31,8 @@ class Sample {
   load(context: AudioContext): Promise<void> {
     if (this.buffer != null) return Promise.resolve();
 
+    // Need to do this because when it's used later on `this` refers to something else
+    // eslint-disable-next-line
     const s = this;
     return new Promise(res => {
       const request = new XMLHttpRequest();
@@ -47,7 +49,7 @@ class Sample {
   }
 
   getSource(context: AudioContext): AudioBufferSourceNode {
-    let source = context.createBufferSource();
+    const source = context.createBufferSource();
     source.buffer = this.buffer;
     return source;
   }
@@ -88,7 +90,7 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
   elements.unshift({ pitch: Pitch.E, duration: 1 });
 
   // Need to create an array of different buffers since each buffer can only be played once
-  let audioBuffers = new Array(elements.length);
+  const audioBuffers = new Array(elements.length);
   for (const el in elements) {
     audioBuffers[el] = pitchToSample(elements[el].pitch).getSource(context)
     audioBuffers[el].connect(context.destination);
@@ -106,8 +108,6 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
       if (duration === 0) {
         await sleep(gracenoteLength);
       } else {
-        const nextGracenotes = 0;
-
         // Subtract the length of the next gracenote (so that each note lands on the beat
         // while the gracenote is before the beat)
         let j = 0;
