@@ -178,3 +178,4 @@
 - [X] Maximum width for gracenotes
 - [X] Make TODO DWIM
 - [X] Make gracenotes selectable (to delete)
+- [X] Gracenotes seem to be closer to the note in front

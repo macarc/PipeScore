@@ -15,7 +15,10 @@ import { Dispatch } from '../Event';
 
 import Note from './functions';
 
-import renderGracenote, { GracenoteProps, GracenoteState, gracenoteWidth } from '../Gracenote/view';
+import { GracenoteModel } from '../Gracenote/model';
+import renderGracenoteProper, { GracenoteProps, GracenoteState, gracenoteWidth } from '../Gracenote/view';
+
+const renderGracenote = (gracenote: GracenoteModel, props: GracenoteProps) => renderGracenoteProper(gracenote, { ...props, x: props.x + noteHeadRadius / 2 });
 
 const tailGap = 5;
 const shortTailLength = 10;
