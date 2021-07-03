@@ -14,41 +14,74 @@ function sleep(length: number): Promise<void> {
 }
 
 let audioStopped = false;
+let playing = false;
 
 export const stopAudio = (): void => {
     audioStopped = true;
 }
 
-function loadSample(context: AudioContext, location: string): Promise<AudioBufferSourceNode> {
-  return new Promise((res, rej) => {
-    const request = new XMLHttpRequest();
-    request.open('GET', location, true);
-    request.responseType = 'arraybuffer';
-    request.onload = () => {
-      context.decodeAudioData(request.response, (buffer) => {
-        let source = context.createBufferSource();
-        source.buffer = buffer;
-        res(source);
-      });
-    }
-    request.send();
-  });
+class Sample {
+  buffer: AudioBuffer | null = null;
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  load(context: AudioContext): Promise<void> {
+    if (this.buffer != null) return Promise.resolve();
+
+    const s = this;
+    return new Promise(res => {
+      const request = new XMLHttpRequest();
+      request.open('GET', '/audio/' + this.name + '.mp3', true);
+      request.responseType = 'arraybuffer';
+      request.onload = function() {
+        context.decodeAudioData(request.response, (buffer) => {
+          s.buffer = buffer;
+          res();
+        })
+      }
+      request.send();
+    });
+  }
+
+  getSource(context: AudioContext): AudioBufferSourceNode {
+    let source = context.createBufferSource();
+    source.buffer = this.buffer;
+    return source;
+  }
 }
 
+const lowg = new Sample('lowg');
+const lowa = new Sample('lowa');
+const b = new Sample('b');
+const c = new Sample('c');
+const d = new Sample('d');
+const e = new Sample('e');
+const f = new Sample('f');
+const highg = new Sample('highg');
+const higha = new Sample('higha');
+
 export async function playback(state: PlaybackState, elements: PlaybackElement[]): Promise<void> {
+  if (playing) return;
+  playing = true;
+
+  document.body.classList.add("loading");
   const context = new AudioContext();
 
-  function pitchToSample(pitch: Pitch): string {
+  await Promise.all([lowg.load(context), lowa.load(context), b.load(context), c.load(context), d.load(context), e.load(context), f.load(context), highg.load(context), higha.load(context)]);
+  function pitchToSample(pitch: Pitch): Sample {
     switch (pitch) {
-      case Pitch.G: return '/audio/lowg.mp3';
-      case Pitch.A: return '/audio/lowa.mp3';
-      case Pitch.B: return '/audio/b.mp3';
-      case Pitch.C: return '/audio/c.mp3';
-      case Pitch.D: return '/audio/d.mp3';
-      case Pitch.E: return '/audio/e.mp3';
-      case Pitch.F: return '/audio/f.mp3';
-      case Pitch.HG: return '/audio/highg.mp3';
-      case Pitch.HA: return '/audio/higha.mp3';
+      case Pitch.G: return lowg;
+      case Pitch.A: return lowa;
+      case Pitch.B: return b;
+      case Pitch.C: return c;
+      case Pitch.D: return d;
+      case Pitch.E: return e;
+      case Pitch.F: return f;
+      case Pitch.HG: return highg;
+      case Pitch.HA: return higha;
     }
   }
 
@@ -57,18 +90,16 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
   // Need to create an array of different buffers since each buffer can only be played once
   let audioBuffers = new Array(elements.length);
   for (const el in elements) {
-    audioBuffers[el] = loadSample(context, pitchToSample(elements[el].pitch)).then(a => {
-      a.connect(context.destination);
-      return a;
-    });
+    audioBuffers[el] = pitchToSample(elements[el].pitch).getSource(context)
+    audioBuffers[el].connect(context.destination);
   }
   const gracenoteLength = 50;
   Promise.all(audioBuffers).then(async (audioBuffers) => {
+    document.body.classList.remove("loading");
     for (let i=0; i<audioBuffers.length; i++) {
-      const audio = audioBuffers[i];//const current = { audio: audio[i], duration: elements[i].duration };
+      const audio = audioBuffers[i];
       const duration = elements[i].duration;
       if (audioStopped) {
-        audioStopped = false;
         break;
       }
       audio.start(0);
@@ -87,6 +118,9 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
       }
       audio.stop();
     }
+
+    audioStopped = false;
+    playing = false;
   });
 }
 

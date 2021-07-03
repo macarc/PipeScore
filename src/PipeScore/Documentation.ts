@@ -41,7 +41,7 @@ export default new Map(Object.entries({
   'add stave after': 'Add a new blank stave on the line before the currently selected bar',
   'add text': 'Add a new text box',
   'centre text': 'Horizontally centre the currently selected text box',
-  'play': 'Play a preview of the score back from the start',
+  'play': 'Play a preview of the score back from the start\n\nThe first time you click this, it may take a short while to download all the audio samples',
   'stop': 'Stop the playback',
   'playback speed': 'Control the playback speed (further right is faster)',
   'print': 'Print the score to a physical printer or PDF file',
