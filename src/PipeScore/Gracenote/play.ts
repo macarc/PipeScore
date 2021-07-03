@@ -10,6 +10,6 @@ export default function play(gracenote: GracenoteModel, note: Pitch, previous: P
   if (Gracenote.isInvalid(notes)) {
     return [];
   } else {
-    return notes.map(pitch => ({ pitch, duration: 0 }));
+    return notes.map(pitch => ({ pitch, tied: false, duration: 0 }));
   }
 }

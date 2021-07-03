@@ -39,6 +39,8 @@ export type ScoreEvent =
 
   | ExpandSelection
   | DetractSelection
+  | MoveLeft
+  | MoveRight
 
   | AddStave
 
@@ -132,7 +134,7 @@ type MoveNoteDown = {
 }
 export function isMoveNoteDown(e: ScoreEvent): e is MoveNoteDown {
   return e.name === 'move note down';
-} 
+}
 
 type BackgroundClicked = {
   name: 'background clicked'
@@ -160,6 +162,20 @@ type DetractSelection = {
 }
 export function isDetractSelection(e: ScoreEvent): e is DetractSelection {
   return e.name === 'detract selection'
+}
+
+type MoveLeft = {
+  name: 'move left'
+}
+export function isMoveLeft(e: ScoreEvent): e is MoveLeft {
+  return e.name === 'move left';
+}
+
+type MoveRight = {
+  name: 'move right'
+}
+export function isMoveRight(e: ScoreEvent): e is MoveRight {
+  return e.name === 'move right';
 }
 
 type DeleteSelected = {

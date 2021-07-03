@@ -6,6 +6,7 @@ export interface PlaybackState {
 
 export interface PlaybackElement {
   pitch: Pitch,
+  tied: boolean,
   duration: number
 }
 
@@ -87,8 +88,6 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
     }
   }
 
-  elements.unshift({ pitch: Pitch.E, duration: 1 });
-
   // Need to create an array of different buffers since each buffer can only be played once
   const audioBuffers = new Array(elements.length);
   for (const el in elements) {
@@ -99,6 +98,7 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
   Promise.all(audioBuffers).then(async (audioBuffers) => {
     document.body.classList.remove("loading");
     for (let i=0; i<audioBuffers.length; i++) {
+      if (elements[i].tied) continue;
       const audio = audioBuffers[i];
       const duration = elements[i].duration;
       if (audioStopped) {
@@ -111,8 +111,12 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
         // Subtract the length of the next gracenote (so that each note lands on the beat
         // while the gracenote is before the beat)
         let j = 0;
-        while (elements[i + j].duration === 0) {
+        while (elements[i + j] && elements[i + j].duration === 0) {
           j++;
+        }
+        let duration = elements[i].duration;
+        for (let k = 1; elements[i + k] && elements[i + k].tied; k++) {
+          duration += elements[i + k].duration;
         }
         await sleep(1000 * duration * 60 / (state.bpm) - (gracenoteLength * j));
       }

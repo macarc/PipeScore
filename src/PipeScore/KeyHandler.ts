@@ -28,12 +28,18 @@ export function keyHandler(e: KeyboardEvent): void {
       break;
 
     case "ArrowRight":
-      if (e.shiftKey)
+      if (e.shiftKey) {
         dispatch({ name: 'expand selection' })
+      } else {
+        dispatch({ name: 'move right' });
+      }
       break;
     case "ArrowLeft":
-      if (e.shiftKey)
+      if (e.shiftKey) {
         dispatch({ name: 'detract selection' })
+      } else {
+        dispatch({ name: 'move left' });
+      }
       break;
     case "ArrowUp":
       // Prevent scrolling

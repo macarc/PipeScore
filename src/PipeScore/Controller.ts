@@ -581,15 +581,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       state.demoNote.length = event.length;
     }
   } else if (ScoreEvent.isStopInputtingNotes(event)) {
-    viewChanged = false;
-    if (state.demoNote) {
-      state.demoNote = null;
-      viewChanged = true;
-    }
-    if (state.inputGracenote) {
-      state.inputGracenote = null;
-      viewChanged = true;
-    }
+    removeState(state);
   } else if (ScoreEvent.isExpandSelection(event)) {
     if (state.selection) {
       const next = nextNote(state.selection.end, state.score);
@@ -604,6 +596,26 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       const prev = previousNote(state.selection.end, state.score);
       if (prev) {
         state.selection.end = prev;
+      } else {
+        viewChanged = false;
+      }
+    }
+  } else if (ScoreEvent.isMoveLeft(event)) {
+    if (state.selection) {
+      const prev = previousNote(state.selection.start, state.score);
+      if (prev) {
+        state.selection.start = prev;
+        state.selection.end = prev;
+      } else {
+        viewChanged = false;
+      }
+    }
+  } else if (ScoreEvent.isMoveRight(event)) {
+    if (state.selection) {
+      const next = nextNote(state.selection.end, state.score);
+      if (next) {
+        state.selection.start = next;
+        state.selection.end = next;
       } else {
         viewChanged = false;
       }
