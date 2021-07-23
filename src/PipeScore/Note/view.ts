@@ -45,7 +45,7 @@ const totalWidth = (notes: NoteModel[], prevNote: Pitch | null): Width =>
 // Finds the offset that the note head has due to its gracenote
 export const noteHeadOffset = (beatWidth: number, note: BaseNote, previousPitch: Pitch | null): number => width.reify(gracenoteWidth(note.gracenote, note.pitch, previousPitch), beatWidth);
 
-function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number): V {
+function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,tails2: number, tailsBefore: number, tailsAfter: number): V {
   // Draws beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
 
   const leftIs1 = x1 < x2;
@@ -58,11 +58,14 @@ function beamFrom(x1: number,y1: number, x2: number,y2: number, tails1: number,t
 
 
   const diffIsL = leftTails > rightTails;
+  const drawDiff = diffIsL ? (leftTails > tailsBefore) : (rightTails > tailsAfter);
 
   // tails shared by both notes
   const sharedTails = diffIsL ? [...Array(rightTails).keys()] : [...Array(leftTails).keys()];
   // tails extra tails for one note
-  const diffTails = diffIsL ? [...Array(leftTails).keys()].splice(rightTails) : [...Array(rightTails).keys()].splice(leftTails);
+  const diffTails = drawDiff
+    ? diffIsL ? [...Array(leftTails).keys()].splice(rightTails) : [...Array(rightTails).keys()].splice(leftTails)
+    : [ ];
 
   const tailEndY =
     diffIsL
@@ -280,6 +283,9 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
     thisNote: triplet.third.pitch, previousNote: triplet.second.pitch,
     dispatch: props.dispatch, state: props.gracenoteState
   });
+
+  const numTails = Note.lengthToNumTails(triplet.length);
+
   return svg('g', { class: 'triplet' }, [
     (triplet.tied && props.previousNote) ? tie(props.y, triplet.first.pitch, firstX, props.noteWidth, props.previousNote, props.endOfLastStave) : null,
     svg('g', { class: 'first' }, [
@@ -292,14 +298,14 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
       noteHead(secondX, secondY, notes[1], (event) => props.dispatch({ name: 'note clicked', note: triplet.second, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.second.gracenote, secondGracenoteProps),
       svg('line', { x1: secondX, x2: secondX, y1: secondY, y2: secondStemY, stroke: 'black' }),
-      beamFrom(firstX, firstStemY, secondX, secondStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
+      beamFrom(firstX, firstStemY, secondX, secondStemY, numTails, numTails, numTails, numTails)
     ]),
     props.state.inputtingNotes ? noteBoxes(secondX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'third', triplet })) : svg('g'),
     svg('g', { class: 'first' }, [
       noteHead(thirdX, thirdY, notes[2], (event) => props.dispatch({ name: 'note clicked', note: triplet.third, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.third.gracenote, thirdGracenoteProps),
       svg('line', { x1: thirdX, x2: thirdX, y1: thirdY, y2: thirdStemY, stroke: 'black' }),
-      beamFrom(secondX, secondStemY, thirdX, thirdStemY, Note.lengthToNumTails(triplet.length), Note.lengthToNumTails(triplet.length))
+      beamFrom(secondX, secondStemY, thirdX, thirdStemY, numTails, numTails, numTails, numTails)
     ]),
     tripletLine(props.y, firstX, thirdX, firstY, thirdY),
     props.state.inputtingNotes ? noteBoxes(thirdX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: triplet })) : svg('g')
@@ -395,6 +401,9 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
                      // Can't just do || props.previousNote here, since when defining previousNoteObj
                      // we need to do yOf(previousNote) which won't work for props.previousNote
                      const previousNote = group[index - 1] || null;
+                     const beforePreviousNoteTails = nmap(group[index - 2] || null, n => Note.lengthToNumTails(n.length)) || 0;
+                     const afterNoteTails = nmap(group[index + 1] || null, n => Note.lengthToNumTails(n.length)) || 0;
+
                      const gracenoteProps = ({
                        x: xOfGracenote(index),
                        y: props.y,
@@ -406,7 +415,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
                      });
                      const previousNoteObj = nmap(previousNote, p => ({
                        pitch: p.pitch,
-                       x: xOf(index - 1),
+                       x: xOf(index - 1) + noteHeadRadius,
                        y: yOf(p)
                      })) || props.previousNote;
 
@@ -414,7 +423,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
                        shouldTie(note, previousNoteObj) ? tie(props.y, note.pitch, xOf(index), props.noteWidth, previousNoteObj, props.endOfLastStave) : null,
                        shouldTie(note, previousNoteObj) ? null : renderGracenote(note.gracenote,gracenoteProps),
 
-                       (previousNote !== null && index > 0) ? beamFrom(xOf(index),stemYOf(note, index), xOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length)) : null,
+                       (previousNote !== null && index > 0) ? beamFrom(xOf(index),stemYOf(note, index), xOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length), beforePreviousNoteTails, afterNoteTails) : null,
 
                        noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
 

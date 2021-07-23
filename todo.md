@@ -8,9 +8,7 @@
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
 - [ ] Deleteable second timings
-- [ ] Tie within groups not working
 - [ ] Dotting should retain the same group (by shortening other notes in group)
-- [ ] Short tails should not be present when there is a beam opposite them
 
 
 ## General features
@@ -185,3 +183,5 @@
 - [X] Right/Left to move sideways
 - [X] Escape should deselect
 - [X] Ties in playback
+- [X] Tie within groups not working
+- [X] Short tails should not be present when there is a beam opposite them
