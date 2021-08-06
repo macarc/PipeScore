@@ -204,7 +204,7 @@ function singleton(note: NoteModel, x: number, staveY: number, noteWidth: number
     shouldTie(note, previousNote) ? tie(staveY, note.pitch, x, noteWidth, previousNote, lastStaveX) : null,
     shouldTie(note, previousNote) ?  null : renderGracenote(note.gracenote, gracenoteProps),
 
-    noteHead(x, y, note, (event: MouseEvent) => dispatch({ name: 'note clicked', note, event }), draggedNote, gracenoteProps.state.dragged !== null, dispatch),
+    noteHead(x, y, note, (event: MouseEvent) => dispatch({ name: 'click note', note, event }), draggedNote, gracenoteProps.state.dragged !== null, dispatch),
     Note.hasStem(note) ? svg('line', { x1: x, x2: x, y1: y, y2: stemY, stroke: 'black' }) : null,
 
     (numberOfTails > 0)
@@ -289,20 +289,20 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   return svg('g', { class: 'triplet' }, [
     (triplet.tied && props.previousNote) ? tie(props.y, triplet.first.pitch, firstX, props.noteWidth, props.previousNote, props.endOfLastStave) : null,
     svg('g', { class: 'first' }, [
-      noteHead(firstX, firstY, notes[0], (event) => props.dispatch({ name: 'note clicked', note: triplet.first, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
+      noteHead(firstX, firstY, notes[0], (event) => props.dispatch({ name: 'click note', note: triplet.first, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.first.gracenote, firstGracenoteProps),
       svg('line', { x1: firstX, x2: firstX, y1: firstY, y2: firstStemY, stroke: 'black' }),
     ]),
     props.state.inputtingNotes ? noteBoxes(firstX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'second', triplet })) : svg('g'),
     svg('g', { class: 'second' }, [
-      noteHead(secondX, secondY, notes[1], (event) => props.dispatch({ name: 'note clicked', note: triplet.second, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
+      noteHead(secondX, secondY, notes[1], (event) => props.dispatch({ name: 'click note', note: triplet.second, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.second.gracenote, secondGracenoteProps),
       svg('line', { x1: secondX, x2: secondX, y1: secondY, y2: secondStemY, stroke: 'black' }),
       beamFrom(firstX, firstStemY, secondX, secondStemY, numTails, numTails, numTails, numTails)
     ]),
     props.state.inputtingNotes ? noteBoxes(secondX + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'add gracenote to triplet', pitch, which: 'third', triplet })) : svg('g'),
     svg('g', { class: 'first' }, [
-      noteHead(thirdX, thirdY, notes[2], (event) => props.dispatch({ name: 'note clicked', note: triplet.third, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
+      noteHead(thirdX, thirdY, notes[2], (event) => props.dispatch({ name: 'click note', note: triplet.third, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
       renderGracenote(triplet.third.gracenote, thirdGracenoteProps),
       svg('line', { x1: thirdX, x2: thirdX, y1: thirdY, y2: thirdStemY, stroke: 'black' }),
       beamFrom(secondX, secondStemY, thirdX, thirdStemY, numTails, numTails, numTails, numTails)
@@ -425,7 +425,7 @@ export default function render(group: (NoteModel[] | TripletModel), props: NoteP
 
                        (previousNote !== null && index > 0) ? beamFrom(xOf(index),stemYOf(note, index), xOf(index - 1),stemYOf(previousNote, index - 1), Note.lengthToNumTails(note.length), Note.lengthToNumTails(previousNote.length), beforePreviousNoteTails, afterNoteTails) : null,
 
-                       noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'note clicked', note, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
+                       noteHead(xOf(index), yOf(note), note, (event: MouseEvent) => props.dispatch({ name: 'click note', note, event }), props.state.dragged, props.gracenoteState.dragged !== null, props.dispatch),
 
                        props.state.inputtingNotes ? noteBoxes(xOf(index) + noteHeadWidth, props.y, props.noteWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), pitch => props.dispatch({ name: 'note added', pitch, noteBefore: note })) : svg('g'),
 

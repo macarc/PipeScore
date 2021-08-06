@@ -187,7 +187,7 @@ export default function render(bar: BarModel,props: BarProps): V {
     });
   }
 
-  const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) => props.noteState.inputtingNotes ? props.dispatch({ name: 'add note to beginning of bar', pitch, bar }): props.dispatch({ name: 'bar clicked', bar, mouseEvent });
+  const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) => props.noteState.inputtingNotes ? props.dispatch({ name: 'add note to beginning of bar', pitch, bar }): props.dispatch({ name: 'click bar', bar, mouseEvent });
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
   // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
   // note adds a note to the start of the bar

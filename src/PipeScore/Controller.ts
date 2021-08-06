@@ -493,12 +493,12 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   // STATE events
   // Events that modify the state rather than the score
   //
-  if (state.justClickedNote && ScoreEvent.isMouseMovedOver(event)) {
+  if (state.justClickedNote && ScoreEvent.isMouseMoveOver(event)) {
     // This occurs when the note's head is changed from receiving pointer events to not receiving them.
     // That triggers a mouseOver on the note box below, which is undesirable as it moves the note head.
     state.justClickedNote = false;
     viewChanged = false;
-  } else if (ScoreEvent.isNoteClicked(event)) {
+  } else if (ScoreEvent.isClickNote(event)) {
     removeTextState();
     if (state.inputGracenote) {
       if (Note.isNoteModel(event.note)) {
@@ -533,12 +533,12 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     } else {
       viewChanged = false;
     }
-  } else if (ScoreEvent.isGracenoteClicked(event)) {
+  } else if (ScoreEvent.isClickGracenote(event)) {
     state.justClickedNote = true;
     if (event.gracenote.type === 'single') state.gracenoteState.dragged = event.gracenote;
     state.gracenoteState.selected = event.gracenote;
     state.demoNote = null;
-  } else if (ScoreEvent.isBackgroundClicked(event)) {
+  } else if (ScoreEvent.isClickBackground(event)) {
     removeState(state);
     state.demoNote = null;
     state.inputGracenote = null;
@@ -552,11 +552,11 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     } else {
       viewChanged = false;
     }
-  } else if (ScoreEvent.isTextClicked(event)) {
+  } else if (ScoreEvent.isClickText(event)) {
     removeNoteState();
     state.textBoxState.selectedText = event.text
     state.draggedText = event.text;
-  } else if (ScoreEvent.isBarClicked(event)) {
+  } else if (ScoreEvent.isClickBar(event)) {
     if (event.mouseEvent.shiftKey && state.selection) {
       if (itemBefore(state.selection.end, event.bar.id)) {
         state.selection = { ...state.selection, end: event.bar.id };
@@ -672,7 +672,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     state.currentMenu = event.menu;
     state.demoNote = null;
     state.inputGracenote = null;
-  } else if (ScoreEvent.isDocHover(event)) {
+  } else if (ScoreEvent.isHoverDoc(event)) {
     state.currentDocumentation = event.element;
   } else if (ScoreEvent.isToggleDoc(event)) {
     state.showDocumentation = !state.showDocumentation;
@@ -704,7 +704,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     } else {
       viewChanged = false;
     }
-  } else if (ScoreEvent.isMouseMovedOver(event)) {
+  } else if (ScoreEvent.isMouseMoveOver(event)) {
     viewChanged = false;
 
     if (state.demoNote && state.demoNote.pitch !== event.pitch) {
@@ -734,7 +734,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       state.gracenoteState.dragged = newGracenote;
       state.gracenoteState.selected = newGracenote;
     }
-  } else if (ScoreEvent.isDeleteSelected(event)) {
+  } else if (ScoreEvent.isDeleteSelection(event)) {
     viewChanged = false;
 
     if (state.gracenoteState.selected) {
@@ -755,7 +755,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       viewChanged = true;
       shouldSave = true;
     }
-  } else if (ScoreEvent.isSetGracenoteOnSelected(event)) {
+  } else if (ScoreEvent.isSetGracenoteOnSelectedNotes(event)) {
     if (state.selection) {
       const newGracenote = Gracenote.from(event.value);
       state.score = changeNotes(selectedNotes, note => ({ ...note, gracenote: newGracenote }), state.score);
@@ -852,7 +852,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     } else {
       viewChanged = false;
     }
-  } else if (ScoreEvent.isToggleDotted(event)) {
+  } else if (ScoreEvent.isToggleDot(event)) {
     state.score = changeNotesAndTriplets(rawSelectedNotes,note => ({ ...note, length:  Note.toggleDot(note.length) }), state.score);
     if (state.demoNote && state.demoNote.type === 'note') state.demoNote.length = Note.toggleDot(state.demoNote.length);
     shouldSave = true;
@@ -884,7 +884,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
         shouldSave = true;
       }
     }
-  } else if (ScoreEvent.isMouseDragged(event)) {
+  } else if (ScoreEvent.isMouseDrag(event)) {
     if (state.draggedSecondTiming) {
       const closest = closestItem(event.x, event.y, state.draggedSecondTiming.dragged !== 'end');
       const oldSecondTiming = state.draggedSecondTiming.secondTiming;
@@ -1283,7 +1283,7 @@ function mouseMove(event: MouseEvent) {
 
       // If the left mouse button is held down
       if (event.buttons === 1) {
-        dispatch({ name: 'mouse dragged', x: svgPt.x, y: svgPt.y });
+        dispatch({ name: 'mouse drag', x: svgPt.x, y: svgPt.y });
       } else if (state.demoNote) {
         const newStaveIndex = coordinateToStaveIndex(svgPt.y);
         dispatch({ name: 'update demo note', x: svgPt.x, staveIndex: newStaveIndex });

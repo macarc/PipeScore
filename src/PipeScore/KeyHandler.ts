@@ -24,7 +24,7 @@ export function keyHandler(e: KeyboardEvent): void {
       break;
     case "Backspace":
     case "Delete":
-      dispatch({ name: 'delete selected' });
+      dispatch({ name: 'delete selection' });
       break;
 
     case "ArrowRight":
@@ -53,7 +53,7 @@ export function keyHandler(e: KeyboardEvent): void {
       break;
 
     case ".":
-      dispatch({ name: 'toggle dotted' });
+      dispatch({ name: 'toggle dot' });
       break;
     case "t":
       dispatch({ name: 'tie selected notes' });

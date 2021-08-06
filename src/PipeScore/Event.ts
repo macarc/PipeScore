@@ -14,18 +14,18 @@ import { SecondTimingModel } from './SecondTiming/model';
 import { Menu } from './UI/model';
 
 export type ScoreEvent =
-  | DeleteSelected
-  | MouseMovedOver
-  | NoteClicked
+  | DeleteSelection
+  | MouseMoveOver
+  | ClickNote
   | StopInputtingNotes
-  | SetGracenoteOnSelected
+  | SetGracenoteOnSelectedNotes
   | AddGracenoteToTriplet
   | AddNoteAfter
   | AddNoteToBarStart
   | TieSelectedNotes
   | AddTriplet
-  | ToggleDotted
-  | GracenoteClicked
+  | ToggleDot
+  | ClickGracenote
   | MoveNoteUp
   | MoveNoteDown
 
@@ -33,7 +33,7 @@ export type ScoreEvent =
 
   | AddAnacrusis
   | AddBar
-  | BarClicked
+  | ClickBar
   | SetBarRepeat
   | EditBarTimeSignature
 
@@ -44,21 +44,20 @@ export type ScoreEvent =
 
   | AddStave
 
-  | EditText
-  | TextClicked
-  | TextMouseUp
-  | CentreText
   | AddText
+  | EditText
+  | ClickText
+  | CentreText
+  | TextMouseUp
 
   | AddSecondTiming
   | ClickSecondTiming
 
   | EditTimeSignature
 
-
   | MouseUp
-  | MouseDragged
-  | BackgroundClicked
+  | MouseDrag
+  | ClickBackground
 
   | SetInputLength
   | ChangeZoomLevel
@@ -73,7 +72,7 @@ export type ScoreEvent =
 
   | Print
 
-  | DocHover
+  | HoverDoc
   | ToggleDoc
 
   | StartPlayback
@@ -96,29 +95,29 @@ export function isPaste(e: ScoreEvent): e is Paste {
   return e.name === 'paste';
 }
 
-type MouseMovedOver = {
+type MouseMoveOver = {
   name: 'mouse over pitch',
   pitch: Pitch
 }
-export function isMouseMovedOver(e: ScoreEvent): e is MouseMovedOver {
+export function isMouseMoveOver(e: ScoreEvent): e is MouseMoveOver {
   return e.name === 'mouse over pitch';
 }
 
-type GracenoteClicked = {
-  name: 'gracenote clicked',
+type ClickGracenote = {
+  name: 'click gracenote',
   gracenote: GracenoteModel
 }
-export function isGracenoteClicked(e: ScoreEvent): e is GracenoteClicked {
-  return e.name === 'gracenote clicked';
+export function isClickGracenote(e: ScoreEvent): e is ClickGracenote {
+  return e.name === 'click gracenote';
 }
 
-type NoteClicked = {
-  name: 'note clicked',
+type ClickNote = {
+  name: 'click note',
   note: BaseNote,
   event: MouseEvent
 }
-export function isNoteClicked(e: ScoreEvent): e is NoteClicked {
-  return e.name === 'note clicked';
+export function isClickNote(e: ScoreEvent): e is ClickNote {
+  return e.name === 'click note';
 }
 
 type MoveNoteUp = {
@@ -135,21 +134,21 @@ export function isMoveNoteDown(e: ScoreEvent): e is MoveNoteDown {
   return e.name === 'move note down';
 }
 
-type BackgroundClicked = {
-  name: 'background clicked'
+type ClickBackground = {
+  name: 'click background'
 }
-export function isBackgroundClicked(e: ScoreEvent): e is BackgroundClicked {
-  return e.name === 'background clicked';
+export function isClickBackground(e: ScoreEvent): e is ClickBackground {
+  return e.name === 'click background';
 }
 
-type MouseDragged = {
-  name: 'mouse dragged',
+type MouseDrag = {
+  name: 'mouse drag',
   x: number,
   y: number
 }
 
-export function isMouseDragged(e: ScoreEvent): e is MouseDragged {
-  return e.name === 'mouse dragged';
+export function isMouseDrag(e: ScoreEvent): e is MouseDrag {
+  return e.name === 'mouse drag';
 }
 
 type MouseUp = {
@@ -187,18 +186,18 @@ export function isMoveRight(e: ScoreEvent): e is MoveRight {
   return e.name === 'move right';
 }
 
-type DeleteSelected = {
-  name: 'delete selected'
+type DeleteSelection = {
+  name: 'delete selection'
 }
-export function isDeleteSelected(e: ScoreEvent): e is DeleteSelected {
-  return e.name === 'delete selected';
+export function isDeleteSelection(e: ScoreEvent): e is DeleteSelection {
+  return e.name === 'delete selection';
 }
 
-type SetGracenoteOnSelected = {
+type SetGracenoteOnSelectedNotes = {
   name: 'set gracenote',
   value: string | null
 }
-export function isSetGracenoteOnSelected(e: ScoreEvent): e is SetGracenoteOnSelected {
+export function isSetGracenoteOnSelectedNotes(e: ScoreEvent): e is SetGracenoteOnSelectedNotes {
   return e.name === 'set gracenote';
 }
 
@@ -245,11 +244,11 @@ export function isAddGracenoteToTriplet(e: ScoreEvent): e is AddGracenoteToTripl
   return e.name === 'add gracenote to triplet';
 }
 
-type ToggleDotted = {
-  name:  'toggle dotted'
+type ToggleDot = {
+  name:  'toggle dot'
 }
-export function isToggleDotted(e: ScoreEvent): e is ToggleDotted {
-  return e.name === 'toggle dotted';
+export function isToggleDot(e: ScoreEvent): e is ToggleDot {
+  return e.name === 'toggle dot';
 }
 
 type ChangeZoomLevel = {
@@ -260,12 +259,12 @@ export function isChangeZoomLevel(e: ScoreEvent): e is ChangeZoomLevel {
   return e.name === 'change zoom level';
 }
 
-type TextClicked = {
-  name: 'text clicked',
+type ClickText = {
+  name: 'click text',
   text: TextBoxModel
 }
-export function isTextClicked(e: ScoreEvent): e is TextClicked {
-  return e.name === 'text clicked';
+export function isClickText(e: ScoreEvent): e is ClickText {
+  return e.name === 'click text';
 }
 
 type EditText = {
@@ -300,13 +299,13 @@ export function isAddBar(e: ScoreEvent): e is AddBar {
   return e.name === 'add bar';
 }
 
-type BarClicked = {
-  name: 'bar clicked',
+type ClickBar = {
+  name: 'click bar',
   bar: BarModel,
   mouseEvent: MouseEvent
 }
-export function isBarClicked(e: ScoreEvent): e is BarClicked {
-  return e.name === 'bar clicked';
+export function isClickBar(e: ScoreEvent): e is ClickBar {
+  return e.name === 'click bar';
 }
 
 type SetBarRepeat = {
@@ -454,12 +453,12 @@ export function isSetPlaybackBpm(e: ScoreEvent): e is SetPlaybackBpm {
   return e.name === 'set playback bpm';
 }
 
-type DocHover = {
-  name: 'doc hover',
+type HoverDoc = {
+  name: 'hover doc',
   element: string
 }
-export function isDocHover(e: ScoreEvent): e is DocHover {
-  return e.name === 'doc hover';
+export function isHoverDoc(e: ScoreEvent): e is HoverDoc {
+  return e.name === 'hover doc';
 }
 type ToggleDoc = {
   name: 'toggle doc'

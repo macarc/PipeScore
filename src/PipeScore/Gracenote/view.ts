@@ -43,7 +43,7 @@ function head(dispatch: Dispatch, gracenote: GracenoteModel, x: number,y: number
     (note === Pitch.HA) ? svg('line', { x1: x - ledgerLeft, x2: x + ledgerRight, y1: y, y2: y, stroke: colour }) : null,
     svg('ellipse', { cx: x, cy: y, rx: gracenoteHeadRadius, ry: 2.5, transform: rotateText, fill: isValid ? colour : 'red', 'pointer-events': 'none' }),
 
-    svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': isSelected ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'gracenote clicked', gracenote }) }),
+    svg('rect', { x: x - boxWidth / 2, y: y - boxHeight / 2, width: boxWidth, height: boxHeight, 'pointer-events': isSelected ? 'none' : 'default', opacity: 0 }, { mousedown: () => dispatch({ name: 'click gracenote', gracenote }) }),
     svg('line', { x1: x + tailXOffset, x2: x + tailXOffset, y1: y, y2: beamY, stroke: colour })
 
   ])

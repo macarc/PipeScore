@@ -82,7 +82,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
              { mouseup: () => props.dispatch({ name: 'mouse up' }) },
                [ svg('rect',
                      { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
-                     { mousedown: () => props.dispatch({ name: 'background clicked' }) }),
+                     { mousedown: () => props.dispatch({ name: 'click background' }) }),
                        ...score.staves.map((stave, idx) => renderStave(stave, staveProps(stave, idx))),
                        ...score.textBoxes.map(textBox => renderTextBox(textBox, { dispatch: props.dispatch, scoreWidth: score.width, state: props.textBoxState })),
                        ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming, secondTimingProps)),

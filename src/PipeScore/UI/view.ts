@@ -71,7 +71,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         help('dot', h('button',
                         { id: 'toggle-dotted',
                         class: (state.inputLength && Note.hasDot(state.inputLength)) ? 'highlighted': 'not-highlighted' },
-                        { click: () => dispatch({ name: 'toggle dotted' }) },
+                        { click: () => dispatch({ name: 'toggle dot' }) },
                         [ '•' ])),
         help('tie', h('button',
                         { id: 'tie' },
@@ -248,7 +248,7 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         h('div', { class: 'section-content' }, [
           help('delete', h('button',
                            { id: 'delete-notes', class: 'delete' },
-                           { click: () => dispatch({ name: 'delete selected' }) })),
+                           { click: () => dispatch({ name: 'delete selection' }) })),
           help('copy', h('button', { id: 'copy' }, { click: () => dispatch({ name: 'copy' }) })),
           help('paste', h('button', { id: 'paste' }, { click: () => dispatch({ name: 'paste' }) })),
           help('undo', h('button',
