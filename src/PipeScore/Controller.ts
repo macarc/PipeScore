@@ -884,21 +884,18 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
         shouldSave = true;
       }
     }
-  } else if (ScoreEvent.isDragSecondTiming(event)) {
-    viewChanged = false;
+  } else if (ScoreEvent.isMouseDragged(event)) {
     if (state.draggedSecondTiming) {
+      const closest = closestItem(event.x, event.y, state.draggedSecondTiming.dragged !== 'end');
       const oldSecondTiming = state.draggedSecondTiming.secondTiming;
-      if (state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] !== event.closest) {
-        const newSecondTiming = { ...state.draggedSecondTiming.secondTiming, [state.draggedSecondTiming.dragged]: event.closest };
+      if (state.draggedSecondTiming.secondTiming[state.draggedSecondTiming.dragged] !== closest) {
+        const newSecondTiming = { ...state.draggedSecondTiming.secondTiming, [state.draggedSecondTiming.dragged]: closest };
         if (SecondTiming.isValid(newSecondTiming, state.score.secondTimings.filter(st => st !== oldSecondTiming))) {
           state.score.secondTimings.splice(state.score.secondTimings.indexOf(state.draggedSecondTiming.secondTiming), 1, newSecondTiming);
           state.draggedSecondTiming.secondTiming = newSecondTiming;
-          viewChanged = true;
         }
       }
-    }
-  } else if (ScoreEvent.isTextDragged(event)) {
-    if (state.draggedText !== null &&
+    } else if (state.draggedText !== null &&
         event.x < state.score.width &&
         event.x > 0 &&
         event.y < state.score.height &&
@@ -1268,9 +1265,10 @@ const updateView = () => {
 
 function mouseMove(event: MouseEvent) {
   // The callback that occurs on mouse move
-  // - drags text (if necessary)
+  // - registers a mouse dragged event if the mouse button is held down
   // - moves demo note (if necessary)
-  if (state.draggedText !== null || state.demoNote !== null || state.draggedSecondTiming !== null) {
+  const mouseButtonIsDown = event.buttons === 1;
+  if (mouseButtonIsDown || state.demoNote !== null) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -1283,12 +1281,9 @@ function mouseMove(event: MouseEvent) {
 
       const svgPt = pt.matrixTransform(CTM.inverse());
 
-      // these should be mutually exclusive so else/if works fine
-      if (state.draggedText !== null) {
-        dispatch({ name: 'text dragged', x: svgPt.x, y: svgPt.y });
-      } else if (state.draggedSecondTiming) {
-        dispatch({ name: 'drag second timing', closest: closestItem(svgPt.x, svgPt.y, state.draggedSecondTiming.dragged !== 'end') });
-        updateView();
+      // If the left mouse button is held down
+      if (event.buttons === 1) {
+        dispatch({ name: 'mouse dragged', x: svgPt.x, y: svgPt.y });
       } else if (state.demoNote) {
         const newStaveIndex = coordinateToStaveIndex(svgPt.y);
         dispatch({ name: 'update demo note', x: svgPt.x, staveIndex: newStaveIndex });

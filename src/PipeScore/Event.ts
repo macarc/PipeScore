@@ -14,7 +14,7 @@ import { SecondTimingModel } from './SecondTiming/model';
 import { Menu } from './UI/model';
 
 export type ScoreEvent =
-  DeleteSelected
+  | DeleteSelected
   | MouseMovedOver
   | NoteClicked
   | StopInputtingNotes
@@ -47,18 +47,17 @@ export type ScoreEvent =
   | EditText
   | TextClicked
   | TextMouseUp
-  | TextDragged
   | CentreText
   | AddText
 
   | AddSecondTiming
   | ClickSecondTiming
-  | DragSecondTiming
 
   | EditTimeSignature
 
 
   | MouseUp
+  | MouseDragged
   | BackgroundClicked
 
   | SetInputLength
@@ -141,6 +140,16 @@ type BackgroundClicked = {
 }
 export function isBackgroundClicked(e: ScoreEvent): e is BackgroundClicked {
   return e.name === 'background clicked';
+}
+
+type MouseDragged = {
+  name: 'mouse dragged',
+  x: number,
+  y: number
+}
+
+export function isMouseDragged(e: ScoreEvent): e is MouseDragged {
+  return e.name === 'mouse dragged';
 }
 
 type MouseUp = {
@@ -339,15 +348,6 @@ export function isAddTriplet(e: ScoreEvent): e is AddTriplet {
   return e.name === 'add triplet';
 }
 
-type TextDragged = {
-  name: 'text dragged',
-  x: number,
-  y: number
-}
-export function isTextDragged(e: ScoreEvent): e is TextDragged {
-  return e.name === 'text dragged';
-}
-
 type TextMouseUp = {
   name: 'text mouse up'
 }
@@ -408,14 +408,6 @@ type UpdateDemoNote = {
 }
 export function isUpdateDemoNote(e: ScoreEvent): e is UpdateDemoNote {
   return e.name === 'update demo note';
-}
-
-type DragSecondTiming = {
-  name: 'drag second timing',
-  closest: ID
-}
-export function isDragSecondTiming(e: ScoreEvent): e is DragSecondTiming {
-  return e.name === 'drag second timing';
 }
 
 type SetMenu = {
