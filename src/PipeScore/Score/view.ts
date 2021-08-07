@@ -9,6 +9,7 @@ import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
 import { DemoNoteModel } from '../DemoNote/model';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
+import { SecondTimingModel } from '../SecondTiming/model';
 import { Dispatch } from '../Event';
 
 import renderTextBox, { TextBoxState }  from '../TextBox/view';
@@ -22,6 +23,7 @@ import { GracenoteState } from '../Gracenote/view';
 interface ScoreProps {
   zoomLevel: number,
   selection: ScoreSelectionModel | null,
+  selectedSecondTiming: SecondTimingModel | null,
   dispatch: Dispatch,
   noteState: NoteState,
   demoNote: DemoNoteModel | null,
@@ -61,12 +63,13 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     staveY: topOffset + staveGap * props.demoNote.staveIndex
   });
 
-  const secondTimingProps = {
+  const secondTimingProps = (st: SecondTimingModel) => ({
     staveStartX: margin,
     staveEndX: score.width - margin,
+    selected: st === props.selectedSecondTiming,
     staveGap,
     dispatch: props.dispatch
-  };
+  });
   const scoreSelectionProps = {
     staveStartX: margin,
     staveEndX: score.width - margin,
@@ -85,7 +88,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
                      { mousedown: () => props.dispatch({ name: 'click background' }) }),
                        ...score.staves.map((stave, idx) => renderStave(stave, staveProps(stave, idx))),
                        ...score.textBoxes.map(textBox => renderTextBox(textBox, { dispatch: props.dispatch, scoreWidth: score.width, state: props.textBoxState })),
-                       ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming, secondTimingProps)),
+                 ...score.secondTimings.map(secondTiming => renderSecondTiming(secondTiming, secondTimingProps(secondTiming))),
                        props.selection ? renderScoreSelection(props.selection, scoreSelectionProps) : null,
                        (props.demoNote && demoNoteProps) ? renderDemoNote(props.demoNote, demoNoteProps) : svg('g')
              ])

@@ -7,7 +7,6 @@
 - [ ] Custom embellishmments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
-- [ ] Deleteable second timings
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 
 
@@ -185,3 +184,4 @@
 - [X] Ties in playback
 - [X] Tie within groups not working
 - [X] Short tails should not be present when there is a beam opposite them
+- [X] Deleteable second timings

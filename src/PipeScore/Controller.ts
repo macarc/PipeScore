@@ -64,6 +64,7 @@ interface State {
   showDocumentation: boolean,
   clipboard: (NoteModel | TripletModel | 'bar-break')[] | null,
   selection: ScoreSelectionModel | null,
+  selectedSecondTiming: SecondTimingModel | null,
   draggedText: TextBoxModel | null,
   inputGracenote: GracenoteModel | null,
   score: ScoreModel,
@@ -88,6 +89,7 @@ const state: State = {
   demoNote: null,
   clipboard: null,
   selection: null,
+  selectedSecondTiming: null,
   draggedText: null,
   draggedSecondTiming: null,
   score: Score.init(),
@@ -108,6 +110,7 @@ function removeState(state: State) {
   state.gracenoteState.selected = null;
   state.textBoxState.selectedText = null;
   state.selection = null;
+  state.selectedSecondTiming = null;
   state.draggedText = null;
   state.draggedSecondTiming = null;
 }
@@ -568,6 +571,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     }
   } else if (ScoreEvent.isClickSecondTiming(event)) {
     state.draggedSecondTiming = { secondTiming: event.secondTiming, dragged: event.part };
+    state.selectedSecondTiming = event.secondTiming;
   } else if (ScoreEvent.isTextMouseUp(event)) {
     state.draggedText = null;
     shouldSave = true;
@@ -646,6 +650,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     const props = {
       zoomLevel: 100,
       selection: null,
+      selectedSecondTiming: null,
       noteState: { dragged: null, inputtingNotes: false },
       gracenoteState: { dragged: null, selected: null },
       textBoxState: { selectedText: null },
@@ -752,6 +757,13 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
       state.score.textBoxes.splice(state.score.textBoxes.indexOf(state.textBoxState.selectedText), 1);
       state.textBoxState.selectedText = null;
       state.draggedText = null;
+      viewChanged = true;
+      shouldSave = true;
+    }
+
+    if (state.selectedSecondTiming) {
+      state.score.secondTimings.splice(state.score.secondTimings.indexOf(state.selectedSecondTiming));
+      state.draggedSecondTiming = null;
       viewChanged = true;
       shouldSave = true;
     }
@@ -893,6 +905,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
         if (SecondTiming.isValid(newSecondTiming, state.score.secondTimings.filter(st => st !== oldSecondTiming))) {
           state.score.secondTimings.splice(state.score.secondTimings.indexOf(state.draggedSecondTiming.secondTiming), 1, newSecondTiming);
           state.draggedSecondTiming.secondTiming = newSecondTiming;
+          state.selectedSecondTiming = newSecondTiming;
         }
       }
     } else if (state.draggedText !== null &&
@@ -1240,6 +1253,7 @@ const updateView = () => {
   const scoreProps = {
     zoomLevel: state.zoomLevel,
     selection: state.selection,
+    selectedSecondTiming: state.selectedSecondTiming,
     noteState: { dragged: state.draggedNote, inputtingNotes: state.demoNote !== null || state.inputGracenote !== null },
     gracenoteState: state.gracenoteState,
     textBoxState: state.textBoxState,
