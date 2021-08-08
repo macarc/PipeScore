@@ -53,7 +53,7 @@ function head(dispatch: Dispatch, gracenote: GracenoteModel, x: number,y: number
 const stemXOf = (x: number) => x + 3;
 const stemYOf = (y: number) => y - 2;
 
-function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, gracenote: GracenoteModel, selected: boolean): V {
+function single(note: Pitch, isValid: boolean, x: number, staveY: number, dispatch: Dispatch, gracenote: GracenoteModel, selected: boolean): V {
   // Draws a single gracenote
 
   const y = noteY(staveY, note);
@@ -61,7 +61,7 @@ function single(note: Pitch, x: number, staveY: number, dispatch: Dispatch, grac
   const colour = colourOf(selected);
 
   return svg('g', { class: 'gracenote' }, [
-    head(dispatch, gracenote, x, y, note, y - 3 * lineGap, true, selected),
+    head(dispatch, gracenote, x, y, note, y - 3 * lineGap, isValid, selected),
 
     //svg('line', { x1: stemXOf(x), x2: stemXOf(x), y1: stemYOf(y), y2: stemYOf(y) - 20, stroke: 'black' }),
 
@@ -86,7 +86,7 @@ export interface GracenoteProps {
 export default function render(gracenote: GracenoteModel, props: GracenoteProps): V {
   const selected = props.state.dragged === gracenote || props.state.selected === gracenote;
   if (gracenote.type === 'single') {
-    return single(gracenote.note, props.x, props.y, props.dispatch, gracenote, selected);
+    return single(gracenote.note, true, props.x, props.y, props.dispatch, gracenote, selected);
   } else if (gracenote.type === 'reactive') {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
@@ -103,7 +103,7 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
     if (uniqueNotes.length === 0) {
       return svg('g');
     } else if (uniqueNotes.length === 1) {
-      return single(uniqueNotes[0].note, xOf(uniqueNotes[0]), props.y, props.dispatch, gracenote, selected);
+      return single(uniqueNotes[0].note, !Gracenote.isInvalid(grace), xOf(uniqueNotes[0]), props.y, props.dispatch, gracenote, selected);
     } else {
       const colour = colourOf(selected);
       return svg('g', { class: 'reactive-gracenote' }, [

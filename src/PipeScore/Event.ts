@@ -3,7 +3,6 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { Pitch } from './global/pitch';
-import { ID } from './global/types';
 
 import { NoteModel, TripletModel, NoteLength, BaseNote } from './Note/model';
 import { BarModel, Barline } from './Bar/model';

@@ -94,10 +94,11 @@ export default function render(dispatch: (e: ScoreEvent) => void, state: UIState
         gracenoteInput('grip'),
         gracenoteInput('birl'),
         gracenoteInput('g-gracenote-birl'),
+        gracenoteInput('g-strike'),
         gracenoteInput('shake'),
+        gracenoteInput('edre'),
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),
-        gracenoteInput('edre'),
       ])
     ])
   ];

@@ -48,6 +48,35 @@ gracenotes.set('doubling', (note, prev) => {
 
   return pitches;
 });
+
+gracenotes.set('g-strike', (note, prev) => {
+  let notes = [];
+  const setFirst = (pitches: Gracenote): Gracenote => {
+    if (prev === Pitch.HA) {
+      return pitches;
+    } else if (prev === Pitch.HG) {
+      return [Pitch.HA, ...pitches];
+    } else {
+      return [Pitch.HG, ...pitches];
+    }
+  }
+  if (note === Pitch.G || note === Pitch.HA) {
+    return invalid([Pitch.HG]);
+  } else if (note === Pitch.E) {
+    return setFirst([note, Pitch.A])
+  } else if (note === Pitch.F) {
+    return setFirst([note, Pitch.E])
+  } else if (note === Pitch.HG) {
+    if (prev === Pitch.HA) {
+      return [note, Pitch.F];
+    } else {
+      return [Pitch.HA, note, Pitch.F];
+    }
+  } else {
+    return setFirst([note, Pitch.G]);
+  }
+});
+
 gracenotes.set('edre', (note, prev) => {
   if (prev === Pitch.G && (note === Pitch.E || note === Pitch.HG)) {
     return [Pitch.E,Pitch.G,Pitch.F,Pitch.G];
@@ -58,7 +87,11 @@ gracenotes.set('edre', (note, prev) => {
   } else if (note === Pitch.E || note === Pitch.HG) {
     return [Pitch.E,Pitch.A,Pitch.F,Pitch.A];
   } else if (note === Pitch.F) {
-    return [Pitch.F,Pitch.E,Pitch.HG,Pitch.E];
+    return [Pitch.F,Pitch.E,Pitch.HG,Pitch.E]
+  } else if (prev === Pitch.G && note === Pitch.B) {
+    return [Pitch.D,Pitch.G,Pitch.C,Pitch.G];
+  } else if (note === Pitch.B) {
+    return [Pitch.G,Pitch.D,Pitch.G,Pitch.C,Pitch.G];
   } else {
     return invalid([Pitch.E,Pitch.A,Pitch.F,Pitch.A])
   }
