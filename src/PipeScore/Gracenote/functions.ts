@@ -203,6 +203,8 @@ function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch
       return notes(thisNote,previousNote);
     }
     return [];
+  } else if (gracenote.type === 'custom') {
+    return gracenote.notes;
   } else if (gracenote.type === 'none') {
     return [];
   } else {
@@ -211,8 +213,31 @@ function notesOf(gracenote: GracenoteModel, thisNote: Pitch, previousNote: Pitch
   }
 }
 
+function addSingle(g: GracenoteModel, s: Pitch, note: Pitch, prev: Pitch | null): GracenoteModel {
+  if (g.type === 'custom') {
+    return initCustom([...g.notes, s]);
+  } else if (g.type === 'single') {
+    return initCustom([g.note, s]);
+    
+    
+  } else if (g.type === 'reactive') {
+    const notes = notesOf(g, note, prev);
+    if (isInvalid(notes)) {
+      return initCustom([...notes.gracenote, s]);
+    } else {
+      return initCustom([...notes, s]);
+    }
+  } else {
+    return initSingle(s);
+  }
+}
+
 const isReactive = (g: GracenoteModel): g is ReactiveGracenote => g.type === 'reactive';
 
+const initCustom = (notes: Pitch[]): GracenoteModel => ({
+  type: 'custom',
+  notes
+})
 const init = (): GracenoteModel => ({
   type: 'none'
 });
@@ -240,6 +265,7 @@ const from = (name: string | null): GracenoteModel =>
 export default {
   init,
   initSingle,
+  addSingle,
   from,
   isReactive,
   notesOf,

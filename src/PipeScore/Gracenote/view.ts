@@ -87,7 +87,7 @@ export default function render(gracenote: GracenoteModel, props: GracenoteProps)
   const selected = props.state.dragged === gracenote || props.state.selected === gracenote;
   if (gracenote.type === 'single') {
     return single(gracenote.note, true, props.x, props.y, props.dispatch, gracenote, selected);
-  } else if (gracenote.type === 'reactive') {
+  } else if (gracenote.type === 'reactive' || gracenote.type === 'custom') {
     // notes must be mapped to objects so that .indexOf will give
     // the right answer (so it will compare by reference
     // rather than by value)

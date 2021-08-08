@@ -13,11 +13,16 @@ export interface SingleGracenote {
   note: Pitch,
 }
 
+export interface CustomGracenote {
+  type: 'custom',
+  notes: Pitch[]
+}
+
 interface NoGracenote {
   type: 'none'
 }
 
-export type GracenoteModel = ReactiveGracenote | SingleGracenote | NoGracenote;
+export type GracenoteModel = ReactiveGracenote | SingleGracenote | CustomGracenote | NoGracenote;
 
 // consider naming this better
 export type Gracenote = Pitch[];

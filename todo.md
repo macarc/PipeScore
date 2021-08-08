@@ -4,10 +4,11 @@
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
 - [ ] Add optimised list render
-- [ ] Custom embellishments should be possible by adding multiple single gracenotes
 - [ ] Better time signature font
-- [ ] Note input doesn't move on notes that have gracenotes - idk if this is a problem or not
+- [ ] Note input doesn't move on notes that have gracenotes
 - [ ] Dotting should retain the same group (by shortening other notes in group)
+- [ ] Too large a gap before embellishments
+- [ ] Should be able to add notes before and after current gracenote to make custom embellishments
 
 
 ## General features
@@ -185,3 +186,4 @@
 - [X] Tie within groups not working
 - [X] Short tails should not be present when there is a beam opposite them
 - [X] Deleteable second timings
+- [X] Custom embellishments should be possible by adding multiple single gracenotes
