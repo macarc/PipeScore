@@ -11,83 +11,87 @@ export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;
 
   switch (e.key) {
-    case "Escape":
+    case 'Escape':
       dispatch({ name: 'stop inputting notes' });
       break;
-    case "c":
-      if (e.ctrlKey)
-        dispatch({ name: 'copy' });
+    case 'c':
+      if (e.ctrlKey) dispatch({ name: 'copy' });
       break;
-    case "v":
-      if (e.ctrlKey)
-        dispatch({ name: 'paste' });
+    case 'v':
+      if (e.ctrlKey) dispatch({ name: 'paste' });
       break;
-    case "Backspace":
-    case "Delete":
+    case 'Backspace':
+    case 'Delete':
       dispatch({ name: 'delete selection' });
       break;
 
-    case "ArrowRight":
+    case 'ArrowRight':
       if (e.shiftKey) {
-        dispatch({ name: 'expand selection' })
+        dispatch({ name: 'expand selection' });
       } else {
         dispatch({ name: 'move right' });
       }
       break;
-    case "ArrowLeft":
+    case 'ArrowLeft':
       if (e.shiftKey) {
-        dispatch({ name: 'detract selection' })
+        dispatch({ name: 'detract selection' });
       } else {
         dispatch({ name: 'move left' });
       }
       break;
-    case "ArrowUp":
+    case 'ArrowUp':
       // Prevent scrolling
       e.preventDefault();
       dispatch({ name: 'move note up' });
       break;
-    case "ArrowDown":
+    case 'ArrowDown':
       // Prevent scrolling
       e.preventDefault();
       dispatch({ name: 'move note down' });
       break;
 
-    case ".":
+    case '.':
       dispatch({ name: 'toggle dot' });
       break;
-    case "t":
+    case 't':
       dispatch({ name: 'tie selected notes' });
       break;
-    case "z":
-      if (e.ctrlKey)
-        dispatch({ name: 'undo' });
+    case 'z':
+      if (e.ctrlKey) dispatch({ name: 'undo' });
       break;
-    case "y":
-      if (e.ctrlKey)
-        dispatch({ name: 'redo' });
+    case 'y':
+      if (e.ctrlKey) dispatch({ name: 'redo' });
       break;
 
-    case "1":
+    case '1':
       dispatch({ name: 'set note input length', length: NoteLength.Semibreve });
       break;
-    case "2":
+    case '2':
       dispatch({ name: 'set note input length', length: NoteLength.Minim });
       break;
-    case "3":
+    case '3':
       dispatch({ name: 'set note input length', length: NoteLength.Crotchet });
       break;
-    case "4":
+    case '4':
       dispatch({ name: 'set note input length', length: NoteLength.Quaver });
       break;
-    case "5":
-      dispatch({ name: 'set note input length', length: NoteLength.SemiQuaver });
+    case '5':
+      dispatch({
+        name: 'set note input length',
+        length: NoteLength.SemiQuaver,
+      });
       break;
-    case "6":
-      dispatch({ name: 'set note input length', length: NoteLength.DemiSemiQuaver });
+    case '6':
+      dispatch({
+        name: 'set note input length',
+        length: NoteLength.DemiSemiQuaver,
+      });
       break;
-    case "7":
-      dispatch({ name: 'set note input length', length: NoteLength.HemiDemiSemiQuaver });
+    case '7':
+      dispatch({
+        name: 'set note input length',
+        length: NoteLength.HemiDemiSemiQuaver,
+      });
       break;
   }
 }
-

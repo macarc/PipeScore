@@ -1,4 +1,5 @@
 # PipeScore
+
 ## A modern bagpipe notation app
 
 I started building this a while ago since I wasn't satisfied with other bagpipe notation apps that I found.
@@ -18,39 +19,45 @@ To learn more about how it works, have a look at the READMEs in `src/PipeScore` 
 ## Features
 
 Piping features:
-* Reactive embellishments
-* Undo / redo
-* Ties
-* Triplets
-* Repeats and Second timings
-* Time signatures
-* Text boxes
-* Automatic note grouping
-* Bars/Staves/e.t.c.
+
+- Reactive embellishments
+- Undo / redo
+- Ties
+- Triplets
+- Repeats and Second timings
+- Time signatures
+- Text boxes
+- Automatic note grouping
+- Bars/Staves/e.t.c.
 
 Programming features:
-* ~5000 source lines of TypeScript
-* Custom virtual DOM
+
+- ~5000 source lines of TypeScript
+- Custom virtual DOM
 
 ## Running locally
 
 You will need:
-* `pandoc`
-* `python3` (and `pip3`)
-* `npm`
-* `tsc`
+
+- `pandoc`
+- `python3` (and `pip3`)
+- `npm`
+- `tsc`
 
 To make the icons, run:
-* `pip3 install svgwrite`
-* `python3 make-icons.py`
-* `python3 make-note-icons.py`
-* `python3 make-gracenote-icons.py`
+
+- `pip3 install svgwrite`
+- `python3 make-icons.py`
+- `python3 make-note-icons.py`
+- `python3 make-gracenote-icons.py`
 
 Run the following commands to run locally, ideally in separate terminals:
-* `npm run dev` - to run the development server
-* `npm run watch` - to rebuild JS on changes
-* `tsc --watch` - to typecheck
+
+- `npm run dev` - to run the development server
+- `npm run watch` - to rebuild JS on changes
+- `tsc --watch` - to typecheck
 
 To deploy:
-* `npm run build` - to build minified bundle
-* `npm run deploy` - to deploy to Firebase
+
+- `npm run build` - to build minified bundle
+- `npm run deploy` - to deploy to Firebase

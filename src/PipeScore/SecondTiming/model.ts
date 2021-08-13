@@ -4,13 +4,12 @@
 import { ID } from '../global/types';
 
 export interface DraggedSecondTiming {
-  secondTiming: SecondTimingModel,
-  dragged: 'start' | 'middle' | 'end'
+  secondTiming: SecondTimingModel;
+  dragged: 'start' | 'middle' | 'end';
 }
 
 export interface SecondTimingModel {
-  start: ID,
-  middle: ID,
-  end: ID
+  start: ID;
+  middle: ID;
+  end: ID;
 }
-

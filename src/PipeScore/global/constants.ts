@@ -4,5 +4,3 @@
 export const staveGap = 100;
 export const lineGap = 7;
 export const lineHeightOf = (n: number): number => n * lineGap;
-
-

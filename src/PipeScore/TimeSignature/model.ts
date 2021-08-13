@@ -3,7 +3,6 @@
  */
 export type Denominator = 2 | 4 | 8;
 export type TimeSignatureModel = {
-  ts: [number, Denominator] | 'cut time',
-  breaks: number[]
-}
-
+  ts: [number, Denominator] | 'cut time';
+  breaks: number[];
+};

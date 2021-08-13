@@ -1,6 +1,7 @@
 # To-do list
 
 ## Bugs to fix
+
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
 - [ ] Add optimised list render
@@ -10,180 +11,175 @@
 - [ ] Too large a gap before embellishments
 - [ ] Should be able to add notes before and after current gracenote to make custom embellishments
 
-
 ## General features
-- [X] Single notes
-- [X] Note groups
-- [X] Modifying notes
-- [X] Adding notes
-- [X] Reactive gracenotes
-- [X] Time signatures
-- [X] Repeat marks
-- [X] Second timings
-- [X] Anacrusis
-- [X] Note ties
-- [X] Adding staves / bars
-- [X] Text boxes
-- [X] Triplets
+
+- [x] Single notes
+- [x] Note groups
+- [x] Modifying notes
+- [x] Adding notes
+- [x] Reactive gracenotes
+- [x] Time signatures
+- [x] Repeat marks
+- [x] Second timings
+- [x] Anacrusis
+- [x] Note ties
+- [x] Adding staves / bars
+- [x] Text boxes
+- [x] Triplets
 - [ ] Harmony Stave
-- [X] Resizable interface
-- [X] Copy/paste/undo/redo
+- [x] Resizable interface
+- [x] Copy/paste/undo/redo
 - [ ] A easy way to input all of the above
 - [ ] Multiple scores per page?
-- [X] Documentation
-- [X] Saving / Loading
-- [X] Printing
-- [X] Playback
-
-
-
-
-
-
+- [x] Documentation
+- [x] Saving / Loading
+- [x] Printing
+- [x] Playback
 
 ## Bugs fixed
-- [X] fix slanted beams
-- [X] cap should be dependent on how many notes are in the group
-- [X] check / fix gaps between notes
-- [X] combine rests somehow into a single rest (if there are multiple next to each other)
-- [X] placing notes from a blank score (of different lengths)
-- [X] fix random errors with adding note (it just throws an error sometimes)
-- [X] Any time rests are merged, some notes are deleted
-- [X] Make adding notes more frictionless
-- [X] Make icons for note input
-- [X] Width of drag boxes is wrong
-- [X] Automatically group notes to correct grouping
-- [X] Add notes before first note in bar and in empty bar
-- [X] Deleting multiple notes doesn't work
-- [X] todo in groupNotes function
-- [X] Add zoom
-- [X] previousNoteData should return correct x value
-- [X] Ties on notes on input (if inputted notes are split)
-- [X] Tied notes should move together
-- [X] When splitting really large notes right after a short note, the large note gets split into too many short notes
-- [X] Notes can't be added to the end of the bar
-- [X] Placing a minim then one before it causes stack overflow
-- [X] Placing a single quaver and then moving the mouse causes an error
-- [X] Delete second timings when their notes are deleted
-- [X] Delete noteXY when a note is deleted
-- [X] Have noteLeft, noteRight and noteY instead of noteXY
-- [X] Good default zoom
-- [X] Better zoom (instead of this weird 5 * 210 or whatever)
-- [X] Second Timings for bars
-- [X] ID for notes so that secondTiming can refer to that (also for bar, then there won't need to be different implementations!)
-- [X] Tied notes still have bugs - e.g. changes gap between notes
-- [X] a quaver then a crotchet in 6 8 produces 4 group notes
-- [X] Selected items should be in a line from start to end
-- [X] Selection should look nicer
-- [X] Making a selection then adding another note somewhere crashes it (the selection is no longer in the noteModels)
-- [X] Selecting a note then deleting its bar/stave leaves the selection box
-- [X] Text box dragging is broken
-- [X] Add transforms for texts
-- [X] Correct zoom on page load
-- [X] HG -> HA gracenote on next note looks a bit crushed
-- [X] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
-  - [X] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
-- [X] I think for ties - no automatic insertion / deletion - it's too subjective
-- [X] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
-- [X] Crotchet triplets act as if there is a beam
-- [X] makeCorrectGroupings in Controller
-- [X] Dragging a single gracenote up then down again causes a render bug
-- [X] Tie causes a render bug
-- [X] Bug where adding an odd number of notes then deleting breaks it
-- [X] Remove all the state.score = { ...state.score } from Controller
-- [X] It is too easy to accidentally add notes
-- [X] Gracenotes on triplets
-- [X] Dotted note can get crushed into next gracenote
-- [X] Make a script to generate gracenote icons
-- [X] Preview note for current placement
-- [X] When adding triplets, use notes on stave rather than creating new notes
-- [X] Better time signature editing (it should only change as far as the time signature is the same)
-- [X] Deleting bar doesn't work
-- [X] Remove forced no-caching once images/js/e.t.c. is in a stable state
-- [X] Better second timing usage - you should click to add, then be able to drag the sections around
-- [X] Second timing dragging will be a bar ahead for start, since it uses beforeX whereas the others use afterX
-- [X] Make second timing dragging immutable
-- [X] Use correct previous note in all calls to widthOfAnacrusis
-- [X] Clicking on gracenote button then clicking off should unhighlight box
-- [X] Clicking on gracenote button then clicking on note button is really slow??
-- [X] Deal with selection going over stave break
-- [X] Replace plus icon with an icon that is a smaller size than the code :) bin icon too maybe
-- [X] Cut time
-- [X] Bars/staves should be selectable
-- [X] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
-- [X] Deleting triplets
-- [X] Add before/after capability for bars, staves, anacrusis
-- [X] Clicking after gracenote should not add to the first note in the bar
-- [X] Clicking/dragging on another text while first is selected breaks it
-- [X] Clicking between notes should add gracenote
-- [X] Delete should delete all selected things
-- [X] Adding text should not be above other texts
-- [X] Clicking on note head shouldn't change note value
-- [X] Text font size
-- [X] Note placing in middle of bar is bad
-- [X] Copy/paste bars
-- [X] Put copy/paste over correct bar
-- [X] Adding 2nds could be better
-- [X] Tripleting three notes makes them move to the left
-- [X] Adding gracenotes to triplets by clicking in between
-- [X] Beaming on compound time doesn't work
-- [X] Copying bars
-- [X] Adding stave/bar doesn't have the correct time signature
-- [X] Copy/paste button
-- [X] Landscape
-- [X] Add time signature adding
-- [X] Mouse events being blocked dragging single
-  - [X] Note heads shouldn't sink mouse events if other notes/gracenotes are being dragged
-- [X] + Stave After should add to end by default
-- [X] Bin -> 'Remove Gracenote'
-- [X] Negative time signatures should be disallowed
-- [X] Better denominator input (not input number)
-- [X] 1st/2nd should be higher
-- [X] End/Start of part barline
-- [X] Changing time signatures doesn't work (at start of stave)
-- [X] Centred text box shouldn't be draggable
-- [X] Highlight single notes being dragged
-- [X] Tieing sometimes adds massive ties on the stave above
-- [X] Note too far forward in lead-in with time signature
-- [X] Making centred text more intuitive
-- [X] Shouldn't be able to put second timings over each other
-- [X] Tieing to first/second note in bar doesn't work, tieing to previous stave doesn't work
-- [X] Make triplets removable
-- [X] Ties to triplets
-- [X] Work out a good way to have the first note go nearer to the start of the bar
-- [X] Add option to force breaks (e.g. for irregular time signatures)
-- [X] Set zoom on toggling landscape
-- [X] Demo note is being blocked by note
-- [X] Disable keyboard shortcuts when dialogue box is showing
-- [X] Backspace should work as well as delete
-- [X] Home button
-- [X] 1.5, 2 doesn't work, also 0.5
-- [X] Work in quavers rather than crotchets for grouping
-- [X] Shift-right/left should expand selection
-- [X] Widths:
-    - [X] Gap before gracenotes
-    - [X] Anacruses
-    - [X] Gracenote not properly relying on note before
-    - [X] Start of bar
-    - [X] Note boxes at end of bar weirdness
-- [X] If the last note in a bar is a high a, then the bar gets shorter...
-- [X] Up/Down should move notes
-- [X] Hoverable documentation
-- [X] Fix bottom of sidebar overlapping with docs
-- [X] Make general commands always be on the far right
-- [X] Ties are squint
-- [X] More gap before first note in lead in
-- [X] Copy/Paste should highlight on click
-- [X] Second Timings over multiple staves
-- [X] Maximum width for gracenotes
-- [X] Make TODO DWIM
-- [X] Make gracenotes selectable (to delete)
-- [X] Gracenotes seem to be closer to the note in front
-- [X] Can't drag single before a triplet
-- [X] Right/Left to move sideways
-- [X] Escape should deselect
-- [X] Ties in playback
-- [X] Tie within groups not working
-- [X] Short tails should not be present when there is a beam opposite them
-- [X] Deleteable second timings
-- [X] Custom embellishments should be possible by adding multiple single gracenotes
+
+- [x] fix slanted beams
+- [x] cap should be dependent on how many notes are in the group
+- [x] check / fix gaps between notes
+- [x] combine rests somehow into a single rest (if there are multiple next to each other)
+- [x] placing notes from a blank score (of different lengths)
+- [x] fix random errors with adding note (it just throws an error sometimes)
+- [x] Any time rests are merged, some notes are deleted
+- [x] Make adding notes more frictionless
+- [x] Make icons for note input
+- [x] Width of drag boxes is wrong
+- [x] Automatically group notes to correct grouping
+- [x] Add notes before first note in bar and in empty bar
+- [x] Deleting multiple notes doesn't work
+- [x] todo in groupNotes function
+- [x] Add zoom
+- [x] previousNoteData should return correct x value
+- [x] Ties on notes on input (if inputted notes are split)
+- [x] Tied notes should move together
+- [x] When splitting really large notes right after a short note, the large note gets split into too many short notes
+- [x] Notes can't be added to the end of the bar
+- [x] Placing a minim then one before it causes stack overflow
+- [x] Placing a single quaver and then moving the mouse causes an error
+- [x] Delete second timings when their notes are deleted
+- [x] Delete noteXY when a note is deleted
+- [x] Have noteLeft, noteRight and noteY instead of noteXY
+- [x] Good default zoom
+- [x] Better zoom (instead of this weird 5 \* 210 or whatever)
+- [x] Second Timings for bars
+- [x] ID for notes so that secondTiming can refer to that (also for bar, then there won't need to be different implementations!)
+- [x] Tied notes still have bugs - e.g. changes gap between notes
+- [x] a quaver then a crotchet in 6 8 produces 4 group notes
+- [x] Selected items should be in a line from start to end
+- [x] Selection should look nicer
+- [x] Making a selection then adding another note somewhere crashes it (the selection is no longer in the noteModels)
+- [x] Selecting a note then deleting its bar/stave leaves the selection box
+- [x] Text box dragging is broken
+- [x] Add transforms for texts
+- [x] Correct zoom on page load
+- [x] HG -> HA gracenote on next note looks a bit crushed
+- [x] Merge long notes into long notes (semibreves into semibreves or minims, e.t.c.)
+  - [x] Work out what the expected behaviour of groupNotes should be in regards to splitting notes into tied notes
+- [x] I think for ties - no automatic insertion / deletion - it's too subjective
+- [x] Tie-ing a crotchet to a semiquaver then placing a quaver in front breaks ties
+- [x] Crotchet triplets act as if there is a beam
+- [x] makeCorrectGroupings in Controller
+- [x] Dragging a single gracenote up then down again causes a render bug
+- [x] Tie causes a render bug
+- [x] Bug where adding an odd number of notes then deleting breaks it
+- [x] Remove all the state.score = { ...state.score } from Controller
+- [x] It is too easy to accidentally add notes
+- [x] Gracenotes on triplets
+- [x] Dotted note can get crushed into next gracenote
+- [x] Make a script to generate gracenote icons
+- [x] Preview note for current placement
+- [x] When adding triplets, use notes on stave rather than creating new notes
+- [x] Better time signature editing (it should only change as far as the time signature is the same)
+- [x] Deleting bar doesn't work
+- [x] Remove forced no-caching once images/js/e.t.c. is in a stable state
+- [x] Better second timing usage - you should click to add, then be able to drag the sections around
+- [x] Second timing dragging will be a bar ahead for start, since it uses beforeX whereas the others use afterX
+- [x] Make second timing dragging immutable
+- [x] Use correct previous note in all calls to widthOfAnacrusis
+- [x] Clicking on gracenote button then clicking off should unhighlight box
+- [x] Clicking on gracenote button then clicking on note button is really slow??
+- [x] Deal with selection going over stave break
+- [x] Replace plus icon with an icon that is a smaller size than the code :) bin icon too maybe
+- [x] Cut time
+- [x] Bars/staves should be selectable
+- [x] Selection will be a bit weird with triplets - e.g. rawselection / selection mismatch
+- [x] Deleting triplets
+- [x] Add before/after capability for bars, staves, anacrusis
+- [x] Clicking after gracenote should not add to the first note in the bar
+- [x] Clicking/dragging on another text while first is selected breaks it
+- [x] Clicking between notes should add gracenote
+- [x] Delete should delete all selected things
+- [x] Adding text should not be above other texts
+- [x] Clicking on note head shouldn't change note value
+- [x] Text font size
+- [x] Note placing in middle of bar is bad
+- [x] Copy/paste bars
+- [x] Put copy/paste over correct bar
+- [x] Adding 2nds could be better
+- [x] Tripleting three notes makes them move to the left
+- [x] Adding gracenotes to triplets by clicking in between
+- [x] Beaming on compound time doesn't work
+- [x] Copying bars
+- [x] Adding stave/bar doesn't have the correct time signature
+- [x] Copy/paste button
+- [x] Landscape
+- [x] Add time signature adding
+- [x] Mouse events being blocked dragging single
+  - [x] Note heads shouldn't sink mouse events if other notes/gracenotes are being dragged
+- [x] - Stave After should add to end by default
+- [x] Bin -> 'Remove Gracenote'
+- [x] Negative time signatures should be disallowed
+- [x] Better denominator input (not input number)
+- [x] 1st/2nd should be higher
+- [x] End/Start of part barline
+- [x] Changing time signatures doesn't work (at start of stave)
+- [x] Centred text box shouldn't be draggable
+- [x] Highlight single notes being dragged
+- [x] Tieing sometimes adds massive ties on the stave above
+- [x] Note too far forward in lead-in with time signature
+- [x] Making centred text more intuitive
+- [x] Shouldn't be able to put second timings over each other
+- [x] Tieing to first/second note in bar doesn't work, tieing to previous stave doesn't work
+- [x] Make triplets removable
+- [x] Ties to triplets
+- [x] Work out a good way to have the first note go nearer to the start of the bar
+- [x] Add option to force breaks (e.g. for irregular time signatures)
+- [x] Set zoom on toggling landscape
+- [x] Demo note is being blocked by note
+- [x] Disable keyboard shortcuts when dialogue box is showing
+- [x] Backspace should work as well as delete
+- [x] Home button
+- [x] 1.5, 2 doesn't work, also 0.5
+- [x] Work in quavers rather than crotchets for grouping
+- [x] Shift-right/left should expand selection
+- [x] Widths:
+  - [x] Gap before gracenotes
+  - [x] Anacruses
+  - [x] Gracenote not properly relying on note before
+  - [x] Start of bar
+  - [x] Note boxes at end of bar weirdness
+- [x] If the last note in a bar is a high a, then the bar gets shorter...
+- [x] Up/Down should move notes
+- [x] Hoverable documentation
+- [x] Fix bottom of sidebar overlapping with docs
+- [x] Make general commands always be on the far right
+- [x] Ties are squint
+- [x] More gap before first note in lead in
+- [x] Copy/Paste should highlight on click
+- [x] Second Timings over multiple staves
+- [x] Maximum width for gracenotes
+- [x] Make TODO DWIM
+- [x] Make gracenotes selectable (to delete)
+- [x] Gracenotes seem to be closer to the note in front
+- [x] Can't drag single before a triplet
+- [x] Right/Left to move sideways
+- [x] Escape should deselect
+- [x] Ties in playback
+- [x] Tie within groups not working
+- [x] Short tails should not be present when there is a beam opposite them
+- [x] Deleteable second timings
+- [x] Custom embellishments should be possible by adding multiple single gracenotes

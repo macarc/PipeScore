@@ -5,7 +5,8 @@
 import { VElement, VString, AnyV } from './types';
 
 const isVString = (a: AnyV): a is VString => (a as VString).s !== undefined;
-const isVElement = (a: AnyV): a is VElement => (a as VElement).name !== undefined;
+const isVElement = (a: AnyV): a is VElement =>
+  (a as VElement).name !== undefined;
 
 function patchNew(v: VElement, topLevel = false): Element {
   // Create a new element from a virtual node
@@ -20,7 +21,8 @@ function patchNew(v: VElement, topLevel = false): Element {
 
   for (const attr in v.attrs) {
     if (typeof v.attrs[attr] === 'boolean') {
-      if (v.attrs[attr]) newElement.setAttribute(attr, v.attrs[attr].toString());
+      if (v.attrs[attr])
+        newElement.setAttribute(attr, v.attrs[attr].toString());
     } else {
       newElement.setAttribute(attr, v.attrs[attr].toString());
     }
@@ -59,7 +61,10 @@ export default function patch(before: VElement, after: VElement): boolean {
   // Compares both virtual DOM and efficiently updates the real DOM (actual DOM mutation is slow)
   // Returns true if after.node !== before.node (i.e. the node needs to be replaced)
 
-  if (before.node === null || before.name.toLowerCase() !== after.name.toLowerCase()) {
+  if (
+    before.node === null ||
+    before.name.toLowerCase() !== after.name.toLowerCase()
+  ) {
     patchNew(after, true);
     return true;
   }
@@ -89,7 +94,9 @@ export default function patch(before: VElement, after: VElement): boolean {
   // todo this could probably be more efficient
   const childrenDiffLength = before.children.length - after.children.length;
   for (let i = 0; i < childrenDiffLength; i++) {
-    before.node.removeChild(before.node.childNodes[before.node.childNodes.length - 1]);
+    before.node.removeChild(
+      before.node.childNodes[before.node.childNodes.length - 1]
+    );
   }
   let reachedEndOfBeforeChildren = false;
   const beforeChildrenLength = before.children.length;
@@ -106,12 +113,15 @@ export default function patch(before: VElement, after: VElement): boolean {
     } else if (bef === null && !reachedEndOfBeforeChildren) {
       if (isVElement(aft)) {
         const newElement = patchNew(aft, true);
-        after.node.insertBefore(newElement, before.node.children[child] || null);
+        after.node.insertBefore(
+          newElement,
+          before.node.children[child] || null
+        );
         aft.node = newElement;
       } else {
         console.error("Haven't handled this case yet");
       }
-    } else if (! bef || ! oldNode || reachedEndOfBeforeChildren) {
+    } else if (!bef || !oldNode || reachedEndOfBeforeChildren) {
       if (isVElement(aft)) {
         const newElement = patchNew(aft, true);
         after.node.appendChild(newElement);
@@ -128,12 +138,12 @@ export default function patch(before: VElement, after: VElement): boolean {
           aft.node = oldNode;
         }
       } else if (isVElement(bef) && isVElement(aft)) {
-        const isNewNode = patch(bef, aft)
+        const isNewNode = patch(bef, aft);
         if (isNewNode && aft.node && bef.node) {
           after.node.replaceChild(aft.node, bef.node);
         }
       } else {
-        throw Error('can\'t deal with different things right now');
+        throw Error("can't deal with different things right now");
       }
     }
   }

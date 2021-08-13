@@ -14,7 +14,7 @@ const numberOfNotes = (bar: BarModel): number => bar.notes.length;
 
 function lastPitch(bar: BarModel): Pitch | null {
   const lastNote = bar.notes[bar.notes.length - 1];
-  if (! lastNote) {
+  if (!lastNote) {
     return null;
   } else if (Note.isTriplet(lastNote)) {
     return lastNote.third.pitch;
@@ -33,7 +33,7 @@ const init = (timeSignature = TimeSignature.init()): BarModel => ({
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,
   isAnacrusis: false,
-  id: genId()
+  id: genId(),
 });
 
 const initAnacrusis = (timeSignature = TimeSignature.init()): BarModel => ({
@@ -42,7 +42,7 @@ const initAnacrusis = (timeSignature = TimeSignature.init()): BarModel => ({
   frontBarline: Barline.Normal,
   backBarline: Barline.Normal,
   isAnacrusis: true,
-  id: genId()
+  id: genId(),
 });
 
 export default {
@@ -51,5 +51,4 @@ export default {
   lastPitch,
   lastNote,
   numberOfNotes,
-}
-
+};

@@ -12,44 +12,44 @@
 */
 export interface Width {
   // min - the minimum possible width for an element
-  min: number,
+  min: number;
   // extend - the relative fraction that the element takes up when expanded (like fr in display: flex)
-  extend: number
+  extend: number;
 }
 
 function init(min: number, extend: number): Width {
-    return { min, extend };
+  return { min, extend };
 }
 
 function add(...widths: Width[]): Width {
-    return widths.reduce((a,b) => ({
-        min: a.min + b.min,
-        extend: a.extend + b.extend
-    }));
+  return widths.reduce((a, b) => ({
+    min: a.min + b.min,
+    extend: a.extend + b.extend,
+  }));
 }
 
 function mul(width: Width, val: number): Width {
-    return {
-        ...width,
-        extend: val * width.extend
-    };
+  return {
+    ...width,
+    extend: val * width.extend,
+  };
 }
 
 function reify(width: Width, beatWidth: number): number {
-    return width.min + beatWidth * width.extend;
+  return width.min + beatWidth * width.extend;
 }
 
 function zero(): Width {
-    return {
-        min: 0,
-        extend: 0
-    };
+  return {
+    min: 0,
+    extend: 0,
+  };
 }
 
 export default {
-    init,
-    add,
-    mul,
-    reify,
-    zero
-}
+  init,
+  add,
+  mul,
+  reify,
+  zero,
+};

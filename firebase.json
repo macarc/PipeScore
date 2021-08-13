@@ -4,22 +4,22 @@
     "public": "public",
     "cleanUrls": true,
     "trailingSlash": false,
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/pipescore/**/**",
+        "destination": "/pipescore.html"
+      }
     ],
-    "rewrites": [{
-      "source": "/pipescore/**/**",
-      "destination": "/pipescore.html"
-    }],
     "headers": [
       {
         "source": "/**",
-        "headers": [{
-          "key": "Cache-Control",
-          "value": "no-cache, must-revalidate"
-        }]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
       }
     ]
   }

@@ -10,7 +10,12 @@ import patch from '../../render/vdom';
 
 export let dialogueBoxIsOpen = false;
 
-export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormElement) => A | null, blank: A, cancelable = true): Promise<A> {
+export default function dialogueBox<A>(
+  inner: V[],
+  serialise: (form: HTMLFormElement) => A | null,
+  blank: A,
+  cancelable = true
+): Promise<A> {
   dialogueBoxIsOpen = true;
   const parent = document.createElement('div');
   parent.id = 'dialogue-parent';
@@ -22,25 +27,47 @@ export default function dialogueBox<A>(inner: V[], serialise: (form: HTMLFormEle
   parent.appendChild(box);
   document.body.append(parent);
   const root = hFrom(box);
-  return new Promise(res => {
-    patch(root, h('div', { id: 'dialogue-box' }, [
-      h('form', { id: 'dialogue-form' }, { submit: (e: Event) => {
-        dialogueBoxIsOpen = false;
-        e.preventDefault();
-        let data: A | null = blank;
-        const form = e.target;
-        if (form instanceof HTMLFormElement) data = serialise(form);
-        document.body.removeChild(parent);
-        res(data || blank);
-      } }, [
-        ...inner,
-        cancelable ? h('input', { type: 'button', id: 'cancel-btn', value: 'Cancel' }, { click: () => {
-          dialogueBoxIsOpen = false;
-          document.body.removeChild(parent);
-          res(blank);
-        } }) : null,
-        h('input', { type: 'submit', class: 'continue', value: 'Continue' })
+  return new Promise((res) => {
+    patch(
+      root,
+      h('div', { id: 'dialogue-box' }, [
+        h(
+          'form',
+          { id: 'dialogue-form' },
+          {
+            submit: (e: Event) => {
+              dialogueBoxIsOpen = false;
+              e.preventDefault();
+              let data: A | null = blank;
+              const form = e.target;
+              if (form instanceof HTMLFormElement) data = serialise(form);
+              document.body.removeChild(parent);
+              res(data || blank);
+            },
+          },
+          [
+            ...inner,
+            cancelable
+              ? h(
+                  'input',
+                  { type: 'button', id: 'cancel-btn', value: 'Cancel' },
+                  {
+                    click: () => {
+                      dialogueBoxIsOpen = false;
+                      document.body.removeChild(parent);
+                      res(blank);
+                    },
+                  }
+                )
+              : null,
+            h('input', {
+              type: 'submit',
+              class: 'continue',
+              value: 'Continue',
+            }),
+          ]
+        ),
       ])
-    ]));
+    );
   });
 }

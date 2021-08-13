@@ -12,11 +12,10 @@ import { TimeSignatureModel } from '../TimeSignature/model';
 import Stave from '../Stave/functions';
 import TextBox from '../TextBox/functions';
 
-
 function bars(score: ScoreModel): BarModel[] {
   // Returns all bars in the score
 
-  return flatten(score.staves.map(stave => Stave.bars(stave)));
+  return flatten(score.staves.map((stave) => Stave.bars(stave)));
 }
 function staves(score: ScoreModel): StaveModel[] {
   // Returns all the staves in the score
@@ -24,13 +23,18 @@ function staves(score: ScoreModel): StaveModel[] {
   return score.staves;
 }
 
-function addStave(score: ScoreModel, afterStave: StaveModel, before: boolean): void {
+function addStave(
+  score: ScoreModel,
+  afterStave: StaveModel,
+  before: boolean
+): void {
   // Appends a stave after afterStave
 
   const ind = score.staves.indexOf(afterStave);
-  const newStave = Stave.init(afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined);
-  if (ind !== -1)
-    score.staves.splice(before ? ind : ind + 1, 0, newStave);
+  const newStave = Stave.init(
+    afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined
+  );
+  if (ind !== -1) score.staves.splice(before ? ind : ind + 1, 0, newStave);
 }
 
 function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
@@ -39,21 +43,24 @@ function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
 
   const newScore = { ...score };
   const ind = newScore.staves.indexOf(stave);
-  if (ind !== -1)
-    newScore.staves.splice(ind, 1);
+  if (ind !== -1) newScore.staves.splice(ind, 1);
   return newScore;
 }
 
-
-const init = (name = 'My Tune', numberOfStaves = 2, timeSignature: TimeSignatureModel | undefined = undefined): ScoreModel => ({
+const init = (
+  name = 'My Tune',
+  numberOfStaves = 2,
+  timeSignature: TimeSignatureModel | undefined = undefined
+): ScoreModel => ({
   name,
   width: 210 * 5,
   height: 297 * 5,
-  staves: [...Array(numberOfStaves).keys()].map(() => Stave.init(timeSignature)),
+  staves: [...Array(numberOfStaves).keys()].map(() =>
+    Stave.init(timeSignature)
+  ),
   textBoxes: [TextBox.init(name, true)],
-  secondTimings: []
+  secondTimings: [],
 });
-
 
 export default {
   init,
@@ -61,4 +68,4 @@ export default {
   staves,
   addStave,
   deleteStave,
-}
+};

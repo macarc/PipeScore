@@ -1,25 +1,25 @@
 import { Pitch } from './global/pitch';
 
 export interface PlaybackState {
-  bpm: number
+  bpm: number;
 }
 
 export interface PlaybackElement {
-  pitch: Pitch,
-  tied: boolean,
-  duration: number
+  pitch: Pitch;
+  tied: boolean;
+  duration: number;
 }
 
 function sleep(length: number): Promise<void> {
-  return new Promise(res => setTimeout(res, length));
+  return new Promise((res) => setTimeout(res, length));
 }
 
 let audioStopped = false;
 let playing = false;
 
 export const stopAudio = (): void => {
-    audioStopped = true;
-}
+  audioStopped = true;
+};
 
 class Sample {
   buffer: AudioBuffer | null = null;
@@ -35,16 +35,16 @@ class Sample {
     // Need to do this because when it's used later on `this` refers to something else
     // eslint-disable-next-line
     const s = this;
-    return new Promise(res => {
+    return new Promise((res) => {
       const request = new XMLHttpRequest();
       request.open('GET', '/audio/' + this.name + '.mp3', true);
       request.responseType = 'arraybuffer';
-      request.onload = function() {
+      request.onload = function () {
         context.decodeAudioData(request.response, (buffer) => {
           s.buffer = buffer;
           res();
-        })
-      }
+        });
+      };
       request.send();
     });
   }
@@ -66,38 +66,60 @@ const f = new Sample('f');
 const highg = new Sample('highg');
 const higha = new Sample('higha');
 
-export async function playback(state: PlaybackState, elements: PlaybackElement[]): Promise<void> {
+export async function playback(
+  state: PlaybackState,
+  elements: PlaybackElement[]
+): Promise<void> {
   if (playing) return;
   playing = true;
 
-  document.body.classList.add("loading");
+  document.body.classList.add('loading');
   const context = new AudioContext();
 
-  await Promise.all([lowg.load(context), lowa.load(context), b.load(context), c.load(context), d.load(context), e.load(context), f.load(context), highg.load(context), higha.load(context)]);
+  await Promise.all([
+    lowg.load(context),
+    lowa.load(context),
+    b.load(context),
+    c.load(context),
+    d.load(context),
+    e.load(context),
+    f.load(context),
+    highg.load(context),
+    higha.load(context),
+  ]);
   function pitchToSample(pitch: Pitch): Sample {
     switch (pitch) {
-      case Pitch.G: return lowg;
-      case Pitch.A: return lowa;
-      case Pitch.B: return b;
-      case Pitch.C: return c;
-      case Pitch.D: return d;
-      case Pitch.E: return e;
-      case Pitch.F: return f;
-      case Pitch.HG: return highg;
-      case Pitch.HA: return higha;
+      case Pitch.G:
+        return lowg;
+      case Pitch.A:
+        return lowa;
+      case Pitch.B:
+        return b;
+      case Pitch.C:
+        return c;
+      case Pitch.D:
+        return d;
+      case Pitch.E:
+        return e;
+      case Pitch.F:
+        return f;
+      case Pitch.HG:
+        return highg;
+      case Pitch.HA:
+        return higha;
     }
   }
 
   // Need to create an array of different buffers since each buffer can only be played once
   const audioBuffers = new Array(elements.length);
   for (const el in elements) {
-    audioBuffers[el] = pitchToSample(elements[el].pitch).getSource(context)
+    audioBuffers[el] = pitchToSample(elements[el].pitch).getSource(context);
     audioBuffers[el].connect(context.destination);
   }
   const gracenoteLength = 50;
   Promise.all(audioBuffers).then(async (audioBuffers) => {
-    document.body.classList.remove("loading");
-    for (let i=0; i<audioBuffers.length; i++) {
+    document.body.classList.remove('loading');
+    for (let i = 0; i < audioBuffers.length; i++) {
       if (elements[i].tied) continue;
       const audio = audioBuffers[i];
       const duration = elements[i].duration;
@@ -118,7 +140,7 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
         for (let k = 1; elements[i + k] && elements[i + k].tied; k++) {
           duration += elements[i + k].duration;
         }
-        await sleep(1000 * duration * 60 / (state.bpm) - (gracenoteLength * j));
+        await sleep((1000 * duration * 60) / state.bpm - gracenoteLength * j);
       }
       audio.stop();
     }
@@ -127,4 +149,3 @@ export async function playback(state: PlaybackState, elements: PlaybackElement[]
     playing = false;
   });
 }
-

@@ -1,10 +1,10 @@
 {
-    "compilerOptions": {
-        "target": "es2017",
-        "moduleResolution": "node",
-        "noEmit": true,
-        "strict": true,
-        "noImplicitAny": true,
-        "alwaysStrict": true
-    }
+  "compilerOptions": {
+    "target": "es2017",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "alwaysStrict": true
+  }
 }

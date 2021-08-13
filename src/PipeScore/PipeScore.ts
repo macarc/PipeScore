@@ -12,10 +12,9 @@ import quickStart from './QuickStart';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 window.addEventListener('DOMContentLoaded', async () => {
-
   window.addEventListener('keydown', keyHandler);
 
-  const auth = new Auth({ apiKey })
+  const auth = new Auth({ apiKey });
   const db = new Database({ projectId: 'pipe-score', auth });
 
   let startedController = false;
@@ -35,17 +34,27 @@ window.addEventListener('DOMContentLoaded', async () => {
       } else {
         const [userId, scoreId] = path;
         const save = async (score: ScoreModel) => {
-          await db.ref(`/scores/${userId}/scores/${scoreId}`).set(score).catch(() => window.location.replace('/scores'));
+          await db
+            .ref(`/scores/${userId}/scores/${scoreId}`)
+            .set(score)
+            .catch(() => window.location.replace('/scores'));
           return get();
-        }
-        const get = (): Promise<ScoreModel> => db.ref(`scores/${userId}/scores/${scoreId}`).get().then(s => s as unknown as ScoreModel).catch(() => save(Score.init()));
+        };
+        const get = (): Promise<ScoreModel> =>
+          db
+            .ref(`scores/${userId}/scores/${scoreId}`)
+            .get()
+            .then((s) => s as unknown as ScoreModel)
+            .catch(() => save(Score.init()));
 
         let score = await get();
 
         // If is a new score, it will not have staves, so save a blank score
         if (!score.staves) {
           const values = await quickStart();
-          score = await save(Score.init(values.name, values.numberOfStaves, values.timeSignature));
+          score = await save(
+            Score.init(values.name, values.numberOfStaves, values.timeSignature)
+          );
         }
         if (score) {
           startController(score, save);

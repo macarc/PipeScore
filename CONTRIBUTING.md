@@ -3,9 +3,10 @@
 Thanks for considering contributing to PipeScore!
 
 Before creating a PR, make sure your code passes:
-* `tsc` -- type check
-* `npm run lint` -- lint
-* `npm run circles` -- check for circular dependencies
+
+- `tsc` -- type check
+- `npm run lint` -- lint
+- `npm run circles` -- check for circular dependencies
 
 with no errors / warnings.
 

@@ -27,11 +27,12 @@ button {
   margin: 0.2rem;
   cursor: pointer;
 }
-input[type="range"] {
+input[type='range'] {
   display: block;
 }
 
-#menu, #topbar {
+#menu,
+#topbar {
   display: flex;
   margin: 0;
   position: fixed;
@@ -69,9 +70,10 @@ input[type="range"] {
 #topbar section {
   display: inline-flex;
   flex-direction: column;
-  margin: 0 .5rem;
+  margin: 0 0.5rem;
 }
-#topbar button:not(.textual), .fit-nicely {
+#topbar button:not(.textual),
+.fit-nicely {
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -89,7 +91,8 @@ button.textual {
   vertical-align: top;
 }
 
-#topbar label, #topbar input {
+#topbar label,
+#topbar input {
   display: inline;
 }
 #topbar {
@@ -109,7 +112,6 @@ div .flex {
   flex-direction: column;
 }
 
-
 #tie {
   background-image: url('./images/tie.png');
 }
@@ -120,12 +122,12 @@ div .flex {
 
 .delete {
   background-image: url('./images/bin.png');
-  background-position: .75rem .75rem !important;
+  background-position: 0.75rem 0.75rem !important;
   background-size: 1.5rem 1.5rem !important;
 }
 .add {
   background-image: url('./images/plus.svg');
-  background-position: .8rem .6rem !important;
+  background-position: 0.8rem 0.6rem !important;
   background-size: 1.7rem 1.7rem !important;
 }
 
@@ -154,7 +156,7 @@ svg {
 h2 {
   font-size: 1.1rem;
   user-select: none;
-  margin: 0 0 .3rem;
+  margin: 0 0 0.3rem;
 }
 #note-sb {
   background-image: url('./images/icons/semibreve.svg');
@@ -191,8 +193,9 @@ h2 {
   transform: scaleX(-1);
 }
 
-#copy, #paste {
-  background-position: .75rem .75rem !important;
+#copy,
+#paste {
+  background-position: 0.75rem 0.75rem !important;
   background-size: 1.5rem 1.5rem !important;
 }
 #copy {
@@ -203,7 +206,8 @@ h2 {
   background-image: url('./images/paste.svg');
 }
 
-#copy:active, #paste:active {
+#copy:active,
+#paste:active {
   background-color: yellow !important;
 }
 
@@ -253,7 +257,7 @@ text {
   font-size: 1.1rem;
   margin: 1rem;
 }
-#dialogue-box input[type="number"] {
+#dialogue-box input[type='number'] {
   width: 3rem !important;
 }
 
@@ -286,6 +290,9 @@ text {
     margin: 30% auto;
     font-size: 1.5rem;
   }
-  #score, #ui, #doc { display: none; }
+  #score,
+  #ui,
+  #doc {
+    display: none;
+  }
 }
-

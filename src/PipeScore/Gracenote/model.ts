@@ -4,29 +4,33 @@
 import { Pitch } from '../global/pitch';
 
 export interface ReactiveGracenote {
-  type: 'reactive',
-  name: string
+  type: 'reactive';
+  name: string;
 }
 
 export interface SingleGracenote {
-  type: 'single',
-  note: Pitch,
+  type: 'single';
+  note: Pitch;
 }
 
 export interface CustomGracenote {
-  type: 'custom',
-  notes: Pitch[]
+  type: 'custom';
+  notes: Pitch[];
 }
 
 interface NoGracenote {
-  type: 'none'
+  type: 'none';
 }
 
-export type GracenoteModel = ReactiveGracenote | SingleGracenote | CustomGracenote | NoGracenote;
+export type GracenoteModel =
+  | ReactiveGracenote
+  | SingleGracenote
+  | CustomGracenote
+  | NoGracenote;
 
 // consider naming this better
 export type Gracenote = Pitch[];
 
 export interface InvalidGracenote {
-  gracenote: Gracenote
+  gracenote: Gracenote;
 }

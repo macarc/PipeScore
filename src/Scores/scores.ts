@@ -12,25 +12,61 @@ let userId = '';
 let scoreRoot: V | null = null;
 const updateScores = async () => {
   const collection = await db.ref(`scores/${userId}/scores`).list();
-  const scores = collection.documents.map(doc => [doc.name, doc.__meta__.path.replace('/scores', '')]);
+  const scores = collection.documents.map((doc) => [
+    doc.name,
+    doc.__meta__.path.replace('/scores', ''),
+  ]);
   if (scoreRoot) {
     const oldScoreRoot = scoreRoot;
     scoreRoot = h('section', { id: 'scores' }, [
       h('p', ['Scores:']),
       scores.length === 0 ? h('p', ['You have no scores.']) : null,
       h('table', [
-        ...scores.map(score =>
+        ...scores.map((score) =>
           h('tr', [
-            h('td', { class: 'td-name' }, [h('a', { href: '/pipescore' + score[1].replace('/scores/', '/') }, [ score[0] ])]),
-            h('td', [h('button', { class: 'rename' }, { click: () => renameScore(score[1]) }, ['Rename'])]),
-            h('td', [h('button', { class: 'edit' }, { click: () => window.location.assign('/pipescore' + score[1].replace('/scores/', '/')) }, [ 'Edit' ])]),
-            h('td', [h('button', { class: 'delete' }, { click: () => deleteScore(score[1]) }, [ 'Delete' ])])
-            ]))
-      ])
-    ])
+            h('td', { class: 'td-name' }, [
+              h(
+                'a',
+                { href: '/pipescore' + score[1].replace('/scores/', '/') },
+                [score[0]]
+              ),
+            ]),
+            h('td', [
+              h(
+                'button',
+                { class: 'rename' },
+                { click: () => renameScore(score[1]) },
+                ['Rename']
+              ),
+            ]),
+            h('td', [
+              h(
+                'button',
+                { class: 'edit' },
+                {
+                  click: () =>
+                    window.location.assign(
+                      '/pipescore' + score[1].replace('/scores/', '/')
+                    ),
+                },
+                ['Edit']
+              ),
+            ]),
+            h('td', [
+              h(
+                'button',
+                { class: 'delete' },
+                { click: () => deleteScore(score[1]) },
+                ['Delete']
+              ),
+            ]),
+          ])
+        ),
+      ]),
+    ]);
     patch(oldScoreRoot, scoreRoot);
   }
-}
+};
 
 // This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
@@ -72,11 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (signOutBtn) signOutBtn.addEventListener('click', () => auth.signOut());
 
   const newScoreBtn = document.getElementById('new-score');
-  if (newScoreBtn) newScoreBtn.addEventListener('click', async () => {
-    const collection = await db.ref(`scores/${userId}/scores`);
-    const newScore = await collection.add({ });
-    if (newScore) {
-      window.location.assign(`/pipescore/${userId}/${newScore.id}`);
-    }
-  });
+  if (newScoreBtn)
+    newScoreBtn.addEventListener('click', async () => {
+      const collection = await db.ref(`scores/${userId}/scores`);
+      const newScore = await collection.add({});
+      if (newScore) {
+        window.location.assign(`/pipescore/${userId}/${newScore.id}`);
+      }
+    });
 });

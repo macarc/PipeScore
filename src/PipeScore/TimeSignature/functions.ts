@@ -43,18 +43,22 @@ function beatDivision(ts: TimeSignatureModel): (i: number) => number {
           case 8:
             return 1.5;
         }
-      }
-  }
+    }
+  };
 }
 
 function parseDenominator(text: string): Denominator | null {
   // Turns a string into a Denominator
 
   switch (text) {
-    case '2': return 2;
-    case '4': return 4;
-    case '8': return 8;
-    default: return null;
+    case '2':
+      return 2;
+    case '4':
+      return 4;
+    case '8':
+      return 8;
+    default:
+      return null;
   }
 }
 
@@ -66,23 +70,23 @@ function equal(ts0: TimeSignatureModel, ts1: TimeSignatureModel): boolean {
 
 const top = (ts: TimeSignatureModel): number => {
   const t = ts.ts;
-  return (t === 'cut time') ? 2 : t[0];
-}
+  return t === 'cut time' ? 2 : t[0];
+};
 const bottom = (ts: TimeSignatureModel): Denominator => {
   const t = ts.ts;
-  return (t === 'cut time') ? 2 : t[1];
-}
+  return t === 'cut time' ? 2 : t[1];
+};
 
 const init = (): TimeSignatureModel => ({
-  ts: [2,4],
-  breaks: []
+  ts: [2, 4],
+  breaks: [],
 });
 
 // This is needed because TypeScript tends to assume that
 // [1 :: number, 3 :: Denominator] is (number | Denominator)[] rather than [number, Denominator]
 const from = (ts: [number, Denominator] | 'cut time'): TimeSignatureModel => ({
   ts,
-  breaks: []
+  breaks: [],
 });
 
 const copy = (ts: TimeSignatureModel): TimeSignatureModel => deepcopy(ts);
@@ -96,5 +100,5 @@ export default {
   numberOfBeats,
   beatDivision,
   parseDenominator,
-  equal
-}
+  equal,
+};

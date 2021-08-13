@@ -2,26 +2,35 @@
    The beginning of a more efficient list render for PipeScore
    Copyright (C) 2021 Archie Maclean
  */
-const enum Change { Modified, Removed, Added }
-
-interface Diff<A> {
-  index: number,
-  change: Change,
-  newValue: A
+const enum Change {
+  Modified,
+  Removed,
+  Added,
 }
 
-function diffuneven<A>(longer: A[], shorter: A[], addChange: Change, removeChange: Change): Diff<A>[] {
+interface Diff<A> {
+  index: number;
+  change: Change;
+  newValue: A;
+}
+
+function diffuneven<A>(
+  longer: A[],
+  shorter: A[],
+  addChange: Change,
+  removeChange: Change
+): Diff<A>[] {
   let lengthDiff = longer.length - shorter.length;
   const elementsAdded = [];
   let so = 0; // shorter indexing offset
-  for (let i=0; i < longer.length; i++) {
+  for (let i = 0; i < longer.length; i++) {
     if (longer[i] !== shorter[i + so]) {
       if (longer[i] === shorter[i + so + 1]) {
         const diff = {
           index: i,
           change: removeChange,
-          newValue: shorter[i + so]
-        }
+          newValue: shorter[i + so],
+        };
         elementsAdded.push(diff);
         lengthDiff += 1;
         so += 1;
@@ -37,8 +46,8 @@ function diffuneven<A>(longer: A[], shorter: A[], addChange: Change, removeChang
             const diff = {
               index: i + j, //index i because it will be inserted at index i
               change: removeChange,
-              newValue: longer[i + j]
-            }
+              newValue: longer[i + j],
+            };
             elementsBetween.push(diff);
           }
         }
@@ -52,8 +61,8 @@ function diffuneven<A>(longer: A[], shorter: A[], addChange: Change, removeChang
           const diff = {
             index: i,
             change: Change.Modified,
-            newValue: longer[i]
-          }
+            newValue: longer[i],
+          };
           elementsAdded.push(diff);
         }
       }
@@ -61,7 +70,6 @@ function diffuneven<A>(longer: A[], shorter: A[], addChange: Change, removeChang
   }
 
   return elementsAdded;
-
 }
 
 // the indexes it returns are intended to be used from right to left, insert/deleting along the way
@@ -79,12 +87,11 @@ export function difflist<A>(before: A[], after: A[]): Diff<A>[] {
         const diff = {
           index: i,
           change: Change.Modified,
-          newValue: after[i]
-        }
+          newValue: after[i],
+        };
         changes.push(diff);
       }
     }
     return changes;
   }
 }
-

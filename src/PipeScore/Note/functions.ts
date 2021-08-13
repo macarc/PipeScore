@@ -8,16 +8,27 @@ import { NoteModel, NoteLength, TripletModel, BaseNote } from './model';
 
 import Gracenote from '../Gracenote/functions';
 
-function isTriplet(note: NoteModel | BaseNote | NoteModel[] | TripletModel): note is TripletModel {
+function isTriplet(
+  note: NoteModel | BaseNote | NoteModel[] | TripletModel
+): note is TripletModel {
   return (note as TripletModel).first !== undefined;
 }
 
 function isNoteModel(note: BaseNote | TripletModel): note is NoteModel {
-  return ((note as TripletModel).first === undefined) && ((note as NoteModel).tied !== undefined);
+  return (
+    (note as TripletModel).first === undefined &&
+    (note as NoteModel).tied !== undefined
+  );
 }
 
-function tripletNoteModels(triplet: TripletModel): [NoteModel, NoteModel, NoteModel] {
-  return [{ ...triplet.first, length: triplet.length, tied: false }, { ...triplet.second, length: triplet.length, tied: false }, { ...triplet.third, length: triplet.length, tied: false }];
+function tripletNoteModels(
+  triplet: TripletModel
+): [NoteModel, NoteModel, NoteModel] {
+  return [
+    { ...triplet.first, length: triplet.length, tied: false },
+    { ...triplet.second, length: triplet.length, tied: false },
+    { ...triplet.third, length: triplet.length, tied: false },
+  ];
 }
 
 function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
@@ -32,12 +43,14 @@ function pitchOfNote(note: NoteModel | TripletModel): Pitch {
   }
 }
 
-function flattenTriplets(notes: (NoteModel | TripletModel)[]): (NoteModel | BaseNote)[] {
+function flattenTriplets(
+  notes: (NoteModel | TripletModel)[]
+): (NoteModel | BaseNote)[] {
   const final = [];
-  for (let i=0; i < notes.length; i++) {
+  for (let i = 0; i < notes.length; i++) {
     const note = notes[i];
     if (isTriplet(note)) {
-      final.push(note.first,note.second,note.third);
+      final.push(note.first, note.second, note.third);
     } else {
       final.push(note);
     }
@@ -45,10 +58,18 @@ function flattenTriplets(notes: (NoteModel | TripletModel)[]): (NoteModel | Base
   return final;
 }
 
-function groupNotes(notes: (NoteModel | TripletModel)[], findLengthOfGroup: (i: number) => number): (NoteModel[] | TripletModel)[] {
+function groupNotes(
+  notes: (NoteModel | TripletModel)[],
+  findLengthOfGroup: (i: number) => number
+): (NoteModel[] | TripletModel)[] {
   let i = 0;
   let lengthOfGroup = findLengthOfGroup(i);
-  const pushNote = (group: NoteModel[], note: NoteModel, currentLength: number, lengthOfNote: number): number => {
+  const pushNote = (
+    group: NoteModel[],
+    note: NoteModel,
+    currentLength: number,
+    lengthOfNote: number
+  ): number => {
     if (hasBeam(note.length)) {
       group.push(note);
       return currentLength + lengthOfNote;
@@ -68,7 +89,7 @@ function groupNotes(notes: (NoteModel | TripletModel)[], findLengthOfGroup: (i: 
   // In this case, the last two quavers should not be tied. If currentLength was tied to currentGroup, that
   // behaviour would not be achievable
   let currentLength = 0;
-  notes.forEach(note => {
+  notes.forEach((note) => {
     if (isTriplet(note)) {
       if (currentGroup.length > 0) {
         groupedNotes.push(currentGroup);
@@ -110,7 +131,6 @@ function groupNotes(notes: (NoteModel | TripletModel)[], findLengthOfGroup: (i: 
   return groupedNotes;
 }
 
-
 // Note Length
 
 function hasStem(note: NoteModel): boolean {
@@ -118,7 +138,14 @@ function hasStem(note: NoteModel): boolean {
 }
 
 function hasDot(note: NoteLength): boolean {
-  return ([NoteLength.DottedMinim, NoteLength.DottedCrotchet, NoteLength.DottedQuaver, NoteLength.DottedSemiQuaver, NoteLength.DottedDemiSemiQuaver, NoteLength.DottedHemiDemiSemiQuaver].includes(note));
+  return [
+    NoteLength.DottedMinim,
+    NoteLength.DottedCrotchet,
+    NoteLength.DottedQuaver,
+    NoteLength.DottedSemiQuaver,
+    NoteLength.DottedDemiSemiQuaver,
+    NoteLength.DottedHemiDemiSemiQuaver,
+  ].includes(note);
 }
 
 function hasBeam(note: NoteLength): boolean {
@@ -139,19 +166,32 @@ function equalOrDotted(a: NoteLength, b: NoteLength): boolean {
 
 function lengthToNumber(length: NoteLength): number {
   switch (length) {
-    case NoteLength.Semibreve: return 4;
-    case NoteLength.DottedMinim: return 3;
-    case NoteLength.Minim: return 2;
-    case NoteLength.DottedCrotchet: return 1.5;
-    case NoteLength.Crotchet: return 1;
-    case NoteLength.DottedQuaver: return 0.75;
-    case NoteLength.Quaver: return 0.5;
-    case NoteLength.DottedSemiQuaver: return 0.375;
-    case NoteLength.SemiQuaver: return 0.25;
-    case NoteLength.DottedDemiSemiQuaver: return 0.1875;
-    case NoteLength.DemiSemiQuaver: return 0.125;
-    case NoteLength.DottedHemiDemiSemiQuaver: return 0.9375;
-    case NoteLength.HemiDemiSemiQuaver: return 0.0625
+    case NoteLength.Semibreve:
+      return 4;
+    case NoteLength.DottedMinim:
+      return 3;
+    case NoteLength.Minim:
+      return 2;
+    case NoteLength.DottedCrotchet:
+      return 1.5;
+    case NoteLength.Crotchet:
+      return 1;
+    case NoteLength.DottedQuaver:
+      return 0.75;
+    case NoteLength.Quaver:
+      return 0.5;
+    case NoteLength.DottedSemiQuaver:
+      return 0.375;
+    case NoteLength.SemiQuaver:
+      return 0.25;
+    case NoteLength.DottedDemiSemiQuaver:
+      return 0.1875;
+    case NoteLength.DemiSemiQuaver:
+      return 0.125;
+    case NoteLength.DottedHemiDemiSemiQuaver:
+      return 0.9375;
+    case NoteLength.HemiDemiSemiQuaver:
+      return 0.0625;
   }
 }
 
@@ -162,7 +202,7 @@ function lengthToNumTails(length: NoteLength): number {
     case NoteLength.Minim:
     case NoteLength.DottedCrotchet:
     case NoteLength.Crotchet:
-      return 0
+      return 0;
     case NoteLength.DottedQuaver:
     case NoteLength.Quaver:
       return 1;
@@ -179,20 +219,33 @@ function lengthToNumTails(length: NoteLength): number {
 }
 
 function toggleDot(length: NoteLength): NoteLength {
-  switch(length) {
-    case NoteLength.Semibreve: return NoteLength.Semibreve;
-    case NoteLength.DottedMinim: return NoteLength.Minim;
-    case NoteLength.Minim: return NoteLength.DottedMinim;
-    case NoteLength.DottedCrotchet: return NoteLength.Crotchet;
-    case NoteLength.Crotchet: return NoteLength.DottedCrotchet;
-    case NoteLength.DottedQuaver: return NoteLength.Quaver;
-    case NoteLength.Quaver: return NoteLength.DottedQuaver;
-    case NoteLength.DottedSemiQuaver: return NoteLength.SemiQuaver;
-    case NoteLength.SemiQuaver: return NoteLength.DottedSemiQuaver;
-    case NoteLength.DottedDemiSemiQuaver: return NoteLength.DemiSemiQuaver;
-    case NoteLength.DemiSemiQuaver: return NoteLength.DottedDemiSemiQuaver;
-    case NoteLength.DottedHemiDemiSemiQuaver: return NoteLength.HemiDemiSemiQuaver;
-    case NoteLength.HemiDemiSemiQuaver: return NoteLength.DottedHemiDemiSemiQuaver;
+  switch (length) {
+    case NoteLength.Semibreve:
+      return NoteLength.Semibreve;
+    case NoteLength.DottedMinim:
+      return NoteLength.Minim;
+    case NoteLength.Minim:
+      return NoteLength.DottedMinim;
+    case NoteLength.DottedCrotchet:
+      return NoteLength.Crotchet;
+    case NoteLength.Crotchet:
+      return NoteLength.DottedCrotchet;
+    case NoteLength.DottedQuaver:
+      return NoteLength.Quaver;
+    case NoteLength.Quaver:
+      return NoteLength.DottedQuaver;
+    case NoteLength.DottedSemiQuaver:
+      return NoteLength.SemiQuaver;
+    case NoteLength.SemiQuaver:
+      return NoteLength.DottedSemiQuaver;
+    case NoteLength.DottedDemiSemiQuaver:
+      return NoteLength.DemiSemiQuaver;
+    case NoteLength.DemiSemiQuaver:
+      return NoteLength.DottedDemiSemiQuaver;
+    case NoteLength.DottedHemiDemiSemiQuaver:
+      return NoteLength.HemiDemiSemiQuaver;
+    case NoteLength.HemiDemiSemiQuaver:
+      return NoteLength.DottedHemiDemiSemiQuaver;
   }
 }
 
@@ -204,34 +257,44 @@ function copyNote(note: NoteModel | TripletModel): NoteModel | TripletModel {
       third: { ...note.third, id: genId() },
       id: genId(),
       tied: false,
-      length: note.length
+      length: note.length,
     };
   } else {
     return { ...note, id: genId() };
   }
 }
 
-const lastNoteIn = (notes: NoteModel[] | TripletModel): BaseNote => isTriplet(notes) ? notes.third : notes[notes.length - 1];
-const pitchOf = (note: NoteModel | TripletModel): Pitch => isTriplet(note) ? note.third.pitch : note.pitch;
-
+const lastNoteIn = (notes: NoteModel[] | TripletModel): BaseNote =>
+  isTriplet(notes) ? notes.third : notes[notes.length - 1];
+const pitchOf = (note: NoteModel | TripletModel): Pitch =>
+  isTriplet(note) ? note.third.pitch : note.pitch;
 
 const numberOfNotes = (notes: NoteModel[]): number => notes.length;
 
-const init = (pitch: Pitch, length: NoteLength, tied = false, gracenote = Gracenote.init()): NoteModel => ({
+const init = (
+  pitch: Pitch,
+  length: NoteLength,
+  tied = false,
+  gracenote = Gracenote.init()
+): NoteModel => ({
   pitch,
   length,
   gracenote,
   tied,
-  id: genId()
+  id: genId(),
 });
 
-const initTriplet = (first: NoteModel, second: NoteModel, third: NoteModel): TripletModel => ({
+const initTriplet = (
+  first: NoteModel,
+  second: NoteModel,
+  third: NoteModel
+): TripletModel => ({
   id: genId(),
   tied: false,
   first: { id: first.id, pitch: first.pitch, gracenote: first.gracenote },
   second: { id: second.id, pitch: second.pitch, gracenote: second.gracenote },
   third: { id: third.id, pitch: third.pitch, gracenote: third.gracenote },
-  length: first.length
+  length: first.length,
 });
 
 export default {
@@ -255,5 +318,5 @@ export default {
   hasBeam,
   isFilled,
   toggleDot,
-  equalOrDotted
-}
+  equalOrDotted,
+};

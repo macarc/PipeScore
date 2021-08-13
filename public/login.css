@@ -3,12 +3,12 @@ html {
 }
 label {
   display: block;
-  margin: .5rem 0rem;
-  font-size: .9rem;
+  margin: 0.5rem 0rem;
+  font-size: 0.9rem;
 }
 input {
   display: block;
-  padding: .3rem;
+  padding: 0.3rem;
 }
 main {
   width: 30vw;
@@ -18,9 +18,10 @@ p {
   line-height: 1.5rem;
 }
 
-button, input[type='submit'] {
-  padding: .3rem;
-  font-size: .9rem;
+button,
+input[type='submit'] {
+  padding: 0.3rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 

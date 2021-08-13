@@ -17,46 +17,67 @@ import { Dispatch } from '../Event';
 
 import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
-import TimeSignature, { timeSignatureWidth }  from '../TimeSignature/functions';
+import TimeSignature, { timeSignatureWidth } from '../TimeSignature/functions';
 import { TimeSignatureModel } from '../TimeSignature/model';
 
 import { GracenoteState } from '../Gracenote/view';
 import renderNote, { widthOfNote, NoteState } from '../Note/view';
 
 interface BarProps {
-  x: number,
-  y: number,
-  width: number,
-  previousBar: BarModel | null,
-  shouldRenderLastBarline: boolean,
-  endOfLastStave: number
-  dispatch: Dispatch,
-  noteState: NoteState,
-  gracenoteState: GracenoteState,
+  x: number;
+  y: number;
+  width: number;
+  previousBar: BarModel | null;
+  shouldRenderLastBarline: boolean;
+  endOfLastStave: number;
+  dispatch: Dispatch;
+  noteState: NoteState;
+  gracenoteState: GracenoteState;
 }
 
 // Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
-const beatsOf = (bar: BarModel, previousPitch: Pitch | null): Width[] => bar.notes
-    .reduce((nums, n, index) => {
-      const previous = (index === 0) ? previousPitch : Note.pitchOf(bar.notes[index - 1]);
-      return [...nums, width.add(nlast(nums), widthOfNote(n,previous || null))];
+const beatsOf = (bar: BarModel, previousPitch: Pitch | null): Width[] =>
+  bar.notes.reduce(
+    (nums, n, index) => {
+      const previous =
+        index === 0 ? previousPitch : Note.pitchOf(bar.notes[index - 1]);
+      return [
+        ...nums,
+        width.add(nlast(nums), widthOfNote(n, previous || null)),
+      ];
     },
-    [width.init(0,1)]);
-
+    [width.init(0, 1)]
+  );
 
 const minimumBeatWidth = 15;
 
-
-export function widthOfAnacrusis(anacrusis: BarModel, previousTimeSignature: TimeSignatureModel | null, previousPitch: Pitch | null): number {
+export function widthOfAnacrusis(
+  anacrusis: BarModel,
+  previousTimeSignature: TimeSignatureModel | null,
+  previousPitch: Pitch | null
+): number {
   // Finds the width of the bar (assumes it is an anacrusis)
 
   const beats = beatsOf(anacrusis, previousPitch);
-  const totalNumberOfBeats = Math.max((nmap(last(beats), b => b.extend) || 1) + 1, 2);
-  return minimumBeatWidth * totalNumberOfBeats + (previousTimeSignature && !TimeSignature.equal(anacrusis.timeSignature, previousTimeSignature) ? 0 : timeSignatureWidth);
+  const totalNumberOfBeats = Math.max(
+    (nmap(last(beats), (b) => b.extend) || 1) + 1,
+    2
+  );
+  return (
+    minimumBeatWidth * totalNumberOfBeats +
+    (previousTimeSignature &&
+    !TimeSignature.equal(anacrusis.timeSignature, previousTimeSignature)
+      ? 0
+      : timeSignatureWidth)
+  );
 }
 
-
-function renderBarline(type: Barline, atStart: boolean, x: number, y: number): V {
+function renderBarline(
+  type: Barline,
+  atStart: boolean,
+  x: number,
+  y: number
+): V {
   // Draws a barline
 
   const height = lineHeightOf(4);
@@ -67,31 +88,105 @@ function renderBarline(type: Barline, atStart: boolean, x: number, y: number): V
   const circleRadius = 2;
   const thickLineWidth = 2.5;
   if (type === Barline.Normal) {
-    return svg('line', { x1: x, x2: x, y1: y, y2: (y + height), stroke: 'black' });
+    return svg('line', {
+      x1: x,
+      x2: x,
+      y1: y,
+      y2: y + height,
+      stroke: 'black',
+    });
   } else if (type === Barline.End && atStart) {
     return svg('g', { class: 'barline-end-first', 'pointer-events': 'none' }, [
       svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
-      svg('line', { x1: x + lineOffset, x2: x + lineOffset, y1: y, y2: y + height, stroke: 'black' })
+      svg('line', {
+        x1: x + lineOffset,
+        x2: x + lineOffset,
+        y1: y,
+        y2: y + height,
+        stroke: 'black',
+      }),
     ]);
   } else if (type === Barline.End) {
-    return svg('g', { class: 'barline-repeat-last', 'pointer-events': 'none' }, [
-      svg('rect', { x: x - thickLineWidth, y, width: thickLineWidth, height, fill: 'black' }),
-      svg('line', { x1: x - lineOffset, x2: x - lineOffset, y1: y, y2: y + height, stroke: 'black' })
-    ]);
+    return svg(
+      'g',
+      { class: 'barline-repeat-last', 'pointer-events': 'none' },
+      [
+        svg('rect', {
+          x: x - thickLineWidth,
+          y,
+          width: thickLineWidth,
+          height,
+          fill: 'black',
+        }),
+        svg('line', {
+          x1: x - lineOffset,
+          x2: x - lineOffset,
+          y1: y,
+          y2: y + height,
+          stroke: 'black',
+        }),
+      ]
+    );
   } else if (type === Barline.Repeat && atStart) {
-    return svg('g', { class: 'barline-repeat-first', 'pointer-events': 'none' }, [
-      svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
-      svg('line', { x1: x + lineOffset, x2: x + lineOffset, y1: y, y2: y + height, stroke: 'black' }),
-      svg('circle', { cx: x + circleXOffset, cy: topCircleY, r: circleRadius, fill: 'black' }),
-      svg('circle', { cx: x + circleXOffset, cy: bottomCircleY, r: circleRadius, fill: 'black' }),
-    ]);
+    return svg(
+      'g',
+      { class: 'barline-repeat-first', 'pointer-events': 'none' },
+      [
+        svg('rect', { x, y, width: thickLineWidth, height, fill: 'black' }),
+        svg('line', {
+          x1: x + lineOffset,
+          x2: x + lineOffset,
+          y1: y,
+          y2: y + height,
+          stroke: 'black',
+        }),
+        svg('circle', {
+          cx: x + circleXOffset,
+          cy: topCircleY,
+          r: circleRadius,
+          fill: 'black',
+        }),
+        svg('circle', {
+          cx: x + circleXOffset,
+          cy: bottomCircleY,
+          r: circleRadius,
+          fill: 'black',
+        }),
+      ]
+    );
   } else if (type === Barline.Repeat) {
-    return svg('g', { class: 'barline-repeat-last', 'pointer-events': 'none' }, [
-      svg('rect', { x: x - thickLineWidth, y, width: thickLineWidth, height, fill: 'black' }),
-      svg('line', { x1: x - lineOffset, x2: x - lineOffset, y1: y, y2: y + height, stroke: 'black' }),
-      svg('circle', { cx: x - circleXOffset, cy: topCircleY, r: circleRadius, fill: 'black' }),
-      svg('circle', { cx: x - circleXOffset, cy: bottomCircleY, r: circleRadius, fill: 'black' }),
-    ]);
+    return svg(
+      'g',
+      { class: 'barline-repeat-last', 'pointer-events': 'none' },
+      [
+        svg('rect', {
+          x: x - thickLineWidth,
+          y,
+          width: thickLineWidth,
+          height,
+          fill: 'black',
+        }),
+        svg('line', {
+          x1: x - lineOffset,
+          x2: x - lineOffset,
+          y1: y,
+          y2: y + height,
+          stroke: 'black',
+        }),
+        svg('circle', {
+          cx: x - circleXOffset,
+          cy: topCircleY,
+          r: circleRadius,
+          fill: 'black',
+        }),
+        svg('circle', {
+          cx: x - circleXOffset,
+          cy: bottomCircleY,
+          r: circleRadius,
+          fill: 'black',
+        }),
+      ]
+    );
   } else {
     // never
     return type;
@@ -101,53 +196,74 @@ function renderBarline(type: Barline, atStart: boolean, x: number, y: number): V
 function barlineWidth(barline: Barline) {
   // Finds the width of the barline (
 
-  return (barline === Barline.Normal ? 1 : 10);
+  return barline === Barline.Normal ? 1 : 10;
 }
 
-export default function render(bar: BarModel,props: BarProps): V {
+export default function render(bar: BarModel, props: BarProps): V {
   setXY(bar.id, props.x, props.x + props.width, props.y);
   const staveY = props.y;
-  const hasTimeSignature = props.previousBar !== null ? !(TimeSignature.equal(props.previousBar.timeSignature, bar.timeSignature)) : true;
-  const barWidth = props.width - (hasTimeSignature ? timeSignatureWidth : 0) - barlineWidth(bar.frontBarline) - barlineWidth(bar.backBarline);
-  const xAfterTimeSignature = props.x + (hasTimeSignature ? timeSignatureWidth : 0);
+  const hasTimeSignature =
+    props.previousBar !== null
+      ? !TimeSignature.equal(props.previousBar.timeSignature, bar.timeSignature)
+      : true;
+  const barWidth =
+    props.width -
+    (hasTimeSignature ? timeSignatureWidth : 0) -
+    barlineWidth(bar.frontBarline) -
+    barlineWidth(bar.backBarline);
+  const xAfterTimeSignature =
+    props.x + (hasTimeSignature ? timeSignatureWidth : 0);
   const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.frontBarline);
 
-  const groupedNotes = Note.groupNotes(bar.notes, TimeSignature.beatDivision(bar.timeSignature));
+  const groupedNotes = Note.groupNotes(
+    bar.notes,
+    TimeSignature.beatDivision(bar.timeSignature)
+  );
 
-  const previousNote = nmap(props.previousBar, b => last(b.notes));
-  const previousPitch = props.previousBar ? nmap(last(props.previousBar.notes), n => Note.pitchOf(n)) : null;
+  const previousNote = nmap(props.previousBar, (b) => last(b.notes));
+  const previousPitch = props.previousBar
+    ? nmap(last(props.previousBar.notes), (n) => Note.pitchOf(n))
+    : null;
   const beats = beatsOf(bar, previousPitch);
 
-
-  const totalNumberOfBeats = nmap(last(beats), b => b.extend) || 1;
-  const beatWidth = (barWidth - (nmap(last(beats), b => b.min) || 0)) / totalNumberOfBeats;
+  const totalNumberOfBeats = nmap(last(beats), (b) => b.extend) || 1;
+  const beatWidth =
+    (barWidth - (nmap(last(beats), (b) => b.min) || 0)) / totalNumberOfBeats;
 
   if (beatWidth < 0) {
-      console.error('bar too small');
+    console.error('bar too small');
   }
 
-  const xOf = (noteIndex: number) => xAfterBarline + width.reify(beats[noteIndex], beatWidth);
+  const xOf = (noteIndex: number) =>
+    xAfterBarline + width.reify(beats[noteIndex], beatWidth);
 
-  function previousNoteData(groupNoteIndex: number, noteIndex: number): PreviousNote | null {
+  function previousNoteData(
+    groupNoteIndex: number,
+    noteIndex: number
+  ): PreviousNote | null {
     // this function assumes that it is being passed the noteIndex corresponding to the start of the groupNoteIndex
     // enforce it somehow?
 
     const lastNoteModel = bar.notes[noteIndex - 1];
-    const lastNote = (noteIndex > 0) ? Note.pitchOf(lastNoteModel) : null;
+    const lastNote = noteIndex > 0 ? Note.pitchOf(lastNoteModel) : null;
     if (lastNoteModel && Note.isTriplet(lastNoteModel)) {
       const xy = getXY(lastNoteModel.third.id);
-      return nmap(xy, xy => ({
+      return nmap(xy, (xy) => ({
         pitch: lastNoteModel.third.pitch,
         x: xy.afterX,
-        y: noteY(xy.y, lastNoteModel.third.pitch)
+        y: noteY(xy.y, lastNoteModel.third.pitch),
       }));
     } else if (groupNoteIndex === 0) {
       if (previousPitch !== null && previousNote !== null) {
         if (previousNote) {
-          const pitch = Note.isNoteModel(previousNote) ? previousNote.pitch : previousNote.third.pitch;
-          const id = Note.isNoteModel(previousNote) ? previousNote.id : previousNote.third.id;
+          const pitch = Note.isNoteModel(previousNote)
+            ? previousNote.pitch
+            : previousNote.third.pitch;
+          const id = Note.isNoteModel(previousNote)
+            ? previousNote.id
+            : previousNote.third.id;
           const xy = getXY(id);
-          return nmap(xy, xy => ({
+          return nmap(xy, (xy) => ({
             pitch,
             x: xy.afterX,
             y: noteY(xy.y, pitch),
@@ -160,10 +276,10 @@ export default function render(bar: BarModel,props: BarProps): V {
       }
     } else if (lastNote !== null) {
       const xy = getXY(lastNoteModel.id);
-      return nmap(xy, xy => ({
+      return nmap(xy, (xy) => ({
         pitch: lastNote,
         x: xy.afterX,
-        y: noteY(xy.y, lastNote)
+        y: noteY(xy.y, lastNote),
       }));
     } else {
       throw new Error('groupNoteIndex !== 0 && lastNote === null');
@@ -171,9 +287,9 @@ export default function render(bar: BarModel,props: BarProps): V {
     }
   }
 
-  const noteProps = (notes: (NoteModel[] | TripletModel),index: number) => {
+  const noteProps = (notes: NoteModel[] | TripletModel, index: number) => {
     const firstNote = Note.isTriplet(notes) ? notes : notes[0];
-    return ({
+    return {
       x: xOf(bar.notes.indexOf(firstNote)),
       y: staveY,
       noteWidth: beatWidth,
@@ -181,22 +297,41 @@ export default function render(bar: BarModel,props: BarProps): V {
       selectedNotes: [],
       endOfLastStave: props.endOfLastStave,
       dispatch: props.dispatch,
-      onlyNoteInBar: !bar.isAnacrusis && (bar.notes.length === 1),
+      onlyNoteInBar: !bar.isAnacrusis && bar.notes.length === 1,
       state: props.noteState,
       gracenoteState: props.gracenoteState,
-    });
-  }
+    };
+  };
 
-  const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) => props.noteState.inputtingNotes ? props.dispatch({ name: 'add note to beginning of bar', pitch, bar }): props.dispatch({ name: 'click bar', bar, mouseEvent });
+  const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) =>
+    props.noteState.inputtingNotes
+      ? props.dispatch({ name: 'add note to beginning of bar', pitch, bar })
+      : props.dispatch({ name: 'click bar', bar, mouseEvent });
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
   // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
   // note adds a note to the start of the bar
   return svg('g', { class: 'bar' }, [
-    noteBoxes(xAfterBarline, staveY, props.noteState.inputtingNotes ? beatWidth : barWidth, pitch => props.dispatch({ name: 'mouse over pitch', pitch }), clickNoteBox),
-    ...groupedNotes.map((notes, idx) => renderNote(notes, noteProps(notes, idx))),
+    noteBoxes(
+      xAfterBarline,
+      staveY,
+      props.noteState.inputtingNotes ? beatWidth : barWidth,
+      (pitch) => props.dispatch({ name: 'mouse over pitch', pitch }),
+      clickNoteBox
+    ),
+    ...groupedNotes.map((notes, idx) =>
+      renderNote(notes, noteProps(notes, idx))
+    ),
 
     renderBarline(bar.frontBarline, true, xAfterTimeSignature, props.y),
-    ((bar.backBarline !== Barline.Normal) || props.shouldRenderLastBarline) ? renderBarline(bar.backBarline, false, props.x + props.width, props.y) : null,
-    hasTimeSignature ? renderTimeSignature(bar.timeSignature, { x: props.x + 10, y: props.y, dispatch: props.dispatch }) : null
+    bar.backBarline !== Barline.Normal || props.shouldRenderLastBarline
+      ? renderBarline(bar.backBarline, false, props.x + props.width, props.y)
+      : null,
+    hasTimeSignature
+      ? renderTimeSignature(bar.timeSignature, {
+          x: props.x + 10,
+          y: props.y,
+          dispatch: props.dispatch,
+        })
+      : null,
   ]);
 }

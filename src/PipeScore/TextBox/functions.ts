@@ -6,7 +6,7 @@ import { TextBoxModel } from './model';
 function toggleCentre(tx: TextBoxModel, pageWidth: number): TextBoxModel {
   // Toggle centring the textbox on the page
 
-  return { ...tx, x: (tx.x === 'centre') ? (pageWidth / 2) : 'centre' };
+  return { ...tx, x: tx.x === 'centre' ? pageWidth / 2 : 'centre' };
 }
 
 function setCoords(tx: TextBoxModel, x: number, y: number): TextBoxModel {
@@ -19,11 +19,11 @@ const init = (text = '', predictable = false): TextBoxModel => ({
   x: predictable ? 'centre' : Math.random() * 100,
   y: predictable ? 100 : Math.random() * 150,
   size: 20,
-  text
+  text,
 });
 
 export default {
   init,
   setCoords,
-  toggleCentre
-}
+  toggleCentre,
+};
