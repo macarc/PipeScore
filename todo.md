@@ -10,9 +10,6 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] Should be able to add notes before and after current gracenote to make custom embellishments
-- [ ] On Chrome, using max-width < 1000px doesn't work???
-- [ ] Header is wider on Scores page
-- [ ] Home page being cut off at comma
 
 ## General features
 
@@ -186,3 +183,6 @@
 - [x] Short tails should not be present when there is a beam opposite them
 - [x] Deleteable second timings
 - [x] Custom embellishments should be possible by adding multiple single gracenotes
+- [x] On Chrome, using max-width < 1000px doesn't work???
+- [x] Header is wider on Scores page
+- [x] Home page being cut off at comma

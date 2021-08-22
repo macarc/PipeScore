@@ -86,6 +86,6 @@ notes = {
         }
 
 for (note, cfg) in notes.items():
-    doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/icons/' + note + ".svg", size=(100,100))
+    doc = svgwrite.Drawing(filename=os.getcwd() + '/../public/images/icons/' + note + ".svg", size=(100,100))
     add_note(doc, cfg)
     doc.save()
