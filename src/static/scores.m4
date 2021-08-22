@@ -1,5 +1,5 @@
 include(`template.m4')dnl
-STYLED_JS_PAGE(`Scores - PipeScore (DEV)', `scores.css', `dist/Scores/scores.js',
+STYLED_JS_PAGE(`Scores - PipeScore (DEV)', `scores', `dist/Scores/scores.js',
 ``<h1>Your Scores</h1>
   <div id="buttons">
     <button id="sign-out">Sign Out</button>

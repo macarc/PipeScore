@@ -9,12 +9,13 @@ h1 {
 }
 
 main {
+  position: fixed;
   margin: 0;
   padding: 0;
   width: 100vw;
   height: 100vh;
   background-clip: content-box;
-  background-image: url('./images/logo.png');
+  background-image: url('/images/logo.png');
   background-repeat: no-repeat;
   background-size: contain;
 }

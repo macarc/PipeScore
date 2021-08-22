@@ -1,5 +1,5 @@
 include(`template.m4')dnl
-STYLED_JS_PAGE(`Log in to PipeScore', `login.css', `dist/Login/login.js',
+STYLED_JS_PAGE(`Log in to PipeScore', `login', `dist/Login/login.js',
 ``<h1>Log in</h1>
 <form id="login">
   <label>Email: <input type="email" placeholder="someone@example.com" /></label>
