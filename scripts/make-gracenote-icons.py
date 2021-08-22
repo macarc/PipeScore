@@ -84,14 +84,14 @@ embellishments = {
 
 
 for (name, embellishment) in embellishments.items():
-    doc = svgwrite.Drawing(filename=os.getcwd() + '/../public/images/icons/gracenote-' + name + ".svg", size=(100,100))
+    doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/icons/gracenote-' + name + ".svg", size=(100,100))
     add_stave_lines(doc)
     add_embellishment(doc, embellishment)
     doc.save()
 
 
 # single
-doc = svgwrite.Drawing(filename=os.getcwd() + '/../public/images/icons/single.svg', size=(100,100))
+doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/icons/single.svg', size=(100,100))
 
 head_coords = (50,60)
 rx = 8

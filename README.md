@@ -37,6 +37,12 @@ Programming features:
 
 ## Running locally
 
+All of the scripts in the `scripts` directory are designed to be run from the top level, like:
+
+```zsh
+$ ./scripts/linecount.zsh
+```
+
 You will need:
 
 - `pandoc`
@@ -48,9 +54,9 @@ You will need:
 To make things, run:
 
 - `pip3 install svgwrite`
-- `python3 make-icons.py`
-- `python3 make-note-icons.py`
-- `python3 make-gracenote-icons.py`
+- `python3 scripts/make-icons.py`
+- `python3 scripts/make-note-icons.py`
+- `python3 scripts/make-gracenote-icons.py`
 - `npm run build`
 
 Run the following commands to run locally, ideally in separate terminals:

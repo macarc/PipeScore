@@ -16,8 +16,6 @@ build () {
   cd -
 }
 
-cd ..
-
 build index
 build login
 build scores

@@ -17,7 +17,7 @@ vmid = 50
 ## PLUS icon
 line_length = 40
 
-doc = svgwrite.Drawing(filename=os.getcwd() + '/../public/images/plus.svg', size=(width,height))
+doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/plus.svg', size=(width,height))
 doc.add(doc.line(
     start=(hmid-line_length, vmid),
     end=(hmid+line_length, vmid),
@@ -33,7 +33,7 @@ doc.add(doc.line(
 doc.save()
 
 ## UNDO/REDO icon
-doc = svgwrite.Drawing(filename=os.getcwd() + '/../public/images/undo.svg', size=(width,height))
+doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/undo.svg', size=(width,height))
 
 arrow_x = 30
 arrow_y = 35

@@ -2,7 +2,6 @@
 # Count lines of code :)
 # ignores blank lines
 setopt extended_glob
-cd ..
 echo "LOC:"
 cat **/*.ts~*node_modules* | wc -l
 echo "SLOC:"
