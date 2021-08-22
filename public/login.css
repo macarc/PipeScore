@@ -1,6 +1,3 @@
-html {
-  font-family: sans-serif;
-}
 label {
   display: block;
   margin: 0.5rem 0rem;
@@ -10,23 +7,10 @@ input {
   display: block;
   padding: 0.3rem;
 }
-main {
-  width: 30vw;
-  margin: 2vh auto;
-}
-p {
-  line-height: 1.5rem;
-}
 
 button,
 input[type='submit'] {
   padding: 0.3rem;
   font-size: 0.9rem;
   cursor: pointer;
-}
-
-@media only screen and (max-width: 1200px) {
-  main {
-    width: 80vw;
-  }
 }

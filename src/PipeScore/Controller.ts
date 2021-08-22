@@ -1043,7 +1043,7 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
     // Add gracenote to either the first or second note in a triplet
 
     if (state.demoNote && state.demoNote.type === 'gracenote') {
-      let previousPitch =
+      const previousPitch =
         event.which === 'second'
           ? event.triplet.first.pitch
           : event.triplet.second.pitch;

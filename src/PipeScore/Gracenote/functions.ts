@@ -70,7 +70,6 @@ gracenotes.set('doubling', (note, prev) => {
 });
 
 gracenotes.set('g-strike', (note, prev) => {
-  let notes = [];
   const setFirst = (pitches: Gracenote): Gracenote => {
     if (prev === Pitch.HA) {
       return pitches;

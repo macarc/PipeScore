@@ -1,7 +1,8 @@
 ---
 title: Documentation
-header-includes: <link rel="icon" href="/images/favicon.ico" />
 ---
+
+# Help Page
 
 Welcome! This page contains information about how to use PipeScore. You can search through this page using the `Ctrl-F` keyboard shortcut in your browser. It currently isn't very easy to read - in future there will be an introductory video showing the basics here.
 

@@ -1,21 +1,19 @@
-html {
-  font-family: sans-serif;
-}
-
-main {
-  width: 30vw;
-  margin: 2vh auto;
-}
-
 button {
   font-size: 1rem;
 }
 
+#buttons {
+  position: relative;
+  padding: 1rem;
+  border-bottom: 1px solid black;
+}
+
 #sign-out {
   position: absolute;
-  top: 2rem;
+  top: 0;
   left: auto;
-  right: 5rem;
+  right: 0;
+  margin: 1rem;
 }
 
 #help-page {
@@ -27,14 +25,4 @@ table {
 }
 .td-name {
   width: 50vw;
-}
-li {
-  margin: 0.6rem 0;
-  font-size: 1.1rem;
-}
-
-@media only screen and (max-width: 1200px) {
-  main {
-    width: 80vw;
-  }
 }

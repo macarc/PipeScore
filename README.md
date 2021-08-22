@@ -12,7 +12,7 @@ It is currently under development - see `todo.md` for a rough roadmap.
 
 PipeScore is written in [TypeScript](https://www.typescriptlang.org/). It uses [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite) and [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite) for a smaller, faster experience.
 
-Building is done with the amazing [esbuild](https://github.com/evanw/esbuild), linting with [eslint](https://eslint.org/), and circular dependency detection with [madge](https://github.com/pahen/madge).
+Building is done with the amazing [esbuild](https://github.com/evanw/esbuild), linting with [eslint](https://eslint.org/), and circular dependency detection with [madge](https://github.com/pahen/madge). Code formatting is done with [prettier](https://prettier.io).
 
 To learn more about how it works, have a look at the READMEs in `src/PipeScore` and `src/render`.
 
@@ -40,16 +40,18 @@ Programming features:
 You will need:
 
 - `pandoc`
+- `m4`
 - `python3` (and `pip3`)
 - `npm`
 - `tsc`
 
-To make the icons, run:
+To make things, run:
 
 - `pip3 install svgwrite`
 - `python3 make-icons.py`
 - `python3 make-note-icons.py`
 - `python3 make-gracenote-icons.py`
+- `npm run build`
 
 Run the following commands to run locally, ideally in separate terminals:
 
