@@ -51,13 +51,10 @@ You will need:
 - `npm`
 - `tsc`
 
-To make things, run:
+To make icons and HTML pages, run:
 
 - `pip3 install svgwrite`
-- `python3 scripts/make-icons.py`
-- `python3 scripts/make-note-icons.py`
-- `python3 scripts/make-gracenote-icons.py`
-- `npm run build`
+- `./scripts/buildall.sh`
 
 Run the following commands to run locally, ideally in separate terminals:
 
