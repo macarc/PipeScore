@@ -2,7 +2,7 @@
    Copyright (C) 2021 Archie Maclean
  */
 
-import { flatten } from '../global/utils';
+import { flatten, replace } from '../global/utils';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
@@ -27,14 +27,20 @@ function addStave(
   score: ScoreModel,
   afterStave: StaveModel,
   before: boolean
-): void {
+): ScoreModel {
   // Appends a stave after afterStave
 
   const ind = score.staves.indexOf(afterStave);
   const newStave = Stave.init(
     afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined
   );
-  if (ind !== -1) score.staves.splice(before ? ind : ind + 1, 0, newStave);
+  if (ind !== -1)
+    return {
+      ...score,
+      staves: replace(before ? ind : ind + 1, 0, score.staves, newStave),
+    };
+
+  return score;
 }
 
 function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {

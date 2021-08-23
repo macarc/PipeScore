@@ -17,7 +17,7 @@ interface TimeSignatureProps {
   dispatch: Dispatch;
 }
 
-export function editTimeSignature(
+export function getNewTimeSignatureInput(
   timeSignature: TimeSignatureModel
 ): Promise<TimeSignatureModel> {
   // Makes a dialogue box for the user to edit the text, then updates the text
@@ -110,7 +110,7 @@ export default function render(
   const y = props.y + 14;
 
   const edit = () =>
-    editTimeSignature(timeSignature).then((newTimeSignature) =>
+    getNewTimeSignatureInput(timeSignature).then((newTimeSignature) =>
       props.dispatch({
         name: 'edit time signature',
         timeSignature,

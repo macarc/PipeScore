@@ -10,6 +10,7 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] Should be able to add notes before and after current gracenote to make custom embellishments
+- [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
 
 ## General features
 

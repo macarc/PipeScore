@@ -51,3 +51,15 @@ export const nlast = <T>(array: T[]): T => array[array.length - 1];
 // null functor :)
 export const nmap = <T, A>(a: T | null, f: (a: T) => A): A | null =>
   a ? f(a) : null;
+
+// Immutable splice
+export const replace = <T>(
+  index: number,
+  items: number,
+  array: T[],
+  ...replace: T[]
+): T[] => [
+  ...(array.slice(0, index) || []),
+  ...(replace || []),
+  ...(array.slice(index + items) || []),
+];

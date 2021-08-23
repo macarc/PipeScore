@@ -8,20 +8,18 @@
  */
 
 import patch from '../render/vdom';
-import { h, hFrom, V } from '../render/h';
+import { h, hFrom } from '../render/h';
 import * as ScoreEvent from './Event';
 
+import { State } from './State';
 import { ScoreModel } from './Score/model';
 import { StaveModel } from './Stave/model';
 import { BarModel } from './Bar/model';
 import { NoteModel, TripletModel, BaseNote } from './Note/model';
 import { GracenoteModel } from './Gracenote/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
-import { SecondTimingModel, DraggedSecondTiming } from './SecondTiming/model';
+import { SecondTimingModel } from './SecondTiming/model';
 import { TimeSignatureModel } from './TimeSignature/model';
-import { TextBoxModel } from './TextBox/model';
-import { DemoNoteModel } from './DemoNote/model';
-import { Menu } from './UI/model';
 
 import playScore from './Score/play';
 
@@ -33,7 +31,7 @@ import TextBox from './TextBox/functions';
 import SecondTiming from './SecondTiming/functions';
 import DemoNote from './DemoNote/functions';
 import TimeSignature from './TimeSignature/functions';
-import { editTimeSignature } from './TimeSignature/view';
+import { getNewTimeSignatureInput } from './TimeSignature/view';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
@@ -45,39 +43,12 @@ import { Pitch, pitchUp, pitchDown } from './global/pitch';
 
 import { flatten, deepcopy, nmap } from './global/utils';
 
-import { GracenoteState } from './Gracenote/view';
-import { TextBoxState } from './TextBox/view';
-
 import Documentation from './Documentation';
 
-import { PlaybackState, stopAudio, playback } from './Playback';
+import { stopAudio, playback } from './Playback';
 
 // Apart from state.score, all of these can be modified
 // state.score should not be modified, but copied, so that it can be diffed quickly
-interface State {
-  draggedNote: BaseNote | null;
-  demoNote: DemoNoteModel | null;
-  gracenoteState: GracenoteState;
-  playbackState: PlaybackState;
-  currentMenu: Menu;
-  zoomLevel: number;
-  justClickedNote: boolean;
-  interfaceWidth: number;
-  textBoxState: TextBoxState;
-  currentDocumentation: string | null;
-  showDocumentation: boolean;
-  clipboard: (NoteModel | TripletModel | 'bar-break')[] | null;
-  selection: ScoreSelectionModel | null;
-  selectedSecondTiming: SecondTimingModel | null;
-  draggedText: TextBoxModel | null;
-  inputGracenote: GracenoteModel | null;
-  score: ScoreModel;
-  history: string[];
-  future: string[];
-  draggedSecondTiming: DraggedSecondTiming | null;
-  view: V | null;
-  uiView: V | null;
-}
 const state: State = {
   draggedNote: null,
   gracenoteState: { dragged: null, selected: null },
@@ -1278,7 +1249,9 @@ export async function dispatch(event: ScoreEvent.ScoreEvent): Promise<void> {
   } else if (ScoreEvent.isEditBarTimeSignature(event)) {
     if (state.selection !== null) {
       const { bar } = currentBar(state.selection.start);
-      const newTimeSignature = await editTimeSignature(bar.timeSignature);
+      const newTimeSignature = await getNewTimeSignatureInput(
+        bar.timeSignature
+      );
       setTimeSignatureFrom(bar.timeSignature, newTimeSignature);
       shouldSave = true;
     } else {
