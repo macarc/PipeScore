@@ -8,7 +8,7 @@
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
     "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
-    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; ./scripts/build-static.sh",
+    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; python scripts/build-static.py",
     "lint": "prettier --write .; eslint src --ext .ts",
     "circles": "madge -c --warning src/PipeScore/PipeScore.ts"
   },

@@ -1,0 +1,7 @@
+<head>
+</head>
+<body>
+	[[login]]
+	<h1>
+	</h1>
+</body>

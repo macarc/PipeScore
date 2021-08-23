@@ -1,6 +1,5 @@
-include(`template.m4')dnl
-STYLED_JS_PAGE(`Log in to PipeScore', `login', `dist/Login/login.js',
-``<h1>Log in</h1>
+{Log in to PipeScore} $login$ %Login/login% [
+<h1>Log in</h1>
 <form id="login">
   <label>Email: <input type="email" placeholder="someone@example.com" /></label>
   <label>Password: <input type="password" /></label>
@@ -16,9 +15,9 @@ STYLED_JS_PAGE(`Log in to PipeScore', `login', `dist/Login/login.js',
   <input type="submit" value="Sign Up" />
 </form>
 <hr />
-<h1>or don&#39;t!</h1>
+<h1>or don't!</h1>
 <p>
   You can use PipeScore without logging in and get full functionality, except
   that your scores cannot be saved. This is ideal for testing out PipeScore.
 </p>
-<a href="/pipescore"><button>Use without an account</button></a>'')dnl
+<a href="/pipescore"><button>Use without an account</button></a>'')dnl ]

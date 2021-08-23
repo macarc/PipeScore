@@ -2,6 +2,11 @@
   Controller.ts - Handles input and events for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
+
+/*
+ * TODO - this is getting much too large, especially the `dispatch` function.
+ */
+
 import patch from '../render/vdom';
 import { h, hFrom, V } from '../render/h';
 import * as ScoreEvent from './Event';
