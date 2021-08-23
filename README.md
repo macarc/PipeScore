@@ -53,16 +53,22 @@ You will need:
 
 To make icons and HTML pages, run:
 
-- `pip3 install svgwrite`
-- `./scripts/buildall.sh`
+```bash
+$ pip3 install svgwrite
+$ ./scripts/buildall.sh
+```
 
 Run the following commands to run locally, ideally in separate terminals:
 
-- `npm run dev` - to run the development server
-- `npm run watch` - to rebuild JS on changes
-- `tsc --watch` - to typecheck
+```bash
+$ npm run dev       # to run the development server
+$ npm run watch     # to rebuild JS on changes
+$ npx tsc --watch   # to typecheck
+```
 
 To deploy:
 
-- `npm run build` - to build minified bundle
-- `npm run deploy` - to deploy to Firebase
+```bash
+$ npm run build    # to build minified bundle
+$ npm run deploy   # to deploy to Firebase
+```
