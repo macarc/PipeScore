@@ -10,13 +10,14 @@ import { svg, V } from '../../render/h';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
 
 import Bar from '../Bar/functions';
 
 import renderBar, { widthOfAnacrusis } from '../Bar/view';
-import { NoteState } from '../Note/view';
-import { GracenoteState } from '../Gracenote/view';
+
+import { NoteState } from '../Note/state';
+import { GracenoteState } from '../Gracenote/state';
 
 interface StaveProps {
   x: number;

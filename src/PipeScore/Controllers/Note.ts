@@ -7,7 +7,7 @@ import {
   currentBar,
   removeState,
   removeTextState,
-} from './Event';
+} from './Controller';
 import { State } from '../State';
 
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';

@@ -4,10 +4,8 @@ import {
   viewChanged,
   shouldSave,
   currentBar,
-} from './Event';
+} from './Controller';
 import { State } from '../State';
-
-import { getNewTimeSignatureInput } from '../TimeSignature/view';
 
 import { Barline, BarModel } from '../Bar/model';
 import { ScoreModel } from '../Score/model';
@@ -152,7 +150,7 @@ export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     if (state.selection !== null) {
       const { bar } = currentBar(state.selection.start, state.score);
-      const newTimeSignature = await getNewTimeSignatureInput(
+      const newTimeSignature = await TimeSignature.getNewInput(
         bar.timeSignature
       );
       return shouldSave({

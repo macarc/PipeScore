@@ -10,15 +10,18 @@ import { StaveModel } from '../Stave/model';
 import { DemoNoteModel } from '../DemoNote/model';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
 import { SecondTimingModel } from '../SecondTiming/model';
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
+import { clickBackground, mouseUp } from '../Controllers/Mouse';
 
-import renderTextBox, { TextBoxState } from '../TextBox/view';
+import renderTextBox from '../TextBox/view';
 import renderSecondTiming from '../SecondTiming/view';
 import renderScoreSelection from '../ScoreSelection/view';
 import renderStave from '../Stave/view';
 import renderDemoNote from '../DemoNote/view';
-import { NoteState } from '../Note/view';
-import { GracenoteState } from '../Gracenote/view';
+
+import { NoteState } from '../Note/state';
+import { TextBoxState } from '../TextBox/state';
+import { GracenoteState } from '../Gracenote/state';
 
 interface ScoreProps {
   zoomLevel: number;
@@ -83,12 +86,12 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
       height: (score.height * props.zoomLevel) / 100,
       viewBox: `0 0 ${score.width} ${score.height}`,
     },
-    { mouseup: () => props.dispatch({ name: 'mouse up' }) },
+    { mouseup: () => props.dispatch(mouseUp()) },
     [
       svg(
         'rect',
         { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
-        { mousedown: () => props.dispatch({ name: 'click background' }) }
+        { mousedown: () => props.dispatch(clickBackground()) }
       ),
       ...score.staves.map((stave, idx) =>
         renderStave(stave, staveProps(stave, idx))

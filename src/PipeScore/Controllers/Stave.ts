@@ -1,4 +1,4 @@
-import { ScoreEvent, shouldSave, currentBar } from './Event';
+import { ScoreEvent, shouldSave, currentBar } from './Controller';
 import { State } from '../State';
 
 import Score from '../Score/functions';

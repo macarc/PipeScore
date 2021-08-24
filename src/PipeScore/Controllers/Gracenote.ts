@@ -1,4 +1,4 @@
-import { ScoreEvent, noChange, viewChanged, shouldSave } from './Event';
+import { ScoreEvent, noChange, viewChanged, shouldSave } from './Controller';
 import { State } from '../State';
 import {
   changeNoteFrom,
@@ -6,7 +6,7 @@ import {
   currentNoteModels,
   selectionToNotes,
   noteMap,
-} from './NoteEvents';
+} from './Note';
 
 import { Pitch } from '../global/pitch';
 

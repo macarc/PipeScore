@@ -4,7 +4,7 @@ import {
   viewChanged,
   shouldSave,
   removeNoteState,
-} from './Event';
+} from './Controller';
 import { State } from '../State';
 import { replace } from '../global/utils';
 
@@ -33,7 +33,7 @@ export function addText(): ScoreEvent {
     });
 }
 
-export function editText(
+export function changeText(
   newText: string,
   newSize: number,
   text: TextBoxModel

@@ -10,7 +10,10 @@ import Stave from '../Stave/functions';
 
 import { ID } from '../global/types';
 
-enum Update {
+export type ScoreEvent = (state: State) => Promise<UpdatedState>;
+export type Dispatch = (e: ScoreEvent) => void;
+
+export const enum Update {
   NoChange,
   ViewChanged,
   ShouldSave,
@@ -37,7 +40,6 @@ export function shouldSave(state: State): UpdatedState {
     update: Update.ShouldSave,
   };
 }
-export type ScoreEvent = (state: State) => Promise<UpdatedState>;
 
 export function removeState(state: State): State {
   // Removes parts of the state that could be dirty after undo / redo

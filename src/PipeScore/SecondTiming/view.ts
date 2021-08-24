@@ -5,7 +5,8 @@
 import { svg, V } from '../../render/h';
 import { getXY } from '../global/xy';
 
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
+import { clickSecondTiming } from '../Controllers/SecondTiming';
 
 import { SecondTimingModel } from './model';
 
@@ -209,11 +210,12 @@ export default function render(
             },
             {
               mousedown: () =>
-                props.dispatch({
-                  name: 'click second timing',
-                  secondTiming,
-                  part: part as 'start' | 'middle' | 'end',
-                }),
+                props.dispatch(
+                  clickSecondTiming(
+                    secondTiming,
+                    part as 'start' | 'middle' | 'end'
+                  )
+                ),
             }
           ),
         ])

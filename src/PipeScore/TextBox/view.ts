@@ -6,12 +6,10 @@ import { svg, h, V } from '../../render/h';
 
 import dialogueBox from '../global/dialogueBox';
 
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
+import { clickText, changeText, textMouseUp } from '../Controllers/Text';
 import { TextBoxModel } from './model';
-
-export interface TextBoxState {
-  selectedText: TextBoxModel | null;
-}
+import { TextBoxState } from './state';
 
 interface TextBoxProps {
   dispatch: Dispatch;
@@ -44,14 +42,7 @@ function editText(dispatch: Dispatch, currentText: TextBoxModel) {
         .value,
     }),
     { size: currentText.size, text: currentText.text }
-  ).then(({ size, text }) =>
-    dispatch({
-      name: 'edit text',
-      newText: text,
-      newSize: size,
-      text: currentText,
-    })
-  );
+  ).then(({ size, text }) => dispatch(changeText(text, size, currentText)));
 }
 
 export default function render(tx: TextBoxModel, props: TextBoxProps): V {
@@ -66,8 +57,8 @@ export default function render(tx: TextBoxModel, props: TextBoxProps): V {
     },
     {
       dblclick: () => editText(props.dispatch, tx),
-      mousedown: () => props.dispatch({ name: 'click text', text: tx }),
-      mouseup: () => props.dispatch({ name: 'text mouse up' }),
+      mousedown: () => props.dispatch(clickText(tx)),
+      mouseup: () => props.dispatch(textMouseUp()),
     },
     [tx.text || 'Double Click to Edit']
   );

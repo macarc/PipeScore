@@ -1,4 +1,4 @@
-import { ScoreEvent, noChange } from './Event';
+import { ScoreEvent, noChange } from './Controller';
 import { State } from '../State';
 
 import { playback, stopAudio } from '../Playback';

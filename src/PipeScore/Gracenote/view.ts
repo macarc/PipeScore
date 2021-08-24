@@ -8,8 +8,10 @@ import { lineGap } from '../global/constants';
 import { nlast } from '../global/utils';
 import width, { Width } from '../global/width';
 
-import { Dispatch } from '../Event';
-import { GracenoteModel, SingleGracenote } from './model';
+import { Dispatch } from '../Controllers/Controller';
+import { clickGracenote } from '../Controllers/Gracenote';
+import { GracenoteModel } from './model';
+import { GracenoteState } from './state';
 
 import Gracenote from './functions';
 
@@ -85,7 +87,7 @@ function head(
         'pointer-events': isSelected ? 'none' : 'default',
         opacity: 0,
       },
-      { mousedown: () => dispatch({ name: 'click gracenote', gracenote }) }
+      { mousedown: () => dispatch(clickGracenote(gracenote)) }
     ),
     svg('line', {
       x1: x + tailXOffset,
@@ -133,10 +135,6 @@ function single(
   ]);
 }
 
-export interface GracenoteState {
-  dragged: SingleGracenote | null;
-  selected: GracenoteModel | null;
-}
 export interface GracenoteProps {
   thisNote: Pitch;
   previousNote: Pitch | null;

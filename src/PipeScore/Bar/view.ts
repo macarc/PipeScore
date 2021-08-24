@@ -13,15 +13,19 @@ import width, { Width } from '../global/width';
 
 import { NoteModel, TripletModel, PreviousNote } from '../Note/model';
 import { BarModel, Barline } from './model';
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
+import { clickBar } from '../Controllers/Bar';
+import { addNoteToBarStart } from '../Controllers/Note';
+import { mouseMoveOver } from '../Controllers/Mouse';
 
 import Note from '../Note/functions';
 import renderTimeSignature from '../TimeSignature/view';
 import TimeSignature, { timeSignatureWidth } from '../TimeSignature/functions';
 import { TimeSignatureModel } from '../TimeSignature/model';
 
-import { GracenoteState } from '../Gracenote/view';
-import renderNote, { widthOfNote, NoteState } from '../Note/view';
+import { GracenoteState } from '../Gracenote/state';
+import { NoteState } from '../Note/state';
+import renderNote, { widthOfNote } from '../Note/view';
 
 interface BarProps {
   x: number;
@@ -305,8 +309,8 @@ export default function render(bar: BarModel, props: BarProps): V {
 
   const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) =>
     props.noteState.inputtingNotes
-      ? props.dispatch({ name: 'add note to beginning of bar', pitch, bar })
-      : props.dispatch({ name: 'click bar', bar, mouseEvent });
+      ? props.dispatch(addNoteToBarStart(pitch, bar))
+      : props.dispatch(clickBar(bar, mouseEvent));
   // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
   // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
   // note adds a note to the start of the bar
@@ -315,7 +319,7 @@ export default function render(bar: BarModel, props: BarProps): V {
       xAfterBarline,
       staveY,
       props.noteState.inputtingNotes ? beatWidth : barWidth,
-      (pitch) => props.dispatch({ name: 'mouse over pitch', pitch }),
+      (pitch) => props.dispatch(mouseMoveOver(pitch)),
       clickNoteBox
     ),
     ...groupedNotes.map((notes, idx) =>

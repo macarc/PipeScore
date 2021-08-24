@@ -1,4 +1,4 @@
-import { ScoreEvent, viewChanged } from './Event';
+import { ScoreEvent, viewChanged } from './Controller';
 import { State } from '../State';
 
 export function hoverDoc(element: string): ScoreEvent {

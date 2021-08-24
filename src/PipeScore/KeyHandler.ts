@@ -5,6 +5,23 @@
 import { dispatch } from './Controller';
 import { dialogueBoxIsOpen } from './global/dialogueBox';
 
+import {
+  setInputLength,
+  stopInputtingNotes,
+  copy,
+  paste,
+  tieSelectedNotes,
+  moveNoteDown,
+  moveNoteUp,
+  toggleDot,
+  moveLeft,
+  moveRight,
+  expandSelection,
+  detractSelection,
+} from './Controllers/Note';
+import { undo, redo } from './Controllers/Misc';
+import { deleteSelection } from './Controllers/Mouse';
+
 import { NoteLength } from './Note/model';
 
 export function keyHandler(e: KeyboardEvent): void {
@@ -12,86 +29,77 @@ export function keyHandler(e: KeyboardEvent): void {
 
   switch (e.key) {
     case 'Escape':
-      dispatch({ name: 'stop inputting notes' });
+      dispatch(stopInputtingNotes());
       break;
     case 'c':
-      if (e.ctrlKey) dispatch({ name: 'copy' });
+      if (e.ctrlKey) dispatch(copy());
       break;
     case 'v':
-      if (e.ctrlKey) dispatch({ name: 'paste' });
+      if (e.ctrlKey) dispatch(paste());
       break;
     case 'Backspace':
     case 'Delete':
-      dispatch({ name: 'delete selection' });
+      dispatch(deleteSelection());
       break;
 
     case 'ArrowRight':
       if (e.shiftKey) {
-        dispatch({ name: 'expand selection' });
+        dispatch(expandSelection());
       } else {
-        dispatch({ name: 'move right' });
+        dispatch(moveRight());
       }
       break;
     case 'ArrowLeft':
       if (e.shiftKey) {
-        dispatch({ name: 'detract selection' });
+        dispatch(detractSelection());
       } else {
-        dispatch({ name: 'move left' });
+        dispatch(moveLeft());
       }
       break;
     case 'ArrowUp':
       // Prevent scrolling
       e.preventDefault();
-      dispatch({ name: 'move note up' });
+      dispatch(moveNoteUp());
       break;
     case 'ArrowDown':
       // Prevent scrolling
       e.preventDefault();
-      dispatch({ name: 'move note down' });
+      dispatch(moveNoteDown());
       break;
 
     case '.':
-      dispatch({ name: 'toggle dot' });
+      dispatch(toggleDot());
       break;
     case 't':
-      dispatch({ name: 'tie selected notes' });
+      dispatch(tieSelectedNotes());
       break;
     case 'z':
-      if (e.ctrlKey) dispatch({ name: 'undo' });
+      if (e.ctrlKey) dispatch(undo());
       break;
     case 'y':
-      if (e.ctrlKey) dispatch({ name: 'redo' });
+      if (e.ctrlKey) dispatch(redo());
       break;
 
     case '1':
-      dispatch({ name: 'set note input length', length: NoteLength.Semibreve });
+      dispatch(setInputLength(NoteLength.Semibreve));
       break;
     case '2':
-      dispatch({ name: 'set note input length', length: NoteLength.Minim });
+      dispatch(setInputLength(NoteLength.Minim));
       break;
     case '3':
-      dispatch({ name: 'set note input length', length: NoteLength.Crotchet });
+      dispatch(setInputLength(NoteLength.Crotchet));
       break;
     case '4':
-      dispatch({ name: 'set note input length', length: NoteLength.Quaver });
+      dispatch(setInputLength(NoteLength.Quaver));
       break;
     case '5':
-      dispatch({
-        name: 'set note input length',
-        length: NoteLength.SemiQuaver,
-      });
+      dispatch(setInputLength(NoteLength.SemiQuaver));
       break;
     case '6':
-      dispatch({
-        name: 'set note input length',
-        length: NoteLength.DemiSemiQuaver,
-      });
+      dispatch(setInputLength(NoteLength.DemiSemiQuaver));
       break;
     case '7':
-      dispatch({
-        name: 'set note input length',
-        length: NoteLength.HemiDemiSemiQuaver,
-      });
+      dispatch(setInputLength(NoteLength.HemiDemiSemiQuaver));
       break;
   }
 }

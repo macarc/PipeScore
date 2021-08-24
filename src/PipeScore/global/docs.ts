@@ -1,15 +1,16 @@
 import { V } from '../../render/h';
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
+import { hoverDoc } from '../Controllers/Doc';
 
 export function help(dispatch: Dispatch, docName: string, element: V): V {
   const initialMouseOver = element.events['mouseover'];
   const initialMouseOut = element.events['mouseout'];
   element.events['mouseover'] = (e) => {
-    dispatch({ name: 'hover doc', element: docName });
+    dispatch(hoverDoc(docName));
     if (initialMouseOver) initialMouseOver(e);
   };
   element.events['mouseout'] = (e) => {
-    dispatch({ name: 'hover doc', element: '' });
+    dispatch(hoverDoc(''));
     if (initialMouseOut) initialMouseOut(e);
   };
   return element;

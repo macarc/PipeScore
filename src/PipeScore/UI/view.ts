@@ -3,12 +3,45 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { h, V, Attributes } from '../../render/h';
+import { Dispatch } from '../Controllers/Controller';
+import {
+  addTriplet,
+  tieSelectedNotes,
+  toggleDot,
+  copy,
+  paste,
+  setInputLength,
+} from '../Controllers/Note';
+import {
+  addBar,
+  addAnacrusis,
+  setBarRepeat,
+  editBarTimeSignature,
+} from '../Controllers/Bar';
+import {
+  setMenu,
+  toggleLandscape,
+  undo,
+  redo,
+  print,
+  changeZoomLevel,
+} from '../Controllers/Misc';
+import { addSecondTiming } from '../Controllers/SecondTiming';
+import { deleteSelection } from '../Controllers/Mouse';
+import { setGracenoteOnSelectedNotes } from '../Controllers/Gracenote';
+import { toggleDoc } from '../Controllers/Doc';
+import {
+  startPlayback,
+  stopPlayback,
+  setPlaybackBpm,
+} from '../Controllers/Playback';
+import { centreText, addText } from '../Controllers/Text';
+import { addStave } from '../Controllers/Stave';
 
 import { Menu } from './model';
 
 import { help as dochelp } from '../global/docs';
 
-import { ScoreEvent } from '../Event';
 import { NoteLength } from '../Note/model';
 import { Barline } from '../Bar/model';
 import { GracenoteModel } from '../Gracenote/model';
@@ -25,12 +58,7 @@ export interface UIState {
   zoomLevel: number;
 }
 
-export default function render(
-  dispatch: (e: ScoreEvent) => void,
-  state: UIState
-): V {
-  const setNoteInput = (length: NoteLength) => () =>
-    dispatch({ name: 'set note input length', length });
+export default function render(dispatch: Dispatch, state: UIState): V {
   const isCurrentNoteInput = (length: NoteLength) =>
     state.inputLength === null
       ? false
@@ -45,7 +73,7 @@ export default function render(
           class: isCurrentNoteInput(length) ? 'highlighted' : 'not-highlighted',
           id: `note-${length}`,
         },
-        { click: setNoteInput(length) }
+        { click: () => dispatch(setInputLength(length)) }
       )
     );
 
@@ -62,16 +90,16 @@ export default function render(
           class: isGracenoteInput(name) ? 'highlighted' : 'not-highlighted',
           style: `background-image: url("/images/icons/gracenote-${name}.svg")`,
         },
-        { click: () => dispatch({ name: 'set gracenote', value: name }) }
+        { click: () => dispatch(setGracenoteOnSelectedNotes(name)) }
       )
     );
 
-  const changeZoomLevel = () => {
+  const inputZoomLevel = () => {
     const element = document.getElementById('zoom-level');
     if (element !== null) {
       const newZoomLevel = parseInt((element as HTMLInputElement).value, 10);
       if (!isNaN(newZoomLevel)) {
-        dispatch({ name: 'change zoom level', zoomLevel: newZoomLevel });
+        dispatch(changeZoomLevel(newZoomLevel));
       }
     }
   };
@@ -105,7 +133,7 @@ export default function render(
                   ? 'highlighted'
                   : 'not-highlighted',
             },
-            { click: () => dispatch({ name: 'toggle dot' }) },
+            { click: () => dispatch(toggleDot()) },
             ['•']
           )
         ),
@@ -114,7 +142,7 @@ export default function render(
           h(
             'button',
             { id: 'tie' },
-            { click: () => dispatch({ name: 'tie selected notes' }) }
+            { click: () => dispatch(tieSelectedNotes()) }
           )
         ),
         help(
@@ -122,7 +150,7 @@ export default function render(
           h(
             'button',
             { id: 'triplet' },
-            { click: () => dispatch({ name: 'add triplet' }) },
+            { click: () => dispatch(addTriplet()) },
             ['3']
           )
         ),
@@ -145,7 +173,7 @@ export default function render(
                   : 'not-highlighted',
               style: 'background-image: url("/images/icons/single.svg")',
             },
-            { click: () => dispatch({ name: 'set gracenote', value: null }) }
+            { click: () => dispatch(setGracenoteOnSelectedNotes(null)) }
           )
         ),
         gracenoteInput('doubling'),
@@ -163,26 +191,27 @@ export default function render(
   ];
 
   const addBarOrAnacrusis = (which: 'bar' | 'anacrusis') => {
-    const text = which === 'bar' ? 'add bar' : 'add anacrusis';
+    const event = which === 'bar' ? addBar : addAnacrusis;
     return [
       help(
-        text,
+        which === 'bar' ? 'add bar' : 'add anacrusis',
         h(
           'button',
           { class: 'add' },
           {
             click: () =>
-              dispatch({
-                name: text,
-                before: (() => {
-                  const el = document.getElementById(`${which}-add-where`);
-                  if (el && el instanceof HTMLSelectElement) {
-                    return el.value === 'before';
-                  } else {
-                    return true;
-                  }
-                })(),
-              }),
+              dispatch(
+                event(
+                  (() => {
+                    const el = document.getElementById(`${which}-add-where`);
+                    if (el && el instanceof HTMLSelectElement) {
+                      return el.value === 'before';
+                    } else {
+                      return true;
+                    }
+                  })()
+                )
+              ),
           }
         )
       ),
@@ -210,11 +239,7 @@ export default function render(
               { class: 'textual', style: 'margin-left: .5rem;' },
               {
                 click: () =>
-                  dispatch({
-                    name: 'set bar repeat',
-                    which: 'frontBarline',
-                    what: Barline.Normal,
-                  }),
+                  dispatch(setBarRepeat('frontBarline', Barline.Normal)),
               },
               ['Normal']
             )
@@ -226,11 +251,7 @@ export default function render(
               { class: 'textual' },
               {
                 click: () =>
-                  dispatch({
-                    name: 'set bar repeat',
-                    which: 'frontBarline',
-                    what: Barline.Repeat,
-                  }),
+                  dispatch(setBarRepeat('frontBarline', Barline.Repeat)),
               },
               ['Repeat']
             )
@@ -242,11 +263,7 @@ export default function render(
               { class: 'textual' },
               {
                 click: () =>
-                  dispatch({
-                    name: 'set bar repeat',
-                    which: 'frontBarline',
-                    what: Barline.End,
-                  }),
+                  dispatch(setBarRepeat('frontBarline', Barline.End)),
               },
               ['Part']
             )
@@ -261,11 +278,7 @@ export default function render(
               { class: 'textual', style: 'margin-left: .5rem;' },
               {
                 click: () =>
-                  dispatch({
-                    name: 'set bar repeat',
-                    which: 'backBarline',
-                    what: Barline.Normal,
-                  }),
+                  dispatch(setBarRepeat('backBarline', Barline.Normal)),
               },
               ['Normal']
             )
@@ -277,11 +290,7 @@ export default function render(
               { class: 'textual' },
               {
                 click: () =>
-                  dispatch({
-                    name: 'set bar repeat',
-                    which: 'backBarline',
-                    what: Barline.Repeat,
-                  }),
+                  dispatch(setBarRepeat('backBarline', Barline.Repeat)),
               },
               ['Repeat']
             )
@@ -292,12 +301,7 @@ export default function render(
               'button',
               { class: 'textual' },
               {
-                click: () =>
-                  dispatch({
-                    name: 'set bar repeat',
-                    which: 'backBarline',
-                    what: Barline.End,
-                  }),
+                click: () => dispatch(setBarRepeat('backBarline', Barline.End)),
               },
               ['Part']
             )
@@ -317,7 +321,7 @@ export default function render(
           h(
             'button',
             { class: 'textual' },
-            { click: () => dispatch({ name: 'edit bar time signature' }) },
+            { click: () => dispatch(editBarTimeSignature()) },
             ['Edit Time Signature']
           )
         ),
@@ -331,7 +335,7 @@ export default function render(
           h(
             'button',
             { id: 'add-second-timing' },
-            { click: () => dispatch({ name: 'add second timing' }) },
+            { click: () => dispatch(addSecondTiming()) },
             ['1st/ 2nd']
           )
         ),
@@ -348,7 +352,7 @@ export default function render(
           h(
             'button',
             { class: 'add text' },
-            { click: () => dispatch({ name: 'add stave', before: true }) },
+            { click: () => dispatch(addStave(true)) },
             ['before']
           )
         ),
@@ -357,7 +361,7 @@ export default function render(
           h(
             'button',
             { class: 'add text' },
-            { click: () => dispatch({ name: 'add stave', before: false }) },
+            { click: () => dispatch(addStave(false)) },
             ['after']
           )
         ),
@@ -371,18 +375,14 @@ export default function render(
       h('div', { class: 'section-content' }, [
         help(
           'add text',
-          h(
-            'button',
-            { class: 'add' },
-            { click: () => dispatch({ name: 'add text' }) }
-          )
+          h('button', { class: 'add' }, { click: () => dispatch(addText()) })
         ),
         help(
           'centre text',
           h(
             'button',
             { class: 'double-width text' },
-            { click: () => dispatch({ name: 'centre text' }) },
+            { click: () => dispatch(centreText()) },
             ['Centre text']
           )
         ),
@@ -399,7 +399,7 @@ export default function render(
           h(
             'button',
             { class: 'textual' },
-            { click: () => dispatch({ name: 'start playback' }) },
+            { click: () => dispatch(startPlayback()) },
             ['Play']
           )
         ),
@@ -408,7 +408,7 @@ export default function render(
           h(
             'button',
             { class: 'textual' },
-            { click: () => dispatch({ name: 'stop playback' }) },
+            { click: () => dispatch(stopPlayback()) },
             ['Stop']
           )
         ),
@@ -427,10 +427,11 @@ export default function render(
               },
               {
                 input: (e) =>
-                  dispatch({
-                    name: 'set playback bpm',
-                    bpm: parseInt((e.target as HTMLInputElement).value),
-                  }),
+                  dispatch(
+                    setPlaybackBpm(
+                      parseInt((e.target as HTMLInputElement).value)
+                    )
+                  ),
               }
             ),
           ])
@@ -448,7 +449,7 @@ export default function render(
           h(
             'button',
             { class: 'textual' },
-            { click: () => dispatch({ name: 'print' }) },
+            { click: () => dispatch(print()) },
             ['Print']
           )
         ),
@@ -458,7 +459,7 @@ export default function render(
           h(
             'button',
             { class: 'textual' },
-            { click: () => dispatch({ name: 'toggle landscape' }) },
+            { click: () => dispatch(toggleLandscape()) },
             ['Toggle landscape']
           )
         ),
@@ -480,7 +481,7 @@ export default function render(
               step: '2',
               value: state.zoomLevel,
             },
-            { input: changeZoomLevel }
+            { input: inputZoomLevel }
           )
         ),
         h('label', ['Disable Help']),
@@ -489,7 +490,7 @@ export default function render(
           h(
             'input',
             { type: 'checkbox' },
-            { click: () => dispatch({ name: 'toggle doc' }) }
+            { click: () => dispatch(toggleDoc()) }
           )
         ),
       ]),
@@ -518,43 +519,43 @@ export default function render(
       h(
         'button',
         menuClass('normal'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'normal' }) },
+        { mousedown: () => dispatch(setMenu('normal')) },
         ['Note']
       ),
       h(
         'button',
         menuClass('gracenote'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'gracenote' }) },
+        { mousedown: () => dispatch(setMenu('gracenote')) },
         ['Gracenote']
       ),
       h(
         'button',
         menuClass('bar'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'bar' }) },
+        { mousedown: () => dispatch(setMenu('bar')) },
         ['Bar']
       ),
       h(
         'button',
         menuClass('stave'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'stave' }) },
+        { mousedown: () => dispatch(setMenu('stave')) },
         ['Stave']
       ),
       h(
         'button',
         menuClass('text'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'text' }) },
+        { mousedown: () => dispatch(setMenu('text')) },
         ['Text']
       ),
       h(
         'button',
         menuClass('playback'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'playback' }) },
+        { mousedown: () => dispatch(setMenu('playback')) },
         ['Playback']
       ),
       h(
         'button',
         menuClass('document'),
-        { mousedown: () => dispatch({ name: 'set menu', menu: 'document' }) },
+        { mousedown: () => dispatch(setMenu('document')) },
         ['Document']
       ),
     ]),
@@ -568,40 +569,24 @@ export default function render(
             h(
               'button',
               { id: 'delete-notes', class: 'delete' },
-              { click: () => dispatch({ name: 'delete selection' }) }
+              { click: () => dispatch(deleteSelection()) }
             )
           ),
           help(
             'copy',
-            h(
-              'button',
-              { id: 'copy' },
-              { click: () => dispatch({ name: 'copy' }) }
-            )
+            h('button', { id: 'copy' }, { click: () => dispatch(copy()) })
           ),
           help(
             'paste',
-            h(
-              'button',
-              { id: 'paste' },
-              { click: () => dispatch({ name: 'paste' }) }
-            )
+            h('button', { id: 'paste' }, { click: () => dispatch(paste()) })
           ),
           help(
             'undo',
-            h(
-              'button',
-              { id: 'undo' },
-              { click: () => dispatch({ name: 'undo' }) }
-            )
+            h('button', { id: 'undo' }, { click: () => dispatch(undo()) })
           ),
           help(
             'redo',
-            h(
-              'button',
-              { id: 'redo' },
-              { click: () => dispatch({ name: 'redo' }) }
-            )
+            h('button', { id: 'redo' }, { click: () => dispatch(redo()) })
           ),
         ]),
       ]),

@@ -4,16 +4,16 @@ import {
   viewChanged,
   shouldSave,
   removeState,
-} from './Event';
+} from './Controller';
 import { State } from '../State';
 
 import {
   deleteSelectedNotes,
   changeNoteFrom,
   changeTripletNoteFrom,
-} from './NoteEvents';
-import { changeGracenoteFrom } from './GracenoteEvents';
-import { replaceTextBox } from './TextEvents';
+} from './Note';
+import { changeGracenoteFrom } from './Gracenote';
+import { replaceTextBox } from './Text';
 
 import Note from '../Note/functions';
 import SecondTiming from '../SecondTiming/functions';

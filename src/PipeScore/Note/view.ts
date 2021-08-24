@@ -11,16 +11,20 @@ import { nlast, nmap } from '../global/utils';
 import width, { Width } from '../global/width';
 
 import { NoteModel, TripletModel, BaseNote, PreviousNote } from './model';
-import { Dispatch } from '../Event';
+import { Dispatch } from '../Controllers/Controller';
+import { addNoteAfter, clickNote } from '../Controllers/Note';
+import { addGracenoteToTriplet } from '../Controllers/Gracenote';
+import { mouseMoveOver } from '../Controllers/Mouse';
 
 import Note from './functions';
+import { NoteState } from './state';
 
 import { GracenoteModel } from '../Gracenote/model';
 import renderGracenoteProper, {
   GracenoteProps,
-  GracenoteState,
   gracenoteWidth,
 } from '../Gracenote/view';
+import { GracenoteState } from '../Gracenote/state';
 
 const renderGracenote = (gracenote: GracenoteModel, props: GracenoteProps) =>
   renderGracenoteProper(gracenote, {
@@ -257,8 +261,7 @@ function noteHead(
       },
       {
         mousedown: mousedown as (e: Event) => void,
-        mouseover: () =>
-          dispatch({ name: 'mouse over pitch', pitch: note.pitch }),
+        mouseover: () => dispatch(mouseMoveOver(note.pitch)),
       }
     ),
   ]);
@@ -366,7 +369,7 @@ function singleton(
       x,
       y,
       note,
-      (event: MouseEvent) => dispatch({ name: 'click note', note, event }),
+      (event: MouseEvent) => dispatch(clickNote(note, event)),
       draggedNote,
       gracenoteProps.state.dragged !== null,
       dispatch
@@ -394,11 +397,6 @@ function singleton(
 
     drawNoteBoxes(),
   ]);
-}
-
-export interface NoteState {
-  dragged: BaseNote | null;
-  inputtingNotes: boolean;
 }
 
 interface NoteProps {
@@ -521,8 +519,7 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
         firstX,
         firstY,
         notes[0],
-        (event) =>
-          props.dispatch({ name: 'click note', note: triplet.first, event }),
+        (event) => props.dispatch(clickNote(triplet.first, event)),
         props.state.dragged,
         props.gracenoteState.dragged !== null,
         props.dispatch
@@ -541,14 +538,9 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
           firstX + noteHeadWidth,
           props.y,
           props.noteWidth,
-          (pitch) => props.dispatch({ name: 'mouse over pitch', pitch }),
+          (pitch) => props.dispatch(mouseMoveOver(pitch)),
           (pitch) =>
-            props.dispatch({
-              name: 'add gracenote to triplet',
-              pitch,
-              which: 'second',
-              triplet,
-            })
+            props.dispatch(addGracenoteToTriplet('second', triplet, pitch))
         )
       : svg('g'),
     svg('g', { class: 'second' }, [
@@ -556,8 +548,7 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
         secondX,
         secondY,
         notes[1],
-        (event) =>
-          props.dispatch({ name: 'click note', note: triplet.second, event }),
+        (event) => props.dispatch(clickNote(triplet.second, event)),
         props.state.dragged,
         props.gracenoteState.dragged !== null,
         props.dispatch
@@ -586,14 +577,9 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
           secondX + noteHeadWidth,
           props.y,
           props.noteWidth,
-          (pitch) => props.dispatch({ name: 'mouse over pitch', pitch }),
+          (pitch) => props.dispatch(mouseMoveOver(pitch)),
           (pitch) =>
-            props.dispatch({
-              name: 'add gracenote to triplet',
-              pitch,
-              which: 'third',
-              triplet,
-            })
+            props.dispatch(addGracenoteToTriplet('third', triplet, pitch))
         )
       : svg('g'),
     svg('g', { class: 'first' }, [
@@ -601,8 +587,7 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
         thirdX,
         thirdY,
         notes[2],
-        (event) =>
-          props.dispatch({ name: 'click note', note: triplet.third, event }),
+        (event) => props.dispatch(clickNote(triplet.third, event)),
         props.state.dragged,
         props.gracenoteState.dragged !== null,
         props.dispatch
@@ -632,9 +617,8 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
           thirdX + noteHeadWidth,
           props.y,
           props.noteWidth,
-          (pitch) => props.dispatch({ name: 'mouse over pitch', pitch }),
-          (pitch) =>
-            props.dispatch({ name: 'note added', pitch, noteBefore: triplet })
+          (pitch) => props.dispatch(mouseMoveOver(pitch)),
+          (pitch) => props.dispatch(addNoteAfter(pitch, triplet))
         )
       : svg('g'),
   ]);
@@ -717,13 +701,8 @@ export default function render(
                 xOf(0) + noteHeadWidth + xOffset,
                 props.y,
                 props.noteWidth - xOffset,
-                (pitch) => props.dispatch({ name: 'mouse over pitch', pitch }),
-                (pitch) =>
-                  props.dispatch({
-                    name: 'note added',
-                    pitch,
-                    noteBefore: firstNote,
-                  })
+                (pitch) => props.dispatch(mouseMoveOver(pitch)),
+                (pitch) => props.dispatch(addNoteAfter(pitch, firstNote))
               )
             : svg('g');
 
@@ -857,8 +836,7 @@ export default function render(
                 xOf(index),
                 yOf(note),
                 note,
-                (event: MouseEvent) =>
-                  props.dispatch({ name: 'click note', note, event }),
+                (event: MouseEvent) => props.dispatch(clickNote(note, event)),
                 props.state.dragged,
                 props.gracenoteState.dragged !== null,
                 props.dispatch
@@ -869,14 +847,8 @@ export default function render(
                     xOf(index) + noteHeadWidth,
                     props.y,
                     props.noteWidth,
-                    (pitch) =>
-                      props.dispatch({ name: 'mouse over pitch', pitch }),
-                    (pitch) =>
-                      props.dispatch({
-                        name: 'note added',
-                        pitch,
-                        noteBefore: note,
-                      })
+                    (pitch) => props.dispatch(mouseMoveOver(pitch)),
+                    (pitch) => props.dispatch(addNoteAfter(pitch, note))
                   )
                 : svg('g'),
 
