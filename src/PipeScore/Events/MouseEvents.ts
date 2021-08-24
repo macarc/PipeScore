@@ -44,7 +44,7 @@ export function deleteSelection(): ScoreEvent {
         score: {
           ...state.score,
           textBoxes: replace(
-            state.score.textBoxes.indexOf(state.textBoxState.selectedText),
+            state.textBoxState.selectedText,
             1,
             state.score.textBoxes
           ),
@@ -59,7 +59,7 @@ export function deleteSelection(): ScoreEvent {
         score: {
           ...state.score,
           secondTimings: replace(
-            state.score.secondTimings.indexOf(state.selectedSecondTiming),
+            state.selectedSecondTiming,
             1,
             state.score.secondTimings
           ),
@@ -178,9 +178,7 @@ export function mouseDrag(x: number, y: number): ScoreEvent {
             score: {
               ...state.score,
               secondTimings: replace(
-                state.score.secondTimings.indexOf(
-                  state.draggedSecondTiming.secondTiming
-                ),
+                state.draggedSecondTiming.secondTiming,
                 1,
                 state.score.secondTimings,
                 newSecondTiming

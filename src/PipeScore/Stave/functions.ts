@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2021 Archie Maclean
  */
-import { replace } from '../global/utils';
+import { replaceIndex } from '../global/utils';
 
 import { StaveModel } from './model';
 import { BarModel } from '../Bar/model';
@@ -24,7 +24,7 @@ function addBar(stave: StaveModel, bar: BarModel, before: boolean): StaveModel {
   if (ind !== -1)
     return {
       ...stave,
-      bars: replace(
+      bars: replaceIndex(
         before ? ind : ind + 1,
         0,
         stave.bars,
@@ -44,7 +44,7 @@ function addAnacrusis(
   if (ind !== -1)
     return {
       ...stave,
-      bars: replace(
+      bars: replaceIndex(
         before ? ind : ind + 1,
         0,
         stave.bars,

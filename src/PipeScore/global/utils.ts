@@ -53,13 +53,20 @@ export const nmap = <T, A>(a: T | null, f: (a: T) => A): A | null =>
   a ? f(a) : null;
 
 // Immutable splice
-export const replace = <T>(
+export const replaceIndex = <T>(
   index: number,
-  items: number,
+  numberToRemove: number,
   array: T[],
   ...replace: T[]
 ): T[] => [
   ...(array.slice(0, index) || []),
   ...(replace || []),
-  ...(array.slice(index + items) || []),
+  ...(array.slice(index + numberToRemove) || []),
 ];
+
+export const replace = <T>(
+  item: T,
+  numberToRemove: number,
+  array: T[],
+  ...replace: T[]
+): T[] => replaceIndex(array.indexOf(item), numberToRemove, array, ...replace);

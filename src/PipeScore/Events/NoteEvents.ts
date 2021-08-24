@@ -1,5 +1,6 @@
 import {
   ScoreEvent,
+  UpdatedState,
   noChange,
   viewChanged,
   shouldSave,
@@ -11,7 +12,13 @@ import { State } from '../State';
 
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
 import { ID, Item } from '../global/types';
-import { deepcopy, flatten, replace } from '../global/utils';
+import {
+  deepcopy,
+  flatten,
+  nmap,
+  replace,
+  replaceIndex,
+} from '../global/utils';
 import { deleteXY, itemBefore } from '../global/xy';
 
 import { BaseNote, NoteModel, TripletModel, NoteLength } from '../Note/model';
@@ -20,6 +27,7 @@ import { ScoreModel } from '../Score/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { ScoreSelectionModel } from '../ScoreSelection/model';
 
+import Gracenote from '../Gracenote/functions';
 import Note from '../Note/functions';
 import Score from '../Score/functions';
 import DemoNote from '../DemoNote/functions';
@@ -35,14 +43,23 @@ function indexOfId(id: ID, noteModels: Item[]): number {
   return -1;
 }
 
-/*
 const isBar = (it: NoteModel | TripletModel | BarModel): it is BarModel =>
   (it as BarModel).notes !== undefined;
-function addNote(pitch: Pitch, bar: BarModel): void;
-function addNote(pitch: Pitch, noteBefore: NoteModel | TripletModel): void;
-function addNote(pitch: Pitch, where: BarModel | NoteModel | TripletModel) {
+
+function addNote(pitch: Pitch, bar: BarModel, state: State): UpdatedState;
+function addNote(
+  pitch: Pitch,
+  noteBefore: NoteModel | TripletModel,
+  state: State
+): UpdatedState;
+function addNote(
+  pitch: Pitch,
+  where: BarModel | NoteModel | TripletModel,
+  state: State
+): UpdatedState {
+  const noteModels = currentNoteModels(state.score);
   let noteBefore: NoteModel | TripletModel | null;
-  const { bar, stave } = currentBar(where.id);
+  const { bar, stave } = currentBar(where.id, state.score);
   if (isBar(where)) {
     const id = previousNote(bar.id, state.score);
     noteBefore = nmap(
@@ -54,16 +71,29 @@ function addNote(pitch: Pitch, where: BarModel | NoteModel | TripletModel) {
   }
   if (state.demoNote && state.demoNote.type === 'note') {
     const newNote = Note.init(pitch, state.demoNote.length);
-    bar.notes.splice(
-      nmap(noteBefore, (noteBefore) => bar.notes.indexOf(noteBefore) + 1) || 0,
-      0,
-      newNote
-    );
-    stave.bars[stave.bars.indexOf(bar)] = { ...bar };
-    state.score.staves[state.score.staves.indexOf(stave)] = { ...stave };
-    shouldSave = true;
+    return shouldSave({
+      ...state,
+      score: {
+        ...state.score,
+        staves: replace(stave, 1, state.score.staves, {
+          ...stave,
+          bars: replace(bar, 1, stave.bars, {
+            ...bar,
+            notes: replaceIndex(
+              nmap(
+                noteBefore,
+                (noteBefore) => bar.notes.indexOf(noteBefore) + 1
+              ) || 0,
+              0,
+              bar.notes,
+              newNote
+            ),
+          }),
+        }),
+      },
+    });
     // todo - should this need to be done?
-    makeCorrectTie(newNote);
+    makeCorrectTie(newNote, state.score);
   } else if (state.demoNote && state.demoNote.type === 'gracenote') {
     const previousPitch = nmap(noteBefore, (noteBefore) =>
       Note.isTriplet(noteBefore) ? noteBefore.third.pitch : noteBefore.pitch
@@ -76,37 +106,39 @@ function addNote(pitch: Pitch, where: BarModel | NoteModel | TripletModel) {
       noteModels[0] ||
       null;
     if (note && Note.isNoteModel(note)) {
-      state.score = changeNoteFrom(
-        note.id,
-        {
-          ...note,
-          gracenote: Gracenote.addSingle(
-            note.gracenote,
-            pitch,
-            note.pitch,
-            previousPitch
-          ),
-        },
-        state.score
-      );
-      shouldSave = true;
+      return shouldSave({
+        ...state,
+        score: changeNoteFrom(
+          note.id,
+          {
+            ...note,
+            gracenote: Gracenote.addSingle(
+              note.gracenote,
+              pitch,
+              note.pitch,
+              previousPitch
+            ),
+          },
+          state.score
+        ),
+      });
     } else if (note && Note.isTriplet(note)) {
-      state.score = changeNoteFrom(
-        note.first.id,
-        {
-          ...note.first,
-          gracenote: Gracenote.addSingle(
-            note.first.gracenote,
-            pitch,
-            note.first.pitch,
-            previousPitch
-          ),
-        },
-        state.score
-      );
-      shouldSave = true;
-    } else {
-      viewChanged = false;
+      return shouldSave({
+        ...state,
+        score: changeNoteFrom(
+          note.first.id,
+          {
+            ...note.first,
+            gracenote: Gracenote.addSingle(
+              note.first.gracenote,
+              pitch,
+              note.first.pitch,
+              previousPitch
+            ),
+          },
+          state.score
+        ),
+      });
     }
   } else if (state.inputGracenote) {
     const note = nmap(
@@ -114,25 +146,28 @@ function addNote(pitch: Pitch, where: BarModel | NoteModel | TripletModel) {
       (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
     );
     if (note && Note.isNoteModel(note)) {
-      state.score = changeNoteFrom(
-        note.id,
-        { ...note, gracenote: state.inputGracenote },
-        state.score
-      );
-      shouldSave = true;
+      return shouldSave({
+        ...state,
+        score: changeNoteFrom(
+          note.id,
+          { ...note, gracenote: state.inputGracenote },
+          state.score
+        ),
+      });
     } else if (note && Note.isTriplet(note)) {
-      state.score = changeNoteFrom(
-        note.first.id,
-        { ...note.first, gracenote: state.inputGracenote },
-        state.score
-      );
-      shouldSave = true;
+      return shouldSave({
+        ...state,
+        score: changeNoteFrom(
+          note.first.id,
+          { ...note.first, gracenote: state.inputGracenote },
+          state.score
+        ),
+      });
     }
-  } else {
-    viewChanged = false;
   }
+  return noChange(state);
 }
-*/
+
 export function currentNoteModels(
   score: ScoreModel
 ): (NoteModel | TripletModel)[] {
@@ -832,23 +867,18 @@ export function addTriplet(): ScoreEvent {
           ...state,
           score: {
             ...state.score,
-            staves: replace(
-              state.score.staves.indexOf(stave),
-              1,
-              state.score.staves,
-              {
-                ...stave,
-                bars: replace(stave.bars.indexOf(bar), 1, stave.bars, {
-                  ...bar,
-                  notes: replace(
-                    bar.notes.indexOf(first),
-                    3,
-                    bar.notes,
-                    Note.initTriplet(first, second, third)
-                  ),
-                }),
-              }
-            ),
+            staves: replace(stave, 1, state.score.staves, {
+              ...stave,
+              bars: replace(bar, 1, stave.bars, {
+                ...bar,
+                notes: replace(
+                  first,
+                  3,
+                  bar.notes,
+                  Note.initTriplet(first, second, third)
+                ),
+              }),
+            }),
           },
         });
       }
@@ -861,23 +891,13 @@ export function addTriplet(): ScoreEvent {
           ...state,
           score: {
             ...state.score,
-            staves: replace(
-              state.score.staves.indexOf(stave),
-              1,
-              state.score.staves,
-              {
-                ...stave,
-                bars: replace(stave.bars.indexOf(bar), 1, stave.bars, {
-                  ...bar,
-                  notes: replace(
-                    bar.notes.indexOf(tr),
-                    1,
-                    bar.notes,
-                    ...Note.tripletNoteModels(tr)
-                  ),
-                }),
-              }
-            ),
+            staves: replace(stave, 1, state.score.staves, {
+              ...stave,
+              bars: replace(bar, 1, stave.bars, {
+                ...bar,
+                notes: replace(tr, 1, bar.notes, ...Note.tripletNoteModels(tr)),
+              }),
+            }),
           },
         });
       }

@@ -19,12 +19,7 @@ export function replaceTextBox(
 ): ScoreModel {
   return {
     ...score,
-    textBoxes: replace(
-      score.textBoxes.indexOf(textBox),
-      1,
-      score.textBoxes,
-      newTextBox
-    ),
+    textBoxes: replace(textBox, 1, score.textBoxes, newTextBox),
   };
 }
 export function addText(): ScoreEvent {

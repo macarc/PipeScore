@@ -15,7 +15,7 @@ enum Update {
   ViewChanged,
   ShouldSave,
 }
-type UpdatedState = {
+export type UpdatedState = {
   state: State;
   update: Update;
 };

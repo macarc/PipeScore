@@ -67,7 +67,7 @@ export function addAnacrusis(before: boolean): ScoreEvent {
         score: {
           ...state.score,
           staves: replace(
-            state.score.staves.indexOf(stave),
+            stave,
             1,
             state.score.staves,
             Stave.addAnacrusis(stave, bar, before)
@@ -88,7 +88,7 @@ export function addBar(before: boolean): ScoreEvent {
         score: {
           ...state.score,
           staves: replace(
-            state.score.staves.indexOf(stave),
+            stave,
             1,
             state.score.staves,
             Stave.addBar(stave, bar, before)
@@ -134,18 +134,13 @@ export function setBarRepeat(
         ...state,
         score: {
           ...state.score,
-          staves: replace(
-            state.score.staves.indexOf(stave),
-            1,
-            state.score.staves,
-            {
-              ...stave,
-              bars: replace(stave.bars.indexOf(bar), 1, stave.bars, {
-                ...bar,
-                [which]: what,
-              }),
-            }
-          ),
+          staves: replace(stave, 1, state.score.staves, {
+            ...stave,
+            bars: replace(bar, 1, stave.bars, {
+              ...bar,
+              [which]: what,
+            }),
+          }),
         },
       });
     }

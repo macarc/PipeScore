@@ -2,7 +2,7 @@
    Copyright (C) 2021 Archie Maclean
  */
 
-import { flatten, replace } from '../global/utils';
+import { flatten, replaceIndex } from '../global/utils';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
@@ -37,7 +37,7 @@ function addStave(
   if (ind !== -1)
     return {
       ...score,
-      staves: replace(before ? ind : ind + 1, 0, score.staves, newStave),
+      staves: replaceIndex(before ? ind : ind + 1, 0, score.staves, newStave),
     };
 
   return score;
