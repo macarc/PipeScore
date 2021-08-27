@@ -1,3 +1,8 @@
+/*
+  State.ts - Defines global State interface
+  Copyright (C) 2021 Archie Maclean
+*/
+
 import { BaseNote, NoteModel, TripletModel } from './Note/model';
 import { DemoNoteModel } from './DemoNote/model';
 import { GracenoteModel, SingleGracenote } from './Gracenote/model';

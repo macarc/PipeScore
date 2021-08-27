@@ -1,5 +1,5 @@
 /*
-  TextBox.ts - Text Box functionality for PipeScore
+  Draw text box
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, h, V } from '../../render/h';

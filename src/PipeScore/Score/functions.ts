@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  Score methods
+  Copyright (C) 2021 Archie Maclean
+*/
 
 import { flatten, replaceIndex } from '../global/utils';
 

@@ -1,5 +1,5 @@
 /*
-  Stave.ts - Stave implementation for PipeScore
+  Draw stave (single line of music + treble clef)
   Copyright (C) 2021 Archie Maclean
 */
 import { lineHeightOf } from '../global/constants';

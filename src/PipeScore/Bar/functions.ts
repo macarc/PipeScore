@@ -1,8 +1,10 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  Bar methods
+  Copyright (C) 2021 Archie Maclean
+*/
+import { genId } from '../global/id';
 import { Pitch } from '../global/pitch';
-import { genId, last } from '../global/utils';
+import { last } from '../global/utils';
 
 import { BarModel, Barline } from './model';
 import { NoteModel, TripletModel } from '../Note/model';

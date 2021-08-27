@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  TextBox methods
+  Copyright (C) 2021 Archie Maclean
+*/
 import { TextBoxModel } from './model';
 
 function toggleCentre(tx: TextBoxModel, pageWidth: number): TextBoxModel {

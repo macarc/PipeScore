@@ -1,3 +1,7 @@
+/*
+  Controller for bar-related events
+  Copyright (C) 2021 Archie Maclean
+*/
 import {
   ScoreEvent,
   noChange,

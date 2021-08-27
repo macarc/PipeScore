@@ -1,9 +1,10 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  Define format for bar
+  Copyright (C) 2021 Archie Maclean
  */
 import { TimeSignatureModel } from '../TimeSignature/model';
 import { NoteModel, TripletModel } from '../Note/model';
-import { Item } from '../global/types';
+import { Item } from '../global/id';
 
 export enum Barline {
   Repeat,

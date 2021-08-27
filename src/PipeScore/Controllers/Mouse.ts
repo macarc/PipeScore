@@ -1,3 +1,7 @@
+/*
+  Controller for mouse events (ish, this needs to be organised better)
+  Copyright (C) 2021 Archie Maclean
+*/
 import {
   ScoreEvent,
   noChange,

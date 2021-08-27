@@ -1,5 +1,6 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  DemoNote (preview note) model
+  Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
 import { NoteLength } from '../Note/model';

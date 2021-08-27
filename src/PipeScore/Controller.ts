@@ -1,5 +1,5 @@
 /*
-  Controller.ts - Handles input and events for PipeScore
+  Handles input and events for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
 

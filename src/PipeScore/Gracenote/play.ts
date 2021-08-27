@@ -1,3 +1,7 @@
+/*
+  Play gracenotes
+  Copyright (C) 2021 Archie Maclean
+*/
 import { Pitch } from '../global/pitch';
 
 import { GracenoteModel } from './model';

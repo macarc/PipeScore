@@ -1,3 +1,7 @@
+/*
+  Controller for text events
+  Copyright (C) 2021 Archie Maclean
+*/
 import {
   ScoreEvent,
   noChange,

@@ -1,8 +1,9 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  Note format
+  Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
-import { Item } from '../global/types';
+import { Item } from '../global/id';
 import { GracenoteModel } from '../Gracenote/model';
 
 export interface PreviousNote {

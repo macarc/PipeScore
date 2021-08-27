@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  Score format
+  Copyright (C) 2021 Archie Maclean
+*/
 import { StaveModel } from '../Stave/model';
 import { TextBoxModel } from '../TextBox/model';
 import { SecondTimingModel } from '../SecondTiming/model';

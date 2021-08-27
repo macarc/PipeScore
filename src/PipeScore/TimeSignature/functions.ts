@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  Time Signature methods
+  Copyright (C) 2021 Archie Maclean
+*/
 import { TimeSignatureModel, Denominator } from './model';
 
 import { h } from '../../render/h';

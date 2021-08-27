@@ -1,5 +1,6 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  DemoNote (preview note) methods
+  Copyright (C) 2021 Archie Maclean
  */
 import { NoteLength } from '../Note/model';
 

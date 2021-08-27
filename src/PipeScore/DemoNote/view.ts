@@ -1,5 +1,5 @@
 /*
-   DemoNote/view.ts - a note that previews note placement (i.e. shows what pitch the mouse is hovering over currently)
+   Draw note that previews note placement (i.e. shows what pitch the mouse is hovering over currently)
    Copyright (C) 2021 Archie Maclean
  */
 import { svg, V } from '../../render/h';

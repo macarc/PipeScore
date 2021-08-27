@@ -1,3 +1,7 @@
+/*
+  Play whole score
+  Copyright (C) 2021 Archie Maclean
+*/
 import { ScoreModel } from './model';
 import { PlaybackElement } from '../Playback';
 import { flatten } from '../global/utils';

@@ -1,5 +1,5 @@
 /*
-  PipeScore.ts - the entry point for PipeScore
+  The entry point for PipeScore
   Copyright (C) 2021 Archie Maclean
 */
 import Auth from 'firebase-auth-lite';

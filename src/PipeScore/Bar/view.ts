@@ -1,5 +1,5 @@
 /*
-  Bar/view.ts - defines how to display a bar
+  Display bars, barlines and notes inside bars
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';

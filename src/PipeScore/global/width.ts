@@ -1,4 +1,5 @@
 /*
+  Copyright (C) 2021 Archie Maclean
 
   Widths are dealt with slightly oddly
   They are split into two parts

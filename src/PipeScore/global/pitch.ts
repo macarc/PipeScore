@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  Pitch type and methods
+  Copyright (C) 2021 Archie Maclean
+*/
 import { lineHeightOf } from './constants';
 
 export const enum Pitch {

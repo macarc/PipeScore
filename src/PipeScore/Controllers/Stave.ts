@@ -1,3 +1,7 @@
+/*
+  Controller for stave events
+  Copyright (C) 2021 Archie Maclean
+*/
 import { ScoreEvent, shouldSave, currentBar } from './Controller';
 import { State } from '../State';
 

@@ -1,3 +1,7 @@
+/*
+  Controller for second timing events
+  Copyright (C) 2021 Archie Maclean
+*/
 import {
   ScoreEvent,
   noChange,
@@ -7,7 +11,7 @@ import {
 } from './Controller';
 import { State } from '../State';
 
-import { ID } from '../global/types';
+import { ID } from '../global/id';
 
 import { SecondTimingModel } from '../SecondTiming/model';
 import SecondTiming from '../SecondTiming/functions';

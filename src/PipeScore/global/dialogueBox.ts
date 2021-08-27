@@ -1,10 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
-
-// A simple HTML dialogue box
-// todo: I'm using this more extensively now, could probably do with using VDOM
-
+  A simple HTML dialogue box
+  Copyright (C) 2021 Archie Maclean
+*/
 import { h, hFrom, V } from '../../render/h';
 import patch from '../../render/vdom';
 

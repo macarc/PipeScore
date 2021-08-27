@@ -1,3 +1,7 @@
+/*
+  Controller for playback events
+  Copyright (C) 2021 Archie Maclean
+*/
 import { ScoreEvent, noChange } from './Controller';
 import { State } from '../State';
 

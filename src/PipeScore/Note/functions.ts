@@ -1,8 +1,10 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  Note methods
+  Copyright (C) 2021 Archie Maclean
  */
+import { genId } from '../global/id';
 import { Pitch } from '../global/pitch';
-import { genId, flatten } from '../global/utils';
+import { flatten } from '../global/utils';
 
 import { NoteModel, NoteLength, TripletModel, BaseNote } from './model';
 

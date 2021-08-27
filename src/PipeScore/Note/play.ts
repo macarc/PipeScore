@@ -1,3 +1,7 @@
+/*
+  Play notes
+  Copyright (C) 2021 Archie Maclean
+*/
 import { Pitch } from '../global/pitch';
 
 import { NoteModel, TripletModel } from './model';

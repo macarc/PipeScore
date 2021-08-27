@@ -1,5 +1,5 @@
 /*
-  Score.ts - Score implementation for PipeScore
+  Draw whole score
   Copyright (C) 2021 Archie Maclean
 */
 import { V, svg } from '../../render/h';

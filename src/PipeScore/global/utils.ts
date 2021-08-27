@@ -1,7 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
-import { ID } from './types';
+  General helper functions
+  Copyright (C) 2021 Archie Maclean
+*/
 
 // Log helper functions, make logging easier
 // E.g. x = someThing + (whatIsThis * 3) --> x = something + (log(whatIsThis) * 3)
@@ -23,9 +23,6 @@ export const logf = <A, T extends () => A>(a: T): T => {
 export const unlog = <T>(a: T): T => a;
 export const unlogf = <T>(a: T): T => a;
 export const unlog2 = <T, A>(a: A, b: T): T => b;
-
-// Generate a random ID
-export const genId = (): ID => Math.floor(Math.random() * 100000000);
 
 // Deep copy an object
 export function deepcopy<A>(obj: A): A {

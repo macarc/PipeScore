@@ -1,5 +1,5 @@
 /*
-  Note/view.ts - Note implementation for PipeScore
+  Draw groups of notes/triplets
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';

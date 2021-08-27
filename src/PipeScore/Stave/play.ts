@@ -1,3 +1,7 @@
+/*
+  Play a line of music
+  Copyright (C) 2021 Archie Maclean
+*/
 import { StaveModel } from './model';
 import Stave from './functions';
 

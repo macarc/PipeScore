@@ -1,7 +1,10 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
-import { ID } from './types';
+  Functions for dealing with coordinates
+  - useful for things like dragging, ties, and snap to not
+  - anything where you need to know the coordinates of something else.
+  Copyright (C) 2021 Archie Maclean
+*/
+import { ID } from './id';
 
 interface XY {
   beforeX: number;

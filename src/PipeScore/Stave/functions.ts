@@ -1,5 +1,6 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  Stave methods
+  Copyright (C) 2021 Archie Maclean
  */
 import { replaceIndex } from '../global/utils';
 

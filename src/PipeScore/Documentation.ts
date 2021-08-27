@@ -1,3 +1,7 @@
+/*
+  Documentation - explanations for the UI that are shown on hover
+  Copyright (C) 2021 Archie Maclean
+*/
 const noteDoc = (name: string) => `Click to start inputting ${name} notes
 
 You can also select a note that's already on the score and press this to change it to a ${name}`;

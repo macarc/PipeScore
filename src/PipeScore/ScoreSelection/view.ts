@@ -1,7 +1,7 @@
 /*
-   ScoreSelection/view.ts - selection (orange box)
-   Copyright (C) 2021 Archie Maclean
- */
+  Draw ScoreSelection (orange box around selected items)
+  Copyright (C) 2021 Archie Maclean
+*/
 import { svg, V } from '../../render/h';
 import { lineGap } from '../global/constants';
 import { getXY } from '../global/xy';

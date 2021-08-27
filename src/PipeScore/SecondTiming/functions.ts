@@ -1,7 +1,8 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
-import { ID } from '../global/types';
+  SecondTiming methods
+  Copyright (C) 2021 Archie Maclean
+*/
+import { ID } from '../global/id';
 import { itemBefore } from '../global/xy';
 
 import { SecondTimingModel } from './model';

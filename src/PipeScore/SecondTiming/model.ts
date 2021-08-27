@@ -1,7 +1,8 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
-import { ID } from '../global/types';
+  SecondTiming format
+  Copyright (C) 2021 Archie Maclean
+*/
+import { ID } from '../global/id';
 
 export interface DraggedSecondTiming {
   secondTiming: SecondTimingModel;

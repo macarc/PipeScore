@@ -1,5 +1,5 @@
 /*
-  KeyHandler.ts - dispatches to Controller when key presses occur
+  Dispatches to Controller when key presses occur
   Copyright (C) 2021 Archie Maclean
  */
 import { dispatch } from './Controller';

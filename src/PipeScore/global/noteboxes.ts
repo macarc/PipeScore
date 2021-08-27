@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2021 Archie Maclean
- */
+  Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
+  Copyright (C) 2021 Archie Maclean
+*/
 import { svg, V } from '../../render/h';
 import { lineGap } from './constants';
 import { Pitch, pitchToHeight } from './pitch';
@@ -12,8 +13,6 @@ export function noteBoxes(
   mouseOver: (pitch: Pitch, event: MouseEvent) => void = () => null,
   mouseDown: (pitch: Pitch, event: MouseEvent) => void = () => null
 ): V {
-  // Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
-
   // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap
   // and there are 0 pixel gaps between that can nevertheless be hovered over
   const height = lineGap / 2 + 0.1;

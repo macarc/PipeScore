@@ -1,3 +1,7 @@
+/*
+  Controller for note-related events
+  Copyright (C) 2021 Archie Maclean
+*/
 import {
   ScoreEvent,
   UpdatedState,
@@ -11,7 +15,7 @@ import {
 import { State } from '../State';
 
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
-import { ID, Item } from '../global/types';
+import { ID, Item } from '../global/id';
 import {
   deepcopy,
   flatten,

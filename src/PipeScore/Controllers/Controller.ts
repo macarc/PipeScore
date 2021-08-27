@@ -1,3 +1,7 @@
+/*
+  Types and methods used for multiple controllers
+  Copyright (C) 2021 Archie Maclean
+*/
 import { State } from '../State';
 
 import { BarModel } from '../Bar/model';
@@ -8,7 +12,7 @@ import { StaveModel } from '../Stave/model';
 import Score from '../Score/functions';
 import Stave from '../Stave/functions';
 
-import { ID } from '../global/types';
+import { ID } from '../global/id';
 
 export type ScoreEvent = (state: State) => Promise<UpdatedState>;
 export type Dispatch = (e: ScoreEvent) => void;

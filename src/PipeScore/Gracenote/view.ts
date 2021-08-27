@@ -1,5 +1,5 @@
 /*
-  Gracenote/view.ts - Gracenote implementation for PipeScore
+  Draw gracenotes (singles and embellishments)
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';

@@ -1,5 +1,5 @@
 /*
-  UI.ts - User interface for PipeScore
+  Draw user interface (bar at top with buttons)
   Copyright (C) 2021 Archie Maclean
 */
 import { h, V, Attributes } from '../../render/h';

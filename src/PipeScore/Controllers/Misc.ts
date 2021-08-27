@@ -1,3 +1,7 @@
+/*
+  Controller for miscellaneous events
+  Copyright (C) 2021 Archie Maclean
+*/
 import {
   ScoreEvent,
   shouldSave,

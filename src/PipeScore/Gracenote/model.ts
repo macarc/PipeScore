@@ -1,5 +1,6 @@
 /*
-   Copyright (C) 2021 Archie Maclean
+  Define gracenote format
+  Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
 

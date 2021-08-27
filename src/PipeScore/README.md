@@ -1,15 +1,16 @@
 # PipeScore
 
-This directory contains the implementation of the user interface of PipeScore.
+This directory contains the main implementation of PipeScore - the actual PipeScore logic and view.
 
 ## Project Structure
 
-Each component of a score (e.g. note, gracenote, stave) gets its own folder, with 3-4 files:
+Each component of a score (e.g. note, gracenote, stave) gets its own folder, with 3-5 files:
 
 - `model` - this defines the type associated with the component
 - `functions` - this defines a set of functions for transforming the type defined in model
 - `view` - this defines a render function which takes the model defined in model, along with a props object defined in this file, and returns the virtual dom associated with the view
 - `play` - if the item can be played, then the default export of `play.ts` should be an array of `PlaybackElement`
+- `state` - if the item has state associated with it, the type definition of the state is defined here
 
 The following components are here:
 
@@ -25,11 +26,9 @@ The following components are here:
 - `SecondTiming` - First/second timings
 - `UI` - the top/side panel, containing user controls
 
-PipeScore uses a global controller (in `Controller.ts`) rather than individual controllers for each component because sheet music has a lot of parts that interact very heavily with each other, and it is simpler to have a single controller than separate ones trying to communicate somehow with each other.
+For events, the `dispatch` function is passed down to all the components that need it, and it is called with an event from the `Controller` folder. The `Controller` folder contains a lot of event functions. This is a new rearchitecture so it still needs a bit of cleaning up (e.g. a lot of helper functions are also in the controller files which probably shouldn't be there, also there's a fair amount of filename duplication). The controller files are stored in a separate directory rather than with their respective components since they need knowledge of the whole score in order to update it, not just the single component.
 
 When events are dispatched, all the parts of the score that change are replaced rather than modified. This means that it will be easy to add optimisation later, by doing a simple equality check to see changes. While this isn't actually immutability, it is called that in code comments just to give a name to it.
-
-`Event.ts` defines all the possible events that the controller will take.
 
 To keep track of all the x/y coordinates, there is a global map containing `afterX`/`beforeX`/`y` coordinates of each item. Using a global mutable variable like this means that code duplication is less - for example, when tieing to a previous note, looking up the x value in the map is simple, whereas trying to recalculate where the note was placed introduces more code, and dependency between that code and the code that actually calculated where it was in the first place.
 

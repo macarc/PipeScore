@@ -1,3 +1,7 @@
+/*
+  Play bars
+  Copyright (C) 2021 Archie Maclean
+*/
 import { BarModel } from './model';
 import Bar from './functions';
 

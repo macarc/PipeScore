@@ -1,3 +1,7 @@
+/*
+  Helper to add hoverable documentation to any HTML element
+  Copyright (C) 2021 Archie Maclean
+*/
 import { V } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
 import { hoverDoc } from '../Controllers/Doc';

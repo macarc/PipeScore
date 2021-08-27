@@ -1,5 +1,5 @@
 /*
-  TimeSignature.ts - Time Signature implementation for PipeScore
+  Draw time signature
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
