@@ -6,7 +6,7 @@ import playScore from '../Score/play';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) =>
-    playback(state.playbackState, playScore(state.score)) && noChange(state);
+    playback(state.playback, playScore(state.score)) && noChange(state);
 }
 
 export function stopPlayback(): ScoreEvent {
@@ -17,5 +17,5 @@ export function stopPlayback(): ScoreEvent {
 }
 
 export function setPlaybackBpm(bpm: number): ScoreEvent {
-  return async (state: State) => noChange({ ...state, playbackState: { bpm } });
+  return async (state: State) => noChange({ ...state, playback: { bpm } });
 }

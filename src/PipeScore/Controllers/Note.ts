@@ -69,8 +69,8 @@ function addNote(
   } else {
     noteBefore = where;
   }
-  if (state.demoNote && state.demoNote.type === 'note') {
-    const newNote = Note.init(pitch, state.demoNote.length);
+  if (state.note.demo && state.note.demo.type === 'note') {
+    const newNote = Note.init(pitch, state.note.demo.length);
     return shouldSave({
       ...state,
       score: {
@@ -94,7 +94,7 @@ function addNote(
     });
     // todo - should this need to be done?
     makeCorrectTie(newNote, state.score);
-  } else if (state.demoNote && state.demoNote.type === 'gracenote') {
+  } else if (state.note.demo && state.note.demo.type === 'gracenote') {
     const previousPitch = nmap(noteBefore, (noteBefore) =>
       Note.isTriplet(noteBefore) ? noteBefore.third.pitch : noteBefore.pitch
     );
@@ -140,7 +140,7 @@ function addNote(
         ),
       });
     }
-  } else if (state.inputGracenote) {
+  } else if (state.gracenote.input) {
     const note = nmap(
       noteBefore,
       (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
@@ -150,7 +150,7 @@ function addNote(
         ...state,
         score: changeNoteFrom(
           note.id,
-          { ...note, gracenote: state.inputGracenote },
+          { ...note, gracenote: state.gracenote.input },
           state.score
         ),
       });
@@ -159,7 +159,7 @@ function addNote(
         ...state,
         score: changeNoteFrom(
           note.first.id,
-          { ...note.first, gracenote: state.inputGracenote },
+          { ...note.first, gracenote: state.gracenote.input },
           state.score
         ),
       });
@@ -761,14 +761,17 @@ export function updateDemoNote(
   staveIndex: number | null
 ): ScoreEvent {
   return async (state: State) =>
-    state.demoNote
+    state.note.demo
       ? viewChanged({
           ...state,
-          demoNote: {
-            ...state.demoNote,
-            staveIndex: staveIndex || 0,
-            pitch: (staveIndex !== null || null) && state.demoNote.pitch,
-            x,
+          note: {
+            ...state.note,
+            demo: {
+              ...state.note.demo,
+              staveIndex: staveIndex || 0,
+              pitch: (staveIndex !== null || null) && state.note.demo.pitch,
+              x,
+            },
           },
         })
       : noChange(state);
@@ -919,10 +922,16 @@ export function toggleDot(): ScoreEvent {
         (note) => ({ ...note, length: Note.toggleDot(note.length) }),
         state.score
       ),
-      demoNote:
-        state.demoNote && state.demoNote.type === 'note'
-          ? { ...state.demoNote, length: Note.toggleDot(state.demoNote.length) }
-          : state.demoNote,
+      note:
+        state.note.demo && state.note.demo.type === 'note'
+          ? {
+              ...state.note,
+              demo: {
+                ...state.note.demo,
+                length: Note.toggleDot(state.note.demo.length),
+              },
+            }
+          : state.note,
     });
 }
 export function addNoteAfter(
@@ -938,13 +947,13 @@ export function stopInputtingNotes(): ScoreEvent {
 export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     state = removeTextState(state);
-    if (state.inputGracenote) {
+    if (state.gracenote.input) {
       if (Note.isNoteModel(note)) {
         return shouldSave({
           ...state,
           score: changeNoteFrom(
             note.id,
-            { ...note, gracenote: state.inputGracenote },
+            { ...note, gracenote: state.gracenote.input },
             state.score
           ),
         });
@@ -953,7 +962,7 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
           ...state,
           score: changeTripletNoteFrom(
             note.id,
-            { ...note, gracenote: state.inputGracenote },
+            { ...note, gracenote: state.gracenote.input },
             state.score
           ),
         });
@@ -961,9 +970,8 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
     } else {
       const stateAfterFirstSelection = viewChanged({
         ...state,
-        demoNote: null,
-        draggedNote: note,
         justClickedNote: true,
+        note: { dragged: note, demo: null },
         selection: { start: note.id, end: note.id },
       });
 
@@ -976,17 +984,15 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
           if (itemBefore(state.selection.end, note.id)) {
             return viewChanged({
               ...state,
-              demoNote: null,
               justClickedNote: true,
-              draggedNote: note,
+              note: { dragged: note, demo: null },
               selection: { ...state.selection, end: note.id },
             });
           } else if (itemBefore(note.id, state.selection.start)) {
             return viewChanged({
               ...state,
-              demoNote: null,
               justClickedNote: true,
-              draggedNote: note,
+              note: { dragged: note, demo: null },
               selection: { ...state.selection, start: note.id },
             });
           }
@@ -1010,12 +1016,16 @@ export function setInputLength(length: NoteLength): ScoreEvent {
         (note) => ({ ...note, length: length }),
         state.score
       ),
-      demoNote:
-        !state.demoNote || state.demoNote.type === 'gracenote'
-          ? DemoNote.init(length)
-          : state.demoNote.type === 'note' && state.demoNote.length !== length
-          ? { ...state.demoNote, length }
-          : state.demoNote,
+      note: {
+        ...state.note,
+        demo:
+          !state.note.demo || state.note.demo.type === 'gracenote'
+            ? DemoNote.init(length)
+            : state.note.demo.type === 'note' &&
+              state.note.demo.length !== length
+            ? { ...state.note.demo, length }
+            : state.note.demo,
+      },
     });
 }
 export function copy(): ScoreEvent {

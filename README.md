@@ -46,7 +46,6 @@ $ ./scripts/linecount.zsh
 You will need:
 
 - `pandoc`
-- `m4`
 - `python3` (and `pip3`)
 - `npm`
 - `tsc`

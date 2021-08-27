@@ -20,28 +20,19 @@ import renderUI from './UI/view';
 import Documentation from './Documentation';
 
 let state: State = {
-  draggedNote: null,
-  gracenoteState: { dragged: null, selected: null },
-  playbackState: { bpm: 100 },
-  currentMenu: 'normal',
-  zoomLevel: 0,
-  textBoxState: { selectedText: null },
-  currentDocumentation: null,
-  showDocumentation: true,
   justClickedNote: false,
-  inputGracenote: null,
-  interfaceWidth: 300,
-  demoNote: null,
+  note: { dragged: null, demo: null },
+  gracenote: { dragged: null, selected: null, input: null },
+  playback: { bpm: 100 },
+  ui: { menu: 'normal', zoom: 0 },
+  text: { selected: null, dragged: null },
+  secondTiming: { selected: null, dragged: null },
+  doc: { show: true, current: null },
   clipboard: null,
   selection: null,
-  selectedSecondTiming: null,
-  draggedText: null,
-  draggedSecondTiming: null,
   score: Score.init(),
-  history: [],
-  future: [],
-  view: null,
-  uiView: null,
+  history: { past: [], future: [] },
+  view: { score: null, ui: null },
 };
 
 let save: (score: ScoreModel) => void = () => null;
@@ -55,8 +46,8 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
         state.score.name = state.score.textBoxes[0].text;
       }
       const asJSON = JSON.stringify(state.score);
-      if (state.history[state.history.length - 1] !== asJSON) {
-        state.history.push(asJSON);
+      if (state.history.past[state.history.past.length - 1] !== asJSON) {
+        state.history.past.push(asJSON);
         save(state.score);
       }
     }
@@ -71,39 +62,39 @@ const updateView = (state: State) => {
   if (!scoreRoot || !uiRoot) return;
 
   const scoreProps = {
-    zoomLevel: state.zoomLevel,
+    zoomLevel: state.ui.zoom,
     selection: state.selection,
-    selectedSecondTiming: state.selectedSecondTiming,
+    selectedSecondTiming: state.secondTiming.selected,
     noteState: {
-      dragged: state.draggedNote,
-      inputtingNotes: state.demoNote !== null || state.inputGracenote !== null,
+      dragged: state.note.dragged,
+      inputtingNotes:
+        state.note.demo !== null || state.gracenote.input !== null,
     },
-    gracenoteState: state.gracenoteState,
-    textBoxState: state.textBoxState,
-    demoNote: state.demoNote,
+    gracenoteState: state.gracenote,
+    textBoxState: { selectedText: state.text.selected },
     dispatch,
+    demoNote: state.note.demo,
   };
   const uiProps = {
-    zoomLevel: state.zoomLevel,
+    zoomLevel: state.ui.zoom,
     inputLength:
-      state.demoNote && state.demoNote.type === 'note'
-        ? state.demoNote.length
+      state.note.demo && state.note.demo.type === 'note'
+        ? state.note.demo.length
         : null,
-    docs: state.showDocumentation
-      ? Documentation.get(state.currentDocumentation || '') ||
+    docs: state.doc.show
+      ? Documentation.get(state.doc.current || '') ||
         'Hover over different icons to view Help here.'
       : null,
-    currentMenu: state.currentMenu,
-    playbackBpm: state.playbackState.bpm,
-    width: state.interfaceWidth,
-    gracenoteInput: state.inputGracenote,
+    currentMenu: state.ui.menu,
+    playbackBpm: state.playback.bpm,
+    gracenoteInput: state.gracenote.input,
   };
   const newView = h('div', [renderScore(state.score, scoreProps)]);
   const newUIView = renderUI(dispatch, uiProps);
-  if (state.view) patch(state.view, newView);
-  if (state.uiView) patch(state.uiView, newUIView);
-  state.view = newView;
-  state.uiView = newUIView;
+  if (state.view.score) patch(state.view.score, newView);
+  if (state.view.ui) patch(state.view.ui, newUIView);
+  state.view.score = newView;
+  state.view.ui = newUIView;
 };
 
 function mouseMove(event: MouseEvent) {
@@ -111,7 +102,7 @@ function mouseMove(event: MouseEvent) {
   // - registers a mouse dragged event if the mouse button is held down
   // - moves demo note (if necessary)
   const mouseButtonIsDown = event.buttons === 1;
-  if (mouseButtonIsDown || state.demoNote !== null) {
+  if (mouseButtonIsDown || state.note.demo !== null) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -127,7 +118,7 @@ function mouseMove(event: MouseEvent) {
       // If the left mouse button is held down
       if (event.buttons === 1) {
         dispatch(mouseDrag(svgPt.x, svgPt.y));
-      } else if (state.demoNote) {
+      } else if (state.note.demo) {
         const newStaveIndex = coordinateToStaveIndex(svgPt.y);
         dispatch(updateDemoNote(svgPt.x, newStaveIndex));
       }
@@ -143,13 +134,13 @@ export default function startController(
 
   save = saveDB;
   state.score = score;
-  state.history = [JSON.parse(JSON.stringify(score))];
-  state.zoomLevel =
+  state.history.past = [JSON.parse(JSON.stringify(score))];
+  state.ui.zoom =
     (100 * 0.9 * (Math.max(window.innerWidth, 800) - 300)) / score.width;
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
   // initially set the notes to be the right groupings
-  state.view = hFrom('score');
-  state.uiView = hFrom('ui');
+  state.view.score = hFrom('score');
+  state.view.ui = hFrom('ui');
   updateView(state);
 }

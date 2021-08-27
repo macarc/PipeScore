@@ -16,10 +16,10 @@ import renderScore from '../Score/view';
 
 import dialogueBox from '../global/dialogueBox';
 
-export function changeZoomLevel(zoomLevel: number): ScoreEvent {
+export function changeZoomLevel(zoom: number): ScoreEvent {
   return async (state: State) =>
-    zoomLevel !== state.zoomLevel
-      ? viewChanged({ ...state, zoomLevel })
+    zoom !== state.ui.zoom
+      ? viewChanged({ ...state, ui: { ...state.ui, zoom } })
       : noChange(state);
 }
 
@@ -28,9 +28,9 @@ export function setMenu(menu: Menu): ScoreEvent {
   return async (state: State) =>
     viewChanged({
       ...state,
-      currentMenu: menu,
-      demoNote: null,
-      inputGracenote: null,
+      ui: { ...state.ui, menu },
+      note: { ...state.note, demo: null },
+      gracenote: { ...state.gracenote, input: null },
     });
 }
 
@@ -39,7 +39,10 @@ export function toggleLandscape(): ScoreEvent {
     const initialWidth = state.score.width;
     return shouldSave({
       ...state,
-      zoomLevel: (state.zoomLevel * state.score.height) / state.score.width,
+      ui: {
+        ...state.ui,
+        zoom: (state.ui.zoom * state.score.height) / state.score.width,
+      },
       score: {
         ...state.score,
         width: state.score.height,
@@ -60,14 +63,19 @@ export function toggleLandscape(): ScoreEvent {
 export function undo(): ScoreEvent {
   return async (state: State) => {
     // TODO is this check necessary?
-    if (state.history.length > 1) {
-      const last = state.history.pop();
-      const beforeLast = state.history.pop();
+    if (state.history.past.length > 1) {
+      const last = state.history.past.pop();
+      const beforeLast = state.history.past.pop();
       if (beforeLast) {
         return shouldSave({
           ...removeState(state),
           score: JSON.parse(beforeLast),
-          future: last ? [...state.future, last] : state.future,
+          history: {
+            ...state.history,
+            future: last
+              ? [...state.history.future, last]
+              : state.history.future,
+          },
         });
       }
     }
@@ -77,7 +85,7 @@ export function undo(): ScoreEvent {
 
 export function redo(): ScoreEvent {
   return async (state: State) => {
-    const last = state.future.pop();
+    const last = state.history.future.pop();
     if (last) {
       return shouldSave({
         ...removeState(state),

@@ -46,22 +46,19 @@ export function removeState(state: State): State {
 
   return {
     ...state,
-    draggedNote: null,
-    gracenoteState: { ...state.gracenoteState, dragged: null, selected: null },
-    textBoxState: { ...state.textBoxState, selectedText: null },
+    note: { ...state.note, dragged: null },
+    gracenote: { ...state.gracenote, dragged: null, selected: null },
+    secondTiming: { selected: null, dragged: null },
+    text: { dragged: null, selected: null },
     selection: null,
-    selectedSecondTiming: null,
-    draggedText: null,
-    draggedSecondTiming: null,
   };
 }
 
 export function removeNoteState(state: State): State {
   return {
     ...state,
-    demoNote: null,
-    draggedNote: null,
-    inputGracenote: null,
+    note: { demo: null, dragged: null },
+    gracenote: { ...state.gracenote, input: null },
     selection: null,
   };
 }
@@ -69,8 +66,7 @@ export function removeNoteState(state: State): State {
 export function removeTextState(state: State): State {
   return {
     ...state,
-    draggedText: null,
-    textBoxState: { ...state.textBoxState, selectedText: null },
+    text: { dragged: null, selected: null },
   };
 }
 

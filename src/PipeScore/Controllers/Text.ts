@@ -48,7 +48,7 @@ export function changeText(
       return shouldSave({
         ...state,
         score: replaceTextBox(state.score, text, newTextBox),
-        textBoxState: { ...state.textBoxState, selectedText: newTextBox },
+        text: { ...state.text, selected: newTextBox },
       });
     }
     return noChange(state);
@@ -59,27 +59,21 @@ export function clickText(text: TextBoxModel): ScoreEvent {
   return async (state: State) =>
     viewChanged({
       ...removeNoteState(state),
-      textBoxState: { ...state.textBoxState, selectedText: text },
-      draggedText: text,
+      text: { dragged: text, selected: text },
     });
 }
 
 export function centreText(): ScoreEvent {
   return async (state: State) => {
-    if (state.textBoxState.selectedText !== null) {
+    if (state.text.selected !== null) {
       const newText = TextBox.toggleCentre(
-        state.textBoxState.selectedText,
+        state.text.selected,
         state.score.width
       );
       return shouldSave({
         ...state,
-        score: replaceTextBox(
-          state.score,
-          state.textBoxState.selectedText,
-          newText
-        ),
-        textBoxState: { ...state.textBoxState, selectedText: newText },
-        draggedText: null,
+        score: replaceTextBox(state.score, state.text.selected, newText),
+        text: { dragged: null, selected: newText },
       });
     }
     return noChange(state);
@@ -87,5 +81,6 @@ export function centreText(): ScoreEvent {
 }
 
 export function textMouseUp(): ScoreEvent {
-  return async (state: State) => shouldSave({ ...state, draggedText: null });
+  return async (state: State) =>
+    shouldSave({ ...state, text: { ...state.text, dragged: null } });
 }

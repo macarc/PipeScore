@@ -42,9 +42,9 @@ export function clickGracenote(gracenote: GracenoteModel): ScoreEvent {
     viewChanged({
       ...state,
       justClickedNote: true,
-      demoNote: null,
-      gracenoteState: {
-        ...state.gracenoteState,
+      note: { ...state.note, demo: null },
+      gracenote: {
+        ...state.gracenote,
         selected: gracenote,
         dragged: gracenote.type === 'single' ? gracenote : null,
       },
@@ -69,11 +69,14 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
         })
       : viewChanged({
           ...state,
-          inputGracenote: newGracenote,
-          demoNote:
-            newGracenote.type === 'single'
-              ? DemoNote.initDemoGracenote()
-              : null,
+          gracenote: { ...state.gracenote, input: newGracenote },
+          note: {
+            ...state.note,
+            demo:
+              newGracenote.type === 'single'
+                ? DemoNote.initDemoGracenote()
+                : null,
+          },
         });
   };
 }
@@ -84,7 +87,7 @@ export function addGracenoteToTriplet(
   pitch: Pitch
 ): ScoreEvent {
   return async (state: State) => {
-    if (state.demoNote && state.demoNote.type === 'gracenote') {
+    if (state.note.demo && state.note.demo.type === 'gracenote') {
       const previousPitch =
         which === 'second' ? triplet.first.pitch : triplet.second.pitch;
       return shouldSave({
@@ -103,12 +106,12 @@ export function addGracenoteToTriplet(
           state.score
         ),
       });
-    } else if (state.inputGracenote) {
+    } else if (state.gracenote.input) {
       return shouldSave({
         ...state,
         score: changeNoteFrom(
           triplet[which].id,
-          { ...triplet[which], gracenote: state.inputGracenote },
+          { ...triplet[which], gracenote: state.gracenote.input },
           state.score
         ),
       });

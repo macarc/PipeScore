@@ -55,7 +55,9 @@ export function clickSecondTiming(
   return async (state: State) =>
     viewChanged({
       ...state,
-      draggedSecondTiming: { secondTiming, dragged: part },
-      selectedSecondTiming: secondTiming,
+      secondTiming: {
+        dragged: { secondTiming, dragged: part },
+        selected: secondTiming,
+      },
     });
 }
