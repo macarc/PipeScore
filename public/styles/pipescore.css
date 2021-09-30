@@ -27,6 +27,9 @@ button {
   margin: 0.2rem;
   cursor: pointer;
 }
+button:active {
+  border: 1px solid grey;
+}
 input[type='range'] {
   display: block;
 }
@@ -56,6 +59,9 @@ input[type='range'] {
 #menu button {
   height: 2rem;
   margin: 0;
+}
+#menu button:active {
+  border-bottom: none;
 }
 
 #menu .selected {
@@ -204,11 +210,6 @@ h2 {
 
 #paste {
   background-image: url('/images/paste.svg');
-}
-
-#copy:active,
-#paste:active {
-  background-color: yellow !important;
 }
 
 #centre-text {

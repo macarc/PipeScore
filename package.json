@@ -1,8 +1,7 @@
 {
-  "name": "PipeScore",
+  "name": "pipescore",
   "version": "0.5.0",
   "description": "A web-based bagpipe notation app.",
-  "main": "PipeScore.ts",
   "scripts": {
     "deploy": "firebase deploy",
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",

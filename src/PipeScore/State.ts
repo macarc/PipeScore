@@ -15,10 +15,6 @@ import { ScoreModel } from './Score/model';
 import { SecondTimingModel } from './SecondTiming/model';
 import { ScoreSelectionModel } from './ScoreSelection/model';
 
-import { NoteState } from './Note/state';
-import { GracenoteState } from './Gracenote/state';
-import { TextBoxState } from './TextBox/state';
-
 export interface State {
   justClickedNote: boolean;
   note: {

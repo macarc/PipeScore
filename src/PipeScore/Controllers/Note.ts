@@ -77,7 +77,8 @@ function addNote(
     const newNote = Note.init(pitch, state.note.demo.length);
     return shouldSave({
       ...state,
-      score: {
+      // todo - should we need to correct tie?
+      score: makeCorrectTie(newNote, {
         ...state.score,
         staves: replace(stave, 1, state.score.staves, {
           ...stave,
@@ -94,10 +95,8 @@ function addNote(
             ),
           }),
         }),
-      },
+      }),
     });
-    // todo - should this need to be done?
-    makeCorrectTie(newNote, state.score);
   } else if (state.note.demo && state.note.demo.type === 'gracenote') {
     const previousPitch = nmap(noteBefore, (noteBefore) =>
       Note.isTriplet(noteBefore) ? noteBefore.third.pitch : noteBefore.pitch
@@ -333,7 +332,7 @@ function previousNote(id: ID, score: ScoreModel): ID | null {
 function makeCorrectTie(
   noteModel: NoteModel | TripletModel,
   score: ScoreModel
-) {
+): ScoreModel {
   // Corrects the pitches of any notes tied to noteModel
 
   const bars = Score.bars(score);
@@ -375,6 +374,8 @@ function makeCorrectTie(
       }
     }
   }
+
+  return score;
 }
 
 function pasteNotes(
@@ -562,7 +563,7 @@ export function noteMap(
             bar.notes[k] = { ...newNote };
             stave.bars[j] = { ...bar };
             score.staves[i] = { ...stave };
-            makeCorrectTie(newNote, score);
+            score = makeCorrectTie(newNote, score);
           });
           if (done) return score;
         } else if (Note.isTriplet(n)) {
@@ -571,7 +572,7 @@ export function noteMap(
               bar.notes[k] = { ...newTriplet };
               stave.bars[j] = { ...bar };
               score.staves[i] = { ...stave };
-              makeCorrectTie(newTriplet, score);
+              score = makeCorrectTie(newTriplet, score);
             });
             if (done) return score;
           } else if (coerceToBaseCallback(f)) {
@@ -582,7 +583,7 @@ export function noteMap(
               stave.bars[j] = { ...bar };
               score.staves[i] = { ...stave };
 
-              makeCorrectTie(n, score);
+              score = makeCorrectTie(n, score);
             });
             if (done) return score;
             done = f(n.second, (newNote: BaseNote) => {
@@ -600,7 +601,7 @@ export function noteMap(
               stave.bars[j] = { ...bar };
               score.staves[i] = { ...stave };
 
-              makeCorrectTie(n, score);
+              score = makeCorrectTie(n, score);
             });
             if (done) return score;
           }
