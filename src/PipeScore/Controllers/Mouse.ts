@@ -26,45 +26,44 @@ import TextBox from '../TextBox/functions';
 import { Pitch } from '../global/pitch';
 import { replace } from '../global/utils';
 import { closestItem } from '../global/xy';
+import { TextBoxModel } from '../TextBox/model';
+import { GracenoteModel } from '../Gracenote/model';
+import { SecondTimingModel } from '../SecondTiming/model';
+
+const deleteGracenote = (gracenote: GracenoteModel, state: State) => ({
+  ...state,
+  score: changeGracenoteFrom(gracenote, { type: 'none' }, state.score),
+  gracenote: { ...state.gracenote, selected: null },
+});
+
+const deleteText = (text: TextBoxModel, state: State) => ({
+  ...state,
+  score: {
+    ...state.score,
+    textBoxes: replace(text, 1, state.score.textBoxes),
+  },
+  text: { dragged: null, selected: null },
+});
+
+const deleteSecondTiming = (secondTiming: SecondTimingModel, state: State) => ({
+  ...state,
+  score: {
+    ...state.score,
+    secondTimings: replace(secondTiming, 1, state.score.secondTimings),
+  },
+  secondTiming: { ...state.secondTiming, dragged: null },
+});
 
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.gracenote.selected) {
-      return shouldSave({
-        ...state,
-        score: changeGracenoteFrom(
-          state.gracenote.selected,
-          { type: 'none' },
-          state.score
-        ),
-      });
-    }
-    if (state.selection) {
+      return shouldSave(deleteGracenote(state.gracenote.selected, state));
+    } else if (state.selection) {
       return shouldSave(deleteSelectedNotes(state));
-    }
-    if (state.text.selected !== null) {
-      return shouldSave({
-        ...state,
-        score: {
-          ...state.score,
-          textBoxes: replace(state.text.selected, 1, state.score.textBoxes),
-        },
-        text: { dragged: null, selected: null },
-      });
-    }
-    if (state.secondTiming.selected) {
-      return shouldSave({
-        ...state,
-        score: {
-          ...state.score,
-          secondTimings: replace(
-            state.secondTiming.selected,
-            1,
-            state.score.secondTimings
-          ),
-        },
-        secondTiming: { ...state.secondTiming, dragged: null },
-      });
+    } else if (state.text.selected !== null) {
+      return shouldSave(deleteText(state.text.selected, state));
+    } else if (state.secondTiming.selected) {
+      return shouldSave(deleteSecondTiming(state.secondTiming.selected, state));
     }
 
     return noChange(state);
