@@ -13,7 +13,6 @@ import { State } from './State';
 import { ScoreModel } from './Score/model';
 
 import Score from './Score/functions';
-import Selection from './Selection/functions';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';

@@ -6,8 +6,8 @@ import { h, svg, V } from '../../render/h';
 import { lineGap } from '../global/constants';
 import { getXY } from '../global/xy';
 
-import { SelectionModel } from './model';
-import Selection from './functions';
+import { ScoreSelection, SelectionModel } from './model';
+import { TextSelection } from '../Selection/model';
 
 interface ScoreSelectionProps {
   staveStartX: number;
@@ -19,7 +19,7 @@ export default function render(
   selection: SelectionModel,
   props: ScoreSelectionProps
 ): V {
-  if (Selection.isScoreSelection(selection)) {
+  if (selection instanceof ScoreSelection) {
     const start = getXY(selection.start);
     const end = getXY(selection.end);
     if (!start || !end) {
@@ -81,7 +81,7 @@ export default function render(
         }),
       ]);
     }
-  } else if (Selection.isTextSelection(selection)) {
+  } else if (selection instanceof TextSelection) {
     // TODO
     return h('g', ['Unimplemented']);
   } else {

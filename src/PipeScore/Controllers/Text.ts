@@ -13,10 +13,10 @@ import { State } from '../State';
 import { replace } from '../global/utils';
 
 import TextBox from '../TextBox/functions';
-import Selection from '../Selection/functions';
 
 import { TextBoxModel } from '../TextBox/model';
 import { ScoreModel } from '../Score/model';
+import { TextSelection } from '../Selection/model';
 
 export function replaceTextBox(
   score: ScoreModel,
@@ -54,7 +54,7 @@ export function changeText(
       return shouldSave({
         ...state,
         score: replaceTextBox(state.score, text, newTextBox),
-        selection: Selection.textSelection(newTextBox),
+        selection: new TextSelection(newTextBox),
       });
     }
     return noChange(state);
@@ -66,13 +66,13 @@ export function clickText(text: TextBoxModel): ScoreEvent {
     viewChanged({
       ...removeNoteState(state),
       draggedText: text,
-      selection: Selection.textSelection(text),
+      selection: new TextSelection(text),
     });
 }
 
 export function centreText(): ScoreEvent {
   return async (state: State) => {
-    if (Selection.isTextSelection(state.selection)) {
+    if (state.selection instanceof TextSelection) {
       const newText = TextBox.toggleCentre(
         state.selection.text,
         state.score.width
@@ -81,7 +81,7 @@ export function centreText(): ScoreEvent {
         ...state,
         score: replaceTextBox(state.score, state.selection.text, newText),
         draggedText: null,
-        selection: Selection.textSelection(newText),
+        selection: new TextSelection(newText),
       });
     }
     return noChange(state);

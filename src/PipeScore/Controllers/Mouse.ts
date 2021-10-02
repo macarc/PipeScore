@@ -18,7 +18,6 @@ import { replaceTextBox } from './Text';
 
 import SecondTiming from '../SecondTiming/functions';
 import TextBox from '../TextBox/functions';
-import Selection from '../Selection/functions';
 
 import { Pitch } from '../global/pitch';
 import { replace } from '../global/utils';
@@ -26,6 +25,7 @@ import { closestItem } from '../global/xy';
 import { TextBoxModel } from '../TextBox/model';
 import { GracenoteModel } from '../Gracenote/model';
 import { DraggedSecondTiming, SecondTimingModel } from '../SecondTiming/model';
+import { ScoreSelection, TextSelection } from '../Selection/model';
 
 const deleteGracenote = (gracenote: GracenoteModel, state: State) => ({
   ...state,
@@ -55,9 +55,9 @@ export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.gracenote.selected) {
       return shouldSave(deleteGracenote(state.gracenote.selected, state));
-    } else if (Selection.isScoreSelection(state.selection)) {
+    } else if (state.selection instanceof ScoreSelection) {
       return shouldSave(deleteSelectedNotes(state));
-    } else if (Selection.isTextSelection(state.selection)) {
+    } else if (state.selection instanceof TextSelection) {
       return shouldSave(deleteText(state.selection.text, state));
     } else if (state.secondTiming.selected) {
       return shouldSave(deleteSecondTiming(state.secondTiming.selected, state));
@@ -166,7 +166,7 @@ export function mouseDrag(x: number, y: number): ScoreEvent {
         ...state,
         score: replaceTextBox(state.score, state.draggedText, newText),
         draggedText: newText,
-        selection: Selection.textSelection(newText),
+        selection: new TextSelection(newText),
       });
     }
     return noChange(state);

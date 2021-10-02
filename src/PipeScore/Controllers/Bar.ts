@@ -18,10 +18,10 @@ import { TimeSignatureModel } from '../TimeSignature/model';
 import Score from '../Score/functions';
 import Stave from '../Stave/functions';
 import TimeSignature from '../TimeSignature/functions';
-import Selection from '../Selection/functions';
 
 import { replace } from '../global/utils';
 import { itemBefore } from '../global/xy';
+import { ScoreSelection } from '../Selection/model';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignatureModel,
@@ -63,7 +63,7 @@ export function editTimeSignature(
 }
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
-    if (Selection.isScoreSelection(state.selection)) {
+    if (state.selection instanceof ScoreSelection) {
       const { bar, stave } = location(state.selection.start, state.score);
       return shouldSave({
         ...state,
@@ -84,7 +84,7 @@ export function addAnacrusis(before: boolean): ScoreEvent {
 
 export function addBar(before: boolean): ScoreEvent {
   return async (state: State) => {
-    if (Selection.isScoreSelection(state.selection)) {
+    if (state.selection instanceof ScoreSelection) {
       const { bar, stave } = location(state.selection.start, state.score);
       return shouldSave({
         ...state,
@@ -105,7 +105,7 @@ export function addBar(before: boolean): ScoreEvent {
 
 export function clickBar(bar: BarModel, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
-    if (mouseEvent.shiftKey && Selection.isScoreSelection(state.selection)) {
+    if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
       if (itemBefore(state.selection.end, bar.id)) {
         return viewChanged({
           ...state,
@@ -120,7 +120,7 @@ export function clickBar(bar: BarModel, mouseEvent: MouseEvent): ScoreEvent {
     }
     return viewChanged({
       ...state,
-      selection: Selection.scoreSelection(bar.id, bar.id),
+      selection: new ScoreSelection(bar.id, bar.id),
     });
   };
 }
@@ -130,7 +130,7 @@ export function setBarRepeat(
   what: Barline
 ): ScoreEvent {
   return async (state: State) => {
-    if (Selection.isScoreSelection(state.selection)) {
+    if (state.selection instanceof ScoreSelection) {
       const { bar, stave } = location(state.selection.start, state.score);
 
       return shouldSave({
@@ -153,7 +153,7 @@ export function setBarRepeat(
 
 export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
-    if (Selection.isScoreSelection(state.selection)) {
+    if (state.selection instanceof ScoreSelection) {
       const { bar } = location(state.selection.start, state.score);
       const newTimeSignature = await TimeSignature.getNewInput(
         bar.timeSignature

@@ -9,16 +9,21 @@ import { TextBoxModel } from '../TextBox/model';
 
 export type SelectionModel = ScoreSelection | TextSelection;
 
-export type ScoreSelection = {
-  type: 'score selected';
-  start: ID;
-  end: ID;
-};
+export class ScoreSelection {
+  public start: ID;
+  public end: ID;
+  constructor(start: ID, end: ID) {
+    this.start = start;
+    this.end = end;
+  }
+}
 
-export type TextSelection = {
-  type: 'text selected';
-  text: TextBoxModel;
-};
+export class TextSelection {
+  public text: TextBoxModel;
+  constructor(text: TextBoxModel) {
+    this.text = text;
+  }
+}
 
 export type SecondTimingSelection = {
   type: 'second timing selected';

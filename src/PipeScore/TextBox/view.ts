@@ -6,12 +6,10 @@ import { svg, h, V } from '../../render/h';
 
 import dialogueBox from '../global/dialogueBox';
 
-import Selection from '../Selection/functions';
-
 import { Dispatch } from '../Controllers/Controller';
 import { clickText, changeText, textMouseUp } from '../Controllers/Text';
 import { TextBoxModel } from './model';
-import { SelectionModel } from '../Selection/model';
+import { SelectionModel, TextSelection } from '../Selection/model';
 
 interface TextBoxProps {
   dispatch: Dispatch;
@@ -49,7 +47,7 @@ function editText(dispatch: Dispatch, currentText: TextBoxModel) {
 
 export default function render(tx: TextBoxModel, props: TextBoxProps): V {
   const selected =
-    Selection.isTextSelection(props.selection) && props.selection.text === tx;
+    props.selection instanceof TextSelection && props.selection.text === tx;
   return svg(
     'text',
     {

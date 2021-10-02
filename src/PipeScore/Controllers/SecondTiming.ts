@@ -10,7 +10,7 @@ import {
   location,
 } from './Controller';
 import { State } from '../State';
-import Selection from '../Selection/functions';
+import { ScoreSelection } from '../Selection/model';
 
 import { ID } from '../global/id';
 
@@ -19,7 +19,7 @@ import SecondTiming from '../SecondTiming/functions';
 
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
-    if (Selection.isScoreSelection(state.selection)) {
+    if (state.selection instanceof ScoreSelection) {
       const { bar: start } = location(state.selection.start, state.score);
       let middle: ID | null = null;
       let end: ID | null = null;

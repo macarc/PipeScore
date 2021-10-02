@@ -14,6 +14,7 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@babel/parser": "^7.15.7",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
     "esbuild": "^0.9.0",
@@ -21,7 +22,7 @@
     "firebase-auth-lite": "^0.8.8",
     "firebase-firestore-lite": "^1.0.3",
     "firebase-tools": "^9.3.0",
-    "madge": "^4.0.0",
+    "madge": "^4.0.2",
     "prettier": "^2.3.2",
     "typescript": "^4.1.3"
   }
