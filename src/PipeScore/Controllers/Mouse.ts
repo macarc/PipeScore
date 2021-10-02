@@ -18,6 +18,7 @@ import { replaceTextBox } from './Text';
 
 import SecondTiming from '../SecondTiming/functions';
 import TextBox from '../TextBox/functions';
+import Selection from '../Selection/functions';
 
 import { Pitch } from '../global/pitch';
 import { replace } from '../global/utils';
@@ -54,10 +55,10 @@ export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.gracenote.selected) {
       return shouldSave(deleteGracenote(state.gracenote.selected, state));
-    } else if (state.selection) {
+    } else if (Selection.isScoreSelection(state.selection)) {
       return shouldSave(deleteSelectedNotes(state));
-    } else if (state.text.selected !== null) {
-      return shouldSave(deleteText(state.text.selected, state));
+    } else if (Selection.isTextSelection(state.selection)) {
+      return shouldSave(deleteText(state.selection.text, state));
     } else if (state.secondTiming.selected) {
       return shouldSave(deleteSecondTiming(state.secondTiming.selected, state));
     }
@@ -95,13 +96,13 @@ export function mouseUp(): ScoreEvent {
   return async (state: State) =>
     state.note.dragged ||
     state.gracenote.dragged ||
-    state.text.dragged ||
+    state.draggedText ||
     state.secondTiming.dragged
       ? shouldSave({
           ...state,
           note: { ...state.note, dragged: null },
           gracenote: { ...state.gracenote, dragged: null },
-          text: { ...state.text, dragged: null },
+          draggedText: null,
           secondTiming: { ...state.secondTiming, dragged: null },
         })
       : noChange(state);
@@ -154,17 +155,18 @@ export function mouseDrag(x: number, y: number): ScoreEvent {
     if (state.secondTiming.dragged) {
       return dragSecondTiming(state.secondTiming.dragged, x, y, state);
     } else if (
-      state.text.dragged !== null &&
+      state.draggedText !== null &&
       x < state.score.width &&
       x > 0 &&
       y < state.score.height &&
       y > 0
     ) {
-      const newText = TextBox.setCoords(state.text.dragged, x, y);
+      const newText = TextBox.setCoords(state.draggedText, x, y);
       return viewChanged({
         ...state,
-        score: replaceTextBox(state.score, state.text.dragged, newText),
-        text: { dragged: newText, selected: newText },
+        score: replaceTextBox(state.score, state.draggedText, newText),
+        draggedText: newText,
+        selection: Selection.textSelection(newText),
       });
     }
     return noChange(state);

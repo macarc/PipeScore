@@ -6,15 +6,17 @@ import { svg, h, V } from '../../render/h';
 
 import dialogueBox from '../global/dialogueBox';
 
+import Selection from '../Selection/functions';
+
 import { Dispatch } from '../Controllers/Controller';
 import { clickText, changeText, textMouseUp } from '../Controllers/Text';
 import { TextBoxModel } from './model';
-import { TextBoxState } from './state';
+import { SelectionModel } from '../Selection/model';
 
 interface TextBoxProps {
   dispatch: Dispatch;
   scoreWidth: number;
-  state: TextBoxState;
+  selection: SelectionModel | null;
 }
 
 function editText(dispatch: Dispatch, currentText: TextBoxModel) {
@@ -46,6 +48,8 @@ function editText(dispatch: Dispatch, currentText: TextBoxModel) {
 }
 
 export default function render(tx: TextBoxModel, props: TextBoxProps): V {
+  const selected =
+    Selection.isTextSelection(props.selection) && props.selection.text === tx;
   return svg(
     'text',
     {
@@ -53,7 +57,7 @@ export default function render(tx: TextBoxModel, props: TextBoxProps): V {
       y: tx.y,
       style: `font-size: ${tx.size}px`,
       'text-anchor': 'middle',
-      fill: tx === props.state.selectedText ? 'orange' : '',
+      fill: selected ? 'orange' : '',
     },
     {
       dblclick: () => editText(props.dispatch, tx),

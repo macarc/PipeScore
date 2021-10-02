@@ -13,6 +13,7 @@
 - [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
 - [ ] Can't add gracenote before very first note
 - [ ] Selecting a gracenote then deleting retains the selection box
+- [ ] Merge gracenote.selected, secondTiming.selected, and maybe dragged items? into selection
 
 ## General features
 

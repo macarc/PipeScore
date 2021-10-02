@@ -12,8 +12,10 @@ import {
 import { State } from '../State';
 import { replace } from '../global/utils';
 
-import { TextBoxModel } from '../TextBox/model';
 import TextBox from '../TextBox/functions';
+import Selection from '../Selection/functions';
+
+import { TextBoxModel } from '../TextBox/model';
 import { ScoreModel } from '../Score/model';
 
 export function replaceTextBox(
@@ -52,7 +54,7 @@ export function changeText(
       return shouldSave({
         ...state,
         score: replaceTextBox(state.score, text, newTextBox),
-        text: { ...state.text, selected: newTextBox },
+        selection: Selection.textSelection(newTextBox),
       });
     }
     return noChange(state);
@@ -63,21 +65,23 @@ export function clickText(text: TextBoxModel): ScoreEvent {
   return async (state: State) =>
     viewChanged({
       ...removeNoteState(state),
-      text: { dragged: text, selected: text },
+      draggedText: text,
+      selection: Selection.textSelection(text),
     });
 }
 
 export function centreText(): ScoreEvent {
   return async (state: State) => {
-    if (state.text.selected !== null) {
+    if (Selection.isTextSelection(state.selection)) {
       const newText = TextBox.toggleCentre(
-        state.text.selected,
+        state.selection.text,
         state.score.width
       );
       return shouldSave({
         ...state,
-        score: replaceTextBox(state.score, state.text.selected, newText),
-        text: { dragged: null, selected: newText },
+        score: replaceTextBox(state.score, state.selection.text, newText),
+        draggedText: null,
+        selection: Selection.textSelection(newText),
       });
     }
     return noChange(state);
@@ -85,6 +89,5 @@ export function centreText(): ScoreEvent {
 }
 
 export function textMouseUp(): ScoreEvent {
-  return async (state: State) =>
-    shouldSave({ ...state, text: { ...state.text, dragged: null } });
+  return async (state: State) => shouldSave({ ...state, draggedText: null });
 }

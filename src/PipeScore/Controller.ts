@@ -13,6 +13,7 @@ import { State } from './State';
 import { ScoreModel } from './Score/model';
 
 import Score from './Score/functions';
+import Selection from './Selection/functions';
 
 import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
@@ -25,7 +26,7 @@ let state: State = {
   gracenote: { dragged: null, selected: null, input: null },
   playback: { bpm: 100 },
   ui: { menu: 'normal', zoom: 0 },
-  text: { selected: null, dragged: null },
+  draggedText: null,
   secondTiming: { selected: null, dragged: null },
   doc: { show: true, current: null },
   clipboard: null,
@@ -63,7 +64,6 @@ const updateView = (state: State) => {
 
   const scoreProps = {
     zoomLevel: state.ui.zoom,
-    selection: state.selection,
     selectedSecondTiming: state.secondTiming.selected,
     noteState: {
       dragged: state.note.dragged,
@@ -71,7 +71,7 @@ const updateView = (state: State) => {
         state.note.demo !== null || state.gracenote.input !== null,
     },
     gracenoteState: state.gracenote,
-    textBoxState: { selectedText: state.text.selected },
+    selection: state.selection,
     dispatch,
     demoNote: state.note.demo,
   };

@@ -13,7 +13,7 @@ import { TextBoxModel } from './TextBox/model';
 import { DraggedSecondTiming } from './SecondTiming/model';
 import { ScoreModel } from './Score/model';
 import { SecondTimingModel } from './SecondTiming/model';
-import { ScoreSelectionModel } from './ScoreSelection/model';
+import { SelectionModel } from './Selection/model';
 
 export interface State {
   justClickedNote: boolean;
@@ -31,10 +31,8 @@ export interface State {
     selected: SecondTimingModel | null;
     dragged: DraggedSecondTiming | null;
   };
-  text: {
-    dragged: TextBoxModel | null;
-    selected: TextBoxModel | null;
-  };
+  // TODO store in TextSelection?
+  draggedText: TextBoxModel | null;
   ui: {
     zoom: number;
     menu: Menu;
@@ -44,7 +42,7 @@ export interface State {
     show: boolean;
   };
   clipboard: (NoteModel | TripletModel | 'bar-break')[] | null;
-  selection: ScoreSelectionModel | null;
+  selection: SelectionModel | null;
   history: {
     past: string[];
     future: string[];
@@ -56,19 +54,4 @@ export interface State {
   playback: PlaybackState;
 
   score: ScoreModel;
-  //draggedNote: BaseNote | null;
-  //playbackState: PlaybackState;
-  //currentMenu: Menu;
-  //zoomLevel: number;
-  //justClickedNote: boolean;
-  //currentDocumentation: string | null;
-  //showDocumentation: boolean;
-  //selectedSecondTiming: SecondTimingModel | null;
-  //draggedText: TextBoxModel | null;
-  //inputGracenote: GracenoteModel | null;
-  //history: string[];
-  //future: string[];
-  //draggedSecondTiming: DraggedSecondTiming | null;
-  //view: V | null;
-  //uiView: V | null;
 }

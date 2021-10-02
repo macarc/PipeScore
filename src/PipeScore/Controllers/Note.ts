@@ -29,12 +29,13 @@ import { BaseNote, NoteModel, TripletModel, NoteLength } from '../Note/model';
 import { BarModel } from '../Bar/model';
 import { ScoreModel } from '../Score/model';
 import { SecondTimingModel } from '../SecondTiming/model';
-import { ScoreSelectionModel } from '../ScoreSelection/model';
+import { SelectionModel } from '../Selection/model';
 
 import Gracenote from '../Gracenote/functions';
 import Note from '../Note/functions';
 import Score from '../Score/functions';
 import DemoNote from '../DemoNote/functions';
+import Selection from '../Selection/functions';
 
 export function dragNote(
   note: NoteModel | BaseNote,
@@ -184,7 +185,7 @@ export function currentNoteModels(
 }
 
 export function selectionToNotes(
-  selection: ScoreSelectionModel | null,
+  selection: SelectionModel | null,
   score: ScoreModel,
   noteModels: (NoteModel | TripletModel)[]
 ): BaseNote[] {
@@ -192,7 +193,7 @@ export function selectionToNotes(
   // This can't just flatten rawSelectionToNotes because it takes into account that only part of a triplet may be selected,
   // whereas rawSelectionToNotes doesn't
 
-  if (selection === null) return [];
+  if (!Selection.isScoreSelection(selection)) return [];
   const notes = Note.flattenTriplets(noteModels);
   let startInd = indexOfId(selection.start, notes);
   let endInd = indexOfId(selection.end, notes);
@@ -226,11 +227,11 @@ export function selectionToNotes(
 function rawSelectionToNotes(
   noteModels: (NoteModel | TripletModel)[],
   score: ScoreModel,
-  selection: ScoreSelectionModel | null
+  selection: SelectionModel | null
 ): (NoteModel | TripletModel)[] {
   // Finds all the notes and triplets that are selected within noteModels
 
-  if (selection === null) return [];
+  if (!Selection.isScoreSelection(selection)) return [];
 
   let startInd = indexOfId(selection.start, noteModels);
   let endInd = indexOfId(selection.end, noteModels);
@@ -441,7 +442,7 @@ function pasteNotes(
 export function deleteSelectedNotes(state: State): State {
   // Deletes the selected notes/bars/staves from the score, purges them, modifies and returns the score
 
-  if (state.selection === null) return state;
+  if (!Selection.isScoreSelection(state.selection)) return state;
 
   let started = false;
   let deletingBars = false;
@@ -513,7 +514,7 @@ function purgeItems(items: Item[], state: State): State {
       score.secondTimings.splice(score.secondTimings.indexOf(t), 1)
     );
     if (
-      state.selection &&
+      Selection.isScoreSelection(state.selection) &&
       (note.id === state.selection.start || note.id === state.selection.end)
     ) {
       state.selection = null;
@@ -686,7 +687,7 @@ function changeNotesAndTriplets(
 }
 export function expandSelection(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection) {
+    if (Selection.isScoreSelection(state.selection)) {
       const next = nextNote(state.selection.end, state.score);
       if (next) {
         return viewChanged({
@@ -701,7 +702,10 @@ export function expandSelection(): ScoreEvent {
 
 export function detractSelection(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection && state.selection.start !== state.selection.end) {
+    if (
+      Selection.isScoreSelection(state.selection) &&
+      state.selection.start !== state.selection.end
+    ) {
       const prev = previousNote(state.selection.end, state.score);
       if (prev) {
         return viewChanged({
@@ -716,12 +720,12 @@ export function detractSelection(): ScoreEvent {
 
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection) {
+    if (Selection.isScoreSelection(state.selection)) {
       const prev = previousNote(state.selection.start, state.score);
       if (prev) {
         return viewChanged({
           ...state,
-          selection: { start: prev, end: prev },
+          selection: Selection.scoreSelection(prev, prev),
         });
       }
     }
@@ -731,12 +735,12 @@ export function moveLeft(): ScoreEvent {
 
 export function moveRight(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection) {
+    if (Selection.isScoreSelection(state.selection)) {
       const next = nextNote(state.selection.end, state.score);
       if (next) {
         return viewChanged({
           ...state,
-          selection: { start: next, end: next },
+          selection: Selection.scoreSelection(next, next),
         });
       }
     }
@@ -945,15 +949,13 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
         ...state,
         justClickedNote: true,
         note: { dragged: note, demo: null },
-        selection: { start: note.id, end: note.id },
+        selection: Selection.scoreSelection(note.id, note.id),
       });
 
       if (!event.shiftKey) {
         return stateAfterFirstSelection;
       } else {
-        if (state.selection === null) {
-          return stateAfterFirstSelection;
-        } else {
+        if (Selection.isScoreSelection(state.selection)) {
           if (itemBefore(state.selection.end, note.id)) {
             return viewChanged({
               ...state,
@@ -969,6 +971,8 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
               selection: { ...state.selection, start: note.id },
             });
           }
+        } else {
+          return stateAfterFirstSelection;
         }
       }
     }
@@ -1029,7 +1033,7 @@ export function copy(): ScoreEvent {
 
 export function paste(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection && state.clipboard) {
+    if (Selection.isScoreSelection(state.selection) && state.clipboard) {
       const toPaste = state.clipboard.map((n) =>
         n === 'bar-break' ? n : Note.copyNote(n)
       );

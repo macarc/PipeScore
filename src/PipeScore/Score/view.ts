@@ -8,30 +8,28 @@ import { staveGap, lineGap } from '../global/constants';
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
 import { DemoNoteModel } from '../DemoNote/model';
-import { ScoreSelectionModel } from '../ScoreSelection/model';
+import { SelectionModel } from '../Selection/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { Dispatch } from '../Controllers/Controller';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
 
 import renderTextBox from '../TextBox/view';
 import renderSecondTiming from '../SecondTiming/view';
-import renderScoreSelection from '../ScoreSelection/view';
+import renderScoreSelection from '../Selection/view';
 import renderStave from '../Stave/view';
 import renderDemoNote from '../DemoNote/view';
 
 import { NoteState } from '../Note/state';
-import { TextBoxState } from '../TextBox/state';
 import { GracenoteState } from '../Gracenote/state';
 
 interface ScoreProps {
   zoomLevel: number;
-  selection: ScoreSelectionModel | null;
+  selection: SelectionModel | null;
   selectedSecondTiming: SecondTimingModel | null;
   dispatch: Dispatch;
   noteState: NoteState;
   demoNote: DemoNoteModel | null;
   gracenoteState: GracenoteState;
-  textBoxState: TextBoxState;
 }
 const margin = 30;
 const topOffset = 200;
@@ -100,7 +98,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
         renderTextBox(textBox, {
           dispatch: props.dispatch,
           scoreWidth: score.width,
-          state: props.textBoxState,
+          selection: props.selection,
         })
       ),
       ...score.secondTimings.map((secondTiming) =>
