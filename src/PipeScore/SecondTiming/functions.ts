@@ -9,10 +9,7 @@ import { SecondTimingModel } from './model';
 
 // This function checks if a second timing model is valid
 // It checks that start, middle, and end are in a valid order
-const isValid = (
-  st: SecondTimingModel,
-  others: SecondTimingModel[]
-): boolean => {
+function isValid(st: SecondTimingModel, others: SecondTimingModel[]): boolean {
   if (
     !(
       itemBefore(st.start, st.middle) &&
@@ -43,7 +40,7 @@ const isValid = (
     }
   }
   return true;
-};
+}
 
 const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
   start,

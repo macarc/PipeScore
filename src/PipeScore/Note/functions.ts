@@ -10,18 +10,13 @@ import { NoteModel, NoteLength, TripletModel, BaseNote } from './model';
 
 import Gracenote from '../Gracenote/functions';
 
-function isTriplet(
+const isTriplet = (
   note: NoteModel | BaseNote | NoteModel[] | TripletModel
-): note is TripletModel {
-  return (note as TripletModel).first !== undefined;
-}
+): note is TripletModel => (note as TripletModel).first !== undefined;
 
-function isNoteModel(note: BaseNote | TripletModel): note is NoteModel {
-  return (
-    (note as TripletModel).first === undefined &&
-    (note as NoteModel).tied !== undefined
-  );
-}
+const isNoteModel = (note: BaseNote | TripletModel): note is NoteModel =>
+  (note as TripletModel).first === undefined &&
+  (note as NoteModel).tied !== undefined;
 
 function tripletNoteModels(
   triplet: TripletModel
@@ -33,17 +28,7 @@ function tripletNoteModels(
   ];
 }
 
-function unGroupNotes(notes: NoteModel[][]): NoteModel[] {
-  return flatten(notes);
-}
-
-function pitchOfNote(note: NoteModel | TripletModel): Pitch {
-  if (isNoteModel(note)) {
-    return note.pitch;
-  } else {
-    return note.third.pitch;
-  }
-}
+const unGroupNotes = (notes: NoteModel[][]): NoteModel[] => flatten(notes);
 
 function flattenTriplets(
   notes: (NoteModel | TripletModel)[]
@@ -135,9 +120,7 @@ function groupNotes(
 
 // Note Length
 
-function hasStem(note: NoteModel): boolean {
-  return note.length !== NoteLength.Semibreve;
-}
+const hasStem = (note: NoteModel) => note.length !== NoteLength.Semibreve;
 
 function hasDot(note: NoteLength): boolean {
   return [
@@ -150,21 +133,12 @@ function hasDot(note: NoteLength): boolean {
   ].includes(note);
 }
 
-function hasBeam(note: NoteLength): boolean {
-  return lengthToNumber(note) < 1;
-}
+const hasBeam = (note: NoteLength) => lengthToNumber(note) < 1;
 
-function isFilled(note: NoteModel): boolean {
-  return lengthToNumber(note.length) < 2;
-}
+const isFilled = (note: NoteModel) => lengthToNumber(note.length) < 2;
 
-function equalOrDotted(a: NoteLength, b: NoteLength): boolean {
-  if (a === b) {
-    return true;
-  } else {
-    return a === toggleDot(b);
-  }
-}
+const sameNoteLengthName = (a: NoteLength, b: NoteLength) =>
+  a === b || a === toggleDot(b);
 
 function lengthToNumber(length: NoteLength): number {
   switch (length) {
@@ -266,9 +240,7 @@ function copyNote(note: NoteModel | TripletModel): NoteModel | TripletModel {
   }
 }
 
-const lastNoteIn = (notes: NoteModel[] | TripletModel): BaseNote =>
-  isTriplet(notes) ? notes.third : notes[notes.length - 1];
-const pitchOf = (note: NoteModel | TripletModel): Pitch =>
+const lastPitchOf = (note: NoteModel | TripletModel) =>
   isTriplet(note) ? note.third.pitch : note.pitch;
 
 const numberOfNotes = (notes: NoteModel[]): number => notes.length;
@@ -300,25 +272,23 @@ const initTriplet = (
 });
 
 export default {
+  copyNote,
+  flattenTriplets,
+  groupNotes,
+  hasBeam,
+  hasDot,
+  hasStem,
   init,
   initTriplet,
-  isTriplet,
-  pitchOfNote,
+  isFilled,
   isNoteModel,
-  flattenTriplets,
-  copyNote,
-  tripletNoteModels,
-  numberOfNotes,
-  lastNoteIn,
-  pitchOf,
-  unGroupNotes,
-  groupNotes,
+  isTriplet,
+  lastPitchOf,
   lengthToNumber,
   lengthToNumTails,
-  hasStem,
-  hasDot,
-  hasBeam,
-  isFilled,
+  numberOfNotes,
+  sameNoteLengthName,
   toggleDot,
-  equalOrDotted,
+  tripletNoteModels,
+  unGroupNotes,
 };

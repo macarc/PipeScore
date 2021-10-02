@@ -7,7 +7,7 @@ import {
   noChange,
   viewChanged,
   shouldSave,
-  currentBar,
+  location,
 } from './Controller';
 import { State } from '../State';
 
@@ -63,7 +63,7 @@ export function editTimeSignature(
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection) {
-      const { bar, stave } = currentBar(state.selection.start, state.score);
+      const { bar, stave } = location(state.selection.start, state.score);
       return shouldSave({
         ...state,
         score: {
@@ -84,7 +84,7 @@ export function addAnacrusis(before: boolean): ScoreEvent {
 export function addBar(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection) {
-      const { bar, stave } = currentBar(state.selection.start, state.score);
+      const { bar, stave } = location(state.selection.start, state.score);
       return shouldSave({
         ...state,
         score: {
@@ -130,7 +130,7 @@ export function setBarRepeat(
 ): ScoreEvent {
   return async (state: State) => {
     if (state.selection) {
-      const { bar, stave } = currentBar(state.selection.start, state.score);
+      const { bar, stave } = location(state.selection.start, state.score);
 
       return shouldSave({
         ...state,
@@ -153,7 +153,7 @@ export function setBarRepeat(
 export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     if (state.selection !== null) {
-      const { bar } = currentBar(state.selection.start, state.score);
+      const { bar } = location(state.selection.start, state.score);
       const newTimeSignature = await TimeSignature.getNewInput(
         bar.timeSignature
       );

@@ -8,18 +8,14 @@ import {
   viewChanged,
   shouldSave,
   removeState,
+  UpdatedState,
 } from './Controller';
 import { State } from '../State';
 
-import {
-  deleteSelectedNotes,
-  changeNoteFrom,
-  changeTripletNoteFrom,
-} from './Note';
-import { changeGracenoteFrom } from './Gracenote';
+import { deleteSelectedNotes, dragNote } from './Note';
+import { changeGracenoteFrom, dragGracenote } from './Gracenote';
 import { replaceTextBox } from './Text';
 
-import Note from '../Note/functions';
 import SecondTiming from '../SecondTiming/functions';
 import TextBox from '../TextBox/functions';
 
@@ -28,7 +24,7 @@ import { replace } from '../global/utils';
 import { closestItem } from '../global/xy';
 import { TextBoxModel } from '../TextBox/model';
 import { GracenoteModel } from '../Gracenote/model';
-import { SecondTimingModel } from '../SecondTiming/model';
+import { DraggedSecondTiming, SecondTimingModel } from '../SecondTiming/model';
 
 const deleteGracenote = (gracenote: GracenoteModel, state: State) => ({
   ...state,
@@ -72,63 +68,27 @@ export function deleteSelection(): ScoreEvent {
 
 export function mouseMoveOver(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
-    if (state.justClickedNote) {
-      // This occurs when the note's head is changed from receiving pointer events to not receiving them.
-      // That triggers a mouseOver on the note box below, which is undesirable as it moves the note head.
+    // This occurs when the note's head is changed from receiving pointer events to not receiving them.
+    // That triggers a mouseOver on the note box below, which is undesirable as it moves the note head.
+    if (state.justClickedNote)
       return noChange({ ...state, justClickedNote: false });
-    } else {
-      if (state.note.demo && state.note.demo.pitch !== pitch) {
-        return viewChanged({
-          ...state,
-          note: { ...state.note, demo: { ...state.note.demo, pitch: pitch } },
-        });
-      } else if (state.note.dragged && state.note.dragged.pitch !== pitch) {
-        // ViewChanged rather than ShouldSave since we should only save on mouse up (to avoid
-        // adding every intermediate note in the history)
-        const newNote = { ...state.note.dragged, pitch: pitch };
-        if (Note.isNoteModel(state.note.dragged)) {
-          return viewChanged({
-            ...state,
-            note: { ...state.note, dragged: newNote },
-            score: changeNoteFrom(state.note.dragged.id, newNote, state.score),
-          });
-        } else {
-          // It must be a triplet
-          return viewChanged({
-            ...state,
-            note: { ...state.note, dragged: newNote },
-            score: changeTripletNoteFrom(
-              state.note.dragged.id,
-              newNote,
-              state.score
-            ),
-          });
-        }
-      } else if (
-        state.gracenote.dragged &&
-        state.gracenote.dragged.note !== pitch
-      ) {
-        const newGracenote = {
-          ...state.gracenote.dragged,
-          note: pitch,
-        };
-        const gracenote = {
-          ...state.gracenote,
-          dragged: newGracenote,
-          selected: newGracenote,
-        };
-        return viewChanged({
-          ...state,
-          gracenote,
-          score: changeGracenoteFrom(
-            state.gracenote.dragged,
-            newGracenote,
-            state.score
-          ),
-        });
-      }
-      return noChange(state);
+
+    // We return viewChanged from everything since we only want to save when the note is released
+    if (state.note.demo && state.note.demo.pitch !== pitch) {
+      // Update the demo note
+      return viewChanged({
+        ...state,
+        note: { ...state.note, demo: { ...state.note.demo, pitch: pitch } },
+      });
+    } else if (state.note.dragged && state.note.dragged.pitch !== pitch) {
+      return dragNote(state.note.dragged, pitch, state);
+    } else if (
+      state.gracenote.dragged &&
+      state.gracenote.dragged.note !== pitch
+    ) {
+      return dragGracenote(state.gracenote.dragged, pitch, state);
     }
+    return noChange(state);
   };
 }
 export function mouseUp(): ScoreEvent {
@@ -147,51 +107,52 @@ export function mouseUp(): ScoreEvent {
       : noChange(state);
 }
 
+function dragSecondTiming(
+  secondTiming: DraggedSecondTiming,
+  x: number,
+  y: number,
+  state: State
+): UpdatedState {
+  const closest = closestItem(x, y, secondTiming.dragged !== 'end');
+  const oldSecondTiming = secondTiming.secondTiming;
+  if (secondTiming.secondTiming[secondTiming.dragged] !== closest) {
+    const newSecondTiming = {
+      ...secondTiming.secondTiming,
+      [secondTiming.dragged]: closest,
+    };
+    if (
+      SecondTiming.isValid(
+        newSecondTiming,
+        state.score.secondTimings.filter((st) => st !== oldSecondTiming)
+      )
+    ) {
+      return viewChanged({
+        ...state,
+        score: {
+          ...state.score,
+          secondTimings: replace(
+            secondTiming.secondTiming,
+            1,
+            state.score.secondTimings,
+            newSecondTiming
+          ),
+        },
+        secondTiming: {
+          dragged: {
+            ...secondTiming,
+            secondTiming: newSecondTiming,
+          },
+          selected: newSecondTiming,
+        },
+      });
+    }
+  }
+  return noChange(state);
+}
 export function mouseDrag(x: number, y: number): ScoreEvent {
   return async (state: State) => {
     if (state.secondTiming.dragged) {
-      const closest = closestItem(
-        x,
-        y,
-        state.secondTiming.dragged.dragged !== 'end'
-      );
-      const oldSecondTiming = state.secondTiming.dragged.secondTiming;
-      if (
-        state.secondTiming.dragged.secondTiming[
-          state.secondTiming.dragged.dragged
-        ] !== closest
-      ) {
-        const newSecondTiming = {
-          ...state.secondTiming.dragged.secondTiming,
-          [state.secondTiming.dragged.dragged]: closest,
-        };
-        if (
-          SecondTiming.isValid(
-            newSecondTiming,
-            state.score.secondTimings.filter((st) => st !== oldSecondTiming)
-          )
-        ) {
-          return viewChanged({
-            ...state,
-            score: {
-              ...state.score,
-              secondTimings: replace(
-                state.secondTiming.dragged.secondTiming,
-                1,
-                state.score.secondTimings,
-                newSecondTiming
-              ),
-            },
-            secondTiming: {
-              dragged: {
-                ...state.secondTiming.dragged,
-                secondTiming: newSecondTiming,
-              },
-              selected: newSecondTiming,
-            },
-          });
-        }
-      }
+      return dragSecondTiming(state.secondTiming.dragged, x, y, state);
     } else if (
       state.text.dragged !== null &&
       x < state.score.width &&

@@ -171,7 +171,7 @@ const init = (): TimeSignatureModel => ({
   breaks: [],
 });
 
-// This is needed because TypeScript tends to assume that
+// This is needed because TypeScript thinks that
 // [1 :: number, 3 :: Denominator] is (number | Denominator)[] rather than [number, Denominator]
 const from = (ts: [number, Denominator] | 'cut time'): TimeSignatureModel => ({
   ts,

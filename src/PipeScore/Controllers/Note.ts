@@ -8,7 +8,7 @@ import {
   noChange,
   viewChanged,
   shouldSave,
-  currentBar,
+  location,
   removeState,
   removeTextState,
 } from './Controller';
@@ -36,6 +36,29 @@ import Note from '../Note/functions';
 import Score from '../Score/functions';
 import DemoNote from '../DemoNote/functions';
 
+export function dragNote(
+  note: NoteModel | BaseNote,
+  pitch: Pitch,
+  state: State
+): UpdatedState {
+  const newNote = { ...note, pitch: pitch };
+  return viewChanged({
+    ...state,
+    note: { ...state.note, dragged: newNote },
+    score: changeNoteFrom(note.id, newNote, state.score),
+  });
+}
+export function replaceNote<A extends NoteModel | BaseNote>(
+  note: A,
+  newNote: A,
+  state: State
+): UpdatedState {
+  return shouldSave({
+    ...state,
+    score: changeNoteFrom(note.id, newNote, state.score),
+  });
+}
+
 function indexOfId(id: ID, noteModels: Item[]): number {
   // Finds the index of the item with the specified ID in noteModels
 
@@ -50,6 +73,13 @@ function indexOfId(id: ID, noteModels: Item[]): number {
 const isBar = (it: NoteModel | TripletModel | BarModel): it is BarModel =>
   (it as BarModel).notes !== undefined;
 
+function noteOrTripletFirst(
+  note: NoteModel | TripletModel
+): NoteModel | BaseNote {
+  if (Note.isTriplet(note)) return note.first;
+  return note;
+}
+
 function addNote(pitch: Pitch, bar: BarModel, state: State): UpdatedState;
 function addNote(
   pitch: Pitch,
@@ -63,7 +93,7 @@ function addNote(
 ): UpdatedState {
   const noteModels = currentNoteModels(state.score);
   let noteBefore: NoteModel | TripletModel | null;
-  const { bar, stave } = currentBar(where.id, state.score);
+  const { bar, stave } = location(where.id, state.score);
   if (isBar(where)) {
     const id = previousNote(bar.id, state.score);
     noteBefore = nmap(
@@ -101,71 +131,44 @@ function addNote(
     const previousPitch = nmap(noteBefore, (noteBefore) =>
       Note.isTriplet(noteBefore) ? noteBefore.third.pitch : noteBefore.pitch
     );
-    const note =
+    const note = nmap(
       nmap(
         noteBefore,
         (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
       ) ||
-      noteModels[0] ||
-      null;
-    if (note && Note.isNoteModel(note)) {
-      return shouldSave({
-        ...state,
-        score: changeNoteFrom(
-          note.id,
-          {
-            ...note,
-            gracenote: Gracenote.addSingle(
-              note.gracenote,
-              pitch,
-              note.pitch,
-              previousPitch
-            ),
-          },
-          state.score
-        ),
-      });
-    } else if (note && Note.isTriplet(note)) {
-      return shouldSave({
-        ...state,
-        score: changeNoteFrom(
-          note.first.id,
-          {
-            ...note.first,
-            gracenote: Gracenote.addSingle(
-              note.first.gracenote,
-              pitch,
-              note.first.pitch,
-              previousPitch
-            ),
-          },
-          state.score
-        ),
-      });
+        noteModels[0] ||
+        null,
+      noteOrTripletFirst
+    );
+    if (note) {
+      return replaceNote(
+        note,
+        {
+          ...note,
+          gracenote: Gracenote.addSingle(
+            note.gracenote,
+            pitch,
+            note.pitch,
+            previousPitch
+          ),
+        },
+        state
+      );
     }
   } else if (state.gracenote.input) {
     const note = nmap(
-      noteBefore,
-      (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
+      nmap(
+        noteBefore,
+        (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
+      ),
+      noteOrTripletFirst
     );
-    if (note && Note.isNoteModel(note)) {
-      return shouldSave({
-        ...state,
-        score: changeNoteFrom(
-          note.id,
-          { ...note, gracenote: state.gracenote.input },
-          state.score
-        ),
-      });
-    } else if (note && Note.isTriplet(note)) {
-      return shouldSave({
-        ...state,
-        score: changeNoteFrom(
-          note.first.id,
-          { ...note.first, gracenote: state.gracenote.input },
-          state.score
-        ),
-      });
+    if (note) {
+      return replaceNote(
+        note,
+        { ...note, gracenote: state.gracenote.input },
+        state
+      );
     }
   }
   return noChange(state);
@@ -633,27 +636,6 @@ export function changeNoteFrom(
   );
 }
 
-export function changeTripletNoteFrom(
-  id: ID,
-  newNote: BaseNote,
-  score: ScoreModel
-): ScoreModel {
-  // Replaces triplet note with newNote in the score
-
-  return noteMap(
-    <A extends NoteModel | BaseNote>(n: A, replace: (newNote: A) => void) => {
-      if (!Note.isNoteModel(n) && n.id === id) {
-        replace(newNote as A);
-        return true;
-      } else {
-        return false;
-      }
-    },
-    score,
-    false
-  );
-}
-
 export function changeNotes(
   notes: (NoteModel | BaseNote)[],
   f: <T extends NoteModel | BaseNote>(note: T) => T,
@@ -870,7 +852,7 @@ export function addTriplet(): ScoreEvent {
         Note.isNoteModel(second) &&
         Note.isNoteModel(third)
       ) {
-        const { bar, stave } = currentBar(first, state.score);
+        const { bar, stave } = location(first, state.score);
         return shouldSave({
           ...state,
           score: {
@@ -893,7 +875,7 @@ export function addTriplet(): ScoreEvent {
     } else if (rawSelectedNotes.length >= 1) {
       const tr = rawSelectedNotes[0];
       if (Note.isTriplet(tr)) {
-        const { bar, stave } = currentBar(tr, state.score);
+        const { bar, stave } = location(tr, state.score);
 
         return shouldSave({
           ...state,
@@ -953,25 +935,11 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     state = removeTextState(state);
     if (state.gracenote.input) {
-      if (Note.isNoteModel(note)) {
-        return shouldSave({
-          ...state,
-          score: changeNoteFrom(
-            note.id,
-            { ...note, gracenote: state.gracenote.input },
-            state.score
-          ),
-        });
-      } else {
-        return shouldSave({
-          ...state,
-          score: changeTripletNoteFrom(
-            note.id,
-            { ...note, gracenote: state.gracenote.input },
-            state.score
-          ),
-        });
-      }
+      return replaceNote(
+        note,
+        { ...note, gracenote: state.gracenote.input },
+        state
+      );
     } else {
       const stateAfterFirstSelection = viewChanged({
         ...state,
@@ -1042,10 +1010,10 @@ export function copy(): ScoreEvent {
     );
     if (rawSelectedNotes.length > 0) {
       const clipboard: (NoteModel | TripletModel | 'bar-break')[] = [];
-      const { bar: initBar } = currentBar(rawSelectedNotes[0], state.score);
+      const { bar: initBar } = location(rawSelectedNotes[0], state.score);
       let currentBarId = initBar.id;
       for (const note of rawSelectedNotes) {
-        const { bar } = currentBar(note.id, state.score);
+        const { bar } = location(note.id, state.score);
         if (currentBarId !== bar.id) {
           clipboard.push('bar-break');
           currentBarId = bar.id;
@@ -1066,7 +1034,7 @@ export function paste(): ScoreEvent {
         n === 'bar-break' ? n : Note.copyNote(n)
       );
       const id = state.selection.end;
-      const { bar } = currentBar(id, state.score);
+      const { bar } = location(id, state.score);
       const indexInBar = bar.notes.findIndex((n) => n.id === id);
       const indexToPlace =
         indexInBar === -1 ? bar.notes.length : indexInBar + 1;

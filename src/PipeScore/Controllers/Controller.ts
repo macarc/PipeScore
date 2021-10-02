@@ -74,7 +74,7 @@ export function removeTextState(state: State): State {
   };
 }
 
-export function currentBar(
+export function location(
   note: NoteModel | ID | TripletModel,
   score: ScoreModel
 ): {

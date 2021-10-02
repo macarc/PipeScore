@@ -44,7 +44,7 @@ const beatsOf = (bar: BarModel, previousPitch: Pitch | null): Width[] =>
   bar.notes.reduce(
     (nums, n, index) => {
       const previous =
-        index === 0 ? previousPitch : Note.pitchOf(bar.notes[index - 1]);
+        index === 0 ? previousPitch : Note.lastPitchOf(bar.notes[index - 1]);
       return [
         ...nums,
         width.add(nlast(nums), widthOfNote(n, previous || null)),
@@ -226,7 +226,7 @@ export default function render(bar: BarModel, props: BarProps): V {
 
   const previousNote = nmap(props.previousBar, (b) => last(b.notes));
   const previousPitch = props.previousBar
-    ? nmap(last(props.previousBar.notes), (n) => Note.pitchOf(n))
+    ? nmap(last(props.previousBar.notes), (n) => Note.lastPitchOf(n))
     : null;
   const beats = beatsOf(bar, previousPitch);
 
@@ -249,7 +249,7 @@ export default function render(bar: BarModel, props: BarProps): V {
     // enforce it somehow?
 
     const lastNoteModel = bar.notes[noteIndex - 1];
-    const lastNote = noteIndex > 0 ? Note.pitchOf(lastNoteModel) : null;
+    const lastNote = noteIndex > 0 ? Note.lastPitchOf(lastNoteModel) : null;
     if (lastNoteModel && Note.isTriplet(lastNoteModel)) {
       const xy = getXY(lastNoteModel.third.id);
       return nmap(xy, (xy) => ({

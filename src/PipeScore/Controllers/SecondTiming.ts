@@ -7,7 +7,7 @@ import {
   noChange,
   viewChanged,
   shouldSave,
-  currentBar,
+  location,
 } from './Controller';
 import { State } from '../State';
 
@@ -19,7 +19,7 @@ import SecondTiming from '../SecondTiming/functions';
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection) {
-      const { bar: start } = currentBar(state.selection.start, state.score);
+      const { bar: start } = location(state.selection.start, state.score);
       let middle: ID | null = null;
       let end: ID | null = null;
       let started = false;

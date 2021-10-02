@@ -2,7 +2,13 @@
   Controller for gracenote-related events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, noChange, viewChanged, shouldSave } from './Controller';
+import {
+  ScoreEvent,
+  noChange,
+  viewChanged,
+  shouldSave,
+  UpdatedState,
+} from './Controller';
 import { State } from '../State';
 import {
   changeNoteFrom,
@@ -10,17 +16,37 @@ import {
   currentNoteModels,
   selectionToNotes,
   noteMap,
+  replaceNote,
 } from './Note';
 
 import { Pitch } from '../global/pitch';
 
 import DemoNote from '../DemoNote/functions';
-import { GracenoteModel } from '../Gracenote/model';
+import { GracenoteModel, SingleGracenote } from '../Gracenote/model';
 import { TripletModel } from '../Note/model';
 import { ScoreModel } from '../Score/model';
 
 import Gracenote from '../Gracenote/functions';
 
+export function dragGracenote(
+  gracenote: SingleGracenote,
+  pitch: Pitch,
+  state: State
+): UpdatedState {
+  const newGracenote = {
+    ...gracenote,
+    note: pitch,
+  };
+  return viewChanged({
+    ...state,
+    gracenote: {
+      ...state.gracenote,
+      dragged: newGracenote,
+      selected: newGracenote,
+    },
+    score: changeGracenoteFrom(gracenote, newGracenote, state.score),
+  });
+}
 export function changeGracenoteFrom(
   oldGracenote: GracenoteModel,
   newGracenote: GracenoteModel,
@@ -34,7 +60,6 @@ export function changeGracenoteFrom(
         replace({ ...n, gracenote: newGracenote });
         return true;
       }
-
       return false;
     },
     score,
@@ -91,35 +116,27 @@ export function addGracenoteToTriplet(
   pitch: Pitch
 ): ScoreEvent {
   return async (state: State) => {
+    let gracenote = state.gracenote.input;
     if (state.note.demo && state.note.demo.type === 'gracenote') {
       const previousPitch =
         which === 'second' ? triplet.first.pitch : triplet.second.pitch;
-      return shouldSave({
-        ...state,
-        score: changeNoteFrom(
-          triplet[which].id,
-          {
-            ...triplet[which],
-            gracenote: Gracenote.addSingle(
-              triplet[which].gracenote,
-              pitch,
-              triplet[which].pitch,
-              previousPitch
-            ),
-          },
-          state.score
-        ),
-      });
-    } else if (state.gracenote.input) {
-      return shouldSave({
-        ...state,
-        score: changeNoteFrom(
-          triplet[which].id,
-          { ...triplet[which], gracenote: state.gracenote.input },
-          state.score
-        ),
-      });
+      gracenote = Gracenote.addSingle(
+        triplet[which].gracenote,
+        pitch,
+        triplet[which].pitch,
+        previousPitch
+      );
     }
+
+    if (gracenote)
+      return replaceNote(
+        triplet[which],
+        {
+          ...triplet[which],
+          gracenote,
+        },
+        state
+      );
     return noChange(state);
   };
 }

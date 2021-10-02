@@ -11,6 +11,8 @@
 - [ ] Too large a gap before embellishments
 - [ ] Should be able to add notes before and after current gracenote to make custom embellishments
 - [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
+- [ ] Can't add gracenote before very first note
+- [ ] Selecting a gracenote then deleting retains the selection box
 
 ## General features
 

@@ -21,7 +21,9 @@ export default function play(
         note,
         i === 0
           ? nmap(previous, (p) => Bar.lastPitch(p))
-          : nmap(bar.notes[i - 1], Note.pitchOfNote)
+          : nmap(bar.notes[i - 1], (n) =>
+              Note.isTriplet(n) ? n.third.pitch : n.pitch
+            )
       )
     )
   );

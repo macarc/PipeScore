@@ -13,16 +13,10 @@ import { TimeSignatureModel } from '../TimeSignature/model';
 import Stave from '../Stave/functions';
 import TextBox from '../TextBox/functions';
 
-function bars(score: ScoreModel): BarModel[] {
-  // Returns all bars in the score
+const bars = (score: ScoreModel) =>
+  flatten(score.staves.map((stave) => Stave.bars(stave)));
 
-  return flatten(score.staves.map((stave) => Stave.bars(stave)));
-}
-function staves(score: ScoreModel): StaveModel[] {
-  // Returns all the staves in the score
-
-  return score.staves;
-}
+const staves = (score: ScoreModel) => score.staves;
 
 function addStave(
   score: ScoreModel,

@@ -20,6 +20,7 @@ const initDemoGracenote = (): DemoNoteModel => ({
   x: 0,
   staveIndex: 0,
 });
+
 export default {
   init,
   initDemoGracenote,

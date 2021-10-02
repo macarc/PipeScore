@@ -62,7 +62,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   const isCurrentNoteInput = (length: NoteLength) =>
     state.inputLength === null
       ? false
-      : Note.equalOrDotted(state.inputLength, length);
+      : Note.sameNoteLengthName(state.inputLength, length);
 
   const noteInputButton = (length: NoteLength) =>
     help(
