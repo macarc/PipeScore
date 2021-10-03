@@ -25,7 +25,6 @@ import { GracenoteState } from '../Gracenote/state';
 interface ScoreProps {
   zoomLevel: number;
   selection: SelectionModel | null;
-  selectedSecondTiming: SecondTimingModel | null;
   dispatch: Dispatch;
   noteState: NoteState;
   demoNote: DemoNoteModel | null;
@@ -66,7 +65,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
   const secondTimingProps = (st: SecondTimingModel) => ({
     staveStartX: margin,
     staveEndX: score.width - margin,
-    selected: st === props.selectedSecondTiming,
+    selection: props.selection,
     staveGap,
     dispatch: props.dispatch,
   });

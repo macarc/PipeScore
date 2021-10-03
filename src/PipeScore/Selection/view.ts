@@ -6,7 +6,7 @@ import { h, svg, V } from '../../render/h';
 import { lineGap } from '../global/constants';
 import { getXY } from '../global/xy';
 
-import { ScoreSelection, SelectionModel } from './model';
+import { ScoreSelection, SecondTimingSelection, SelectionModel } from './model';
 import { TextSelection } from '../Selection/model';
 
 interface ScoreSelectionProps {
@@ -83,6 +83,8 @@ export default function render(
     }
   } else if (selection instanceof TextSelection) {
     // TODO
+    return h('g', ['Unimplemented']);
+  } else if (selection instanceof SecondTimingSelection) {
     return h('g', ['Unimplemented']);
   } else {
     // never

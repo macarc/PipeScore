@@ -107,15 +107,11 @@ export function clickBar(bar: BarModel, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
       if (itemBefore(state.selection.end, bar.id)) {
-        return viewChanged({
-          ...state,
-          selection: { ...state.selection, end: bar.id },
-        });
+        state.selection.end = bar.id;
+        return viewChanged(state);
       } else if (itemBefore(bar.id, state.selection.end)) {
-        return viewChanged({
-          ...state,
-          selection: { ...state.selection, start: bar.id },
-        });
+        state.selection.start = bar.id;
+        return viewChanged(state);
       }
     }
     return viewChanged({

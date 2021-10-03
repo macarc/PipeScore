@@ -3,11 +3,16 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { ID } from '../global/id';
-import { GracenoteModel } from '../Gracenote/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { TextBoxModel } from '../TextBox/model';
 
-export type SelectionModel = ScoreSelection | TextSelection;
+export type SelectionModel =
+  | ScoreSelection
+  | TextSelection
+  | SecondTimingSelection;
+
+// Using the equivalent of 'case classes'
+// This allows using instanceof to check selection type
 
 export class ScoreSelection {
   public start: ID;
@@ -25,7 +30,9 @@ export class TextSelection {
   }
 }
 
-export type SecondTimingSelection = {
-  type: 'second timing selected';
+export class SecondTimingSelection {
   secondTiming: SecondTimingModel;
-};
+  constructor(secondTiming: SecondTimingModel) {
+    this.secondTiming = secondTiming;
+  }
+}

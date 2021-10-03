@@ -10,7 +10,7 @@ import {
   location,
 } from './Controller';
 import { State } from '../State';
-import { ScoreSelection } from '../Selection/model';
+import { ScoreSelection, SecondTimingSelection } from '../Selection/model';
 
 import { ID } from '../global/id';
 
@@ -60,9 +60,7 @@ export function clickSecondTiming(
   return async (state: State) =>
     viewChanged({
       ...state,
-      secondTiming: {
-        dragged: { secondTiming, dragged: part },
-        selected: secondTiming,
-      },
+      selection: new SecondTimingSelection(secondTiming),
+      draggedSecondTiming: { secondTiming, dragged: part },
     });
 }

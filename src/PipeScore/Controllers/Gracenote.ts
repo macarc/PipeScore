@@ -11,7 +11,6 @@ import {
 } from './Controller';
 import { State } from '../State';
 import {
-  changeNoteFrom,
   changeNotes,
   currentNoteModels,
   selectionToNotes,

@@ -7,13 +7,14 @@ import { getXY } from '../global/xy';
 
 import { Dispatch } from '../Controllers/Controller';
 import { clickSecondTiming } from '../Controllers/SecondTiming';
+import { SecondTimingSelection, SelectionModel } from '../Selection/model';
 
 import { SecondTimingModel } from './model';
 
 interface SecondTimingProps {
   staveStartX: number;
   staveEndX: number;
-  selected: boolean;
+  selection: SelectionModel | null;
   staveGap: number;
   dispatch: Dispatch;
 }
@@ -29,7 +30,11 @@ export default function render(
   const mid = 20;
   const clickWidth = 10;
 
-  const colour = props.selected ? 'orange' : 'black';
+  const selected =
+    props.selection instanceof SecondTimingSelection &&
+    props.selection.secondTiming === secondTiming;
+
+  const colour = selected ? 'orange' : 'black';
 
   const offset = height - mid;
   if (start && middle && end) {

@@ -26,7 +26,7 @@ let state: State = {
   playback: { bpm: 100 },
   ui: { menu: 'normal', zoom: 0 },
   draggedText: null,
-  secondTiming: { selected: null, dragged: null },
+  draggedSecondTiming: null,
   doc: { show: true, current: null },
   clipboard: null,
   selection: null,
@@ -63,7 +63,6 @@ const updateView = (state: State) => {
 
   const scoreProps = {
     zoomLevel: state.ui.zoom,
-    selectedSecondTiming: state.secondTiming.selected,
     noteState: {
       dragged: state.note.dragged,
       inputtingNotes:

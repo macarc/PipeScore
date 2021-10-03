@@ -7,7 +7,6 @@ import { flatten, replaceIndex } from '../global/utils';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
-import { BarModel } from '../Bar/model';
 import { TimeSignatureModel } from '../TimeSignature/model';
 
 import Stave from '../Stave/functions';

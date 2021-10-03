@@ -21,7 +21,8 @@
     "eslint": "^7.18.0",
     "firebase-auth-lite": "^0.8.8",
     "firebase-firestore-lite": "^1.0.3",
-    "firebase-tools": "^9.3.0",
+    "firebase-tools": "^9.19.0",
+    "google-gax": "^2.27.0",
     "madge": "^4.0.2",
     "prettier": "^2.3.2",
     "typescript": "^4.1.3"

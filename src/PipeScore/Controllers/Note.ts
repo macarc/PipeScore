@@ -689,10 +689,8 @@ export function expandSelection(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const next = nextNote(state.selection.end, state.score);
       if (next) {
-        return viewChanged({
-          ...state,
-          selection: { ...state.selection, end: next },
-        });
+        state.selection.end = next;
+        return viewChanged(state);
       }
     }
     return noChange(state);
@@ -707,10 +705,8 @@ export function detractSelection(): ScoreEvent {
     ) {
       const prev = previousNote(state.selection.end, state.score);
       if (prev) {
-        return viewChanged({
-          ...state,
-          selection: { ...state.selection, end: prev },
-        });
+        state.selection.end = prev;
+        return viewChanged(state);
       }
     }
     return noChange(state);
@@ -951,31 +947,29 @@ export function clickNote(note: BaseNote, event: MouseEvent): ScoreEvent {
         selection: new ScoreSelection(note.id, note.id),
       });
 
-      if (!event.shiftKey) {
-        return stateAfterFirstSelection;
-      } else {
+      if (event.shiftKey) {
         if (state.selection instanceof ScoreSelection) {
           if (itemBefore(state.selection.end, note.id)) {
+            state.selection.end = note.id;
             return viewChanged({
               ...state,
               justClickedNote: true,
               note: { dragged: note, demo: null },
-              selection: { ...state.selection, end: note.id },
             });
           } else if (itemBefore(note.id, state.selection.start)) {
+            state.selection.start = note.id;
             return viewChanged({
               ...state,
               justClickedNote: true,
               note: { dragged: note, demo: null },
-              selection: { ...state.selection, start: note.id },
             });
+          } else {
+            return noChange(state);
           }
-        } else {
-          return stateAfterFirstSelection;
         }
       }
+      return stateAfterFirstSelection;
     }
-    return noChange(state);
   };
 }
 

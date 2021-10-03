@@ -27,10 +27,7 @@ export interface State {
     selected: GracenoteModel | null;
     input: GracenoteModel | null;
   };
-  secondTiming: {
-    selected: SecondTimingModel | null;
-    dragged: DraggedSecondTiming | null;
-  };
+  draggedSecondTiming: DraggedSecondTiming | null;
   // TODO store in TextSelection?
   draggedText: TextBoxModel | null;
   ui: {

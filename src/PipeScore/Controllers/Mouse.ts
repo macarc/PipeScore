@@ -25,7 +25,11 @@ import { closestItem } from '../global/xy';
 import { TextBoxModel } from '../TextBox/model';
 import { GracenoteModel } from '../Gracenote/model';
 import { DraggedSecondTiming, SecondTimingModel } from '../SecondTiming/model';
-import { ScoreSelection, TextSelection } from '../Selection/model';
+import {
+  ScoreSelection,
+  SecondTimingSelection,
+  TextSelection,
+} from '../Selection/model';
 
 const deleteGracenote = (gracenote: GracenoteModel, state: State) => ({
   ...state,
@@ -48,7 +52,7 @@ const deleteSecondTiming = (secondTiming: SecondTimingModel, state: State) => ({
     ...state.score,
     secondTimings: replace(secondTiming, 1, state.score.secondTimings),
   },
-  secondTiming: { ...state.secondTiming, dragged: null },
+  draggedSecondTiming: null,
 });
 
 export function deleteSelection(): ScoreEvent {
@@ -59,8 +63,10 @@ export function deleteSelection(): ScoreEvent {
       return shouldSave(deleteSelectedNotes(state));
     } else if (state.selection instanceof TextSelection) {
       return shouldSave(deleteText(state.selection.text, state));
-    } else if (state.secondTiming.selected) {
-      return shouldSave(deleteSecondTiming(state.secondTiming.selected, state));
+    } else if (state.selection instanceof SecondTimingSelection) {
+      return shouldSave(
+        deleteSecondTiming(state.selection.secondTiming, state)
+      );
     }
 
     return noChange(state);
@@ -97,13 +103,13 @@ export function mouseUp(): ScoreEvent {
     state.note.dragged ||
     state.gracenote.dragged ||
     state.draggedText ||
-    state.secondTiming.dragged
+    state.draggedSecondTiming
       ? shouldSave({
           ...state,
           note: { ...state.note, dragged: null },
           gracenote: { ...state.gracenote, dragged: null },
           draggedText: null,
-          secondTiming: { ...state.secondTiming, dragged: null },
+          draggedSecondTiming: null,
         })
       : noChange(state);
 }
@@ -129,6 +135,11 @@ function dragSecondTiming(
     ) {
       return viewChanged({
         ...state,
+        selection: new SecondTimingSelection(newSecondTiming),
+        draggedSecondTiming: {
+          ...secondTiming,
+          secondTiming: newSecondTiming,
+        },
         score: {
           ...state.score,
           secondTimings: replace(
@@ -138,13 +149,6 @@ function dragSecondTiming(
             newSecondTiming
           ),
         },
-        secondTiming: {
-          dragged: {
-            ...secondTiming,
-            secondTiming: newSecondTiming,
-          },
-          selected: newSecondTiming,
-        },
       });
     }
   }
@@ -152,8 +156,8 @@ function dragSecondTiming(
 }
 export function mouseDrag(x: number, y: number): ScoreEvent {
   return async (state: State) => {
-    if (state.secondTiming.dragged) {
-      return dragSecondTiming(state.secondTiming.dragged, x, y, state);
+    if (state.draggedSecondTiming) {
+      return dragSecondTiming(state.draggedSecondTiming, x, y, state);
     } else if (
       state.draggedText !== null &&
       x < state.score.width &&
