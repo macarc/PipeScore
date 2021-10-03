@@ -19,15 +19,11 @@ import { mouseMoveOver } from '../Controllers/Mouse';
 import Note from './functions';
 import { NoteState } from './state';
 
-import { GracenoteModel } from '../Gracenote/model';
-import renderGracenoteProper, {
-  GracenoteProps,
-  gracenoteWidth,
-} from '../Gracenote/view';
+import { Gracenote, GracenoteProps } from '../Gracenote/model';
 import { GracenoteState } from '../Gracenote/state';
 
-const renderGracenote = (gracenote: GracenoteModel, props: GracenoteProps) =>
-  renderGracenoteProper(gracenote, {
+const renderGracenote = (gracenote: Gracenote, props: GracenoteProps) =>
+  gracenote.render({
     ...props,
     x: props.x + noteHeadRadius / 2,
   });
@@ -42,7 +38,7 @@ const noteHeadWidth = 2 * noteHeadRadius;
 const widthOfGracenote = (note: BaseNote | NoteModel, prevNote: Pitch | null) =>
   Note.isNoteModel(note) && note.tied
     ? width.init(0, 0)
-    : gracenoteWidth(note.gracenote, note.pitch, prevNote);
+    : note.gracenote.width(note.pitch, prevNote);
 
 export const widthOfNote = (
   note: NoteModel | TripletModel,
@@ -75,10 +71,7 @@ export const noteHeadOffset = (
   note: BaseNote,
   previousPitch: Pitch | null
 ): number =>
-  width.reify(
-    gracenoteWidth(note.gracenote, note.pitch, previousPitch),
-    beatWidth
-  );
+  width.reify(note.gracenote.width(note.pitch, previousPitch), beatWidth);
 
 function beamFrom(
   x1: number,
@@ -417,27 +410,18 @@ function renderTriplet(triplet: TripletModel, props: NoteProps): V {
   // This is mostly just repetitive, but there's enough different that it isn't worth trying to reuse code
   const notes = Note.tripletNoteModels(triplet);
   const firstGracenoteWidth = width.reify(
-    gracenoteWidth(
-      triplet.first.gracenote,
+    triplet.first.gracenote.width(
       triplet.first.pitch,
       nmap(props.previousNote, (n) => n.pitch)
     ),
     props.noteWidth
   );
   const secondGracenoteWidth = width.reify(
-    gracenoteWidth(
-      triplet.second.gracenote,
-      triplet.second.pitch,
-      triplet.first.pitch
-    ),
+    triplet.second.gracenote.width(triplet.second.pitch, triplet.first.pitch),
     props.noteWidth
   );
   const thirdGracenoteWidth = width.reify(
-    gracenoteWidth(
-      triplet.third.gracenote,
-      triplet.third.pitch,
-      triplet.second.pitch
-    ),
+    triplet.third.gracenote.width(triplet.third.pitch, triplet.second.pitch),
     props.noteWidth
   );
 
@@ -649,8 +633,7 @@ export default function render(
           (note.tied
             ? 0
             : width.reify(
-                gracenoteWidth(
-                  note.gracenote,
+                note.gracenote.width(
                   note.pitch,
                   noteIndex === 0 ? previousPitch : group[noteIndex - 1].pitch
                 ),

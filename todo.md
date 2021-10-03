@@ -13,6 +13,7 @@
 - [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
 - [ ] Selecting a gracenote then deleting retains the selection box
 - [ ] Merge gracenote.selected and maybe dragged items? into selection
+- [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
 
 ## General features
 

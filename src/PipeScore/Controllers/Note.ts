@@ -31,7 +31,6 @@ import { ScoreModel } from '../Score/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { SelectionModel, ScoreSelection } from '../Selection/model';
 
-import Gracenote from '../Gracenote/functions';
 import Note from '../Note/functions';
 import Score from '../Score/functions';
 import DemoNote from '../DemoNote/functions';
@@ -146,8 +145,7 @@ function addNote(
           note,
           {
             ...note,
-            gracenote: Gracenote.addSingle(
-              note.gracenote,
+            gracenote: note.gracenote.addSingle(
               pitch,
               note.pitch,
               previousPitch

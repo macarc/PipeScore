@@ -44,14 +44,13 @@ import { help as dochelp } from '../global/docs';
 
 import { NoteLength } from '../Note/model';
 import { Barline } from '../Bar/model';
-import { GracenoteModel } from '../Gracenote/model';
+import { Gracenote, SingleGracenote } from '../Gracenote/model';
 
-import Gracenote from '../Gracenote/functions';
 import Note from '../Note/functions';
 
 export interface UIState {
   inputLength: NoteLength | null;
-  gracenoteInput: GracenoteModel | null;
+  gracenoteInput: Gracenote | null;
   currentMenu: Menu;
   docs: string | null;
   playbackBpm: number;
@@ -78,9 +77,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
     );
 
   const isGracenoteInput = (name: string) =>
-    state.gracenoteInput &&
-    Gracenote.isReactive(state.gracenoteInput) &&
-    state.gracenoteInput.name === name;
+    state.gracenoteInput && state.gracenoteInput.name() === name;
   const gracenoteInput = (name: string) =>
     help(
       name,
@@ -168,7 +165,8 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'button',
             {
               class:
-                state.gracenoteInput && state.gracenoteInput.type === 'single'
+                state.gracenoteInput &&
+                state.gracenoteInput instanceof SingleGracenote
                   ? 'highlighted'
                   : 'not-highlighted',
               style: 'background-image: url("/images/icons/single.svg")',

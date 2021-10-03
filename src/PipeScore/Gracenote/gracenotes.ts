@@ -3,18 +3,15 @@
   Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
-import { Gracenote, InvalidGracenote } from './model';
+import { MaybeGracenote } from './model';
 
-type GracenoteFn = (
-  note: Pitch,
-  prev: Pitch | null
-) => Gracenote | InvalidGracenote;
+type GracenoteFn = (note: Pitch, prev: Pitch | null) => MaybeGracenote;
 
-const invalidateIf = (
-  pred: boolean,
-  gracenote: Gracenote
-): Gracenote | InvalidGracenote => (pred ? { gracenote } : gracenote);
-const invalid = (gracenote: Gracenote): InvalidGracenote => ({ gracenote });
+const invalidateIf = (pred: boolean, gracenote: Pitch[]): MaybeGracenote =>
+  new MaybeGracenote(gracenote, pred);
+
+const invalid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, false);
+const valid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, true);
 
 // gracenotes is a map containing all the possible embellishments in the form of functions
 // To get the notes of an embellishment, first get the gracenote type you want, e.g. gracenote["doubling"]
@@ -45,7 +42,7 @@ gracenotes.set('doubling', (note, prev) => {
   } else if (note === Pitch.HA) {
     pitches = [Pitch.HA, Pitch.HG];
   } else {
-    return [];
+    return valid([]);
   }
 
   if (prev === Pitch.HG && note !== Pitch.HA && note !== Pitch.HG) {
@@ -56,17 +53,17 @@ gracenotes.set('doubling', (note, prev) => {
     if (note === Pitch.HG) pitches = [Pitch.HG, Pitch.F];
   }
 
-  return pitches;
+  return valid(pitches);
 });
 
 gracenotes.set('g-strike', (note, prev) => {
-  const setFirst = (pitches: Gracenote): Gracenote => {
+  const setFirst = (pitches: Pitch[]) => {
     if (prev === Pitch.HA) {
-      return pitches;
+      return valid(pitches);
     } else if (prev === Pitch.HG) {
-      return [Pitch.HA, ...pitches];
+      return valid([Pitch.HA, ...pitches]);
     } else {
-      return [Pitch.HG, ...pitches];
+      return valid([Pitch.HG, ...pitches]);
     }
   };
   if (note === Pitch.G || note === Pitch.HA) {
@@ -77,9 +74,9 @@ gracenotes.set('g-strike', (note, prev) => {
     return setFirst([note, Pitch.E]);
   } else if (note === Pitch.HG) {
     if (prev === Pitch.HA) {
-      return [note, Pitch.F];
+      return valid([note, Pitch.F]);
     } else {
-      return [Pitch.HA, note, Pitch.F];
+      return valid([Pitch.HA, note, Pitch.F]);
     }
   } else {
     return setFirst([note, Pitch.G]);
@@ -88,28 +85,28 @@ gracenotes.set('g-strike', (note, prev) => {
 
 gracenotes.set('edre', (note, prev) => {
   if (prev === Pitch.G && (note === Pitch.E || note === Pitch.HG)) {
-    return [Pitch.E, Pitch.G, Pitch.F, Pitch.G];
+    return valid([Pitch.E, Pitch.G, Pitch.F, Pitch.G]);
   } else if (prev === Pitch.F && note === Pitch.HG) {
-    return [Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E];
+    return valid([Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E]);
   } else if (prev === Pitch.E && note === Pitch.HG) {
-    return [Pitch.F, Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E];
+    return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E]);
   } else if (note === Pitch.E || note === Pitch.HG) {
-    return [Pitch.E, Pitch.A, Pitch.F, Pitch.A];
+    return valid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
   } else if (note === Pitch.F) {
-    return [Pitch.F, Pitch.E, Pitch.HG, Pitch.E];
+    return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E]);
   } else if (prev === Pitch.G && note === Pitch.B) {
-    return [Pitch.D, Pitch.G, Pitch.C, Pitch.G];
+    return valid([Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
   } else if (note === Pitch.B) {
-    return [Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G];
+    return valid([Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
   } else {
     return invalid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
   }
 });
 gracenotes.set('grip', (note) => {
   if (note === Pitch.D) {
-    return [Pitch.G, Pitch.B, Pitch.G];
+    return valid([Pitch.G, Pitch.B, Pitch.G]);
   } else {
-    return [Pitch.G, Pitch.D, Pitch.G];
+    return valid([Pitch.G, Pitch.D, Pitch.G]);
   }
 });
 gracenotes.set('shake', (note, prev) => {
@@ -138,7 +135,7 @@ gracenotes.set('shake', (note, prev) => {
     pitches[0] = Pitch.HA;
   }
 
-  return pitches;
+  return valid(pitches);
 });
 gracenotes.set('toarluath', (note, prev) => {
   let pitches = [];
@@ -155,7 +152,7 @@ gracenotes.set('toarluath', (note, prev) => {
   ) {
     pitches = pitches.slice(0, 3);
   }
-  return pitches;
+  return valid(pitches);
 });
 gracenotes.set('crunluath', (note, prev) => {
   let pitches = [];

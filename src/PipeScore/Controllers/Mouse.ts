@@ -13,7 +13,7 @@ import {
 import { State } from '../State';
 
 import { deleteSelectedNotes, dragNote } from './Note';
-import { changeGracenoteFrom, dragGracenote } from './Gracenote';
+import { changeGracenoteFrom } from './Gracenote';
 import { replaceTextBox } from './Text';
 
 import SecondTiming from '../SecondTiming/functions';
@@ -23,7 +23,7 @@ import { Pitch } from '../global/pitch';
 import { replace } from '../global/utils';
 import { closestItem } from '../global/xy';
 import { TextBoxModel } from '../TextBox/model';
-import { GracenoteModel } from '../Gracenote/model';
+import { Gracenote, NoGracenote } from '../Gracenote/model';
 import { DraggedSecondTiming, SecondTimingModel } from '../SecondTiming/model';
 import {
   ScoreSelection,
@@ -31,9 +31,9 @@ import {
   TextSelection,
 } from '../Selection/model';
 
-const deleteGracenote = (gracenote: GracenoteModel, state: State) => ({
+const deleteGracenote = (gracenote: Gracenote, state: State) => ({
   ...state,
-  score: changeGracenoteFrom(gracenote, { type: 'none' }, state.score),
+  score: changeGracenoteFrom(gracenote, new NoGracenote(), state.score),
   gracenote: { ...state.gracenote, selected: null },
 });
 
@@ -89,11 +89,8 @@ export function mouseMoveOver(pitch: Pitch): ScoreEvent {
       });
     } else if (state.note.dragged && state.note.dragged.pitch !== pitch) {
       return dragNote(state.note.dragged, pitch, state);
-    } else if (
-      state.gracenote.dragged &&
-      state.gracenote.dragged.note !== pitch
-    ) {
-      return dragGracenote(state.gracenote.dragged, pitch, state);
+    } else if (state.gracenote.dragged) {
+      return { update: state.gracenote.dragged.drag(pitch), state };
     }
     return noChange(state);
   };

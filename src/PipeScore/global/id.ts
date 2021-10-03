@@ -4,8 +4,11 @@
 */
 export type ID = number;
 
-export interface Item {
-  id: ID;
+export class Item {
+  public id: ID;
+  constructor(id: ID | null) {
+    this.id = id || genId();
+  }
 }
 
 // Generate a random ID

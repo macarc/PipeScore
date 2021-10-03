@@ -5,7 +5,7 @@
 
 import { BaseNote, NoteModel, TripletModel } from './Note/model';
 import { DemoNoteModel } from './DemoNote/model';
-import { GracenoteModel, SingleGracenote } from './Gracenote/model';
+import { Gracenote, SingleGracenote } from './Gracenote/model';
 import { PlaybackState } from './Playback';
 import { Menu } from './UI/model';
 import { V } from '../render/h';
@@ -24,8 +24,8 @@ export interface State {
   gracenote: {
     dragged: SingleGracenote | null;
     // TODO this should be handled by ScoreSelection ?
-    selected: GracenoteModel | null;
-    input: GracenoteModel | null;
+    selected: Gracenote | null;
+    input: Gracenote | null;
   };
   draggedSecondTiming: DraggedSecondTiming | null;
   // TODO store in TextSelection?

@@ -5,10 +5,9 @@
 import { genId } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { flatten } from '../global/utils';
+import { NoGracenote } from '../Gracenote/model';
 
 import { NoteModel, NoteLength, TripletModel, BaseNote } from './model';
-
-import Gracenote from '../Gracenote/functions';
 
 const isTriplet = (
   note: NoteModel | BaseNote | NoteModel[] | TripletModel
@@ -249,7 +248,7 @@ const init = (
   pitch: Pitch,
   length: NoteLength,
   tied = false,
-  gracenote = Gracenote.init()
+  gracenote = new NoGracenote()
 ): NoteModel => ({
   pitch,
   length,

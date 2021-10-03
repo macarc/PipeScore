@@ -21,34 +21,13 @@ import {
 import { Pitch } from '../global/pitch';
 
 import DemoNote from '../DemoNote/functions';
-import { GracenoteModel, SingleGracenote } from '../Gracenote/model';
+import { Gracenote, SingleGracenote } from '../Gracenote/model';
 import { TripletModel } from '../Note/model';
 import { ScoreModel } from '../Score/model';
 
-import Gracenote from '../Gracenote/functions';
-
-export function dragGracenote(
-  gracenote: SingleGracenote,
-  pitch: Pitch,
-  state: State
-): UpdatedState {
-  const newGracenote = {
-    ...gracenote,
-    note: pitch,
-  };
-  return viewChanged({
-    ...state,
-    gracenote: {
-      ...state.gracenote,
-      dragged: newGracenote,
-      selected: newGracenote,
-    },
-    score: changeGracenoteFrom(gracenote, newGracenote, state.score),
-  });
-}
 export function changeGracenoteFrom(
-  oldGracenote: GracenoteModel,
-  newGracenote: GracenoteModel,
+  oldGracenote: Gracenote,
+  newGracenote: Gracenote,
   score: ScoreModel
 ): ScoreModel {
   // Replaces oldGracenote with newGracenote
@@ -65,7 +44,7 @@ export function changeGracenoteFrom(
     false
   );
 }
-export function clickGracenote(gracenote: GracenoteModel): ScoreEvent {
+export function clickGracenote(gracenote: Gracenote): ScoreEvent {
   return async (state: State) =>
     viewChanged({
       ...state,
@@ -74,7 +53,7 @@ export function clickGracenote(gracenote: GracenoteModel): ScoreEvent {
       gracenote: {
         ...state.gracenote,
         selected: gracenote,
-        dragged: gracenote.type === 'single' ? gracenote : null,
+        dragged: gracenote instanceof SingleGracenote ? gracenote : null,
       },
     });
 }
@@ -101,7 +80,7 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
           note: {
             ...state.note,
             demo:
-              newGracenote.type === 'single'
+              newGracenote instanceof SingleGracenote
                 ? DemoNote.initDemoGracenote()
                 : null,
           },
@@ -119,8 +98,7 @@ export function addGracenoteToTriplet(
     if (state.note.demo && state.note.demo.type === 'gracenote') {
       const previousPitch =
         which === 'second' ? triplet.first.pitch : triplet.second.pitch;
-      gracenote = Gracenote.addSingle(
-        triplet[which].gracenote,
+      gracenote = triplet[which].gracenote.addSingle(
         pitch,
         triplet[which].pitch,
         previousPitch

@@ -2,22 +2,20 @@
   Play gracenotes
   Copyright (C) 2021 Archie Maclean
 */
+import { Gracenote } from './model';
 import { Pitch } from '../global/pitch';
-
-import { GracenoteModel } from './model';
-import Gracenote from './functions';
 
 import { PlaybackElement } from '../Playback';
 
 export default function play(
-  gracenote: GracenoteModel,
+  gracenote: Gracenote,
   note: Pitch,
   previous: Pitch | null
 ): PlaybackElement[] {
-  const notes = Gracenote.notesOf(gracenote, note, previous);
-  if (Gracenote.isInvalid(notes)) {
-    return [];
+  const notes = gracenote.notes(note, previous);
+  if (notes.isValid()) {
+    return notes.notes().map((pitch) => ({ pitch, tied: false, duration: 0 }));
   } else {
-    return notes.map((pitch) => ({ pitch, tied: false, duration: 0 }));
+    return [];
   }
 }
