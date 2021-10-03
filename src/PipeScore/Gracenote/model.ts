@@ -9,7 +9,6 @@ import { lineGap } from '../global/constants';
 import { noteY, Pitch } from '../global/pitch';
 import { nlast } from '../global/utils';
 import width, { Width } from '../global/width';
-import { DraggedSecondTiming } from '../SecondTiming/model';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 

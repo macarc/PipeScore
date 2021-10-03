@@ -9,7 +9,6 @@ import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
 import { DemoNoteModel } from '../DemoNote/model';
 import { SelectionModel } from '../Selection/model';
-import { SecondTimingModel } from '../SecondTiming/model';
 import { Dispatch } from '../Controllers/Controller';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
 
@@ -62,13 +61,13 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
     staveY: topOffset + staveGap * props.demoNote.staveIndex,
   };
 
-  const secondTimingProps = (st: SecondTimingModel) => ({
+  const secondTimingProps = {
     staveStartX: margin,
     staveEndX: score.width - margin,
     selection: props.selection,
     staveGap,
     dispatch: props.dispatch,
-  });
+  };
   const scoreSelectionProps = {
     staveStartX: margin,
     staveEndX: score.width - margin,
@@ -101,7 +100,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
         })
       ),
       ...score.secondTimings.map((secondTiming) =>
-        renderSecondTiming(secondTiming, secondTimingProps(secondTiming))
+        renderSecondTiming(secondTiming, secondTimingProps)
       ),
       props.selection
         ? renderScoreSelection(props.selection, scoreSelectionProps)

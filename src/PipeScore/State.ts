@@ -12,7 +12,6 @@ import { V } from '../render/h';
 import { TextBoxModel } from './TextBox/model';
 import { DraggedSecondTiming } from './SecondTiming/model';
 import { ScoreModel } from './Score/model';
-import { SecondTimingModel } from './SecondTiming/model';
 import { SelectionModel } from './Selection/model';
 
 export interface State {

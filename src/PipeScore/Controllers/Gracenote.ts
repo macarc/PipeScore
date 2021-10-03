@@ -2,13 +2,7 @@
   Controller for gracenote-related events
   Copyright (C) 2021 Archie Maclean
 */
-import {
-  ScoreEvent,
-  noChange,
-  viewChanged,
-  shouldSave,
-  UpdatedState,
-} from './Controller';
+import { ScoreEvent, noChange, viewChanged, shouldSave } from './Controller';
 import { State } from '../State';
 import {
   changeNotes,
