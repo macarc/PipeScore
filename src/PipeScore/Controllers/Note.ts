@@ -127,7 +127,7 @@ function addNote(
         }),
       }),
     });
-  } else if (state.note.demo && state.note.demo.type === 'gracenote') {
+  } else {
     const previousPitch = nmap(noteBefore, (noteBefore) =>
       Note.isTriplet(noteBefore) ? noteBefore.third.pitch : noteBefore.pitch
     );
@@ -141,34 +141,27 @@ function addNote(
       noteOrTripletFirst
     );
     if (note) {
-      return replaceNote(
-        note,
-        {
-          ...note,
-          gracenote: Gracenote.addSingle(
-            note.gracenote,
-            pitch,
-            note.pitch,
-            previousPitch
-          ),
-        },
-        state
-      );
-    }
-  } else if (state.gracenote.input) {
-    const note = nmap(
-      nmap(
-        noteBefore,
-        (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
-      ),
-      noteOrTripletFirst
-    );
-    if (note) {
-      return replaceNote(
-        note,
-        { ...note, gracenote: state.gracenote.input },
-        state
-      );
+      if (state.note.demo && state.note.demo.type === 'gracenote') {
+        return replaceNote(
+          note,
+          {
+            ...note,
+            gracenote: Gracenote.addSingle(
+              note.gracenote,
+              pitch,
+              note.pitch,
+              previousPitch
+            ),
+          },
+          state
+        );
+      } else if (state.gracenote.input) {
+        return replaceNote(
+          note,
+          { ...note, gracenote: state.gracenote.input },
+          state
+        );
+      }
     }
   }
   return noChange(state);
