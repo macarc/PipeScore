@@ -127,21 +127,10 @@ export function setBarRepeat(
 ): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar, stave } = location(state.selection.start, state.score);
+      const { bar } = location(state.selection.start, state.score);
+      bar[which] = what;
 
-      return shouldSave({
-        ...state,
-        score: {
-          ...state.score,
-          staves: replace(stave, 1, state.score.staves, {
-            ...stave,
-            bars: replace(bar, 1, stave.bars, {
-              ...bar,
-              [which]: what,
-            }),
-          }),
-        },
-      });
+      return shouldSave(state);
     }
     return noChange(state);
   };

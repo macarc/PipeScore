@@ -10,8 +10,6 @@ import TimeSignature from '../TimeSignature/functions';
 
 import { last } from '../global/utils';
 
-import Bar from '../Bar/functions';
-
 function bars(stave: StaveModel): BarModel[] {
   // Returns all the bars in the stave
 
@@ -29,7 +27,7 @@ function addBar(stave: StaveModel, bar: BarModel, before: boolean): StaveModel {
         before ? ind : ind + 1,
         0,
         stave.bars,
-        Bar.init(bar.timeSignature)
+        new BarModel(bar.timeSignature)
       ),
     };
   return stave;
@@ -49,7 +47,7 @@ function addAnacrusis(
         before ? ind : ind + 1,
         0,
         stave.bars,
-        Bar.initAnacrusis(bar.timeSignature)
+        BarModel.initAnacrusis(bar.timeSignature)
       ),
     };
   return stave;
@@ -70,10 +68,10 @@ function lastBar(stave: StaveModel): BarModel | null {
 
 const init = (timeSignature = TimeSignature.init()): StaveModel => ({
   bars: [
-    Bar.init(timeSignature),
-    Bar.init(timeSignature),
-    Bar.init(timeSignature),
-    Bar.init(timeSignature),
+    new BarModel(timeSignature),
+    new BarModel(timeSignature),
+    new BarModel(timeSignature),
+    new BarModel(timeSignature),
   ],
 });
 

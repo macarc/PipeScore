@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 
-import { flatten, replaceIndex } from '../global/utils';
+import { arrayflatten, replaceIndex } from '../global/utils';
 
 import { ScoreModel } from './model';
 import { StaveModel } from '../Stave/model';
@@ -13,7 +13,7 @@ import Stave from '../Stave/functions';
 import TextBox from '../TextBox/functions';
 
 const bars = (score: ScoreModel) =>
-  flatten(score.staves.map((stave) => Stave.bars(stave)));
+  arrayflatten(score.staves.map((stave) => Stave.bars(stave)));
 
 const staves = (score: ScoreModel) => score.staves;
 

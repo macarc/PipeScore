@@ -42,11 +42,9 @@ import { Menu } from './model';
 
 import { help as dochelp } from '../global/docs';
 
-import { NoteLength } from '../Note/model';
+import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/model';
 import { Gracenote, SingleGracenote } from '../Gracenote/model';
-
-import Note from '../Note/functions';
 
 export interface UIState {
   inputLength: NoteLength | null;
@@ -61,7 +59,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   const isCurrentNoteInput = (length: NoteLength) =>
     state.inputLength === null
       ? false
-      : Note.sameNoteLengthName(state.inputLength, length);
+      : sameNoteLengthName(state.inputLength, length);
 
   const noteInputButton = (length: NoteLength) =>
     help(
@@ -126,7 +124,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             {
               id: 'toggle-dotted',
               class:
-                state.inputLength && Note.hasDot(state.inputLength)
+                state.inputLength && dotted(state.inputLength)
                   ? 'highlighted'
                   : 'not-highlighted',
             },

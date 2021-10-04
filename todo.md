@@ -14,6 +14,8 @@
 - [ ] Selecting a gracenote then deleting retains the selection box
 - [ ] Merge gracenote.selected and maybe dragged items? into selection
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
+- [ ] Allow arbitary notes in triplets (e.g. Q SQ SQ Q)
+- [ ] Adding gracenotes to triplets now won't work since it doesn't use the addGracenoteToTriplet but just the general one. Easily fixable
 
 ## General features
 

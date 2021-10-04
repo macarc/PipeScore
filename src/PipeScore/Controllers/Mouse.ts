@@ -12,7 +12,7 @@ import {
 } from './Controller';
 import { State } from '../State';
 
-import { deleteSelectedNotes, dragNote } from './Note';
+import { deleteSelectedNotes } from './Note';
 import { changeGracenoteFrom } from './Gracenote';
 import { replaceTextBox } from './Text';
 
@@ -87,8 +87,9 @@ export function mouseMoveOver(pitch: Pitch): ScoreEvent {
         ...state,
         note: { ...state.note, demo: { ...state.note.demo, pitch: pitch } },
       });
-    } else if (state.note.dragged && state.note.dragged.pitch !== pitch) {
-      return dragNote(state.note.dragged, pitch, state);
+    } else if (state.note.dragged) {
+      state.note.dragged.drag(pitch);
+      return viewChanged(state);
     } else if (state.gracenote.dragged) {
       return { update: state.gracenote.dragged.drag(pitch), state };
     }

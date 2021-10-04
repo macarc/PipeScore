@@ -6,7 +6,7 @@ import { StaveModel } from './model';
 import Stave from './functions';
 
 import { PlaybackElement } from '../Playback';
-import { flatten, nmap } from '../global/utils';
+import { arrayflatten, nmap } from '../global/utils';
 
 import playBar from '../Bar/play';
 
@@ -14,7 +14,7 @@ export default function play(
   stave: StaveModel,
   previous: StaveModel | null
 ): PlaybackElement[] {
-  return flatten(
+  return arrayflatten(
     stave.bars.map((b, i) =>
       playBar(
         b,

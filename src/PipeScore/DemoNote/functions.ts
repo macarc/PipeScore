@@ -2,7 +2,7 @@
   DemoNote (preview note) methods
   Copyright (C) 2021 Archie Maclean
  */
-import { NoteLength } from '../Note/model';
+import { NoteLength } from '../Note/notelength';
 
 import { DemoNoteModel } from './model';
 

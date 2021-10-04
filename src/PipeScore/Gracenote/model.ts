@@ -7,7 +7,7 @@ import { Dispatch, Update } from '../Controllers/Controller';
 import { clickGracenote } from '../Controllers/Gracenote';
 import { lineGap } from '../global/constants';
 import { noteY, Pitch } from '../global/pitch';
-import { nlast } from '../global/utils';
+import { nlast, Obj } from '../global/utils';
 import width, { Width } from '../global/width';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
@@ -36,6 +36,8 @@ export interface GracenoteProps {
 
 export abstract class Gracenote {
   abstract notes(thisNote: Pitch, previousNote: Pitch | null): MaybeGracenote;
+  abstract toObject(): Obj;
+  abstract copy(): Gracenote;
   abstract render(props: GracenoteProps): V;
 
   public static from(name: string | null) {
@@ -46,6 +48,38 @@ export abstract class Gracenote {
     } else {
       return new ReactiveGracenote(name);
     }
+  }
+  public static fromJSON(o: any) {
+    switch (o.type) {
+      case 'single':
+        return SingleGracenote.fromObject(o.value);
+      case 'reactive':
+        return ReactiveGracenote.fromObject(o.value);
+      case 'custom':
+        return CustomGracenote.fromObject(o.value);
+      case 'none':
+        return NoGracenote.fromObject();
+      default:
+        throw new Error(`Unrecognised Gracenote type ${o.type}`);
+    }
+  }
+  public toJSON() {
+    let type = 'single';
+    if (this instanceof SingleGracenote) {
+      type = 'single';
+    } else if (this instanceof ReactiveGracenote) {
+      type = 'reactive';
+    } else if (this instanceof CustomGracenote) {
+      type = 'custom';
+    } else if (this instanceof NoGracenote) {
+      type = 'none';
+    } else {
+      throw new Error('Unrecognised Gracenote type');
+    }
+    return {
+      type,
+      value: this.toObject(),
+    };
   }
 
   public name() {
@@ -81,6 +115,12 @@ export abstract class Gracenote {
       2 * gracenoteHeadRadius * length,
       gracenoteToNoteWidthRatio * length
     );
+  }
+  public play(thisNote: Pitch, previous: Pitch | null) {
+    const notes = this.notes(thisNote, previous);
+    return notes.isValid()
+      ? notes.notes().map((pitch) => ({ pitch, tied: false, duration: 0 }))
+      : [];
   }
   protected head(
     dispatch: Dispatch,
@@ -230,6 +270,17 @@ export class ReactiveGracenote extends Gracenote {
       throw new Error(`${grace} is not a valid gracenote.`);
     }
   }
+  public copy() {
+    return new ReactiveGracenote(this.grace);
+  }
+  public static fromObject(o: any) {
+    return new ReactiveGracenote(o.grace);
+  }
+  public toObject() {
+    return {
+      grace: this.grace,
+    };
+  }
   public notes(thisNote: Pitch, previousNote: Pitch | null) {
     const notes = gracenotes.get(this.grace);
     if (notes) {
@@ -255,6 +306,17 @@ export class SingleGracenote extends Gracenote {
     super();
     this.note = note;
   }
+  public copy() {
+    return new SingleGracenote(this.note);
+  }
+  public static fromObject(o: any) {
+    return new SingleGracenote(o.note);
+  }
+  public toObject() {
+    return {
+      note: this.note,
+    };
+  }
   public drag(pitch: Pitch) {
     if (this.note != pitch) {
       this.note = pitch;
@@ -273,6 +335,17 @@ export class SingleGracenote extends Gracenote {
 export class CustomGracenote extends Gracenote {
   private pitches: Pitch[] = [];
 
+  public copy() {
+    return new CustomGracenote().addNotes(...this.pitches);
+  }
+  public static fromObject(o: any) {
+    return new CustomGracenote().addNotes(o.note);
+  }
+  public toObject() {
+    return {
+      notes: this.notes,
+    };
+  }
   public notes() {
     return new MaybeGracenote(this.pitches);
   }
@@ -290,6 +363,15 @@ export class CustomGracenote extends Gracenote {
 }
 
 export class NoGracenote extends Gracenote {
+  public copy() {
+    return new NoGracenote();
+  }
+  public static fromObject() {
+    return new NoGracenote();
+  }
+  public toObject() {
+    return {};
+  }
   public notes() {
     return new MaybeGracenote([]);
   }

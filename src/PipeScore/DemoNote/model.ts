@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
-import { NoteLength } from '../Note/model';
+import { NoteLength } from '../Note/notelength';
 
 export type DemoNoteModel =
   | {

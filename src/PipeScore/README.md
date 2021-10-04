@@ -4,6 +4,8 @@ This directory contains the main implementation of PipeScore - the actual PipeSc
 
 ## Project Structure
 
+**Note**: I'm currently rewiring this slightly. This is out of date.
+
 Each component of a score (e.g. note, gracenote, stave) gets its own folder, with 3-5 files:
 
 - `model` - this defines the type associated with the component

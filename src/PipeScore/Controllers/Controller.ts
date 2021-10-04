@@ -5,7 +5,7 @@
 import { State } from '../State';
 
 import { BarModel } from '../Bar/model';
-import { NoteModel, TripletModel } from '../Note/model';
+import { Note, TripletNote } from '../Note/model';
 import { ScoreModel } from '../Score/model';
 import { StaveModel } from '../Stave/model';
 
@@ -75,7 +75,7 @@ export function removeTextState(state: State): State {
 }
 
 export function location(
-  note: NoteModel | ID | TripletModel,
+  note: Note | TripletNote | ID,
   score: ScoreModel
 ): {
   stave: StaveModel;
@@ -84,25 +84,15 @@ export function location(
   // Finds the parent bar and stave of the note passed
 
   const staves = Score.staves(score);
-  if (typeof note === 'number') {
-    for (const stave of staves) {
-      const bars = Stave.bars(stave);
-      for (const bar of bars) {
-        if (bar.id === note) {
-          return { stave, bar };
-        }
-        for (const noteModel of bar.notes) {
-          if (noteModel.id === note) {
-            return { stave, bar };
-          }
-        }
+  const id = typeof note === 'number' ? note : note.id;
+  for (const stave of staves) {
+    const bars = Stave.bars(stave);
+    for (const bar of bars) {
+      if (bar.hasID(id)) {
+        return { stave, bar };
       }
-    }
-  } else {
-    for (const stave of staves) {
-      const bars = Stave.bars(stave);
-      for (const bar of bars) {
-        if (bar.notes.includes(note)) {
+      for (const noteModel of bar.notes) {
+        if (noteModel.hasID(id)) {
           return { stave, bar };
         }
       }

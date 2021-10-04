@@ -87,9 +87,9 @@ export function pitchDown(pitch: Pitch): Pitch {
 
 // Calculate the difference from the top of the stave
 // to the note
-export const noteOffset = (note: Pitch): number =>
+export const pitchOffset = (note: Pitch): number =>
   lineHeightOf(pitchToHeight(note));
 
 // Calculates the y value of given note
 export const noteY = (staveY: number, note: Pitch): number =>
-  staveY + noteOffset(note);
+  staveY + pitchOffset(note);

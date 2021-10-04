@@ -22,11 +22,15 @@ function init(min: number, extend: number): Width {
   return { min, extend };
 }
 
-function add(...widths: Width[]): Width {
-  return widths.reduce((a, b) => ({
+function addAll(...widths: Width[]): Width {
+  return widths.reduce(add, zero());
+}
+
+function add(a: Width, b: Width): Width {
+  return {
     min: a.min + b.min,
     extend: a.extend + b.extend,
-  }));
+  };
 }
 
 function mul(width: Width, val: number): Width {
@@ -50,6 +54,7 @@ function zero(): Width {
 export default {
   init,
   add,
+  addAll,
   mul,
   reify,
   zero,

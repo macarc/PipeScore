@@ -3,6 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 
+export type Obj = Record<string, unknown>;
 // Log helper functions, make logging easier
 // E.g. x = someThing + (whatIsThis * 3) --> x = something + (log(whatIsThis) * 3)
 // log - print value and return it
@@ -35,10 +36,11 @@ export function removeNull<A>(a: A | null): a is A {
 }
 
 // Turn a 1-deep nested array into a flat array
-export function flatten<T>(array: T[][]): T[] {
+export function arrayflatten<T>(array: T[][]): T[] {
   return ([] as T[]).concat(...array);
 }
 
+export const car = <U, V>(pair: [U, V]): U => pair[0];
 // Find the last value of an array in fewer characters
 export const last = <T>(array: T[]): T | null =>
   array[array.length - 1] || null;

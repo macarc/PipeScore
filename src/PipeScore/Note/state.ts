@@ -2,9 +2,9 @@
   State required for notes
   Copyright (C) 2021 Archie Maclean
 */
-import { BaseNote } from './model';
+import { Note, TripletNote } from './model';
 
 export interface NoteState {
-  dragged: BaseNote | null;
+  dragged: Note | TripletNote | null;
   inputtingNotes: boolean;
 }

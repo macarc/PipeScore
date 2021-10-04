@@ -3,7 +3,6 @@
   Copyright (C) 2021 Archie Maclean
 */
 
-import { BaseNote, NoteModel, TripletModel } from './Note/model';
 import { DemoNoteModel } from './DemoNote/model';
 import { Gracenote, SingleGracenote } from './Gracenote/model';
 import { PlaybackState } from './Playback';
@@ -13,11 +12,12 @@ import { TextBoxModel } from './TextBox/model';
 import { DraggedSecondTiming } from './SecondTiming/model';
 import { ScoreModel } from './Score/model';
 import { SelectionModel } from './Selection/model';
+import { Note, SingleNote, Triplet, TripletNote } from './Note/model';
 
 export interface State {
   justClickedNote: boolean;
   note: {
-    dragged: BaseNote | null;
+    dragged: SingleNote | TripletNote | null;
     demo: DemoNoteModel | null;
   };
   gracenote: {
@@ -37,7 +37,7 @@ export interface State {
     current: string | null;
     show: boolean;
   };
-  clipboard: (NoteModel | TripletModel | 'bar-break')[] | null;
+  clipboard: (Note | Triplet | 'bar-break')[] | null;
   selection: SelectionModel | null;
   history: {
     past: string[];

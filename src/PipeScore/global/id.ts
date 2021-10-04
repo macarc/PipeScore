@@ -9,6 +9,9 @@ export class Item {
   constructor(id: ID | null) {
     this.id = id || genId();
   }
+  public hasID(id: ID) {
+    return this.id === id;
+  }
 }
 
 // Generate a random ID

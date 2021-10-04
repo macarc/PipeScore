@@ -22,7 +22,7 @@ import {
 import { undo, redo } from './Controllers/Misc';
 import { deleteSelection } from './Controllers/Mouse';
 
-import { NoteLength } from './Note/model';
+import { NoteLength } from './Note/notelength';
 
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;
