@@ -32,11 +32,6 @@ interface ScoreProps {
   demoNote: DemoNoteModel | null;
   gracenoteState: GracenoteState;
 }
-
-const enum Orientation {
-  Portrait = 'portrait',
-  Landscape = 'landscape',
-}
 export class Score {
   private name: string;
   private landscape: boolean;

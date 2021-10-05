@@ -112,7 +112,7 @@ abstract class BaseNote extends Item {
     n.id = genId();
     return n;
   }
-  public static fromJSON(o: any) {
+  public static fromJSON(o: Obj) {
     if (o.notetype !== 'single' && o.notetype !== 'triplet')
       throw new Error(`Unrecognised note type ${o.notetype}`);
 
@@ -282,7 +282,7 @@ export class SingleNote extends BaseNote {
       .map((n, i) => n.width(i === 0 ? prevNote : notes[i - 1].lastPitch()))
       .reduce(width.add, width.zero());
   }
-  public static fromObject(o: any) {
+  public static fromObject(o: Obj) {
     return new SingleNote(
       o.pitch,
       o.length,
@@ -887,7 +887,7 @@ export class Triplet extends BaseNote {
     this.third.id = genId();
     return n;
   }
-  public static fromObject(o: any) {
+  public static fromObject(o: Obj) {
     return new Triplet(
       o.length,
       TripletNote.fromObject(o.notes[0]),
@@ -1012,7 +1012,7 @@ export class TripletNote extends Item {
     this.pitch = pitch;
     this.gracenote = gracenote;
   }
-  public static fromObject(o: any) {
+  public static fromObject(o: Obj) {
     const t = new TripletNote(o.pitch, Gracenote.fromJSON(o.gracenote));
     t.id = o.id;
     return t;

@@ -16,7 +16,6 @@ import { deleteSelectedNotes } from './Note';
 import { changeGracenoteFrom } from './Gracenote';
 
 import { Pitch } from '../global/pitch';
-import { closestItem } from '../global/xy';
 import { Gracenote, NoGracenote } from '../Gracenote/model';
 import { DraggedSecondTiming } from '../SecondTiming/model';
 import {

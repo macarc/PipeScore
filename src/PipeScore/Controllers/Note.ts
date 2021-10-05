@@ -15,13 +15,11 @@ import {
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
-import { ID, Item } from '../global/id';
+import { Item } from '../global/id';
 import { car, deepcopy, nmap } from '../global/utils';
 import { deleteXY, itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar/model';
-import { Score } from '../Score/model';
-import { SecondTiming } from '../SecondTiming/model';
 import { ScoreSelection } from '../Selection/model';
 
 import DemoNote from '../DemoNote/functions';

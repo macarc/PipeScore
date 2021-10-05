@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 
-export type Obj = Record<string, unknown>;
+export type Obj = Record<string, any>;
 // Log helper functions, make logging easier
 // E.g. x = someThing + (whatIsThis * 3) --> x = something + (log(whatIsThis) * 3)
 // log - print value and return it

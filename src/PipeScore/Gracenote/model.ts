@@ -49,7 +49,7 @@ export abstract class Gracenote {
       return new ReactiveGracenote(name);
     }
   }
-  public static fromJSON(o: any) {
+  public static fromJSON(o: Obj) {
     switch (o.type) {
       case 'single':
         return SingleGracenote.fromObject(o.value);
@@ -273,7 +273,7 @@ export class ReactiveGracenote extends Gracenote {
   public copy() {
     return new ReactiveGracenote(this.grace);
   }
-  public static fromObject(o: any) {
+  public static fromObject(o: Obj) {
     return new ReactiveGracenote(o.grace);
   }
   public toObject() {
@@ -309,7 +309,7 @@ export class SingleGracenote extends Gracenote {
   public copy() {
     return new SingleGracenote(this.note);
   }
-  public static fromObject(o: any) {
+  public static fromObject(o: Obj) {
     return new SingleGracenote(o.note);
   }
   public toObject() {
@@ -338,7 +338,7 @@ export class CustomGracenote extends Gracenote {
   public copy() {
     return new CustomGracenote().addNotes(...this.pitches);
   }
-  public static fromObject(o: any) {
+  public static fromObject(o: Obj) {
     return new CustomGracenote().addNotes(o.note);
   }
   public toObject() {
