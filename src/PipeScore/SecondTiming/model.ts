@@ -8,7 +8,7 @@ import { clickSecondTiming } from '../Controllers/SecondTiming';
 import { ID } from '../global/id';
 import { closestItem, getXY, itemBefore } from '../global/xy';
 import { SecondTimingSelection } from '../Selection/model';
-import { SelectionModel } from '../Selection/model';
+import { Selection } from '../Selection/model';
 
 export interface DraggedSecondTiming {
   secondTiming: SecondTiming;
@@ -18,7 +18,7 @@ export interface DraggedSecondTiming {
 interface SecondTimingProps {
   staveStartX: number;
   staveEndX: number;
-  selection: SelectionModel | null;
+  selection: Selection | null;
   staveGap: number;
   dispatch: Dispatch;
 }

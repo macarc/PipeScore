@@ -11,14 +11,12 @@ import {
 } from './Controller';
 import { State } from '../State';
 
-import TextBox from '../TextBox/functions';
-
-import { TextBoxModel } from '../TextBox/model';
+import { TextBox } from '../TextBox/model';
 import { TextSelection } from '../Selection/model';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
-    state.score.addText(TextBox.init());
+    state.score.addText(new TextBox());
     return shouldSave(state);
   };
 }
@@ -26,19 +24,14 @@ export function addText(): ScoreEvent {
 export function changeText(
   newText: string,
   newSize: number,
-  text: TextBoxModel
+  text: TextBox
 ): ScoreEvent {
   return async (state: State) => {
-    if (newText !== text.text || newSize !== text.size) {
-      text.text = newText;
-      text.size = newSize;
-      return shouldSave(state);
-    }
-    return noChange(state);
+    return { update: text.set(newText, newSize), state };
   };
 }
 
-export function clickText(text: TextBoxModel): ScoreEvent {
+export function clickText(text: TextBox): ScoreEvent {
   return async (state: State) =>
     viewChanged({
       ...removeNoteState(state),
@@ -50,7 +43,7 @@ export function clickText(text: TextBoxModel): ScoreEvent {
 export function centreText(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof TextSelection) {
-      TextBox.toggleCentre(state.selection.text);
+      state.selection.text.toggleCentre();
       return shouldSave(state);
     }
     return noChange(state);

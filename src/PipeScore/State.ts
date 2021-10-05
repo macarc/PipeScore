@@ -8,10 +8,10 @@ import { Gracenote, SingleGracenote } from './Gracenote/model';
 import { PlaybackState } from './Playback';
 import { Menu } from './UI/model';
 import { V } from '../render/h';
-import { TextBoxModel } from './TextBox/model';
+import { TextBox } from './TextBox/model';
 import { DraggedSecondTiming } from './SecondTiming/model';
 import { Score } from './Score/model';
-import { SelectionModel } from './Selection/model';
+import { Selection } from './Selection/model';
 import { Note, SingleNote, Triplet, TripletNote } from './Note/model';
 
 export interface State {
@@ -28,14 +28,14 @@ export interface State {
   };
   draggedSecondTiming: DraggedSecondTiming | null;
   // TODO store in TextSelection?
-  draggedText: TextBoxModel | null;
+  draggedText: TextBox | null;
   ui: { menu: Menu };
   doc: {
     current: string | null;
     show: boolean;
   };
   clipboard: (Note | Triplet | 'bar-break')[] | null;
-  selection: SelectionModel | null;
+  selection: Selection | null;
   history: {
     past: string[];
     future: string[];

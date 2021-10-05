@@ -3,10 +3,9 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { Stave } from '../Stave/model';
-import { TextBoxModel } from '../TextBox/model';
+import { TextBox } from '../TextBox/model';
 import { DraggedSecondTiming, SecondTiming } from '../SecondTiming/model';
 import { TimeSignatureModel } from '../TimeSignature/model';
-import TextBox from '../TextBox/functions';
 import TimeSignature from '../TimeSignature/functions';
 import { lineGap, staveGap } from '../global/constants';
 import { svg, V } from '../../render/h';
@@ -14,11 +13,10 @@ import { clickBackground, mouseUp } from '../Controllers/Mouse';
 import { DemoNoteModel } from '../DemoNote/model';
 import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
-import { SelectionModel } from '../Selection/model';
+import { Selection } from '../Selection/model';
 import { GracenoteState } from '../Gracenote/state';
 import { last } from '../global/utils';
 
-import renderTextBox from '../TextBox/view';
 import renderScoreSelection from '../Selection/view';
 import renderDemoNote from '../DemoNote/view';
 import { Triplet } from '../Note/model';
@@ -26,7 +24,7 @@ import { ID, Item } from '../global/id';
 import { Bar } from '../Bar/model';
 
 interface ScoreProps {
-  selection: SelectionModel | null;
+  selection: Selection | null;
   dispatch: Dispatch;
   noteState: NoteState;
   demoNote: DemoNoteModel | null;
@@ -37,7 +35,7 @@ export class Score {
   private landscape: boolean;
   private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
-  private textBoxes: TextBoxModel[];
+  private textBoxes: TextBox[];
   private secondTimings: SecondTiming[];
 
   private margin = 30;
@@ -55,7 +53,7 @@ export class Score {
     this._staves = [...Array(numberOfStaves).keys()].map(
       () => new Stave(timeSignature)
     );
-    this.textBoxes = [TextBox.init(name, true)];
+    this.textBoxes = [new TextBox(name, true)];
     this.secondTimings = [];
     this.zoom =
       (100 * 0.9 * (Math.max(window.innerWidth, 800) - 300)) / this.width();
@@ -72,18 +70,15 @@ export class Score {
   public toggleLandscape() {
     this.landscape = !this.landscape;
 
-    for (const text of this.textBoxes) {
-      if (!text.centred) {
-        text.x = (text.x / this.width()) * this.height();
-        text.y = (text.y / this.height()) * this.width();
-      }
-    }
+    this.textBoxes.forEach((text) =>
+      text.adjustAfterOrientation(this.width(), this.height())
+    );
     this.zoom = (this.zoom * this.height()) / this.width();
   }
   public updateName() {
-    this.textBoxes[0] && (this.name = this.textBoxes[0].text);
+    this.textBoxes[0] && (this.name = this.textBoxes[0].text());
   }
-  public addText(text: TextBoxModel) {
+  public addText(text: TextBox) {
     this.textBoxes.push(text);
   }
   public addSecondTiming(secondTiming: SecondTiming) {
@@ -149,12 +144,12 @@ export class Score {
   public deleteSecondTiming(secondTiming: SecondTiming) {
     this.secondTimings.splice(this.secondTimings.indexOf(secondTiming), 1);
   }
-  public deleteTextBox(text: TextBoxModel) {
+  public deleteTextBox(text: TextBox) {
     this.textBoxes.splice(this.textBoxes.indexOf(text), 1);
   }
-  public dragTextBox(text: TextBoxModel, x: number, y: number) {
+  public dragTextBox(text: TextBox, x: number, y: number) {
     if (x < this.width() && x > 0 && y < this.height() && y > 0) {
-      TextBox.setCoords(text, x, y);
+      text.setCoords(x, y);
     }
   }
   public dragSecondTiming(
@@ -234,7 +229,7 @@ export class Score {
           stave.render(staveProps(stave, idx))
         ),
         ...this.textBoxes.map((textBox) =>
-          renderTextBox(textBox, {
+          textBox.render({
             dispatch: props.dispatch,
             scoreWidth: width,
             selection: props.selection,

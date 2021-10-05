@@ -6,7 +6,7 @@ import { h, svg, V } from '../../render/h';
 import { lineGap } from '../global/constants';
 import { getXY } from '../global/xy';
 
-import { ScoreSelection, SecondTimingSelection, SelectionModel } from './model';
+import { ScoreSelection, SecondTimingSelection, Selection } from './model';
 import { TextSelection } from '../Selection/model';
 
 interface ScoreSelectionProps {
@@ -16,7 +16,7 @@ interface ScoreSelectionProps {
 }
 
 export default function render(
-  selection: SelectionModel,
+  selection: Selection,
   props: ScoreSelectionProps
 ): V {
   if (selection instanceof ScoreSelection) {

@@ -5,13 +5,10 @@
 import { ID } from '../global/id';
 import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
 import { SecondTiming } from '../SecondTiming/model';
-import { TextBoxModel } from '../TextBox/model';
+import { TextBox } from '../TextBox/model';
 import { Score } from '../Score/model';
 
-export type SelectionModel =
-  | ScoreSelection
-  | TextSelection
-  | SecondTimingSelection;
+export type Selection = ScoreSelection | TextSelection | SecondTimingSelection;
 
 // Using the equivalent of 'case classes'
 // This allows using instanceof to check selection type
@@ -44,8 +41,8 @@ export class ScoreSelection {
 }
 
 export class TextSelection {
-  public text: TextBoxModel;
-  constructor(text: TextBoxModel) {
+  public text: TextBox;
+  constructor(text: TextBox) {
     this.text = text;
   }
   notes() {
