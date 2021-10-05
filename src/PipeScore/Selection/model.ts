@@ -30,7 +30,7 @@ export class ScoreSelection {
     const notes: Note[] = [];
     for (const bar of bars) {
       if (bar.hasID(this.start)) foundStart = true;
-      for (const note of bar.notes) {
+      for (const note of bar.notesAndTriplets()) {
         if (note.hasID(this.start)) foundStart = true;
         if (foundStart) notes.push(note);
         if (note.hasID(this.end)) break;

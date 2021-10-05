@@ -26,7 +26,7 @@ function addStave(
 
   const ind = score.staves.indexOf(afterStave);
   const newStave = Stave.init(
-    afterStave.bars[0] ? afterStave.bars[0].timeSignature : undefined
+    afterStave.bars[0] ? afterStave.bars[0].timeSignature() : undefined
   );
   if (ind !== -1)
     return {

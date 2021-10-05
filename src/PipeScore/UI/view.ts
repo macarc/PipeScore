@@ -43,7 +43,7 @@ import { Menu } from './model';
 import { help as dochelp } from '../global/docs';
 
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
-import { Barline } from '../Bar/model';
+import { EndB, NormalB, RepeatB } from '../Bar/barline';
 import { Gracenote, SingleGracenote } from '../Gracenote/model';
 
 export interface UIState {
@@ -234,8 +234,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
               'button',
               { class: 'textual', style: 'margin-left: .5rem;' },
               {
-                click: () =>
-                  dispatch(setBarRepeat('frontBarline', Barline.Normal)),
+                click: () => dispatch(setBarRepeat('start', new NormalB())),
               },
               ['Normal']
             )
@@ -246,8 +245,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
               'button',
               { class: 'textual' },
               {
-                click: () =>
-                  dispatch(setBarRepeat('frontBarline', Barline.Repeat)),
+                click: () => dispatch(setBarRepeat('start', new RepeatB())),
               },
               ['Repeat']
             )
@@ -258,8 +256,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
               'button',
               { class: 'textual' },
               {
-                click: () =>
-                  dispatch(setBarRepeat('frontBarline', Barline.End)),
+                click: () => dispatch(setBarRepeat('start', new EndB())),
               },
               ['Part']
             )
@@ -273,8 +270,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
               'button',
               { class: 'textual', style: 'margin-left: .5rem;' },
               {
-                click: () =>
-                  dispatch(setBarRepeat('backBarline', Barline.Normal)),
+                click: () => dispatch(setBarRepeat('end', new NormalB())),
               },
               ['Normal']
             )
@@ -285,8 +281,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
               'button',
               { class: 'textual' },
               {
-                click: () =>
-                  dispatch(setBarRepeat('backBarline', Barline.Repeat)),
+                click: () => dispatch(setBarRepeat('end', new RepeatB())),
               },
               ['Repeat']
             )
@@ -297,7 +292,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
               'button',
               { class: 'textual' },
               {
-                click: () => dispatch(setBarRepeat('backBarline', Barline.End)),
+                click: () => dispatch(setBarRepeat('end', new EndB())),
               },
               ['Part']
             )

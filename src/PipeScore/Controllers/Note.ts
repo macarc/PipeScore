@@ -19,7 +19,7 @@ import { ID, Item } from '../global/id';
 import { car, deepcopy, nmap } from '../global/utils';
 import { deleteXY, itemBefore } from '../global/xy';
 
-import { BarModel } from '../Bar/model';
+import { Bar } from '../Bar/model';
 import { ScoreModel } from '../Score/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { ScoreSelection } from '../Selection/model';
@@ -39,10 +39,8 @@ export function dragNote(
   note.drag(pitch);
   return viewChanged({ ...state, note: { ...state.note, dragged: note } });
 }
-const isBar = (it: Note | Triplet | BarModel): it is BarModel =>
-  (it as BarModel).notes !== undefined;
 
-function addNote(pitch: Pitch, bar: BarModel, state: State): UpdatedState;
+function addNote(pitch: Pitch, bar: Bar, state: State): UpdatedState;
 function addNote(
   pitch: Pitch,
   noteBefore: Note | Triplet,
@@ -50,24 +48,20 @@ function addNote(
 ): UpdatedState;
 function addNote(
   pitch: Pitch,
-  where: BarModel | Note | Triplet,
+  where: Bar | Note | Triplet,
   state: State
 ): UpdatedState {
   const noteModels = allNotesAndTriplets(state.score);
   let noteBefore: Note | Triplet | null;
   const { bar } = location(where.id, state.score);
-  if (isBar(where)) {
+  if (where instanceof Bar) {
     noteBefore = previousNote(bar.id, state.score);
   } else {
     noteBefore = where;
   }
   if (state.note.demo && state.note.demo.type === 'note') {
     const newNote = new SingleNote(pitch, state.note.demo.length);
-    bar.notes.splice(
-      noteBefore ? bar.notes.indexOf(noteBefore) + 1 : 0,
-      0,
-      newNote
-    );
+    bar.insertNote(noteBefore, newNote);
     return shouldSave(state);
   } else {
     const note =
@@ -94,7 +88,7 @@ function addNote(
 export function allNotesAndTriplets(score: ScoreModel): Note[] {
   // Flattens all the notes in the score into an array
 
-  return Score.bars(score).flatMap((bar) => bar.notes);
+  return Score.bars(score).flatMap((bar) => bar.notesAndTriplets());
 }
 export function allNotes(score: ScoreModel): (SingleNote | TripletNote)[] {
   return Triplet.flatten(allNotesAndTriplets(score));
@@ -102,69 +96,13 @@ export function allNotes(score: ScoreModel): (SingleNote | TripletNote)[] {
 function nextNote(id: ID, score: ScoreModel): Note | null {
   // TODO before, this used to return bars / staves. As far as I can tell, this was never used, but check!
 
-  let lastWasIt = false;
-  for (const bar of Score.bars(score)) {
-    if (bar.hasID(id)) lastWasIt = true;
-    for (const note of bar.notes) {
-      if (lastWasIt) return note;
-      if (note.hasID(id)) lastWasIt = true;
-    }
-  }
-  return null;
+  return Bar.nextNote(id, Score.bars(score));
 }
 
 function previousNote(id: ID, score: ScoreModel): Note | null {
   // TODO before, this used to return bars / staves. As far as I can tell, this was never used, but check!
 
-  let prev: Note | null = null;
-  for (const bar of Score.bars(score)) {
-    if (bar.hasID(id)) return prev;
-    for (const note of bar.notes) {
-      if (note.hasID(id)) return prev;
-      prev = note;
-    }
-  }
-  return prev;
-}
-
-function pasteNotes(
-  notes: (Note | 'bar-break')[],
-  start: BarModel,
-  index: number,
-  score: ScoreModel
-): ScoreModel {
-  // Puts all the notes in the notes array into the score with the correct bar breaks
-  // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
-
-  let startedPasting = false;
-
-  for (const bar of Score.bars(score)) {
-    if (bar.hasID(start.id) || startedPasting) {
-      if (bar.hasID(start.id)) {
-        if (index !== bar.notes.length) {
-          bar.notes.splice(
-            index,
-            0,
-            ...(notes.filter((note) => note !== 'bar-break') as Note[])
-          );
-          return score;
-        }
-      } else {
-        bar.notes = [];
-      }
-      startedPasting = true;
-      let currentPastingNote = notes.shift();
-      while (currentPastingNote && currentPastingNote !== 'bar-break') {
-        bar.notes.push(currentPastingNote);
-        currentPastingNote = notes.shift();
-      }
-      if (notes.length === 0) {
-        return score;
-      }
-    }
-  }
-
-  return score;
+  return Bar.previousNote(id, Score.bars(score));
 }
 
 export function deleteSelectedNotes(state: State): State {
@@ -174,8 +112,8 @@ export function deleteSelectedNotes(state: State): State {
 
   let started = false;
   let deletingBars = false;
-  const notesToDelete: [Note, BarModel][] = [];
-  const barsToDelete: [BarModel, StaveModel][] = [];
+  const notesToDelete: [Note, Bar][] = [];
+  const barsToDelete: [Bar, StaveModel][] = [];
 
   all: for (const stave of Score.staves(state.score)) {
     for (const bar of Stave.bars(stave)) {
@@ -183,7 +121,7 @@ export function deleteSelectedNotes(state: State): State {
         deletingBars = true;
         started = true;
       }
-      for (const note of bar.notes) {
+      for (const note of bar.notesAndTriplets()) {
         if (note.hasID(state.selection.start)) started = true;
         if (started) notesToDelete.push([note, bar]);
         if (note.hasID(state.selection.end)) break all;
@@ -192,14 +130,14 @@ export function deleteSelectedNotes(state: State): State {
       if (bar.hasID(state.selection.end)) break all;
     }
   }
-  for (const [note, bar] of notesToDelete)
-    bar.notes.splice(bar.notes.indexOf(note), 1);
+  notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
 
-  for (const [bar, stave] of barsToDelete) {
+  barsToDelete.forEach(([bar, stave]) => {
     stave.bars.splice(stave.bars.indexOf(bar));
     if (stave.bars.length === 0)
       state.score.staves.splice(state.score.staves.indexOf(stave), 1);
-  }
+  });
+
   return purgeItems(
     [...notesToDelete.map(car), ...barsToDelete.map(car)],
     state
@@ -325,7 +263,7 @@ export function moveNoteDown(): ScoreEvent {
     return shouldSave(state);
   };
 }
-export function addNoteToBarStart(pitch: Pitch, bar: BarModel): ScoreEvent {
+export function addNoteToBarStart(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => addNote(pitch, bar, state);
 }
 
@@ -357,19 +295,14 @@ export function addTriplet(): ScoreEvent {
         third instanceof SingleNote
       ) {
         const { bar } = location(first, state.score);
-        bar.notes.splice(
-          bar.notes.indexOf(first),
-          3,
-          Triplet.fromSingles(first, second, third)
-        );
+        bar.makeTriplet(first, second, third);
         return shouldSave(state);
       }
     } else if (selectedNotesAndTriplets.length >= 1) {
       const tr = selectedNotesAndTriplets[0];
       if (tr instanceof Triplet) {
         const { bar } = location(tr, state.score);
-        bar.notes.splice(bar.notes.indexOf(tr), 3, ...tr.tripletSingleNotes());
-
+        bar.unmakeTriplet(tr);
         return shouldSave(state);
       }
     }
@@ -503,13 +436,8 @@ export function paste(): ScoreEvent {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
       const id = state.selection.end;
       const { bar } = location(id, state.score);
-      const indexInBar = bar.notes.findIndex((n) => n.hasID(id));
-      const indexToPlace =
-        indexInBar === -1 ? bar.notes.length : indexInBar + 1;
-      return shouldSave({
-        ...state,
-        score: pasteNotes(state.clipboard, bar, indexToPlace, state.score),
-      });
+      Bar.pasteNotes(state.clipboard, bar, id, Score.bars(state.score));
+      return shouldSave(state);
     }
     return noChange(state);
   };

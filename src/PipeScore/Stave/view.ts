@@ -9,12 +9,8 @@ import { last, nmap } from '../global/utils';
 import { svg, V } from '../../render/h';
 
 import { StaveModel } from './model';
-import { BarModel } from '../Bar/model';
+import { Anacrusis, Bar } from '../Bar/model';
 import { Dispatch } from '../Controllers/Controller';
-
-import Bar from '../Bar/functions';
-
-import renderBar, { widthOfAnacrusis } from '../Bar/view';
 
 import { NoteState } from '../Note/state';
 import { GracenoteState } from '../Gracenote/state';
@@ -51,66 +47,40 @@ export default function render(stave: StaveModel, props: StaveProps): V {
     (idx) => lineHeightOf(idx) + staveHeight
   );
 
-  const previousBar = (barIdx: number): BarModel | null =>
+  const previousBar = (barIdx: number): Bar | null =>
     barIdx === 0
       ? props.previousStave
         ? last(props.previousStave.bars)
         : null
       : stave.bars[barIdx - 1] || null;
 
-  const previousBarLastPitch = (index: number): Pitch | null =>
-    nmap(previousBar(index), (b) => Bar.lastPitch(b));
-
-  const lastStaveTimeSignature = nmap(props.previousStave, (previousStave) =>
-    nmap(last(previousStave.bars), (bar) => bar.timeSignature)
-  );
-
-  const lastBarTimeSignature = (index: number) =>
-    index === 0 ? lastStaveTimeSignature : stave.bars[index - 1].timeSignature;
-
   const totalAnacrusisWidth = stave.bars.reduce(
     (width, bar, i) =>
-      width +
-      (bar.isAnacrusis
-        ? widthOfAnacrusis(
-            bar,
-            lastBarTimeSignature(i),
-            previousBarLastPitch(i)
-          )
-        : 0),
+      width + (bar instanceof Anacrusis ? bar.width(previousBar(i)) : 0),
     0
   );
 
   const barWidth =
     (props.width - trebleClefWidth - totalAnacrusisWidth) /
-    stave.bars.filter((bar) => !bar.isAnacrusis).length;
+    stave.bars.filter((bar) => !(bar instanceof Anacrusis)).length;
 
-  const getX = (barIdx: number): number =>
-    stave.bars.slice(0, barIdx).reduce((soFar, bar, idx) => {
-      if (bar.isAnacrusis) {
-        return (
-          soFar +
-          widthOfAnacrusis(
-            bar,
-            lastBarTimeSignature(idx),
-            previousBarLastPitch(idx)
-          )
-        );
-      } else {
-        return soFar + barWidth;
-      }
-    }, props.x + trebleClefWidth);
+  const width = (bar: Bar) =>
+    bar instanceof Anacrusis
+      ? bar.width(previousBar(stave.bars.indexOf(bar)))
+      : barWidth;
 
-  const barProps = (bar: BarModel, index: number) => ({
+  const getX = (barIdx: number) =>
+    stave.bars
+      .slice(0, barIdx)
+      .reduce(
+        (soFar, bar, idx) => soFar + width(bar),
+        props.x + trebleClefWidth
+      );
+
+  const barProps = (bar: Bar, index: number) => ({
     x: getX(index),
     y: staveHeight,
-    width: bar.isAnacrusis
-      ? widthOfAnacrusis(
-          bar,
-          lastBarTimeSignature(index),
-          previousBarLastPitch(index)
-        )
-      : barWidth,
+    width: width(bar),
     previousBar: previousBar(index),
     shouldRenderLastBarline: index === stave.bars.length - 1,
     endOfLastStave: props.x + props.width, // should always be the same
@@ -124,7 +94,7 @@ export default function render(stave: StaveModel, props: StaveProps): V {
     svg(
       'g',
       { class: 'bars' },
-      stave.bars.map((bar, idx) => renderBar(bar, barProps(bar, idx)))
+      stave.bars.map((bar, idx) => bar.render(barProps(bar, idx)))
     ),
     svg(
       'g',

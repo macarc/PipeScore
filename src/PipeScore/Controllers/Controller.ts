@@ -4,7 +4,7 @@
 */
 import { State } from '../State';
 
-import { BarModel } from '../Bar/model';
+import { Bar } from '../Bar/model';
 import { Note, TripletNote } from '../Note/model';
 import { ScoreModel } from '../Score/model';
 import { StaveModel } from '../Stave/model';
@@ -79,7 +79,7 @@ export function location(
   score: ScoreModel
 ): {
   stave: StaveModel;
-  bar: BarModel;
+  bar: Bar;
 } {
   // Finds the parent bar and stave of the note passed
 
@@ -91,11 +91,8 @@ export function location(
       if (bar.hasID(id)) {
         return { stave, bar };
       }
-      for (const noteModel of bar.notes) {
-        if (noteModel.hasID(id)) {
-          return { stave, bar };
-        }
-      }
+      const loc = bar.location(id);
+      if (loc) return { stave, bar };
     }
   }
 
