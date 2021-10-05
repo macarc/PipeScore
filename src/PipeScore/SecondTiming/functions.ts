@@ -42,6 +42,10 @@ function isValid(st: SecondTimingModel, others: SecondTimingModel[]): boolean {
   return true;
 }
 
+function pointsTo(st: SecondTimingModel, id: ID) {
+  return st.start === id || st.middle === id || st.end === id;
+}
+
 const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
   start,
   middle,
@@ -50,5 +54,6 @@ const init = (start: ID, middle: ID, end: ID): SecondTimingModel => ({
 
 export default {
   init,
+  pointsTo,
   isValid,
 };

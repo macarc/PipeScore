@@ -4,23 +4,19 @@
 */
 import { ScoreEvent, viewChanged, shouldSave } from './Controller';
 import { State } from '../State';
-import { allNotes } from './Note';
 import { Gracenote, SingleGracenote } from '../Gracenote/model';
-import { ScoreModel } from '../Score/model';
+import { Score } from '../Score/model';
 import { ScoreSelection } from '../Selection/model';
 import DemoNote from '../DemoNote/functions';
 
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,
   newGracenote: Gracenote,
-  score: ScoreModel
-): ScoreModel {
+  score: Score
+): Score {
   // Replaces oldGracenote with newGracenote
 
-  allNotes(score).forEach(
-    (n) => n.replaceGracenote(oldGracenote, newGracenote),
-    score
-  );
+  score.notes().forEach((n) => n.replaceGracenote(oldGracenote, newGracenote));
   return score;
 }
 export function clickGracenote(gracenote: Gracenote): ScoreEvent {

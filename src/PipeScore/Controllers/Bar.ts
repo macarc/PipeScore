@@ -13,22 +13,20 @@ import { State } from '../State';
 
 import { Bar, Anacrusis } from '../Bar/model';
 import { Barline } from '../Bar/barline';
-import { ScoreModel } from '../Score/model';
+import { Score } from '../Score/model';
 import { TimeSignatureModel } from '../TimeSignature/model';
 
-import Score from '../Score/functions';
 import TimeSignature from '../TimeSignature/functions';
 
 import { itemBefore } from '../global/xy';
 import { ScoreSelection } from '../Selection/model';
-import { Stave } from '../Stave/model';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignatureModel,
   newTimeSignature: TimeSignatureModel,
-  score: ScoreModel
-): ScoreModel {
-  Bar.setTimeSignatureFrom(timeSignature, newTimeSignature, Score.bars(score));
+  score: Score
+): Score {
+  Bar.setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
   return score;
 }
 export function editTimeSignature(

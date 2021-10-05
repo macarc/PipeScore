@@ -4,12 +4,8 @@
 */
 import { State } from '../State';
 
-import { Bar } from '../Bar/model';
 import { Note, TripletNote } from '../Note/model';
-import { ScoreModel } from '../Score/model';
-import { Stave } from '../Stave/model';
-
-import Score from '../Score/functions';
+import { Score } from '../Score/model';
 
 import { ID } from '../global/id';
 import { nlast } from '../global/utils';
@@ -74,10 +70,10 @@ export function removeTextState(state: State): State {
   };
 }
 
-export function location(note: Note | TripletNote | ID, score: ScoreModel) {
+export function location(note: Note | TripletNote | ID, score: Score) {
   // Finds the parent bar and stave of the note passed
 
-  const staves = Score.staves(score);
+  const staves = score.staves();
 
   if (staves.length === 0)
     throw Error('Tried to get location of a note, but there are no staves!');

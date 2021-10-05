@@ -20,11 +20,10 @@ import { car, deepcopy, nmap } from '../global/utils';
 import { deleteXY, itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar/model';
-import { ScoreModel } from '../Score/model';
+import { Score } from '../Score/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { ScoreSelection } from '../Selection/model';
 
-import Score from '../Score/functions';
 import DemoNote from '../DemoNote/functions';
 import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
 import { dot, NoteLength } from '../Note/notelength';
@@ -50,11 +49,11 @@ function addNote(
   where: Bar | Note | Triplet,
   state: State
 ): UpdatedState {
-  const noteModels = allNotesAndTriplets(state.score);
+  const noteModels = state.score.notesAndTriplets();
   let noteBefore: Note | Triplet | null;
   const { bar } = location(where.id, state.score);
   if (where instanceof Bar) {
-    noteBefore = previousNote(bar.id, state.score);
+    noteBefore = state.score.previousNote(bar.id);
   } else {
     noteBefore = where;
   }
@@ -84,26 +83,6 @@ function addNote(
   return noChange(state);
 }
 
-export function allNotesAndTriplets(score: ScoreModel): Note[] {
-  // Flattens all the notes in the score into an array
-
-  return Score.bars(score).flatMap((bar) => bar.notesAndTriplets());
-}
-export function allNotes(score: ScoreModel): (SingleNote | TripletNote)[] {
-  return Triplet.flatten(allNotesAndTriplets(score));
-}
-function nextNote(id: ID, score: ScoreModel): Note | null {
-  // TODO before, this used to return bars / staves. As far as I can tell, this was never used, but check!
-
-  return Bar.nextNote(id, Score.bars(score));
-}
-
-function previousNote(id: ID, score: ScoreModel): Note | null {
-  // TODO before, this used to return bars / staves. As far as I can tell, this was never used, but check!
-
-  return Bar.previousNote(id, Score.bars(score));
-}
-
 export function deleteSelectedNotes(state: State): State {
   // Deletes the selected notes/bars/staves from the score, purges them, modifies and returns the score
 
@@ -114,7 +93,7 @@ export function deleteSelectedNotes(state: State): State {
   const notesToDelete: [Note, Bar][] = [];
   const barsToDelete: [Bar, Stave][] = [];
 
-  all: for (const stave of Score.staves(state.score)) {
+  all: for (const stave of state.score.staves()) {
     for (const bar of stave.allBars()) {
       if (bar.hasID(state.selection.start)) {
         deletingBars = true;
@@ -131,11 +110,10 @@ export function deleteSelectedNotes(state: State): State {
   }
   notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
 
-  barsToDelete.forEach(([bar, stave]) => {
+  for (const [bar, stave] of barsToDelete) {
     stave.deleteBar(bar);
-    if (stave.numberOfBars() === 0)
-      state.score.staves.splice(state.score.staves.indexOf(stave), 1);
-  });
+    if (stave.numberOfBars() === 0) state.score.deleteStave(stave);
+  }
 
   return purgeItems(
     [...notesToDelete.map(car), ...barsToDelete.map(car)],
@@ -147,17 +125,10 @@ function purgeItems(items: Item[], state: State): State {
   // Deletes all references to the items in the array
 
   const score = deepcopy(state.score);
+  state.gracenote.selected = null;
+  score.purgeSecondTimings(items);
   for (const note of items) {
     deleteXY(note.id);
-    const secondTimingsToDelete: SecondTimingModel[] = [];
-    score.secondTimings.forEach((t) => {
-      if (t.start === note.id || t.middle === note.id || t.end === note.id) {
-        secondTimingsToDelete.push(t);
-      }
-    });
-    secondTimingsToDelete.forEach((t) =>
-      score.secondTimings.splice(score.secondTimings.indexOf(t), 1)
-    );
     if (
       state.selection instanceof ScoreSelection &&
       (note.hasID(state.selection.start) || note.hasID(state.selection.end))
@@ -171,7 +142,7 @@ function purgeItems(items: Item[], state: State): State {
 export function expandSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const next = nextNote(state.selection.end, state.score);
+      const next = state.score.nextNote(state.selection.end);
       if (next) {
         state.selection.end = next.id;
         return viewChanged(state);
@@ -187,7 +158,7 @@ export function detractSelection(): ScoreEvent {
       state.selection instanceof ScoreSelection &&
       state.selection.start !== state.selection.end
     ) {
-      const prev = previousNote(state.selection.end, state.score);
+      const prev = state.score.previousNote(state.selection.end);
       if (prev) {
         state.selection.end = prev.id;
         return viewChanged(state);
@@ -200,7 +171,7 @@ export function detractSelection(): ScoreEvent {
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const prev = previousNote(state.selection.start, state.score);
+      const prev = state.score.previousNote(state.selection.start);
       if (prev) {
         return viewChanged({
           ...state,
@@ -215,7 +186,7 @@ export function moveLeft(): ScoreEvent {
 export function moveRight(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const next = nextNote(state.selection.end, state.score);
+      const next = state.score.nextNote(state.selection.end);
       if (next) {
         return viewChanged({
           ...state,
@@ -271,7 +242,7 @@ export function tieSelectedNotes(): ScoreEvent {
     if (!(state.selection instanceof ScoreSelection)) return noChange(state);
     state.selection
       .notesAndTriplets(state.score)
-      .forEach((note) => note.toggleTie(allNotesAndTriplets(state.score)));
+      .forEach((note) => note.toggleTie(state.score.notesAndTriplets()));
     return shouldSave(state);
   };
 }
@@ -348,7 +319,7 @@ export function clickNote(
   return async (state: State) => {
     state = removeTextState(state);
     if (state.gracenote.input) {
-      const previous = previousNote(note.id, state.score);
+      const previous = state.score.previousNote(note.id);
       note.addGracenote(state.gracenote.input, previous);
       return shouldSave(state);
     } else {
@@ -435,7 +406,7 @@ export function paste(): ScoreEvent {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
       const id = state.selection.end;
       const { bar } = location(id, state.score);
-      Bar.pasteNotes(state.clipboard, bar, id, Score.bars(state.score));
+      Bar.pasteNotes(state.clipboard, bar, id, state.score.bars());
       return shouldSave(state);
     }
     return noChange(state);

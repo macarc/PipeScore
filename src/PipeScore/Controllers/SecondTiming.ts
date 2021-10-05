@@ -11,41 +11,24 @@ import {
 } from './Controller';
 import { State } from '../State';
 import { ScoreSelection, SecondTimingSelection } from '../Selection/model';
-
-import { ID } from '../global/id';
-
 import { SecondTimingModel } from '../SecondTiming/model';
+
 import SecondTiming from '../SecondTiming/functions';
 
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const { bar: start } = location(state.selection.start, state.score);
-      let middle: ID | null = null;
-      let end: ID | null = null;
-      let started = false;
-      all: for (const stave of state.score.staves) {
-        for (const bar of stave.allBars()) {
-          if (started) {
-            middle = bar.id;
-            end = bar.id;
-            break all;
-          }
-          if (bar === start) {
-            started = true;
-          }
+      let foundStart = false;
+      for (const bar of state.score.bars()) {
+        if (foundStart) {
+          state.score.addSecondTiming(
+            SecondTiming.init(start.id, bar.id, bar.id)
+          );
+          return shouldSave(state);
         }
-      }
-      if (middle && end) {
-        const newSecondTiming = SecondTiming.init(start.id, middle, end);
-        if (SecondTiming.isValid(newSecondTiming, state.score.secondTimings)) {
-          return shouldSave({
-            ...state,
-            score: {
-              ...state.score,
-              secondTimings: [...state.score.secondTimings, newSecondTiming],
-            },
-          });
+        if (bar === start) {
+          foundStart = true;
         }
       }
     }

@@ -6,8 +6,7 @@ import { ID } from '../global/id';
 import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { TextBoxModel } from '../TextBox/model';
-import Score from '../Score/functions';
-import { ScoreModel } from '../Score/model';
+import { Score } from '../Score/model';
 
 export type SelectionModel =
   | ScoreSelection
@@ -24,8 +23,8 @@ export class ScoreSelection {
     this.start = start;
     this.end = end;
   }
-  public notesAndTriplets(score: ScoreModel): Note[] {
-    const bars = Score.bars(score);
+  public notesAndTriplets(score: Score): Note[] {
+    const bars = score.bars();
     let foundStart = false;
     const notes: Note[] = [];
     for (const bar of bars) {
@@ -39,7 +38,7 @@ export class ScoreSelection {
     }
     return notes;
   }
-  public notes(score: ScoreModel): (SingleNote | TripletNote)[] {
+  public notes(score: Score): (SingleNote | TripletNote)[] {
     return Triplet.flatten(this.notesAndTriplets(score));
   }
 }

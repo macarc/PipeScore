@@ -10,11 +10,8 @@ import { updateDemoNote } from './Controllers/Note';
 import { mouseUp, mouseDrag } from './Controllers/Mouse';
 
 import { State } from './State';
-import { ScoreModel } from './Score/model';
+import { Score } from './Score/model';
 
-import Score from './Score/functions';
-
-import renderScore, { coordinateToStaveIndex } from './Score/view';
 import renderUI from './UI/view';
 
 import Documentation from './Documentation';
@@ -24,27 +21,25 @@ let state: State = {
   note: { dragged: null, demo: null },
   gracenote: { dragged: null, selected: null, input: null },
   playback: { bpm: 100 },
-  ui: { menu: 'normal', zoom: 0 },
+  ui: { menu: 'normal' },
   draggedText: null,
   draggedSecondTiming: null,
   doc: { show: true, current: null },
   clipboard: null,
   selection: null,
-  score: Score.init(),
+  score: new Score(),
   history: { past: [], future: [] },
   view: { score: null, ui: null },
 };
 
-let save: (score: ScoreModel) => void = () => null;
+let save: (score: Score) => void = () => null;
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
   state = res.state;
   if (res.update === Update.ViewChanged || res.update === Update.ShouldSave) {
     if (res.update === Update.ShouldSave) {
-      if (state.score.textBoxes[0]) {
-        state.score.name = state.score.textBoxes[0].text;
-      }
+      state.score.updateName();
       const asJSON = JSON.stringify(state.score);
       if (state.history.past[state.history.past.length - 1] !== asJSON) {
         state.history.past.push(asJSON);
@@ -62,7 +57,6 @@ const updateView = (state: State) => {
   if (!scoreRoot || !uiRoot) return;
 
   const scoreProps = {
-    zoomLevel: state.ui.zoom,
     noteState: {
       dragged: state.note.dragged,
       inputtingNotes:
@@ -74,7 +68,7 @@ const updateView = (state: State) => {
     demoNote: state.note.demo,
   };
   const uiProps = {
-    zoomLevel: state.ui.zoom,
+    zoomLevel: state.score.zoom,
     inputLength:
       state.note.demo && state.note.demo.type === 'note'
         ? state.note.demo.length
@@ -87,7 +81,7 @@ const updateView = (state: State) => {
     playbackBpm: state.playback.bpm,
     gracenoteInput: state.gracenote.input,
   };
-  const newView = h('div', [renderScore(state.score, scoreProps)]);
+  const newView = h('div', [state.score.render(scoreProps)]);
   const newUIView = renderUI(dispatch, uiProps);
   if (state.view.score) patch(state.view.score, newView);
   if (state.view.ui) patch(state.view.ui, newUIView);
@@ -117,7 +111,7 @@ function mouseMove(event: MouseEvent) {
       if (event.buttons === 1) {
         dispatch(mouseDrag(svgPt.x, svgPt.y));
       } else if (state.note.demo) {
-        const newStaveIndex = coordinateToStaveIndex(svgPt.y);
+        const newStaveIndex = state.score.coordinateToStaveIndex(svgPt.y);
         dispatch(updateDemoNote(svgPt.x, newStaveIndex));
       }
     }
@@ -125,16 +119,14 @@ function mouseMove(event: MouseEvent) {
 }
 
 export default function startController(
-  score: ScoreModel,
-  saveDB: (score: ScoreModel) => void
+  score: Score,
+  saveDB: (score: Score) => void
 ): void {
   // Initial render, hooks event listeners
 
   save = saveDB;
   state.score = score;
   state.history.past = [JSON.parse(JSON.stringify(score))];
-  state.ui.zoom =
-    (100 * 0.9 * (Math.max(window.innerWidth, 800) - 300)) / score.width;
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
   // initially set the notes to be the right groupings

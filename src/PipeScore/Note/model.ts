@@ -179,7 +179,7 @@ abstract class BaseNote extends Item {
     // In this case, the last two quavers should not be tied. If currentLength was tied to currentGroup, that
     // behaviour would not be achievable
     let currentLength = 0;
-    notes.forEach((note) => {
+    for (const note of notes) {
       if (note instanceof Triplet) {
         if (currentGroup.length > 0) {
           groupedNotes.push(currentGroup);
@@ -216,7 +216,7 @@ abstract class BaseNote extends Item {
           }
         }
       }
-    });
+    }
     if (currentGroup.length > 0) groupedNotes.push(currentGroup);
     return groupedNotes;
   }

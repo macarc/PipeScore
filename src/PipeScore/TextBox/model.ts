@@ -3,7 +3,8 @@
   Copyright (C) 2021 Archie Maclean
 */
 export interface TextBoxModel {
-  x: 'centre' | number;
+  centred: boolean;
+  x: number;
   y: number;
   size: number;
   text: string;

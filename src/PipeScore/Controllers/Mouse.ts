@@ -14,17 +14,11 @@ import { State } from '../State';
 
 import { deleteSelectedNotes } from './Note';
 import { changeGracenoteFrom } from './Gracenote';
-import { replaceTextBox } from './Text';
-
-import SecondTiming from '../SecondTiming/functions';
-import TextBox from '../TextBox/functions';
 
 import { Pitch } from '../global/pitch';
-import { replace } from '../global/utils';
 import { closestItem } from '../global/xy';
-import { TextBoxModel } from '../TextBox/model';
 import { Gracenote, NoGracenote } from '../Gracenote/model';
-import { DraggedSecondTiming, SecondTimingModel } from '../SecondTiming/model';
+import { DraggedSecondTiming } from '../SecondTiming/model';
 import {
   ScoreSelection,
   SecondTimingSelection,
@@ -37,24 +31,6 @@ const deleteGracenote = (gracenote: Gracenote, state: State) => ({
   gracenote: { ...state.gracenote, selected: null },
 });
 
-const deleteText = (text: TextBoxModel, state: State) => ({
-  ...state,
-  score: {
-    ...state.score,
-    textBoxes: replace(text, 1, state.score.textBoxes),
-  },
-  text: { dragged: null, selected: null },
-});
-
-const deleteSecondTiming = (secondTiming: SecondTimingModel, state: State) => ({
-  ...state,
-  score: {
-    ...state.score,
-    secondTimings: replace(secondTiming, 1, state.score.secondTimings),
-  },
-  draggedSecondTiming: null,
-});
-
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.gracenote.selected) {
@@ -62,11 +38,11 @@ export function deleteSelection(): ScoreEvent {
     } else if (state.selection instanceof ScoreSelection) {
       return shouldSave(deleteSelectedNotes(state));
     } else if (state.selection instanceof TextSelection) {
-      return shouldSave(deleteText(state.selection.text, state));
+      state.score.deleteTextBox(state.selection.text);
+      return shouldSave(state);
     } else if (state.selection instanceof SecondTimingSelection) {
-      return shouldSave(
-        deleteSecondTiming(state.selection.secondTiming, state)
-      );
+      state.score.deleteSecondTiming(state.selection.secondTiming);
+      return shouldSave(state);
     }
 
     return noChange(state);
@@ -120,32 +96,21 @@ function dragSecondTiming(
 ): UpdatedState {
   const closest = closestItem(x, y, secondTiming.dragged !== 'end');
   const oldSecondTiming = secondTiming.secondTiming;
-  if (secondTiming.secondTiming[secondTiming.dragged] !== closest) {
+  if (oldSecondTiming[secondTiming.dragged] !== closest) {
     const newSecondTiming = {
       ...secondTiming.secondTiming,
       [secondTiming.dragged]: closest,
     };
-    if (
-      SecondTiming.isValid(
-        newSecondTiming,
-        state.score.secondTimings.filter((st) => st !== oldSecondTiming)
-      )
-    ) {
+    state.score.deleteSecondTiming(oldSecondTiming);
+    if (!state.score.addSecondTiming(newSecondTiming)) {
+      state.score.addSecondTiming(oldSecondTiming);
+    } else {
       return viewChanged({
         ...state,
         selection: new SecondTimingSelection(newSecondTiming),
         draggedSecondTiming: {
           ...secondTiming,
           secondTiming: newSecondTiming,
-        },
-        score: {
-          ...state.score,
-          secondTimings: replace(
-            secondTiming.secondTiming,
-            1,
-            state.score.secondTimings,
-            newSecondTiming
-          ),
         },
       });
     }
@@ -156,19 +121,11 @@ export function mouseDrag(x: number, y: number): ScoreEvent {
   return async (state: State) => {
     if (state.draggedSecondTiming) {
       return dragSecondTiming(state.draggedSecondTiming, x, y, state);
-    } else if (
-      state.draggedText !== null &&
-      x < state.score.width &&
-      x > 0 &&
-      y < state.score.height &&
-      y > 0
-    ) {
-      const newText = TextBox.setCoords(state.draggedText, x, y);
+    } else if (state.draggedText !== null) {
+      state.score.dragTextBox(state.draggedText, x, y);
       return viewChanged({
         ...state,
-        score: replaceTextBox(state.score, state.draggedText, newText),
-        draggedText: newText,
-        selection: new TextSelection(newText),
+        selection: new TextSelection(state.draggedText),
       });
     }
     return noChange(state);

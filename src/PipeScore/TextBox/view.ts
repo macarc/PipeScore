@@ -46,12 +46,13 @@ function editText(dispatch: Dispatch, currentText: TextBoxModel) {
 }
 
 export default function render(tx: TextBoxModel, props: TextBoxProps): V {
+  if (tx.centred) tx.x = props.scoreWidth / 2;
   const selected =
     props.selection instanceof TextSelection && props.selection.text === tx;
   return svg(
     'text',
     {
-      x: tx.x === 'centre' ? props.scoreWidth / 2 : tx.x,
+      x: tx.x,
       y: tx.y,
       style: `font-size: ${tx.size}px`,
       'text-anchor': 'middle',

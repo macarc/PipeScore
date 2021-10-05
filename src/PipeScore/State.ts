@@ -10,7 +10,7 @@ import { Menu } from './UI/model';
 import { V } from '../render/h';
 import { TextBoxModel } from './TextBox/model';
 import { DraggedSecondTiming } from './SecondTiming/model';
-import { ScoreModel } from './Score/model';
+import { Score } from './Score/model';
 import { SelectionModel } from './Selection/model';
 import { Note, SingleNote, Triplet, TripletNote } from './Note/model';
 
@@ -29,10 +29,7 @@ export interface State {
   draggedSecondTiming: DraggedSecondTiming | null;
   // TODO store in TextSelection?
   draggedText: TextBoxModel | null;
-  ui: {
-    zoom: number;
-    menu: Menu;
-  };
+  ui: { menu: Menu };
   doc: {
     current: string | null;
     show: boolean;
@@ -49,5 +46,5 @@ export interface State {
   };
   playback: PlaybackState;
 
-  score: ScoreModel;
+  score: Score;
 }
