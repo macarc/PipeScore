@@ -25,7 +25,7 @@ export function addSecondTiming(): ScoreEvent {
       let end: ID | null = null;
       let started = false;
       all: for (const stave of state.score.staves) {
-        for (const bar of stave.bars) {
+        for (const bar of stave.allBars()) {
           if (started) {
             middle = bar.id;
             end = bar.id;

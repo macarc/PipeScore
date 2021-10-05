@@ -41,6 +41,7 @@ export function arrayflatten<T>(array: T[][]): T[] {
 }
 
 export const car = <U, V>(pair: [U, V]): U => pair[0];
+export const first = <T>(array: T[]): T | null => array[0] || null;
 // Find the last value of an array in fewer characters
 export const last = <T>(array: T[]): T | null =>
   array[array.length - 1] || null;

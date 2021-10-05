@@ -24,12 +24,11 @@ import { ScoreModel } from '../Score/model';
 import { SecondTimingModel } from '../SecondTiming/model';
 import { ScoreSelection } from '../Selection/model';
 
-import Stave from '../Stave/functions';
 import Score from '../Score/functions';
 import DemoNote from '../DemoNote/functions';
 import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
 import { dot, NoteLength } from '../Note/notelength';
-import { StaveModel } from '../Stave/model';
+import { Stave } from '../Stave/model';
 
 export function dragNote(
   note: SingleNote | TripletNote,
@@ -113,10 +112,10 @@ export function deleteSelectedNotes(state: State): State {
   let started = false;
   let deletingBars = false;
   const notesToDelete: [Note, Bar][] = [];
-  const barsToDelete: [Bar, StaveModel][] = [];
+  const barsToDelete: [Bar, Stave][] = [];
 
   all: for (const stave of Score.staves(state.score)) {
-    for (const bar of Stave.bars(stave)) {
+    for (const bar of stave.allBars()) {
       if (bar.hasID(state.selection.start)) {
         deletingBars = true;
         started = true;
@@ -133,8 +132,8 @@ export function deleteSelectedNotes(state: State): State {
   notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
 
   barsToDelete.forEach(([bar, stave]) => {
-    stave.bars.splice(stave.bars.indexOf(bar));
-    if (stave.bars.length === 0)
+    stave.deleteBar(bar);
+    if (stave.numberOfBars() === 0)
       state.score.staves.splice(state.score.staves.indexOf(stave), 1);
   });
 

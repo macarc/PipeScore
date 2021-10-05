@@ -6,28 +6,28 @@
 import { arrayflatten, replaceIndex } from '../global/utils';
 
 import { ScoreModel } from './model';
-import { StaveModel } from '../Stave/model';
+import { Stave } from '../Stave/model';
 import { TimeSignatureModel } from '../TimeSignature/model';
 
-import Stave from '../Stave/functions';
 import TextBox from '../TextBox/functions';
+import TimeSignature from '../TimeSignature/functions';
 
 const bars = (score: ScoreModel) =>
-  arrayflatten(score.staves.map((stave) => Stave.bars(stave)));
+  arrayflatten(score.staves.map((stave) => stave.allBars()));
 
 const staves = (score: ScoreModel) => score.staves;
 
 function addStave(
   score: ScoreModel,
-  afterStave: StaveModel,
+  afterStave: Stave,
   before: boolean
 ): ScoreModel {
   // Appends a stave after afterStave
 
+  const adjacentBar = before ? afterStave.firstBar() : afterStave.lastBar();
+  const ts = adjacentBar && adjacentBar.timeSignature();
   const ind = score.staves.indexOf(afterStave);
-  const newStave = Stave.init(
-    afterStave.bars[0] ? afterStave.bars[0].timeSignature() : undefined
-  );
+  const newStave = new Stave(ts || TimeSignature.init());
   if (ind !== -1)
     return {
       ...score,
@@ -37,14 +37,13 @@ function addStave(
   return score;
 }
 
-function deleteStave(score: ScoreModel, stave: StaveModel): ScoreModel {
+function deleteStave(score: ScoreModel, stave: Stave): ScoreModel {
   // Deletes the stave from the score
   // Does not worry about purging notes/bars; that should be handled elsewhere
 
-  const newScore = { ...score };
-  const ind = newScore.staves.indexOf(stave);
-  if (ind !== -1) newScore.staves.splice(ind, 1);
-  return newScore;
+  const ind = score.staves.indexOf(stave);
+  if (ind !== -1) score.staves.splice(ind, 1);
+  return score;
 }
 
 const init = (
@@ -55,9 +54,7 @@ const init = (
   name,
   width: 210 * 5,
   height: 297 * 5,
-  staves: [...Array(numberOfStaves).keys()].map(() =>
-    Stave.init(timeSignature)
-  ),
+  staves: [...Array(numberOfStaves).keys()].map(() => new Stave(timeSignature)),
   textBoxes: [TextBox.init(name, true)],
   secondTimings: [],
 });

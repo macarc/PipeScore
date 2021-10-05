@@ -21,7 +21,7 @@ import TimeSignature from '../TimeSignature/functions';
 
 import { itemBefore } from '../global/xy';
 import { ScoreSelection } from '../Selection/model';
-import { StaveModel } from '../Stave/model';
+import { Stave } from '../Stave/model';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignatureModel,
@@ -42,22 +42,12 @@ export function editTimeSignature(
     });
 }
 // TODO put this into Stave class
-function addBarToStave(
-  newBar: Bar,
-  stave: StaveModel,
-  oldBar: Bar,
-  before: boolean
-) {
-  const barInd = stave.bars.indexOf(oldBar);
-  const ind = before ? barInd : barInd + 1;
-  stave.bars.splice(ind, 0, newBar);
-}
 
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const { bar, stave } = location(state.selection.start, state.score);
-      addBarToStave(new Anacrusis(bar.timeSignature()), stave, bar, before);
+      stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
       return shouldSave(state);
     }
     return noChange(state);
@@ -68,7 +58,7 @@ export function addBar(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const { bar, stave } = location(state.selection.start, state.score);
-      addBarToStave(new Bar(bar.timeSignature()), stave, bar, before);
+      stave.insertBar(new Bar(bar.timeSignature()), bar, before);
       return shouldSave(state);
     }
     return noChange(state);

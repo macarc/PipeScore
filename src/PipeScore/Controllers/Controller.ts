@@ -7,12 +7,12 @@ import { State } from '../State';
 import { Bar } from '../Bar/model';
 import { Note, TripletNote } from '../Note/model';
 import { ScoreModel } from '../Score/model';
-import { StaveModel } from '../Stave/model';
+import { Stave } from '../Stave/model';
 
 import Score from '../Score/functions';
-import Stave from '../Stave/functions';
 
 import { ID } from '../global/id';
+import { nlast } from '../global/utils';
 
 export type ScoreEvent = (state: State) => Promise<UpdatedState>;
 export type Dispatch = (e: ScoreEvent) => void;
@@ -74,19 +74,17 @@ export function removeTextState(state: State): State {
   };
 }
 
-export function location(
-  note: Note | TripletNote | ID,
-  score: ScoreModel
-): {
-  stave: StaveModel;
-  bar: Bar;
-} {
+export function location(note: Note | TripletNote | ID, score: ScoreModel) {
   // Finds the parent bar and stave of the note passed
 
   const staves = Score.staves(score);
+
+  if (staves.length === 0)
+    throw Error('Tried to get location of a note, but there are no staves!');
+
   const id = typeof note === 'number' ? note : note.id;
   for (const stave of staves) {
-    const bars = Stave.bars(stave);
+    const bars = stave.allBars();
     for (const bar of bars) {
       if (bar.hasID(id)) {
         return { stave, bar };
@@ -96,7 +94,7 @@ export function location(
     }
   }
 
-  const lastStaveBars = Stave.bars(staves[staves.length - 1]);
+  const lastStaveBars = nlast(staves).allBars();
   return {
     stave: staves[staves.length - 1],
     bar: lastStaveBars[lastStaveBars.length - 1],

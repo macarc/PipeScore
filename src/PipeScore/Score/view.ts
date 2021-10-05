@@ -6,7 +6,7 @@ import { V, svg } from '../../render/h';
 import { staveGap, lineGap } from '../global/constants';
 
 import { ScoreModel } from './model';
-import { StaveModel } from '../Stave/model';
+import { Stave } from '../Stave/model';
 import { DemoNoteModel } from '../DemoNote/model';
 import { SelectionModel } from '../Selection/model';
 import { Dispatch } from '../Controllers/Controller';
@@ -15,7 +15,6 @@ import { clickBackground, mouseUp } from '../Controllers/Mouse';
 import renderTextBox from '../TextBox/view';
 import renderSecondTiming from '../SecondTiming/view';
 import renderScoreSelection from '../Selection/view';
-import renderStave from '../Stave/view';
 import renderDemoNote from '../DemoNote/view';
 
 import { NoteState } from '../Note/state';
@@ -45,11 +44,10 @@ export function coordinateToStaveIndex(y: number): number | null {
 }
 
 export default function render(score: ScoreModel, props: ScoreProps): V {
-  const staveProps = (stave: StaveModel, index: number) => ({
+  const staveProps = (stave: Stave, index: number) => ({
     x: margin,
     y: index * staveGap + topOffset,
     width: score.width - 2 * margin,
-    // || null so it is not 'undefined' but 'null'
     previousStave: score.staves[index - 1] || null,
     previousStaveY: (index - 1) * staveGap + topOffset,
     dispatch: props.dispatch,
@@ -89,9 +87,7 @@ export default function render(score: ScoreModel, props: ScoreProps): V {
         { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
         { mousedown: () => props.dispatch(clickBackground()) }
       ),
-      ...score.staves.map((stave, idx) =>
-        renderStave(stave, staveProps(stave, idx))
-      ),
+      ...score.staves.map((stave, idx) => stave.render(staveProps(stave, idx))),
       ...score.textBoxes.map((textBox) =>
         renderTextBox(textBox, {
           dispatch: props.dispatch,
