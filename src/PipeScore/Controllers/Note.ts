@@ -21,7 +21,7 @@ import { deleteXY, itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar/model';
 import { Score } from '../Score/model';
-import { SecondTimingModel } from '../SecondTiming/model';
+import { SecondTiming } from '../SecondTiming/model';
 import { ScoreSelection } from '../Selection/model';
 
 import DemoNote from '../DemoNote/functions';

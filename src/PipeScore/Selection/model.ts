@@ -4,7 +4,7 @@
 */
 import { ID } from '../global/id';
 import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
-import { SecondTimingModel } from '../SecondTiming/model';
+import { SecondTiming } from '../SecondTiming/model';
 import { TextBoxModel } from '../TextBox/model';
 import { Score } from '../Score/model';
 
@@ -54,8 +54,8 @@ export class TextSelection {
 }
 
 export class SecondTimingSelection {
-  secondTiming: SecondTimingModel;
-  constructor(secondTiming: SecondTimingModel) {
+  secondTiming: SecondTiming;
+  constructor(secondTiming: SecondTiming) {
     this.secondTiming = secondTiming;
   }
   notes() {

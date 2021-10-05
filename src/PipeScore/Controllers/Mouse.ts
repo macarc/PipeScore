@@ -94,28 +94,8 @@ function dragSecondTiming(
   y: number,
   state: State
 ): UpdatedState {
-  const closest = closestItem(x, y, secondTiming.dragged !== 'end');
-  const oldSecondTiming = secondTiming.secondTiming;
-  if (oldSecondTiming[secondTiming.dragged] !== closest) {
-    const newSecondTiming = {
-      ...secondTiming.secondTiming,
-      [secondTiming.dragged]: closest,
-    };
-    state.score.deleteSecondTiming(oldSecondTiming);
-    if (!state.score.addSecondTiming(newSecondTiming)) {
-      state.score.addSecondTiming(oldSecondTiming);
-    } else {
-      return viewChanged({
-        ...state,
-        selection: new SecondTimingSelection(newSecondTiming),
-        draggedSecondTiming: {
-          ...secondTiming,
-          secondTiming: newSecondTiming,
-        },
-      });
-    }
-  }
-  return noChange(state);
+  state.score.dragSecondTiming(secondTiming, x, y);
+  return viewChanged(state);
 }
 export function mouseDrag(x: number, y: number): ScoreEvent {
   return async (state: State) => {

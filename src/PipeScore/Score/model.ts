@@ -4,7 +4,7 @@
 */
 import { Stave } from '../Stave/model';
 import { TextBoxModel } from '../TextBox/model';
-import { SecondTimingModel } from '../SecondTiming/model';
+import { DraggedSecondTiming, SecondTiming } from '../SecondTiming/model';
 import { TimeSignatureModel } from '../TimeSignature/model';
 import TextBox from '../TextBox/functions';
 import TimeSignature from '../TimeSignature/functions';
@@ -18,9 +18,7 @@ import { SelectionModel } from '../Selection/model';
 import { GracenoteState } from '../Gracenote/state';
 import { last } from '../global/utils';
 
-import SecondTiming from '../SecondTiming/functions';
 import renderTextBox from '../TextBox/view';
-import renderSecondTiming from '../SecondTiming/view';
 import renderScoreSelection from '../Selection/view';
 import renderDemoNote from '../DemoNote/view';
 import { Triplet } from '../Note/model';
@@ -45,7 +43,7 @@ export class Score {
   private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBoxModel[];
-  private secondTimings: SecondTimingModel[];
+  private secondTimings: SecondTiming[];
 
   private margin = 30;
   private topOffset = 200;
@@ -93,8 +91,8 @@ export class Score {
   public addText(text: TextBoxModel) {
     this.textBoxes.push(text);
   }
-  public addSecondTiming(secondTiming: SecondTimingModel) {
-    if (SecondTiming.isValid(secondTiming, this.secondTimings)) {
+  public addSecondTiming(secondTiming: SecondTiming) {
+    if (secondTiming.isValid(this.secondTimings)) {
       this.secondTimings.push(secondTiming);
       return true;
     }
@@ -153,7 +151,7 @@ export class Score {
       return null;
     }
   }
-  public deleteSecondTiming(secondTiming: SecondTimingModel) {
+  public deleteSecondTiming(secondTiming: SecondTiming) {
     this.secondTimings.splice(this.secondTimings.indexOf(secondTiming), 1);
   }
   public deleteTextBox(text: TextBoxModel) {
@@ -164,12 +162,24 @@ export class Score {
       TextBox.setCoords(text, x, y);
     }
   }
+  public dragSecondTiming(
+    secondTiming: DraggedSecondTiming,
+    x: number,
+    y: number
+  ) {
+    secondTiming.secondTiming.drag(
+      secondTiming.dragged,
+      x,
+      y,
+      this.secondTimings
+    );
+  }
 
   public purgeSecondTimings(items: Item[]) {
-    const secondTimingsToDelete: SecondTimingModel[] = [];
+    const secondTimingsToDelete: SecondTiming[] = [];
     for (const item of items) {
       for (const st of this.secondTimings) {
-        if (SecondTiming.pointsTo(st, item.id)) secondTimingsToDelete.push(st);
+        if (st.pointsTo(item.id)) secondTimingsToDelete.push(st);
       }
     }
     secondTimingsToDelete.forEach((t) => this.deleteSecondTiming(t));
@@ -236,7 +246,7 @@ export class Score {
           })
         ),
         ...this.secondTimings.map((secondTiming) =>
-          renderSecondTiming(secondTiming, secondTimingProps)
+          secondTiming.render(secondTimingProps)
         ),
         props.selection &&
           renderScoreSelection(props.selection, scoreSelectionProps),

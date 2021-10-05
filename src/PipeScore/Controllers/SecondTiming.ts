@@ -11,9 +11,7 @@ import {
 } from './Controller';
 import { State } from '../State';
 import { ScoreSelection, SecondTimingSelection } from '../Selection/model';
-import { SecondTimingModel } from '../SecondTiming/model';
-
-import SecondTiming from '../SecondTiming/functions';
+import { SecondTiming } from '../SecondTiming/model';
 
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
@@ -23,7 +21,7 @@ export function addSecondTiming(): ScoreEvent {
       for (const bar of state.score.bars()) {
         if (foundStart) {
           state.score.addSecondTiming(
-            SecondTiming.init(start.id, bar.id, bar.id)
+            new SecondTiming(start.id, bar.id, bar.id)
           );
           return shouldSave(state);
         }
@@ -37,7 +35,7 @@ export function addSecondTiming(): ScoreEvent {
 }
 
 export function clickSecondTiming(
-  secondTiming: SecondTimingModel,
+  secondTiming: SecondTiming,
   part: 'start' | 'middle' | 'end'
 ): ScoreEvent {
   return async (state: State) =>
