@@ -17,7 +17,6 @@ import { Selection } from '../Selection/model';
 import { GracenoteState } from '../Gracenote/state';
 import { last } from '../global/utils';
 
-import renderScoreSelection from '../Selection/view';
 import renderDemoNote from '../DemoNote/view';
 import { Triplet } from '../Note/model';
 import { ID, Item } from '../global/id';
@@ -238,8 +237,7 @@ export class Score {
         ...this.secondTimings.map((secondTiming) =>
           secondTiming.render(secondTimingProps)
         ),
-        props.selection &&
-          renderScoreSelection(props.selection, scoreSelectionProps),
+        props.selection && props.selection.render(scoreSelectionProps),
         props.demoNote &&
           demoNoteProps &&
           renderDemoNote(props.demoNote, demoNoteProps),
