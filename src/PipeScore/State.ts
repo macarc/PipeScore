@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 
-import { DemoNoteModel } from './DemoNote/model';
+import { Demo } from './DemoNote/model';
 import { Gracenote, SingleGracenote } from './Gracenote/model';
 import { PlaybackState } from './Playback';
 import { Menu } from './UI/model';
@@ -18,7 +18,7 @@ export interface State {
   justClickedNote: boolean;
   note: {
     dragged: SingleNote | TripletNote | null;
-    demo: DemoNoteModel | null;
+    demo: Demo | null;
   };
   gracenote: {
     dragged: SingleGracenote | null;

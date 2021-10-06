@@ -11,7 +11,7 @@ import { getXY } from '../global/xy';
 import { svg } from '../../render/h';
 import { lineGap } from '../global/constants';
 
-export interface ScoreSelectionProps {
+interface ScoreSelectionProps {
   staveStartX: number;
   staveEndX: number;
   staveGap: number;

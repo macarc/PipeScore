@@ -18,6 +18,7 @@
 - [ ] Adding gracenotes to triplets now won't work since it doesn't use the addGracenoteToTriplet but just the general one. Easily fixable
 - [ ] Highlight barline buttons in UI if a single bar is selected
 - [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
+- [ ] Move state.gracenote.input into Demo and so encapsulate addNote
 
 ## General features
 

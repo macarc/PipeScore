@@ -7,7 +7,7 @@ import { State } from '../State';
 import { Gracenote, SingleGracenote } from '../Gracenote/model';
 import { Score } from '../Score/model';
 import { ScoreSelection } from '../Selection/model';
-import DemoNote from '../DemoNote/functions';
+import { DemoGracenote } from '../DemoNote/model';
 
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,
@@ -49,9 +49,7 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
       note: {
         ...state.note,
         demo:
-          newGracenote instanceof SingleGracenote
-            ? DemoNote.initDemoGracenote()
-            : null,
+          newGracenote instanceof SingleGracenote ? new DemoGracenote() : null,
       },
     });
   };

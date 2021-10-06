@@ -15,6 +15,7 @@ import { Score } from './Score/model';
 import renderUI from './UI/view';
 
 import Documentation from './Documentation';
+import { DemoNote } from './DemoNote/model';
 
 let state: State = {
   justClickedNote: false,
@@ -70,8 +71,8 @@ const updateView = (state: State) => {
   const uiProps = {
     zoomLevel: state.score.zoom,
     inputLength:
-      state.note.demo && state.note.demo.type === 'note'
-        ? state.note.demo.length
+      state.note.demo && state.note.demo instanceof DemoNote
+        ? state.note.demo.length()
         : null,
     docs: state.doc.show
       ? Documentation.get(state.doc.current || '') ||

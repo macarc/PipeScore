@@ -10,14 +10,13 @@ import TimeSignature from '../TimeSignature/functions';
 import { lineGap, staveGap } from '../global/constants';
 import { svg, V } from '../../render/h';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
-import { DemoNoteModel } from '../DemoNote/model';
+import { Demo } from '../DemoNote/model';
 import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
 import { Selection } from '../Selection/model';
 import { GracenoteState } from '../Gracenote/state';
 import { last } from '../global/utils';
 
-import renderDemoNote from '../DemoNote/view';
 import { Triplet } from '../Note/model';
 import { ID, Item } from '../global/id';
 import { Bar } from '../Bar/model';
@@ -26,7 +25,7 @@ interface ScoreProps {
   selection: Selection | null;
   dispatch: Dispatch;
   noteState: NoteState;
-  demoNote: DemoNoteModel | null;
+  demoNote: Demo | null;
   gracenoteState: GracenoteState;
 }
 export class Score {
@@ -193,7 +192,7 @@ export class Score {
     });
 
     const demoNoteProps = props.demoNote && {
-      staveY: this.topOffset + staveGap * props.demoNote.staveIndex,
+      staveY: props.demoNote.calculateY(this.topOffset, staveGap),
     };
 
     const secondTimingProps = {
@@ -238,9 +237,7 @@ export class Score {
           secondTiming.render(secondTimingProps)
         ),
         props.selection && props.selection.render(scoreSelectionProps),
-        props.demoNote &&
-          demoNoteProps &&
-          renderDemoNote(props.demoNote, demoNoteProps),
+        props.demoNote && demoNoteProps && props.demoNote.render(demoNoteProps),
       ]
     );
   }

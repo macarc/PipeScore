@@ -16,16 +16,16 @@ import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
 import { Item } from '../global/id';
-import { car, deepcopy, nmap } from '../global/utils';
+import { car, deepcopy, first, nmap } from '../global/utils';
 import { deleteXY, itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar/model';
 import { ScoreSelection } from '../Selection/model';
 
-import DemoNote from '../DemoNote/functions';
 import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
 import { dot, NoteLength } from '../Note/notelength';
 import { Stave } from '../Stave/model';
+import { DemoGracenote, DemoNote } from '../DemoNote/model';
 
 export function dragNote(
   note: SingleNote | TripletNote,
@@ -55,28 +55,20 @@ function addNote(
   } else {
     noteBefore = where;
   }
-  if (state.note.demo && state.note.demo.type === 'note') {
-    const newNote = new SingleNote(pitch, state.note.demo.length);
-    bar.insertNote(noteBefore, newNote);
+  const note =
+    (noteBefore && noteModels[noteModels.indexOf(noteBefore) + 1]) ||
+    first(noteModels);
+
+  if (state.note.demo) {
+    if (state.note.demo instanceof DemoNote)
+      bar.insertNote(noteBefore, state.note.demo.toNote(pitch));
+    else if (state.note.demo instanceof DemoGracenote && note)
+      note.addGracenote(pitch, noteBefore);
+
     return shouldSave(state);
-  } else {
-    const note =
-      nmap(
-        noteBefore,
-        (noteBefore) => noteModels[noteModels.indexOf(noteBefore) + 1]
-      ) ||
-      noteModels[0] ||
-      null;
-    if (note) {
-      if (state.note.demo && state.note.demo.type === 'gracenote') {
-        note.addGracenote(pitch, noteBefore);
-        return shouldSave(state);
-      }
-      if (state.gracenote.input) {
-        note.addGracenote(state.gracenote.input, noteBefore);
-        return shouldSave(state);
-      }
-    }
+  } else if (state.gracenote.input && note) {
+    note.addGracenote(state.gracenote.input, noteBefore);
+    return shouldSave(state);
   }
   return noChange(state);
 }
@@ -199,21 +191,11 @@ export function updateDemoNote(
   x: number,
   staveIndex: number | null
 ): ScoreEvent {
-  return async (state: State) =>
-    state.note.demo
-      ? viewChanged({
-          ...state,
-          note: {
-            ...state.note,
-            demo: {
-              ...state.note.demo,
-              staveIndex: staveIndex || 0,
-              pitch: (staveIndex !== null || null) && state.note.demo.pitch,
-              x,
-            },
-          },
-        })
-      : noChange(state);
+  return async (state: State) => {
+    state.note.demo?.setX(x);
+    state.note.demo?.setStaveIndex(staveIndex);
+    return viewChanged(state);
+  };
 }
 
 export function moveNoteUp(): ScoreEvent {
@@ -285,19 +267,8 @@ export function toggleDot(): ScoreEvent {
         .notesAndTriplets(state.score)
         .forEach((note) => note.toggleDot());
     }
-    return shouldSave({
-      ...state,
-      note:
-        state.note.demo && state.note.demo.type === 'note'
-          ? {
-              ...state.note,
-              demo: {
-                ...state.note.demo,
-                length: dot(state.note.demo.length),
-              },
-            }
-          : state.note,
-    });
+    if (state.note.demo instanceof DemoNote) state.note.demo.toggleDot();
+    return shouldSave(state);
   };
 }
 export function addNoteAfter(
@@ -361,19 +332,12 @@ export function setInputLength(length: NoteLength): ScoreEvent {
         .notesAndTriplets(state.score)
         .forEach((note) => note.setLength(length));
     }
-    return shouldSave({
-      ...state,
-      note: {
-        ...state.note,
-        demo:
-          !state.note.demo || state.note.demo.type === 'gracenote'
-            ? DemoNote.init(length)
-            : state.note.demo.type === 'note' &&
-              state.note.demo.length !== length
-            ? { ...state.note.demo, length }
-            : state.note.demo,
-      },
-    });
+    if (!state.note.demo || state.note.demo instanceof DemoGracenote) {
+      state.note.demo = new DemoNote(length);
+    } else if (state.note.demo instanceof DemoNote) {
+      state.note.demo.setLength(length);
+    }
+    return shouldSave(state);
   };
 }
 export function copy(): ScoreEvent {

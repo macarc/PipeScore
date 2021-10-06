@@ -50,18 +50,15 @@ export function deleteSelection(): ScoreEvent {
 
 export function mouseMoveOver(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
+    // We return viewChanged from everything since we only want to save when the note is released
+
     // This occurs when the note's head is changed from receiving pointer events to not receiving them.
     // That triggers a mouseOver on the note box below, which is undesirable as it moves the note head.
     if (state.justClickedNote)
       return noChange({ ...state, justClickedNote: false });
-
-    // We return viewChanged from everything since we only want to save when the note is released
-    if (state.note.demo && state.note.demo.pitch !== pitch) {
-      // Update the demo note
-      return viewChanged({
-        ...state,
-        note: { ...state.note, demo: { ...state.note.demo, pitch: pitch } },
-      });
+    if (state.note.demo) {
+      state.note.demo.setPitch(pitch);
+      return viewChanged(state);
     } else if (state.note.dragged) {
       state.note.dragged.drag(pitch);
       return viewChanged(state);
