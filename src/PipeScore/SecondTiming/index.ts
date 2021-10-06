@@ -7,8 +7,8 @@ import { Dispatch } from '../Controllers/Controller';
 import { clickSecondTiming } from '../Controllers/SecondTiming';
 import { ID } from '../global/id';
 import { closestItem, getXY, itemBefore } from '../global/xy';
-import { SecondTimingSelection } from '../Selection/model';
-import { Selection } from '../Selection/model';
+import { SecondTimingSelection } from '../Selection';
+import { Selection } from '../Selection';
 
 export interface DraggedSecondTiming {
   secondTiming: SecondTiming;

@@ -6,7 +6,7 @@
 import { h } from '../render/h';
 import dialogueBox from './global/dialogueBox';
 
-import { TimeSignature } from './TimeSignature/model';
+import { TimeSignature } from './TimeSignature';
 
 interface ScoreOptions {
   name: string;

@@ -2,23 +2,23 @@
   Score format
   Copyright (C) 2021 Archie Maclean
 */
-import { Stave } from '../Stave/model';
-import { TextBox } from '../TextBox/model';
-import { DraggedSecondTiming, SecondTiming } from '../SecondTiming/model';
-import { TimeSignature } from '../TimeSignature/model';
+import { Stave } from '../Stave';
+import { TextBox } from '../TextBox';
+import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
+import { TimeSignature } from '../TimeSignature';
 import { lineGap, staveGap } from '../global/constants';
 import { svg, V } from '../../render/h';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
-import { Demo } from '../DemoNote/model';
+import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
-import { Selection } from '../Selection/model';
+import { Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { last } from '../global/utils';
 
-import { Triplet } from '../Note/model';
+import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
-import { Bar } from '../Bar/model';
+import { Bar } from '../Bar';
 
 interface ScoreProps {
   selection: Selection | null;

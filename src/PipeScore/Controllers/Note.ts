@@ -19,13 +19,13 @@ import { Item } from '../global/id';
 import { car, deepcopy, first, nmap } from '../global/utils';
 import { deleteXY, itemBefore } from '../global/xy';
 
-import { Bar } from '../Bar/model';
-import { ScoreSelection } from '../Selection/model';
+import { Bar } from '../Bar';
+import { ScoreSelection } from '../Selection';
 
-import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
+import { Note, SingleNote, Triplet, TripletNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
-import { Stave } from '../Stave/model';
-import { DemoGracenote, DemoNote } from '../DemoNote/model';
+import { Stave } from '../Stave';
+import { DemoGracenote, DemoNote } from '../DemoNote';
 
 export function dragNote(
   note: SingleNote | TripletNote,

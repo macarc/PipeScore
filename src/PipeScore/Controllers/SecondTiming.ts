@@ -10,8 +10,8 @@ import {
   location,
 } from './Controller';
 import { State } from '../State';
-import { ScoreSelection, SecondTimingSelection } from '../Selection/model';
-import { SecondTiming } from '../SecondTiming/model';
+import { ScoreSelection, SecondTimingSelection } from '../Selection';
+import { SecondTiming } from '../SecondTiming';
 
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {

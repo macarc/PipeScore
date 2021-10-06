@@ -4,7 +4,7 @@
 */
 import { ScoreEvent, shouldSave, location } from './Controller';
 import { State } from '../State';
-import { ScoreSelection } from '../Selection/model';
+import { ScoreSelection } from '../Selection';
 
 export function addStave(before: boolean): ScoreEvent {
   return async (state: State) => {

@@ -11,8 +11,8 @@ import {
 } from './Controller';
 import { State } from '../State';
 
-import { TextBox } from '../TextBox/model';
-import { TextSelection } from '../Selection/model';
+import { TextBox } from '../TextBox';
+import { TextSelection } from '../Selection';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {

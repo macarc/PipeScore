@@ -4,8 +4,8 @@
 */
 import { State } from '../State';
 
-import { Note, TripletNote } from '../Note/model';
-import { Score } from '../Score/model';
+import { Note, TripletNote } from '../Note';
+import { Score } from '../Score';
 
 import { ID } from '../global/id';
 import { nlast } from '../global/utils';

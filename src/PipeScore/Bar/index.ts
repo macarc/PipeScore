@@ -2,8 +2,8 @@
   Define format for bar
   Copyright (C) 2021 Archie Maclean
  */
-import { TimeSignature } from '../TimeSignature/model';
-import { Note, SingleNote, Triplet } from '../Note/model';
+import { TimeSignature } from '../TimeSignature';
+import { Note, SingleNote, Triplet } from '../Note';
 import { genId, ID, Item } from '../global/id';
 import { last, nlast, nmap } from '../global/utils';
 import width from '../global/width';

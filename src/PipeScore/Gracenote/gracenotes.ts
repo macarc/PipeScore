@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
  */
 import { Pitch } from '../global/pitch';
-import { MaybeGracenote } from './model';
+import { MaybeGracenote } from '.';
 
 type GracenoteFn = (note: Pitch, prev: Pitch | null) => MaybeGracenote;
 

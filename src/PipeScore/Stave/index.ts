@@ -3,13 +3,13 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
-import { Anacrusis, Bar } from '../Bar/model';
+import { Anacrusis, Bar } from '../Bar';
 import { Dispatch } from '../Controllers/Controller';
 import { lineHeightOf } from '../global/constants';
 import { first, last } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
-import { TimeSignature } from '../TimeSignature/model';
+import { TimeSignature } from '../TimeSignature';
 
 interface StaveProps {
   x: number;

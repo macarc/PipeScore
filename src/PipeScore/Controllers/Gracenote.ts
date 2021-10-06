@@ -4,10 +4,10 @@
 */
 import { ScoreEvent, viewChanged, shouldSave } from './Controller';
 import { State } from '../State';
-import { Gracenote, SingleGracenote } from '../Gracenote/model';
-import { Score } from '../Score/model';
-import { ScoreSelection } from '../Selection/model';
-import { DemoGracenote } from '../DemoNote/model';
+import { Gracenote, SingleGracenote } from '../Gracenote';
+import { Score } from '../Score';
+import { ScoreSelection } from '../Selection';
+import { DemoGracenote } from '../DemoNote';
 
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,

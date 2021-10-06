@@ -4,7 +4,7 @@
  */
 import { svg, V } from '../../render/h';
 import { noteY, Pitch } from '../global/pitch';
-import { SingleNote } from '../Note/model';
+import { SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
 
 export interface DemoNoteProps {

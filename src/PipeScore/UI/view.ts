@@ -44,7 +44,7 @@ import { help as dochelp } from '../global/docs';
 
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { EndB, NormalB, RepeatB } from '../Bar/barline';
-import { Gracenote, SingleGracenote } from '../Gracenote/model';
+import { Gracenote, SingleGracenote } from '../Gracenote';
 
 export interface UIState {
   inputLength: NoteLength | null;

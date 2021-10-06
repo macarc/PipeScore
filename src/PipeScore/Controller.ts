@@ -10,12 +10,12 @@ import { updateDemoNote } from './Controllers/Note';
 import { mouseUp, mouseDrag } from './Controllers/Mouse';
 
 import { State } from './State';
-import { Score } from './Score/model';
+import { Score } from './Score';
 
 import renderUI from './UI/view';
 
 import Documentation from './Documentation';
-import { DemoNote } from './DemoNote/model';
+import { DemoNote } from './DemoNote';
 
 let state: State = {
   justClickedNote: false,

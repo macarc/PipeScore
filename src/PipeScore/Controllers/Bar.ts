@@ -11,13 +11,13 @@ import {
 } from './Controller';
 import { State } from '../State';
 
-import { Bar, Anacrusis } from '../Bar/model';
+import { Bar, Anacrusis } from '../Bar';
 import { Barline } from '../Bar/barline';
-import { Score } from '../Score/model';
-import { TimeSignature } from '../TimeSignature/model';
+import { Score } from '../Score';
+import { TimeSignature } from '../TimeSignature';
 
 import { itemBefore } from '../global/xy';
-import { ScoreSelection } from '../Selection/model';
+import { ScoreSelection } from '../Selection';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignature,

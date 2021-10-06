@@ -2,7 +2,7 @@ import { h, svg, V } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { changeText, clickText, textMouseUp } from '../Controllers/Text';
 import dialogueBox from '../global/dialogueBox';
-import { Selection, TextSelection } from '../Selection/model';
+import { Selection, TextSelection } from '../Selection';
 
 /*
   TextBox format

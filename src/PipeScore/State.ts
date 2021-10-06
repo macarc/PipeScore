@@ -3,16 +3,16 @@
   Copyright (C) 2021 Archie Maclean
 */
 
-import { Demo } from './DemoNote/model';
-import { Gracenote, SingleGracenote } from './Gracenote/model';
+import { Demo } from './DemoNote';
+import { Gracenote, SingleGracenote } from './Gracenote';
 import { PlaybackState } from './Playback';
 import { Menu } from './UI/model';
 import { V } from '../render/h';
-import { TextBox } from './TextBox/model';
-import { DraggedSecondTiming } from './SecondTiming/model';
-import { Score } from './Score/model';
-import { Selection } from './Selection/model';
-import { Note, SingleNote, Triplet, TripletNote } from './Note/model';
+import { TextBox } from './TextBox';
+import { DraggedSecondTiming } from './SecondTiming';
+import { Score } from './Score';
+import { Selection } from './Selection';
+import { Note, SingleNote, Triplet, TripletNote } from './Note';
 
 export interface State {
   justClickedNote: boolean;

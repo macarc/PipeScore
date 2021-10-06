@@ -3,10 +3,10 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { ID } from '../global/id';
-import { Note, SingleNote, Triplet, TripletNote } from '../Note/model';
-import { SecondTiming } from '../SecondTiming/model';
-import { TextBox } from '../TextBox/model';
-import { Score } from '../Score/model';
+import { Note, SingleNote, Triplet, TripletNote } from '../Note';
+import { SecondTiming } from '../SecondTiming';
+import { TextBox } from '../TextBox';
+import { Score } from '../Score';
 import { getXY } from '../global/xy';
 import { svg } from '../../render/h';
 import { lineGap } from '../global/constants';

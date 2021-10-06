@@ -16,13 +16,13 @@ import { deleteSelectedNotes } from './Note';
 import { changeGracenoteFrom } from './Gracenote';
 
 import { Pitch } from '../global/pitch';
-import { Gracenote, NoGracenote } from '../Gracenote/model';
-import { DraggedSecondTiming } from '../SecondTiming/model';
+import { Gracenote, NoGracenote } from '../Gracenote';
+import { DraggedSecondTiming } from '../SecondTiming';
 import {
   ScoreSelection,
   SecondTimingSelection,
   TextSelection,
-} from '../Selection/model';
+} from '../Selection';
 
 const deleteGracenote = (gracenote: Gracenote, state: State) => ({
   ...state,

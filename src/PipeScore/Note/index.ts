@@ -4,7 +4,7 @@
  */
 import { pitchOffset, noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
-import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote/model';
+import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
 import { arrayflatten, nlast, nmap, Obj } from '../global/utils';
 import { dot, dotted, lengthInBeats, NoteLength } from './notelength';
 import width, { Width } from '../global/width';

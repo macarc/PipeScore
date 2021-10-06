@@ -6,11 +6,10 @@ import { ScoreEvent, noChange } from './Controller';
 import { State } from '../State';
 
 import { playback, stopAudio } from '../Playback';
-import playScore from '../Score/play';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
-    await playback(state.playback, playScore(state.score));
+    await playback(state.playback, state.score.play());
     return noChange(state);
   };
 }

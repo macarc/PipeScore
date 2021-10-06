@@ -6,7 +6,7 @@ import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import startController from './Controller';
 import { keyHandler } from './KeyHandler';
-import { Score } from './Score/model';
+import { Score } from './Score';
 import quickStart from './QuickStart';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
