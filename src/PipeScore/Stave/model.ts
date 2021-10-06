@@ -9,7 +9,7 @@ import { lineHeightOf } from '../global/constants';
 import { first, last } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
-import TimeSignature from '../TimeSignature/functions';
+import { TimeSignature } from '../TimeSignature/model';
 
 interface StaveProps {
   x: number;
@@ -24,7 +24,7 @@ interface StaveProps {
 
 export class Stave {
   private bars: Bar[];
-  constructor(timeSignature = TimeSignature.init()) {
+  constructor(timeSignature = new TimeSignature()) {
     this.bars = [
       new Bar(timeSignature),
       new Bar(timeSignature),

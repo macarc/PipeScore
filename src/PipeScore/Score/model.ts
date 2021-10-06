@@ -5,8 +5,7 @@
 import { Stave } from '../Stave/model';
 import { TextBox } from '../TextBox/model';
 import { DraggedSecondTiming, SecondTiming } from '../SecondTiming/model';
-import { TimeSignatureModel } from '../TimeSignature/model';
-import TimeSignature from '../TimeSignature/functions';
+import { TimeSignature } from '../TimeSignature/model';
 import { lineGap, staveGap } from '../global/constants';
 import { svg, V } from '../../render/h';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
@@ -44,7 +43,7 @@ export class Score {
   constructor(
     name = 'My Tune',
     numberOfStaves = 2,
-    timeSignature: TimeSignatureModel | undefined = undefined
+    timeSignature: TimeSignature | undefined = undefined
   ) {
     this.name = name;
     this.landscape = false;
@@ -92,10 +91,10 @@ export class Score {
       const adjacentBar = before ? afterStave.firstBar() : afterStave.lastBar();
       const ts = adjacentBar && adjacentBar.timeSignature();
       const ind = this._staves.indexOf(afterStave);
-      const newStave = new Stave(ts || TimeSignature.init());
+      const newStave = new Stave(ts || new TimeSignature());
       if (ind !== -1) this._staves.splice(before ? ind : ind + 1, 0, newStave);
     } else {
-      this._staves.push(new Stave(TimeSignature.init()));
+      this._staves.push(new Stave(new TimeSignature()));
     }
   }
 

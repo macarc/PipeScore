@@ -6,19 +6,18 @@
 import { h } from '../render/h';
 import dialogueBox from './global/dialogueBox';
 
-import { TimeSignatureModel } from './TimeSignature/model';
-import TimeSignature from './TimeSignature/functions';
+import { TimeSignature } from './TimeSignature/model';
 
 interface ScoreOptions {
   name: string;
   numberOfStaves: number;
-  timeSignature: TimeSignatureModel;
+  timeSignature: TimeSignature;
 }
 
 const defaultOptions: ScoreOptions = {
   name: 'Blank Score',
   numberOfStaves: 4,
-  timeSignature: TimeSignature.from('cut time'),
+  timeSignature: new TimeSignature('cut time'),
 };
 const blankForm = async (): Promise<ScoreOptions> => {
   const ts = await dialogueBox(
@@ -82,7 +81,7 @@ const blankForm = async (): Promise<ScoreOptions> => {
         return {
           name: nameElement.value,
           numberOfStaves: parseInt(stavesElement.value),
-          timeSignature: TimeSignature.from(
+          timeSignature: new TimeSignature(
             cutTimeElement.checked
               ? 'cut time'
               : [

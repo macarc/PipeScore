@@ -2,9 +2,8 @@
   Define format for bar
   Copyright (C) 2021 Archie Maclean
  */
-import { TimeSignatureModel } from '../TimeSignature/model';
+import { TimeSignature } from '../TimeSignature/model';
 import { Note, SingleNote, Triplet } from '../Note/model';
-import TimeSignature, { timeSignatureWidth } from '../TimeSignature/functions';
 import { genId, ID, Item } from '../global/id';
 import { last, nlast, nmap } from '../global/utils';
 import width from '../global/width';
@@ -18,7 +17,6 @@ import { addNoteToBarStart } from '../Controllers/Note';
 import { clickBar } from '../Controllers/Bar';
 import { noteBoxes } from '../global/noteboxes';
 import { mouseMoveOver } from '../Controllers/Mouse';
-import renderTimeSignature from '../TimeSignature/view';
 import { Barline, NormalB } from './barline';
 
 export interface BarProps {
@@ -36,12 +34,12 @@ export interface BarProps {
 const minimumBeatWidth = 15;
 
 export class Bar extends Item {
-  protected ts: TimeSignatureModel;
+  protected ts: TimeSignature;
   protected notes: Note[];
   protected frontBarline: Barline;
   protected backBarline: Barline;
 
-  constructor(timeSignature = TimeSignature.init()) {
+  constructor(timeSignature = new TimeSignature()) {
     super(genId());
     this.ts = timeSignature;
     this.notes = [];
@@ -49,8 +47,8 @@ export class Bar extends Item {
     this.backBarline = new NormalB();
   }
   public static setTimeSignatureFrom(
-    timeSignature: TimeSignatureModel,
-    newTimeSignature: TimeSignatureModel,
+    timeSignature: TimeSignature,
+    newTimeSignature: TimeSignature,
     bars: Bar[]
   ) {
     // Replaces timeSignature with newTimeSignature, and flows forward
@@ -63,8 +61,8 @@ export class Bar extends Item {
         continue;
       }
       if (atTimeSignature) {
-        if (TimeSignature.equal(bar.ts, timeSignature)) {
-          bar.ts = TimeSignature.copy(newTimeSignature);
+        if (bar.ts.equals(timeSignature)) {
+          bar.ts = newTimeSignature.copy();
         } else {
           break;
         }
@@ -221,20 +219,20 @@ export class Bar extends Item {
     const staveY = props.y;
     const hasTimeSignature =
       props.previousBar !== null
-        ? !TimeSignature.equal(props.previousBar.timeSignature(), this.ts)
+        ? !props.previousBar.timeSignature().equals(this.ts)
         : true;
     const barWidth =
       props.width -
-      (hasTimeSignature ? timeSignatureWidth : 0) -
+      (hasTimeSignature ? this.ts.width() : 0) -
       this.frontBarline.width() -
       this.backBarline.width();
     const xAfterTimeSignature =
-      props.x + (hasTimeSignature ? timeSignatureWidth : 0);
+      props.x + (hasTimeSignature ? this.ts.width() : 0);
     const xAfterBarline = xAfterTimeSignature + this.frontBarline.width();
 
     const groupedNotes = SingleNote.groupNotes(
       this.notes,
-      TimeSignature.beatDivision(this.ts)
+      this.ts.beatDivision()
     );
 
     const previousNote = props.previousBar && props.previousBar.lastNote();
@@ -293,7 +291,7 @@ export class Bar extends Item {
         ? this.backBarline.render(props.x + props.width, props.y, false)
         : null,
       hasTimeSignature
-        ? renderTimeSignature(this.ts, {
+        ? this.ts.render({
             x: props.x + 10,
             y: props.y,
             dispatch: props.dispatch,
@@ -309,10 +307,9 @@ export class Anacrusis extends Bar {
     const totalNumberOfBeats = Math.max(this.totalBeats(previousPitch) + 1, 2);
     return (
       minimumBeatWidth * totalNumberOfBeats +
-      (previousTimeSignature &&
-      !TimeSignature.equal(this.ts, previousTimeSignature)
+      (previousTimeSignature && !this.ts.equals(previousTimeSignature)
         ? 0
-        : timeSignatureWidth)
+        : this.ts.width())
     );
   }
 }

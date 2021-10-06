@@ -14,24 +14,22 @@ import { State } from '../State';
 import { Bar, Anacrusis } from '../Bar/model';
 import { Barline } from '../Bar/barline';
 import { Score } from '../Score/model';
-import { TimeSignatureModel } from '../TimeSignature/model';
-
-import TimeSignature from '../TimeSignature/functions';
+import { TimeSignature } from '../TimeSignature/model';
 
 import { itemBefore } from '../global/xy';
 import { ScoreSelection } from '../Selection/model';
 
 function setTimeSignatureFrom(
-  timeSignature: TimeSignatureModel,
-  newTimeSignature: TimeSignatureModel,
+  timeSignature: TimeSignature,
+  newTimeSignature: TimeSignature,
   score: Score
 ): Score {
   Bar.setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
   return score;
 }
 export function editTimeSignature(
-  timeSignature: TimeSignatureModel,
-  newTimeSignature: TimeSignatureModel
+  timeSignature: TimeSignature,
+  newTimeSignature: TimeSignature
 ): ScoreEvent {
   return async (state: State) =>
     shouldSave({
@@ -99,9 +97,7 @@ export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const { bar } = location(state.selection.start, state.score);
-      const newTimeSignature = await TimeSignature.getNewInput(
-        bar.timeSignature()
-      );
+      const newTimeSignature = await bar.timeSignature().edit();
       return shouldSave({
         ...state,
         score: setTimeSignatureFrom(
