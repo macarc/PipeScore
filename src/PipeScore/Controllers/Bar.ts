@@ -2,13 +2,7 @@
   Controller for bar-related events
   Copyright (C) 2021 Archie Maclean
 */
-import {
-  ScoreEvent,
-  noChange,
-  viewChanged,
-  shouldSave,
-  location,
-} from './Controller';
+import { ScoreEvent, location, Update } from './Controller';
 import { State } from '../State';
 
 import { Bar } from '../Bar';
@@ -31,19 +25,18 @@ export function editTimeSignature(
   timeSignature: TimeSignature,
   newTimeSignature: TimeSignature
 ): ScoreEvent {
-  return async (state: State) =>
-    shouldSave({
-      ...state,
-      score: setTimeSignatureFrom(timeSignature, newTimeSignature, state.score),
-    });
+  return async (state: State) => {
+    setTimeSignatureFrom(timeSignature, newTimeSignature, state.score);
+    return Update.ShouldSave;
+  };
 }
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       state.selection.addAnacrusis(before, state.score);
-      return shouldSave(state);
+      return Update.ShouldSave;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -51,10 +44,10 @@ export function addBar(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       state.selection.addBar(before, state.score);
-      return shouldSave(state);
+      return Update.ShouldSave;
     }
 
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -63,16 +56,14 @@ export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
       if (itemBefore(state.selection.end, bar.id)) {
         state.selection.end = bar.id;
-        return viewChanged(state);
+        return Update.ViewChanged;
       } else if (itemBefore(bar.id, state.selection.end)) {
         state.selection.start = bar.id;
-        return viewChanged(state);
+        return Update.ViewChanged;
       }
     }
-    return viewChanged({
-      ...state,
-      selection: new ScoreSelection(bar.id, bar.id),
-    });
+    state.selection = new ScoreSelection(bar.id, bar.id);
+    return Update.ViewChanged;
   };
 }
 
@@ -84,9 +75,9 @@ export function setBarRepeat(
     if (state.selection instanceof ScoreSelection) {
       const { bar } = location(state.selection.start, state.score);
       bar.setBarline(which, what);
-      return shouldSave(state);
+      return Update.ShouldSave;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -95,15 +86,9 @@ export function editBarTimeSignature(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const { bar } = location(state.selection.start, state.score);
       const newTimeSignature = await bar.timeSignature().edit();
-      return shouldSave({
-        ...state,
-        score: setTimeSignatureFrom(
-          bar.timeSignature(),
-          newTimeSignature,
-          state.score
-        ),
-      });
+      setTimeSignatureFrom(bar.timeSignature(), newTimeSignature, state.score);
+      return Update.ShouldSave;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }

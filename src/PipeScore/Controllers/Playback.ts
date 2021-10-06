@@ -2,7 +2,7 @@
   Controller for playback events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, noChange } from './Controller';
+import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 
 import { playback, stopAudio } from '../Playback';
@@ -10,17 +10,20 @@ import { playback, stopAudio } from '../Playback';
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
     await playback(state.playback, state.score.play());
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
 export function stopPlayback(): ScoreEvent {
-  return async (state: State) => {
+  return async () => {
     stopAudio();
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
 export function setPlaybackBpm(bpm: number): ScoreEvent {
-  return async (state: State) => noChange({ ...state, playback: { bpm } });
+  return async (state: State) => {
+    state.playback.bpm = bpm;
+    return Update.NoChange;
+  };
 }

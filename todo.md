@@ -19,6 +19,7 @@
 - [ ] Highlight barline buttons in UI if a single bar is selected
 - [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 - [ ] Move state.gracenote.input into Demo and so encapsulate addNote
+- [ ] Unify all the removeState thingummies into something that makes sense
 
 ## General features
 

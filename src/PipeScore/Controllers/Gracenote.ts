@@ -2,7 +2,7 @@
   Controller for gracenote-related events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, viewChanged, shouldSave } from './Controller';
+import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 import { Gracenote, SingleGracenote } from '../Gracenote';
 import { Score } from '../Score';
@@ -20,13 +20,12 @@ export function changeGracenoteFrom(
   return score;
 }
 export function clickGracenote(gracenote: Gracenote): ScoreEvent {
-  return async (state: State) =>
-    viewChanged({
-      ...state,
-      justClickedNote: true,
-      note: { demo: null },
-      selection: new GracenoteSelection(gracenote).drag(gracenote),
-    });
+  return async (state: State) => {
+    state.justClickedNote = true;
+    state.note.demo = null;
+    state.selection = new GracenoteSelection(gracenote).drag(gracenote);
+    return Update.ViewChanged;
+  };
 }
 
 export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
@@ -37,16 +36,11 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
       notes.forEach((note, i) =>
         note.addGracenote(newGracenote.copy(), notes[i - 1])
       );
-      return shouldSave(state);
+      return Update.ShouldSave;
+    } else {
+      state.note.demo =
+        newGracenote instanceof SingleGracenote ? new DemoGracenote() : null;
+      return Update.ViewChanged;
     }
-    return viewChanged({
-      ...state,
-      gracenote: { ...state.gracenote, input: newGracenote },
-      note: {
-        ...state.note,
-        demo:
-          newGracenote instanceof SingleGracenote ? new DemoGracenote() : null,
-      },
-    });
   };
 }

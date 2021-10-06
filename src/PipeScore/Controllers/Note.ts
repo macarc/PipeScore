@@ -2,15 +2,7 @@
   Controller for note-related events
   Copyright (C) 2021 Archie Maclean
 */
-import {
-  ScoreEvent,
-  UpdatedState,
-  noChange,
-  viewChanged,
-  shouldSave,
-  location,
-  removeState,
-} from './Controller';
+import { ScoreEvent, location, removeState, Update } from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
@@ -24,17 +16,17 @@ import { Note, SingleNote, Triplet, TripletNote } from '../Note';
 import { NoteLength } from '../Note/notelength';
 import { DemoGracenote, DemoNote } from '../DemoNote';
 
-function addNote(pitch: Pitch, bar: Bar, state: State): UpdatedState;
+function addNote(pitch: Pitch, bar: Bar, state: State): Update;
 function addNote(
   pitch: Pitch,
   noteBefore: Note | Triplet,
   state: State
-): UpdatedState;
+): Update;
 function addNote(
   pitch: Pitch,
   where: Bar | Note | Triplet,
   state: State
-): UpdatedState {
+): Update {
   const noteModels = state.score.notesAndTriplets();
   let noteBefore: Note | Triplet | null;
   const { bar } = location(where.id, state.score);
@@ -53,12 +45,12 @@ function addNote(
     else if (state.note.demo instanceof DemoGracenote && note)
       note.addGracenote(pitch, noteBefore);
 
-    return shouldSave(state);
+    return Update.ShouldSave;
   } else if (state.gracenote.input && note) {
     note.addGracenote(state.gracenote.input, noteBefore);
-    return shouldSave(state);
+    return Update.ShouldSave;
   }
-  return noChange(state);
+  return Update.NoChange;
 }
 
 export function expandSelection(): ScoreEvent {
@@ -67,10 +59,10 @@ export function expandSelection(): ScoreEvent {
       const next = state.score.nextNote(state.selection.end);
       if (next) {
         state.selection.end = next.id;
-        return viewChanged(state);
+        return Update.ViewChanged;
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -82,11 +74,10 @@ export function detractSelection(): ScoreEvent {
     ) {
       const prev = state.score.previousNote(state.selection.end);
       if (prev) {
-        state.selection.end = prev.id;
-        return viewChanged(state);
+        return Update.ViewChanged;
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -95,13 +86,11 @@ export function moveLeft(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const prev = state.score.previousNote(state.selection.start);
       if (prev) {
-        return viewChanged({
-          ...state,
-          selection: new ScoreSelection(prev.id, prev.id),
-        });
+        state.selection = new ScoreSelection(prev.id, prev.id);
+        return Update.ViewChanged;
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -110,13 +99,11 @@ export function moveRight(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const next = state.score.nextNote(state.selection.end);
       if (next) {
-        return viewChanged({
-          ...state,
-          selection: new ScoreSelection(next.id, next.id),
-        });
+        state.selection = new ScoreSelection(next.id, next.id);
+        return Update.ViewChanged;
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 export function updateDemoNote(
@@ -126,23 +113,23 @@ export function updateDemoNote(
   return async (state: State) => {
     state.note.demo?.setX(x);
     state.note.demo?.setStaveIndex(staveIndex);
-    return viewChanged(state);
+    return Update.ViewChanged;
   };
 }
 
 export function moveNoteUp(): ScoreEvent {
   return async (state: State) => {
-    if (!state.selection) return noChange(state);
+    if (!state.selection) return Update.NoChange;
     state.selection.notes(state.score).forEach((note) => note.moveUp());
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 
 export function moveNoteDown(): ScoreEvent {
   return async (state: State) => {
-    if (!state.selection) return noChange(state);
+    if (!state.selection) return Update.NoChange;
     state.selection.notes(state.score).forEach((note) => note.moveDown());
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 export function addNoteToBarStart(pitch: Pitch, bar: Bar): ScoreEvent {
@@ -151,17 +138,17 @@ export function addNoteToBarStart(pitch: Pitch, bar: Bar): ScoreEvent {
 
 export function tieSelectedNotes(): ScoreEvent {
   return async (state: State) => {
-    if (!(state.selection instanceof ScoreSelection)) return noChange(state);
+    if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     state.selection
       .notesAndTriplets(state.score)
       .forEach((note) => note.toggleTie(state.score.notesAndTriplets()));
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 
 export function addTriplet(): ScoreEvent {
   return async (state: State) => {
-    if (!(state.selection instanceof ScoreSelection)) return noChange(state);
+    if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     const selectedNotesAndTriplets = state.selection.notesAndTriplets(
       state.score
     );
@@ -178,17 +165,17 @@ export function addTriplet(): ScoreEvent {
       ) {
         const { bar } = location(first, state.score);
         bar.makeTriplet(first, second, third);
-        return shouldSave(state);
+        return Update.ShouldSave;
       }
     } else if (selectedNotesAndTriplets.length >= 1) {
       const tr = selectedNotesAndTriplets[0];
       if (tr instanceof Triplet) {
         const { bar } = location(tr, state.score);
         bar.unmakeTriplet(tr);
-        return shouldSave(state);
+        return Update.ShouldSave;
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -200,7 +187,7 @@ export function toggleDot(): ScoreEvent {
         .forEach((note) => note.toggleDot());
     }
     if (state.note.demo instanceof DemoNote) state.note.demo.toggleDot();
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 export function addNoteAfter(
@@ -210,7 +197,10 @@ export function addNoteAfter(
   return async (state: State) => addNote(pitch, noteBefore, state);
 }
 export function stopInputtingNotes(): ScoreEvent {
-  return async (state: State) => viewChanged(removeState(state));
+  return async (state: State) => {
+    removeState(state);
+    return Update.ViewChanged;
+  };
 }
 
 export function clickNote(
@@ -221,32 +211,28 @@ export function clickNote(
     if (state.gracenote.input) {
       const previous = state.score.previousNote(note.id);
       note.addGracenote(state.gracenote.input, previous);
-      return shouldSave(state);
+      return Update.ShouldSave;
     } else {
-      const stateAfterFirstSelection = viewChanged({
-        ...state,
-        justClickedNote: true,
-        selection: new ScoreSelection(note.id, note.id).drag(note),
-      });
-
       if (event.shiftKey) {
         if (state.selection instanceof ScoreSelection) {
           if (itemBefore(state.selection.end, note.id)) {
             state.selection.end = note.id;
             state.selection.drag(note);
             state.justClickedNote = true;
-            return viewChanged(state);
+            return Update.ViewChanged;
           } else if (itemBefore(note.id, state.selection.start)) {
             state.selection.start = note.id;
             state.selection.drag(note);
             state.justClickedNote = true;
-            return viewChanged(state);
+            return Update.ViewChanged;
           } else {
-            return noChange(state);
+            return Update.ShouldSave;
           }
         }
       }
-      return stateAfterFirstSelection;
+      state.justClickedNote = true;
+      state.selection = new ScoreSelection(note.id, note.id).drag(note);
+      return Update.ViewChanged;
     }
   };
 }
@@ -263,29 +249,29 @@ export function setInputLength(length: NoteLength): ScoreEvent {
     } else if (state.note.demo instanceof DemoNote) {
       state.note.demo.setLength(length);
     }
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 export function copy(): ScoreEvent {
   return async (state: State) => {
-    if (!(state.selection instanceof ScoreSelection)) return noChange(state);
+    if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     const notes = state.selection.notesAndTriplets(state.score);
     if (notes.length > 0) {
       const { bar: initBar } = location(notes[0], state.score);
       let currentBarId = initBar.id;
 
-      const clipboard: (Note | 'bar-break')[] = notes.map((note) => {
+      state.clipboard = [];
+      notes.forEach((note) => {
         const { bar } = location(note.id, state.score);
         if (currentBarId !== bar.id) {
-          clipboard.push('bar-break');
+          state.clipboard?.push('bar-break');
           currentBarId = bar.id;
         }
-        return note.copy();
+        state.clipboard?.push(note.copy());
       });
-
-      return noChange({ ...state, clipboard });
+      return Update.NoChange;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -295,8 +281,8 @@ export function paste(): ScoreEvent {
       const id = state.selection.end;
       const { bar } = location(id, state.score);
       Bar.pasteNotes(state.clipboard, bar, id, state.score.bars());
-      return shouldSave(state);
+      return Update.ShouldSave;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }

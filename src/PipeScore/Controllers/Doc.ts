@@ -2,15 +2,19 @@
   Controller for documentation events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, viewChanged } from './Controller';
+import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 
 export function hoverDoc(element: string): ScoreEvent {
-  return async (state: State) =>
-    viewChanged({ ...state, doc: { ...state.doc, current: element } });
+  return async (state: State) => {
+    state.doc.current = element;
+    return Update.ViewChanged;
+  };
 }
 
 export function toggleDoc(): ScoreEvent {
-  return async (state: State) =>
-    viewChanged({ ...state, doc: { ...state.doc, show: !state.doc.show } });
+  return async (state: State) => {
+    state.doc.show = !state.doc.show;
+    return Update.ViewChanged;
+  };
 }

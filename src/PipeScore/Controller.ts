@@ -19,7 +19,7 @@ import { DemoNote } from './DemoNote';
 import { GracenoteSelection, ScoreSelection } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 
-let state: State = {
+const state: State = {
   justClickedNote: false,
   note: { demo: null },
   gracenote: { input: null },
@@ -37,9 +37,8 @@ let save: (score: Score) => void = () => null;
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
-  state = res.state;
-  if (res.update === Update.ViewChanged || res.update === Update.ShouldSave) {
-    if (res.update === Update.ShouldSave) {
+  if (res === Update.ViewChanged || res === Update.ShouldSave) {
+    if (res === Update.ShouldSave) {
       state.score.updateName();
       const asJSON = JSON.stringify(state.score);
       if (state.history.past[state.history.past.length - 1] !== asJSON) {

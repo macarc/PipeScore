@@ -9,7 +9,7 @@
     "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
     "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; ./scripts/buildall.sh",
     "lint": "prettier --write .; eslint src --ext .ts",
-    "circles": "madge -c --warning src/PipeScore/PipeScore.ts"
+    "circles": "madge -c --warning --ts-config=tsconfig.json src/PipeScore/PipeScore.ts"
   },
   "author": "",
   "license": "GPL-3.0",

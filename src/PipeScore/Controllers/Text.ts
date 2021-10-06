@@ -2,13 +2,7 @@
   Controller for text events
   Copyright (C) 2021 Archie Maclean
 */
-import {
-  ScoreEvent,
-  noChange,
-  viewChanged,
-  shouldSave,
-  removeNoteState,
-} from './Controller';
+import { ScoreEvent, removeNoteState, Update } from './Controller';
 import { State } from '../State';
 
 import { TextBox } from '../TextBox';
@@ -17,7 +11,7 @@ import { TextSelection } from '../Selection';
 export function addText(): ScoreEvent {
   return async (state: State) => {
     state.score.addText(new TextBox());
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 
@@ -26,25 +20,23 @@ export function changeText(
   newSize: number,
   text: TextBox
 ): ScoreEvent {
-  return async (state: State) => {
-    return { update: text.set(newText, newSize), state };
-  };
+  return async () => text.set(newText, newSize);
 }
 
 export function clickText(text: TextBox): ScoreEvent {
-  return async (state: State) =>
-    viewChanged({
-      ...removeNoteState(state),
-      selection: new TextSelection(text).drag(text),
-    });
+  return async (state: State) => {
+    removeNoteState(state);
+    state.selection = new TextSelection(text).drag(text);
+    return Update.ViewChanged;
+  };
 }
 
 export function centreText(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof TextSelection) {
       state.selection.text.toggleCentre();
-      return shouldSave(state);
+      return Update.ShouldSave;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }

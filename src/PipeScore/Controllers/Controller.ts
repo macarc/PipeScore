@@ -9,35 +9,13 @@ import { Score } from '../Score';
 
 import { ID } from '../global/id';
 
-export type ScoreEvent = (state: State) => Promise<UpdatedState>;
+export type ScoreEvent = (state: State) => Promise<Update>;
 export type Dispatch = (e: ScoreEvent) => void;
 
 export const enum Update {
   NoChange,
   ViewChanged,
   ShouldSave,
-}
-export type UpdatedState = {
-  state: State;
-  update: Update;
-};
-export function noChange(state: State): UpdatedState {
-  return {
-    state,
-    update: Update.NoChange,
-  };
-}
-export function viewChanged(state: State): UpdatedState {
-  return {
-    state,
-    update: Update.ViewChanged,
-  };
-}
-export function shouldSave(state: State): UpdatedState {
-  return {
-    state,
-    update: Update.ShouldSave,
-  };
 }
 
 export function removeState(state: State): State {
@@ -47,13 +25,10 @@ export function removeState(state: State): State {
   return state;
 }
 
-export function removeNoteState(state: State): State {
-  return {
-    ...state,
-    note: { demo: null },
-    gracenote: { ...state.gracenote, input: null },
-    selection: null,
-  };
+export function removeNoteState(state: State) {
+  state.note.demo = null;
+  state.gracenote.input = null;
+  state.selection = null;
 }
 
 export function location(note: Note | TripletNote | ID, score: Score) {

@@ -2,17 +2,9 @@
   Controller for miscellaneous events
   Copyright (C) 2021 Archie Maclean
 */
-import {
-  ScoreEvent,
-  shouldSave,
-  noChange,
-  viewChanged,
-  removeState,
-} from './Controller';
+import { ScoreEvent, removeState, Update } from './Controller';
 import { State } from '../State';
-
 import { Menu } from '../UI/model';
-
 import { h, hFrom } from '../../render/h';
 import patch from '../../render/vdom';
 
@@ -22,27 +14,26 @@ export function changeZoomLevel(zoom: number): ScoreEvent {
   return async (state: State) => {
     if (state.score.zoom !== zoom) {
       state.score.zoom = zoom;
-      return viewChanged(state);
+      return Update.ViewChanged;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
 export function setMenu(menu: Menu): ScoreEvent {
   // Set demoNote/inputGracenote because we don't want to have them showing when another menu is up
-  return async (state: State) =>
-    viewChanged({
-      ...state,
-      ui: { ...state.ui, menu },
-      note: { ...state.note, demo: null },
-      gracenote: { ...state.gracenote, input: null },
-    });
+  return async (state: State) => {
+    state.ui.menu = menu;
+    state.note.demo = null;
+    state.gracenote.input = null;
+    return Update.ViewChanged;
+  };
 }
 
 export function toggleLandscape(): ScoreEvent {
   return async (state: State) => {
     state.score.toggleLandscape();
-    return shouldSave(state);
+    return Update.ShouldSave;
   };
 }
 
@@ -53,19 +44,16 @@ export function undo(): ScoreEvent {
       const last = state.history.past.pop();
       const beforeLast = state.history.past.pop();
       if (beforeLast) {
-        return shouldSave({
-          ...removeState(state),
-          score: JSON.parse(beforeLast),
-          history: {
-            ...state.history,
-            future: last
-              ? [...state.history.future, last]
-              : state.history.future,
-          },
-        });
+        removeState(state);
+        state.score = JSON.parse(beforeLast);
+        state.history = {
+          ...state.history,
+          future: last ? [...state.history.future, last] : state.history.future,
+        };
+        return Update.ShouldSave;
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -73,12 +61,11 @@ export function redo(): ScoreEvent {
   return async (state: State) => {
     const last = state.history.future.pop();
     if (last) {
-      return shouldSave({
-        ...removeState(state),
-        score: JSON.parse(last),
-      });
+      removeState(state);
+      state.score = JSON.parse(last);
+      return Update.ShouldSave;
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -134,6 +121,6 @@ export function print(): ScoreEvent {
       popupWindow.document.close();
     }
 
-    return noChange(state);
+    return Update.NoChange;
   };
 }

@@ -2,13 +2,7 @@
   Controller for second timing events
   Copyright (C) 2021 Archie Maclean
 */
-import {
-  ScoreEvent,
-  noChange,
-  viewChanged,
-  shouldSave,
-  location,
-} from './Controller';
+import { ScoreEvent, location, Update } from './Controller';
 import { State } from '../State';
 import { ScoreSelection, SecondTimingSelection } from '../Selection';
 import { SecondTiming } from '../SecondTiming';
@@ -23,14 +17,14 @@ export function addSecondTiming(): ScoreEvent {
           state.score.addSecondTiming(
             new SecondTiming(start.id, bar.id, bar.id)
           );
-          return shouldSave(state);
+          return Update.ShouldSave;
         }
         if (bar === start) {
           foundStart = true;
         }
       }
     }
-    return noChange(state);
+    return Update.NoChange;
   };
 }
 
@@ -40,6 +34,6 @@ export function clickSecondTiming(
 ): ScoreEvent {
   return async (state: State) => {
     state.selection = new SecondTimingSelection(secondTiming).drag(part);
-    return viewChanged(state);
+    return Update.ViewChanged;
   };
 }
