@@ -16,15 +16,15 @@ import renderUI from './UI/view';
 
 import Documentation from './Documentation';
 import { DemoNote } from './DemoNote';
+import { GracenoteSelection, ScoreSelection } from './Selection';
+import { emptyGracenoteState } from './Gracenote/state';
 
 let state: State = {
   justClickedNote: false,
-  note: { dragged: null, demo: null },
-  gracenote: { dragged: null, selected: null, input: null },
+  note: { demo: null },
+  gracenote: { input: null },
   playback: { bpm: 100 },
   ui: { menu: 'normal' },
-  draggedText: null,
-  draggedSecondTiming: null,
   doc: { show: true, current: null },
   clipboard: null,
   selection: null,
@@ -59,11 +59,17 @@ const updateView = (state: State) => {
 
   const scoreProps = {
     noteState: {
-      dragged: state.note.dragged,
+      dragged:
+        (state.selection instanceof ScoreSelection &&
+          state.selection.draggedNote()) ||
+        null,
       inputtingNotes:
         state.note.demo !== null || state.gracenote.input !== null,
     },
-    gracenoteState: state.gracenote,
+    gracenoteState:
+      state.selection instanceof GracenoteSelection
+        ? state.selection.state()
+        : emptyGracenoteState,
     selection: state.selection,
     dispatch,
     demoNote: state.note.demo,

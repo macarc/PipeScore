@@ -47,6 +47,7 @@ export class Stave {
   public allBars() {
     return this.bars;
   }
+
   public insertBar(newBar: Bar, oldBar: Bar, before: boolean) {
     const barInd = this.bars.indexOf(oldBar);
     const ind = before ? barInd : barInd + 1;

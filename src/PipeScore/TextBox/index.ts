@@ -1,6 +1,6 @@
 import { h, svg, V } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
-import { changeText, clickText, textMouseUp } from '../Controllers/Text';
+import { changeText, clickText } from '../Controllers/Text';
 import dialogueBox from '../global/dialogueBox';
 import { Selection, TextSelection } from '../Selection';
 
@@ -101,7 +101,6 @@ export class TextBox {
       {
         dblclick: () => this.edit(props.dispatch),
         mousedown: () => props.dispatch(clickText(this)),
-        mouseup: () => props.dispatch(textMouseUp()),
       },
       [this._text || 'Double Click to Edit']
     );

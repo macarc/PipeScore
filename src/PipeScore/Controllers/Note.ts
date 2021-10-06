@@ -10,31 +10,19 @@ import {
   shouldSave,
   location,
   removeState,
-  removeTextState,
 } from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
-import { Item } from '../global/id';
-import { car, deepcopy, first, nmap } from '../global/utils';
-import { deleteXY, itemBefore } from '../global/xy';
+import { first } from '../global/utils';
+import { itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar';
 import { ScoreSelection } from '../Selection';
 
 import { Note, SingleNote, Triplet, TripletNote } from '../Note';
-import { dot, NoteLength } from '../Note/notelength';
-import { Stave } from '../Stave';
+import { NoteLength } from '../Note/notelength';
 import { DemoGracenote, DemoNote } from '../DemoNote';
-
-export function dragNote(
-  note: SingleNote | TripletNote,
-  pitch: Pitch,
-  state: State
-): UpdatedState {
-  note.drag(pitch);
-  return viewChanged({ ...state, note: { ...state.note, dragged: note } });
-}
 
 function addNote(pitch: Pitch, bar: Bar, state: State): UpdatedState;
 function addNote(
@@ -71,62 +59,6 @@ function addNote(
     return shouldSave(state);
   }
   return noChange(state);
-}
-
-export function deleteSelectedNotes(state: State): State {
-  // Deletes the selected notes/bars/staves from the score, purges them, modifies and returns the score
-
-  if (!(state.selection instanceof ScoreSelection)) return state;
-
-  let started = false;
-  let deletingBars = false;
-  const notesToDelete: [Note, Bar][] = [];
-  const barsToDelete: [Bar, Stave][] = [];
-
-  all: for (const stave of state.score.staves()) {
-    for (const bar of stave.allBars()) {
-      if (bar.hasID(state.selection.start)) {
-        deletingBars = true;
-        started = true;
-      }
-      for (const note of bar.notesAndTriplets()) {
-        if (note.hasID(state.selection.start)) started = true;
-        if (started) notesToDelete.push([note, bar]);
-        if (note.hasID(state.selection.end)) break all;
-      }
-      if (started && deletingBars) barsToDelete.push([bar, stave]);
-      if (bar.hasID(state.selection.end)) break all;
-    }
-  }
-  notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
-
-  for (const [bar, stave] of barsToDelete) {
-    stave.deleteBar(bar);
-    if (stave.numberOfBars() === 0) state.score.deleteStave(stave);
-  }
-
-  return purgeItems(
-    [...notesToDelete.map(car), ...barsToDelete.map(car)],
-    state
-  );
-}
-
-function purgeItems(items: Item[], state: State): State {
-  // Deletes all references to the items in the array
-
-  const score = deepcopy(state.score);
-  state.gracenote.selected = null;
-  score.purgeSecondTimings(items);
-  for (const note of items) {
-    deleteXY(note.id);
-    if (
-      state.selection instanceof ScoreSelection &&
-      (note.hasID(state.selection.start) || note.hasID(state.selection.end))
-    ) {
-      state.selection = null;
-    }
-  }
-  return state;
 }
 
 export function expandSelection(): ScoreEvent {
@@ -286,7 +218,6 @@ export function clickNote(
   event: MouseEvent
 ): ScoreEvent {
   return async (state: State) => {
-    state = removeTextState(state);
     if (state.gracenote.input) {
       const previous = state.score.previousNote(note.id);
       note.addGracenote(state.gracenote.input, previous);
@@ -295,26 +226,21 @@ export function clickNote(
       const stateAfterFirstSelection = viewChanged({
         ...state,
         justClickedNote: true,
-        note: { dragged: note, demo: null },
-        selection: new ScoreSelection(note.id, note.id),
+        selection: new ScoreSelection(note.id, note.id).drag(note),
       });
 
       if (event.shiftKey) {
         if (state.selection instanceof ScoreSelection) {
           if (itemBefore(state.selection.end, note.id)) {
             state.selection.end = note.id;
-            return viewChanged({
-              ...state,
-              justClickedNote: true,
-              note: { dragged: note, demo: null },
-            });
+            state.selection.drag(note);
+            state.justClickedNote = true;
+            return viewChanged(state);
           } else if (itemBefore(note.id, state.selection.start)) {
             state.selection.start = note.id;
-            return viewChanged({
-              ...state,
-              justClickedNote: true,
-              note: { dragged: note, demo: null },
-            });
+            state.selection.drag(note);
+            state.justClickedNote = true;
+            return viewChanged(state);
           } else {
             return noChange(state);
           }

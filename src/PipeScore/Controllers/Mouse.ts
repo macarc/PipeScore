@@ -8,47 +8,24 @@ import {
   viewChanged,
   shouldSave,
   removeState,
-  UpdatedState,
 } from './Controller';
 import { State } from '../State';
 
-import { deleteSelectedNotes } from './Note';
-import { changeGracenoteFrom } from './Gracenote';
-
 import { Pitch } from '../global/pitch';
-import { Gracenote, NoGracenote } from '../Gracenote';
-import { DraggedSecondTiming } from '../SecondTiming';
-import {
-  ScoreSelection,
-  SecondTimingSelection,
-  TextSelection,
-} from '../Selection';
-
-const deleteGracenote = (gracenote: Gracenote, state: State) => ({
-  ...state,
-  score: changeGracenoteFrom(gracenote, new NoGracenote(), state.score),
-  gracenote: { ...state.gracenote, selected: null },
-});
+import { GracenoteSelection, ScoreSelection } from '../Selection';
 
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
-    if (state.gracenote.selected) {
-      return shouldSave(deleteGracenote(state.gracenote.selected, state));
-    } else if (state.selection instanceof ScoreSelection) {
-      return shouldSave(deleteSelectedNotes(state));
-    } else if (state.selection instanceof TextSelection) {
-      state.score.deleteTextBox(state.selection.text);
-      return shouldSave(state);
-    } else if (state.selection instanceof SecondTimingSelection) {
-      state.score.deleteSecondTiming(state.selection.secondTiming);
+    if (state.selection) {
+      state.selection.delete(state.score);
+      state.selection = null;
       return shouldSave(state);
     }
-
     return noChange(state);
   };
 }
 
-export function mouseMoveOver(pitch: Pitch): ScoreEvent {
+export function mouseOverPitch(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
     // We return viewChanged from everything since we only want to save when the note is released
 
@@ -59,52 +36,26 @@ export function mouseMoveOver(pitch: Pitch): ScoreEvent {
     if (state.note.demo) {
       state.note.demo.setPitch(pitch);
       return viewChanged(state);
-    } else if (state.note.dragged) {
-      state.note.dragged.drag(pitch);
-      return viewChanged(state);
-    } else if (state.gracenote.dragged) {
-      return { update: state.gracenote.dragged.drag(pitch), state };
+    } else if (
+      state.selection instanceof ScoreSelection ||
+      state.selection instanceof GracenoteSelection
+    ) {
+      return { update: state.selection.mouseOverPitch(pitch), state };
     }
     return noChange(state);
   };
 }
 export function mouseUp(): ScoreEvent {
-  return async (state: State) =>
-    state.note.dragged ||
-    state.gracenote.dragged ||
-    state.draggedText ||
-    state.draggedSecondTiming
-      ? shouldSave({
-          ...state,
-          note: { ...state.note, dragged: null },
-          gracenote: { ...state.gracenote, dragged: null },
-          draggedText: null,
-          draggedSecondTiming: null,
-        })
-      : noChange(state);
-}
-
-function dragSecondTiming(
-  secondTiming: DraggedSecondTiming,
-  x: number,
-  y: number,
-  state: State
-): UpdatedState {
-  state.score.dragSecondTiming(secondTiming, x, y);
-  return viewChanged(state);
+  return async (state: State) => {
+    state.selection?.mouseUp();
+    // Something could have been dragged
+    return shouldSave(state);
+  };
 }
 export function mouseDrag(x: number, y: number): ScoreEvent {
   return async (state: State) => {
-    if (state.draggedSecondTiming) {
-      return dragSecondTiming(state.draggedSecondTiming, x, y, state);
-    } else if (state.draggedText !== null) {
-      state.score.dragTextBox(state.draggedText, x, y);
-      return viewChanged({
-        ...state,
-        selection: new TextSelection(state.draggedText),
-      });
-    }
-    return noChange(state);
+    state.selection?.mouseDrag(x, y, state.score);
+    return viewChanged(state);
   };
 }
 

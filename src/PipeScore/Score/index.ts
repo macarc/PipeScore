@@ -14,7 +14,7 @@ import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
 import { Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { last } from '../global/utils';
+import { last, nlast } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
@@ -125,6 +125,32 @@ export class Score {
   }
   public lastStave() {
     return last(this._staves);
+  }
+
+  public location(id: ID) {
+    // Finds the parent bar and stave of the note passed
+
+    const staves = this.staves();
+
+    if (staves.length === 0)
+      throw Error('Tried to get location of a note, but there are no staves!');
+
+    for (const stave of staves) {
+      const bars = stave.allBars();
+      for (const bar of bars) {
+        if (bar.hasID(id)) {
+          return { stave, bar };
+        }
+        const loc = bar.location(id);
+        if (loc) return { stave, bar };
+      }
+    }
+
+    const lastStaveBars = nlast(staves).allBars();
+    return {
+      stave: staves[staves.length - 1],
+      bar: lastStaveBars[lastStaveBars.length - 1],
+    };
   }
 
   public coordinateToStaveIndex(y: number): number | null {

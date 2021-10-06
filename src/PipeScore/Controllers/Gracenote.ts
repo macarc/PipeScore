@@ -6,7 +6,7 @@ import { ScoreEvent, viewChanged, shouldSave } from './Controller';
 import { State } from '../State';
 import { Gracenote, SingleGracenote } from '../Gracenote';
 import { Score } from '../Score';
-import { ScoreSelection } from '../Selection';
+import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { DemoGracenote } from '../DemoNote';
 
 export function changeGracenoteFrom(
@@ -24,12 +24,8 @@ export function clickGracenote(gracenote: Gracenote): ScoreEvent {
     viewChanged({
       ...state,
       justClickedNote: true,
-      note: { ...state.note, demo: null },
-      gracenote: {
-        ...state.gracenote,
-        selected: gracenote,
-        dragged: gracenote instanceof SingleGracenote ? gracenote : null,
-      },
+      note: { demo: null },
+      selection: new GracenoteSelection(gracenote).drag(gracenote),
     });
 }
 

@@ -38,10 +38,8 @@ export function clickSecondTiming(
   secondTiming: SecondTiming,
   part: 'start' | 'middle' | 'end'
 ): ScoreEvent {
-  return async (state: State) =>
-    viewChanged({
-      ...state,
-      selection: new SecondTimingSelection(secondTiming),
-      draggedSecondTiming: { secondTiming, dragged: part },
-    });
+  return async (state: State) => {
+    state.selection = new SecondTimingSelection(secondTiming).drag(part);
+    return viewChanged(state);
+  };
 }

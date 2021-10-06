@@ -8,3 +8,5 @@ export interface GracenoteState {
   dragged: SingleGracenote | null;
   selected: Gracenote | null;
 }
+
+export const emptyGracenoteState = { dragged: null, selected: null };

@@ -13,8 +13,8 @@ import {
   setInputLength,
 } from '../Controllers/Note';
 import {
-  addBar,
   addAnacrusis,
+  addBar,
   setBarRepeat,
   editBarTimeSignature,
 } from '../Controllers/Bar';

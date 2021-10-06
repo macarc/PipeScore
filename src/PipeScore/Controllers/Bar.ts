@@ -11,7 +11,7 @@ import {
 } from './Controller';
 import { State } from '../State';
 
-import { Bar, Anacrusis } from '../Bar';
+import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
@@ -37,13 +37,10 @@ export function editTimeSignature(
       score: setTimeSignatureFrom(timeSignature, newTimeSignature, state.score),
     });
 }
-// TODO put this into Stave class
-
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar, stave } = location(state.selection.start, state.score);
-      stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
+      state.selection.addAnacrusis(before, state.score);
       return shouldSave(state);
     }
     return noChange(state);
@@ -53,10 +50,10 @@ export function addAnacrusis(before: boolean): ScoreEvent {
 export function addBar(before: boolean): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar, stave } = location(state.selection.start, state.score);
-      stave.insertBar(new Bar(bar.timeSignature()), bar, before);
+      state.selection.addBar(before, state.score);
       return shouldSave(state);
     }
+
     return noChange(state);
   };
 }

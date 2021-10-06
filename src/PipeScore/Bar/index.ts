@@ -16,7 +16,7 @@ import { setXY } from '../global/xy';
 import { addNoteToBarStart } from '../Controllers/Note';
 import { clickBar } from '../Controllers/Bar';
 import { noteBoxes } from '../global/noteboxes';
-import { mouseMoveOver } from '../Controllers/Mouse';
+import { mouseOverPitch } from '../Controllers/Mouse';
 import { Barline, NormalB } from './barline';
 
 export interface BarProps {
@@ -277,7 +277,7 @@ export class Bar extends Item {
         xAfterBarline,
         staveY,
         props.noteState.inputtingNotes ? beatWidth : barWidth,
-        (pitch) => props.dispatch(mouseMoveOver(pitch)),
+        (pitch) => props.dispatch(mouseOverPitch(pitch)),
         clickNoteBox
       ),
       ...groupedNotes.map((notes, idx) =>

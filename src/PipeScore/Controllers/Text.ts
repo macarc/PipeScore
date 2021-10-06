@@ -35,8 +35,7 @@ export function clickText(text: TextBox): ScoreEvent {
   return async (state: State) =>
     viewChanged({
       ...removeNoteState(state),
-      draggedText: text,
-      selection: new TextSelection(text),
+      selection: new TextSelection(text).drag(text),
     });
 }
 
@@ -48,8 +47,4 @@ export function centreText(): ScoreEvent {
     }
     return noChange(state);
   };
-}
-
-export function textMouseUp(): ScoreEvent {
-  return async (state: State) => shouldSave({ ...state, draggedText: null });
 }

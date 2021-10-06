@@ -13,7 +13,7 @@ import { svg } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
-import { mouseMoveOver } from '../Controllers/Mouse';
+import { mouseOverPitch } from '../Controllers/Mouse';
 import { getXY, setXY } from '../global/xy';
 import { addNoteAfter, clickNote } from '../Controllers/Note';
 import { noteBoxes } from '../global/noteboxes';
@@ -353,7 +353,11 @@ export class SingleNote extends BaseNote {
     if (g instanceof Gracenote) {
       this.gracenote = g;
     } else {
-      this.gracenote.addSingle(g, this.pitch, previous && previous.lastPitch());
+      this.gracenote = this.gracenote.addSingle(
+        g,
+        this.pitch,
+        previous && previous.lastPitch()
+      );
     }
   }
   public replaceGracenote(g: Gracenote, n: Gracenote) {
@@ -548,7 +552,7 @@ export class SingleNote extends BaseNote {
         },
         {
           mousedown: mousedown as (e: Event) => void,
-          mouseover: () => props.dispatch(mouseMoveOver(this.pitch)),
+          mouseover: () => props.dispatch(mouseOverPitch(this.pitch)),
         }
       ),
     ]);
@@ -658,7 +662,7 @@ export class SingleNote extends BaseNote {
             x + noteHeadWidth + xOffset,
             props.y,
             props.noteWidth - xOffset,
-            (pitch) => props.dispatch(mouseMoveOver(pitch)),
+            (pitch) => props.dispatch(mouseOverPitch(pitch)),
             (pitch) => props.dispatch(addNoteAfter(pitch, this))
           )
         : null,
@@ -831,7 +835,7 @@ export class SingleNote extends BaseNote {
                 xOf(index) + noteHeadWidth,
                 props.y,
                 props.noteWidth,
-                (pitch) => props.dispatch(mouseMoveOver(pitch)),
+                (pitch) => props.dispatch(mouseOverPitch(pitch)),
                 (pitch) => props.dispatch(addNoteAfter(pitch, note))
               )
             : svg('g'),
@@ -947,15 +951,7 @@ export class Triplet extends BaseNote {
     g: Pitch | Gracenote,
     previous: Note | TripletNote | null
   ) {
-    if (g instanceof Gracenote) {
-      this.first.gracenote = g;
-    } else {
-      this.first.gracenote.addSingle(
-        g,
-        this.first.pitch,
-        previous && previous.lastPitch()
-      );
-    }
+    this.first.addGracenote(g, previous);
   }
   public play(previous: Pitch | null) {
     const duration = (2 / 3) * this.lengthInBeats();
@@ -1034,7 +1030,11 @@ export class TripletNote extends Item {
     if (g instanceof Gracenote) {
       this.gracenote = g;
     } else {
-      this.gracenote.addSingle(g, this.pitch, previous && previous.lastPitch());
+      this.gracenote = this.gracenote.addSingle(
+        g,
+        this.pitch,
+        previous && previous.lastPitch()
+      );
     }
   }
   public lastPitch() {
