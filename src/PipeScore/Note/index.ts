@@ -15,7 +15,7 @@ import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
 import { mouseOverPitch } from '../Controllers/Mouse';
 import { getXY, setXY } from '../global/xy';
-import { addNoteAfter, clickNote } from '../Controllers/Note';
+import { addNoteBefore, clickNote } from '../Controllers/Note';
 import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
 
@@ -51,6 +51,7 @@ abstract class BaseNote extends Item {
     previous: Note | TripletNote | null
   ): void;
   abstract width(previous: Pitch | null): Width;
+  abstract firstSingle(): SingleNote | TripletNote;
   abstract firstPitch(): Pitch;
   abstract lastPitch(): Pitch;
   protected abstract setFirstPitch(pitch: Pitch): void;
@@ -266,6 +267,8 @@ abstract class BaseNote extends Item {
 export class SingleNote extends BaseNote {
   private pitch: Pitch;
   private gracenote: Gracenote;
+  private previewGracenote: Gracenote | null;
+
   constructor(
     pitch: Pitch,
     length: NoteLength,
@@ -275,6 +278,10 @@ export class SingleNote extends BaseNote {
     super(length, tied);
     this.pitch = pitch;
     this.gracenote = gracenote;
+    this.previewGracenote = null;
+  }
+  public static spacerWidth() {
+    return width.init(noteHeadWidth, 1);
   }
   public static totalWidth(notes: SingleNote[], prevNote: Pitch | null): Width {
     // Finds the total width of the note array in beat widths
@@ -298,6 +305,12 @@ export class SingleNote extends BaseNote {
       gracenote: this.gracenote.toJSON(),
     };
   }
+  public setPreviewGracenote(gracenote: Gracenote) {
+    if (!this.gracenote.equals(gracenote)) this.previewGracenote = gracenote;
+  }
+  public removePreviewGracenote() {
+    this.previewGracenote = null;
+  }
   public drag(pitch: Pitch): Update {
     if (pitch === this.pitch) return Update.NoChange;
     this.pitch = pitch;
@@ -312,6 +325,8 @@ export class SingleNote extends BaseNote {
   private widthOfGracenote(prevNote: Pitch | null) {
     return this.tied
       ? width.zero()
+      : this.previewGracenote
+      ? this.previewGracenote.width(this.pitch, prevNote)
       : this.gracenote.width(this.pitch, prevNote);
   }
   public width(prevNote: Pitch | null): Width {
@@ -320,6 +335,9 @@ export class SingleNote extends BaseNote {
       this.hasDot() ? width.init(5, 0) : width.zero(),
       this.widthOfGracenote(prevNote)
     );
+  }
+  public firstSingle() {
+    return this;
   }
   public firstPitch() {
     return this.pitch;
@@ -432,13 +450,21 @@ export class SingleNote extends BaseNote {
     ]);
   }
   private renderGracenote(props: GracenoteProps) {
+    if (this.previewGracenote) {
+      return this.previewGracenote.render({
+        ...props,
+        x: props.x + noteHeadRadius / 2,
+        preview: true,
+      });
+    }
     return this.gracenote.render({
       ...props,
       x: props.x + noteHeadRadius / 2,
+      preview: false,
     });
   }
   private noteHead(
-    beforeX: number,
+    x: number,
     y: number,
     mousedown: (e: MouseEvent) => void,
     props: NoteProps,
@@ -454,8 +480,6 @@ export class SingleNote extends BaseNote {
     );
     const noteHeight = 3.5;
     const maskRotation = this.hasStem() ? 0 : rotation + 60;
-
-    const x = beforeX + noteHeadRadius;
 
     const maskrx = this.hasStem() ? 5 : 4;
     const maskry = 2;
@@ -552,7 +576,7 @@ export class SingleNote extends BaseNote {
         },
         {
           mousedown: mousedown as (e: Event) => void,
-          mouseover: () => props.dispatch(mouseOverPitch(this.pitch)),
+          mouseover: () => props.dispatch(mouseOverPitch(this.pitch, this)),
         }
       ),
     ]);
@@ -598,12 +622,33 @@ export class SingleNote extends BaseNote {
           }, ${x1},${y1} `;
     return svg('path', { class: 'note-tie', d: path, stroke: 'black' });
   }
-  renderSingle(
-    xOffset: number,
-    gracenoteProps: GracenoteProps,
-    props: NoteProps
-  ): V {
+  public render(props: NoteProps): V {
     // Draws a single note
+    const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
+
+    setXY(
+      this.id,
+      props.x + xOffset,
+      props.x +
+        xOffset +
+        width.reify(
+          this.widthOfGracenote(props.previousNote?.lastPitch() || null),
+          props.noteWidth
+        ) +
+        noteHeadWidth,
+      props.y
+    );
+    const gracenoteProps = {
+      // can just be props.x since it is the first note
+      x: props.x + xOffset,
+      y: props.y,
+      noteWidth: props.noteWidth,
+      thisNote: this.pitch,
+      preview: false,
+      previousNote: props.previousNote?.lastPitch() || null,
+      dispatch: props.dispatch,
+      state: props.gracenoteState,
+    };
 
     const x =
       props.x +
@@ -631,7 +676,7 @@ export class SingleNote extends BaseNote {
         : this.renderGracenote(gracenoteProps),
 
       this.noteHead(
-        x,
+        x + noteHeadRadius,
         y,
         (event: MouseEvent) => props.dispatch(clickNote(this, event)),
         props
@@ -659,41 +704,14 @@ export class SingleNote extends BaseNote {
 
       props.state.inputtingNotes
         ? noteBoxes(
-            x + noteHeadWidth + xOffset,
+            props.x,
             props.y,
-            props.noteWidth - xOffset,
-            (pitch) => props.dispatch(mouseOverPitch(pitch)),
-            (pitch) => props.dispatch(addNoteAfter(pitch, this))
+            x + noteHeadRadius - props.x, //props.noteWidth - xOffset,
+            (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
+            (pitch) => props.dispatch(addNoteBefore(pitch, this))
           )
         : null,
     ]);
-  }
-  render(props: NoteProps) {
-    const xOffset = props.onlyNoteInBar ? -props.noteWidth / 2.0 : 0;
-    setXY(
-      this.id,
-      props.x + xOffset,
-      props.x +
-        xOffset +
-        width.reify(
-          this.widthOfGracenote(props.previousNote?.lastPitch() || null),
-          props.noteWidth
-        ) +
-        noteHeadWidth,
-      props.y
-    );
-    const gracenoteProps = {
-      // can just be props.x since it is the first note
-      x: props.x + xOffset,
-      y: props.y,
-      noteWidth: props.noteWidth,
-      thisNote: this.pitch,
-      previousNote: props.previousNote?.lastPitch() || null,
-      dispatch: props.dispatch,
-      state: props.gracenoteState,
-    };
-
-    return this.renderSingle(xOffset, gracenoteProps, props);
   }
   public static renderMultiple(notes: SingleNote[], props: NoteProps) {
     if (notes.length === 0) {
@@ -702,9 +720,11 @@ export class SingleNote extends BaseNote {
       return notes[0].render(props);
     }
 
+    const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
     const previousPitch = props.previousNote?.lastPitch() || null;
     const xOfGracenote = (noteIndex: number) =>
       props.x +
+      xOffset +
       width.reify(
         SingleNote.totalWidth(notes.slice(0, noteIndex), previousPitch),
         props.noteWidth
@@ -783,12 +803,14 @@ export class SingleNote extends BaseNote {
         const previousNote = notes[index - 1] || props.previousNote;
 
         setNoteXY(note, index);
+        const noteBoxX = index === 0 ? props.x : xOf(index - 1); // xOf(index) + noteHeadWidth,
 
         const gracenoteProps = {
           x: xOfGracenote(index),
           y: props.y,
           noteWidth: props.noteWidth,
           thisNote: note.pitch,
+          preview: false,
           previousNote:
             nmap(previousNote, (p) => p.lastPitch()) ||
             nmap(props.previousNote, (p) => p.lastPitch()),
@@ -824,7 +846,7 @@ export class SingleNote extends BaseNote {
             : null,
 
           note.noteHead(
-            xOf(index),
+            xOf(index) + noteHeadRadius,
             yOf(note),
             (event: MouseEvent) => props.dispatch(clickNote(note, event)),
             props
@@ -832,11 +854,11 @@ export class SingleNote extends BaseNote {
 
           props.state.inputtingNotes
             ? noteBoxes(
-                xOf(index) + noteHeadWidth,
+                noteBoxX,
                 props.y,
-                props.noteWidth,
-                (pitch) => props.dispatch(mouseOverPitch(pitch)),
-                (pitch) => props.dispatch(addNoteAfter(pitch, note))
+                xOf(index) + noteHeadRadius - noteBoxX,
+                (pitch) => props.dispatch(mouseOverPitch(pitch, note)),
+                (pitch) => props.dispatch(addNoteBefore(pitch, note))
               )
             : svg('g'),
 
@@ -935,6 +957,9 @@ export class Triplet extends BaseNote {
       { prev: prevNote, acc: width.zero() }
     ).acc;
   }
+  public firstSingle() {
+    return this.first;
+  }
   public firstPitch() {
     return this.first.pitch;
   }
@@ -1003,10 +1028,13 @@ export class Triplet extends BaseNote {
 export class TripletNote extends Item {
   public pitch: Pitch;
   public gracenote: Gracenote;
+  private previewGracenote: Gracenote | null;
+
   constructor(pitch: Pitch, gracenote: Gracenote) {
     super(genId());
     this.pitch = pitch;
     this.gracenote = gracenote;
+    this.previewGracenote = null;
   }
   public static fromObject(o: Obj) {
     const t = new TripletNote(o.pitch, Gracenote.fromJSON(o.gracenote));
@@ -1053,6 +1081,12 @@ export class TripletNote extends Item {
   }
   public toSingle(length: NoteLength) {
     return new SingleNote(this.pitch, length);
+  }
+  public setPreviewGracenote(gracenote: Gracenote) {
+    this.previewGracenote = gracenote;
+  }
+  public removePreviewGracenote() {
+    this.previewGracenote = null;
   }
 }
 

@@ -44,11 +44,10 @@ import { help as dochelp } from '../global/docs';
 
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { EndB, NormalB, RepeatB } from '../Bar/barline';
-import { Gracenote, SingleGracenote } from '../Gracenote';
+import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
 
 export interface UIState {
-  inputLength: NoteLength | null;
-  gracenoteInput: Gracenote | null;
+  demo: Demo | null;
   currentMenu: Menu;
   docs: string | null;
   playbackBpm: number;
@@ -57,9 +56,9 @@ export interface UIState {
 
 export default function render(dispatch: Dispatch, state: UIState): V {
   const isCurrentNoteInput = (length: NoteLength) =>
-    state.inputLength === null
-      ? false
-      : sameNoteLengthName(state.inputLength, length);
+    state.demo instanceof DemoNote
+      ? sameNoteLengthName(state.demo.length(), length)
+      : false;
 
   const noteInputButton = (length: NoteLength) =>
     help(
@@ -75,7 +74,8 @@ export default function render(dispatch: Dispatch, state: UIState): V {
     );
 
   const isGracenoteInput = (name: string) =>
-    state.gracenoteInput && state.gracenoteInput.name() === name;
+    state.demo instanceof DemoReactive && state.demo.isInputting(name);
+
   const gracenoteInput = (name: string) =>
     help(
       name,
@@ -124,7 +124,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             {
               id: 'toggle-dotted',
               class:
-                state.inputLength && dotted(state.inputLength)
+                state.demo instanceof DemoNote && dotted(state.demo.length())
                   ? 'highlighted'
                   : 'not-highlighted',
             },
@@ -163,8 +163,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'button',
             {
               class:
-                state.gracenoteInput &&
-                state.gracenoteInput instanceof SingleGracenote
+                state.demo instanceof DemoGracenote
                   ? 'highlighted'
                   : 'not-highlighted',
               style: 'background-image: url("/images/icons/single.svg")',

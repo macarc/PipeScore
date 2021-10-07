@@ -29,12 +29,14 @@ export interface GracenoteProps {
   previousNote: Pitch | null;
   y: number;
   x: number;
+  preview: boolean;
   noteWidth: number;
   dispatch: Dispatch;
   state: GracenoteState;
 }
 
 export abstract class Gracenote {
+  abstract equals(other: Gracenote): boolean;
   abstract notes(thisNote: Pitch, previousNote: Pitch | null): MaybeGracenote;
   abstract toObject(): Obj;
   abstract copy(): Gracenote;
@@ -182,7 +184,7 @@ export abstract class Gracenote {
     ]);
   }
   protected renderSingle(note: Pitch, props: GracenoteProps) {
-    const selected = props.state.selected === this;
+    const selected = props.state.selected === this || props.preview;
 
     const y = noteY(props.y, note);
 
@@ -211,7 +213,7 @@ export abstract class Gracenote {
     ]);
   }
   protected renderMultiple(pitches: MaybeGracenote, props: GracenoteProps) {
-    const selected = props.state.selected === this;
+    const selected = props.state.selected === this || props.preview;
     // If each note is an object, then we can use .indexOf and other related functions
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
 
@@ -270,6 +272,9 @@ export class ReactiveGracenote extends Gracenote {
       throw new Error(`${grace} is not a valid gracenote.`);
     }
   }
+  public equals(other: Gracenote): boolean {
+    return other instanceof ReactiveGracenote && this.grace === other.grace;
+  }
   public copy() {
     return new ReactiveGracenote(this.grace);
   }
@@ -306,6 +311,9 @@ export class SingleGracenote extends Gracenote {
     super();
     this.note = note;
   }
+  public equals(other: Gracenote): boolean {
+    return other instanceof SingleGracenote && this.note === other.note;
+  }
   public copy() {
     return new SingleGracenote(this.note);
   }
@@ -324,6 +332,9 @@ export class SingleGracenote extends Gracenote {
     }
     return Update.NoChange;
   }
+  public toGracenote() {
+    return this.note;
+  }
   public notes() {
     return new MaybeGracenote([this.note]);
   }
@@ -335,6 +346,15 @@ export class SingleGracenote extends Gracenote {
 export class CustomGracenote extends Gracenote {
   private pitches: Pitch[] = [];
 
+  public equals(other: Gracenote): boolean {
+    return (
+      other instanceof CustomGracenote &&
+      other.pitches.reduce(
+        (acc, p, i) => acc && this.pitches[i] === p,
+        true as boolean
+      )
+    );
+  }
   public copy() {
     return new CustomGracenote().addNotes(...this.pitches);
   }
@@ -365,6 +385,9 @@ export class CustomGracenote extends Gracenote {
 export class NoGracenote extends Gracenote {
   public copy() {
     return new NoGracenote();
+  }
+  public equals(other: Gracenote) {
+    return other instanceof NoGracenote;
   }
   public static fromObject() {
     return new NoGracenote();

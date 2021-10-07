@@ -5,7 +5,7 @@
 import { TimeSignature } from '../TimeSignature';
 import { Note, SingleNote, Triplet } from '../Note';
 import { genId, ID, Item } from '../global/id';
-import { last, nlast, nmap } from '../global/utils';
+import { first, last, nlast } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { Dispatch } from '../Controllers/Controller';
@@ -13,7 +13,7 @@ import { NoteState } from '../Note/state';
 import { GracenoteState } from '../Gracenote/state';
 import { svg, V } from '../../render/h';
 import { setXY } from '../global/xy';
-import { addNoteToBarStart } from '../Controllers/Note';
+import { addNoteToBarEnd } from '../Controllers/Note';
 import { clickBar } from '../Controllers/Bar';
 import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Controllers/Mouse';
@@ -137,6 +137,10 @@ export class Bar extends Item {
   public numberOfNotes() {
     return this.notes.length;
   }
+  public firstNote() {
+    const n = first(this.notes);
+    return n && n.firstSingle();
+  }
   public lastPitch() {
     const lastNote = this.lastNote();
     return lastNote && lastNote.lastPitch();
@@ -187,7 +191,7 @@ export class Bar extends Item {
   // Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
   // Returned array is guaranteed to have at least one element
   protected beats(previousPitch: Pitch | null) {
-    return this.notes.reduce(
+    const beats = this.notes.reduce(
       (nums, n, index) => [
         ...nums,
         width.add(
@@ -197,13 +201,10 @@ export class Bar extends Item {
           )
         ),
       ],
-      [width.init(0, 1)]
+      [width.zero() /*width.init(0, 1)*/]
     );
+    return [...beats, width.add(nlast(beats), SingleNote.spacerWidth())];
   }
-  protected totalBeats(previousPitch: Pitch | null) {
-    return nmap(last(this.beats(previousPitch)), (b) => b.extend) || 1;
-  }
-
   public play(previous: Bar | null) {
     return this.notes.flatMap((note, i) =>
       note.play(
@@ -240,7 +241,7 @@ export class Bar extends Item {
 
     const beats = this.beats(previousPitch);
 
-    const totalNumberOfBeats = this.totalBeats(previousPitch);
+    const totalNumberOfBeats = nlast(beats).extend;
     const beatWidth = (barWidth - nlast(beats).min) / totalNumberOfBeats;
 
     if (beatWidth < 0) {
@@ -267,7 +268,7 @@ export class Bar extends Item {
 
     const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) =>
       props.noteState.inputtingNotes
-        ? props.dispatch(addNoteToBarStart(pitch, this))
+        ? props.dispatch(addNoteToBarEnd(pitch, this))
         : props.dispatch(clickBar(this, mouseEvent));
     // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
     // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
@@ -276,8 +277,8 @@ export class Bar extends Item {
       noteBoxes(
         xAfterBarline,
         staveY,
-        props.noteState.inputtingNotes ? beatWidth : barWidth,
-        (pitch) => props.dispatch(mouseOverPitch(pitch)),
+        barWidth, //props.noteState.inputtingNotes ? beatWidth : barWidth,
+        (pitch) => props.dispatch(mouseOverPitch(pitch, this.firstNote())),
         clickNoteBox
       ),
       ...groupedNotes.map((notes, idx) =>
@@ -304,7 +305,8 @@ export class Anacrusis extends Bar {
   public width(previousBar: Bar | null) {
     const previousPitch = previousBar && previousBar.lastPitch();
     const previousTimeSignature = previousBar && previousBar.timeSignature();
-    const totalNumberOfBeats = Math.max(this.totalBeats(previousPitch) + 1, 2);
+    const beats = this.beats(previousPitch);
+    const totalNumberOfBeats = Math.max(nlast(beats).extend, 2);
     return (
       minimumBeatWidth * totalNumberOfBeats +
       (previousTimeSignature && !this.ts.equals(previousTimeSignature)

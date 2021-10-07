@@ -15,14 +15,12 @@ import { Score } from './Score';
 import renderUI from './UI/view';
 
 import Documentation from './Documentation';
-import { DemoNote } from './DemoNote';
 import { GracenoteSelection, ScoreSelection } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 
 const state: State = {
   justClickedNote: false,
-  note: { demo: null },
-  gracenote: { input: null },
+  demo: null,
   playback: { bpm: 100 },
   ui: { menu: 'normal' },
   doc: { show: true, current: null },
@@ -62,8 +60,7 @@ const updateView = (state: State) => {
         (state.selection instanceof ScoreSelection &&
           state.selection.draggedNote()) ||
         null,
-      inputtingNotes:
-        state.note.demo !== null || state.gracenote.input !== null,
+      inputtingNotes: state.demo !== null,
     },
     gracenoteState:
       state.selection instanceof GracenoteSelection
@@ -71,21 +68,17 @@ const updateView = (state: State) => {
         : emptyGracenoteState,
     selection: state.selection,
     dispatch,
-    demoNote: state.note.demo,
+    demoNote: state.demo,
   };
   const uiProps = {
     zoomLevel: state.score.zoom,
-    inputLength:
-      state.note.demo && state.note.demo instanceof DemoNote
-        ? state.note.demo.length()
-        : null,
+    demo: state.demo,
     docs: state.doc.show
       ? Documentation.get(state.doc.current || '') ||
         'Hover over different icons to view Help here.'
       : null,
     currentMenu: state.ui.menu,
     playbackBpm: state.playback.bpm,
-    gracenoteInput: state.gracenote.input,
   };
   const newView = h('div', [state.score.render(scoreProps)]);
   const newUIView = renderUI(dispatch, uiProps);
@@ -100,7 +93,7 @@ function mouseMove(event: MouseEvent) {
   // - registers a mouse dragged event if the mouse button is held down
   // - moves demo note (if necessary)
   const mouseButtonIsDown = event.buttons === 1;
-  if (mouseButtonIsDown || state.note.demo !== null) {
+  if (mouseButtonIsDown || state.demo !== null) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -116,7 +109,7 @@ function mouseMove(event: MouseEvent) {
       // If the left mouse button is held down
       if (event.buttons === 1) {
         dispatch(mouseDrag(svgPt.x, svgPt.y));
-      } else if (state.note.demo) {
+      } else if (state.demo) {
         const newStaveIndex = state.score.coordinateToStaveIndex(svgPt.y);
         dispatch(updateDemoNote(svgPt.x, newStaveIndex));
       }

@@ -2,11 +2,10 @@
   Controller for note-related events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, location, removeState, Update } from './Controller';
+import { ScoreEvent, location, Update } from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
-import { first } from '../global/utils';
 import { itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar';
@@ -14,45 +13,37 @@ import { ScoreSelection } from '../Selection';
 
 import { Note, SingleNote, Triplet, TripletNote } from '../Note';
 import { NoteLength } from '../Note/notelength';
-import { DemoGracenote, DemoNote } from '../DemoNote';
+import { DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
+import { SingleGracenote } from '../Gracenote';
 
-function addNote(pitch: Pitch, bar: Bar, state: State): Update;
-function addNote(
+export function addNoteBefore(
   pitch: Pitch,
-  noteBefore: Note | Triplet,
-  state: State
-): Update;
-function addNote(
-  pitch: Pitch,
-  where: Bar | Note | Triplet,
-  state: State
-): Update {
-  const noteModels = state.score.notesAndTriplets();
-  let noteBefore: Note | Triplet | null;
-  const { bar } = location(where.id, state.score);
-  if (where instanceof Bar) {
-    noteBefore = state.score.previousNote(bar.id);
-  } else {
-    noteBefore = where;
-  }
-  const note =
-    (noteBefore && noteModels[noteModels.indexOf(noteBefore) + 1]) ||
-    first(noteModels);
-
-  if (state.note.demo) {
-    if (state.note.demo instanceof DemoNote)
-      bar.insertNote(noteBefore, state.note.demo.toNote(pitch));
-    else if (state.note.demo instanceof DemoGracenote && note)
-      note.addGracenote(pitch, noteBefore);
-
-    return Update.ShouldSave;
-  } else if (state.gracenote.input && note) {
-    note.addGracenote(state.gracenote.input, noteBefore);
-    return Update.ShouldSave;
-  }
-  return Update.NoChange;
+  noteAfter: Note | Triplet
+): ScoreEvent {
+  return async (state: State) => {
+    if (state.demo) {
+      const previous = state.score.previousNote(noteAfter.id);
+      state.demo.addNote(
+        noteAfter,
+        pitch,
+        state.score.location(noteAfter.id).bar,
+        previous
+      );
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  };
 }
-
+export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
+  return async (state: State) => {
+    if (state.demo) {
+      const previous = bar.lastNote();
+      state.demo.addNote(null, pitch, bar, previous);
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  };
+}
 export function expandSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
@@ -111,8 +102,8 @@ export function updateDemoNote(
   staveIndex: number | null
 ): ScoreEvent {
   return async (state: State) => {
-    state.note.demo?.setX(x);
-    state.note.demo?.setStaveIndex(staveIndex);
+    state.demo?.setX(x);
+    state.demo?.setStaveIndex(staveIndex);
     return Update.ViewChanged;
   };
 }
@@ -131,9 +122,6 @@ export function moveNoteDown(): ScoreEvent {
     state.selection.notes(state.score).forEach((note) => note.moveDown());
     return Update.ShouldSave;
   };
-}
-export function addNoteToBarStart(pitch: Pitch, bar: Bar): ScoreEvent {
-  return async (state: State) => addNote(pitch, bar, state);
 }
 
 export function tieSelectedNotes(): ScoreEvent {
@@ -186,19 +174,18 @@ export function toggleDot(): ScoreEvent {
         .notesAndTriplets(state.score)
         .forEach((note) => note.toggleDot());
     }
-    if (state.note.demo instanceof DemoNote) state.note.demo.toggleDot();
+    if (state.demo instanceof DemoNote) state.demo.toggleDot();
     return Update.ShouldSave;
   };
 }
-export function addNoteAfter(
-  pitch: Pitch,
-  noteBefore: Note | Triplet
-): ScoreEvent {
-  return async (state: State) => addNote(pitch, noteBefore, state);
+export function stopInputtingNotes(state: State) {
+  const d = state.demo;
+  if (d instanceof DemoReactive) d.stop();
+  state.demo = null;
 }
-export function stopInputtingNotes(): ScoreEvent {
+export function stopInput(): ScoreEvent {
   return async (state: State) => {
-    removeState(state);
+    stopInputtingNotes(state);
     return Update.ViewChanged;
   };
 }
@@ -208,9 +195,13 @@ export function clickNote(
   event: MouseEvent
 ): ScoreEvent {
   return async (state: State) => {
-    if (state.gracenote.input) {
+    if (
+      state.demo instanceof DemoReactive ||
+      state.demo instanceof SingleGracenote
+    ) {
       const previous = state.score.previousNote(note.id);
-      note.addGracenote(state.gracenote.input, previous);
+      // TODO BUG this should use the demo note
+      note.addGracenote(state.demo.toGracenote(), previous);
       return Update.ShouldSave;
     } else {
       if (event.shiftKey) {
@@ -244,10 +235,10 @@ export function setInputLength(length: NoteLength): ScoreEvent {
         .notesAndTriplets(state.score)
         .forEach((note) => note.setLength(length));
     }
-    if (!state.note.demo || state.note.demo instanceof DemoGracenote) {
-      state.note.demo = new DemoNote(length);
-    } else if (state.note.demo instanceof DemoNote) {
-      state.note.demo.setLength(length);
+    if (!state.demo || state.demo instanceof DemoGracenote) {
+      state.demo = new DemoNote(length);
+    } else if (state.demo instanceof DemoNote) {
+      state.demo.setLength(length);
     }
     return Update.ShouldSave;
   };

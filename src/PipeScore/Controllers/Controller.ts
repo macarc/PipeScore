@@ -18,19 +18,6 @@ export const enum Update {
   ShouldSave,
 }
 
-export function removeState(state: State): State {
-  // Removes parts of the state that could be dirty after undo / redo
-
-  state.selection = null;
-  return state;
-}
-
-export function removeNoteState(state: State) {
-  state.note.demo = null;
-  state.gracenote.input = null;
-  state.selection = null;
-}
-
 export function location(note: Note | TripletNote | ID, score: Score) {
   // Finds the parent bar and stave of the note passed
 

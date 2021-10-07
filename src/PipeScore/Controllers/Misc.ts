@@ -2,13 +2,14 @@
   Controller for miscellaneous events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, removeState, Update } from './Controller';
+import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 import { Menu } from '../UI/model';
 import { h, hFrom } from '../../render/h';
 import patch from '../../render/vdom';
 
 import dialogueBox from '../global/dialogueBox';
+import { stopInputtingNotes } from './Note';
 
 export function changeZoomLevel(zoom: number): ScoreEvent {
   return async (state: State) => {
@@ -24,8 +25,7 @@ export function setMenu(menu: Menu): ScoreEvent {
   // Set demoNote/inputGracenote because we don't want to have them showing when another menu is up
   return async (state: State) => {
     state.ui.menu = menu;
-    state.note.demo = null;
-    state.gracenote.input = null;
+    stopInputtingNotes(state);
     return Update.ViewChanged;
   };
 }
@@ -44,7 +44,8 @@ export function undo(): ScoreEvent {
       const last = state.history.past.pop();
       const beforeLast = state.history.past.pop();
       if (beforeLast) {
-        removeState(state);
+        state.selection = null;
+        stopInputtingNotes(state);
         state.score = JSON.parse(beforeLast);
         state.history = {
           ...state.history,
@@ -61,7 +62,8 @@ export function redo(): ScoreEvent {
   return async (state: State) => {
     const last = state.history.future.pop();
     if (last) {
-      removeState(state);
+      state.selection = null;
+      stopInputtingNotes(state);
       state.score = JSON.parse(last);
       return Update.ShouldSave;
     }

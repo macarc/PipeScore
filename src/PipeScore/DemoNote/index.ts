@@ -2,15 +2,18 @@
   DemoNote (preview note) model
   Copyright (C) 2021 Archie Maclean
  */
-import { svg, V } from '../../render/h';
+import { h, svg, V } from '../../render/h';
+import { Bar } from '../Bar';
+import { Update } from '../Controllers/Controller';
 import { noteY, Pitch } from '../global/pitch';
-import { SingleNote } from '../Note';
+import { ReactiveGracenote } from '../Gracenote';
+import { Note, SingleNote, TripletNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
 
 export interface DemoNoteProps {
   staveY: number;
 }
-export abstract class Demo {
+export abstract class BaseDemo {
   protected abstract ledgerWidth(): number;
   protected abstract rx(): number;
   protected abstract ry(): number;
@@ -36,8 +39,12 @@ export abstract class Demo {
       this._pitch = null;
     }
   }
-  public setPitch(pitch: Pitch) {
-    this._pitch = pitch;
+  public setPitch(pitch: Pitch, note: SingleNote | TripletNote | null) {
+    if (this._pitch !== pitch) {
+      this._pitch = pitch;
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
   }
   public pitch() {
     return this._pitch;
@@ -78,7 +85,7 @@ export abstract class Demo {
   }
 }
 
-export class DemoNote extends Demo {
+export class DemoNote extends BaseDemo {
   private _length: NoteLength;
   constructor(length: NoteLength) {
     super();
@@ -93,8 +100,14 @@ export class DemoNote extends Demo {
   public toggleDot() {
     this._length = dot(this._length);
   }
-  public toNote(pitch: Pitch) {
-    return new SingleNote(pitch, this._length);
+  public addNote(
+    n: Note | null,
+    pitch: Pitch,
+    bar: Bar,
+    noteBefore: Note | null
+  ) {
+    if (this._pitch)
+      bar.insertNote(noteBefore, new SingleNote(pitch, this._length));
   }
   protected ledgerWidth() {
     return 12;
@@ -106,7 +119,15 @@ export class DemoNote extends Demo {
     return 5;
   }
 }
-export class DemoGracenote extends Demo {
+export class DemoGracenote extends BaseDemo {
+  public addNote(
+    note: Note | null,
+    pitch: Pitch,
+    bar: Bar,
+    noteBefore: Note | null
+  ) {
+    if (note) note.addGracenote(pitch, noteBefore);
+  }
   protected ledgerWidth() {
     return 7;
   }
@@ -117,3 +138,51 @@ export class DemoGracenote extends Demo {
     return 3.5;
   }
 }
+
+export class DemoReactive {
+  private previous: SingleNote | TripletNote | null;
+  private name: string;
+
+  constructor(name: string) {
+    this.name = name;
+    this.previous = null;
+  }
+  public stop() {
+    this.previous?.removePreviewGracenote();
+  }
+  public addNote(
+    note: Note | null,
+    pitch: Pitch,
+    bar: Bar,
+    noteBefore: Note | null
+  ) {
+    this.previous?.removePreviewGracenote();
+    if (note) note.addGracenote(this.toGracenote(), noteBefore);
+  }
+  public setPitch(pitch: Pitch, note: SingleNote | TripletNote | null) {
+    if (note !== this.previous) {
+      if (this.previous) this.previous.removePreviewGracenote();
+      this.previous = note;
+      if (this.previous)
+        this.previous.setPreviewGracenote(new ReactiveGracenote(this.name));
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  }
+  public toGracenote() {
+    return new ReactiveGracenote(this.name);
+  }
+  public isInputting(name: string) {
+    return name === this.name;
+  }
+  public calculateY() {
+    return 0;
+  }
+  public setStaveIndex() {}
+  public setX() {}
+  public render() {
+    return h('g');
+  }
+}
+
+export type Demo = DemoNote | DemoGracenote | DemoReactive;

@@ -2,11 +2,13 @@
   Controller for mouse events (ish, this needs to be organised better)
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, removeState, Update } from './Controller';
+import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
+import { SingleNote, TripletNote } from '../Note';
+import { stopInputtingNotes } from './Note';
 
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
@@ -19,7 +21,10 @@ export function deleteSelection(): ScoreEvent {
   };
 }
 
-export function mouseOverPitch(pitch: Pitch): ScoreEvent {
+export function mouseOverPitch(
+  pitch: Pitch,
+  note: SingleNote | TripletNote | null
+): ScoreEvent {
   return async (state: State) => {
     // We return viewChanged from everything since we only want to save when the note is released
 
@@ -29,9 +34,8 @@ export function mouseOverPitch(pitch: Pitch): ScoreEvent {
       state.justClickedNote = false;
       return Update.NoChange;
     }
-    if (state.note.demo) {
-      state.note.demo.setPitch(pitch);
-      return Update.ViewChanged;
+    if (state.demo) {
+      return state.demo.setPitch(pitch, note);
     } else if (
       state.selection instanceof ScoreSelection ||
       state.selection instanceof GracenoteSelection
@@ -57,9 +61,8 @@ export function mouseDrag(x: number, y: number): ScoreEvent {
 
 export function clickBackground(): ScoreEvent {
   return async (state: State) => {
-    removeState(state);
-    state.note.demo = null;
-    state.gracenote.input = null;
+    state.selection = null;
+    stopInputtingNotes(state);
     return Update.ViewChanged;
   };
 }

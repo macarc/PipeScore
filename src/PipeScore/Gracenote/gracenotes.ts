@@ -8,7 +8,7 @@ import { MaybeGracenote } from '.';
 type GracenoteFn = (note: Pitch, prev: Pitch | null) => MaybeGracenote;
 
 const invalidateIf = (pred: boolean, gracenote: Pitch[]): MaybeGracenote =>
-  new MaybeGracenote(gracenote, pred);
+  new MaybeGracenote(gracenote, !pred);
 
 const invalid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, false);
 const valid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, true);

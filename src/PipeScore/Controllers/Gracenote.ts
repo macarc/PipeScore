@@ -4,10 +4,11 @@
 */
 import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
-import { Gracenote, SingleGracenote } from '../Gracenote';
+import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Score } from '../Score';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
-import { DemoGracenote } from '../DemoNote';
+import { DemoGracenote, DemoReactive } from '../DemoNote';
+import { stopInputtingNotes } from './Note';
 
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,
@@ -22,7 +23,7 @@ export function changeGracenoteFrom(
 export function clickGracenote(gracenote: Gracenote): ScoreEvent {
   return async (state: State) => {
     state.justClickedNote = true;
-    state.note.demo = null;
+    stopInputtingNotes(state);
     state.selection = new GracenoteSelection(gracenote).drag(gracenote);
     return Update.ViewChanged;
   };
@@ -38,8 +39,13 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
       );
       return Update.ShouldSave;
     } else {
-      state.note.demo =
-        newGracenote instanceof SingleGracenote ? new DemoGracenote() : null;
+      stopInputtingNotes(state);
+      state.demo =
+        newGracenote instanceof SingleGracenote
+          ? new DemoGracenote()
+          : newGracenote instanceof ReactiveGracenote && value
+          ? new DemoReactive(value)
+          : null;
       return Update.ViewChanged;
     }
   };

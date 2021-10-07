@@ -7,7 +7,7 @@ import { dialogueBoxIsOpen } from './global/dialogueBox';
 
 import {
   setInputLength,
-  stopInputtingNotes,
+  stopInput,
   copy,
   paste,
   tieSelectedNotes,
@@ -29,7 +29,7 @@ export function keyHandler(e: KeyboardEvent): void {
 
   switch (e.key) {
     case 'Escape':
-      dispatch(stopInputtingNotes());
+      dispatch(stopInput());
       break;
     case 'c':
       if (e.ctrlKey) dispatch(copy());
