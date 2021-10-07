@@ -200,3 +200,4 @@
 - [x] BUG - renderMultiple dispatches things on the notes (e.g. clickNote) but in the case of triplets, it should dispatch on the actual objects
 - [x] Adding gracenotes to triplets now won't work since it doesn't use the addGracenoteToTriplet but just the general one. Easily fixable
 - [x] Merge gracenote.selected and maybe dragged items? into selection
+- [x] Hovering over end of bar previews gracenote on first note

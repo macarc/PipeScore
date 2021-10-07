@@ -5,7 +5,7 @@
 import { pitchOffset, noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
 import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
-import { arrayflatten, nfirst, nlast, nmap, Obj } from '../global/utils';
+import { nfirst, nlast, Obj } from '../global/utils';
 import { dot, dotted, lengthInBeats, NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import { V } from '../../render/types';
@@ -84,7 +84,7 @@ abstract class BaseNote extends Item {
         // Work backwards while tied, ensuring all notes
         // are the same pitch
         for (
-          let b = i, previousNote = notes[b];
+          let b = i - 1, previousNote = notes[b];
           b > 0 && previousNote.tied;
           b--, previousNote = notes[b - 1]
         ) {
@@ -96,7 +96,7 @@ abstract class BaseNote extends Item {
         // are the same pitch
         if (this instanceof SingleNote) {
           for (
-            let a = i, nextNote = notes[a + 1];
+            let a = i + 1, nextNote = notes[a + 1];
             a < notes.length - 1 && nextNote.tied;
             a++, nextNote = notes[a + 1]
           ) {
@@ -146,8 +146,8 @@ abstract class BaseNote extends Item {
       note instanceof Triplet ? note.tripletSingleNotes() : note
     );
   }
-  public static ungroupNotes(notes: Note[][]) {
-    return arrayflatten(notes);
+  public static ungroupNotes(notes: Note[][]): Note[] {
+    return new Array().concat(...notes);
   }
   public static groupNotes(
     notes: Note[],
@@ -812,8 +812,8 @@ export class SingleNote extends BaseNote {
           thisNote: note.pitch,
           preview: false,
           previousNote:
-            nmap(previousNote, (p) => p.lastPitch()) ||
-            nmap(props.previousNote, (p) => p.lastPitch()),
+            (previousNote && previousNote.lastPitch()) ||
+            (props.previousNote && props.previousNote.lastPitch()),
           dispatch: props.dispatch,
           state: props.gracenoteState,
         };
@@ -840,8 +840,8 @@ export class SingleNote extends BaseNote {
                 stemYOf(previousNote, index - 1),
                 note.numTails(),
                 previousNote.numTails(),
-                nmap(notes[index - 2] || null, (n) => n.numTails()) || 0,
-                nmap(notes[index + 1] || null, (n) => n.numTails()) || 0
+                (notes[index - 2] && notes[index - 2].numTails()) || 0,
+                (notes[index + 1] && notes[index + 1].numTails()) || 0
               )
             : null,
 

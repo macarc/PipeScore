@@ -277,8 +277,8 @@ export class Bar extends Item {
       noteBoxes(
         xAfterBarline,
         staveY,
-        barWidth, //props.noteState.inputtingNotes ? beatWidth : barWidth,
-        (pitch) => props.dispatch(mouseOverPitch(pitch, this.firstNote())),
+        barWidth,
+        (pitch) => props.dispatch(mouseOverPitch(pitch, null)),
         clickNoteBox
       ),
       ...groupedNotes.map((notes, idx) =>
