@@ -159,7 +159,7 @@ export class Bar extends Item {
     this.notes.splice(
       this.notes.indexOf(first),
       3,
-      Triplet.fromSingles(first, second, third)
+      SingleNote.toTriplet(first, second, third)
     );
   }
   public unmakeTriplet(tr: Triplet) {

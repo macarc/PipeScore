@@ -4,13 +4,8 @@
  */
 import { pitchOffset, noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
-import {
-  Gracenote,
-  GracenoteProps,
-  NoGracenote,
-  SingleGracenote,
-} from '../Gracenote';
-import { arrayflatten, nlast, nmap, Obj } from '../global/utils';
+import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
+import { arrayflatten, nfirst, nlast, nmap, Obj } from '../global/utils';
 import { dot, dotted, lengthInBeats, NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import { V } from '../../render/types';
@@ -53,10 +48,10 @@ abstract class BaseNote extends Item {
   protected tied: boolean;
   abstract addGracenote(
     gracenote: Pitch | Gracenote,
-    previous: Note | TripletNote | null
+    previous: Note | null
   ): void;
   abstract width(previous: Pitch | null): Width;
-  abstract firstSingle(): SingleNote | TripletNote;
+  abstract firstSingle(): SingleNote;
   abstract firstPitch(): Pitch;
   abstract lastPitch(): Pitch;
   protected abstract setFirstPitch(pitch: Pitch): void;
@@ -146,9 +141,9 @@ abstract class BaseNote extends Item {
       throw new Error('Unrecognised note type.');
     }
   }
-  public static flatten(notes: Note[]): (SingleNote | TripletNote)[] {
-    return notes.flatMap<SingleNote | TripletNote>((note) =>
-      note instanceof Triplet ? note.tripletNotes() : note
+  public static flatten(notes: Note[]): SingleNote[] {
+    return notes.flatMap((note) =>
+      note instanceof Triplet ? note.tripletSingleNotes() : note
     );
   }
   public static ungroupNotes(notes: Note[][]) {
@@ -369,10 +364,7 @@ export class SingleNote extends BaseNote {
       },
     ];
   }
-  public addGracenote(
-    g: Pitch | Gracenote,
-    previous: Note | TripletNote | null = null
-  ) {
+  public addGracenote(g: Pitch | Gracenote, previous: Note | null = null) {
     if (g instanceof Gracenote) {
       this.gracenote = g;
     } else {
@@ -386,10 +378,13 @@ export class SingleNote extends BaseNote {
   public replaceGracenote(g: Gracenote, n: Gracenote) {
     if (this.gracenote === g) this.gracenote = n;
   }
-  public toTripletNote(): [TripletNote, NoteLength] {
-    return [new TripletNote(this.pitch, this.gracenote), this.length];
+  public static toTriplet(
+    first: SingleNote,
+    second: SingleNote,
+    third: SingleNote
+  ) {
+    return new Triplet(first.length, [first, second, third]);
   }
-
   private static beamFrom(
     x1: number,
     y1: number,
@@ -881,118 +876,71 @@ export class SingleNote extends BaseNote {
 }
 
 export class Triplet extends BaseNote {
-  private first: TripletNote;
-  private second: TripletNote;
-  private third: TripletNote;
-  constructor(
-    length: NoteLength,
-    first: TripletNote,
-    second: TripletNote,
-    third: TripletNote,
-    tied = false
-  ) {
-    super(length, tied);
-    this.first = first;
-    this.second = second;
-    this.third = third;
-  }
-  public static fromSingles(
-    first: SingleNote,
-    second: SingleNote,
-    third: SingleNote,
-    tied = false
-  ) {
-    return new Triplet(
-      first.toTripletNote()[1],
-      first.toTripletNote()[0],
-      second.toTripletNote()[0],
-      third.toTripletNote()[0],
-      tied
-    );
+  // It is assumed that _notes always has length >= 1
+  // Whenever notes are deleted, this should be ensured
+  private _notes: SingleNote[];
+
+  constructor(length: NoteLength, notes: SingleNote[]) {
+    super(length);
+    this._notes = notes;
   }
   public copy() {
-    const n = BaseNote.fromJSON(this.toJSON());
-    this.id = genId();
-    this.first.id = genId();
-    this.second.id = genId();
-    this.third.id = genId();
+    const n = Triplet.fromObject(this.toObject());
+    n.id = genId();
+    n._notes.forEach((note) => (note.id = genId()));
     return n;
   }
   public static fromObject(o: Obj) {
     return new Triplet(
       o.length,
-      TripletNote.fromObject(o.notes[0]),
-      TripletNote.fromObject(o.notes[1]),
-      TripletNote.fromObject(o.notes[2]),
-      o.tied
+      o.notes.map((note: Obj) => SingleNote.fromObject(note))
     );
   }
   public hasID(id: ID) {
     return (
       super.hasID(id) ||
-      this.first.hasID(id) ||
-      this.second.hasID(id) ||
-      this.third.hasID(id)
+      this._notes.reduce<boolean>((acc, n) => acc || n.hasID(id), false)
     );
   }
   public toObject() {
     return {
       id: this.id,
-      notes: this.tripletNotes().map((n) => n.toObject()),
+      notes: this._notes.map((n) => n.toObject()),
       length: this.length,
       tied: this.tied,
     };
   }
   public tripletSingleNotes() {
-    return [
-      this.first.toSingle(this.length),
-      this.second.toSingle(this.length),
-      this.third.toSingle(this.length),
-    ];
-  }
-  public tripletNotes() {
-    return [this.first, this.second, this.third];
+    return this._notes;
   }
   public width(prevNote: Pitch | null): Width {
-    return this.tripletSingleNotes().reduce(
-      ({ prev, acc }, note) => ({
-        prev: note.lastPitch(),
-        acc: width.add(acc, note.width(prev)),
-      }),
-      { prev: prevNote, acc: width.zero() }
-    ).acc;
+    return SingleNote.totalWidth(this._notes, prevNote);
   }
   public firstSingle() {
-    return this.first;
+    return nfirst(this._notes);
   }
   public firstPitch() {
-    return this.first.pitch;
+    return this.firstSingle().firstPitch();
   }
   public setFirstPitch(pitch: Pitch) {
-    this.first.pitch = pitch;
+    this.firstSingle().setFirstPitch(pitch);
+  }
+  public lastSingle() {
+    return nlast(this._notes);
   }
   public lastPitch() {
-    return this.third.pitch;
+    return this.lastSingle().lastPitch();
   }
   public setLastPitch(pitch: Pitch) {
-    this.third.pitch = pitch;
+    nlast(this._notes).setLastPitch(pitch);
   }
-  public addGracenote(
-    g: Pitch | Gracenote,
-    previous: Note | TripletNote | null
-  ) {
-    this.first.addGracenote(g, previous);
+  public addGracenote(g: Pitch | Gracenote, previous: Note | null) {
+    this.firstSingle().addGracenote(g, previous);
   }
   public play(previous: Pitch | null) {
-    const duration = (2 / 3) * this.lengthInBeats();
-    return [
-      ...this.first.gracenote.play(this.first.pitch, previous),
-      { pitch: this.first.pitch, tied: this.tied, duration },
-      ...this.second.gracenote.play(this.second.pitch, this.first.pitch),
-      { pitch: this.second.pitch, tied: false, duration },
-      ...this.third.gracenote.play(this.third.pitch, this.second.pitch),
-      { pitch: this.third.pitch, tied: false, duration },
-    ];
+    return this._notes
+      .flatMap((n, i) => n.play(this._notes[i - 1].lastPitch() || previous))
+      .map((n) => ({ ...n, duration: (2 / 3) * n.duration }));
   }
   private tripletLine(
     staveY: number,
@@ -1016,82 +964,16 @@ export class Triplet extends BaseNote {
   public render(props: NoteProps) {
     // Draws a triplet
 
-    const notes = this.tripletSingleNotes();
-    const renderedNotes = SingleNote.renderMultiple(notes, props);
+    const renderedNotes = SingleNote.renderMultiple(this._notes, props);
     const line = this.tripletLine(
       props.y,
-      getXY(this.first.id)?.afterX || 0,
-      getXY(this.third.id)?.afterX || 0,
-      notes[0].y(props.y),
-      nlast(notes).y(props.y)
+      getXY(this.firstSingle().id)?.afterX || 0,
+      getXY(this.lastSingle().id)?.afterX || 0,
+      this.firstSingle().y(props.y),
+      this.lastSingle().y(props.y)
     );
 
     return svg('g', [renderedNotes, line]);
-  }
-}
-
-export class TripletNote extends Item {
-  public pitch: Pitch;
-  public gracenote: Gracenote;
-  private previewGracenote: Gracenote | null;
-
-  constructor(pitch: Pitch, gracenote: Gracenote) {
-    super(genId());
-    this.pitch = pitch;
-    this.gracenote = gracenote;
-    this.previewGracenote = null;
-  }
-  public static fromObject(o: Obj) {
-    const t = new TripletNote(o.pitch, Gracenote.fromJSON(o.gracenote));
-    t.id = o.id;
-    return t;
-  }
-  public toObject() {
-    return {
-      id: this.id,
-      pitch: this.pitch,
-      gracenote: this.gracenote.toJSON(),
-    };
-  }
-  public replaceGracenote(g: Gracenote, n: Gracenote) {
-    if (this.gracenote === g) this.gracenote = n;
-  }
-  public addGracenote(
-    g: Pitch | Gracenote,
-    previous: Note | TripletNote | null
-  ) {
-    if (g instanceof Gracenote) {
-      this.gracenote = g;
-    } else {
-      this.gracenote = this.gracenote.addSingle(
-        g,
-        this.pitch,
-        previous && previous.lastPitch()
-      );
-    }
-  }
-  public lastPitch() {
-    return this.pitch;
-  }
-  public drag(pitch: Pitch): Update {
-    if (pitch === this.pitch) return Update.NoChange;
-    this.pitch = pitch;
-    return Update.ViewChanged;
-  }
-  public moveUp() {
-    this.pitch = pitchUp(this.pitch);
-  }
-  public moveDown() {
-    this.pitch = pitchDown(this.pitch);
-  }
-  public toSingle(length: NoteLength) {
-    return new SingleNote(this.pitch, length);
-  }
-  public setPreviewGracenote(gracenote: Gracenote) {
-    this.previewGracenote = gracenote;
-  }
-  public removePreviewGracenote() {
-    this.previewGracenote = null;
   }
 }
 

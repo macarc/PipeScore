@@ -7,7 +7,7 @@ import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
-import { SingleNote, TripletNote } from '../Note';
+import { SingleNote } from '../Note';
 import { stopInputtingNotes } from './Note';
 
 export function deleteSelection(): ScoreEvent {
@@ -23,7 +23,7 @@ export function deleteSelection(): ScoreEvent {
 
 export function mouseOverPitch(
   pitch: Pitch,
-  note: SingleNote | TripletNote | null
+  note: SingleNote | null
 ): ScoreEvent {
   return async (state: State) => {
     // We return viewChanged from everything since we only want to save when the note is released

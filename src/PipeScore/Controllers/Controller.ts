@@ -3,10 +3,8 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { State } from '../State';
-
-import { Note, TripletNote } from '../Note';
+import { Note } from '../Note';
 import { Score } from '../Score';
-
 import { ID } from '../global/id';
 
 export type ScoreEvent = (state: State) => Promise<Update>;
@@ -18,7 +16,7 @@ export const enum Update {
   ShouldSave,
 }
 
-export function location(note: Note | TripletNote | ID, score: Score) {
+export function location(note: Note | ID, score: Score) {
   // Finds the parent bar and stave of the note passed
 
   const id = typeof note === 'number' ? note : note.id;

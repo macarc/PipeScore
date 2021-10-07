@@ -7,7 +7,7 @@ import { Bar } from '../Bar';
 import { Update } from '../Controllers/Controller';
 import { noteY, Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
-import { Note, SingleNote, TripletNote } from '../Note';
+import { Note, SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
 
 export interface DemoNoteProps {
@@ -39,7 +39,7 @@ export abstract class BaseDemo {
       this._pitch = null;
     }
   }
-  public setPitch(pitch: Pitch, note: SingleNote | TripletNote | null) {
+  public setPitch(pitch: Pitch, note: SingleNote | null) {
     if (this._pitch !== pitch) {
       this._pitch = pitch;
       return Update.ViewChanged;
@@ -120,7 +120,7 @@ export class DemoNote extends BaseDemo {
   }
 }
 export class DemoGracenote extends BaseDemo {
-  private previous: SingleNote | TripletNote | null = null;
+  private previous: SingleNote | null = null;
   public addNote(
     note: Note | null,
     pitch: Pitch,
@@ -133,7 +133,7 @@ export class DemoGracenote extends BaseDemo {
   public stop() {
     this.previous?.removePreviewGracenote();
   }
-  public setPitch(pitch: Pitch, note: SingleNote | TripletNote | null) {
+  public setPitch(pitch: Pitch, note: SingleNote | null) {
     if (note !== this.previous || pitch !== this._pitch) {
       super.setPitch(pitch, note);
 
@@ -160,7 +160,7 @@ export class DemoGracenote extends BaseDemo {
 }
 
 export class DemoReactive {
-  private previous: SingleNote | TripletNote | null = null;
+  private previous: SingleNote | null = null;
   private name: string;
 
   constructor(name: string) {
@@ -178,7 +178,7 @@ export class DemoReactive {
     this.previous?.removePreviewGracenote();
     if (note) note.addGracenote(this.toGracenote(), noteBefore);
   }
-  public setPitch(pitch: Pitch, note: SingleNote | TripletNote | null) {
+  public setPitch(pitch: Pitch, note: SingleNote | null) {
     if (note !== this.previous) {
       if (this.previous) this.previous.removePreviewGracenote();
       this.previous = note;

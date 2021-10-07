@@ -11,7 +11,7 @@ import { itemBefore } from '../global/xy';
 import { Bar } from '../Bar';
 import { ScoreSelection } from '../Selection';
 
-import { Note, SingleNote, Triplet, TripletNote } from '../Note';
+import { Note, SingleNote, Triplet } from '../Note';
 import { NoteLength } from '../Note/notelength';
 import { DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
 import { SingleGracenote } from '../Gracenote';
@@ -190,10 +190,7 @@ export function stopInput(): ScoreEvent {
   };
 }
 
-export function clickNote(
-  note: SingleNote | TripletNote,
-  event: MouseEvent
-): ScoreEvent {
+export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (
       state.demo instanceof DemoReactive ||

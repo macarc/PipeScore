@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { ID, Item } from '../global/id';
-import { Note, SingleNote, Triplet, TripletNote } from '../Note';
+import { Note, SingleNote, Triplet } from '../Note';
 import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
@@ -43,7 +43,7 @@ abstract class BaseSelection<A> {
   public mouseUp() {
     this.dragged = null;
   }
-  public notes(score: Score): (SingleNote | TripletNote)[] {
+  public notes(score: Score): SingleNote[] {
     return [];
   }
   public render(props: ScoreSelectionProps) {
@@ -52,7 +52,7 @@ abstract class BaseSelection<A> {
 }
 // Using the equivalent of 'case classes'
 // This allows using instanceof to check selection type
-export class ScoreSelection extends BaseSelection<SingleNote | TripletNote> {
+export class ScoreSelection extends BaseSelection<SingleNote> {
   public start: ID;
   public end: ID;
 
@@ -126,7 +126,7 @@ export class ScoreSelection extends BaseSelection<SingleNote | TripletNote> {
     }
     return notes;
   }
-  public notes(score: Score): (SingleNote | TripletNote)[] {
+  public notes(score: Score): SingleNote[] {
     return Triplet.flatten(this.notesAndTriplets(score));
   }
   public addAnacrusis(before: boolean, score: Score) {
