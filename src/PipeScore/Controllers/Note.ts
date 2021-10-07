@@ -180,7 +180,7 @@ export function toggleDot(): ScoreEvent {
 }
 export function stopInputtingNotes(state: State) {
   const d = state.demo;
-  if (d instanceof DemoReactive) d.stop();
+  if (d instanceof DemoReactive || d instanceof DemoGracenote) d.stop();
   state.demo = null;
 }
 export function stopInput(): ScoreEvent {

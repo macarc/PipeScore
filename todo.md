@@ -18,9 +18,8 @@
 - [ ] Adding gracenotes to triplets now won't work since it doesn't use the addGracenoteToTriplet but just the general one. Easily fixable
 - [ ] Highlight barline buttons in UI if a single bar is selected
 - [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
-- [ ] Move state.gracenote.input into Demo and so encapsulate addNote
-- [ ] Unify all the removeState thingummies into something that makes sense
 - [ ] BUG - renderMultiple dispatches things on the notes (e.g. clickNote) but in the case of triplets, it should dispatch on the actual objects
+- [ ] Single gracenote preview should allow for custom embellishments
 
 ## General features
 
@@ -198,3 +197,5 @@
 - [x] Header is wider on Scores page
 - [x] Home page being cut off at comma
 - [x] Can't add gracenote before very first note
+- [x] Unify all the removeState thingummies into something that makes sense
+- [x] Move state.gracenote.input into Demo and so encapsulate addNote

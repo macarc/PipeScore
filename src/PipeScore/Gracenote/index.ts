@@ -312,7 +312,9 @@ export class SingleGracenote extends Gracenote {
     this.note = note;
   }
   public equals(other: Gracenote): boolean {
-    return other instanceof SingleGracenote && this.note === other.note;
+    // Just check that it is also a single
+    // 'Feels right' :)
+    return other instanceof SingleGracenote;
   }
   public copy() {
     return new SingleGracenote(this.note);
