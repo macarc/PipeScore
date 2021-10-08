@@ -97,16 +97,6 @@ export function moveRight(): ScoreEvent {
     return Update.NoChange;
   };
 }
-export function updateDemoNote(
-  x: number,
-  staveIndex: number | null
-): ScoreEvent {
-  return async (state: State) => {
-    state.demo?.setX(x);
-    state.demo?.setStaveIndex(staveIndex);
-    return Update.ViewChanged;
-  };
-}
 
 export function moveNoteUp(): ScoreEvent {
   return async (state: State) => {
@@ -179,8 +169,7 @@ export function toggleDot(): ScoreEvent {
   };
 }
 export function stopInputtingNotes(state: State) {
-  const d = state.demo;
-  if (d instanceof DemoReactive || d instanceof DemoGracenote) d.stop();
+  state.demo?.stop();
   state.demo = null;
 }
 export function stopInput(): ScoreEvent {
@@ -192,6 +181,10 @@ export function stopInput(): ScoreEvent {
 
 export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
+    if (note.isDemo() && state.demo instanceof DemoNote) {
+      state.demo?.addSelf(null);
+      return Update.ShouldSave;
+    }
     if (
       state.demo instanceof DemoReactive ||
       state.demo instanceof SingleGracenote

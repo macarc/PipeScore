@@ -18,6 +18,7 @@ import { clickBar } from '../Controllers/Bar';
 import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Controllers/Mouse';
 import { Barline, NormalB } from './barline';
+import { Previewable } from '../DemoNote/previewable';
 
 export interface BarProps {
   x: number;
@@ -33,11 +34,15 @@ export interface BarProps {
 
 const minimumBeatWidth = 15;
 
-export class Bar extends Item {
+export class Bar extends Item implements Previewable<SingleNote> {
   protected ts: TimeSignature;
   protected notes: Note[];
   protected frontBarline: Barline;
   protected backBarline: Barline;
+
+  // TODO when saving, ensure that this is removed from the array
+  // We don't want to save the preview note!
+  private previewNote: SingleNote | null = null;
 
   constructor(timeSignature = new TimeSignature()) {
     super(genId());
@@ -74,7 +79,7 @@ export class Bar extends Item {
     for (const bar of bars) {
       if (bar.hasID(id)) lastWasIt = true;
       for (const note of bar.notes) {
-        if (lastWasIt) return note;
+        if (lastWasIt && !note.isDemo()) return note;
         if (note.hasID(id)) lastWasIt = true;
       }
     }
@@ -86,7 +91,7 @@ export class Bar extends Item {
       if (bar.hasID(id)) return prev;
       for (const note of bar.notes) {
         if (note.hasID(id)) return prev;
-        prev = note;
+        if (!note.isDemo()) prev = note;
       }
     }
     return prev;
@@ -128,6 +133,27 @@ export class Bar extends Item {
     }
   }
 
+  public setPreview(noteBefore: SingleNote | null, note: SingleNote) {
+    if (noteBefore && noteBefore.isDemo()) {
+      this.notes.splice(this.notes.indexOf(noteBefore), 1, note);
+      this.previewNote = note;
+    } else {
+      if (this.previewNote) this.removePreview();
+      this.previewNote = note;
+      if (noteBefore)
+        this.notes.splice(this.notes.indexOf(noteBefore), 0, this.previewNote);
+      else this.notes.push(this.previewNote);
+    }
+  }
+  public makePreviewReal() {
+    this.previewNote?.unDemo();
+    this.previewNote = null;
+  }
+  public removePreview() {
+    if (this.previewNote)
+      this.notes.splice(this.notes.indexOf(this.previewNote), 1);
+    this.previewNote = null;
+  }
   public copy() {
     const b = new Bar(this.ts);
     b.notes = this.notes; //.map((n) => n.copy());
@@ -149,6 +175,7 @@ export class Bar extends Item {
     return last(this.notes);
   }
   public insertNote(noteBefore: Note | null, note: Note) {
+    console.log(this.previewNote);
     const ind = noteBefore ? this.notes.indexOf(noteBefore) + 1 : 0;
     this.notes.splice(ind, 0, note);
   }
@@ -278,7 +305,7 @@ export class Bar extends Item {
         xAfterBarline,
         staveY,
         barWidth,
-        (pitch) => props.dispatch(mouseOverPitch(pitch, null)),
+        (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
         clickNoteBox
       ),
       ...groupedNotes.map((notes, idx) =>

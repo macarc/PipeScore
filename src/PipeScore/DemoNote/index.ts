@@ -2,94 +2,67 @@
   DemoNote (preview note) model
   Copyright (C) 2021 Archie Maclean
  */
-import { h, svg, V } from '../../render/h';
 import { Bar } from '../Bar';
 import { Update } from '../Controllers/Controller';
-import { noteY, Pitch } from '../global/pitch';
+import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note, SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
+import { Previewable } from './previewable';
 
-export interface DemoNoteProps {
-  staveY: number;
-}
-export abstract class BaseDemo {
-  protected abstract ledgerWidth(): number;
-  protected abstract rx(): number;
-  protected abstract ry(): number;
+// This could be cleaned up a bit so that BaseDemo is parameterised
+// over the previous
+export abstract class BaseDemo<U, T extends Previewable<U>> {
+  abstract addNote(
+    note: Note | null,
+    pitch: Pitch,
+    bar: Bar,
+    noteBefore: Note | null
+  ): void;
 
   protected _pitch: Pitch | null;
-  protected staveIndex: number;
-  protected x: number;
+  protected previous: T | null = null;
 
   constructor() {
     this._pitch = null;
-    this.staveIndex = 0;
-    this.x = 0;
-  }
-
-  public setX(x: number) {
-    this.x = x;
-  }
-  public setStaveIndex(staveIndex: number | null) {
-    if (staveIndex !== null) {
-      this.staveIndex = staveIndex;
-    } else {
-      this.staveIndex = 0;
-      this._pitch = null;
-    }
-  }
-  public setPitch(pitch: Pitch, note: SingleNote | null) {
-    if (this._pitch !== pitch) {
-      this._pitch = pitch;
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
   }
   public pitch() {
     return this._pitch;
   }
-  public calculateY(topOffset: number, staveGap: number) {
-    return topOffset + staveGap * this.staveIndex;
+  public stop() {
+    this.previous?.removePreview();
   }
-  public render(props: DemoNoteProps): V {
-    if (this._pitch) {
-      const y = noteY(props.staveY, this._pitch);
-      const opacity = 0.9;
-
-      return svg('g', { class: 'demo-note' }, [
-        svg('ellipse', {
-          cx: this.x,
-          cy: y,
-          rx: this.rx(),
-          ry: this.ry(),
-          fill: 'orange',
-          'pointer-events': 'none',
-          opacity,
-        }),
-        this._pitch === Pitch.HA
-          ? svg('line', {
-              x1: this.x - this.ledgerWidth(),
-              x2: this.x + this.ledgerWidth(),
-              y1: y,
-              y2: y,
-              stroke: 'orange',
-              'pointer-events': 'none',
-              opacity,
-            })
-          : svg('g'),
-      ]);
-    } else {
-      return svg('g');
-    }
+  public addSelf(noteBefore: SingleNote | null) {
+    this.previous?.makePreviewReal(noteBefore);
   }
 }
 
-export class DemoNote extends BaseDemo {
+export class DemoNote extends BaseDemo<SingleNote, Bar> {
   private _length: NoteLength;
+
   constructor(length: NoteLength) {
     super();
     this._length = length;
+    this.previous = null;
+  }
+  public addNote(
+    note: Note | null,
+    pitch: Pitch,
+    bar: Bar,
+    noteBefore: Note | null
+  ) {
+    this.previous?.removePreview();
+    bar.insertNote(noteBefore, this.toNote(pitch));
+  }
+  public setPitch(pitch: Pitch, noteBefore: SingleNote | null, bar: Bar) {
+    if (pitch !== this._pitch) {
+      if (this.previous && bar !== this.previous) this.previous.removePreview();
+      this.previous = bar;
+      if (this.previous)
+        this.previous.setPreview(noteBefore, this.toPreviewNote(pitch));
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
   }
   public length() {
     return this._length;
@@ -100,74 +73,42 @@ export class DemoNote extends BaseDemo {
   public toggleDot() {
     this._length = dot(this._length);
   }
-  public addNote(
-    n: Note | null,
-    pitch: Pitch,
-    bar: Bar,
-    noteBefore: Note | null
-  ) {
-    if (this._pitch)
-      bar.insertNote(noteBefore, new SingleNote(pitch, this._length));
+  private toNote(pitch: Pitch) {
+    return new SingleNote(pitch, this._length);
   }
-  protected ledgerWidth() {
-    return 12;
-  }
-  protected rx() {
-    return 6.5;
-  }
-  protected ry() {
-    return 5;
+  private toPreviewNote(pitch: Pitch) {
+    return new SingleNote(pitch, this._length).demo();
   }
 }
-export class DemoGracenote extends BaseDemo {
-  private previous: SingleNote | null = null;
+export class DemoGracenote extends BaseDemo<SingleGracenote, SingleNote> {
   public addNote(
     note: Note | null,
     pitch: Pitch,
     bar: Bar,
     noteBefore: Note | null
   ) {
-    this.previous?.removePreviewGracenote();
+    this.previous?.removePreview();
     if (note) note.addGracenote(pitch, noteBefore);
   }
-  public stop() {
-    this.previous?.removePreviewGracenote();
-  }
-  public setPitch(pitch: Pitch, note: SingleNote | null) {
+  public setPitch(pitch: Pitch, note: SingleNote | null, bar: Bar) {
     if (note !== this.previous || pitch !== this._pitch) {
-      super.setPitch(pitch, note);
-
-      if (this.previous) this.previous.removePreviewGracenote();
+      this._pitch = pitch;
+      if (this.previous) this.previous.removePreview();
       this.previous = note;
       if (this.previous && this._pitch)
-        this.previous.setPreviewGracenote(new SingleGracenote(this._pitch));
+        this.previous.setPreview(new SingleGracenote(this._pitch));
       return Update.ViewChanged;
     }
     return Update.NoChange;
   }
-  protected ledgerWidth() {
-    return 7;
-  }
-  protected rx() {
-    return 5;
-  }
-  protected ry() {
-    return 3.5;
-  }
-  public render() {
-    return h('g');
-  }
 }
 
-export class DemoReactive {
-  private previous: SingleNote | null = null;
+export class DemoReactive extends BaseDemo<ReactiveGracenote, SingleNote> {
   private name: string;
 
   constructor(name: string) {
+    super();
     this.name = name;
-  }
-  public stop() {
-    this.previous?.removePreviewGracenote();
   }
   public addNote(
     note: Note | null,
@@ -175,15 +116,15 @@ export class DemoReactive {
     bar: Bar,
     noteBefore: Note | null
   ) {
-    this.previous?.removePreviewGracenote();
+    this.previous?.removePreview();
     if (note) note.addGracenote(this.toGracenote(), noteBefore);
   }
   public setPitch(pitch: Pitch, note: SingleNote | null) {
     if (note !== this.previous) {
-      if (this.previous) this.previous.removePreviewGracenote();
+      if (this.previous) this.previous.removePreview();
       this.previous = note;
       if (this.previous)
-        this.previous.setPreviewGracenote(new ReactiveGracenote(this.name));
+        this.previous.setPreview(new ReactiveGracenote(this.name));
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -193,14 +134,6 @@ export class DemoReactive {
   }
   public isInputting(name: string) {
     return name === this.name;
-  }
-  public calculateY() {
-    return 0;
-  }
-  public setStaveIndex() {}
-  public setX() {}
-  public render() {
-    return h('g');
   }
 }
 

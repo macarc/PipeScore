@@ -216,10 +216,6 @@ export class Score {
       gracenoteState: props.gracenoteState,
     });
 
-    const demoNoteProps = props.demoNote && {
-      staveY: props.demoNote.calculateY(this.topOffset, staveGap),
-    };
-
     const secondTimingProps = {
       staveStartX: this.margin,
       staveEndX: width - this.margin,
@@ -262,7 +258,6 @@ export class Score {
           secondTiming.render(secondTimingProps)
         ),
         props.selection && props.selection.render(scoreSelectionProps),
-        props.demoNote && demoNoteProps && props.demoNote.render(demoNoteProps),
       ]
     );
   }

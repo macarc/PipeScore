@@ -4,7 +4,13 @@
  */
 import { pitchOffset, noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
-import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
+import {
+  Gracenote,
+  GracenoteProps,
+  NoGracenote,
+  ReactiveGracenote,
+  SingleGracenote,
+} from '../Gracenote';
 import { nfirst, nlast, Obj } from '../global/utils';
 import { dot, dotted, lengthInBeats, NoteLength } from './notelength';
 import width, { Width } from '../global/width';
@@ -18,6 +24,7 @@ import { getXY, setXY } from '../global/xy';
 import { addNoteBefore, clickNote } from '../Controllers/Note';
 import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
+import { Previewable } from '../DemoNote/previewable';
 
 export interface PreviousNote {
   pitch: Pitch;
@@ -264,10 +271,15 @@ abstract class BaseNote extends Item {
   }
 }
 
-export class SingleNote extends BaseNote {
+export class SingleNote
+  extends BaseNote
+  implements Previewable<ReactiveGracenote>, Previewable<SingleGracenote>
+{
   private pitch: Pitch;
   private gracenote: Gracenote;
+
   private previewGracenote: Gracenote | null;
+  private preview: boolean = false;
 
   constructor(
     pitch: Pitch,
@@ -305,11 +317,26 @@ export class SingleNote extends BaseNote {
       gracenote: this.gracenote.toJSON(),
     };
   }
-  public setPreviewGracenote(gracenote: Gracenote) {
+  public makePreviewReal(previous: Note | null) {
+    if (this.previewGracenote)
+      this.addGracenote(this.previewGracenote, previous);
+  }
+  public setPreview(gracenote: Gracenote) {
     if (!this.gracenote.equals(gracenote)) this.previewGracenote = gracenote;
   }
-  public removePreviewGracenote() {
+  public removePreview() {
     this.previewGracenote = null;
+  }
+  public isDemo() {
+    return this.preview;
+  }
+  public unDemo() {
+    this.preview = false;
+    return this;
+  }
+  public demo() {
+    this.preview = true;
+    return this;
   }
   public drag(pitch: Pitch): Update {
     if (pitch === this.pitch) return Update.NoChange;
@@ -463,6 +490,9 @@ export class SingleNote extends BaseNote {
       preview: false,
     });
   }
+  private colour() {
+    return this.preview ? 'orange' : 'black';
+  }
   private noteHead(
     x: number,
     y: number,
@@ -507,7 +537,6 @@ export class SingleNote extends BaseNote {
     const rotateText = `rotate(${rotation} ${x} ${y})`;
     const maskRotateText = `rotate(${maskRotation} ${x} ${y})`;
 
-    const colour = 'black';
     const maskId = Math.random();
     const mask = `url(#${maskId})`;
     return svg('g', { class: 'note-head' }, [
@@ -525,7 +554,7 @@ export class SingleNote extends BaseNote {
           rx: maskrx,
           ry: maskry,
           'stroke-width': 0,
-          fill: colour,
+          fill: this.colour(),
           transform: maskRotateText,
         }),
       ]),
@@ -534,8 +563,8 @@ export class SingleNote extends BaseNote {
         cy: y,
         rx: noteWidth,
         ry: noteHeight,
-        stroke: colour,
-        fill: colour,
+        stroke: this.colour(),
+        fill: this.colour(),
         transform: rotateText,
         'pointer-events': pointerEvents,
         opacity,
@@ -546,7 +575,7 @@ export class SingleNote extends BaseNote {
             cx: x + dotXOffset,
             cy: y + dotYOffset,
             r: 1.5,
-            fill: colour,
+            fill: this.colour(),
             'pointer-events': 'none',
             opacity,
           })
@@ -558,7 +587,7 @@ export class SingleNote extends BaseNote {
             x2: x + 8,
             y1: y,
             y2: y,
-            stroke: colour,
+            stroke: this.colour(),
             'pointer-events': pointerEvents,
             opacity,
           })
@@ -620,7 +649,7 @@ export class SingleNote extends BaseNote {
           `M ${lastStaveX},${y1} S ${(lastStaveX - x1) / 2 + x1},${
             y1 - tieHeight
           }, ${x1},${y1} `;
-    return svg('path', { class: 'note-tie', d: path, stroke: 'black' });
+    return svg('path', { class: 'note-tie', d: path, stroke: this.colour() });
   }
   public render(props: NoteProps): V {
     // Draws a single note
@@ -682,7 +711,7 @@ export class SingleNote extends BaseNote {
         props
       ),
       this.hasStem()
-        ? svg('line', { x1: x, x2: x, y1: y, y2: stemY, stroke: 'black' })
+        ? svg('line', { x1: x, x2: x, y1: y, y2: stemY, stroke: this.colour() })
         : null,
 
       numberOfTails > 0
@@ -695,7 +724,7 @@ export class SingleNote extends BaseNote {
                 x2: x + 10,
                 y1: stemY - 5 * t,
                 y2: stemY - 5 * t - 10,
-                stroke: 'black',
+                stroke: this.colour(),
                 'stroke-width': 2,
               })
             )
@@ -867,7 +896,7 @@ export class SingleNote extends BaseNote {
             x2: xOf(index),
             y1: yOf(note),
             y2: stemYOf(note, index),
-            stroke: 'black',
+            stroke: note.colour(),
           }),
         ]);
       })
@@ -883,6 +912,9 @@ export class Triplet extends BaseNote {
   constructor(length: NoteLength, notes: SingleNote[]) {
     super(length);
     this._notes = notes;
+  }
+  public isDemo() {
+    return false;
   }
   public copy() {
     const n = Triplet.fromObject(this.toObject());

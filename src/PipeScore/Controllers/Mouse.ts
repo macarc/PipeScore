@@ -9,6 +9,7 @@ import { Pitch } from '../global/pitch';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { SingleNote } from '../Note';
 import { stopInputtingNotes } from './Note';
+import { Bar } from '../Bar';
 
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
@@ -23,7 +24,7 @@ export function deleteSelection(): ScoreEvent {
 
 export function mouseOverPitch(
   pitch: Pitch,
-  note: SingleNote | null
+  where: SingleNote | Bar
 ): ScoreEvent {
   return async (state: State) => {
     // We return viewChanged from everything since we only want to save when the note is released
@@ -35,7 +36,15 @@ export function mouseOverPitch(
       return Update.NoChange;
     }
     if (state.demo) {
-      return state.demo.setPitch(pitch, note);
+      if (where instanceof Bar) {
+        return state.demo.setPitch(pitch, null, where);
+      } else {
+        return state.demo.setPitch(
+          pitch,
+          where,
+          state.score.location(where.id).bar
+        );
+      }
     } else if (
       state.selection instanceof ScoreSelection ||
       state.selection instanceof GracenoteSelection

@@ -119,7 +119,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       if (bar.hasID(this.start)) foundStart = true;
       for (const note of bar.notesAndTriplets()) {
         if (note.hasID(this.start)) foundStart = true;
-        if (foundStart) notes.push(note);
+        if (foundStart && !note.isDemo()) notes.push(note);
         if (note.hasID(this.end)) break;
       }
       if (bar.hasID(this.end)) break;

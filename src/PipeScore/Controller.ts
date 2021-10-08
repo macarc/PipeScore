@@ -6,7 +6,6 @@
 import patch from '../render/vdom';
 import { h, hFrom } from '../render/h';
 import { ScoreEvent, Update } from './Controllers/Controller';
-import { updateDemoNote } from './Controllers/Note';
 import { mouseUp, mouseDrag } from './Controllers/Mouse';
 
 import { State } from './State';
@@ -93,7 +92,7 @@ function mouseMove(event: MouseEvent) {
   // - registers a mouse dragged event if the mouse button is held down
   // - moves demo note (if necessary)
   const mouseButtonIsDown = event.buttons === 1;
-  if (mouseButtonIsDown || state.demo !== null) {
+  if (mouseButtonIsDown) {
     const svg = document.getElementById('score-svg');
     if (svg == null) {
       return;
@@ -107,12 +106,7 @@ function mouseMove(event: MouseEvent) {
       const svgPt = pt.matrixTransform(CTM.inverse());
 
       // If the left mouse button is held down
-      if (event.buttons === 1) {
-        dispatch(mouseDrag(svgPt.x, svgPt.y));
-      } else if (state.demo) {
-        const newStaveIndex = state.score.coordinateToStaveIndex(svgPt.y);
-        dispatch(updateDemoNote(svgPt.x, newStaveIndex));
-      }
+      if (event.buttons === 1) dispatch(mouseDrag(svgPt.x, svgPt.y));
     }
   }
 }
