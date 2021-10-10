@@ -12,7 +12,7 @@ import width, { Width } from '../global/width';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 
-const tailXOffset = 3;
+const tailXOffset = 2.8;
 // actually this is half of the head width
 const gracenoteHeadRadius = 3.5;
 const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
@@ -135,6 +135,7 @@ export abstract class Gracenote {
   ): V {
     // Draws head and stem
 
+    const stemY = y - 0.5;
     const ledgerLeft = 5;
     const ledgerRight = 5.1;
     const rotateText = 'rotate(-30 ' + x + ' ' + y + ')';
@@ -177,7 +178,7 @@ export abstract class Gracenote {
       svg('line', {
         x1: x + tailXOffset,
         x2: x + tailXOffset,
-        y1: y,
+        y1: stemY,
         y2: beamY,
         stroke: colour,
       }),
@@ -239,8 +240,8 @@ export abstract class Gracenote {
       return svg('g', { class: 'reactive-gracenote' }, [
         ...[0, 2, 4].map((i) =>
           svg('line', {
-            x1: xOf(uniqueNotes[0]) + tailXOffset,
-            x2: xOf(nlast(uniqueNotes)) + tailXOffset,
+            x1: xOf(uniqueNotes[0]) + tailXOffset - 0.5,
+            x2: xOf(nlast(uniqueNotes)) + tailXOffset + 0.5,
             y1: beamY + i,
             y2: beamY + i,
             stroke: colour,

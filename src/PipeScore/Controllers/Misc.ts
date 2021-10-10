@@ -17,7 +17,7 @@ export function changeSetting<T extends keyof Settings>(
   target: HTMLInputElement
 ): ScoreEvent {
   return async () => {
-    let v = parseFloat(target.value);
+    const v = parseFloat(target.value);
     target.value = settings.validate(setting, v).toString();
     settings[setting] = v as Settings[T];
     return Update.ViewChanged;

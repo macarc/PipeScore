@@ -153,8 +153,11 @@ abstract class BaseNote extends Item {
       note instanceof Triplet ? note.tripletSingleNotes() : note
     );
   }
+  public static makeSameLength(notes: SingleNote[]) {
+    notes.forEach((note) => (note.length = notes[0].length));
+  }
   public static ungroupNotes(notes: Note[][]): Note[] {
-    return new Array().concat(...notes);
+    return ([] as Note[]).concat(...notes);
   }
   public static groupNotes(
     notes: Note[],
@@ -279,7 +282,7 @@ export class SingleNote
   private gracenote: Gracenote;
 
   private previewGracenote: Gracenote | null;
-  private preview: boolean = false;
+  private preview = false;
 
   constructor(
     pitch: Pitch,
@@ -410,7 +413,7 @@ export class SingleNote
     second: SingleNote,
     third: SingleNote
   ) {
-    return new Triplet(first.length, [first, second, third]);
+    return new Triplet(first.length, first, second, third);
   }
   private static beamFrom(
     x1: number,
@@ -429,8 +432,8 @@ export class SingleNote
     const rightTails = leftIs1 ? tails2 : tails1;
     const xL = leftIs1 ? x1 : x2;
     const xR = leftIs1 ? x2 : x1;
-    const yL = leftIs1 ? y1 : y2;
-    const yR = leftIs1 ? y2 : y1;
+    const yL = leftIs1 ? y1 - 1 : y2 - 1;
+    const yR = leftIs1 ? y2 - 1 : y1 - 1;
 
     const moreTailsOnLeft = leftTails > rightTails;
     const drawExtraTails = moreTailsOnLeft
@@ -505,10 +508,8 @@ export class SingleNote
     const gracenoteBeingDragged = props.gracenoteState.dragged !== null;
 
     const rotation = this.hasStem() ? -35 : 0;
-    const noteWidth = Math.abs(
-      noteHeadRadius / Math.cos((2 * Math.PI * rotation) / 360)
-    );
-    const noteHeight = 3.5;
+    const noteWidth = 4.5; //Math.abs( noteHeadRadius / Math.cos((2 * Math.PI * rotation) / 360));
+    const noteHeight = 3;
     const maskRotation = this.hasStem() ? 0 : rotation + 60;
 
     const maskrx = this.hasStem() ? 5 : 4;
@@ -689,7 +690,8 @@ export class SingleNote
         props.noteWidth
       );
     const y = this.y(props.y);
-    const stemY = y + 30;
+    const stemTopY = y + 1.5;
+    const stemBottomY = y + 30;
     const numberOfTails = this.numTails();
 
     return svg('g', { class: 'singleton' }, [
@@ -713,7 +715,13 @@ export class SingleNote
         props
       ),
       this.hasStem()
-        ? svg('line', { x1: x, x2: x, y1: y, y2: stemY, stroke: this.colour() })
+        ? svg('line', {
+            x1: x,
+            x2: x,
+            y1: stemTopY,
+            y2: stemBottomY,
+            stroke: this.colour(),
+          })
         : null,
 
       numberOfTails > 0
@@ -724,8 +732,8 @@ export class SingleNote
               svg('line', {
                 x1: x,
                 x2: x + 10,
-                y1: stemY - 5 * t,
-                y2: stemY - 5 * t - 10,
+                y1: stemBottomY - 5 * t,
+                y2: stemBottomY - 5 * t - 10,
                 stroke: this.colour(),
                 'stroke-width': 2,
               })
@@ -909,11 +917,16 @@ export class SingleNote
 export class Triplet extends BaseNote {
   // It is assumed that _notes always has length >= 1
   // Whenever notes are deleted, this should be ensured
-  private _notes: SingleNote[];
+  private _notes: [SingleNote, SingleNote, SingleNote];
 
-  constructor(length: NoteLength, notes: SingleNote[]) {
+  constructor(
+    length: NoteLength,
+    first: SingleNote,
+    second: SingleNote,
+    third: SingleNote
+  ) {
     super(length);
-    this._notes = notes;
+    this._notes = [first, second, third];
   }
   public isDemo() {
     return false;
@@ -927,7 +940,11 @@ export class Triplet extends BaseNote {
   public static fromObject(o: Obj) {
     return new Triplet(
       o.length,
-      o.notes.map((note: Obj) => SingleNote.fromObject(note))
+      ...(o.notes.map((note: Obj) => SingleNote.fromObject(note)) as [
+        SingleNote,
+        SingleNote,
+        SingleNote
+      ])
     );
   }
   public hasID(id: ID) {
@@ -997,6 +1014,7 @@ export class Triplet extends BaseNote {
   }
   public render(props: NoteProps) {
     // Draws a triplet
+    SingleNote.makeSameLength(this._notes);
 
     const renderedNotes = SingleNote.renderMultiple(this._notes, props);
     const line = this.tripletLine(

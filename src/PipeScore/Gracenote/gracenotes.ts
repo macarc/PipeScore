@@ -2,9 +2,8 @@
   All the gracenotes (reactive embellishments) possible with PipeScore
   Copyright (C) 2021 Archie Maclean
  */
-import { Pitch, pitchUp } from '../global/pitch';
+import { Pitch } from '../global/pitch';
 import { MaybeGracenote } from '.';
-import { GracenoteSelection } from '../Selection';
 
 type GracenoteFn = (note: Pitch, prev: Pitch | null) => MaybeGracenote;
 
