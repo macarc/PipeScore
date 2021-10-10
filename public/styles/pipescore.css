@@ -258,7 +258,7 @@ text {
   font-size: 1.1rem;
   margin: 1rem;
 }
-#dialogue-box input[type='number'] {
+input[type='number'] {
   width: 3rem !important;
 }
 

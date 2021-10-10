@@ -6,7 +6,7 @@ import { Stave } from '../Stave';
 import { TextBox } from '../TextBox';
 import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
-import { lineGap, staveGap } from '../global/constants';
+import { settings } from '../global/settings';
 import { svg, V } from '../../render/h';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
@@ -34,9 +34,6 @@ export class Score {
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[];
   private secondTimings: SecondTiming[];
-
-  private margin = 30;
-  private topOffset = 200;
 
   public zoom: number;
 
@@ -157,9 +154,9 @@ export class Score {
     // Converts the y coordinate to the index of stave that the y coordinate lies in
     // If it is below 0, it returns 0; if it doesn't lie on any stave it returns null
 
-    const offset = y + 4 * lineGap - this.topOffset;
-    if (offset > 0 && offset % staveGap <= 12 * lineGap) {
-      return Math.max(Math.floor(offset / staveGap), 0);
+    const offset = y + 4 * settings.lineGap - settings.topOffset;
+    if (offset > 0 && offset % settings.staveGap <= 12 * settings.lineGap) {
+      return Math.max(Math.floor(offset / settings.staveGap), 0);
     } else {
       return null;
     }
@@ -206,27 +203,27 @@ export class Score {
     const width = this.width();
     const height = this.height();
     const staveProps = (stave: Stave, index: number) => ({
-      x: this.margin,
-      y: index * staveGap + this.topOffset,
-      width: width - 2 * this.margin,
+      x: settings.margin,
+      y: index * settings.staveGap + settings.topOffset,
+      width: width - 2 * settings.margin,
       previousStave: this._staves[index - 1] || null,
-      previousStaveY: (index - 1) * staveGap + this.topOffset,
+      previousStaveY: (index - 1) * settings.staveGap + settings.topOffset,
       dispatch: props.dispatch,
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
     });
 
     const secondTimingProps = {
-      staveStartX: this.margin,
-      staveEndX: width - this.margin,
+      staveStartX: settings.margin,
+      staveEndX: width - settings.margin,
       selection: props.selection,
-      staveGap,
+      staveGap: settings.staveGap,
       dispatch: props.dispatch,
     };
     const scoreSelectionProps = {
-      staveStartX: this.margin,
-      staveEndX: width - this.margin,
-      staveGap,
+      staveStartX: settings.margin,
+      staveEndX: width - settings.margin,
+      staveGap: settings.staveGap,
     };
 
     return svg(

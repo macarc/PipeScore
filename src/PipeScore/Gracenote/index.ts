@@ -5,7 +5,7 @@
 import { svg, V } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { clickGracenote } from '../Controllers/Gracenote';
-import { lineGap } from '../global/constants';
+import { settings } from '../global/settings';
 import { noteY, Pitch } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';
 import width, { Width } from '../global/width';
@@ -196,7 +196,7 @@ export abstract class Gracenote {
         props.x,
         y,
         note,
-        y - 3 * lineGap,
+        y - settings.lineHeightOf(3),
         true,
         selected
       ),
@@ -235,13 +235,14 @@ export abstract class Gracenote {
       return this.renderSingle(uniqueNotes[0].note, props);
     } else {
       const colour = colourOf(selected);
+      const beamY = props.y - settings.lineHeightOf(3.5);
       return svg('g', { class: 'reactive-gracenote' }, [
         ...[0, 2, 4].map((i) =>
           svg('line', {
             x1: xOf(uniqueNotes[0]) + tailXOffset,
             x2: xOf(nlast(uniqueNotes)) + tailXOffset,
-            y1: props.y - 3.5 * lineGap + i,
-            y2: props.y - 3.5 * lineGap + i,
+            y1: beamY + i,
+            y2: beamY + i,
             stroke: colour,
           })
         ),
@@ -252,7 +253,7 @@ export abstract class Gracenote {
             xOf(noteObj),
             y(noteObj.note),
             noteObj.note,
-            props.y - 3.5 * lineGap,
+            beamY,
             pitches.isValid(),
             selected
           )

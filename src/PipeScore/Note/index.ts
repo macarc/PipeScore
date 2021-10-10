@@ -530,7 +530,9 @@ export class SingleNote
     // that interferes with the drag boxes (you can't
     // drag downwards a single box)
     const pointerEvents =
-      props.state.dragged || gracenoteBeingDragged ? 'none' : 'visiblePainted';
+      props.state.dragged || gracenoteBeingDragged || this.isDemo()
+        ? 'none'
+        : 'visiblePainted';
 
     const filled = this.isFilled();
 

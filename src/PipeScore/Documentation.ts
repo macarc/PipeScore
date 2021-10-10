@@ -65,6 +65,6 @@ export default new Map(
     download:
       "Save the score locally to your computer\n\nYou don't need to do this normally, unless you want to back it up\n\nHas not yet been implemented",
     landscape: 'Switch the score between landscape and portrait',
-    zoom: 'Control how large the score appears on your screen\n\nDrag to the right to zoom in, the left to zoom out',
+    zoom: 'Zoom: Control how large the score appears on your screen\n\nDrag to the right to zoom in, the left to zoom out',
   })
 );

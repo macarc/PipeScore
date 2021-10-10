@@ -2,6 +2,7 @@
   Draw user interface (bar at top with buttons)
   Copyright (C) 2021 Archie Maclean
 */
+import { Menu } from './model';
 import { h, V, Attributes } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
 import {
@@ -25,6 +26,7 @@ import {
   redo,
   print,
   changeZoomLevel,
+  changeSetting,
 } from '../Controllers/Misc';
 import { addSecondTiming } from '../Controllers/SecondTiming';
 import { deleteSelection } from '../Controllers/Mouse';
@@ -37,14 +39,11 @@ import {
 } from '../Controllers/Playback';
 import { centreText, addText } from '../Controllers/Text';
 import { addStave } from '../Controllers/Stave';
-
-import { Menu } from './model';
-
 import { help as dochelp } from '../global/docs';
-
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { EndB, NormalB, RepeatB } from '../Bar/barline';
 import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
+import { Settings, settings } from '../global/settings';
 
 export interface UIState {
   demo: Demo | null;
@@ -89,10 +88,10 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       )
     );
 
-  const inputZoomLevel = () => {
-    const element = document.getElementById('zoom-level');
-    if (element !== null) {
-      const newZoomLevel = parseInt((element as HTMLInputElement).value, 10);
+  const inputZoomLevel = (e: Event) => {
+    const element = e.target;
+    if (element instanceof HTMLInputElement) {
+      const newZoomLevel = parseInt(element.value, 10);
       if (!isNaN(newZoomLevel)) {
         dispatch(changeZoomLevel(newZoomLevel));
       }
@@ -430,6 +429,17 @@ export default function render(dispatch: Dispatch, state: UIState): V {
     ]),
   ];
 
+  const setting = <T extends keyof Settings>(property: T, name: string) => [
+    h('label', [name]),
+    h(
+      'input',
+      { type: 'number', value: settings[property].toString() },
+      {
+        input: (e) =>
+          dispatch(changeSetting(property, e.target as HTMLInputElement)),
+      }
+    ),
+  ];
   const documentMenu = [
     h('section', [
       h('h2', ['Document']),
@@ -456,24 +466,17 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       ]),
     ]),
     h('section', [
+      h('h2', ['Settings']),
+      h('div', { class: 'section-content' }, [
+        ...setting('lineGap', 'Gap between lines'),
+        ...setting('topOffset', 'Gap at top of page'),
+        ...setting('margin', 'Margin'),
+        ...setting('staveGap', 'Gap between staves'),
+      ]),
+    ]),
+    h('section', [
       h('h2', ['View']),
       h('div', { class: 'section-content' }, [
-        h('label', ['Zoom']),
-        help(
-          'zoom',
-          h(
-            'input',
-            {
-              id: 'zoom-level',
-              type: 'range',
-              min: '10',
-              max: '200',
-              step: '2',
-              value: state.zoomLevel,
-            },
-            { input: inputZoomLevel }
-          )
-        ),
         h('label', ['Disable Help']),
         help(
           'disable help',
@@ -553,30 +556,47 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
       h('section', { id: 'general-commands' }, [
         h('h2', ['General Commands']),
-        h('div', { class: 'section-content' }, [
+        h('div', { class: 'section-content flex' }, [
+          h('div', [
+            help(
+              'delete',
+              h(
+                'button',
+                { id: 'delete-notes', class: 'delete' },
+                { click: () => dispatch(deleteSelection()) }
+              )
+            ),
+            help(
+              'copy',
+              h('button', { id: 'copy' }, { click: () => dispatch(copy()) })
+            ),
+            help(
+              'paste',
+              h('button', { id: 'paste' }, { click: () => dispatch(paste()) })
+            ),
+            help(
+              'undo',
+              h('button', { id: 'undo' }, { click: () => dispatch(undo()) })
+            ),
+            help(
+              'redo',
+              h('button', { id: 'redo' }, { click: () => dispatch(redo()) })
+            ),
+          ]),
           help(
-            'delete',
+            'zoom',
             h(
-              'button',
-              { id: 'delete-notes', class: 'delete' },
-              { click: () => dispatch(deleteSelection()) }
+              'input',
+              {
+                id: 'zoom-level',
+                type: 'range',
+                min: '10',
+                max: '200',
+                step: '2',
+                value: state.zoomLevel,
+              },
+              { input: inputZoomLevel }
             )
-          ),
-          help(
-            'copy',
-            h('button', { id: 'copy' }, { click: () => dispatch(copy()) })
-          ),
-          help(
-            'paste',
-            h('button', { id: 'paste' }, { click: () => dispatch(paste()) })
-          ),
-          help(
-            'undo',
-            h('button', { id: 'undo' }, { click: () => dispatch(undo()) })
-          ),
-          help(
-            'redo',
-            h('button', { id: 'redo' }, { click: () => dispatch(redo()) })
           ),
         ]),
       ]),

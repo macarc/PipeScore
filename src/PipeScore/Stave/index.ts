@@ -5,7 +5,7 @@
 import { svg, V } from '../../render/h';
 import { Anacrusis, Bar } from '../Bar';
 import { Dispatch } from '../Controllers/Controller';
-import { lineHeightOf } from '../global/constants';
+import { settings } from '../global/settings';
 import { first, last } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
@@ -59,9 +59,14 @@ export class Stave {
     );
   }
   public renderTrebleClef(x: number, y: number) {
+    const scale = (0.08 / 35) * settings.lineHeightOf(5);
     return svg(
       'g',
-      { transform: `translate(${x + 5} ${y - 25}) scale(0.08)` },
+      {
+        transform: `translate(${x + 5} ${
+          y - 25 - (scale - 0.08) * 300
+        }) scale(${scale})`,
+      },
       [
         svg('g', { transform: 'matrix(.21599 0 0 .21546 -250.44 -1202.6)' }, [
           svg('path', {
@@ -75,11 +80,11 @@ export class Stave {
     );
   }
   public render(props: StaveProps): V {
-    const staveHeight = props.y;
+    const staveY = props.y;
     const trebleClefWidth = 40;
 
     const staveLines = [...Array(5).keys()].map(
-      (idx) => lineHeightOf(idx) + staveHeight
+      (idx) => settings.lineHeightOf(idx) + staveY
     );
 
     const previousBar = (barIdx: number) =>
@@ -109,7 +114,7 @@ export class Stave {
 
     const barProps = (bar: Bar, index: number) => ({
       x: getX(index),
-      y: staveHeight,
+      y: staveY,
       width: width(bar),
       previousBar: previousBar(index),
       shouldRenderLastBarline: index === this.numberOfBars() - 1,

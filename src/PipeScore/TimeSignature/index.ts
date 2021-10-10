@@ -2,6 +2,7 @@ import { h, svg, V } from '../../render/h';
 import { editTimeSignature } from '../Controllers/Bar';
 import { Dispatch } from '../Controllers/Controller';
 import dialogueBox from '../global/dialogueBox';
+import { settings } from '../global/settings';
 
 /*
   TimeSignature format
@@ -29,6 +30,12 @@ export class TimeSignature {
   }
   public width() {
     return 30;
+  }
+  public cutTimeFontSize() {
+    return settings.lineHeightOf(6);
+  }
+  public fontSize() {
+    return settings.lineHeightOf(5) / 1.6;
   }
 
   public numberOfBeats(): number {
@@ -178,7 +185,9 @@ export class TimeSignature {
     );
   }
   public render(props: TimeSignatureProps): V {
-    const y = props.y + 14;
+    const y =
+      props.y +
+      (this.cutTime() ? settings.lineHeightOf(3.9) : settings.lineHeightOf(2));
 
     const edit = () =>
       this.edit().then((newTimeSignature) =>
@@ -193,8 +202,8 @@ export class TimeSignature {
             style: 'font-family: serif; font-weight: bold;',
             'text-anchor': 'middle',
             x: props.x,
-            y: props.y + 23,
-            'font-size': 30,
+            y: y,
+            'font-size': this.cutTimeFontSize(),
           },
           { click: edit },
           ['C']
@@ -209,7 +218,7 @@ export class TimeSignature {
             x: props.x,
             y,
             style: 'font-family: serif; font-weight: bold;',
-            'font-size': 22,
+            'font-size': this.fontSize(),
           },
           { click: edit },
           [this.top().toString()]
@@ -219,9 +228,9 @@ export class TimeSignature {
           {
             'text-anchor': 'middle',
             x: props.x,
-            y: y + 13,
+            y: y + settings.lineHeightOf(2.1),
             style: 'font-family: serif; font-weight: bold;',
-            'font-size': 22,
+            'font-size': this.fontSize(),
           },
           { click: edit },
           [this.bottom().toString()]

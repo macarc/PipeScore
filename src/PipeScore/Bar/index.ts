@@ -174,8 +174,13 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public lastNote() {
     return last(this.notes);
   }
+  public previousNote(note: Note) {
+    return this.notes[this.notes.indexOf(note) - 1] || null;
+  }
   public insertNote(noteBefore: Note | null, note: Note) {
-    console.log(this.previewNote);
+    if (noteBefore?.isDemo()) {
+      noteBefore = this.notes[this.notes.indexOf(noteBefore) - 1] || null;
+    }
     const ind = noteBefore ? this.notes.indexOf(noteBefore) + 1 : 0;
     this.notes.splice(ind, 0, note);
   }

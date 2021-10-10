@@ -51,6 +51,9 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
     bar: Bar,
     noteBefore: Note | null
   ) {
+    if (noteBefore?.isDemo()) {
+      noteBefore = this.previous?.previousNote(noteBefore) || null;
+    }
     this.previous?.removePreview();
     bar.insertNote(noteBefore, this.toNote(pitch));
   }

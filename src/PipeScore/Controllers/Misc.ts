@@ -10,7 +10,19 @@ import patch from '../../render/vdom';
 
 import dialogueBox from '../global/dialogueBox';
 import { stopInputtingNotes } from './Note';
+import { settings, Settings } from '../global/settings';
 
+export function changeSetting<T extends keyof Settings>(
+  setting: T,
+  target: HTMLInputElement
+): ScoreEvent {
+  return async () => {
+    let v = parseFloat(target.value);
+    target.value = settings.validate(setting, v).toString();
+    settings[setting] = v as Settings[T];
+    return Update.ViewChanged;
+  };
+}
 export function changeZoomLevel(zoom: number): ScoreEvent {
   return async (state: State) => {
     if (state.score.zoom !== zoom) {

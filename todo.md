@@ -18,6 +18,7 @@
 - [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 - [ ] Single gracenote preview should allow for custom embellishments
 - [ ] Selecting notes while inputting notes doesn't work...should it?
+- [ ] Note head size, should react to stave gap changes
 
 ## General features
 

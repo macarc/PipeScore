@@ -3,7 +3,7 @@
   Copyright (C) 2021 Archie Maclean
 */
 import { svg, V } from '../../render/h';
-import { lineGap } from './constants';
+import { settings } from './settings';
 import { Pitch, pitchToHeight } from './pitch';
 
 export function noteBoxes(
@@ -15,7 +15,7 @@ export function noteBoxes(
 ): V {
   // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap
   // and there are 0 pixel gaps between that can nevertheless be hovered over
-  const height = lineGap / 2 + 0.1;
+  const height = settings.lineGap / 2 + 0.1;
 
   const pitches = [
     Pitch.G,
@@ -29,10 +29,19 @@ export function noteBoxes(
     Pitch.HA,
   ];
 
+  const heightOfBetweenBoxes =
+    (settings.staveGap - settings.lineHeightOf(4)) / 2;
+
   return svg('g', { class: 'drag-boxes' }, [
     svg(
       'rect',
-      { x, y: y - 4 * lineGap, width, height: lineGap * 4, opacity: 0 },
+      {
+        x,
+        y: y - settings.lineGap - heightOfBetweenBoxes,
+        width,
+        height: heightOfBetweenBoxes,
+        opacity: 0,
+      },
       {
         mouseover: (e) => mouseOver(Pitch.HA, e as MouseEvent),
         mousedown: (e) => mouseDown(Pitch.HA, e as MouseEvent),
@@ -40,7 +49,13 @@ export function noteBoxes(
     ),
     svg(
       'rect',
-      { x, y: y + 3 * lineGap, width, height: lineGap * 4, opacity: 0 },
+      {
+        x,
+        y: y + settings.lineHeightOf(3),
+        width,
+        height: heightOfBetweenBoxes,
+        opacity: 0,
+      },
       {
         mouseover: (e) => mouseOver(Pitch.G, e as MouseEvent),
         mousedown: (e) => mouseDown(Pitch.G, e as MouseEvent),
@@ -51,7 +66,13 @@ export function noteBoxes(
       .map(([note, boxY]) =>
         svg(
           'rect',
-          { x, y: y + lineGap * boxY - lineGap / 2, width, height, opacity: 0 },
+          {
+            x,
+            y: y + settings.lineGap * boxY - settings.lineGap / 2,
+            width,
+            height,
+            opacity: 0,
+          },
           {
             mouseover: (e) => mouseOver(note, e as MouseEvent),
             mousedown: (e) => mouseDown(note, e as MouseEvent),

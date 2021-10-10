@@ -2,7 +2,7 @@
   Pitch type and methods
   Copyright (C) 2021 Archie Maclean
 */
-import { lineHeightOf } from './constants';
+import { settings } from './settings';
 
 export const enum Pitch {
   HA = 'HA',
@@ -88,7 +88,7 @@ export function pitchDown(pitch: Pitch): Pitch {
 // Calculate the difference from the top of the stave
 // to the note
 export const pitchOffset = (note: Pitch): number =>
-  lineHeightOf(pitchToHeight(note));
+  settings.lineHeightOf(pitchToHeight(note));
 
 // Calculates the y value of given note
 export const noteY = (staveY: number, note: Pitch): number =>

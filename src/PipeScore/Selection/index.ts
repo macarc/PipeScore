@@ -9,7 +9,7 @@ import { TextBox } from '../TextBox';
 import { Score } from '../Score';
 import { deleteXY, getXY } from '../global/xy';
 import { h, svg } from '../../render/h';
-import { lineGap } from '../global/constants';
+import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
@@ -146,7 +146,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       return svg('g');
     }
 
-    const height = 6 * lineGap;
+    const height = 6 * settings.lineGap;
 
     if (end.y !== start.y) {
       const higher = start.y > end.y ? end : start;
@@ -156,7 +156,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       return svg('g', { class: 'selection' }, [
         svg('rect', {
           x: higher.beforeX,
-          y: higher.y - lineGap,
+          y: higher.y - settings.lineGap,
           width: props.staveEndX - higher.beforeX,
           height,
           fill: 'orange',
@@ -165,7 +165,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
         }),
         svg('rect', {
           x: props.staveStartX,
-          y: lower.y - lineGap,
+          y: lower.y - settings.lineGap,
           width: lower.afterX - props.staveStartX,
           height,
           fill: 'orange',
@@ -177,7 +177,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
           .map((i) =>
             svg('rect', {
               x: props.staveStartX,
-              y: higher.y + i * props.staveGap - lineGap,
+              y: higher.y + i * props.staveGap - settings.lineGap,
               width: props.staveEndX - props.staveStartX,
               height,
               fill: 'orange',
@@ -191,7 +191,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       return svg('g', { class: 'selection' }, [
         svg('rect', {
           x: start.beforeX,
-          y: start.y - lineGap,
+          y: start.y - settings.lineGap,
           width,
           height,
           fill: 'orange',
