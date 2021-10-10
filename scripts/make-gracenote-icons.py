@@ -26,9 +26,9 @@ def transform(head_coords):
     return f'rotate(-30 {head_coords[0]} {head_coords[1]})'
 
 def add_embellishment(doc, embellishment):
-    x = 25
     bar_y = 10
-    total_width = 100 - 2 * x
+    total_width = min(50, len(embellishment) * 15)
+    x = (100 - total_width) / 2
     note_width = total_width / (len(embellishment) - 1)
     stem_x_offset = rx * math.cos(math.radians(30))
     stem_y_offset = rx * math.sin(math.radians(30)) - 1
@@ -71,6 +71,7 @@ doc = svgwrite.Drawing(filename="test.svg", size=(100, 100))
 
 embellishments = {
         "doubling": ['hg','c','d'],
+        "half-doubling": ['c','d'],
         "throw-d": ['g','d','c'],
         "grip": ['g','d','g'],
         "birl": ['g','a','g'],

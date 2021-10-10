@@ -39,6 +39,7 @@ export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
     if (state.demo) {
       const previous = bar.lastNote();
       state.demo.addNote(null, pitch, bar, previous);
+      state.justClickedNote = true;
       return Update.ViewChanged;
     }
     return Update.NoChange;

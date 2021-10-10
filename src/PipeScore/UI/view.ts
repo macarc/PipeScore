@@ -171,6 +171,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
           )
         ),
         gracenoteInput('doubling'),
+        gracenoteInput('half-doubling'),
         gracenoteInput('throw-d'),
         gracenoteInput('grip'),
         gracenoteInput('birl'),

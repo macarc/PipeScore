@@ -2,13 +2,21 @@
   All the gracenotes (reactive embellishments) possible with PipeScore
   Copyright (C) 2021 Archie Maclean
  */
-import { Pitch } from '../global/pitch';
+import { Pitch, pitchUp } from '../global/pitch';
 import { MaybeGracenote } from '.';
+import { GracenoteSelection } from '../Selection';
 
 type GracenoteFn = (note: Pitch, prev: Pitch | null) => MaybeGracenote;
 
 const invalidateIf = (pred: boolean, gracenote: Pitch[]): MaybeGracenote =>
   new MaybeGracenote(gracenote, !pred);
+
+// Where are monads when you need them
+const invalidateIfBind = (
+  prev: boolean,
+  gracenote: MaybeGracenote
+): MaybeGracenote =>
+  new MaybeGracenote(gracenote.notes(), !(prev || !gracenote.isValid()));
 
 const invalid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, false);
 const valid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, true);
@@ -54,6 +62,13 @@ gracenotes.set('doubling', (note, prev) => {
   }
 
   return valid(pitches);
+});
+gracenotes.set('half-doubling', (note, prev) => {
+  if (note === Pitch.HA) return invalid([Pitch.HG]);
+
+  const dbl = gracenotes.get('doubling');
+  if (dbl) return invalidateIfBind(note == prev, dbl(note, Pitch.HA));
+  else return invalid([]);
 });
 
 gracenotes.set('g-strike', (note, prev) => {
