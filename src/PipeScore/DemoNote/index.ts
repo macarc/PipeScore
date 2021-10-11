@@ -8,6 +8,7 @@ import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note, SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
+import { Score } from '../Score';
 import { Previewable } from './previewable';
 
 // This could be cleaned up a bit so that BaseDemo is parameterised
@@ -55,7 +56,9 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
       noteBefore = this.previous?.previousNote(noteBefore) || null;
     }
     this.previous?.removePreview();
-    bar.insertNote(noteBefore, this.toNote(pitch));
+    const n = this.toNote(pitch);
+    bar.insertNote(noteBefore, n);
+    return n;
   }
   public setPitch(pitch: Pitch, noteBefore: SingleNote | null, bar: Bar) {
     if (pitch !== this._pitch) {

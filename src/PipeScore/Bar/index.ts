@@ -288,7 +288,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
         x: xOf(this.notes.indexOf(firstNote)),
         y: staveY,
         noteWidth: beatWidth,
-        previousNote: this.notes[index - 1] || previousNote,
+        previousNote:
+          this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
         selectedNotes: [],
         endOfLastStave: props.endOfLastStave,
         dispatch: props.dispatch,

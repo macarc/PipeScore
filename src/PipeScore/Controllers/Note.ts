@@ -23,12 +23,13 @@ export function addNoteBefore(
   return async (state: State) => {
     if (state.demo) {
       const previous = state.score.previousNote(noteAfter.id);
-      state.demo.addNote(
+      const note = state.demo.addNote(
         noteAfter,
         pitch,
         state.score.location(noteAfter.id).bar,
         previous
       );
+      if (note) note.makeCorrectTie(state.score.notes());
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -38,7 +39,8 @@ export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => {
     if (state.demo) {
       const previous = bar.lastNote();
-      state.demo.addNote(null, pitch, bar, previous);
+      const note = state.demo.addNote(null, pitch, bar, previous);
+      if (note) note.makeCorrectTie(state.score.notes());
       state.justClickedNote = true;
       return Update.ViewChanged;
     }
@@ -102,7 +104,11 @@ export function moveRight(): ScoreEvent {
 export function moveNoteUp(): ScoreEvent {
   return async (state: State) => {
     if (!state.selection) return Update.NoChange;
-    state.selection.notes(state.score).forEach((note) => note.moveUp());
+    const notes = state.score.notes();
+    state.selection.notes(state.score).forEach((note) => {
+      note.moveUp();
+      note.makeCorrectTie(notes);
+    });
     return Update.ShouldSave;
   };
 }
@@ -110,7 +116,11 @@ export function moveNoteUp(): ScoreEvent {
 export function moveNoteDown(): ScoreEvent {
   return async (state: State) => {
     if (!state.selection) return Update.NoChange;
-    state.selection.notes(state.score).forEach((note) => note.moveDown());
+    const notes = state.score.notes();
+    state.selection.notes(state.score).forEach((note) => {
+      note.moveDown();
+      note.makeCorrectTie(notes);
+    });
     return Update.ShouldSave;
   };
 }
@@ -119,8 +129,8 @@ export function tieSelectedNotes(): ScoreEvent {
   return async (state: State) => {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     state.selection
-      .notesAndTriplets(state.score)
-      .forEach((note) => note.toggleTie(state.score.notesAndTriplets()));
+      .notes(state.score)
+      .forEach((note) => note.toggleTie(state.score.notes()));
     return Update.ShouldSave;
   };
 }

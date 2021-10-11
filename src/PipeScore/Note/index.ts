@@ -42,7 +42,7 @@ const noteHeadWidth = 2 * noteHeadRadius;
 interface NoteProps {
   x: number;
   y: number;
-  previousNote: Note | null;
+  previousNote: SingleNote | null;
   noteWidth: number;
   endOfLastStave: number;
   dispatch: Dispatch;
@@ -59,6 +59,7 @@ abstract class BaseNote extends Item {
   ): void;
   abstract width(previous: Pitch | null): Width;
   abstract firstSingle(): SingleNote;
+  abstract lastSingle(): SingleNote;
   abstract firstPitch(): Pitch;
   abstract lastPitch(): Pitch;
   protected abstract setFirstPitch(pitch: Pitch): void;
@@ -78,11 +79,11 @@ abstract class BaseNote extends Item {
   public toggleDot() {
     return (this.length = dot(this.length));
   }
-  public toggleTie(notes: BaseNote[]) {
+  public toggleTie(notes: SingleNote[]) {
     this.tied = !this.tied;
     this.makeCorrectTie(notes);
   }
-  public makeCorrectTie(notes: BaseNote[]) {
+  public makeCorrectTie(notes: SingleNote[]) {
     // Corrects the pitches of any notes tied to this note
 
     for (let i = 0; i < notes.length; i++) {
@@ -92,23 +93,21 @@ abstract class BaseNote extends Item {
         // are the same pitch
         for (
           let b = i - 1, previousNote = notes[b];
-          b > 0 && previousNote.tied;
-          b--, previousNote = notes[b - 1]
+          b >= 0 && notes[b + 1].tied;
+          b--, previousNote = notes[b]
         ) {
           previousNote.setLastPitch(pitch);
-          if (previousNote instanceof Triplet) break;
         }
         pitch = this.lastPitch();
         // Work forwards while tied, ensuring all notes
         // are the same pitch
         if (this instanceof SingleNote) {
           for (
-            let a = i + 1, nextNote = notes[a + 1];
-            a < notes.length - 1 && nextNote.tied;
-            a++, nextNote = notes[a + 1]
+            let a = i + 1, nextNote = notes[a];
+            a < notes.length && nextNote.tied;
+            a++, nextNote = notes[a]
           ) {
             nextNote.setFirstPitch(pitch);
-            if (nextNote instanceof Triplet) break;
           }
           break;
         }
@@ -232,9 +231,6 @@ abstract class BaseNote extends Item {
     return groupedNotes;
   }
 
-  protected shouldTie(previous: Note | null): previous is SingleNote {
-    return this.tied && previous instanceof SingleNote;
-  }
   protected numTails() {
     switch (this.length) {
       case NoteLength.Semibreve:
@@ -369,6 +365,9 @@ export class SingleNote
   public firstSingle() {
     return this;
   }
+  public lastSingle() {
+    return this;
+  }
   public firstPitch() {
     return this.pitch;
   }
@@ -492,6 +491,9 @@ export class SingleNote
       x: props.x + noteHeadRadius / 2,
       preview: false,
     });
+  }
+  private shouldTie(previous: SingleNote | null): previous is SingleNote {
+    return this.tied && !this.isDemo() && !previous?.isDemo();
   }
   private colour() {
     return this.preview ? 'orange' : 'black';

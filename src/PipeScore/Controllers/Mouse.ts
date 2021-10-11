@@ -49,7 +49,7 @@ export function mouseOverPitch(
       state.selection instanceof ScoreSelection ||
       state.selection instanceof GracenoteSelection
     ) {
-      return state.selection.mouseOverPitch(pitch);
+      return state.selection.mouseOverPitch(pitch, state.score);
     }
     return Update.NoChange;
   };

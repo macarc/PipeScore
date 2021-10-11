@@ -4,21 +4,22 @@
 
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [ ] Stricter bar lengths
-- [ ] Add optimised list render
 - [ ] Better time signature font
 - [ ] Note input doesn't move on notes that have gracenotes
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] Should be able to add notes before and after current gracenote to make custom embellishments
-- [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
 - [ ] Selecting a gracenote then deleting retains the selection box
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
-- [ ] Allow arbitary notes in triplets (e.g. Q SQ SQ Q)
 - [ ] Highlight barline buttons in UI if a single bar is selected
-- [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 - [ ] Single gracenote preview should allow for custom embellishments
 - [ ] Selecting notes while inputting notes doesn't work...should it?
-- [ ] Note head size, should react to stave gap changes
+
+### Cleanups
+
+- [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
+- [ ] Add optimised list render
+- [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 
 ## General features
 

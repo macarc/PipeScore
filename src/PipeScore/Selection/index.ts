@@ -15,7 +15,7 @@ import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
 import { Gracenote, NoGracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { car } from '../global/utils';
+import { car, log } from '../global/utils';
 import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
 
@@ -65,8 +65,10 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
   public draggedNote() {
     return this.dragged;
   }
-  public mouseOverPitch(pitch: Pitch) {
-    return this.dragged?.drag(pitch) || Update.NoChange;
+  public mouseOverPitch(pitch: Pitch, score: Score) {
+    const change = this.dragged?.drag(pitch);
+    this.dragged?.makeCorrectTie(score.notes());
+    return change || Update.NoChange;
   }
   public mouseDrag() {
     // TODO make this empty method unnecessary :)
@@ -115,19 +117,35 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
     const bars = score.bars();
     let foundStart = false;
     const notes: Note[] = [];
-    for (const bar of bars) {
+    all: for (const bar of bars) {
       if (bar.hasID(this.start)) foundStart = true;
       for (const note of bar.notesAndTriplets()) {
         if (note.hasID(this.start)) foundStart = true;
         if (foundStart && !note.isDemo()) notes.push(note);
-        if (note.hasID(this.end)) break;
+        if (note.hasID(this.end)) break all;
       }
       if (bar.hasID(this.end)) break;
     }
     return notes;
   }
   public notes(score: Score): SingleNote[] {
-    return Triplet.flatten(this.notesAndTriplets(score));
+    const bars = score.bars();
+    let foundStart = false;
+    const notes: SingleNote[] = [];
+    all: for (const bar of bars) {
+      if (bar.hasID(this.start)) foundStart = true;
+      for (const n of bar.notesAndTriplets()) {
+        for (const note of n instanceof Triplet
+          ? n.tripletSingleNotes()
+          : [n]) {
+          if (note.hasID(this.start)) foundStart = true;
+          if (foundStart && !note.isDemo()) notes.push(note);
+          if (note.hasID(this.end)) break all;
+        }
+      }
+      if (bar.hasID(this.end)) break;
+    }
+    return notes;
   }
   public addAnacrusis(before: boolean, score: Score) {
     const { bar, stave } = score.location(this.start);
