@@ -32,6 +32,10 @@ export class Stave {
       new Bar(timeSignature),
     ];
   }
+  public static minWidth() {
+    // Almost exactly the height of the treble clef
+    return settings.lineHeightOf(10);
+  }
   public numberOfBars() {
     return this.bars.length;
   }

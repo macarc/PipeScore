@@ -84,6 +84,22 @@ export class Score {
   }
   public addStave(afterStave: Stave | null, before: boolean) {
     // Appends a stave after afterStave
+    if (
+      settings.topOffset + settings.staveGap * this._staves.length >
+      this.height() - settings.margin
+    ) {
+      const tmp = settings.staveGap;
+      settings.staveGap =
+        (this.height() - settings.topOffset - settings.margin) /
+        (this._staves.length + 0.5);
+      if (settings.staveGap < Stave.minWidth()) {
+        alert(
+          'Cannot add stave - not enough space. Consider adding a second page, or reducing the margin at the top of the page.'
+        );
+        settings.staveGap = tmp;
+        return;
+      }
+    }
     if (afterStave) {
       const adjacentBar = before ? afterStave.firstBar() : afterStave.lastBar();
       const ts = adjacentBar && adjacentBar.timeSignature();

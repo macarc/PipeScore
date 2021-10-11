@@ -134,14 +134,10 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
     const notes: SingleNote[] = [];
     all: for (const bar of bars) {
       if (bar.hasID(this.start)) foundStart = true;
-      for (const n of bar.notesAndTriplets()) {
-        for (const note of n instanceof Triplet
-          ? n.tripletSingleNotes()
-          : [n]) {
-          if (note.hasID(this.start)) foundStart = true;
-          if (foundStart && !note.isDemo()) notes.push(note);
-          if (note.hasID(this.end)) break all;
-        }
+      for (const note of Triplet.flatten(bar.notesAndTriplets())) {
+        if (note.hasID(this.start)) foundStart = true;
+        if (foundStart && !note.isDemo()) notes.push(note);
+        if (note.hasID(this.end)) break all;
       }
       if (bar.hasID(this.end)) break;
     }
