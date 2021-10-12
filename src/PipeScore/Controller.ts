@@ -37,7 +37,7 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
   if (res === Update.ViewChanged || res === Update.ShouldSave) {
     if (res === Update.ShouldSave) {
       state.score.updateName();
-      const asJSON = JSON.stringify(state.score);
+      const asJSON = JSON.stringify(state.score.toJSON());
       if (state.history.past[state.history.past.length - 1] !== asJSON) {
         state.history.past.push(asJSON);
         save(state.score);
@@ -119,7 +119,7 @@ export default function startController(
 
   save = saveDB;
   state.score = score;
-  state.history.past = [JSON.parse(JSON.stringify(score))];
+  state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
   // initially set the notes to be the right groupings

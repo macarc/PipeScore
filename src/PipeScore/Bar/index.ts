@@ -3,9 +3,9 @@
   Copyright (C) 2021 Archie Maclean
  */
 import { TimeSignature } from '../TimeSignature';
-import { Note, SingleNote, Triplet } from '../Note';
+import { BaseNote, Note, SingleNote, Triplet } from '../Note';
 import { genId, ID, Item } from '../global/id';
-import { first, last, nlast } from '../global/utils';
+import { first, last, nlast, Obj } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { Dispatch } from '../Controllers/Controller';
@@ -50,6 +50,23 @@ export class Bar extends Item implements Previewable<SingleNote> {
     this.notes = [];
     this.frontBarline = new NormalB();
     this.backBarline = new NormalB();
+  }
+  public static fromJSON(o: Obj) {
+    const b = new Bar(TimeSignature.fromJSON(o.timeSignature));
+    b.notes = o.notes.map(BaseNote.fromJSON);
+    b.id = o.id;
+    b.backBarline = Barline.fromJSON(o.backBarline);
+    b.frontBarline = Barline.fromJSON(o.frontBarline);
+    return b;
+  }
+  public toJSON() {
+    return {
+      id: this.id,
+      notes: this.notes.map((n) => n.toJSON()),
+      backBarline: this.backBarline.toJSON(),
+      frontBarline: this.frontBarline.toJSON(),
+      timeSignature: this.ts.toJSON(),
+    };
   }
   public static setTimeSignatureFrom(
     timeSignature: TimeSignature,

@@ -3,6 +3,7 @@ import { editTimeSignature } from '../Controllers/Bar';
 import { Dispatch } from '../Controllers/Controller';
 import dialogueBox from '../global/dialogueBox';
 import { settings } from '../global/settings';
+import { Obj } from '../global/utils';
 
 /*
   TimeSignature format
@@ -24,6 +25,12 @@ export class TimeSignature {
     this.ts = [2, 4];
     if (ts) this.ts = ts;
     this.breaks = breaks;
+  }
+  public static fromJSON(o: Obj) {
+    return new TimeSignature(o.ts, o.breaks);
+  }
+  public toJSON() {
+    return { ts: this.ts, breaks: this.breaks };
   }
   public copy() {
     return new TimeSignature(this.ts, [...this.breaks]);

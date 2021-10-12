@@ -2,6 +2,7 @@ import { h, svg, V } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { changeText, clickText } from '../Controllers/Text';
 import dialogueBox from '../global/dialogueBox';
+import { Obj } from '../global/utils';
 import { Selection, TextSelection } from '../Selection';
 
 /*
@@ -27,7 +28,23 @@ export class TextBox {
     this.size = 20;
     this._text = text;
   }
-
+  public static fromJSON(o: Obj) {
+    const tx = new TextBox(o.name);
+    tx.x = o.x;
+    tx.y = o.y;
+    tx.size = o.size;
+    tx._text = o._text;
+    return tx;
+  }
+  public toJSON() {
+    return {
+      x: this.x,
+      y: this.y,
+      size: this.size,
+      _text: this._text,
+      centred: this.centred,
+    };
+  }
   public text() {
     return this._text;
   }

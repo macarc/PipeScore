@@ -11,6 +11,7 @@ import patch from '../../render/vdom';
 import dialogueBox from '../global/dialogueBox';
 import { stopInputtingNotes } from './Note';
 import { settings, Settings } from '../global/settings';
+import { Score } from '../Score';
 
 export function changeSetting<T extends keyof Settings>(
   setting: T,
@@ -58,7 +59,7 @@ export function undo(): ScoreEvent {
       if (beforeLast) {
         state.selection = null;
         stopInputtingNotes(state);
-        state.score = JSON.parse(beforeLast);
+        state.score = Score.fromJSON(JSON.parse(beforeLast));
         state.history = {
           ...state.history,
           future: last ? [...state.history.future, last] : state.history.future,
@@ -76,7 +77,7 @@ export function redo(): ScoreEvent {
     if (last) {
       state.selection = null;
       stopInputtingNotes(state);
-      state.score = JSON.parse(last);
+      state.score = Score.fromJSON(JSON.parse(last));
       return Update.ShouldSave;
     }
     return Update.NoChange;

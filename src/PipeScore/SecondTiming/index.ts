@@ -6,6 +6,7 @@ import { svg, V } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
 import { clickSecondTiming } from '../Controllers/SecondTiming';
 import { ID } from '../global/id';
+import { Obj } from '../global/utils';
 import { closestItem, getXY, itemBefore } from '../global/xy';
 import { SecondTimingSelection } from '../Selection';
 import { Selection } from '../Selection';
@@ -30,6 +31,16 @@ export class SecondTiming {
     this.start = start;
     this.middle = middle;
     this.end = end;
+  }
+  public static fromJSON(o: Obj) {
+    return new SecondTiming(o.start, o.middle, o.end);
+  }
+  public toJSON() {
+    return {
+      start: this.start,
+      middle: this.middle,
+      end: this.end,
+    };
   }
   public pointsTo(id: ID) {
     return this.start === id || this.middle === id || this.end === id;

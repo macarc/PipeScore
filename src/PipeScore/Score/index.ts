@@ -14,7 +14,7 @@ import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
 import { Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { last, nlast } from '../global/utils';
+import { last, nlast, Obj } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
@@ -51,6 +51,23 @@ export class Score {
     this.secondTimings = [];
     this.zoom =
       (100 * 0.9 * (Math.max(window.innerWidth, 800) - 300)) / this.width();
+  }
+  public static fromJSON(o: Obj) {
+    const s = new Score(o.name, 0);
+    s.landscape = o.landscape;
+    s._staves = o._staves.map(Stave.fromJSON);
+    s.textBoxes = o.textBoxes.map(TextBox.fromJSON);
+    s.secondTimings = o.secondTimings.map(SecondTiming.fromJSON);
+    return s;
+  }
+  public toJSON() {
+    return {
+      name: this.name,
+      landscape: this.landscape,
+      _staves: this._staves.map((stave) => stave.toJSON()),
+      textBoxes: this.textBoxes.map((txt) => txt.toJSON()),
+      secondTimings: this.secondTimings.map((st) => st.toJSON()),
+    };
   }
   private width() {
     return this.landscape ? 297 * 5 : 210 * 5;

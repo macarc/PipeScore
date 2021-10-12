@@ -50,7 +50,7 @@ interface NoteProps {
   state: NoteState;
   gracenoteState: GracenoteState;
 }
-abstract class BaseNote extends Item {
+export abstract class BaseNote extends Item {
   protected length: NoteLength;
   protected tied: boolean;
   abstract addGracenote(
@@ -72,6 +72,39 @@ abstract class BaseNote extends Item {
     super(genId());
     this.length = length;
     this.tied = tied;
+  }
+  public static fromJSON(o: Obj) {
+    let s: Note | null = null;
+    switch (o.notetype) {
+      case 'single':
+        s = SingleNote.fromObject(o.value);
+        break;
+      case 'triplet':
+        s = Triplet.fromObject(o.value);
+        break;
+    }
+    if (s) {
+      s.id = o.id;
+      return s;
+    }
+    throw new Error(`Unrecognised note type ${o.notetype}`);
+  }
+  public toJSON() {
+    if (this instanceof SingleNote) {
+      return {
+        notetype: 'single',
+        id: this.id,
+        value: this.toObject(),
+      };
+    } else if (this instanceof Triplet) {
+      return {
+        notetype: 'triplet',
+        id: this.id,
+        value: this.toObject(),
+      };
+    } else {
+      throw new Error('Unrecognised note type.');
+    }
   }
   public setLength(length: NoteLength) {
     this.length = length;
@@ -118,34 +151,6 @@ abstract class BaseNote extends Item {
     const n = BaseNote.fromJSON(this.toJSON());
     n.id = genId();
     return n;
-  }
-  public static fromJSON(o: Obj) {
-    if (o.notetype !== 'single' && o.notetype !== 'triplet')
-      throw new Error(`Unrecognised note type ${o.notetype}`);
-
-    const s =
-      o.notetype === 'single'
-        ? SingleNote.fromObject(o.value)
-        : Triplet.fromObject(o.value);
-    s.id = o.id;
-    return s;
-  }
-  public toJSON() {
-    if (this instanceof SingleNote) {
-      return {
-        notetype: 'single',
-        id: this.id,
-        value: this.toObject(),
-      };
-    } else if (this instanceof Triplet) {
-      return {
-        notetype: 'triplet',
-        id: this.id,
-        value: this.toObject(),
-      };
-    } else {
-      throw new Error('Unrecognised note type.');
-    }
   }
   public static flatten(notes: Note[]): SingleNote[] {
     return notes.flatMap((note) =>

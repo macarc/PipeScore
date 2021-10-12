@@ -1,12 +1,27 @@
 import { svg, V } from '../../render/h';
 import { settings } from '../global/settings';
+import { Obj } from '../global/utils';
 
 export abstract class Barline {
   abstract render(x: number, y: number, atStart: boolean): V;
+  abstract toJSON(): Obj;
   protected lineOffset = 6;
   protected thickLineWidth = 2.5;
 
   public symmetric = true;
+
+  public static fromJSON(o: Obj): Barline {
+    switch (o.type) {
+      case 'normal':
+        return new NormalB();
+      case 'repeat':
+        return new RepeatB();
+      case 'end':
+        return new EndB();
+      default:
+        throw new Error(`Unrecognised barline type: ${o.type}`);
+    }
+  }
 
   protected height() {
     return settings.lineHeightOf(4);
@@ -16,6 +31,9 @@ export abstract class Barline {
   }
 }
 export class NormalB extends Barline {
+  public toJSON() {
+    return { type: 'normal' };
+  }
   public width() {
     return 1;
   }
@@ -30,6 +48,9 @@ export class NormalB extends Barline {
   }
 }
 export class RepeatB extends Barline {
+  public toJSON() {
+    return { type: 'repeat' };
+  }
   public symmetric = false;
 
   public render(x: number, y: number, atStart: boolean) {
@@ -56,6 +77,9 @@ export class RepeatB extends Barline {
   }
 }
 export class EndB extends Barline {
+  public toJSON() {
+    return { type: 'end' };
+  }
   public symmetric = false;
 
   public render(x: number, y: number, atStart: boolean) {

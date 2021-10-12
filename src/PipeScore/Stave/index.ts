@@ -6,7 +6,7 @@ import { svg, V } from '../../render/h';
 import { Anacrusis, Bar } from '../Bar';
 import { Dispatch } from '../Controllers/Controller';
 import { settings } from '../global/settings';
-import { first, last } from '../global/utils';
+import { first, last, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
 import { TimeSignature } from '../TimeSignature';
@@ -31,6 +31,16 @@ export class Stave {
       new Bar(timeSignature),
       new Bar(timeSignature),
     ];
+  }
+  public static fromJSON(o: Obj) {
+    const st = new Stave();
+    st.bars = o.bars.map(Bar.fromJSON);
+    return st;
+  }
+  public toJSON() {
+    return {
+      bars: this.bars.map((bar) => bar.toJSON()),
+    };
   }
   public static minWidth() {
     // Almost exactly the height of the treble clef
