@@ -94,7 +94,7 @@ export class TextBox {
       {
         x: this.x,
         y: this.y,
-        style: `font-size: ${this.size}px`,
+        style: `font-size: ${this.size}px; cursor: pointer;`,
         'text-anchor': 'middle',
         fill: selected ? 'orange' : '',
       },

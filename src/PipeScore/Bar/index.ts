@@ -267,6 +267,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
       this.notes,
       this.ts.beatDivision()
     );
+    const oneNoteInBar =
+      this.notes.length === 1 && this.notes[0] instanceof SingleNote;
 
     const previousNote = props.previousBar && props.previousBar.lastNote();
     const previousPitch = props.previousBar && props.previousBar.lastPitch();
@@ -280,7 +282,9 @@ export class Bar extends Item implements Previewable<SingleNote> {
       console.error('bar too small');
     }
 
-    const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
+    const xOf = (i: number) =>
+      xAfterBarline +
+      (oneNoteInBar ? -props.width / 4 : width.reify(beats[i], beatWidth));
 
     const noteProps = (notes: SingleNote[] | Triplet, index: number) => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];

@@ -498,7 +498,7 @@ export class SingleNote
   private colour() {
     return this.preview ? 'orange' : 'black';
   }
-  private noteHead(
+  private head(
     x: number,
     y: number,
     mousedown: (e: MouseEvent) => void,
@@ -532,10 +532,14 @@ export class SingleNote
     // dragged, it shouldn't get pointer events because
     // that interferes with the drag boxes (you can't
     // drag downwards a single box)
-    const pointerEvents =
-      props.state.dragged || gracenoteBeingDragged || this.isDemo()
-        ? 'none'
-        : 'visiblePainted';
+    const drawNoteBox = !(
+      props.state.dragged ||
+      gracenoteBeingDragged ||
+      props.state.inputtingNotes
+    );
+    console.log(drawNoteBox);
+    const pointerEvents = drawNoteBox ? 'visiblePainted' : 'none';
+    const cursor = drawNoteBox ? 'pointer' : 'normal';
 
     const filled = this.isFilled();
 
@@ -606,6 +610,7 @@ export class SingleNote
           width: clickableWidth,
           height: clickableHeight,
           'pointer-events': pointerEvents,
+          style: `cursor: ${cursor}`,
           opacity: 0,
         },
         {
@@ -710,7 +715,7 @@ export class SingleNote
         ? null
         : this.renderGracenote(gracenoteProps),
 
-      this.noteHead(
+      this.head(
         x + noteHeadRadius,
         y,
         (event: MouseEvent) => props.dispatch(clickNote(this, event)),
@@ -886,7 +891,7 @@ export class SingleNote
               )
             : null,
 
-          note.noteHead(
+          note.head(
             xOf(index) + noteHeadRadius,
             yOf(note),
             (event: MouseEvent) => props.dispatch(clickNote(note, event)),

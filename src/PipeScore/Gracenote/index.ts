@@ -12,9 +12,10 @@ import width, { Width } from '../global/width';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 
-const tailXOffset = 2.8;
+const tailXOffset = 2.6;
 // actually this is half of the head width
-const gracenoteHeadRadius = 3.5;
+const gracenoteHeadRadius = 3;
+const gracenoteHeadHeight = 2;
 const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
 const gracenoteToNoteWidthRatio = 0.6;
 
@@ -135,7 +136,7 @@ export abstract class Gracenote {
   ): V {
     // Draws head and stem
 
-    const stemY = y - 0.5;
+    const stemY = y - 1;
     const ledgerLeft = 5;
     const ledgerRight = 5.1;
     const rotateText = 'rotate(-30 ' + x + ' ' + y + ')';
@@ -157,7 +158,7 @@ export abstract class Gracenote {
         cx: x,
         cy: y,
         rx: gracenoteHeadRadius,
-        ry: 2.5,
+        ry: gracenoteHeadHeight,
         transform: rotateText,
         fill: isValid ? colour : 'red',
         'pointer-events': 'none',
@@ -171,6 +172,7 @@ export abstract class Gracenote {
           width: boxWidth,
           height: boxHeight,
           'pointer-events': isSelected ? 'none' : 'default',
+          style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
           opacity: 0,
         },
         { mousedown: () => dispatch(clickGracenote(this)) }
@@ -219,7 +221,7 @@ export abstract class Gracenote {
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
 
     // If the width gets too large, it looks bad, so limit the maximum gap between gracenote heads to 10
-    const width = Math.min(gracenoteToNoteWidthRatio * props.noteWidth, 10);
+    const width = Math.min(gracenoteToNoteWidthRatio * props.noteWidth, 8);
     const offset =
       uniqueNotes.length *
       (gracenoteToNoteWidthRatio * props.noteWidth - width);
