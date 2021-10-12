@@ -16,7 +16,7 @@ export const enum Update {
   ShouldSave,
 }
 
-export function location(note: Note | ID, score: Score) {
+export function noteLocation(note: Note | ID, score: Score) {
   // Finds the parent bar and stave of the note passed
 
   const id = typeof note === 'number' ? note : note.id;

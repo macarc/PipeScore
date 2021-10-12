@@ -17,6 +17,13 @@ import Documentation from './Documentation';
 import { GracenoteSelection, ScoreSelection } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 
+declare let window: Window & {
+  electron: {
+    onOpenFile: (callback: (file: string) => void) => void;
+    updateScore: (file: string) => void;
+  };
+};
+
 const initialState: State = {
   justClickedNote: false,
   demo: null,
@@ -31,9 +38,7 @@ const initialState: State = {
 };
 let state: State = { ...initialState };
 
-let save = (score: string) => {
-  window.electron.updateScore(score);
-};
+let save = (score: string) => window.electron.updateScore(score);
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
@@ -114,15 +119,10 @@ function mouseMove(event: MouseEvent) {
   }
 }
 
-export default function startController(
-  score: Score,
-  saveDB: (score: Score) => void
-): void {
+export default function startController(score: Score): void {
   // Initial render, hooks event listeners
 
-  //save = saveDB;
   window.electron.onOpenFile((file: string) => {
-    console.log('ok');
     state = {
       ...initialState,
       score: Score.fromJSON(JSON.parse(file)),

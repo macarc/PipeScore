@@ -2,7 +2,7 @@
   Controller for note-related events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, location, Update } from './Controller';
+import { ScoreEvent, noteLocation, Update } from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
@@ -152,14 +152,14 @@ export function addTriplet(): ScoreEvent {
         second instanceof SingleNote &&
         third instanceof SingleNote
       ) {
-        const { bar } = location(first, state.score);
+        const { bar } = noteLocation(first, state.score);
         bar.makeTriplet(first, second, third);
         return Update.ShouldSave;
       }
     } else if (selectedNotesAndTriplets.length >= 1) {
       const tr = selectedNotesAndTriplets[0];
       if (tr instanceof Triplet) {
-        const { bar } = location(tr, state.score);
+        const { bar } = noteLocation(tr, state.score);
         bar.unmakeTriplet(tr);
         return Update.ShouldSave;
       }
@@ -249,12 +249,12 @@ export function copy(): ScoreEvent {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     const notes = state.selection.notesAndTriplets(state.score);
     if (notes.length > 0) {
-      const { bar: initBar } = location(notes[0], state.score);
+      const { bar: initBar } = noteLocation(notes[0], state.score);
       let currentBarId = initBar.id;
 
       state.clipboard = [];
       notes.forEach((note) => {
-        const { bar } = location(note.id, state.score);
+        const { bar } = noteLocation(note.id, state.score);
         if (currentBarId !== bar.id) {
           state.clipboard?.push('bar-break');
           currentBarId = bar.id;
@@ -271,7 +271,7 @@ export function paste(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
       const id = state.selection.end;
-      const { bar } = location(id, state.score);
+      const { bar } = noteLocation(id, state.score);
       Bar.pasteNotes(state.clipboard, bar, id, state.score.bars());
       return Update.ShouldSave;
     }

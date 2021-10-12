@@ -2,7 +2,7 @@
   Controller for bar-related events
   Copyright (C) 2021 Archie Maclean
 */
-import { ScoreEvent, location, Update } from './Controller';
+import { ScoreEvent, noteLocation, Update } from './Controller';
 import { State } from '../State';
 
 import { Bar } from '../Bar';
@@ -73,7 +73,7 @@ export function setBarRepeat(
 ): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar } = location(state.selection.start, state.score);
+      const { bar } = noteLocation(state.selection.start, state.score);
       bar.setBarline(which, what);
       return Update.ShouldSave;
     }
@@ -84,7 +84,7 @@ export function setBarRepeat(
 export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar } = location(state.selection.start, state.score);
+      const { bar } = noteLocation(state.selection.start, state.score);
       const newTimeSignature = await bar.timeSignature().edit();
       setTimeSignatureFrom(bar.timeSignature(), newTimeSignature, state.score);
       return Update.ShouldSave;
