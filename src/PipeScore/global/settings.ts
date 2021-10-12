@@ -5,7 +5,7 @@
 export class Settings {
   staveGap = 100;
   lineGap = 7;
-  margin = 30;
+  margin = 80;
   topOffset = 200;
 
   validate<T extends keyof Settings>(key: T, value: number) {
