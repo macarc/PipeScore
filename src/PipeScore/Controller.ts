@@ -17,7 +17,7 @@ import Documentation from './Documentation';
 import { GracenoteSelection, ScoreSelection } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 
-const state: State = {
+const initialState: State = {
   justClickedNote: false,
   demo: null,
   playback: { bpm: 100 },
@@ -29,8 +29,11 @@ const state: State = {
   history: { past: [], future: [] },
   view: { score: null, ui: null },
 };
+let state: State = { ...initialState };
 
-let save: (score: Score) => void = () => null;
+let save = (score: string) => {
+  window.electron.updateScore(score);
+};
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
@@ -40,7 +43,7 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
       const asJSON = JSON.stringify(state.score.toJSON());
       if (state.history.past[state.history.past.length - 1] !== asJSON) {
         state.history.past.push(asJSON);
-        save(state.score);
+        save(asJSON);
       }
     }
     updateView(state);
@@ -117,7 +120,14 @@ export default function startController(
 ): void {
   // Initial render, hooks event listeners
 
-  save = saveDB;
+  //save = saveDB;
+  window.electron.onOpenFile((file: string) => {
+    console.log('ok');
+    state = {
+      ...initialState,
+      score: Score.fromJSON(JSON.parse(file)),
+    };
+  });
   state.score = score;
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
@@ -125,5 +135,6 @@ export default function startController(
   // initially set the notes to be the right groupings
   state.view.score = hFrom('score');
   state.view.ui = hFrom('ui');
+  save(JSON.stringify(state.score.toJSON()));
   updateView(state);
 }

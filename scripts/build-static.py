@@ -17,7 +17,7 @@ with open(f'src/static/template.html') as f:
 def build_md(filename):
     "Build a markdown file with pandoc"
 
-    subprocess.run(['pandoc', '--standalone', '--template', 'src/static/template.html', f'src/static/{filename}.md', '-s', '-o', 'public/{filename}.html'])
+    subprocess.run(['pandoc', '--standalone', '--template', 'src/static/template.html', f'src/static/{filename}.md', '-s', '-o', f'public/{filename}.html'])
 
 def reify_template(title, body, css=None, js=None):
     "Substitute title, body, e.t.c. into template and return as a str."
