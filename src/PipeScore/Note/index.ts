@@ -542,7 +542,6 @@ export class SingleNote
       gracenoteBeingDragged ||
       props.state.inputtingNotes
     );
-    console.log(drawNoteBox);
     const pointerEvents = drawNoteBox ? 'visiblePainted' : 'none';
     const cursor = drawNoteBox ? 'pointer' : 'normal';
 
@@ -740,16 +739,23 @@ export class SingleNote
         ? svg(
             'g',
             { class: 'tails' },
-            [...Array(numberOfTails).keys()].map((t) =>
-              svg('line', {
-                x1: x,
-                x2: x + 10,
-                y1: stemBottomY - 5 * t,
-                y2: stemBottomY - 5 * t - 10,
-                stroke: this.colour(),
-                'stroke-width': 2,
-              })
-            )
+            numberOfTails === 1
+              ? [
+                  svg('path', {
+                    fill: this.colour(),
+                    stroke: this.colour(),
+                    d: `M ${x},${stemBottomY} q 8,-6 8,-15 q 0,-8 -4,-11 q 4,5 3,11 q -1,7 -7,11`,
+                  }),
+                ]
+              : [...Array(numberOfTails).keys()].map((t) =>
+                  svg('path', {
+                    fill: this.colour(),
+                    stroke: this.colour(),
+                    d: `M ${x},${
+                      stemBottomY - 5 * t
+                    } q 8,-4 8,-13 q -2,9 -8,11`,
+                  })
+                )
           )
         : null,
 
