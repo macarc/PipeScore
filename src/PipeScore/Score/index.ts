@@ -7,14 +7,14 @@ import { TextBox } from '../TextBox';
 import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
-import { svg, V } from '../../render/h';
+import { h, svg, V } from '../../render/h';
 import { clickBackground, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
 import { Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { last, nlast, Obj } from '../global/utils';
+import { foreach, last, nlast, Obj } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
@@ -32,8 +32,9 @@ export class Score {
   private landscape: boolean;
   private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
-  private textBoxes: TextBox[];
+  private textBoxes: TextBox[][];
   private secondTimings: SecondTiming[];
+  private numberOfPages = 2;
 
   public zoom: number;
 
@@ -44,10 +45,8 @@ export class Score {
   ) {
     this.name = name;
     this.landscape = false;
-    this._staves = [...Array(numberOfStaves).keys()].map(
-      () => new Stave(timeSignature)
-    );
-    this.textBoxes = [new TextBox(name, true)];
+    this._staves = foreach(numberOfStaves, () => new Stave(timeSignature));
+    this.textBoxes = [[new TextBox(name, true)]];
     this.secondTimings = [];
     this.zoom =
       (100 * 0.9 * (Math.max(window.innerWidth, 800) - 300)) / this.width();
@@ -56,8 +55,9 @@ export class Score {
     const s = new Score(o.name, 0);
     s.landscape = o.landscape;
     s._staves = o._staves.map(Stave.fromJSON);
-    s.textBoxes = o.textBoxes.map(TextBox.fromJSON);
+    s.textBoxes = o.textBoxes.map((p: Obj[]) => p.map(TextBox.fromJSON));
     s.secondTimings = o.secondTimings.map(SecondTiming.fromJSON);
+    s.numberOfPages = o.numberOfPages;
     return s;
   }
   public toJSON() {
@@ -65,8 +65,9 @@ export class Score {
       name: this.name,
       landscape: this.landscape,
       _staves: this._staves.map((stave) => stave.toJSON()),
-      textBoxes: this.textBoxes.map((txt) => txt.toJSON()),
+      textBoxes: this.textBoxes.map((p) => p.map((txt) => txt.toJSON())),
       secondTimings: this.secondTimings.map((st) => st.toJSON()),
+      numberOfPages: this.numberOfPages,
     };
   }
   private width() {
@@ -81,16 +82,18 @@ export class Score {
   public toggleLandscape() {
     this.landscape = !this.landscape;
 
-    this.textBoxes.forEach((text) =>
-      text.adjustAfterOrientation(this.width(), this.height())
+    this.textBoxes.forEach((p) =>
+      p.forEach((text) =>
+        text.adjustAfterOrientation(this.width(), this.height())
+      )
     );
     this.zoom = (this.zoom * this.height()) / this.width();
   }
   public updateName() {
-    this.textBoxes[0] && (this.name = this.textBoxes[0].text());
+    this.textBoxes[0][0] && (this.name = this.textBoxes[0][0].text());
   }
   public addText(text: TextBox) {
-    this.textBoxes.push(text);
+    this.textBoxes[0].push(text);
   }
   public addSecondTiming(secondTiming: SecondTiming) {
     if (secondTiming.isValid(this.secondTimings)) {
@@ -99,24 +102,79 @@ export class Score {
     }
     return false;
   }
+  private staveY(stave: Stave, pageIndex: number) {
+    return (
+      this.topGap(pageIndex) + settings.staveGap * this._staves.indexOf(stave)
+    );
+  }
+  private topGap(pageIndex: number) {
+    return pageIndex === 0 ? settings.topOffset : settings.margin;
+  }
+  private brokenStaves() {
+    let brokenStaves: Stave[][] = foreach(this.numberOfPages, () => []);
+    let i = 0;
+    for (const stave of this._staves) {
+      i = Math.floor(
+        (settings.topOffset + settings.staveGap * this._staves.indexOf(stave)) /
+          (this.height() - settings.margin)
+      );
+      brokenStaves[Math.min(i, this.numberOfPages - 1)].push(stave);
+    }
+    return brokenStaves;
+  }
   public addStave(afterStave: Stave | null, before: boolean) {
     // Appends a stave after afterStave
-    if (
-      settings.topOffset + settings.staveGap * this._staves.length >
-      this.height() - settings.margin
-    ) {
-      const tmp = settings.staveGap;
-      settings.staveGap =
-        (this.height() - settings.topOffset - settings.margin) /
-        (this._staves.length + 0.5);
-      if (settings.staveGap < Stave.minWidth()) {
-        alert(
-          'Cannot add stave - not enough space. Consider adding a second page, or reducing the margin at the top of the page.'
-        );
-        settings.staveGap = tmp;
-        return;
+
+    const brokenStaves = this.brokenStaves();
+    let pageIndex = brokenStaves.length - 1;
+    if (afterStave) {
+      for (let page = 0; page < brokenStaves.length; page++) {
+        if (brokenStaves[page].includes(afterStave)) {
+          pageIndex = page;
+          break;
+        }
       }
     }
+    const notEnoughSpace = (i: number) => {
+      return (
+        this.topGap(i) + settings.staveGap * brokenStaves[i].length >
+        this.height() - settings.margin
+      );
+    };
+    const spaceForAnotherStave = (i: number) => {
+      const page = brokenStaves[i];
+      if (notEnoughSpace(i)) {
+        const newStaveGap =
+          (this.height() - settings.topOffset - settings.margin) /
+          (page.length + 0.5);
+        if (newStaveGap < Stave.minWidth()) {
+          return null;
+        }
+        return newStaveGap;
+      } else {
+        return settings.staveGap;
+      }
+    };
+    let originalPageIndex = pageIndex;
+    let page = brokenStaves[pageIndex];
+    while (notEnoughSpace(pageIndex)) {
+      page = brokenStaves[++pageIndex];
+      if (!page) {
+        while (spaceForAnotherStave(originalPageIndex) === null) {
+          page = brokenStaves[++originalPageIndex];
+          if (!page)
+            alert(
+              'Cannot add stave - not enough space. Consider adding a second page, or reducing the margin at the top of the page.'
+            );
+          return;
+        }
+        const newStaveGap = spaceForAnotherStave(originalPageIndex);
+        if (newStaveGap) settings.staveGap = newStaveGap;
+        else return;
+        break;
+      }
+    }
+
     if (afterStave) {
       const adjacentBar = before ? afterStave.firstBar() : afterStave.lastBar();
       const ts = adjacentBar && adjacentBar.timeSignature();
@@ -198,9 +256,22 @@ export class Score {
     this.secondTimings.splice(this.secondTimings.indexOf(secondTiming), 1);
   }
   public deleteTextBox(text: TextBox) {
-    this.textBoxes.splice(this.textBoxes.indexOf(text), 1);
+    for (const p of this.textBoxes) {
+      const i = p.indexOf(text);
+      if (i > -1) p.splice(i, 1);
+    }
   }
-  public dragTextBox(text: TextBox, x: number, y: number) {
+  public dragTextBox(text: TextBox, x: number, y: number, page: number) {
+    if (page >= this.numberOfPages) return;
+    if (this.textBoxes[page] || !this.textBoxes[page].includes(text)) {
+      for (const page of this.textBoxes) {
+        if (page.includes(text)) {
+          page.splice(page.indexOf(text), 1);
+        }
+      }
+      if (!this.textBoxes[page]) this.textBoxes[page] = [];
+      this.textBoxes[page].push(text);
+    }
     if (x < this.width() && x > 0 && y < this.height() && y > 0) {
       text.setCoords(x, y);
     }
@@ -235,12 +306,13 @@ export class Score {
   public render(props: ScoreProps): V {
     const width = this.width();
     const height = this.height();
-    const staveProps = (stave: Stave, index: number) => ({
+
+    const staveProps = (stave: Stave, index: number, pageIndex: number) => ({
       x: settings.margin,
-      y: index * settings.staveGap + settings.topOffset,
+      y: index * settings.staveGap + this.topGap(pageIndex),
       width: width - 2 * settings.margin,
       previousStave: this._staves[index - 1] || null,
-      previousStaveY: (index - 1) * settings.staveGap + settings.topOffset,
+      previousStaveY: this.staveY(stave, pageIndex),
       dispatch: props.dispatch,
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
@@ -259,36 +331,44 @@ export class Score {
       staveGap: settings.staveGap,
     };
 
-    return svg(
-      'svg',
-      {
-        id: 'score-svg',
-        width: (width * this.zoom) / 100,
-        height: (height * this.zoom) / 100,
-        viewBox: `0 0 ${width} ${height}`,
-      },
-      { mouseup: () => props.dispatch(mouseUp()) },
-      [
+    const brokenStaves = this.brokenStaves();
+    const texts = (i: number) => this.textBoxes[i] || [];
+
+    return h(
+      'div',
+      foreach(this.numberOfPages, (i) =>
         svg(
-          'rect',
-          { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
-          { mousedown: () => props.dispatch(clickBackground()) }
-        ),
-        ...this._staves.map((stave, idx) =>
-          stave.render(staveProps(stave, idx))
-        ),
-        ...this.textBoxes.map((textBox) =>
-          textBox.render({
-            dispatch: props.dispatch,
-            scoreWidth: width,
-            selection: props.selection,
-          })
-        ),
-        ...this.secondTimings.map((secondTiming) =>
-          secondTiming.render(secondTimingProps)
-        ),
-        props.selection && props.selection.render(scoreSelectionProps),
-      ]
+          'svg',
+          {
+            width: (width * this.zoom) / 100,
+            height: (height * this.zoom) / 100,
+            viewBox: `0 0 ${width} ${height}`,
+            class: i.toString(),
+          },
+          { mouseup: () => props.dispatch(mouseUp()) },
+          [
+            svg(
+              'rect',
+              { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
+              { mousedown: () => props.dispatch(clickBackground()) }
+            ),
+            ...brokenStaves[i].map((stave, idx) =>
+              stave.render(staveProps(stave, idx, i))
+            ),
+            ...texts(i).map((textBox) =>
+              textBox.render({
+                dispatch: props.dispatch,
+                scoreWidth: width,
+                selection: props.selection,
+              })
+            ),
+            ...this.secondTimings.map((secondTiming) =>
+              secondTiming.render(secondTimingProps)
+            ),
+            props.selection && props.selection.render(scoreSelectionProps),
+          ]
+        )
+      )
     );
   }
 }

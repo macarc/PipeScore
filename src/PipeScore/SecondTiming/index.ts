@@ -6,7 +6,7 @@ import { svg, V } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
 import { clickSecondTiming } from '../Controllers/SecondTiming';
 import { ID } from '../global/id';
-import { Obj } from '../global/utils';
+import { foreach, Obj } from '../global/utils';
 import { closestItem, getXY, itemBefore } from '../global/xy';
 import { SecondTimingSelection } from '../Selection';
 import { Selection } from '../Selection';
@@ -170,9 +170,8 @@ export class SecondTiming {
             horizontal(props.staveStartX, middle.beforeX, middle.y),
             vertical(props.staveStartX, middle.y),
 
-            ...[...Array(numberOfStavesBetweenStartAndMiddle).keys()]
-              .map((i) => i + 1)
-              .map((i) =>
+            ...foreach(numberOfStavesBetweenStartAndMiddle, (i) => i + 1).map(
+              (i) =>
                 svg('g', [
                   horizontal(
                     props.staveStartX,
@@ -182,7 +181,7 @@ export class SecondTiming {
                   vertical(props.staveStartX, fromStartToMiddle(i)),
                   vertical(props.staveEndX, fromStartToMiddle(i)),
                 ])
-              ),
+            ),
           ]),
       middle.y === end.y
         ? horizontal(middle.beforeX, end.afterX, middle.y)
@@ -192,9 +191,8 @@ export class SecondTiming {
             horizontal(props.staveStartX, end.afterX, end.y),
             vertical(props.staveStartX, end.y),
 
-            ...[...Array(numberOfStavesBetweenMiddleAndEnd).keys()]
-              .map((i) => i + 1)
-              .map((i) =>
+            ...foreach(numberOfStavesBetweenMiddleAndEnd, (i) => i + 1).map(
+              (i) =>
                 svg('g', [
                   horizontal(
                     props.staveStartX,
@@ -204,7 +202,7 @@ export class SecondTiming {
                   vertical(props.staveStartX, fromMiddleToEnd(i)),
                   vertical(props.staveEndX, fromMiddleToEnd(i)),
                 ])
-              ),
+            ),
           ]),
 
       svg('text', { x: start.beforeX + 5, y: start.y - height / 2 }, ['1.']),

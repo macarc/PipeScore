@@ -6,7 +6,7 @@ import { svg, V } from '../../render/h';
 import { Anacrusis, Bar } from '../Bar';
 import { Dispatch } from '../Controllers/Controller';
 import { settings } from '../global/settings';
-import { first, last, Obj } from '../global/utils';
+import { first, foreach, last, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
 import { TimeSignature } from '../TimeSignature';
@@ -97,9 +97,7 @@ export class Stave {
     const staveY = props.y;
     const trebleClefWidth = 40;
 
-    const staveLines = [...Array(5).keys()].map(
-      (idx) => settings.lineHeightOf(idx) + staveY
-    );
+    const staveLines = foreach(5, (idx) => settings.lineHeightOf(idx) + staveY);
 
     const previousBar = (barIdx: number) =>
       barIdx === 0

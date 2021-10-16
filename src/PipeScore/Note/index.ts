@@ -11,7 +11,7 @@ import {
   ReactiveGracenote,
   SingleGracenote,
 } from '../Gracenote';
-import { nfirst, nlast, Obj } from '../global/utils';
+import { foreach, nfirst, nlast, Obj } from '../global/utils';
 import { dot, dotted, lengthInBeats, NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import { V } from '../../render/types';
@@ -456,15 +456,13 @@ export class SingleNote
       : rightTails > tailsAfter;
 
     // tails shared by both notes
-    const sharedTails = moreTailsOnLeft
-      ? [...Array(rightTails).keys()]
-      : [...Array(leftTails).keys()];
-    // tails extra tails for one note
+    const sharedTails = moreTailsOnLeft ? rightTails : leftTails;
+    // extra tails for one note
     const extraTails = drawExtraTails
       ? moreTailsOnLeft
-        ? [...Array(leftTails).keys()].splice(rightTails)
-        : [...Array(rightTails).keys()].splice(leftTails)
-      : [];
+        ? leftTails - rightTails
+        : rightTails - leftTails
+      : 0;
 
     const tailEndY = moreTailsOnLeft
       ? // because similar triangles
@@ -472,7 +470,7 @@ export class SingleNote
       : yR - (shortTailLength / (xR - xL)) * (yR - yL);
 
     return svg('g', { class: 'tails' }, [
-      ...sharedTails.map((i) =>
+      ...foreach(sharedTails, (i) =>
         svg('line', {
           x1: xL,
           x2: xR,
@@ -482,7 +480,7 @@ export class SingleNote
           'stroke-width': 2,
         })
       ),
-      ...extraTails.map((i) =>
+      ...foreach(extraTails, (i) => i + 1).map((i) =>
         svg('line', {
           x1: moreTailsOnLeft ? xL : xR,
           x2: moreTailsOnLeft ? xL + shortTailLength : xR - shortTailLength,
@@ -758,7 +756,7 @@ export class SingleNote
                     d: `M ${x},${stemBottomY} q 8,-6 8,-15 q 0,-8 -4,-11 q 4,5 3,11 q -1,7 -7,11`,
                   }),
                 ]
-              : [...Array(numberOfTails).keys()].map((t) =>
+              : foreach(numberOfTails, (t) =>
                   svg('path', {
                     fill: this.colour(),
                     stroke: this.colour(),

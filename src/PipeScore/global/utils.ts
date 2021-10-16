@@ -30,6 +30,10 @@ export function deepcopy<A>(obj: A): A {
   return JSON.parse(JSON.stringify(obj));
 }
 
+export function foreach<A>(times: number, action: (i: number) => A): A[] {
+  return [...new Array(times).keys()].map((i: number) => action(i));
+}
+
 export const car = <U, V>(pair: [U, V]): U => pair[0];
 export const first = <T>(array: T[]): T | null => array[0] || null;
 export const nfirst = <T>(array: T[]): T => array[0];

@@ -62,9 +62,9 @@ export function mouseUp(): ScoreEvent {
     return Update.ShouldSave;
   };
 }
-export function mouseDrag(x: number, y: number): ScoreEvent {
+export function mouseDrag(x: number, y: number, page: number): ScoreEvent {
   return async (state: State) => {
-    state.selection?.mouseDrag(x, y, state.score);
+    state.selection?.mouseDrag(x, y, state.score, page);
     return Update.ViewChanged;
   };
 }

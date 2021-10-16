@@ -15,7 +15,7 @@ import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
 import { Gracenote, NoGracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { car } from '../global/utils';
+import { car, foreach } from '../global/utils';
 import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
 
@@ -33,7 +33,7 @@ export type Selection =
 
 abstract class BaseSelection<A> {
   abstract delete(score: Score): void;
-  abstract mouseDrag(x: number, y: number, score: Score): void;
+  abstract mouseDrag(x: number, y: number, score: Score, page: number): void;
 
   protected dragged: A | null = null;
   public drag(a: A) {
@@ -186,19 +186,17 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
           opacity: 0.5,
           'pointer-events': 'none',
         }),
-        ...[...Array(numStavesBetween).keys()]
-          .map((i) => i + 1)
-          .map((i) =>
-            svg('rect', {
-              x: props.staveStartX,
-              y: higher.y + i * props.staveGap - settings.lineGap,
-              width: props.staveEndX - props.staveStartX,
-              height,
-              fill: 'orange',
-              opacity: 0.5,
-              'pointer-events': 'none',
-            })
-          ),
+        ...foreach(numStavesBetween, (i) => i + 1).map((i) =>
+          svg('rect', {
+            x: props.staveStartX,
+            y: higher.y + i * props.staveGap - settings.lineGap,
+            width: props.staveEndX - props.staveStartX,
+            height,
+            fill: 'orange',
+            opacity: 0.5,
+            'pointer-events': 'none',
+          })
+        ),
       ]);
     } else {
       const width = end.afterX - start.beforeX;
@@ -227,8 +225,8 @@ export class TextSelection extends BaseSelection<TextBox> {
   public delete(score: Score) {
     score.deleteTextBox(this.text);
   }
-  public mouseDrag(x: number, y: number, score: Score) {
-    if (this.dragged) score.dragTextBox(this.dragged, x, y);
+  public mouseDrag(x: number, y: number, score: Score, page: number) {
+    if (this.dragged) score.dragTextBox(this.dragged, x, y, page);
   }
 }
 

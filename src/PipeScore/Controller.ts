@@ -99,10 +99,16 @@ function mouseMove(event: MouseEvent) {
   // - moves demo note (if necessary)
   const mouseButtonIsDown = event.buttons === 1;
   if (mouseButtonIsDown) {
-    const svg = document.getElementById('score-svg');
+    let svg: SVGSVGElement | null = null;
+    if (event.target instanceof SVGElement) {
+      svg = event.target.ownerSVGElement;
+    } else {
+      svg = document.getElementsByTagName('svg')[0];
+    }
     if (svg == null) {
       return;
     } else if (svg instanceof SVGSVGElement) {
+      const page = parseInt(svg.classList[0]);
       const CTM = svg.getScreenCTM();
       if (CTM == null) return;
       const pt = svg.createSVGPoint();
@@ -112,7 +118,7 @@ function mouseMove(event: MouseEvent) {
       const svgPt = pt.matrixTransform(CTM.inverse());
 
       // If the left mouse button is held down
-      if (event.buttons === 1) dispatch(mouseDrag(svgPt.x, svgPt.y));
+      if (event.buttons === 1) dispatch(mouseDrag(svgPt.x, svgPt.y, page));
     }
   }
 }
