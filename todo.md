@@ -3,17 +3,12 @@
 ## Bugs to fix
 
 - [ ] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
-- [ ] Stricter bar lengths
 - [ ] Better time signature font
-- [ ] Note input doesn't move on notes that have gracenotes
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] Should be able to add notes before and after current gracenote to make custom embellishments
-- [ ] Selecting a gracenote then deleting retains the selection box
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
 - [ ] Highlight barline buttons in UI if a single bar is selected
-- [ ] Single gracenote preview should allow for custom embellishments
-- [ ] Selecting notes while inputting notes doesn't work...should it?
 
 ### Cleanups
 
@@ -203,3 +198,6 @@
 - [x] Adding gracenotes to triplets now won't work since it doesn't use the addGracenoteToTriplet but just the general one. Easily fixable
 - [x] Merge gracenote.selected and maybe dragged items? into selection
 - [x] Hovering over end of bar previews gracenote on first note
+- [x] Note input doesn't move on notes that have gracenotes
+- [x] Selecting a gracenote then deleting retains the selection box
+- [x] Single gracenote preview should allow for custom embellishments

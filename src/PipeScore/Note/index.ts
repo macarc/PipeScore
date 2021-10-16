@@ -277,7 +277,10 @@ export abstract class BaseNote extends Item {
 
 export class SingleNote
   extends BaseNote
-  implements Previewable<ReactiveGracenote>, Previewable<SingleGracenote>
+  implements
+    Previewable<ReactiveGracenote>,
+    Previewable<SingleGracenote>,
+    Previewable<Pitch>
 {
   private pitch: Pitch;
   private gracenote: Gracenote;
@@ -325,8 +328,17 @@ export class SingleNote
     if (this.previewGracenote)
       this.addGracenote(this.previewGracenote, previous);
   }
-  public setPreview(gracenote: Gracenote) {
-    if (!this.gracenote.equals(gracenote)) this.previewGracenote = gracenote;
+  public setPreview(gracenote: Gracenote | Pitch, previous: Note | null) {
+    if (gracenote instanceof Gracenote) {
+      if (!this.gracenote.equals(gracenote)) this.previewGracenote = gracenote;
+    } else {
+      console.log('oktoieasnrtiosraneiotnesroateno');
+      this.previewGracenote = this.gracenote.addSingle(
+        gracenote,
+        this.pitch,
+        previous?.lastPitch() || null
+      );
+    }
   }
   public removePreview() {
     this.previewGracenote = null;

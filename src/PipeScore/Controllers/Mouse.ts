@@ -37,12 +37,13 @@ export function mouseOverPitch(
     }
     if (state.demo) {
       if (where instanceof Bar) {
-        return state.demo.setPitch(pitch, null, where);
+        return state.demo.setPitch(pitch, null, where, null);
       } else {
         return state.demo.setPitch(
           pitch,
           where,
-          state.score.location(where.id).bar
+          state.score.location(where.id).bar,
+          state.score.previousNote(where.id)
         );
       }
     } else if (

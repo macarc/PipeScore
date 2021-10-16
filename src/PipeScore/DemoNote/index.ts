@@ -96,13 +96,18 @@ export class DemoGracenote extends BaseDemo<SingleGracenote, SingleNote> {
     this.previous?.removePreview();
     if (note) note.addGracenote(pitch, noteBefore);
   }
-  public setPitch(pitch: Pitch, note: SingleNote | null, bar: Bar) {
+  public setPitch(
+    pitch: Pitch,
+    note: SingleNote | null,
+    bar: Bar,
+    previous: Note | null
+  ) {
     if (note !== this.previous || pitch !== this._pitch) {
       this._pitch = pitch;
       if (this.previous) this.previous.removePreview();
       this.previous = note;
       if (this.previous && this._pitch)
-        this.previous.setPreview(new SingleGracenote(this._pitch));
+        this.previous.setPreview(this._pitch, previous);
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -125,12 +130,17 @@ export class DemoReactive extends BaseDemo<ReactiveGracenote, SingleNote> {
     this.previous?.removePreview();
     if (note) note.addGracenote(this.toGracenote(), noteBefore);
   }
-  public setPitch(pitch: Pitch, note: SingleNote | null) {
+  public setPitch(
+    pitch: Pitch,
+    note: SingleNote | null,
+    bar: Bar | null,
+    previous: Note | null
+  ) {
     if (note !== this.previous) {
       if (this.previous) this.previous.removePreview();
       this.previous = note;
       if (this.previous)
-        this.previous.setPreview(new ReactiveGracenote(this.name));
+        this.previous.setPreview(new ReactiveGracenote(this.name), previous);
       return Update.ViewChanged;
     }
     return Update.NoChange;

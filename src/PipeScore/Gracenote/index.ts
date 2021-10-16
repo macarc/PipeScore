@@ -41,7 +41,6 @@ export abstract class Gracenote {
   abstract notes(thisNote: Pitch, previousNote: Pitch | null): MaybeGracenote;
   abstract toObject(): Obj;
   abstract copy(): Gracenote;
-  abstract render(props: GracenoteProps): V;
 
   public static from(name: string | null) {
     if (name === null) {
@@ -66,7 +65,7 @@ export abstract class Gracenote {
         throw new Error(`Unrecognised Gracenote type ${o.type}`);
     }
   }
-  public toJSON() {
+  public toJSON(): Obj {
     let type = 'single';
     if (this instanceof SingleGracenote) {
       type = 'single';
@@ -186,7 +185,7 @@ export abstract class Gracenote {
       }),
     ]);
   }
-  protected renderSingle(note: Pitch, props: GracenoteProps) {
+  private renderSingle(note: Pitch, props: GracenoteProps) {
     const selected = props.state.selected === this || props.preview;
 
     const y = noteY(props.y, note);
@@ -215,7 +214,8 @@ export abstract class Gracenote {
       ),
     ]);
   }
-  protected renderMultiple(pitches: MaybeGracenote, props: GracenoteProps) {
+  public render(props: GracenoteProps): V {
+    const pitches = this.notes(props.thisNote, props.previousNote);
     const selected = props.state.selected === this || props.preview;
     // If each note is an object, then we can use .indexOf and other related functions
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
@@ -301,16 +301,11 @@ export class ReactiveGracenote extends Gracenote {
   public name() {
     return this.grace;
   }
-  public render(props: GracenoteProps) {
-    return this.renderMultiple(
-      this.notes(props.thisNote, props.previousNote),
-      props
-    );
-  }
 }
 
 export class SingleGracenote extends Gracenote {
   private note: Pitch;
+
   constructor(note: Pitch) {
     super();
     this.note = note;
@@ -344,9 +339,6 @@ export class SingleGracenote extends Gracenote {
   public notes() {
     return new MaybeGracenote([this.note]);
   }
-  public render(props: GracenoteProps) {
-    return this.renderSingle(this.note, props);
-  }
 }
 
 export class CustomGracenote extends Gracenote {
@@ -373,7 +365,7 @@ export class CustomGracenote extends Gracenote {
     };
   }
   public notes() {
-    return new MaybeGracenote(this.pitches);
+    return new MaybeGracenote(this.pitches, true);
   }
   public addNotes(...notes: Pitch[]) {
     this.pitches = this.pitches.concat(notes);
@@ -382,9 +374,6 @@ export class CustomGracenote extends Gracenote {
   public addNote(note: Pitch) {
     this.pitches.push(note);
     return this;
-  }
-  public render(props: GracenoteProps) {
-    return this.renderMultiple(this.notes(), props);
   }
 }
 
@@ -406,10 +395,6 @@ export class NoGracenote extends Gracenote {
   }
   public name() {
     return 'none';
-  }
-
-  public render() {
-    return svg('g', []);
   }
 }
 
