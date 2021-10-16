@@ -104,7 +104,6 @@ app.applicationMenu = Menu.buildFromTemplate([
       },
     ],
   },
-  { role: 'editMenu' },
   { label: 'Advanced', submenu: [{ role: 'toggleDevTools' }] },
   {
     label: 'Help',

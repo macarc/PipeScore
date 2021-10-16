@@ -7,15 +7,12 @@ import patch from '../render/vdom';
 import { h, hFrom } from '../render/h';
 import { ScoreEvent, Update } from './Controllers/Controller';
 import { mouseUp, mouseDrag } from './Controllers/Mouse';
-
 import { State } from './State';
 import { Score } from './Score';
-
-import renderUI from './UI/view';
-
-import Documentation from './Documentation';
 import { GracenoteSelection, ScoreSelection } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
+import renderUI from './UI/view';
+import Documentation from './Documentation';
 
 declare let window: Window & {
   electron: {
@@ -38,8 +35,9 @@ const initialState: State = {
 };
 let state: State = { ...initialState };
 
-let save = (score: string) => window.electron.updateScore(score);
-
+function save(score: string) {
+  window.electron.updateScore(score);
+}
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
   if (res === Update.ViewChanged || res === Update.ShouldSave) {

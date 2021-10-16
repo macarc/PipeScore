@@ -191,24 +191,17 @@ export abstract class Gracenote {
     const y = noteY(props.y, note);
 
     const colour = colourOf(selected);
+    const height = settings.lineHeightOf(3);
 
     return svg('g', { class: 'gracenote' }, [
-      this.head(
-        props.dispatch,
-        props.x,
-        y,
-        note,
-        y - settings.lineHeightOf(3),
-        true,
-        selected
-      ),
+      this.head(props.dispatch, props.x, y, note, y - height, true, selected),
 
       ...[0, 1, 2].map((n) =>
         svg('line', {
           x1: stemXOf(props.x),
           x2: stemXOf(props.x) + 5,
-          y1: stemYOf(y) - 20 + 3 * n,
-          y2: stemYOf(y) - 16 + 3 * n,
+          y1: y - height + 3 * n,
+          y2: y - height + 4 + 3 * n,
           stroke: colour,
         })
       ),

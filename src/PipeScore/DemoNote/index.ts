@@ -8,7 +8,6 @@ import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note, SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
-import { Score } from '../Score';
 import { Previewable } from './previewable';
 
 // This could be cleaned up a bit so that BaseDemo is parameterised

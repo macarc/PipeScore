@@ -15,7 +15,7 @@ import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
 import { Gracenote, NoGracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { car, log } from '../global/utils';
+import { car } from '../global/utils';
 import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
 

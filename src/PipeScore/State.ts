@@ -10,7 +10,6 @@ import { V } from '../render/h';
 import { Score } from './Score';
 import { Selection } from './Selection';
 import { Note, Triplet } from './Note';
-import { Obj } from './global/utils';
 
 export interface State {
   justClickedNote: boolean;

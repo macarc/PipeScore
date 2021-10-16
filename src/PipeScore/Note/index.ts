@@ -332,7 +332,6 @@ export class SingleNote
     if (gracenote instanceof Gracenote) {
       if (!this.gracenote.equals(gracenote)) this.previewGracenote = gracenote;
     } else {
-      console.log('oktoieasnrtiosraneiotnesroateno');
       this.previewGracenote = this.gracenote.addSingle(
         gracenote,
         this.pitch,
