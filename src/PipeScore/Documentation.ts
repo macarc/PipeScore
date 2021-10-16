@@ -62,9 +62,10 @@ export default new Map(
     stop: 'Stop the playback',
     'playback speed': 'Control the playback speed (further right is faster)',
     print: 'Print the score to a physical printer or PDF file',
-    download:
-      "Save the score locally to your computer\n\nYou don't need to do this normally, unless you want to back it up\n\nHas not yet been implemented",
     landscape: 'Switch the score between landscape and portrait',
+    'add-page': 'Add a new page at the end.',
+    'remove-page': 'Delete the last page and everything on it.',
     zoom: 'Zoom: Control how large the score appears on your screen\n\nDrag to the right to zoom in, the left to zoom out',
+    'number of pages': 'Add or remove pages',
   })
 );

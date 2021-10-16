@@ -25,7 +25,7 @@ const initialState: State = {
   justClickedNote: false,
   demo: null,
   playback: { bpm: 100 },
-  ui: { menu: 'normal' },
+  ui: { menu: 'note' },
   doc: { show: true, current: null },
   clipboard: null,
   selection: null,

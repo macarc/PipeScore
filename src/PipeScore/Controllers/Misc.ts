@@ -13,6 +13,26 @@ import { stopInputtingNotes } from './Note';
 import { settings, Settings } from '../global/settings';
 import { Score } from '../Score';
 
+export function addPage(): ScoreEvent {
+  return async (state: State) => {
+    state.score.numberOfPages += 1;
+    return Update.ShouldSave;
+  };
+}
+export function removePage(): ScoreEvent {
+  return async (state: State) => {
+    if (state.score.numberOfPages >= 1) {
+      const sure = confirm(
+        'Are you sure you want to delete a page? All the music on the last page will be deleted.\nPress Enter to confirm, or Esc to stop.'
+      );
+      if (sure) {
+        state.score.deletePage();
+        return Update.ShouldSave;
+      }
+    }
+    return Update.NoChange;
+  };
+}
 export function changeSetting<T extends keyof Settings>(
   setting: T,
   target: HTMLInputElement

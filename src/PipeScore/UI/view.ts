@@ -27,6 +27,8 @@ import {
   print,
   changeZoomLevel,
   changeSetting,
+  addPage,
+  removePage,
 } from '../Controllers/Misc';
 import { addSecondTiming } from '../Controllers/SecondTiming';
 import { deleteSelection } from '../Controllers/Mouse';
@@ -44,6 +46,7 @@ import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { EndB, NormalB, RepeatB } from '../Bar/barline';
 import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
 import { Settings, settings } from '../global/settings';
+import { capitalise } from '../global/utils';
 
 export interface UIState {
   demo: Demo | null;
@@ -100,7 +103,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
 
   const help = (s: string, v: V): V => dochelp(dispatch, s, v);
 
-  const normalMenu = [
+  const noteMenu = [
     h('section', [
       h('h2', ['Input Notes']),
       h('div', { class: 'section-content note-inputs' }, [
@@ -443,18 +446,31 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   ];
   const documentMenu = [
     h('section', [
-      h('h2', ['Document']),
+      h('h2', ['Pages']),
       h('div', { class: 'section-content' }, [
         help(
-          'print',
+          'add-page',
           h(
             'button',
             { class: 'textual' },
-            { click: () => dispatch(print()) },
-            ['Print']
+            { click: () => dispatch(addPage()) },
+            ['Add']
           )
         ),
-        help('download', h('button', { class: 'textual' }, ['Download'])),
+        help(
+          'remove-page',
+          h(
+            'button',
+            { class: 'textual' },
+            { click: () => dispatch(removePage()) },
+            ['Remove']
+          )
+        ),
+      ]),
+    ]),
+    h('section', [
+      h('h2', ['Document']),
+      h('div', { class: 'section-content' }, [
         help(
           'landscape',
           h(
@@ -466,6 +482,22 @@ export default function render(dispatch: Dispatch, state: UIState): V {
         ),
       ]),
     ]),
+    h('section', [
+      h('h2', ['Export']),
+      h('div', { class: 'section-content' }, [
+        help(
+          'print',
+          h(
+            'button',
+            { class: 'textual' },
+            { click: () => dispatch(print()) },
+            ['Print (to PDF, or printer)']
+          )
+        ),
+      ]),
+    ]),
+  ];
+  const settingsMenu = [
     h('section', [
       h('h2', ['Settings']),
       h('div', { class: 'section-content' }, [
@@ -492,11 +524,12 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   ];
 
   const menuMap: Record<Menu, V[]> = {
-    normal: normalMenu,
+    note: noteMenu,
     gracenote: gracenoteMenu,
     bar: barMenu,
     stave: staveMenu,
     text: textMenu,
+    settings: settingsMenu,
     playback: playBackMenu,
     document: documentMenu,
   };
@@ -504,54 +537,24 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   const menuClass = (s: Menu): Attributes =>
     s === state.currentMenu ? { class: 'selected' } : {};
 
+  const menuHead = (name: Menu) =>
+    h('button', menuClass(name), { mousedown: () => dispatch(setMenu(name)) }, [
+      capitalise(name),
+    ]);
   return h('div', [
     h('div', { id: 'menu' }, [
       help(
         'Return to Scores page',
         h('button', [h('a', { href: '/scores' }, ['Home'])])
       ),
-      h(
-        'button',
-        menuClass('normal'),
-        { mousedown: () => dispatch(setMenu('normal')) },
-        ['Note']
-      ),
-      h(
-        'button',
-        menuClass('gracenote'),
-        { mousedown: () => dispatch(setMenu('gracenote')) },
-        ['Gracenote']
-      ),
-      h(
-        'button',
-        menuClass('bar'),
-        { mousedown: () => dispatch(setMenu('bar')) },
-        ['Bar']
-      ),
-      h(
-        'button',
-        menuClass('stave'),
-        { mousedown: () => dispatch(setMenu('stave')) },
-        ['Stave']
-      ),
-      h(
-        'button',
-        menuClass('text'),
-        { mousedown: () => dispatch(setMenu('text')) },
-        ['Text']
-      ),
-      h(
-        'button',
-        menuClass('playback'),
-        { mousedown: () => dispatch(setMenu('playback')) },
-        ['Playback']
-      ),
-      h(
-        'button',
-        menuClass('document'),
-        { mousedown: () => dispatch(setMenu('document')) },
-        ['Document']
-      ),
+      menuHead('note'),
+      menuHead('gracenote'),
+      menuHead('bar'),
+      menuHead('stave'),
+      menuHead('text'),
+      menuHead('playback'),
+      menuHead('document'),
+      menuHead('settings'),
     ]),
     h('div', { id: 'topbar' }, [
       h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),

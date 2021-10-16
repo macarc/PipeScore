@@ -12,7 +12,7 @@ import { clickBackground, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
-import { Selection } from '../Selection';
+import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { foreach, last, nlast, Obj } from '../global/utils';
 
@@ -34,8 +34,8 @@ export class Score {
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[][];
   private secondTimings: SecondTiming[];
-  private numberOfPages = 2;
 
+  public numberOfPages = 1;
   public zoom: number;
 
   constructor(
@@ -191,6 +191,20 @@ export class Score {
   }
   public previousNote(id: ID) {
     return Bar.previousNote(id, this.bars());
+  }
+  public deletePage() {
+    const stavesToDelete = this.brokenStaves()[this.numberOfPages - 1];
+    if (stavesToDelete) {
+      const first = stavesToDelete[0]?.firstBar() || null;
+      const last = nlast(stavesToDelete)?.lastBar() || null;
+      if (first && last) {
+        const selection = new ScoreSelection(first.id, last.id);
+        selection.delete(this);
+      }
+    }
+
+    this.textBoxes[this.numberOfPages - 1] = [];
+    this.numberOfPages--;
   }
   public deleteStave(stave: Stave) {
     // Deletes the stave from the score

@@ -33,6 +33,9 @@ export function deepcopy<A>(obj: A): A {
 export function foreach<A>(times: number, action: (i: number) => A): A[] {
   return [...new Array(times).keys()].map((i: number) => action(i));
 }
+export function capitalise(st: string) {
+  return st[0].toUpperCase() + st.slice(1);
+}
 
 export const car = <U, V>(pair: [U, V]): U => pair[0];
 export const first = <T>(array: T[]): T | null => array[0] || null;

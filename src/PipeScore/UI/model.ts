@@ -3,10 +3,11 @@
   Copyright (C) 2021 Archie Maclean
 */
 export type Menu =
-  | 'normal'
+  | 'note'
   | 'gracenote'
   | 'bar'
   | 'stave'
   | 'text'
   | 'playback'
+  | 'settings'
   | 'document';
