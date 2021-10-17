@@ -20,11 +20,14 @@ export function changeGracenoteFrom(
   score.notes().forEach((n) => n.replaceGracenote(oldGracenote, newGracenote));
   return score;
 }
-export function clickGracenote(gracenote: Gracenote): ScoreEvent {
+export function clickGracenote(
+  gracenote: Gracenote,
+  index: number
+): ScoreEvent {
   return async (state: State) => {
     state.justClickedNote = true;
     stopInputtingNotes(state);
-    state.selection = new GracenoteSelection(gracenote).drag(gracenote);
+    state.selection = new GracenoteSelection(gracenote, index).drag(gracenote);
     return Update.ViewChanged;
   };
 }

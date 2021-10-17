@@ -260,10 +260,12 @@ export class SecondTimingSelection {
 
 export class GracenoteSelection extends BaseSelection<Gracenote> {
   public selected: Gracenote;
+  public note: number;
 
-  constructor(gracenote: Gracenote) {
+  constructor(gracenote: Gracenote, note: number) {
     super();
     this.selected = gracenote;
+    this.note = note;
   }
   public mouseDrag() {
     // TODO make this empty method unnecessary :)
@@ -273,16 +275,25 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
   }
   public drag(gracenote: Gracenote) {
     this.selected = gracenote;
-    this.dragged = gracenote instanceof SingleGracenote ? gracenote : null;
+    this.dragged = gracenote;
     return this;
   }
-  public mouseOverPitch(pitch: Pitch) {
-    return this.dragged ? this.dragged.drag(pitch) : Update.NoChange;
+  public mouseOverPitch(pitch: Pitch, score: Score) {
+    if (this.dragged) {
+      const dragged = this.dragged.drag(pitch, this.note);
+      changeGracenoteFrom(this.dragged, dragged, score);
+      this.dragged = dragged;
+      this.selected = this.selected;
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
   }
   public state(): GracenoteState {
     return {
-      dragged: this.dragged instanceof SingleGracenote ? this.dragged : null,
-      selected: this.selected,
+      dragged: this.dragged
+        ? { gracenote: this.dragged, note: this.note }
+        : null,
+      selected: { gracenote: this.selected, note: this.note },
     };
   }
 }

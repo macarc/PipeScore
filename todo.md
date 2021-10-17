@@ -6,7 +6,6 @@
 - [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
-- [ ] Should be able to add notes before and after current gracenote to make custom embellishments
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
 - [ ] Highlight barline buttons in UI if a single bar is selected
 
@@ -35,7 +34,6 @@
 - [x] Resizable interface
 - [x] Copy/paste/undo/redo
 - [ ] A easy way to input all of the above
-- [ ] Multiple scores per page?
 - [x] Documentation
 - [x] Saving / Loading
 - [x] Printing
@@ -201,3 +199,4 @@
 - [x] Note input doesn't move on notes that have gracenotes
 - [x] Selecting a gracenote then deleting retains the selection box
 - [x] Single gracenote preview should allow for custom embellishments
+- [x] Should be able to drag notes in custom embellishments and/or add notes inside them

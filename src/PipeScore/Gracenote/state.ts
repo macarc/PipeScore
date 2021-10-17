@@ -4,9 +4,14 @@
 */
 import { SingleGracenote, Gracenote } from '.';
 
+type SelectedGracenote = {
+  gracenote: Gracenote;
+  note: number;
+};
+
 export interface GracenoteState {
-  dragged: SingleGracenote | null;
-  selected: Gracenote | null;
+  dragged: SelectedGracenote | null;
+  selected: SelectedGracenote | null;
 }
 
 export const emptyGracenoteState = { dragged: null, selected: null };
