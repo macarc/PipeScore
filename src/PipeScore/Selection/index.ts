@@ -13,7 +13,7 @@ import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
-import { Gracenote, NoGracenote, SingleGracenote } from '../Gracenote';
+import { Gracenote, NoGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { car, foreach } from '../global/utils';
 import { Stave } from '../Stave';
@@ -259,8 +259,11 @@ export class SecondTimingSelection {
 }
 
 export class GracenoteSelection extends BaseSelection<Gracenote> {
-  public selected: Gracenote;
-  public note: number;
+  // Selected must be separate from dragged as it is used for deleting
+  // e.g. clicking a gracenote to select in, then deleting it
+  private selected: Gracenote;
+
+  private note: number;
 
   constructor(gracenote: Gracenote, note: number) {
     super();
@@ -271,6 +274,13 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
     // TODO make this empty method unnecessary :)
   }
   public delete(score: Score) {
+    changeGracenoteFrom(
+      this.selected,
+      this.selected.removeSingle(this.note),
+      score
+    );
+  }
+  public deleteWholeGracenote(score: Score) {
     changeGracenoteFrom(this.selected, new NoGracenote(), score);
   }
   public drag(gracenote: Gracenote) {
@@ -283,7 +293,7 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
       const dragged = this.dragged.drag(pitch, this.note);
       changeGracenoteFrom(this.dragged, dragged, score);
       this.dragged = dragged;
-      this.selected = this.selected;
+      this.selected = dragged;
       return Update.ViewChanged;
     }
     return Update.NoChange;

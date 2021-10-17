@@ -3,8 +3,8 @@
   Copyright (C) 2021 Archie Maclean
  */
 import { svg, V } from '../../render/h';
-import { Dispatch, Update } from '../Controllers/Controller';
-import { changeGracenoteFrom, clickGracenote } from '../Controllers/Gracenote';
+import { Dispatch } from '../Controllers/Controller';
+import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';
@@ -21,7 +21,6 @@ const gracenoteToNoteWidthRatio = 0.6;
 
 // Offsets from the centre of the gracenote head to the point where the stem touches it
 const stemXOf = (x: number) => x + 3;
-const stemYOf = (y: number) => y - 2;
 
 const colourOf = (selected: boolean) => (selected ? 'orange' : 'black');
 
@@ -38,7 +37,7 @@ export interface GracenoteProps {
 
 export abstract class Gracenote {
   abstract equals(other: Gracenote): boolean;
-  abstract notes(thisNote: Pitch, previousNote: Pitch | null): MaybeGracenote;
+  abstract notes(thisNote?: Pitch, previousNote?: Pitch | null): MaybeGracenote;
   abstract toObject(): Obj;
   abstract copy(): Gracenote;
   abstract drag(pitch: Pitch, note: number): Gracenote;
@@ -106,6 +105,17 @@ export abstract class Gracenote {
     if (notes.length > 0)
       return new CustomGracenote().addNotes(...notes, newPitch);
     else return new SingleGracenote(newPitch);
+  }
+  public removeSingle(index: number) {
+    const notes = this.notes().notes();
+    if (notes.length <= 1) {
+      return new NoGracenote();
+    } else {
+      return new CustomGracenote().addNotes(
+        ...notes.slice(0, index),
+        ...notes.slice(index + 1)
+      );
+    }
   }
 
   public width(thisNote: Pitch, previousNote: Pitch | null): Width {
@@ -269,7 +279,7 @@ export class ReactiveGracenote extends Gracenote {
   private grace: string;
 
   // These are just cached so we don't have to pass them to every method
-  private thisNote: Pitch | null = null;
+  private thisNote: Pitch = Pitch.A;
   private previousNote: Pitch | null = null;
 
   constructor(grace: string) {
@@ -294,20 +304,18 @@ export class ReactiveGracenote extends Gracenote {
       grace: this.grace,
     };
   }
-  public notes(thisNote: Pitch, previousNote: Pitch | null) {
-    this.thisNote = thisNote;
-    this.previousNote = previousNote;
+  public notes(thisNote?: Pitch, previousNote?: Pitch | null) {
+    if (thisNote !== undefined) this.thisNote = thisNote;
+    if (previousNote !== undefined) this.previousNote = previousNote;
 
     const notes = gracenotes.get(this.grace);
     if (notes) {
-      return notes(thisNote, previousNote);
+      return notes(this.thisNote, this.previousNote);
     } else {
       return new MaybeGracenote([]);
     }
   }
   public drag(pitch: Pitch, index: number) {
-    if (!this.thisNote)
-      throw new Error('Tried to drag a gracenote without a thisNote');
     const notes = this.notes(this.thisNote, this.previousNote);
     if (notes.notes()[index] !== pitch) {
       return new CustomGracenote().addNotes(

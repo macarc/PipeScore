@@ -111,7 +111,7 @@ export class Score {
     return pageIndex === 0 ? settings.topOffset : settings.margin;
   }
   private brokenStaves() {
-    let brokenStaves: Stave[][] = foreach(this.numberOfPages, () => []);
+    const brokenStaves: Stave[][] = foreach(this.numberOfPages, () => []);
     let i = 0;
     for (const stave of this._staves) {
       i = Math.floor(
