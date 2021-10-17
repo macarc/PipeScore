@@ -78,6 +78,9 @@ const updateView = (state: State) => {
   const uiProps = {
     zoomLevel: state.score.zoom,
     demo: state.demo,
+    selectedGracenote:
+      state.selection && state.selection.gracenote(state.score),
+    selectedBar: state.selection && state.selection.bar(state.score),
     docs: state.doc.show
       ? Documentation.get(state.doc.current || '') ||
         'Hover over different icons to view Help here.'

@@ -46,6 +46,12 @@ abstract class BaseSelection<A> {
   public notes(score: Score): SingleNote[] {
     return [];
   }
+  public bar(score: Score): Bar | null {
+    return null;
+  }
+  public gracenote(score: Score): Gracenote | null {
+    return null;
+  }
   public render(props: ScoreSelectionProps) {
     return svg('g', { class: 'selection' });
   }
@@ -142,6 +148,21 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       if (bar.hasID(this.end)) break;
     }
     return notes;
+  }
+  public bar(score: Score): Bar | null {
+    if (this.start === this.end) {
+      for (const bar of score.bars()) {
+        if (bar.id === this.start) return bar;
+      }
+    }
+    return null;
+  }
+  public gracenote(score: Score): Gracenote | null {
+    const notes = this.notes(score);
+    if (notes.length === 1) {
+      return notes[0].gracenoteType();
+    }
+    return null;
   }
   public addAnacrusis(before: boolean, score: Score) {
     const { bar, stave } = score.location(this.start);
@@ -252,6 +273,12 @@ export class SecondTimingSelection {
   }
   public notes() {
     return [];
+  }
+  public bar() {
+    return null;
+  }
+  public gracenote() {
+    return null;
   }
   public render() {
     return h('g');

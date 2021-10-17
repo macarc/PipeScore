@@ -46,7 +46,7 @@ interface NoteProps {
   noteWidth: number;
   endOfLastStave: number;
   dispatch: Dispatch;
-  onlyNoteInBar: boolean;
+  xOffset: number;
   state: NoteState;
   gracenoteState: GracenoteState;
 }
@@ -324,13 +324,20 @@ export class SingleNote
       gracenote: this.gracenote.toJSON(),
     };
   }
+  public hasPreview() {
+    return this.previewGracenote !== null;
+  }
   public makePreviewReal(previous: Note | null) {
     if (this.previewGracenote)
       this.addGracenote(this.previewGracenote, previous);
   }
   public setPreview(gracenote: Gracenote | Pitch, previous: Note | null) {
     if (gracenote instanceof Gracenote) {
-      if (!this.gracenote.equals(gracenote)) this.previewGracenote = gracenote;
+      if (!this.gracenote.equals(gracenote)) {
+        this.previewGracenote = gracenote;
+      } else {
+        this.previewGracenote = null;
+      }
     } else {
       this.previewGracenote = this.gracenote.addSingle(
         gracenote,
@@ -338,6 +345,10 @@ export class SingleNote
         previous?.lastPitch() || null
       );
     }
+  }
+  // TODO name this better
+  public gracenoteType(): Gracenote {
+    return this.gracenote;
   }
   public removePreview() {
     this.previewGracenote = null;
@@ -676,7 +687,8 @@ export class SingleNote
   }
   public render(props: NoteProps): V {
     // Draws a single note
-    const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
+    const xOffset =
+      width.reify(SingleNote.spacerWidth(), props.noteWidth) + props.xOffset;
 
     setXY(
       this.id,
@@ -715,6 +727,15 @@ export class SingleNote
     const numberOfTails = this.numTails();
 
     return svg('g', { class: 'singleton' }, [
+      props.state.inputtingNotes
+        ? noteBoxes(
+            props.x,
+            props.y,
+            x + noteHeadRadius - props.x,
+            (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
+            (pitch) => props.dispatch(addNoteBefore(pitch, this))
+          )
+        : null,
       this.shouldTie(props.previousNote)
         ? this.tie(
             x,
@@ -765,16 +786,6 @@ export class SingleNote
                     } q 8,-4 8,-13 q -2,9 -8,11`,
                   })
                 )
-          )
-        : null,
-
-      props.state.inputtingNotes
-        ? noteBoxes(
-            props.x,
-            props.y,
-            x + noteHeadRadius - props.x, //props.noteWidth - xOffset,
-            (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
-            (pitch) => props.dispatch(addNoteBefore(pitch, this))
           )
         : null,
     ]);

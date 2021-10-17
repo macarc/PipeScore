@@ -19,6 +19,7 @@ import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Controllers/Mouse';
 import { Barline, NormalB } from './barline';
 import { Previewable } from '../DemoNote/previewable';
+import { settings } from '../global/settings';
 
 export interface BarProps {
   x: number;
@@ -46,7 +47,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
 
   constructor(timeSignature = new TimeSignature()) {
     super(genId());
-    this.ts = timeSignature;
+    this.ts = timeSignature.copy();
     this.notes = [];
     this.frontBarline = new NormalB();
     this.backBarline = new NormalB();
@@ -150,6 +151,12 @@ export class Bar extends Item implements Previewable<SingleNote> {
     }
   }
 
+  public startBarline(barline: typeof Barline) {
+    return this.frontBarline instanceof barline;
+  }
+  public endBarline(barline: typeof Barline) {
+    return this.backBarline instanceof barline;
+  }
   public setPreview(noteBefore: SingleNote | null, note: SingleNote) {
     if (noteBefore && noteBefore.isDemo()) {
       this.notes.splice(this.notes.indexOf(noteBefore), 1, note);
@@ -161,6 +168,9 @@ export class Bar extends Item implements Previewable<SingleNote> {
         this.notes.splice(this.notes.indexOf(noteBefore), 0, this.previewNote);
       else this.notes.push(this.previewNote);
     }
+  }
+  public hasPreview() {
+    return this.previewNote !== null;
   }
   public makePreviewReal() {
     this.previewNote?.unDemo();
@@ -299,9 +309,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
       console.error('bar too small');
     }
 
-    const xOf = (i: number) =>
-      xAfterBarline +
-      (oneNoteInBar ? -props.width / 4 : width.reify(beats[i], beatWidth));
+    const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
 
     const noteProps = (notes: SingleNote[] | Triplet, index: number) => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];
@@ -314,27 +322,37 @@ export class Bar extends Item implements Previewable<SingleNote> {
         selectedNotes: [],
         endOfLastStave: props.endOfLastStave,
         dispatch: props.dispatch,
-        onlyNoteInBar: !(this instanceof Anacrusis) && this.notes.length === 1,
+        xOffset: oneNoteInBar ? -props.width / 4 : 0,
         state: props.noteState,
         gracenoteState: props.gracenoteState,
       };
     };
 
-    const clickNoteBox = (pitch: Pitch, mouseEvent: MouseEvent) =>
-      props.noteState.inputtingNotes
-        ? props.dispatch(addNoteToBarEnd(pitch, this))
-        : props.dispatch(clickBar(this, mouseEvent));
     // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
     // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
     // note adds a note to the start of the bar
     return svg('g', { class: 'bar' }, [
-      noteBoxes(
-        xAfterBarline,
-        staveY,
-        barWidth,
-        (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
-        clickNoteBox
-      ),
+      props.noteState.inputtingNotes
+        ? noteBoxes(
+            xAfterBarline,
+            staveY,
+            barWidth,
+            (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
+            (pitch) => props.dispatch(addNoteToBarEnd(pitch, this))
+          )
+        : svg(
+            'rect',
+            {
+              x: xAfterBarline,
+              y: staveY - settings.lineHeightOf(1),
+              width: barWidth,
+              height: settings.lineHeightOf(7),
+              opacity: 0,
+            },
+            {
+              mousedown: (e) => props.dispatch(clickBar(this, e as MouseEvent)),
+            }
+          ),
       ...groupedNotes.map((notes, idx) =>
         notes instanceof Triplet
           ? notes.render(noteProps(notes, idx))

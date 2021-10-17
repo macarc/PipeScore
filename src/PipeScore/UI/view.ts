@@ -46,12 +46,16 @@ import { centreText, addText } from '../Controllers/Text';
 import { addStave } from '../Controllers/Stave';
 import { help as dochelp } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
-import { EndB, NormalB, RepeatB } from '../Bar/barline';
+import { Barline, EndB, NormalB, RepeatB } from '../Bar/barline';
 import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
 import { Settings, settings } from '../global/settings';
 import { capitalise } from '../global/utils';
+import { Bar } from '../Bar';
+import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
 
 export interface UIState {
+  selectedGracenote: Gracenote | null;
+  selectedBar: Bar | null;
   demo: Demo | null;
   currentMenu: Menu;
   docs: string | null;
@@ -81,13 +85,20 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   const isGracenoteInput = (name: string) =>
     state.demo instanceof DemoReactive && state.demo.isInputting(name);
 
+  const isSelectedGracenote = (name: string) =>
+    state.selectedGracenote instanceof ReactiveGracenote &&
+    state.selectedGracenote.name() === name;
+
   const gracenoteInput = (name: string) =>
     help(
       name,
       h(
         'button',
         {
-          class: isGracenoteInput(name) ? 'highlighted' : 'not-highlighted',
+          class:
+            isGracenoteInput(name) || isSelectedGracenote(name)
+              ? 'highlighted'
+              : 'not-highlighted',
           style: `background-image: url("./images/icons/gracenote-${name}.svg")`,
         },
         { click: () => dispatch(setGracenoteOnSelectedNotes(name)) }
@@ -168,7 +179,8 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'button',
             {
               class:
-                state.demo instanceof DemoGracenote
+                state.demo instanceof DemoGracenote ||
+                state.selectedGracenote instanceof SingleGracenote
                   ? 'highlighted'
                   : 'not-highlighted',
               style: 'background-image: url("./images/icons/single.svg")',
@@ -190,7 +202,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       ]),
     ]),
     h('section', [
-      h('h2', ['Delete']),
+      h('h2', ['Modify Gracenote']),
       h('div', { class: 'section-content' }, [
         help(
           'delete gracenote',
@@ -234,13 +246,24 @@ export default function render(dispatch: Dispatch, state: UIState): V {
     ];
   };
 
+  const startBarClass = (type: typeof Barline) =>
+    'textual' +
+    (state.selectedBar && state.selectedBar.startBarline(type)
+      ? ' highlighted'
+      : '');
+  const endBarClass = (type: typeof Barline) =>
+    'textual' +
+    (state.selectedBar && state.selectedBar.endBarline(type)
+      ? ' highlighted'
+      : '');
+
   const barMenu = [
     h('section', [
       h('h2', ['Bar']),
       h('div', { class: 'section-content' }, addBarOrAnacrusis('bar')),
     ]),
     h('section', [
-      h('h2', { style: 'display: inline' }, ['Repeat']),
+      h('h2', { style: 'display: inline' }, ['Bar lines']),
       h('div', { class: 'section-content flex' }, [
         h('div', [
           h('label', ['Start:']),
@@ -248,7 +271,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'normal barline',
             h(
               'button',
-              { class: 'textual', style: 'margin-left: .5rem;' },
+              { class: startBarClass(NormalB), style: 'margin-left: .5rem;' },
               {
                 click: () => dispatch(setBarRepeat('start', new NormalB())),
               },
@@ -259,7 +282,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'repeat barline',
             h(
               'button',
-              { class: 'textual' },
+              { class: startBarClass(RepeatB) },
               {
                 click: () => dispatch(setBarRepeat('start', new RepeatB())),
               },
@@ -270,7 +293,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'part barline',
             h(
               'button',
-              { class: 'textual' },
+              { class: startBarClass(EndB) },
               {
                 click: () => dispatch(setBarRepeat('start', new EndB())),
               },
@@ -284,7 +307,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'normal barline',
             h(
               'button',
-              { class: 'textual', style: 'margin-left: .5rem;' },
+              { class: endBarClass(NormalB), style: 'margin-left: .5rem;' },
               {
                 click: () => dispatch(setBarRepeat('end', new NormalB())),
               },
@@ -295,7 +318,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'repeat barline',
             h(
               'button',
-              { class: 'textual' },
+              { class: endBarClass(RepeatB) },
               {
                 click: () => dispatch(setBarRepeat('end', new RepeatB())),
               },
@@ -306,7 +329,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             'part barline',
             h(
               'button',
-              { class: 'textual' },
+              { class: endBarClass(EndB) },
               {
                 click: () => dispatch(setBarRepeat('end', new EndB())),
               },

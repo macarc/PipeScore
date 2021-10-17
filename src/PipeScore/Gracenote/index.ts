@@ -7,7 +7,7 @@ import { Dispatch } from '../Controllers/Controller';
 import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch } from '../global/pitch';
-import { nlast, Obj } from '../global/utils';
+import { log, nlast, Obj } from '../global/utils';
 import width, { Width } from '../global/width';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
@@ -148,8 +148,8 @@ export abstract class Gracenote {
     const ledgerLeft = 5;
     const ledgerRight = 5.1;
     const rotateText = 'rotate(-30 ' + x + ' ' + y + ')';
-    const boxWidth = 2.5 * gracenoteHeadRadius;
-    const boxHeight = 6;
+    const boxWidth = 3 * gracenoteHeadRadius;
+    const boxHeight = 8;
     const colour = colourOf(isSelected);
 
     return svg('g', { class: 'gracenote-head' }, [
@@ -196,6 +196,9 @@ export abstract class Gracenote {
   }
   private renderSingle(note: Pitch, props: GracenoteProps) {
     const y = noteY(props.y, note);
+    const selected =
+      props.state.selected?.gracenote === this &&
+      props.state.selected?.note === 0;
 
     const colour = colourOf(props.preview);
     const height = settings.lineHeightOf(3);
@@ -208,7 +211,7 @@ export abstract class Gracenote {
         note,
         y - height,
         true,
-        props.preview || props.state.selected?.note === 0,
+        props.preview || selected,
         0
       ),
 
@@ -266,7 +269,9 @@ export abstract class Gracenote {
             noteObj.note,
             beamY,
             pitches.isValid(),
-            props.preview || i === props.state.selected?.note,
+            props.preview ||
+              (props.state.selected?.gracenote === this &&
+                i === props.state.selected?.note),
             i
           )
         ),

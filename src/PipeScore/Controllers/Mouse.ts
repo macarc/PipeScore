@@ -22,6 +22,12 @@ export function deleteSelection(): ScoreEvent {
   };
 }
 
+export function mouseOffPitch(): ScoreEvent {
+  return async (state: State) => {
+    if (state.demo) return state.demo.removePitch();
+    return Update.NoChange;
+  };
+}
 export function mouseOverPitch(
   pitch: Pitch,
   where: SingleNote | Bar

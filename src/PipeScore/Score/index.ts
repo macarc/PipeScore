@@ -8,7 +8,7 @@ import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import { h, svg, V } from '../../render/h';
-import { clickBackground, mouseUp } from '../Controllers/Mouse';
+import { clickBackground, mouseOffPitch, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
 import { Dispatch } from '../Controllers/Controller';
@@ -364,7 +364,10 @@ export class Score {
             svg(
               'rect',
               { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
-              { mousedown: () => props.dispatch(clickBackground()) }
+              {
+                mousedown: () => props.dispatch(clickBackground()),
+                mouseover: () => props.dispatch(mouseOffPitch()),
+              }
             ),
             ...brokenStaves[i].map((stave, idx) =>
               stave.render(staveProps(stave, idx, i))

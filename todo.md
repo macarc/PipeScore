@@ -7,7 +7,6 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
-- [ ] Highlight barline buttons in UI if a single bar is selected
 
 ### Cleanups
 
@@ -200,3 +199,4 @@
 - [x] Selecting a gracenote then deleting retains the selection box
 - [x] Single gracenote preview should allow for custom embellishments
 - [x] Should be able to drag notes in custom embellishments and/or add notes inside them
+- [x] Highlight barline buttons in UI if a single bar is selected

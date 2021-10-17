@@ -29,6 +29,14 @@ export abstract class BaseDemo<U, T extends Previewable<U>> {
   public pitch() {
     return this._pitch;
   }
+  public removePitch() {
+    this._pitch = null;
+    if (this.previous && this.previous.hasPreview()) {
+      this.previous.removePreview();
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  }
   public stop() {
     this.previous?.removePreview();
   }
@@ -59,11 +67,23 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
     bar.insertNote(noteBefore, n);
     return n;
   }
-  public setPitch(pitch: Pitch, noteBefore: SingleNote | null, bar: Bar) {
+  public setPitch(
+    pitch: Pitch | null,
+    noteBefore: SingleNote | null,
+    bar: Bar
+  ) {
+    // Has to be done first since it's possible this._pitch is null but
+    // this.previous still has a preview
+    if (pitch === null && this.previous) {
+      this.previous.removePreview();
+      return Update.ViewChanged;
+    }
     if (pitch !== this._pitch) {
-      if (this.previous && bar !== this.previous) this.previous.removePreview();
+      if (this.previous && bar !== this.previous) {
+        this.previous.removePreview();
+      }
       this.previous = bar;
-      if (this.previous)
+      if (this.previous && pitch)
         this.previous.setPreview(noteBefore, this.toPreviewNote(pitch));
       return Update.ViewChanged;
     }
@@ -130,7 +150,7 @@ export class DemoReactive extends BaseDemo<ReactiveGracenote, SingleNote> {
     if (note) note.addGracenote(this.toGracenote(), noteBefore);
   }
   public setPitch(
-    pitch: Pitch,
+    pitch: Pitch | null,
     note: SingleNote | null,
     bar: Bar | null,
     previous: Note | null

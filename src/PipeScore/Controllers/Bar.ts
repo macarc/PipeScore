@@ -87,8 +87,16 @@ export function editBarTimeSignature(): ScoreEvent {
       const { bar } = noteLocation(state.selection.start, state.score);
       const newTimeSignature = await bar.timeSignature().edit();
       setTimeSignatureFrom(bar.timeSignature(), newTimeSignature, state.score);
-      return Update.ShouldSave;
+    } else {
+      const bar = state.score.bars()[0];
+      const newTimeSignature = await bar.timeSignature().edit();
+      if (bar)
+        setTimeSignatureFrom(
+          bar.timeSignature(),
+          newTimeSignature,
+          state.score
+        );
     }
-    return Update.NoChange;
+    return Update.ShouldSave;
   };
 }
