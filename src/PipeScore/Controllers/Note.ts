@@ -138,15 +138,12 @@ export function tieSelectedNotes(): ScoreEvent {
 export function addTriplet(): ScoreEvent {
   return async (state: State) => {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
-    const selectedNotesAndTriplets = state.selection.notesAndTriplets(
-      state.score
-    );
-    const selectedNotes = state.selection.notes(state.score);
+    const selected = state.selection.notesAndTriplets(state.score);
 
-    if (selectedNotes.length >= 3) {
-      const first = selectedNotes[0];
-      const second = selectedNotes[1];
-      const third = selectedNotes[2];
+    if (selected.length >= 3) {
+      const first = selected[0];
+      const second = selected[1];
+      const third = selected[2];
       if (
         first instanceof SingleNote &&
         second instanceof SingleNote &&
@@ -156,8 +153,8 @@ export function addTriplet(): ScoreEvent {
         bar.makeTriplet(first, second, third);
         return Update.ShouldSave;
       }
-    } else if (selectedNotesAndTriplets.length >= 1) {
-      const tr = selectedNotesAndTriplets[0];
+    } else if (selected.length >= 1) {
+      const tr = selected[0];
       if (tr instanceof Triplet) {
         const { bar } = noteLocation(tr, state.score);
         bar.unmakeTriplet(tr);
@@ -235,8 +232,7 @@ export function setInputLength(length: NoteLength): ScoreEvent {
       state.selection
         .notesAndTriplets(state.score)
         .forEach((note) => note.setLength(length));
-    }
-    if (!state.demo || state.demo instanceof DemoGracenote) {
+    } else if (!state.demo || state.demo instanceof DemoGracenote) {
       state.demo = new DemoNote(length);
     } else if (state.demo instanceof DemoNote) {
       state.demo.setLength(length);

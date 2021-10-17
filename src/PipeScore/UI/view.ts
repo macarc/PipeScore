@@ -52,9 +52,11 @@ import { Settings, settings } from '../global/settings';
 import { capitalise } from '../global/utils';
 import { Bar } from '../Bar';
 import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
+import { Note } from '../Note';
 
 export interface UIState {
   selectedGracenote: Gracenote | null;
+  selectedNote: Note | null;
   selectedBar: Bar | null;
   demo: Demo | null;
   currentMenu: Menu;
@@ -75,7 +77,11 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       h(
         'button',
         {
-          class: isCurrentNoteInput(length) ? 'highlighted' : 'not-highlighted',
+          class:
+            isCurrentNoteInput(length) ||
+            (state.selectedNote && state.selectedNote.isLength(length))
+              ? 'highlighted'
+              : 'not-highlighted',
           id: `note-${length}`,
         },
         { click: () => dispatch(setInputLength(length)) }

@@ -52,6 +52,11 @@ abstract class BaseSelection<A> {
   public gracenote(score: Score): Gracenote | null {
     return null;
   }
+  public selectedNote(score: Score) {
+    const notes = this.notes(score);
+    if (notes.length === 1) return notes[0];
+    return null;
+  }
   public render(props: ScoreSelectionProps) {
     return svg('g', { class: 'selection' });
   }
@@ -278,6 +283,9 @@ export class SecondTimingSelection {
     return null;
   }
   public gracenote() {
+    return null;
+  }
+  public selectedNote() {
     return null;
   }
   public render() {

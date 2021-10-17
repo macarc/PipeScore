@@ -7,7 +7,7 @@ import { Dispatch } from '../Controllers/Controller';
 import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch } from '../global/pitch';
-import { log, nlast, Obj } from '../global/utils';
+import { nlast, Obj } from '../global/utils';
 import width, { Width } from '../global/width';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';

@@ -106,6 +106,9 @@ export abstract class BaseNote extends Item {
       throw new Error('Unrecognised note type.');
     }
   }
+  public isLength(length: NoteLength) {
+    return this.length === length;
+  }
   public setLength(length: NoteLength) {
     this.length = length;
   }

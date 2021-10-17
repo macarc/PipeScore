@@ -222,7 +222,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     );
   }
   public unmakeTriplet(tr: Triplet) {
-    this.notes.splice(this.notes.indexOf(tr), 3, ...tr.tripletSingleNotes());
+    this.notes.splice(this.notes.indexOf(tr), 1, ...tr.tripletSingleNotes());
   }
   public location(id: ID) {
     for (const note of this.notes) {
@@ -332,27 +332,29 @@ export class Bar extends Item implements Previewable<SingleNote> {
     // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
     // note adds a note to the start of the bar
     return svg('g', { class: 'bar' }, [
-      props.noteState.inputtingNotes
-        ? noteBoxes(
-            xAfterBarline,
-            staveY,
-            barWidth,
-            (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
-            (pitch) => props.dispatch(addNoteToBarEnd(pitch, this))
-          )
-        : svg(
-            'rect',
-            {
-              x: xAfterBarline,
-              y: staveY - settings.lineHeightOf(1),
-              width: barWidth,
-              height: settings.lineHeightOf(7),
-              opacity: 0,
-            },
-            {
-              mousedown: (e) => props.dispatch(clickBar(this, e as MouseEvent)),
-            }
-          ),
+      svg(
+        'rect',
+        {
+          x: xAfterBarline,
+          y: staveY - settings.lineHeightOf(1),
+          width: barWidth,
+          height: settings.lineHeightOf(7),
+          opacity: 0,
+        },
+        {
+          mousedown: (e) => props.dispatch(clickBar(this, e as MouseEvent)),
+        }
+      ),
+      noteBoxes(
+        xAfterBarline,
+        staveY,
+        barWidth,
+        (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
+        (pitch) =>
+          props.noteState.inputtingNotes
+            ? props.dispatch(addNoteToBarEnd(pitch, this))
+            : null
+      ),
       ...groupedNotes.map((notes, idx) =>
         notes instanceof Triplet
           ? notes.render(noteProps(notes, idx))
