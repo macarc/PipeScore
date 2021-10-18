@@ -117,7 +117,7 @@ app.applicationMenu = Menu.buildFromTemplate([
         label: 'View online help',
         accelerator: 'Ctrl+H',
         click() {
-          shell.openExternal('https://pipescore.web.app/docs');
+          shell.openExternal('https://pipescore.web.app/help');
         },
       },
     ],
