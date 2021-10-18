@@ -1,6 +1,6 @@
 # PipeScore
 
-## A modern bagpipe notation app
+## A bagpipe notation app
 
 I started building this a while ago...it's getting there...
 

@@ -52,6 +52,7 @@ import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note } from '../Note';
 
 export interface UIState {
+  previewVersion: boolean;
   selectedGracenote: Gracenote | null;
   selectedNote: Note | null;
   selectedBar: Bar | null;
@@ -571,6 +572,18 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       capitalise(name),
     ]);
   return h('div', [
+    state.previewVersion
+      ? h(
+          'div',
+          {
+            style:
+              'position: fixed; bottom: 0; left: 0; padding: 1rem; width: calc(90vw - 5rem); z-index: 10; background-color: lightblue; color: black;',
+          },
+          [
+            'This is a preview version, and may not work correctly, depending on your browser. Download to get access to all features!',
+          ]
+        )
+      : null,
     h('div', { id: 'menu' }, [
       help(
         'Return to Scores page',

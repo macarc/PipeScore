@@ -13,12 +13,6 @@ import subprocess
 with open(f'src/static/template.html') as f:
     template = f.read()
 
-
-def build_md(filename):
-    "Build a markdown file with pandoc"
-
-    subprocess.run(['pandoc', '--standalone', '--template', 'src/static/template.html', f'src/static/{filename}.md', '-s', '-o', f'public/{filename}.html'])
-
 def reify_template(title, body, css=None, js=None):
     "Substitute title, body, e.t.c. into template and return as a str."
 
@@ -57,9 +51,13 @@ def build(filename):
 
     output_file(filename, reify_template(*parse_file(filename)))
 
+def cp_file(filename):
+    "Copy a file straight from src/static to the public directory"
+    subprocess.run(['cp', f'src/static/{filename}.html', f'public/{filename}.html'])
+
 build('index')
 build('login')
 build('scores')
 build('404')
-build_md('docs')
-subprocess.run(['cp', 'src/static/pipescore.html', 'public/pipescore.html'])
+cp_file('pipescore')
+cp_file('docs')

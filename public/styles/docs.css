@@ -1,0 +1,58 @@
+#main {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+#main * {
+  flex: 1;
+}
+#main nav {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: lightblue;
+  flex-grow: 0;
+  padding: 0.5rem;
+}
+
+main {
+  padding: 2rem;
+}
+main li {
+  margin-top: 0.5rem;
+}
+
+span.keyboard-shortcut {
+  font-family: monospace;
+  font-style: italic;
+}
+span.location {
+  background: lightblue;
+  border-radius: 0.5rem;
+}
+span.button-name {
+  border: 1px solid black;
+  font-weight: bold;
+  font-size: 0.9rem;
+  padding: 0.1rem;
+}
+span.option {
+  font-family: monospace;
+}
+
+@media only screen and (max-width: 650px) {
+  #main {
+    display: block;
+  }
+  main {
+    width: 90vw;
+    padding: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #main nav {
+    position: static;
+    height: auto;
+    background: none;
+  }
+}

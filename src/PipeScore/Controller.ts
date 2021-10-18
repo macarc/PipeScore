@@ -21,6 +21,8 @@ declare let window: Window & {
   };
 };
 
+const isElectron = window.electron !== undefined;
+
 const initialState: State = {
   justClickedNote: false,
   demo: null,
@@ -36,7 +38,7 @@ const initialState: State = {
 let state: State = { ...initialState };
 
 function save(score: string) {
-  window.electron.updateScore(score);
+  if (isElectron) window.electron.updateScore(score);
 }
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
@@ -76,6 +78,7 @@ const updateView = (state: State) => {
     demoNote: state.demo,
   };
   const uiProps = {
+    previewVersion: !isElectron,
     zoomLevel: state.score.zoom,
     demo: state.demo,
     selectedNote: state.selection && state.selection.selectedNote(state.score),
@@ -130,12 +133,13 @@ function mouseMove(event: MouseEvent) {
 export default function startController(score: Score): void {
   // Initial render, hooks event listeners
 
-  window.electron.onOpenFile((file: string) => {
-    state = {
-      ...initialState,
-      score: Score.fromJSON(JSON.parse(file)),
-    };
-  });
+  if (isElectron)
+    window.electron.onOpenFile((file: string) => {
+      state = {
+        ...initialState,
+        score: Score.fromJSON(JSON.parse(file)),
+      };
+    });
   state.score = score;
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);

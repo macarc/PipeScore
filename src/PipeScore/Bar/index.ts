@@ -19,7 +19,6 @@ import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Controllers/Mouse';
 import { Barline, NormalB } from './barline';
 import { Previewable } from '../DemoNote/previewable';
-import { settings } from '../global/settings';
 
 export interface BarProps {
   x: number;
@@ -312,15 +311,15 @@ export class Bar extends Item implements Previewable<SingleNote> {
 
     const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
 
-    const noteProps = (notes: SingleNote[] | Triplet, index: number) => {
+    const noteProps = (notes: SingleNote[] | Triplet) => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];
+      const index = this.notes.indexOf(firstNote);
       return {
-        x: xOf(this.notes.indexOf(firstNote)),
+        x: xOf(index),
         y: staveY,
         noteWidth: beatWidth,
         previousNote:
-          this.notes[this.notes.indexOf(firstNote) - 1]?.lastSingle() ||
-          previousNote?.lastSingle(),
+          this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
         selectedNotes: [],
         endOfLastStave: props.endOfLastStave,
         dispatch: props.dispatch,
@@ -344,10 +343,10 @@ export class Bar extends Item implements Previewable<SingleNote> {
             ? props.dispatch(addNoteToBarEnd(pitch, this))
             : props.dispatch(clickBar(this, e))
       ),
-      ...groupedNotes.map((notes, idx) =>
+      ...groupedNotes.map((notes) =>
         notes instanceof Triplet
-          ? notes.render(noteProps(notes, idx))
-          : SingleNote.renderMultiple(notes, noteProps(notes, idx))
+          ? notes.render(noteProps(notes))
+          : SingleNote.renderMultiple(notes, noteProps(notes))
       ),
 
       !this.frontBarline.symmetric ||
