@@ -1,6 +1,6 @@
 /*
   Interface describing items that can be previewed (i.e. a demo item may be shown)
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { SingleNote } from '../Note';
 

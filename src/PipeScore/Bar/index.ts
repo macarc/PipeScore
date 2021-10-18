@@ -1,6 +1,6 @@
 /*
   Define format for bar
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
  */
 import { TimeSignature } from '../TimeSignature';
 import { BaseNote, Note, SingleNote, Triplet } from '../Note';
@@ -319,7 +319,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
         y: staveY,
         noteWidth: beatWidth,
         previousNote:
-          this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
+          this.notes[this.notes.indexOf(firstNote) - 1]?.lastSingle() ||
+          previousNote?.lastSingle(),
         selectedNotes: [],
         endOfLastStave: props.endOfLastStave,
         dispatch: props.dispatch,

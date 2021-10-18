@@ -1,6 +1,6 @@
 /*
   Types needed for UI
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 export type Menu =
   | 'note'

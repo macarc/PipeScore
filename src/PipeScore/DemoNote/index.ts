@@ -1,6 +1,6 @@
 /*
   DemoNote (preview note) model
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
  */
 import { Bar } from '../Bar';
 import { Update } from '../Controllers/Controller';

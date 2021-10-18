@@ -7,7 +7,7 @@ import { Obj } from '../global/utils';
 
 /*
   TimeSignature format
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 export type Denominator = 2 | 4 | 8;
 

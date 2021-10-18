@@ -1,6 +1,6 @@
 /*
   Note format
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
  */
 import { pitchOffset, noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';

@@ -1,7 +1,7 @@
 /*
   Playback - given a list of pitches and lengths, play them using the Web Audio API
   See https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { Pitch } from './global/pitch';
 

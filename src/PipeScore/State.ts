@@ -1,6 +1,6 @@
 /*
   State.ts - Defines global State interface
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 
 import { Demo } from './DemoNote';

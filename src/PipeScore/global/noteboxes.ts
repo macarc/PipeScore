@@ -1,6 +1,6 @@
 /*
   Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { svg, V } from '../../render/h';
 import { settings } from './settings';

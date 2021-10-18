@@ -1,6 +1,6 @@
 /*
   SecondTiming format
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { svg, V } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';

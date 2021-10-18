@@ -1,6 +1,6 @@
 /*
   The entry point for PipeScore
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { keyHandler } from './KeyHandler';
 import startController from './Controller';

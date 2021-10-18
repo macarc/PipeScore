@@ -1,6 +1,6 @@
 /*
   Define gracenote format
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
  */
 import { svg, V } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
@@ -196,7 +196,7 @@ export abstract class Gracenote {
   }
   private renderSingle(note: Pitch, props: GracenoteProps) {
     const y = noteY(props.y, note);
-    const wholeSelected = props.state.selected?.note === null;
+    const wholeSelected = props.state.selected?.note === 'all';
     const selected =
       props.state.selected?.gracenote === this &&
       (props.state.selected?.note === 0 || wholeSelected);
@@ -228,7 +228,7 @@ export abstract class Gracenote {
     ]);
   }
   public render(props: GracenoteProps): V {
-    const wholeSelected = props.state.selected?.note === null;
+    const wholeSelected = props.state.selected?.note === 'all';
     const pitches = this.notes(props.thisNote, props.previousNote);
     // If each note is an object, then we can use .indexOf and other related functions
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
@@ -257,17 +257,13 @@ export abstract class Gracenote {
       const clickBoxMargin = 3;
       return svg('g', { class: 'reactive-gracenote' }, [
         ...[0, 2, 4].map((i) =>
-          svg(
-            'line',
-            {
-              x1: tailStart,
-              x2: tailEnd,
-              y1: beamY + i,
-              y2: beamY + i,
-              stroke: colour,
-            },
-            { mousedown: () => props.dispatch(clickGracenote(this, null)) }
-          )
+          svg('line', {
+            x1: tailStart,
+            x2: tailEnd,
+            y1: beamY + i,
+            y2: beamY + i,
+            stroke: colour,
+          })
         ),
         svg(
           'rect',
@@ -279,7 +275,7 @@ export abstract class Gracenote {
             opacity: 0,
             style: 'cursor: pointer;',
           },
-          { mousedown: () => props.dispatch(clickGracenote(this, null)) }
+          { mousedown: () => props.dispatch(clickGracenote(this, 'all')) }
         ),
         ...uniqueNotes.map((noteObj, i) =>
           this.head(

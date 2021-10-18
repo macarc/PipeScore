@@ -1,6 +1,6 @@
 /*
    Virtual DOM API
-   Copyright (C) 2021 Archie Maclean
+   Copyright (C) 2021 macarc
  */
 import { V, VElement, Attributes, Events } from './types';
 

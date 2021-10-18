@@ -1,6 +1,6 @@
 /*
   Types and methods used for multiple controllers
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { State } from '../State';
 import { Note } from '../Note';

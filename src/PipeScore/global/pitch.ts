@@ -1,6 +1,6 @@
 /*
   Pitch type and methods
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { settings } from './settings';
 

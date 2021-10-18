@@ -1,6 +1,6 @@
 /*
    Virtual DOM implementation - still needs work
-   Copyright (C) 2021 Archie Maclean
+   Copyright (C) 2021 macarc
  */
 import { VElement, VString, AnyV } from './types';
 

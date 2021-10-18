@@ -1,6 +1,6 @@
 /*
   Draw user interface (bar at top with buttons)
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { Menu } from './model';
 import { h, V, Attributes } from '../../render/h';

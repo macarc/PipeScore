@@ -1,6 +1,6 @@
 /*
   General helper functions
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 
 export type Obj = Record<string, any>;

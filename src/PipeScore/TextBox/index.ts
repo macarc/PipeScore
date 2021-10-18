@@ -7,7 +7,7 @@ import { Selection, TextSelection } from '../Selection';
 
 /*
   TextBox format
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 interface TextBoxProps {
   dispatch: Dispatch;

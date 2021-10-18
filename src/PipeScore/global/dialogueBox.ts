@@ -1,6 +1,6 @@
 /*
   A simple HTML dialogue box
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { h, hFrom, V } from '../../render/h';
 import patch from '../../render/vdom';

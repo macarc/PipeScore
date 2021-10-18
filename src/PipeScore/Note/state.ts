@@ -1,6 +1,6 @@
 /*
   State required for notes
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { Note } from '.';
 

@@ -1,6 +1,6 @@
 /*
   Handles input and events for PipeScore
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 
 import patch from '../render/vdom';

@@ -1,12 +1,12 @@
 /*
   Define state required for gracenotes
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { Gracenote } from '.';
 
 type SelectedGracenote = {
   gracenote: Gracenote;
-  note: number | null;
+  note: number | 'all';
 };
 type DraggedGracenote = {
   gracenote: Gracenote;

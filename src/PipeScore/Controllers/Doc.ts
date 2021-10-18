@@ -1,6 +1,6 @@
 /*
   Controller for documentation events
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';

@@ -1,6 +1,6 @@
 /*
   Dispatches to Controller when key presses occur
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
  */
 import { dispatch } from './Controller';
 import { dialogueBoxIsOpen } from './global/dialogueBox';

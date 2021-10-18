@@ -2,7 +2,7 @@ import { Obj } from './utils';
 
 /*
   Document settings singleton
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 export class Settings {
   staveGap = 100;

@@ -1,6 +1,6 @@
 /*
   Score format
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { Stave } from '../Stave';
 import { TextBox } from '../TextBox';

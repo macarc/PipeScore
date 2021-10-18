@@ -2,7 +2,7 @@
   Functions for dealing with coordinates
   - useful for things like dragging, ties, and snap to not
   - anything where you need to know the coordinates of something else.
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { ID } from './id';
 

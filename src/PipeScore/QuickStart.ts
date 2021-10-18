@@ -1,7 +1,7 @@
 /*
   This pops up when a user creates a new score, to give them a few default options to choose from.
 
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 import { h } from '../render/h';
 import dialogueBox from './global/dialogueBox';

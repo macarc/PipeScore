@@ -1,6 +1,6 @@
 /*
   All the gracenotes (reactive embellishments) possible with PipeScore
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
  */
 import { Pitch } from '../global/pitch';
 import { MaybeGracenote } from '.';

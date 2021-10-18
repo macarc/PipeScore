@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 
   Widths are dealt with slightly oddly
   They are split into two parts

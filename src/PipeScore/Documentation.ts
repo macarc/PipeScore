@@ -1,6 +1,6 @@
 /*
   Documentation - explanations for the UI that are shown on hover
-  Copyright (C) 2021 Archie Maclean
+  Copyright (C) 2021 macarc
 */
 const noteDoc = (name: string) => `Click to start inputting ${name} notes
 
