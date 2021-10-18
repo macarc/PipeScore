@@ -5,7 +5,23 @@
 import { ScoreEvent, noteLocation, Update } from './Controller';
 import { State } from '../State';
 import { ScoreSelection, SecondTimingSelection } from '../Selection';
-import { SecondTiming } from '../SecondTiming';
+import {
+  SecondTiming,
+  SingleTiming,
+  Timing,
+  TimingPart,
+} from '../SecondTiming';
+
+export function addSingleTiming(): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const { bar } = noteLocation(state.selection.start, state.score);
+      state.score.addSecondTiming(new SingleTiming(bar.id, bar.id));
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
 
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
@@ -29,8 +45,8 @@ export function addSecondTiming(): ScoreEvent {
 }
 
 export function clickSecondTiming(
-  secondTiming: SecondTiming,
-  part: 'start' | 'middle' | 'end'
+  secondTiming: Timing,
+  part: TimingPart
 ): ScoreEvent {
   return async (state: State) => {
     state.selection = new SecondTimingSelection(secondTiming).drag(part);

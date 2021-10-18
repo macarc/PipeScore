@@ -13,6 +13,21 @@ import { stopInputtingNotes } from './Note';
 import { settings, Settings } from '../global/settings';
 import { Score } from '../Score';
 
+export function editText(
+  value: string,
+  cb: (text: string) => void
+): ScoreEvent {
+  return async () => {
+    await dialogueBox(
+      [h('label', ['Text:', h('input', { type: 'text', value })])],
+      (form) =>
+        (form.querySelector('input[type="text"]') as HTMLInputElement).value,
+      value
+    ).then((text) => cb(text));
+
+    return Update.ShouldSave;
+  };
+}
 export function addPage(): ScoreEvent {
   return async (state: State) => {
     state.score.numberOfPages += 1;

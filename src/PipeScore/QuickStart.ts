@@ -10,9 +10,9 @@ import { Score } from './Score';
 import { TimeSignature } from './TimeSignature';
 
 class ScoreOptions {
-  name: string = 'Blank Score';
-  numberOfStaves: number = 4;
-  timeSignature: TimeSignature = new TimeSignature('cut time');
+  name = 'Blank Score';
+  numberOfStaves = 4;
+  timeSignature = new TimeSignature('cut time');
 
   toScore(): Score {
     return new Score(this.name, this.numberOfStaves, this.timeSignature);

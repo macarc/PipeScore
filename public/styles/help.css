@@ -1,22 +1,16 @@
 #main {
-  display: flex;
-  margin: 0;
-  padding: 0;
+  display: block;
 }
-#main * {
-  flex: 1;
+main {
+  width: 90vw;
+  padding: 0;
+  margin-left: auto;
+  margin-right: auto;
 }
 #main nav {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  background: lightblue;
-  flex-grow: 0;
-  padding: 0.5rem;
-}
-
-main {
-  padding: 2rem;
+  position: static;
+  height: auto;
+  background: none;
 }
 main li {
   margin-top: 0.5rem;
@@ -40,19 +34,44 @@ span.option {
   font-family: monospace;
 }
 
-@media only screen and (max-width: 650px) {
+@media only screen and (min-width: 650px) {
   #main {
-    display: block;
-  }
-  main {
-    width: 90vw;
+    display: flex;
+    margin: 0;
     padding: 0;
-    margin-left: auto;
-    margin-right: auto;
+  }
+  #main * {
+    flex: 1;
   }
   #main nav {
-    position: static;
-    height: auto;
-    background: none;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: lightblue;
+    flex-grow: 0;
+    padding: 0.5rem;
+  }
+
+  main {
+    padding: 2rem;
+    margin: 0 5vw;
+  }
+
+  nav a {
+    color: black;
+  }
+
+  nav ul {
+    /* list-style: none; */
+    padding: 0rem 1rem;
+  }
+  nav ul li {
+    margin: 0.3rem 0;
+  }
+  nav ul ul {
+    list-style: circle;
+  }
+  nav ul ul li {
+    margin: 0.1rem 0;
   }
 }

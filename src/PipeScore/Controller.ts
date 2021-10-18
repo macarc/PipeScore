@@ -26,7 +26,7 @@ const initialState: State = {
   history: { past: [], future: [] },
   view: { score: null, ui: null },
 };
-let state: State = { ...initialState };
+const state: State = { ...initialState };
 
 let save: (score: Score) => void = () => null;
 

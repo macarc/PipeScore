@@ -30,7 +30,7 @@ import {
   addPage,
   removePage,
 } from '../Controllers/Misc';
-import { addSecondTiming } from '../Controllers/SecondTiming';
+import { addSecondTiming, addSingleTiming } from '../Controllers/SecondTiming';
 import { deleteSelection } from '../Controllers/Mouse';
 import { setGracenoteOnSelectedNotes } from '../Controllers/Gracenote';
 import { toggleDoc } from '../Controllers/Doc';
@@ -359,6 +359,15 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             { id: 'add-second-timing' },
             { click: () => dispatch(addSecondTiming()) },
             ['1st/ 2nd']
+          )
+        ),
+        help(
+          'single timing',
+          h(
+            'button',
+            { id: 'add-second-timing' },
+            { click: () => dispatch(addSingleTiming()) },
+            ['2nd']
           )
         ),
       ]),

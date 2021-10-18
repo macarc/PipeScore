@@ -4,7 +4,7 @@
 */
 import { Stave } from '../Stave';
 import { TextBox } from '../TextBox';
-import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
+import { BaseTiming, DraggedTiming, Timing } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import { h, svg, V } from '../../render/h';
@@ -33,7 +33,7 @@ export class Score {
   private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[][];
-  private secondTimings: SecondTiming[];
+  private secondTimings: Timing[];
 
   public numberOfPages = 1;
   public zoom: number;
@@ -55,7 +55,7 @@ export class Score {
     s.landscape = o.landscape;
     s._staves = o._staves.map(Stave.fromJSON);
     s.textBoxes = o.textBoxes.map((p: Obj) => p.texts.map(TextBox.fromJSON));
-    s.secondTimings = o.secondTimings.map(SecondTiming.fromJSON);
+    s.secondTimings = o.secondTimings.map(BaseTiming.fromJSON);
     s.numberOfPages = o.numberOfPages;
     settings.fromJSON(o.settings);
     return s;
@@ -98,7 +98,7 @@ export class Score {
   public addText(text: TextBox) {
     this.textBoxes[0].push(text);
   }
-  public addSecondTiming(secondTiming: SecondTiming) {
+  public addSecondTiming(secondTiming: Timing) {
     if (secondTiming.isValid(this.secondTimings)) {
       this.secondTimings.push(secondTiming);
       return true;
@@ -269,7 +269,7 @@ export class Score {
       return null;
     }
   }
-  public deleteSecondTiming(secondTiming: SecondTiming) {
+  public deleteSecondTiming(secondTiming: Timing) {
     this.secondTimings.splice(this.secondTimings.indexOf(secondTiming), 1);
   }
   public deleteTextBox(text: TextBox) {
@@ -293,21 +293,12 @@ export class Score {
       text.setCoords(x, y);
     }
   }
-  public dragSecondTiming(
-    secondTiming: DraggedSecondTiming,
-    x: number,
-    y: number
-  ) {
-    secondTiming.secondTiming.drag(
-      secondTiming.dragged,
-      x,
-      y,
-      this.secondTimings
-    );
+  public dragSecondTiming(secondTiming: DraggedTiming, x: number, y: number) {
+    secondTiming.timing.drag(secondTiming.dragged, x, y, this.secondTimings);
   }
 
   public purgeSecondTimings(items: Item[]) {
-    const secondTimingsToDelete: SecondTiming[] = [];
+    const secondTimingsToDelete: Timing[] = [];
     for (const item of items) {
       for (const st of this.secondTimings) {
         if (st.pointsTo(item.id)) secondTimingsToDelete.push(st);

@@ -21,7 +21,9 @@ export default new Map(
     dot: "Add a dot to the selected note, or to the length of the note that you're currently inputting.\n\nIf there is already a dot, this removes it",
     tie: 'Tie the selected note to the note before it',
     'second timing':
-      'Add a 1st/2nd timing. Select the start of where the first timing should go and press this, then drag to change the second timing',
+      'Add a 1st/2nd timing. Select the start of where the first timing should go and press this, then drag to change the position',
+    'single timing':
+      'Add a 2nd timing. Select the start of where the timing should go and press this, then drag to change the position',
     triplet: 'Make the three selected notes into a triplet',
     delete:
       'Delete the current selected note, gracenote, text or bar.\n\nFor gracenotes, clicking the beam at the top will select the entire gracenote, or clicking the head will select a single note from the gracenote.\n\nTo delete a stave, delete all the bars in it.',

@@ -4,7 +4,7 @@
 */
 import { ID, Item } from '../global/id';
 import { Note, SingleNote, Triplet } from '../Note';
-import { DraggedSecondTiming, SecondTiming } from '../SecondTiming';
+import { DraggedTiming, Timing, TimingPart } from '../SecondTiming';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
 import { deleteXY, getXY } from '../global/xy';
@@ -257,10 +257,10 @@ export class TextSelection extends BaseSelection<TextBox> {
 }
 
 export class SecondTimingSelection {
-  secondTiming: SecondTiming;
-  private dragged: DraggedSecondTiming | null = null;
+  secondTiming: Timing;
+  private dragged: DraggedTiming | null = null;
 
-  constructor(secondTiming: SecondTiming) {
+  constructor(secondTiming: Timing) {
     this.secondTiming = secondTiming;
   }
   public delete(score: Score) {
@@ -269,8 +269,8 @@ export class SecondTimingSelection {
   public mouseUp() {
     this.dragged = null;
   }
-  public drag(part: 'start' | 'middle' | 'end') {
-    this.dragged = { secondTiming: this.secondTiming, dragged: part };
+  public drag(part: TimingPart) {
+    this.dragged = { timing: this.secondTiming, dragged: part };
     return this;
   }
   public mouseDrag(x: number, y: number, score: Score) {

@@ -6,7 +6,7 @@
 */
 import { ID } from './id';
 
-interface XY {
+export interface XY {
   beforeX: number;
   afterX: number;
   y: number;
@@ -31,14 +31,18 @@ export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 };
 
+export const before = (a: XY, b: XY): boolean => {
+  if (b.y > a.y) return true;
+  else if (a.y > b.y) return false;
+  else return b.beforeX > a.beforeX;
+};
+
 export const itemBefore = (a: ID, b: ID): boolean => {
   const f = getXY(a);
   const g = getXY(b);
 
   if (f && g) {
-    if (g.y > f.y) return true;
-    else if (f.y > g.y) return false;
-    else return g.beforeX > f.beforeX;
+    return before(f, g);
   } else {
     return false;
   }
