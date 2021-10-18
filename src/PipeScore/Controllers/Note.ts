@@ -268,7 +268,7 @@ export function paste(): ScoreEvent {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
       const id = state.selection.end;
       const { bar } = noteLocation(id, state.score);
-      Bar.pasteNotes(state.clipboard, bar, id, state.score.bars());
+      Bar.pasteNotes(state.clipboard.slice(), bar, id, state.score.bars());
       return Update.ShouldSave;
     }
     return Update.NoChange;

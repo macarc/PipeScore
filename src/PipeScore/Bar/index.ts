@@ -124,26 +124,26 @@ export class Bar extends Item implements Previewable<SingleNote> {
     // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
 
     let startedPasting = false;
+    let onFirst = false;
 
     for (const bar of bars) {
-      if (bar.hasID(start.id) || startedPasting) {
-        if (bar.hasID(start.id)) {
-          if (bar.hasID(id)) {
-            bar.notes = [
-              ...bar.notes,
-              ...(notes.filter((note) => note !== 'bar-break') as Note[]),
-            ];
-            return;
-          }
-        } else {
-          bar.notes = [];
-        }
+      if (bar.hasID(start.id)) {
         startedPasting = true;
+        onFirst = true;
+        if (bar.hasID(id)) bar.notes = [];
+      }
+      if (startedPasting) {
+        // Only delete the current notes if we aren't on the first bar
+        // since we should append to the first, then replace for the rest
+        if (!onFirst) bar.notes = [];
+        else onFirst = false;
+
         let currentPastingNote = notes.shift();
         while (currentPastingNote && currentPastingNote !== 'bar-break') {
           bar.notes.push(currentPastingNote);
           currentPastingNote = notes.shift();
         }
+
         if (notes.length === 0) {
           return;
         }
