@@ -7,6 +7,7 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
+- [ ] Fix copy/paste
 
 ### Cleanups
 

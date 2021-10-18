@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="PipeScore is a modern, web-based bagpipe notation app."
+    />
+    <title>Docs - PipeScore (DEV)</title>
+    <link rel="icon" href="/images/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="styles/base.css" />
+    <link type="text/css" rel="stylesheet" href="styles/docs.css" />
+  </head>
+  <body>
+    <header>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/scores">Get Started</a></li>
+        <li><a href="/docs">Help</a></li>
+        <li><a href="https://github.com/macarc/PipeScore">Source Code</a></li>
+      </ul>
+    </header>
+    <div id="main">
+      <nav>
+        <ul>
+          <li><a href="#start">Introduction</a></li>
+          <li><a href="#before-begin">Before you begin</a></li>
+          <li><a href="#accounts">Accounts</a></li>
+          <li><a href="#creating-scores">Creating Scores</a></li>
+          <li><a href="#saving">Saving</a></li>
+          <li><a href="#printing">Printing</a></li>
+          <li><a href="#interface">Interface</a></li>
+          <li><a href="#selection">Selection</a></li>
+          <li><a href="#notes">Notes</a></li>
+          <li><a href="#copy-paste">Copying/Pasting</a></li>
+          <li>
+            <a href="#gracenotes">Gracenotes</a>
+            <ul>
+              <li><a href="#single-gracenotes">Single Gracenotes</a></li>
+              <li><a href="#embellishments">Embellishments</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#bars">Bars</a>
+            <ul>
+              <li><a href="#lead-ins">Lead-ins</a></li>
+            </ul>
+          </li>
+          <li><a href="#time-signatures">Time Signatures</a></li>
+          <li><a href="#staves">Staves</a></li>
+          <li><a href="#text-boxes">Text Boxes</a></li>
+          <li><a href="#second-timings">Second Timings</a></li>
+          <li>
+            <a href="#pages">Pages</a>
+            <ul>
+              <li><a href="#orientation">Orientation</a></li>
+            </ul>
+          </li>
+          <li><a href="#getting-help">Getting Help</a></li>
+        </ul>
+      </nav>
+      <main>
+        <h1 id="start">Help Page</h1>
+        <p>
+          Welcome! This page contains information about how to use PipeScore.
+          You can search through this page using the
+          <span class="keyboard-shortcut">Ctrl-F</span> keyboard shortcut in
+          your browser. It currently isn't very easy to read - in future there
+          will be an introductory video showing the basics here.
+        </p>
+        <p>
+          If you can't find what you're looking for, don't hesitate to contact
+          me and ask!
+        </p>
+        <p>
+          PipeScore is still being developed, so if you find any bugs (or you
+          want me to add any features) just tell me and I'll do my best.
+        </p>
+        <p>
+          You can also hover over many elements in the main PipeScore interface,
+          and it shows the documentation for that thing at the bottom of the
+          page.
+        </p>
+
+        <h2 id="before-begin">Before you begin</h2>
+        <p>You can use PipeScore on any operating system</p>
+        <p>
+          PipeScore will not work on mobile, and it may look a bit squashed in
+          small screens. If the interface is very cramped you could try zooming
+          out in your browser, and then refreshing.
+        </p>
+
+        <h2 id="accounts">Accounts</h2>
+        <p>
+          You can use PipeScore without an account if you wish, to try it out.
+          Your scores will not be saved if you do, since there isn't an account
+          to save them to.
+        </p>
+        <p>
+          Accounts are completely free.
+          <a href="/login">Create an account here</a>.
+        </p>
+
+        <h2 id="creating-scores">Creating Scores</h2>
+        <p>
+          Once you have created your account, you will be redirected to the
+          scores page. Here, you can create new scores, and modify the ones you
+          already have. Press the
+          <span class="button-name">New Score</span> button to create a new
+          score.
+        </p>
+        <p>
+          This will give you a quick-start menu, where you can specify a few
+          things about your score. You can change these later.
+        </p>
+        <p>
+          You will then enter the full interface. You can return to the scores
+          page by pressing the Home button in the top left.
+        </p>
+        <p>
+          To re-open a score in the interface, press the
+          <span class="button-name">Edit</span> button.
+        </p>
+
+        <h2 id="saving">Saving</h2>
+        <p>
+          PipeScore automatically saves all your scores to the Cloud (so long as
+          you have created your account), so you don't need to save it manually.
+        </p>
+
+        <h2 id="printing">Printing</h2>
+        <p>
+          You can print your score using the
+          <span class="button-name">Print</span> button under the
+          <span class="location">Document</span> tab.
+        </p>
+        <p>
+          You <strong>must</strong> set <span class="option">Margin</span> to
+          <span class="option">None</span> on the print preview page to print it
+          properly. Unfortunately this cannot be automatic, due to a security
+          feature in browsers that prevents the browser meddling with printer
+          settings - so you will have to meddle with them instead!
+        </p>
+
+        <h2 id="interface">Interface</h2>
+        <p>The interface in PipeScore consists of three parts:</p>
+        <ul>
+          <li>
+            Top panel - the top panel contains sub-menus for different aspects
+            of the score.
+          </li>
+          <li>
+            Help pane - in the bottom left there is a help pane. Hover over
+            anything in the top panel to see the documentation for it in this
+            panel. You can disable it by ticking
+            <span class="button-name">Disable Help</span> under the
+            <span class="location">Settings</span> tab.
+          </li>
+          <li>
+            Score - the rest of the interface is the score. This can be zoomed
+            in or out using the slider at the bottom of the General Commands.
+          </li>
+        </ul>
+
+        <h2 id="selection">Selection</h2>
+        <p>
+          You can select many items on the score by clicking them. This
+          highlights them orange. You can select notes, text and bars this way
+          (for bars, make sure you click a blank part of the bar that doesn't
+          have any notes in it).
+        </p>
+        <p>
+          For gracenotes, you can select single notes within the gracenotes by
+          clicking on the note head. To select the whole gracenote, click the
+          beam at the top of the gracenote that connects the notes.
+        </p>
+        <p>
+          If you want to select more than one item, click on the first item and
+          then press shift and click the last item. This is useful for selecting
+          multiple notes and/or bars.
+        </p>
+        <p>
+          Alternatively, you can click on the first item and then press
+          <span class="keyboard-shortcut">Shift-Right</span> to expand the
+          selection one item to the right, or
+          <span class="keyboard-shortcut">Shift-Left</span> to detract the
+          selection to the left by one.
+        </p>
+
+        <h2 id="notes">Notes</h2>
+        <p>
+          You can add any note by clicking on the note length you want under the
+          <span class="location">Note</span>
+          tab, then clicking on the score where you want to place the note.
+          PipeScore automatically places notes the correct space apart.
+        </p>
+        <p>
+          You can use the keyboard shortcuts
+          <span class="keyboard-shortcut">1</span>,<span
+            class="keyboard-shortcut"
+            >2</span
+          >,<span class="keyboard-shortcut">3</span>...<span
+            class="keyboard-shortcut"
+            >7</span
+          >
+          to select different note lengths.
+        </p>
+        <p>
+          To stop inputting notes, press a blank area of the page, or press the
+          Escape (<span class="keyboard-shortcut">esc</span>) key.
+        </p>
+        <p>
+          To change a note's length, select it then click the note length you
+          want under the <span class="location">Note</span> tab. To change a
+          note's pitch, select the note, then drag the note up or down.
+        </p>
+        <p>
+          You can delete a note by selecting it, then pressing the bin icon in
+          the top panel.
+        </p>
+        <p>
+          You can create a triplet by adding three notes, selecting all three,
+          then pressing the triplet icon under the
+          <span class="location">Note</span> tab. You can make a triplet turn
+          back into normal notes by selecting any note in the triplet, then
+          clicking the triplet icon.
+        </p>
+        <p>
+          You can tie a note to the note before it by selecting the note, then
+          pressing the tie icon in the top panel.
+        </p>
+        <p>
+          You can add a dot to any note (making the note 50% longer) by
+          selecting the note then pressing the
+          <span class="button-name">.</span> button in the top panel.
+        </p>
+
+        <h2 id="copy-paste">Copying/Pasting</h2>
+        <p>
+          You can copy notes by selecting all the notes (or bars) you want to
+          copy (see <a href="#selection">Selection</a> above), then pressing the
+          copy button in the top panel (the icon looks like two pages next to
+          each other). You can also use the
+          <span class="keyboard-shortcut">Ctrl-C</span> shortcut if you want.
+        </p>
+        <p>
+          Then, select either the bar you want to paste them to, or a note that
+          you want to paste them after, and press the paste button in the top
+          panel (the icon looks like a clipboard). You can use the
+          <span class="keyboard-shortcut">Ctrl-V</span> shortcut if you prefer.
+        </p>
+        <p>
+          PipeScore will automatically keep the same bar breaks in the notes
+          that you paste.
+        </p>
+
+        <h2 id="gracenotes">Gracenotes</h2>
+        <h3 id="single-gracenotes">Single Gracenotes</h3>
+        <p>
+          You can add single a single gracenote by clicking the single gracenote
+          under the <span class="location">Gracenote</span> tab, then clicking
+          on the place you want to place the single.
+        </p>
+        <h3 id="embellishments">Embellishments</h3>
+        <p>
+          Embellishments in PipeScore are added in 'sets'. An example of a set
+          is 'doubling', or 'toarluath'. PipeScore will then make sure that the
+          embellishment placed on the score is the correct type based on the
+          note that it's on. If you drag the note that the embellishment is on,
+          it will update automatically.
+        </p>
+        <p>To add an embellishment:</p>
+        <ul>
+          <li>
+            Select the gracenote you want under the
+            <span class="location">Gracenote</span> tab. Remember that PipeScore
+            will choose the correct embellishment based on the note that you
+            place it on, so for example, the C doubling button will place a B
+            doubling if you add it to a B.
+          </li>
+          <li>
+            Click either on the note you want to place it on, or just before the
+            note you want to place it on. That will place the embellishment
+          </li>
+          <li>
+            Press Escape (<span class="keyboard-shortcut">esc</span>) or click
+            the background of the score to stop inputting gracenotes.
+          </li>
+        </ul>
+        <p>
+          You can change which gracenote is on a note by selecting the note, and
+          then clicking the gracenote type you want under the
+          <span class="location">Gracenote</span> tab.
+        </p>
+        <p>
+          You can select individual notes in gracenotes by clicking on the
+          gracenote head. You can then delete the individual note or drag it up
+          or down. If you do this on a reactive gracenote, it will cease to be
+          reactive, so it won't react to changes on the parent note.
+        </p>
+        <p>
+          You can select an entire gracenote by clicking on the beams that
+          connect the gracenote together.
+        </p>
+
+        <h2 id="bars">Bars</h2>
+        <p>
+          You can place a bar by selecting the bar before where you want to
+          place it, then pressing <span class="button-name">+ After</span> under
+          the <span class="location">Bar</span> tab. Alternatively, you can
+          select the bar after where you want to place it and click
+          <span class="button-name">+ Before</span> under the
+          <span class="location">Bar</span> tab.
+        </p>
+        <p>
+          You can delete a bar by selecting the bar, then pressing the bin icon
+          in the top panel. The other bars in the stave will then be made to
+          fill up the rest of the space
+        </p>
+        <p>
+          You can change the repeats on a bar using the controls under the
+          <span class="location">Bar</span> tab - you can change the start and
+          end of the bar to either have a normal barline, a repeating start/end
+          of part, or a non-repeating start/end of part.
+        </p>
+        <h3 id="lead-ins">Lead ins</h3>
+        <p>
+          You can add lead-ins similar to adding bars, using the
+          <span class="button-name">+ Before Bar</span> and
+          <span class="button-name">+ After Bar</span> buttons under the
+          <span class="location">Bar</span> tab. This will add a lead-in bar,
+          which you can add notes to.
+        </p>
+        <p>
+          Like bars, you can delete these by selecting them, then pressing the
+          bin icon in the top panel.
+        </p>
+
+        <h2 id="time-signatures">Time Signatures</h2>
+        <p>
+          You can edit the time signature of a bar by selecting the bar and then
+          pressing <span class="button-name">Edit Time Signature</span> under
+          the
+          <span class="location">Bar</span>
+          tab. This will bring up a edit menu that allows you to change what the
+          time signature will be.
+        </p>
+        <p>
+          You can bring up this edit menu of any time signature on the score by
+          clicking the time signature.
+        </p>
+        <p>
+          On the edit menu, checking the
+          <span class="button-name">Cut time</span> box will set the time
+          signature to use Cut time (which is used in reels).
+        </p>
+        <p>
+          On the edit menu, under <span class="location">Advanced</span>, you
+          can change the note grouping. By default PipeScore will group notes
+          based on the bottom number of the time signature (for example, 8
+          always uses 3-quaver length groups). However, in certain cases, such
+          as irregular time signatures, this needs to be changed. In the
+          <span class="location">Custom Grouping</span> box, you can enter the
+          number of quavers that should be in each group. For example, if you
+          want to have a group of 4 quavers then a group of 3, type
+          <span class="option">4,3</span> in to the box. PipeScore will then
+          group the notes in that bar (and any bars immediately afterwards that
+          have the same time signature) with that grouping. PipeScore will also
+          handle other note lengths (e.g. semiquavers) correctly based on the
+          group lengths you gave.
+        </p>
+
+        <h2 id="staves">Staves</h2>
+        <p>
+          You can add a stave by selecting a bar on the stave above where you
+          want to place it and clicking the
+          <span class="button-name">+ After</span> button under the
+          <span class="location">Stave</span> tab. Alternatively, you can select
+          a bar on the stave below where you want to place it and click
+          <span class="button-name">+ Before</span>.
+        </p>
+        <p>
+          You can delete a stave by selecting and deleting all the bars on the
+          stave.
+        </p>
+
+        <h2 id="text-boxes">Text boxes</h2>
+        <p>
+          You can add a new text box by pressing the
+          <span class="button-name">+</span> button under the
+          <span class="location">Text</span> tab.
+        </p>
+        <p>You can edit any text box by double clicking it.</p>
+        <p>
+          You can delete a text box by selecting it and pressing the bin icon in
+          the top panel.
+        </p>
+        <p>
+          You can move a text box by clicking and dragging it. You can tell
+          PipeScore to centre it by pressing the
+          <span class="button-name">Centre text</span> button.
+        </p>
+
+        <h2 id="second-timings">Second Timings</h2>
+        <p>
+          You can place a second timing by clicking on a bar that is not at the
+          end of the score and pressing
+          <span class="button-name">1st/2nd</span> under the
+          <span class="location">Bar</span> tab.
+        </p>
+        <p>
+          You can then drag the individual parts of the second timing around by
+          clicking and dragging on the vertical lines of the second timing.
+          PipeScore automatically snaps the lines to the closest note or bar on
+          the score.
+        </p>
+
+        <h2 id="pages">Pages</h2>
+        <p>
+          You can add and remove pages under the
+          <span class="location">Document</span> tab.
+        </p>
+        <h3 id="orientation">Orientation</h3>
+        <p>
+          You can change a score between portait and landscape by pressing the
+          <span class="button-name">Toggle Landscape</span> button under the
+          Document tab.
+        </p>
+
+        <h2 id="getting-help">Getting Help</h2>
+        <p>
+          In future, there will be a contact page where you can contact me to
+          get help or report bugs. Right now, the only way is to
+          <a href="https://github.com/macarc/PipeScore/issues">file an issue</a>
+          on GitHub.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>
