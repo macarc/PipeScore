@@ -5,20 +5,20 @@
 */
 import { h } from '../render/h';
 import dialogueBox from './global/dialogueBox';
+import { Score } from './Score';
 
 import { TimeSignature } from './TimeSignature';
 
-interface ScoreOptions {
-  name: string;
-  numberOfStaves: number;
-  timeSignature: TimeSignature;
+class ScoreOptions {
+  name: string = 'Blank Score';
+  numberOfStaves: number = 4;
+  timeSignature: TimeSignature = new TimeSignature('cut time');
+
+  toScore(): Score {
+    return new Score(this.name, this.numberOfStaves, this.timeSignature);
+  }
 }
 
-const defaultOptions: ScoreOptions = {
-  name: 'Blank Score',
-  numberOfStaves: 4,
-  timeSignature: new TimeSignature('cut time'),
-};
 const blankForm = async (): Promise<ScoreOptions> => {
   const ts = await dialogueBox(
     [
@@ -61,39 +61,33 @@ const blankForm = async (): Promise<ScoreOptions> => {
       ]),
     ],
     () => {
+      const options = new ScoreOptions();
       const nameElement = document.getElementById('name');
       const stavesElement = document.getElementById('stave-number');
       const numElement = document.getElementById('num');
       const denomElement = document.getElementById('denom');
       const cutTimeElement = document.getElementById('cut-time');
       if (
-        nameElement &&
         nameElement instanceof HTMLInputElement &&
-        stavesElement &&
         stavesElement instanceof HTMLInputElement &&
-        numElement &&
         numElement instanceof HTMLInputElement &&
-        denomElement &&
         denomElement instanceof HTMLSelectElement &&
-        cutTimeElement &&
         cutTimeElement instanceof HTMLInputElement
       ) {
-        return {
-          name: nameElement.value,
-          numberOfStaves: parseInt(stavesElement.value),
-          timeSignature: new TimeSignature(
-            cutTimeElement.checked
-              ? 'cut time'
-              : [
-                  parseInt(numElement.value),
-                  TimeSignature.parseDenominator(denomElement.value) || 4,
-                ]
-          ),
-        };
+        options.name = nameElement.value;
+        options.numberOfStaves = parseInt(stavesElement.value);
+        options.timeSignature = new TimeSignature(
+          cutTimeElement.checked
+            ? 'cut time'
+            : [
+                parseInt(numElement.value),
+                TimeSignature.parseDenominator(denomElement.value) || 4,
+              ]
+        );
       }
-      return defaultOptions;
+      return options;
     },
-    defaultOptions,
+    new ScoreOptions(),
     false
   );
   return ts;

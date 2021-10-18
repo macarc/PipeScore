@@ -14,15 +14,6 @@ import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
 import Documentation from './Documentation';
 
-declare let window: Window & {
-  electron: {
-    onOpenFile: (callback: (file: string) => void) => void;
-    updateScore: (file: string) => void;
-  };
-};
-
-const isElectron = window.electron !== undefined;
-
 const initialState: State = {
   justClickedNote: false,
   demo: null,
@@ -37,9 +28,8 @@ const initialState: State = {
 };
 let state: State = { ...initialState };
 
-function save(score: string) {
-  if (isElectron) window.electron.updateScore(score);
-}
+let save: (score: Score) => void = () => null;
+
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
   if (res === Update.ViewChanged || res === Update.ShouldSave) {
@@ -48,7 +38,7 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
       const asJSON = JSON.stringify(state.score.toJSON());
       if (state.history.past[state.history.past.length - 1] !== asJSON) {
         state.history.past.push(asJSON);
-        save(asJSON);
+        save(state.score);
       }
     }
     updateView(state);
@@ -78,7 +68,6 @@ const updateView = (state: State) => {
     demoNote: state.demo,
   };
   const uiProps = {
-    previewVersion: !isElectron,
     zoomLevel: state.score.zoom,
     demo: state.demo,
     selectedNote: state.selection && state.selection.selectedNote(state.score),
@@ -130,16 +119,13 @@ function mouseMove(event: MouseEvent) {
   }
 }
 
-export default function startController(score: Score): void {
+export default function startController(
+  score: Score,
+  saveFn: (score: Score) => void
+): void {
   // Initial render, hooks event listeners
 
-  if (isElectron)
-    window.electron.onOpenFile((file: string) => {
-      state = {
-        ...initialState,
-        score: Score.fromJSON(JSON.parse(file)),
-      };
-    });
+  save = saveFn;
   state.score = score;
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
@@ -147,6 +133,6 @@ export default function startController(score: Score): void {
   // initially set the notes to be the right groupings
   state.view.score = hFrom('score');
   state.view.ui = hFrom('ui');
-  save(JSON.stringify(state.score.toJSON()));
+  save(state.score);
   updateView(state);
 }

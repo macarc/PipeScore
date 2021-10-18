@@ -34,6 +34,7 @@ export class TextBox {
     tx.y = o.y;
     tx.size = o.size;
     tx._text = o._text;
+    tx.centred = o.centred;
     return tx;
   }
   public toJSON() {

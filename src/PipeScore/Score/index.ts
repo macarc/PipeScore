@@ -54,7 +54,7 @@ export class Score {
     const s = new Score(o.name, 0);
     s.landscape = o.landscape;
     s._staves = o._staves.map(Stave.fromJSON);
-    s.textBoxes = o.textBoxes.map((p: Obj[]) => p.map(TextBox.fromJSON));
+    s.textBoxes = o.textBoxes.map((p: Obj) => p.texts.map(TextBox.fromJSON));
     s.secondTimings = o.secondTimings.map(SecondTiming.fromJSON);
     s.numberOfPages = o.numberOfPages;
     settings.fromJSON(o.settings);
@@ -65,7 +65,9 @@ export class Score {
       name: this.name,
       landscape: this.landscape,
       _staves: this._staves.map((stave) => stave.toJSON()),
-      textBoxes: this.textBoxes.map((p) => p.map((txt) => txt.toJSON())),
+      textBoxes: this.textBoxes.map((p) => ({
+        texts: p.map((txt) => txt.toJSON()),
+      })),
       secondTimings: this.secondTimings.map((st) => st.toJSON()),
       numberOfPages: this.numberOfPages,
       settings: settings.toJSON(),
