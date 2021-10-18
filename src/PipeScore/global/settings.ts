@@ -1,3 +1,5 @@
+import { Obj } from './utils';
+
 /*
   Document settings singleton
   Copyright (C) 2021 Archie Maclean
@@ -8,6 +10,20 @@ export class Settings {
   margin = 80;
   topOffset = 200;
 
+  fromJSON(o: Obj) {
+    this.staveGap = o.staveGap;
+    this.lineGap = o.lineGap;
+    this.margin = o.margin;
+    this.topOffset = o.topOffset;
+  }
+  toJSON() {
+    return {
+      staveGap: this.staveGap,
+      lineGap: this.lineGap,
+      margin: this.margin,
+      topOffset: this.topOffset,
+    };
+  }
   validate<T extends keyof Settings>(key: T, value: number) {
     switch (key) {
       case 'staveGap':

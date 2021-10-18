@@ -10,15 +10,6 @@ import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { DemoGracenote, DemoReactive } from '../DemoNote';
 import { stopInputtingNotes } from './Note';
 
-export function deleteGracenote(): ScoreEvent {
-  return async (state: State) => {
-    if (state.selection instanceof GracenoteSelection) {
-      state.selection.deleteWholeGracenote(state.score);
-      return Update.ShouldSave;
-    }
-    return Update.NoChange;
-  };
-}
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,
   newGracenote: Gracenote,
@@ -31,7 +22,7 @@ export function changeGracenoteFrom(
 }
 export function clickGracenote(
   gracenote: Gracenote,
-  index: number
+  index: number | null
 ): ScoreEvent {
   return async (state: State) => {
     state.justClickedNote = true;

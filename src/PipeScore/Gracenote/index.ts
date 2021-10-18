@@ -196,11 +196,12 @@ export abstract class Gracenote {
   }
   private renderSingle(note: Pitch, props: GracenoteProps) {
     const y = noteY(props.y, note);
+    const wholeSelected = props.state.selected?.note === null;
     const selected =
       props.state.selected?.gracenote === this &&
-      props.state.selected?.note === 0;
+      (props.state.selected?.note === 0 || wholeSelected);
 
-    const colour = colourOf(props.preview);
+    const colour = colourOf(wholeSelected || props.preview);
     const height = settings.lineHeightOf(3);
 
     return svg('g', { class: 'gracenote' }, [
@@ -227,6 +228,7 @@ export abstract class Gracenote {
     ]);
   }
   public render(props: GracenoteProps): V {
+    const wholeSelected = props.state.selected?.note === null;
     const pitches = this.notes(props.thisNote, props.previousNote);
     // If each note is an object, then we can use .indexOf and other related functions
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
@@ -248,19 +250,37 @@ export abstract class Gracenote {
     } else if (uniqueNotes.length === 1) {
       return this.renderSingle(uniqueNotes[0].note, props);
     } else {
-      const colour = colourOf(props.preview);
+      const colour = colourOf(wholeSelected || props.preview);
       const beamY = props.y - settings.lineHeightOf(3.5);
+      const tailStart = xOf(uniqueNotes[0]) + tailXOffset - 0.5;
+      const tailEnd = xOf(nlast(uniqueNotes)) + tailXOffset + 0.5;
+      const clickBoxMargin = 3;
       return svg('g', { class: 'reactive-gracenote' }, [
         ...[0, 2, 4].map((i) =>
-          svg('line', {
-            x1: xOf(uniqueNotes[0]) + tailXOffset - 0.5,
-            x2: xOf(nlast(uniqueNotes)) + tailXOffset + 0.5,
-            y1: beamY + i,
-            y2: beamY + i,
-            stroke: colour,
-          })
+          svg(
+            'line',
+            {
+              x1: tailStart,
+              x2: tailEnd,
+              y1: beamY + i,
+              y2: beamY + i,
+              stroke: colour,
+            },
+            { mousedown: () => props.dispatch(clickGracenote(this, null)) }
+          )
         ),
-
+        svg(
+          'rect',
+          {
+            x: tailStart,
+            y: beamY - clickBoxMargin,
+            width: tailEnd - tailStart,
+            height: 4 + 2 * clickBoxMargin,
+            opacity: 0,
+            style: 'cursor: pointer;',
+          },
+          { mousedown: () => props.dispatch(clickGracenote(this, null)) }
+        ),
         ...uniqueNotes.map((noteObj, i) =>
           this.head(
             props.dispatch,
@@ -271,7 +291,7 @@ export abstract class Gracenote {
             pitches.isValid(),
             props.preview ||
               (props.state.selected?.gracenote === this &&
-                i === props.state.selected?.note),
+                (i === props.state.selected?.note || wholeSelected)),
             i
           )
         ),

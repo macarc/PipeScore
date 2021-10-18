@@ -32,10 +32,7 @@ import {
 } from '../Controllers/Misc';
 import { addSecondTiming } from '../Controllers/SecondTiming';
 import { deleteSelection } from '../Controllers/Mouse';
-import {
-  deleteGracenote,
-  setGracenoteOnSelectedNotes,
-} from '../Controllers/Gracenote';
+import { setGracenoteOnSelectedNotes } from '../Controllers/Gracenote';
 import { toggleDoc } from '../Controllers/Doc';
 import {
   startPlayback,
@@ -205,17 +202,6 @@ export default function render(dispatch: Dispatch, state: UIState): V {
         gracenoteInput('edre'),
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),
-      ]),
-    ]),
-    h('section', [
-      h('h2', ['Modify Gracenote']),
-      h('div', { class: 'section-content' }, [
-        help(
-          'delete gracenote',
-          h('button', {}, { click: () => dispatch(deleteGracenote()) }, [
-            'Delete',
-          ])
-        ),
       ]),
     ]),
   ];

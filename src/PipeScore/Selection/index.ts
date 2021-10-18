@@ -298,9 +298,9 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
   // e.g. clicking a gracenote to select in, then deleting it
   private selected: Gracenote;
 
-  private note: number;
+  private note: number | null;
 
-  constructor(gracenote: Gracenote, note: number) {
+  constructor(gracenote: Gracenote, note: number | null) {
     super();
     this.selected = gracenote;
     this.note = note;
@@ -311,12 +311,9 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
   public delete(score: Score) {
     changeGracenoteFrom(
       this.selected,
-      this.selected.removeSingle(this.note),
+      this.note ? this.selected.removeSingle(this.note) : new NoGracenote(),
       score
     );
-  }
-  public deleteWholeGracenote(score: Score) {
-    changeGracenoteFrom(this.selected, new NoGracenote(), score);
   }
   public drag(gracenote: Gracenote) {
     this.selected = gracenote;
@@ -324,7 +321,7 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
     return this;
   }
   public mouseOverPitch(pitch: Pitch, score: Score) {
-    if (this.dragged) {
+    if (this.dragged && this.note) {
       const dragged = this.dragged.drag(pitch, this.note);
       changeGracenoteFrom(this.dragged, dragged, score);
       this.dragged = dragged;
@@ -335,9 +332,10 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
   }
   public state(): GracenoteState {
     return {
-      dragged: this.dragged
-        ? { gracenote: this.dragged, note: this.note }
-        : null,
+      dragged:
+        this.dragged && this.note
+          ? { gracenote: this.dragged, note: this.note }
+          : null,
       selected: { gracenote: this.selected, note: this.note },
     };
   }

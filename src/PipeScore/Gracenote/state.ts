@@ -6,11 +6,15 @@ import { Gracenote } from '.';
 
 type SelectedGracenote = {
   gracenote: Gracenote;
+  note: number | null;
+};
+type DraggedGracenote = {
+  gracenote: Gracenote;
   note: number;
 };
 
 export interface GracenoteState {
-  dragged: SelectedGracenote | null;
+  dragged: DraggedGracenote | null;
   selected: SelectedGracenote | null;
 }
 

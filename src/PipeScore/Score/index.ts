@@ -48,8 +48,7 @@ export class Score {
     this._staves = foreach(numberOfStaves, () => new Stave(timeSignature));
     this.textBoxes = [[new TextBox(name, true)]];
     this.secondTimings = [];
-    this.zoom =
-      (100 * 0.9 * (Math.max(window.innerWidth, 800) - 300)) / this.width();
+    this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
   public static fromJSON(o: Obj) {
     const s = new Score(o.name, 0);
@@ -58,6 +57,7 @@ export class Score {
     s.textBoxes = o.textBoxes.map((p: Obj[]) => p.map(TextBox.fromJSON));
     s.secondTimings = o.secondTimings.map(SecondTiming.fromJSON);
     s.numberOfPages = o.numberOfPages;
+    settings.fromJSON(o.settings);
     return s;
   }
   public toJSON() {
@@ -68,6 +68,7 @@ export class Score {
       textBoxes: this.textBoxes.map((p) => p.map((txt) => txt.toJSON())),
       secondTimings: this.secondTimings.map((st) => st.toJSON()),
       numberOfPages: this.numberOfPages,
+      settings: settings.toJSON(),
     };
   }
   private width() {

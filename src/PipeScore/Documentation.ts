@@ -24,9 +24,7 @@ export default new Map(
       'Add a 1st/2nd timing. Select the start of where the first timing should go and press this, then drag to change the second timing',
     triplet: 'Make the three selected notes into a triplet',
     delete:
-      "Delete the current selected note, gracenote, text or bar.\n\nTo delete a stave, delete all the bars in it.\n\nThis will delete a single gracenote from the full embellishment. To delete the full embellishment, use the 'Delete' button under the Gracenote menu.",
-    'delete gracenote':
-      'Delete the entire gracenote.\n\nSelect a single note in a gracenote, then click this to delete the full gracenote.',
+      'Delete the current selected note, gracenote, text or bar.\n\nFor gracenotes, clicking the beam at the top will select the entire gracenote, or clicking the head will select a single note from the gracenote.\n\nTo delete a stave, delete all the bars in it.',
     copy: 'Copy the current selected notes (or bars).\n\nTo select notes, click on the first note to select then hold shift and click the last note you want to select',
     paste: "Paste any notes that you've copied",
     undo: 'Undo the last action that changed the score',
@@ -34,10 +32,12 @@ export default new Map(
     single:
       'Add a single gracenote to the selected note.\n\nAlternatively, you can press this button, and then use the mouse to place the gracenote where you want on the score',
     doubling: gracenoteDoc('doubling'),
+    'half-doubling': gracenoteDoc('half-doubling'),
     'throw-d': gracenoteDoc('throw on D'),
     grip: gracenoteDoc('grip'),
     birl: gracenoteDoc('birl'),
     'g-gracenote-birl': gracenoteDoc('G gracenote birl'),
+    'g-strike': gracenoteDoc('gracenote strike'),
     shake: gracenoteDoc('shake'),
     toarluath: gracenoteDoc('toarluath'),
     crunluath: gracenoteDoc('crunluath'),

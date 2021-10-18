@@ -25,8 +25,11 @@ const valid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, true);
 // Then call the resulting function with two arguments: pitch of the note it is on, and pitch of previous note (or null)
 export const gracenotes: Map<string, GracenoteFn> = new Map();
 
-gracenotes.set('throw-d', (note) =>
-  invalidateIf(note !== Pitch.D, [Pitch.G, Pitch.D, Pitch.C])
+gracenotes.set('throw-d', (note, prev) =>
+  invalidateIf(
+    note !== Pitch.D,
+    prev === Pitch.G ? [Pitch.D, Pitch.C] : [Pitch.G, Pitch.D, Pitch.C]
+  )
 );
 gracenotes.set('doubling', (note, prev) => {
   let pitches = [];

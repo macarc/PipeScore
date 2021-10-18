@@ -130,6 +130,7 @@ export class Stave {
       width: width(bar),
       previousBar: previousBar(index),
       shouldRenderLastBarline: index === this.numberOfBars() - 1,
+      shouldRenderFirstBarline: index !== 0,
       endOfLastStave: props.x + props.width, // should always be the same
       dispatch: props.dispatch,
       noteState: props.noteState,

@@ -27,6 +27,7 @@ export interface BarProps {
   width: number;
   previousBar: Bar | null;
   shouldRenderLastBarline: boolean;
+  shouldRenderFirstBarline: boolean;
   endOfLastStave: number;
   dispatch: Dispatch;
   noteState: NoteState;
@@ -332,28 +333,15 @@ export class Bar extends Item implements Previewable<SingleNote> {
     // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
     // note adds a note to the start of the bar
     return svg('g', { class: 'bar' }, [
-      svg(
-        'rect',
-        {
-          x: xAfterBarline,
-          y: staveY - settings.lineHeightOf(1),
-          width: barWidth,
-          height: settings.lineHeightOf(7),
-          opacity: 0,
-        },
-        {
-          mousedown: (e) => props.dispatch(clickBar(this, e as MouseEvent)),
-        }
-      ),
       noteBoxes(
         xAfterBarline,
         staveY,
         barWidth,
         (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
-        (pitch) =>
+        (pitch, e) =>
           props.noteState.inputtingNotes
             ? props.dispatch(addNoteToBarEnd(pitch, this))
-            : null
+            : props.dispatch(clickBar(this, e))
       ),
       ...groupedNotes.map((notes, idx) =>
         notes instanceof Triplet
@@ -361,7 +349,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
           : SingleNote.renderMultiple(notes, noteProps(notes, idx))
       ),
 
-      this.frontBarline.render(xAfterTimeSignature, props.y, true),
+      !this.frontBarline.symmetric ||
+      props.shouldRenderFirstBarline ||
+      hasTimeSignature
+        ? this.frontBarline.render(xAfterTimeSignature, props.y, true)
+        : null,
       !this.backBarline.symmetric || props.shouldRenderLastBarline
         ? this.backBarline.render(props.x + props.width, props.y, false)
         : null,

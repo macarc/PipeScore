@@ -7,8 +7,13 @@ const {
   dialog,
   Menu,
 } = require('electron');
+
 const fs = require('fs');
 const path = require('path');
+
+require('update-electron-app')({
+  updateInterval: '1 hour',
+});
 
 app.name = 'PipeScore';
 
