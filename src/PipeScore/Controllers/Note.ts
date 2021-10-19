@@ -9,7 +9,7 @@ import { Pitch } from '../global/pitch';
 import { itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar';
-import { ScoreSelection } from '../Selection';
+import { ScoreSelection, TripletLineSelection } from '../Selection';
 
 import { Note, SingleNote, Triplet } from '../Note';
 import { NoteLength } from '../Note/notelength';
@@ -187,6 +187,13 @@ export function stopInput(): ScoreEvent {
   };
 }
 
+export function clickTripletLine(triplet: Triplet): ScoreEvent {
+  return async (state: State) => {
+    stopInputtingNotes(state);
+    state.selection = new TripletLineSelection(triplet);
+    return Update.ViewChanged;
+  };
+}
 export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (note.isDemo() && state.demo instanceof DemoNote) {
@@ -229,13 +236,19 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
 export function setInputLength(length: NoteLength): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      state.selection
-        .notesAndTriplets(state.score)
-        .forEach((note) => note.setLength(length));
-    } else if (!state.demo || state.demo instanceof DemoGracenote) {
-      state.demo = new DemoNote(length);
+      const notes = state.selection.notesAndTriplets(state.score);
+      if (notes.length > 0) notes.forEach((note) => note.setLength(length));
+      else {
+        state.selection = null;
+        stopInputtingNotes(state);
+        state.demo = new DemoNote(length);
+      }
     } else if (state.demo instanceof DemoNote) {
       state.demo.setLength(length);
+    } else {
+      state.selection = null;
+      stopInputtingNotes(state);
+      state.demo = new DemoNote(length);
     }
     return Update.ShouldSave;
   };

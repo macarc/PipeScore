@@ -11,14 +11,15 @@ import { h, svg, V } from '../../render/h';
 import { clickBackground, mouseOffPitch, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
-import { Dispatch } from '../Controllers/Controller';
+import { Dispatch, Update } from '../Controllers/Controller';
 import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { foreach, last, nlast, Obj } from '../global/utils';
+import { first, foreach, last, nlast, Obj } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
+import { setXYPage } from '../global/xy';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -29,7 +30,7 @@ interface ScoreProps {
 }
 export class Score {
   private name: string;
-  private landscape: boolean;
+  public landscape: boolean;
   private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[][];
@@ -44,7 +45,7 @@ export class Score {
     timeSignature: TimeSignature | undefined = undefined
   ) {
     this.name = name;
-    this.landscape = false;
+    this.landscape = true;
     this._staves = foreach(numberOfStaves, () => new Stave(timeSignature));
     this.textBoxes = [[new TextBox(name, true)]];
     this.secondTimings = [];
@@ -82,9 +83,23 @@ export class Score {
   public orientation() {
     return this.landscape ? 'landscape' : 'portrait';
   }
-  public toggleLandscape() {
-    this.landscape = !this.landscape;
-
+  public makeLandscape() {
+    if (this.landscape) return Update.NoChange;
+    this.landscape = true;
+    this.adjustAfterOrientationChange();
+    return Update.ShouldSave;
+  }
+  public makePortrait() {
+    if (!this.landscape) return Update.NoChange;
+    this.landscape = false;
+    this.adjustAfterOrientationChange();
+    return Update.ShouldSave;
+  }
+  private adjustAfterOrientationChange() {
+    if (this.notEnoughSpace(this.numberOfPages - 1)) {
+      console.log('ok');
+      this.numberOfPages += 1;
+    }
     this.textBoxes.forEach((p) =>
       p.forEach((text) =>
         text.adjustAfterOrientation(this.width(), this.height())
@@ -125,6 +140,12 @@ export class Score {
     }
     return brokenStaves;
   }
+  private notEnoughSpace(page: number) {
+    return (
+      this.topGap(page) + settings.staveGap * this.brokenStaves()[page].length >
+      this.height() - settings.margin
+    );
+  }
   public addStave(afterStave: Stave | null, before: boolean) {
     // Appends a stave after afterStave
 
@@ -138,15 +159,9 @@ export class Score {
         }
       }
     }
-    const notEnoughSpace = (i: number) => {
-      return (
-        this.topGap(i) + settings.staveGap * brokenStaves[i].length >
-        this.height() - settings.margin
-      );
-    };
     const spaceForAnotherStave = (i: number) => {
       const page = brokenStaves[i];
-      if (notEnoughSpace(i)) {
+      if (this.notEnoughSpace(i)) {
         const newStaveGap =
           (this.height() - settings.topOffset - settings.margin) /
           (page.length + 0.5);
@@ -160,14 +175,14 @@ export class Score {
     };
     let originalPageIndex = pageIndex;
     let page = brokenStaves[pageIndex];
-    while (notEnoughSpace(pageIndex)) {
+    while (this.notEnoughSpace(pageIndex)) {
       page = brokenStaves[++pageIndex];
       if (!page) {
         while (spaceForAnotherStave(originalPageIndex) === null) {
           page = brokenStaves[++originalPageIndex];
           if (!page)
             alert(
-              'Cannot add stave - not enough space. Consider adding a second page, or reducing the margin at the top of the page.'
+              'Cannot add stave - not enough space. Add another page, or reduce the margin at the top of the page.'
             );
           return;
         }
@@ -194,6 +209,15 @@ export class Score {
   }
   public previousNote(id: ID) {
     return Bar.previousNote(id, this.bars());
+  }
+  public hasStuffOnLastPage() {
+    return nlast(this.brokenStaves()).length > 0;
+  }
+  public firstOnPage(page: number) {
+    return first(this.brokenStaves()[page])?.firstBar() || null;
+  }
+  public lastOnPage(page: number) {
+    return last(this.brokenStaves()[page])?.lastBar() || null;
   }
   public deletePage() {
     const stavesToDelete = this.brokenStaves()[this.numberOfPages - 1];
@@ -326,26 +350,31 @@ export class Score {
       gracenoteState: props.gracenoteState,
     });
 
-    const secondTimingProps = {
+    const secondTimingProps = (page: number) => ({
+      page,
+      score: this,
       staveStartX: settings.margin,
       staveEndX: width - settings.margin,
       selection: props.selection,
       staveGap: settings.staveGap,
       dispatch: props.dispatch,
-    };
-    const scoreSelectionProps = {
+    });
+    const selectionProps = (i: number) => ({
+      page: i,
+      score: this,
       staveStartX: settings.margin,
       staveEndX: width - settings.margin,
       staveGap: settings.staveGap,
-    };
+    });
 
     const brokenStaves = this.brokenStaves();
     const texts = (i: number) => this.textBoxes[i] || [];
 
     return h(
       'div',
-      foreach(this.numberOfPages, (i) =>
-        svg(
+      foreach(this.numberOfPages, (i) => {
+        setXYPage(i);
+        return svg(
           'svg',
           {
             width: (width * this.zoom) / 100,
@@ -374,12 +403,12 @@ export class Score {
               })
             ),
             ...this.secondTimings.map((secondTiming) =>
-              secondTiming.render(secondTimingProps)
+              secondTiming.render(secondTimingProps(i))
             ),
-            props.selection && props.selection.render(scoreSelectionProps),
+            props.selection && props.selection.render(selectionProps(i)),
           ]
-        )
-      )
+        );
+      })
     );
   }
 }

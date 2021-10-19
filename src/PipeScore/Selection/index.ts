@@ -7,8 +7,8 @@ import { Note, SingleNote, Triplet } from '../Note';
 import { DraggedTiming, Timing, TimingPart } from '../SecondTiming';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
-import { deleteXY, getXY } from '../global/xy';
-import { h, svg } from '../../render/h';
+import { before, deleteXY, getXY } from '../global/xy';
+import { h, svg, V } from '../../render/h';
 import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
@@ -20,6 +20,8 @@ import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
 
 interface ScoreSelectionProps {
+  page: number;
+  score: Score;
   staveStartX: number;
   staveEndX: number;
   staveGap: number;
@@ -29,6 +31,7 @@ export type Selection =
   | ScoreSelection
   | TextSelection
   | SecondTimingSelection
+  | TripletLineSelection
   | GracenoteSelection;
 
 abstract class BaseSelection<A> {
@@ -178,17 +181,43 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
     stave.insertBar(new Bar(bar.timeSignature()), bar, before);
   }
 
-  public render(props: ScoreSelectionProps) {
-    const start = getXY(this.start);
-    const end = getXY(this.end);
-    if (!start || !end) {
+  public render(props: ScoreSelectionProps): V {
+    const a = getXY(this.start);
+    const b = getXY(this.end);
+    if (!a || !b) {
       console.error('Invalid note in selection');
+      return svg('g');
+    }
+    const start = before(a, b) ? a : b;
+    const end = before(a, b) ? b : a;
+
+    if (
+      start.page !== props.page &&
+      end.page !== props.page &&
+      !(start.page < props.page && props.page < end.page)
+    ) {
       return svg('g');
     }
 
     const height = 6 * settings.lineGap;
 
-    if (end.y !== start.y) {
+    if (end.page !== start.page) {
+      if (start.page === props.page) {
+        const last = props.score.lastOnPage(props.page);
+        if (last) return new ScoreSelection(this.start, last.id).render(props);
+      } else if (end.page === props.page) {
+        const first = props.score.firstOnPage(props.page);
+        if (first) return new ScoreSelection(first.id, this.end).render(props);
+      } else {
+        console.log('wooooooooooooooooooooooooooo');
+        const first = props.score.firstOnPage(props.page);
+        const last = props.score.lastOnPage(props.page);
+        if (first && last)
+          return new ScoreSelection(first.id, last.id).render(props);
+      }
+      console.log(start.page, end.page, props.page);
+      return svg('g');
+    } else if (end.y !== start.y) {
       const higher = start.y > end.y ? end : start;
       const lower = start.y > end.y ? start : end;
       const numStavesBetween =
@@ -290,6 +319,35 @@ export class SecondTimingSelection {
   }
   public render() {
     return h('g');
+  }
+}
+
+export class TripletLineSelection {
+  public selected: Triplet;
+
+  constructor(triplet: Triplet) {
+    this.selected = triplet;
+  }
+  delete(score: Score) {
+    const location = score.location(this.selected.id);
+    if (location) location.bar.unmakeTriplet(this.selected);
+  }
+  mouseDrag() {}
+  mouseUp() {}
+  selectedNote() {
+    return null;
+  }
+  bar() {
+    return null;
+  }
+  gracenote() {
+    return null;
+  }
+  notes() {
+    return [];
+  }
+  public render() {
+    return svg('g');
   }
 }
 

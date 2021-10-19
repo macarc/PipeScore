@@ -21,10 +21,15 @@ import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
 import { mouseOverPitch } from '../Controllers/Mouse';
 import { getXY, setXY } from '../global/xy';
-import { addNoteBefore, clickNote } from '../Controllers/Note';
+import {
+  addNoteBefore,
+  clickNote,
+  clickTripletLine,
+} from '../Controllers/Note';
 import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
 import { Previewable } from '../DemoNote/previewable';
+import { settings } from '../global/settings';
 
 export interface PreviousNote {
   pitch: Pitch;
@@ -32,7 +37,7 @@ export interface PreviousNote {
   y: number;
 }
 
-const tailGap = 5;
+const tailGap = 3;
 const shortTailLength = 10;
 // note that this is half the width of the note, not the actual radius
 // (the actual radius will actually be slightly larger since the note head is slanted slightly)
@@ -859,22 +864,7 @@ export class SingleNote
       [firstNote, 0, false] as [SingleNote, number, boolean]
     );
 
-    const diffForLowest =
-      30 +
-      pitchOffset(lowestNote.pitch) -
-      (multipleLowest ? 0 : (diff * xOf(lowestNoteIndex)) / totalXWidth);
-
-    const stemYOf = (note: SingleNote, index: number) =>
-      note.hasBeam()
-        ? props.y +
-          (multipleLowest
-            ? // straight line if there is more than one lowest note
-              0
-            : // otherwise use a slant
-              (diff * xOf(index)) / totalXWidth) +
-          // offset so that the lowest note is always a constant height
-          diffForLowest
-        : noteY(props.y, note.pitch) + 30;
+    const stemY = props.y + settings.lineHeightOf(6);
 
     return svg(
       'g',
@@ -915,9 +905,9 @@ export class SingleNote
           previousNote !== null && index > 0
             ? SingleNote.beamFrom(
                 xOf(index),
-                stemYOf(note, index),
+                stemY,
                 xOf(index - 1),
-                stemYOf(previousNote, index - 1),
+                stemY,
                 note.numTails(),
                 previousNote.numTails(),
                 (notes[index - 2] && notes[index - 2].numTails()) || 0,
@@ -946,7 +936,7 @@ export class SingleNote
             x1: xOf(index),
             x2: xOf(index),
             y1: yOf(note),
-            y2: stemYOf(note, index),
+            y2: stemY,
             stroke: note.colour(),
           }),
         ]);
@@ -1039,7 +1029,9 @@ export class Triplet extends BaseNote {
     x1: number,
     x2: number,
     y1: number,
-    y2: number
+    y2: number,
+    selected: boolean,
+    dispatch: Dispatch
   ): V {
     // Draws a triplet marking from x1,y1 to x2,y2
 
@@ -1048,9 +1040,22 @@ export class Triplet extends BaseNote {
     const midy = staveY - height;
     const gap = 15;
     const path = `M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}`;
+    const colour = selected ? 'orange' : 'black';
+    const events = { mousedown: () => dispatch(clickTripletLine(this)) };
     return svg('g', { class: 'triplet' }, [
-      svg('text', { x: midx, y: midy + 10, 'text-anchor': 'center' }, ['3']),
-      svg('path', { d: path, stroke: 'black', fill: 'none' }),
+      svg(
+        'text',
+        {
+          x: midx - 2.5,
+          y: midy + 10,
+          'text-anchor': 'center',
+          fill: colour,
+          style: 'font-size: 10px;',
+        },
+        events,
+        ['3']
+      ),
+      svg('path', { d: path, stroke: colour, fill: 'none' }, events),
     ]);
   }
   public render(props: NoteProps) {
@@ -1061,9 +1066,11 @@ export class Triplet extends BaseNote {
     const line = this.tripletLine(
       props.y,
       getXY(this.firstSingle().id)?.afterX || 0,
-      getXY(this.lastSingle().id)?.afterX || 0,
+      getXY(this.lastSingle().id)?.beforeX || 0,
       this.firstSingle().y(props.y),
-      this.lastSingle().y(props.y)
+      this.lastSingle().y(props.y),
+      props.state.selectedTripletLine === this,
+      props.dispatch
     );
 
     return svg('g', [renderedNotes, line]);

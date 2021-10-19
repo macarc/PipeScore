@@ -10,11 +10,20 @@ export interface XY {
   beforeX: number;
   afterX: number;
   y: number;
+  page: number;
 }
 
 // itemCoords holds the coordinates of all items on the score
 // Useful for components such as selection boxes that need access to multiple items' coordinates
 const itemCoords: Map<ID, XY> = new Map();
+
+// I couldn't face adding 'page' to everything's props, so we just use a global value...bad practice
+// I know
+let currentPage = 0;
+
+export const setXYPage = (page: number) => {
+  currentPage = page;
+};
 // The y value will be the stave's y rather than the actual y value of the note
 // The y value of the note can always be calculated from this, but it's harder to do it in reverse
 // Also it makes things like checking order easier
@@ -22,9 +31,11 @@ export const setXY = (
   item: ID,
   beforeX: number,
   afterX: number,
-  y: number
+  y: number,
+  page?: number
 ): void => {
-  itemCoords.set(item, { beforeX, afterX, y });
+  if (page === undefined) page = currentPage;
+  itemCoords.set(item, { beforeX, afterX, y, page });
 };
 export const getXY = (item: ID): XY | null => itemCoords.get(item) || null;
 export const deleteXY = (item: ID): void => {
@@ -32,6 +43,7 @@ export const deleteXY = (item: ID): void => {
 };
 
 export const before = (a: XY, b: XY): boolean => {
+  if (b.page > a.page) return true;
   if (b.y > a.y) return true;
   else if (a.y > b.y) return false;
   else return b.beforeX > a.beforeX;

@@ -29,8 +29,10 @@ export function noteBoxes(
     Pitch.HA,
   ];
 
+  const gap = settings.lineHeightOf(4);
+
   const heightOfBetweenBoxes =
-    (settings.staveGap - settings.lineHeightOf(4)) / 2;
+    (settings.staveGap - settings.lineHeightOf(4) - gap) / 2;
 
   return svg('g', { class: 'drag-boxes' }, [
     svg(

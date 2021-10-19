@@ -9,7 +9,11 @@ import { ScoreEvent, Update } from './Controllers/Controller';
 import { mouseUp, mouseDrag } from './Controllers/Mouse';
 import { State } from './State';
 import { Score } from './Score';
-import { GracenoteSelection, ScoreSelection } from './Selection';
+import {
+  GracenoteSelection,
+  ScoreSelection,
+  TripletLineSelection,
+} from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
 import Documentation from './Documentation';
@@ -57,6 +61,10 @@ const updateView = (state: State) => {
         (state.selection instanceof ScoreSelection &&
           state.selection.draggedNote()) ||
         null,
+      selectedTripletLine:
+        (state.selection instanceof TripletLineSelection &&
+          state.selection.selected) ||
+        null,
       inputtingNotes: state.demo !== null,
     },
     gracenoteState:
@@ -73,6 +81,7 @@ const updateView = (state: State) => {
     selectedNote: state.selection && state.selection.selectedNote(state.score),
     selectedGracenote:
       state.selection && state.selection.gracenote(state.score),
+    isLandscape: state.score.landscape,
     selectedBar: state.selection && state.selection.bar(state.score),
     docs: state.doc.show
       ? Documentation.get(state.doc.current || '') ||

@@ -9,6 +9,7 @@ import { clickSecondTiming } from '../Controllers/SecondTiming';
 import { ID } from '../global/id';
 import { foreach, Obj } from '../global/utils';
 import { before, closestItem, getXY, itemBefore, XY } from '../global/xy';
+import { Score } from '../Score';
 import { SecondTimingSelection } from '../Selection';
 import { Selection } from '../Selection';
 
@@ -18,6 +19,8 @@ export type DraggedTiming = {
 };
 
 interface TimingProps {
+  score: Score;
+  page: number;
   staveStartX: number;
   staveEndX: number;
   selection: Selection | null;
@@ -89,18 +92,27 @@ export abstract class BaseTiming {
     }
     return true;
   }
+  protected onPage(page: number) {
+    const start = this.front().page;
+    const end = this.back().page;
+    return start === page || end === page || (start < page && page < end);
+  }
   protected lineFrom(
     x1: number,
     y1: number,
     x2: number,
     y2: number,
+    page1: number,
+    page2: number,
     text: string,
     colour: string,
     click: (first: boolean) => void,
     clickText: () => void,
     drawLast: boolean,
     props: TimingProps
-  ) {
+  ): V {
+    if (!this.onPage(props.page)) return svg('g');
+
     const height = 45;
     const mid = 20;
     const clickWidth = 10;
@@ -148,28 +160,35 @@ export abstract class BaseTiming {
       drawLast ? dragBox(x2, y2, false) : null,
     ];
 
-    return svg('g', [
-      ...(y1 === y2
-        ? [horizontal(x1, x2, y1), ...verticalLines]
-        : [
-            horizontal(x1, props.staveEndX, y1),
-            vertical(props.staveEndX, y1),
-            horizontal(props.staveStartX, x2, y2),
-            vertical(props.staveStartX, y2),
+    if (page1 === page2) {
+      return svg('g', [
+        ...(y1 === y2
+          ? [horizontal(x1, x2, y1), ...verticalLines]
+          : [
+              horizontal(x1, props.staveEndX, y1),
+              vertical(props.staveEndX, y1),
+              horizontal(props.staveStartX, x2, y2),
+              vertical(props.staveStartX, y2),
 
-            ...foreach(stavesBetween, (i) => i + 1).map((i) =>
-              svg('g', [
-                horizontal(props.staveStartX, props.staveEndX, y(i)),
-                vertical(props.staveStartX, y(i)),
-                vertical(props.staveEndX, y(i)),
-              ])
-            ),
-            ...verticalLines,
-          ]),
-      svg('text', { x: x1 + 5, y: y1 - height / 2 }, { dblclick: clickText }, [
-        text,
-      ]),
-    ]);
+              ...foreach(stavesBetween, (i) => i + 1).map((i) =>
+                svg('g', [
+                  horizontal(props.staveStartX, props.staveEndX, y(i)),
+                  vertical(props.staveStartX, y(i)),
+                  vertical(props.staveEndX, y(i)),
+                ])
+              ),
+              ...verticalLines,
+            ]),
+        svg(
+          'text',
+          { x: x1 + 5, y: y1 - height / 2 },
+          { mousedown: () => click(true), dblclick: clickText },
+          [text]
+        ),
+      ]);
+    }
+    // TODO
+    return svg('g');
   }
 }
 
@@ -250,6 +269,8 @@ export class SecondTiming extends BaseTiming {
         start.y,
         middle.beforeX,
         middle.y,
+        start.page,
+        middle.page,
         this.firstText,
         colour,
         (first) =>
@@ -266,6 +287,8 @@ export class SecondTiming extends BaseTiming {
         middle.y,
         end.afterX,
         end.y,
+        middle.page,
+        end.page,
         this.secondText,
         colour,
         (first) =>
@@ -343,12 +366,16 @@ export class SingleTiming extends BaseTiming {
       return svg('g');
     }
 
+    if (!this.onPage(props.page)) return svg('g');
+
     return svg('g', { class: 'second-timing' }, [
       this.lineFrom(
         start.beforeX,
         start.y,
         end.afterX,
         end.y,
+        start.page,
+        end.page,
         this.text,
         colour,
         (first) =>

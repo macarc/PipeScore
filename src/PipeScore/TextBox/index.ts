@@ -66,11 +66,9 @@ export class TextBox {
   public toggleCentre() {
     this.centred = !this.centred;
   }
-  public adjustAfterOrientation(width: number, height: number) {
-    if (!this.centred) {
-      this.x = (this.x / width) * height;
-      this.y = (this.y / height) * width;
-    }
+  public adjustAfterOrientation(newWidth: number, newHeight: number) {
+    this.x = (this.x / newHeight) * newWidth;
+    this.y = (this.y / newHeight) * newWidth;
   }
   public setCoords(x: number, y: number) {
     this.x = x;

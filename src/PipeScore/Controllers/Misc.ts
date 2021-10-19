@@ -36,14 +36,17 @@ export function addPage(): ScoreEvent {
 }
 export function removePage(): ScoreEvent {
   return async (state: State) => {
-    if (state.score.numberOfPages >= 1) {
-      const sure = confirm(
-        'Are you sure you want to delete a page? All the music on the last page will be deleted.\nPress Enter to confirm, or Esc to stop.'
-      );
-      if (sure) {
-        state.score.deletePage();
-        return Update.ShouldSave;
-      }
+    let sure = true;
+    if (state.score.numberOfPages > 1 && state.score.hasStuffOnLastPage()) {
+      sure =
+        confirm(
+          'Are you sure you want to delete the last page? All the music on the last page will be deleted.\nPress Enter to confirm, or Esc to stop.'
+        ) || false;
+    }
+
+    if (sure) {
+      state.score.deletePage();
+      return Update.ShouldSave;
     }
     return Update.NoChange;
   };
@@ -77,11 +80,14 @@ export function setMenu(menu: Menu): ScoreEvent {
     return Update.ViewChanged;
   };
 }
-
-export function toggleLandscape(): ScoreEvent {
+export function landscape(): ScoreEvent {
   return async (state: State) => {
-    state.score.toggleLandscape();
-    return Update.ShouldSave;
+    return state.score.makeLandscape();
+  };
+}
+export function portrait(): ScoreEvent {
+  return async (state: State) => {
+    return state.score.makePortrait();
   };
 }
 
@@ -132,8 +138,15 @@ export function print(): ScoreEvent {
       zoomLevel: 100,
       selection: null,
       selectedSecondTiming: null,
-      noteState: { dragged: null, inputtingNotes: false },
-      gracenoteState: { dragged: null, selected: null },
+      noteState: {
+        dragged: null,
+        inputtingNotes: false,
+        selectedTripletLine: null,
+      },
+      gracenoteState: {
+        dragged: null,
+        selected: null,
+      },
       textBoxState: { selectedText: null },
       demoNote: null,
       dispatch: () => null,

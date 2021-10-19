@@ -21,7 +21,6 @@ import {
 } from '../Controllers/Bar';
 import {
   setMenu,
-  toggleLandscape,
   undo,
   redo,
   print,
@@ -29,6 +28,8 @@ import {
   changeSetting,
   addPage,
   removePage,
+  landscape,
+  portrait,
 } from '../Controllers/Misc';
 import { addSecondTiming, addSingleTiming } from '../Controllers/SecondTiming';
 import { deleteSelection } from '../Controllers/Mouse';
@@ -56,6 +57,7 @@ export interface UIState {
   selectedNote: Note | null;
   selectedBar: Bar | null;
   demo: Demo | null;
+  isLandscape: boolean;
   currentMenu: Menu;
   docs: string | null;
   playbackBpm: number;
@@ -164,8 +166,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
           h(
             'button',
             { id: 'triplet' },
-            { click: () => dispatch(addTriplet()) },
-            ['3']
+            { click: () => dispatch(addTriplet()) }
           )
         ),
       ]),
@@ -507,15 +508,24 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       ]),
     ]),
     h('section', [
-      h('h2', ['Document']),
+      h('h2', ['Orientation']),
       h('div', { class: 'section-content' }, [
         help(
           'landscape',
           h(
             'button',
-            { class: 'textual' },
-            { click: () => dispatch(toggleLandscape()) },
-            ['Toggle landscape']
+            { class: 'textual' + (state.isLandscape ? ' highlighted' : '') },
+            { click: () => dispatch(landscape()) },
+            ['Landscape']
+          )
+        ),
+        help(
+          'portrait',
+          h(
+            'button',
+            { class: 'textual' + (state.isLandscape ? '' : ' highlighted') },
+            { click: () => dispatch(portrait()) },
+            ['Portrait']
           )
         ),
       ]),

@@ -122,8 +122,8 @@ div .flex {
   background-image: url('../images/tie.png');
 }
 #triplet {
-  background-image: url('../images/tie.png');
-  background-position: 0rem 0.5rem !important;
+  background-image: url('../images/triplet.png');
+  /* background-position: 0rem 2rem !important; */
 }
 
 .delete {
