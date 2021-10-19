@@ -60,18 +60,24 @@ export const itemBefore = (a: ID, b: ID): boolean => {
   }
 };
 
-export const closestItem = (x: number, y: number, rightMost: boolean): ID => {
+export const closestItem = (
+  x: number,
+  y: number,
+  page: number,
+  rightMost: boolean
+): ID | null => {
   // This finds the item the closest to the point (x,y)
   // rightMost should be set to true if it should (in the case of a draw) favour the right-most element
 
   let closestDistance = Infinity;
-  let closestID = 0;
+  let closestID = null;
   const cmp = (a: number, b: number) => (rightMost ? a <= b : a < b);
   const itemCoordinates = [...itemCoords].sort((a, b) =>
     b[1].beforeX < a[1].beforeX ? 1 : -1
   );
 
   for (const [id, xy] of itemCoordinates) {
+    if (xy.page !== page) continue;
     const xDistance = Math.min(
       Math.abs(xy.beforeX - x),
       Math.abs(xy.afterX - x)

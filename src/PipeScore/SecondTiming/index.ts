@@ -92,35 +92,31 @@ export abstract class BaseTiming {
     }
     return true;
   }
-  protected onPage(page: number) {
-    const start = this.front().page;
-    const end = this.back().page;
-    return start === page || end === page || (start < page && page < end);
-  }
   protected lineFrom(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    page1: number,
-    page2: number,
+    a: XY,
+    b: XY,
     text: string,
     colour: string,
     click: (first: boolean) => void,
     clickText: () => void,
+    // if true, draw the end.
+    // if true, we use b.afterX, otherwise we use b.beforeX
     drawLast: boolean,
     props: TimingProps
   ): V {
-    if (!this.onPage(props.page)) return svg('g');
+    if (
+      !(
+        a.page === props.page ||
+        b.page === props.page ||
+        (a.page < props.page && props.page < b.page)
+      )
+    )
+      return svg('g');
 
     const height = 45;
     const mid = 20;
     const clickWidth = 10;
-    const stavesBetween = Math.max(
-      Math.round((y2 - y1) / props.staveGap) - 1,
-      0
-    );
-    const y = (i: number) => y1 + i * props.staveGap;
+    const y = (i: number) => a.y + i * props.staveGap;
 
     const horizontal = (x1: number, x2: number, y: number) =>
       svg('line', {
@@ -153,22 +149,27 @@ export abstract class BaseTiming {
           mousedown: () => click(start),
         }
       );
-    const verticalLines = [
-      vertical(x1, y1),
-      dragBox(x1, y1, true),
-      drawLast ? vertical(x2, y2) : null,
-      drawLast ? dragBox(x2, y2, false) : null,
-    ];
+    const lastx = drawLast ? b.afterX : b.beforeX;
 
-    if (page1 === page2) {
+    if (a.page === b.page && a.page === props.page) {
+      const verticalLines = [
+        vertical(a.beforeX, a.y),
+        dragBox(a.beforeX, a.y, true),
+        drawLast ? vertical(lastx, b.y) : null,
+        drawLast ? dragBox(lastx, b.y, false) : null,
+      ];
+      const stavesBetween = Math.max(
+        Math.round((b.y - a.y) / props.staveGap) - 1,
+        0
+      );
       return svg('g', [
-        ...(y1 === y2
-          ? [horizontal(x1, x2, y1), ...verticalLines]
+        ...(a.y === b.y
+          ? [horizontal(a.beforeX, lastx, a.y), ...verticalLines]
           : [
-              horizontal(x1, props.staveEndX, y1),
-              vertical(props.staveEndX, y1),
-              horizontal(props.staveStartX, x2, y2),
-              vertical(props.staveStartX, y2),
+              horizontal(a.beforeX, props.staveEndX, a.y),
+              vertical(props.staveEndX, a.y),
+              horizontal(props.staveStartX, lastx, b.y),
+              vertical(props.staveStartX, b.y),
 
               ...foreach(stavesBetween, (i) => i + 1).map((i) =>
                 svg('g', [
@@ -181,13 +182,62 @@ export abstract class BaseTiming {
             ]),
         svg(
           'text',
-          { x: x1 + 5, y: y1 - height / 2 },
+          { x: a.beforeX + 5, y: a.y - height / 2 },
           { mousedown: () => click(true), dblclick: clickText },
           [text]
         ),
       ]);
+    } else if (a.page === props.page) {
+      const last = props.score.lastOnPage(props.page);
+      if (last) {
+        const xy = getXY(last.id);
+        if (xy)
+          return this.lineFrom(
+            a,
+            xy,
+            text,
+            colour,
+            click,
+            clickText,
+            true,
+            props
+          );
+      }
+    } else if (b.page === props.page) {
+      const first = props.score.firstOnPage(props.page);
+      if (first) {
+        const xy = getXY(first.id);
+        if (xy)
+          return this.lineFrom(
+            xy,
+            b,
+            '',
+            colour,
+            click,
+            clickText,
+            drawLast,
+            props
+          );
+      }
+    } else {
+      const first = props.score.firstOnPage(props.page);
+      const last = props.score.lastOnPage(props.page);
+      if (first && last) {
+        const firstxy = getXY(first.id);
+        const lastxy = getXY(last.id);
+        if (firstxy && lastxy)
+          return this.lineFrom(
+            firstxy,
+            lastxy,
+            '',
+            colour,
+            click,
+            clickText,
+            true,
+            props
+          );
+      }
     }
-    // TODO
     return svg('g');
   }
 }
@@ -239,12 +289,20 @@ export class SecondTiming extends BaseTiming {
       (this.middle === this.end || itemBefore(this.middle, this.end))
     );
   }
-  public drag(drag: TimingPart, x: number, y: number, others: Timing[]) {
-    const closest = closestItem(x, y, drag !== 'end');
-    const test = new SecondTiming(this.start, this.middle, this.end);
-    test[drag] = closest;
-    if (test.isValid(others.filter((s) => s !== this))) {
-      this[drag] = closest;
+  public drag(
+    drag: TimingPart,
+    x: number,
+    y: number,
+    page: number,
+    others: Timing[]
+  ) {
+    const closest = closestItem(x, y, page, drag !== 'end');
+    if (closest) {
+      const test = new SecondTiming(this.start, this.middle, this.end);
+      test[drag] = closest;
+      if (test.isValid(others.filter((s) => s !== this))) {
+        this[drag] = closest;
+      }
     }
   }
   public render(props: TimingProps): V {
@@ -265,12 +323,8 @@ export class SecondTiming extends BaseTiming {
 
     return svg('g', { class: 'second-timing' }, [
       this.lineFrom(
-        start.beforeX,
-        start.y,
-        middle.beforeX,
-        middle.y,
-        start.page,
-        middle.page,
+        start,
+        middle,
         this.firstText,
         colour,
         (first) =>
@@ -283,12 +337,8 @@ export class SecondTiming extends BaseTiming {
         props
       ),
       this.lineFrom(
-        middle.beforeX,
-        middle.y,
-        end.afterX,
-        end.y,
-        middle.page,
-        end.page,
+        middle,
+        end,
         this.secondText,
         colour,
         (first) =>
@@ -342,13 +392,21 @@ export class SingleTiming extends BaseTiming {
   protected validToItself() {
     return this.start === this.end || itemBefore(this.start, this.end);
   }
-  public drag(drag: TimingPart, x: number, y: number, others: Timing[]) {
+  public drag(
+    drag: TimingPart,
+    x: number,
+    y: number,
+    page: number,
+    others: Timing[]
+  ) {
     if (drag === 'middle') return;
-    const closest = closestItem(x, y, drag !== 'end');
-    const test = new SingleTiming(this.start, this.end);
-    test[drag] = closest;
-    if (test.isValid(others.filter((s) => s !== this))) {
-      this[drag] = closest;
+    const closest = closestItem(x, y, page, drag !== 'end');
+    if (closest) {
+      const test = new SingleTiming(this.start, this.end);
+      test[drag] = closest;
+      if (test.isValid(others.filter((s) => s !== this))) {
+        this[drag] = closest;
+      }
     }
   }
   public render(props: TimingProps): V {
@@ -366,16 +424,10 @@ export class SingleTiming extends BaseTiming {
       return svg('g');
     }
 
-    if (!this.onPage(props.page)) return svg('g');
-
     return svg('g', { class: 'second-timing' }, [
       this.lineFrom(
-        start.beforeX,
-        start.y,
-        end.afterX,
-        end.y,
-        start.page,
-        end.page,
+        start,
+        end,
         this.text,
         colour,
         (first) =>

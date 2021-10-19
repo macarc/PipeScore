@@ -209,13 +209,11 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
         const first = props.score.firstOnPage(props.page);
         if (first) return new ScoreSelection(first.id, this.end).render(props);
       } else {
-        console.log('wooooooooooooooooooooooooooo');
         const first = props.score.firstOnPage(props.page);
         const last = props.score.lastOnPage(props.page);
         if (first && last)
           return new ScoreSelection(first.id, last.id).render(props);
       }
-      console.log(start.page, end.page, props.page);
       return svg('g');
     } else if (end.y !== start.y) {
       const higher = start.y > end.y ? end : start;
@@ -302,8 +300,8 @@ export class SecondTimingSelection {
     this.dragged = { timing: this.secondTiming, dragged: part };
     return this;
   }
-  public mouseDrag(x: number, y: number, score: Score) {
-    if (this.dragged) score.dragSecondTiming(this.dragged, x, y);
+  public mouseDrag(x: number, y: number, score: Score, page: number) {
+    if (this.dragged) score.dragSecondTiming(this.dragged, x, y, page);
   }
   public notes() {
     return [];

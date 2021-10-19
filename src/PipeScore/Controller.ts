@@ -6,7 +6,7 @@
 import patch from '../render/vdom';
 import { h, hFrom } from '../render/h';
 import { ScoreEvent, Update } from './Controllers/Controller';
-import { mouseUp, mouseDrag } from './Controllers/Mouse';
+import { mouseUp, mouseDrag, clickBackground } from './Controllers/Mouse';
 import { State } from './State';
 import { Score } from './Score';
 import {

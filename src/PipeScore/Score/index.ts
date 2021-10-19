@@ -97,7 +97,6 @@ export class Score {
   }
   private adjustAfterOrientationChange() {
     if (this.notEnoughSpace(this.numberOfPages - 1)) {
-      console.log('ok');
       this.numberOfPages += 1;
     }
     this.textBoxes.forEach((p) =>
@@ -317,8 +316,19 @@ export class Score {
       text.setCoords(x, y);
     }
   }
-  public dragSecondTiming(secondTiming: DraggedTiming, x: number, y: number) {
-    secondTiming.timing.drag(secondTiming.dragged, x, y, this.secondTimings);
+  public dragSecondTiming(
+    secondTiming: DraggedTiming,
+    x: number,
+    y: number,
+    page: number
+  ) {
+    secondTiming.timing.drag(
+      secondTiming.dragged,
+      x,
+      y,
+      page,
+      this.secondTimings
+    );
   }
 
   public purgeSecondTimings(items: Item[]) {

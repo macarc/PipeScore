@@ -6,8 +6,8 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Too large a gap before embellishments
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
-- [ ] Second timings over multiple pages
 - [ ] Make tails look nicer
+- [ ] Page numbers
 
 ### Cleanups
 
@@ -203,3 +203,4 @@
 - [x] Highlight barline buttons in UI if a single bar is selected
 - [x] Fix copy/paste
 - [x] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
+- [x] Second timings over multiple pages
