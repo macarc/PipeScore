@@ -330,8 +330,12 @@ export class TripletLineSelection {
     const location = score.location(this.selected.id);
     if (location) location.bar.unmakeTriplet(this.selected);
   }
-  mouseDrag() {}
-  mouseUp() {}
+  mouseDrag() {
+    // Unneeded
+  }
+  mouseUp() {
+    // Unneeded
+  }
   selectedNote() {
     return null;
   }

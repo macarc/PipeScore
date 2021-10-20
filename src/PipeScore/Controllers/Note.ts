@@ -13,7 +13,7 @@ import { ScoreSelection, TripletLineSelection } from '../Selection';
 
 import { Note, SingleNote, Triplet } from '../Note';
 import { NoteLength } from '../Note/notelength';
-import { DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
+import { DemoNote, DemoReactive } from '../DemoNote';
 import { SingleGracenote } from '../Gracenote';
 
 export function addNoteBefore(

@@ -2,7 +2,7 @@
   Note format
   Copyright (C) 2021 macarc
  */
-import { pitchOffset, noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
+import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
 import {
   Gracenote,
@@ -829,45 +829,8 @@ export class SingleNote
       );
     const yOf = (note: SingleNote) => note.y(props.y);
 
-    const totalXWidth = width.reify(
-      SingleNote.totalWidth(notes, previousPitch),
-      props.noteWidth
-    );
-
-    const firstNote = notes[0];
-    const lastNote = nlast(notes);
-
     const setNoteXY = (note: SingleNote, index: number) =>
       setXY(note.id, xOfGracenote(index), xOf(index) + noteHeadWidth, props.y);
-
-    const cap = (n: number, max: number) =>
-      n > max ? max : n < -max ? -max : n;
-
-    const diff = cap(
-      // todo cap should be dependent on how many notes are in the group
-      // difference between first and last notes in a group
-      pitchOffset(lastNote.pitch) - pitchOffset(firstNote.pitch),
-      30 / notes.length
-    );
-
-    const [lowestNote, lowestNoteIndex, multipleLowest] = notes.reduce(
-      (last, next, index) => {
-        if (index === 0) {
-          return last;
-        }
-        const [lowestNoteSoFar, lowestNoteIndexSoFar] = last;
-        if (pitchOffset(next.pitch) === pitchOffset(lowestNoteSoFar.pitch)) {
-          return [lowestNoteSoFar, lowestNoteIndexSoFar, true];
-        } else if (
-          pitchOffset(next.pitch) > pitchOffset(lowestNoteSoFar.pitch)
-        ) {
-          return [next, index, false];
-        } else {
-          return last;
-        }
-      },
-      [firstNote, 0, false] as [SingleNote, number, boolean]
-    );
 
     const stemY = props.y + settings.lineHeightOf(6);
 
