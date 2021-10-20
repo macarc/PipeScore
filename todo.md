@@ -7,7 +7,8 @@
 - [ ] Too large a gap before embellishments
 - [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
 - [ ] Make tails look nicer
-- [ ] Page numbers
+- [ ] Printing overlaps pages
+- [ ] Printing multiple pages
 
 ### Cleanups
 
@@ -204,3 +205,4 @@
 - [x] Fix copy/paste
 - [x] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
 - [x] Second timings over multiple pages
+- [x] Page numbers

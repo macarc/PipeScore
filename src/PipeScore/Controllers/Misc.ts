@@ -13,6 +13,13 @@ import { stopInputtingNotes } from './Note';
 import { settings, Settings } from '../global/settings';
 import { Score } from '../Score';
 
+export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
+  return async (state: State) => {
+    const visibility = element.checked;
+    state.score.showNumberOfPages = Boolean(visibility);
+    return Update.ShouldSave;
+  };
+}
 export function editText(
   value: string,
   cb: (text: string) => void
@@ -37,7 +44,8 @@ export function addPage(): ScoreEvent {
 export function removePage(): ScoreEvent {
   return async (state: State) => {
     let sure = true;
-    if (state.score.numberOfPages > 1 && state.score.hasStuffOnLastPage()) {
+    if (state.score.numberOfPages <= 1) return Update.NoChange;
+    if (state.score.hasStuffOnLastPage()) {
       sure =
         confirm(
           'Are you sure you want to delete the last page? All the music on the last page will be deleted.\nPress Enter to confirm, or Esc to stop.'
@@ -135,7 +143,6 @@ export function print(): ScoreEvent {
     const blankEl = document.createElement('div');
     const blankH = hFrom(blankEl);
     const props = {
-      zoomLevel: 100,
       selection: null,
       selectedSecondTiming: null,
       noteState: {
@@ -152,14 +159,20 @@ export function print(): ScoreEvent {
       dispatch: () => null,
     };
 
+    state.score.zoom = 100;
     // Patch it onto a new element with none of the state (e.g. zoom, selected elements)
     patch(blankH, h('div', [state.score.render(props)]));
-    const contents = blankEl.innerHTML;
+    const contents = blankEl.querySelector('div')?.innerHTML;
 
+    // TODO this might have fixed somehow?
     await dialogueBox(
       [
         h('p', [
-          "When printing, please ensure you set 'Margins' to 'None', for best results.",
+          'When printing, please ensure you set ',
+          h('span', { style: 'font-family: monospace;' }, ['Margins']),
+          'to',
+          h('span', { style: 'font-family: monospace;' }, ['None']),
+          '.',
         ]),
         h('p', [
           'This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.',
@@ -171,13 +184,13 @@ export function print(): ScoreEvent {
     );
     const popupWindow = window.open(
       '',
-      '_blank',
-      'scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no,resizable'
+      'print_preview',
+      `width=${state.score.width()},height=${state.score.height()},scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no,resizable=no`
     );
     if (popupWindow) {
       popupWindow.document.open();
       popupWindow.document.write(
-        `<style>* { font-family: sans-serif; margin: 0; padding: 0; } @page { size: ${state.score.orientation()}; }</style>` +
+        `<style>* { font-family: sans-serif; margin: 0; padding: 0; } @page { size: A4 ${state.score.orientation()}; }</style>` +
           contents
       );
       popupWindow.print();

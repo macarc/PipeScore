@@ -19,7 +19,7 @@ import {
   expandSelection,
   detractSelection,
 } from './Controllers/Note';
-import { undo, redo } from './Controllers/Misc';
+import { undo, redo, print } from './Controllers/Misc';
 import { deleteSelection } from './Controllers/Mouse';
 
 import { NoteLength } from './Note/notelength';
@@ -78,6 +78,12 @@ export function keyHandler(e: KeyboardEvent): void {
       break;
     case 'y':
       if (e.ctrlKey) dispatch(redo());
+      break;
+    case 'p':
+      if (e.ctrlKey) {
+        e.preventDefault();
+        dispatch(print());
+      }
       break;
 
     case '1':

@@ -14,7 +14,7 @@ import { NoteState } from '../Note/state';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { first, foreach, last, nlast, Obj } from '../global/utils';
+import { first, foreach, last, log, nlast, Obj } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
@@ -36,6 +36,7 @@ export class Score {
   private textBoxes: TextBox[][];
   private secondTimings: Timing[];
 
+  public showNumberOfPages: boolean;
   public numberOfPages = 1;
   public zoom: number;
 
@@ -46,6 +47,7 @@ export class Score {
   ) {
     this.name = name;
     this.landscape = true;
+    this.showNumberOfPages = true;
     this._staves = foreach(numberOfStaves, () => new Stave(timeSignature));
     this.textBoxes = [[new TextBox(name, true)]];
     this.secondTimings = [];
@@ -58,6 +60,7 @@ export class Score {
     s.textBoxes = o.textBoxes.map((p: Obj) => p.texts.map(TextBox.fromJSON));
     s.secondTimings = o.secondTimings.map(BaseTiming.fromJSON);
     s.numberOfPages = o.numberOfPages;
+    s.showNumberOfPages = o.showNumberOfPages;
     settings.fromJSON(o.settings);
     return s;
   }
@@ -65,6 +68,7 @@ export class Score {
     return {
       name: this.name,
       landscape: this.landscape,
+      showNumberOfPages: this.showNumberOfPages,
       _staves: this._staves.map((stave) => stave.toJSON()),
       textBoxes: this.textBoxes.map((p) => ({
         texts: p.map((txt) => txt.toJSON()),
@@ -74,10 +78,10 @@ export class Score {
       settings: settings.toJSON(),
     };
   }
-  private width() {
+  public width() {
     return this.landscape ? 297 * 5 : 210 * 5;
   }
-  private height() {
+  public height() {
     return this.landscape ? 210 * 5 : 297 * 5;
   }
   public orientation() {
@@ -416,6 +420,19 @@ export class Score {
               secondTiming.render(secondTimingProps(i))
             ),
             props.selection && props.selection.render(selectionProps(i)),
+            this.showNumberOfPages && this.numberOfPages > 1
+              ? svg(
+                  'text',
+                  {
+                    x: this.width() / 2,
+                    y:
+                      this.height() -
+                      settings.margin +
+                      settings.lineHeightOf(5),
+                  },
+                  [(i + 1).toString()]
+                )
+              : null,
           ]
         );
       })

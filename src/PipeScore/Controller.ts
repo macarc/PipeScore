@@ -78,6 +78,7 @@ const updateView = (state: State) => {
   const uiProps = {
     zoomLevel: state.score.zoom,
     demo: state.demo,
+    showingPageNumbers: state.score.showNumberOfPages,
     selectedNote: state.selection && state.selection.selectedNote(state.score),
     selectedGracenote:
       state.selection && state.selection.gracenote(state.score),

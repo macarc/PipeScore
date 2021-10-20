@@ -30,6 +30,7 @@ import {
   removePage,
   landscape,
   portrait,
+  setPageNumberVisibility,
 } from '../Controllers/Misc';
 import { addSecondTiming, addSingleTiming } from '../Controllers/SecondTiming';
 import { deleteSelection } from '../Controllers/Mouse';
@@ -56,6 +57,7 @@ export interface UIState {
   selectedGracenote: Gracenote | null;
   selectedNote: Note | null;
   selectedBar: Bar | null;
+  showingPageNumbers: boolean;
   demo: Demo | null;
   isLandscape: boolean;
   currentMenu: Menu;
@@ -527,6 +529,27 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             { click: () => dispatch(portrait()) },
             ['Portrait']
           )
+        ),
+      ]),
+    ]),
+    h('section', [
+      h('h2', ['Options']),
+      h('div', { class: 'section-content' }, [
+        help(
+          'page numbers',
+          h('label', [
+            'Show page numbers: ',
+            h(
+              'input',
+              { type: 'checkbox', checked: state.showingPageNumbers },
+              {
+                click: (e) =>
+                  dispatch(
+                    setPageNumberVisibility(e.target as HTMLInputElement)
+                  ),
+              }
+            ),
+          ])
         ),
       ]),
     ]),
