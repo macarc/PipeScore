@@ -14,7 +14,7 @@ import { NoteState } from '../Note/state';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { first, foreach, last, log, nlast, Obj } from '../global/utils';
+import { first, foreach, last, nlast, Obj } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';

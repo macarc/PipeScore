@@ -782,16 +782,21 @@ export class SingleNote
                   svg('path', {
                     fill: this.colour(),
                     stroke: this.colour(),
-                    d: `M ${x},${stemBottomY} q 8,-6 8,-15 q 0,-8 -4,-11 q 4,5 3,11 q -1,7 -7,11`,
+                    'stroke-width': 0.5,
+                    // d: `M ${x},${stemBottomY} q 8,-6 8,-15 q 0,-8 -4,-11 q 4,5 3,11 q -1,7 -7,11`,
+                    d: `M ${x},${stemBottomY} c 16,-10 6,-22 4,-25 c 3,6 8,15 -4,22`,
                   }),
                 ]
               : foreach(numberOfTails, (t) =>
                   svg('path', {
                     fill: this.colour(),
                     stroke: this.colour(),
-                    d: `M ${x},${
+                    // d: `M ${x},${
+                    //   stemBottomY - 5 * t
+                    // } q 8,-4 8,-13 q -2,9 -8,11`,
+                    d: `M ${x}, ${
                       stemBottomY - 5 * t
-                    } q 8,-4 8,-13 q -2,9 -8,11`,
+                    } c 12,-5 9,-8 6,-10 c 4,3 4,5 -6,8`,
                   })
                 )
           )

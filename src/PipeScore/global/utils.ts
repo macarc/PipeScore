@@ -3,6 +3,7 @@
   Copyright (C) 2021 macarc
 */
 
+// eslint-disable-next-line
 export type Obj = Record<string, any>;
 // Log helper functions, make logging easier
 // E.g. x = someThing + (whatIsThis * 3) --> x = something + (log(whatIsThis) * 3)
