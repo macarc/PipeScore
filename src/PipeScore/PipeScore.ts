@@ -59,13 +59,17 @@ window.addEventListener('DOMContentLoaded', async () => {
       // If it is a new score, then it won't have staves
       if (!score.staves) {
         const opts = await quickStart();
-        startController(await save(userid, scoreid, opts.toScore()), saveScore);
+        startController(
+          await save(userid, scoreid, opts.toScore()),
+          saveScore,
+          true
+        );
       } else {
-        startController(score, saveScore);
+        startController(score, saveScore, true);
       }
     } else {
       const opts = await quickStart();
-      startController(opts.toScore(), () => null);
+      startController(opts.toScore(), () => null, false);
     }
   });
 });

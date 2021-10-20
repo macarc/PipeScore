@@ -19,6 +19,7 @@ import renderUI from './UI/view';
 import Documentation from './Documentation';
 
 const initialState: State = {
+  isLoggedIn: false,
   justClickedNote: false,
   demo: null,
   playback: { bpm: 100 },
@@ -76,6 +77,7 @@ const updateView = (state: State) => {
     demoNote: state.demo,
   };
   const uiProps = {
+    loggedIn: state.isLoggedIn,
     zoomLevel: state.score.zoom,
     demo: state.demo,
     showingPageNumbers: state.score.showNumberOfPages,
@@ -131,11 +133,13 @@ function mouseMove(event: MouseEvent) {
 
 export default function startController(
   score: Score,
-  saveFn: (score: Score) => void
+  saveFn: (score: Score) => void,
+  isLoggedIn: boolean
 ): void {
   // Initial render, hooks event listeners
 
   save = saveFn;
+  state.isLoggedIn = isLoggedIn;
   state.score = score;
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);

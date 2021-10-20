@@ -39,6 +39,7 @@ header ul {
 header ul li {
   list-style: none;
   padding: 0.5rem;
+  margin-right: 0.8rem;
   font-size: 1.1rem;
   text-align: center;
 }

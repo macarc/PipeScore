@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import { Menu } from './model';
-import { h, V, Attributes } from '../../render/h';
+import { h, V, Attributes, svg } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
 import {
   addTriplet,
@@ -54,6 +54,7 @@ import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note } from '../Note';
 
 export interface UIState {
+  loggedIn: boolean;
   selectedGracenote: Gracenote | null;
   selectedNote: Note | null;
   selectedBar: Bar | null;
@@ -613,68 +614,76 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       capitalise(name),
     ]);
   return h('div', [
-    h('div', { id: 'menu' }, [
-      help(
-        'Return to Scores page',
-        h('button', [h('a', { href: '/scores' }, ['Home'])])
-      ),
-      menuHead('note'),
-      menuHead('gracenote'),
-      menuHead('bar'),
-      menuHead('stave'),
-      menuHead('text'),
-      menuHead('playback'),
-      menuHead('document'),
-      menuHead('settings'),
-    ]),
-    h('div', { id: 'topbar' }, [
-      h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
-      h('section', { id: 'general-commands' }, [
-        h('h2', ['General Commands']),
-        h('div', { class: 'section-content flex' }, [
-          h('div', [
+    h('div', { id: 'ui' }, [
+      h('div', { id: 'menu' }, [
+        help(
+          'Return to Scores page',
+          h('button', [h('a', { href: '/scores' }, ['Home'])])
+        ),
+        menuHead('note'),
+        menuHead('gracenote'),
+        menuHead('bar'),
+        menuHead('stave'),
+        menuHead('text'),
+        menuHead('playback'),
+        menuHead('document'),
+        menuHead('settings'),
+      ]),
+      h('div', { id: 'topbar' }, [
+        h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
+        h('section', { id: 'general-commands' }, [
+          h('h2', ['General Commands']),
+          h('div', { class: 'section-content flex' }, [
+            h('div', [
+              help(
+                'delete',
+                h(
+                  'button',
+                  { id: 'delete-notes', class: 'delete' },
+                  { click: () => dispatch(deleteSelection()) }
+                )
+              ),
+              help(
+                'copy',
+                h('button', { id: 'copy' }, { click: () => dispatch(copy()) })
+              ),
+              help(
+                'paste',
+                h('button', { id: 'paste' }, { click: () => dispatch(paste()) })
+              ),
+              help(
+                'undo',
+                h('button', { id: 'undo' }, { click: () => dispatch(undo()) })
+              ),
+              help(
+                'redo',
+                h('button', { id: 'redo' }, { click: () => dispatch(redo()) })
+              ),
+            ]),
             help(
-              'delete',
+              'zoom',
               h(
-                'button',
-                { id: 'delete-notes', class: 'delete' },
-                { click: () => dispatch(deleteSelection()) }
+                'input',
+                {
+                  id: 'zoom-level',
+                  type: 'range',
+                  min: '10',
+                  max: '200',
+                  step: '2',
+                  value: state.zoomLevel,
+                },
+                { input: inputZoomLevel }
               )
             ),
-            help(
-              'copy',
-              h('button', { id: 'copy' }, { click: () => dispatch(copy()) })
-            ),
-            help(
-              'paste',
-              h('button', { id: 'paste' }, { click: () => dispatch(paste()) })
-            ),
-            help(
-              'undo',
-              h('button', { id: 'undo' }, { click: () => dispatch(undo()) })
-            ),
-            help(
-              'redo',
-              h('button', { id: 'redo' }, { click: () => dispatch(redo()) })
-            ),
           ]),
-          help(
-            'zoom',
-            h(
-              'input',
-              {
-                id: 'zoom-level',
-                type: 'range',
-                min: '10',
-                max: '200',
-                step: '2',
-                value: state.zoomLevel,
-              },
-              { input: inputZoomLevel }
-            )
-          ),
         ]),
       ]),
+      state.loggedIn
+        ? null
+        : h('div', { id: 'login-warning' }, [
+            'You are currently not logged in. Any changes you make will not be saved. ',
+            h('a', { href: '/login' }, ['Create a free account here!']),
+          ]),
     ]),
     state.docs ? h('div', { id: 'doc' }, [state.docs]) : null,
   ]);

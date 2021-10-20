@@ -12,6 +12,7 @@ import { Selection } from './Selection';
 import { Note, Triplet } from './Note';
 
 export interface State {
+  isLoggedIn: boolean;
   justClickedNote: boolean;
   demo: Demo | null;
   ui: { menu: Menu };

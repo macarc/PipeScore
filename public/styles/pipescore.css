@@ -14,7 +14,7 @@ noscript {
 }
 
 #score {
-  margin-top: 10rem;
+  margin-top: 12rem;
 }
 label {
   font-size: 0.8rem;
@@ -34,14 +34,21 @@ input[type='range'] {
   display: block;
 }
 
+#ui {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+}
 #menu,
 #topbar {
   display: flex;
   margin: 0;
-  position: fixed;
-  left: 0;
-  top: 0;
   width: 100vw;
+}
+#login-warning {
+  background: orange;
+  padding: 0.5rem;
 }
 
 #menu {
