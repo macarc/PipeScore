@@ -15,7 +15,7 @@ export function noteBoxes(
 ): V {
   // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap
   // and there are 0 pixel gaps between that can nevertheless be hovered over
-  const height = settings.lineGap / 2 + 0.1;
+  const height = settings.lineGap / 2 + 0.2;
 
   const pitches = [
     Pitch.G,

@@ -66,7 +66,10 @@ export default new Map(
     stop: 'Stop the playback',
     'playback speed': 'Control the playback speed (further right is faster)',
     print: 'Print the score to a physical printer or PDF file',
-    landscape: 'Switch the score between landscape and portrait',
+    landscape: 'Make the page(s) landscape.',
+    portrait: 'Make the page(s) portrait.',
+    'page numbers':
+      'Show page numbers at the bottom of each page, if there is more than one page.',
     'add-page': 'Add a new page at the end.',
     'remove-page': 'Delete the last page and everything on it.',
     zoom: 'Zoom: Control how large the score appears on your screen.\n\nDrag to the right to zoom in, the left to zoom out',

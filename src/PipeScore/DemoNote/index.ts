@@ -155,7 +155,7 @@ export class DemoReactive extends BaseDemo<ReactiveGracenote, SingleNote> {
     bar: Bar | null,
     previous: Note | null
   ) {
-    if (note !== this.previous) {
+    if (note !== this.previous || !this.previous?.hasPreview()) {
       if (this.previous) this.previous.removePreview();
       this.previous = note;
       if (this.previous)
