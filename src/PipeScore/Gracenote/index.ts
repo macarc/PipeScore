@@ -8,7 +8,6 @@ import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';
-import width, { Width } from '../global/width';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 
@@ -17,7 +16,8 @@ const tailXOffset = 2.6;
 const gracenoteHeadRadius = 3;
 const gracenoteHeadHeight = 2;
 const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
-const gracenoteToNoteWidthRatio = 0.6;
+const gracenoteHeadGap = 1.5 * gracenoteHeadWidth;
+const gapAfterGracenote = 4;
 
 // Offsets from the centre of the gracenote head to the point where the stem touches it
 const stemXOf = (x: number) => x + 3;
@@ -30,7 +30,6 @@ export interface GracenoteProps {
   y: number;
   x: number;
   preview: boolean;
-  noteWidth: number;
   dispatch: Dispatch;
   state: GracenoteState;
 }
@@ -118,13 +117,10 @@ export abstract class Gracenote {
     }
   }
 
-  public width(thisNote: Pitch, previousNote: Pitch | null): Width {
+  public width(thisNote: Pitch, previousNote: Pitch | null): number {
     const notes = this.notes(thisNote, previousNote);
     const length = notes.notes().length;
-    return width.init(
-      2 * gracenoteHeadRadius * length,
-      gracenoteToNoteWidthRatio * length
-    );
+    return gracenoteHeadGap * length + gapAfterGracenote;
   }
   public play(thisNote: Pitch, previous: Pitch | null) {
     const notes = this.notes(thisNote, previous);
@@ -233,16 +229,8 @@ export abstract class Gracenote {
     // If each note is an object, then we can use .indexOf and other related functions
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
 
-    // If the width gets too large, it looks bad, so limit the maximum gap between gracenote heads to 10
-    const width = Math.min(gracenoteToNoteWidthRatio * props.noteWidth, 8);
-    const offset =
-      uniqueNotes.length *
-      (gracenoteToNoteWidthRatio * props.noteWidth - width);
-
     const xOf = (noteObj: { note: Pitch }) =>
-      props.x +
-      offset +
-      uniqueNotes.indexOf(noteObj) * (width + gracenoteHeadWidth);
+      props.x + uniqueNotes.indexOf(noteObj) * gracenoteHeadGap;
     const y = (note: Pitch) => noteY(props.y, note);
 
     if (uniqueNotes.length === 0) {

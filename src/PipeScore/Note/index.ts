@@ -386,9 +386,12 @@ export class SingleNote
   private widthOfGracenote(prevNote: Pitch | null) {
     return this.tied
       ? width.zero()
-      : this.previewGracenote
-      ? this.previewGracenote.width(this.pitch, prevNote)
-      : this.gracenote.width(this.pitch, prevNote);
+      : width.init(
+          this.previewGracenote
+            ? this.previewGracenote.width(this.pitch, prevNote)
+            : this.gracenote.width(this.pitch, prevNote),
+          0
+        );
   }
   public width(prevNote: Pitch | null): Width {
     return width.addAll(
@@ -714,7 +717,6 @@ export class SingleNote
       // can just be props.x since it is the first note
       x: props.x + xOffset,
       y: props.y,
-      noteWidth: props.noteWidth,
       thisNote: this.pitch,
       preview: false,
       previousNote: props.previousNote?.lastPitch() || null,
@@ -846,7 +848,6 @@ export class SingleNote
         const gracenoteProps = {
           x: xOfGracenote(index),
           y: props.y,
-          noteWidth: props.noteWidth,
           thisNote: note.pitch,
           preview: false,
           previousNote:
