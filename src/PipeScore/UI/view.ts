@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import { Menu } from './model';
-import { h, V, Attributes, svg } from '../../render/h';
+import { h, V, Attributes } from '../../render/h';
 import { Dispatch } from '../Controllers/Controller';
 import {
   addTriplet,

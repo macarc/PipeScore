@@ -4,8 +4,6 @@
 
 - [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
-- [ ] Too large a gap before embellishments
-- [ ] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
 - [ ] Triplets with tails can group
 
 ### Cleanups
@@ -15,6 +13,10 @@
 - [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 
 ## General features
+
+- [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
+- [ ] Add optimised list render
+- [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 
 - [x] Single notes
 - [x] Note groups
@@ -207,3 +209,5 @@
 - [x] Printing overlaps pages
 - [x] Printing multiple pages
 - [x] Make tails look nicer
+- [x] Too large a gap before embellishments
+- [x] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar

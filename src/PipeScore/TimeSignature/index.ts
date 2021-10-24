@@ -194,7 +194,7 @@ export class TimeSignature {
   public render(props: TimeSignatureProps): V {
     const y =
       props.y +
-      (this.cutTime() ? settings.lineHeightOf(3.9) : settings.lineHeightOf(2));
+      (this.cutTime() ? settings.lineHeightOf(4) : settings.lineHeightOf(2));
 
     const edit = () =>
       this.edit().then((newTimeSignature) =>
