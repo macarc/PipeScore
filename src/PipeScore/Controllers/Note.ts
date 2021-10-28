@@ -68,6 +68,7 @@ export function detractSelection(): ScoreEvent {
     ) {
       const prev = state.score.previousNote(state.selection.end);
       if (prev) {
+        state.selection.end = prev.id;
         return Update.ViewChanged;
       }
     }

@@ -107,7 +107,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             isGracenoteInput(name) || isSelectedGracenote(name)
               ? 'highlighted'
               : 'not-highlighted',
-          style: `background-image: url("./images/icons/gracenote-${name}.svg")`,
+          style: `background-image: url("/images/icons/gracenote-${name}.svg")`,
         },
         { click: () => dispatch(setGracenoteOnSelectedNotes(name)) }
       )
@@ -190,7 +190,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
                 state.selectedGracenote instanceof SingleGracenote
                   ? 'highlighted'
                   : 'not-highlighted',
-              style: 'background-image: url("./images/icons/single.svg")',
+              style: 'background-image: url("/images/icons/single.svg")',
             },
             { click: () => dispatch(setGracenoteOnSelectedNotes(null)) }
           )

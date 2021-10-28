@@ -211,3 +211,4 @@
 - [x] Make tails look nicer
 - [x] Too large a gap before embellishments
 - [x] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
+- [x] Shift-left

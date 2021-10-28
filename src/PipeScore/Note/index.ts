@@ -43,6 +43,8 @@ const shortTailLength = 10;
 // (the actual radius will actually be slightly larger since the note head is slanted slightly)
 const noteHeadRadius = 4;
 const noteHeadWidth = 2 * noteHeadRadius;
+const dotXOffset = 10;
+const dotRadius = 1.5;
 
 interface NoteProps {
   x: number;
@@ -307,6 +309,7 @@ export class SingleNote
     this.gracenote = gracenote;
     this.previewGracenote = null;
   }
+  public static width = (noteHeadWidth * 2) / 3;
   public static spacerWidth() {
     return width.init(noteHeadWidth, 1);
   }
@@ -396,7 +399,9 @@ export class SingleNote
   public width(prevNote: Pitch | null): Width {
     return width.addAll(
       width.init(noteHeadWidth, 1),
-      this.hasDot() ? width.init(5, 0) : width.zero(),
+      this.hasDot()
+        ? width.init(dotXOffset - noteHeadRadius + dotRadius, 0)
+        : width.zero(),
       this.widthOfGracenote(prevNote)
     );
   }
@@ -562,7 +567,6 @@ export class SingleNote
     )
       ? -3
       : 0;
-    const dotXOffset = 10;
 
     // pointer events must be set so that if any note is being
     // dragged, it shouldn't get pointer events because
@@ -618,7 +622,7 @@ export class SingleNote
         ? svg('circle', {
             cx: x + dotXOffset,
             cy: y + dotYOffset,
-            r: 1.5,
+            r: dotRadius,
             fill: this.colour(),
             'pointer-events': 'none',
             opacity,
@@ -715,7 +719,7 @@ export class SingleNote
     );
     const gracenoteProps = {
       // can just be props.x since it is the first note
-      x: props.x + xOffset,
+      x: props.x + xOffset + noteHeadRadius,
       y: props.y,
       thisNote: this.pitch,
       preview: false,
@@ -846,7 +850,7 @@ export class SingleNote
         const noteBoxX = index === 0 ? props.x : xOf(index - 1); // xOf(index) + noteHeadWidth,
 
         const gracenoteProps = {
-          x: xOfGracenote(index),
+          x: xOfGracenote(index) + noteHeadRadius, // So that it doesn't overlap the previous note
           y: props.y,
           thisNote: note.pitch,
           preview: false,

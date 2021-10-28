@@ -17,7 +17,7 @@ const gracenoteHeadRadius = 3;
 const gracenoteHeadHeight = 2;
 const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
 const gracenoteHeadGap = 1.5 * gracenoteHeadWidth;
-const gapAfterGracenote = 4;
+const gapAfterGracenote = 6;
 
 // Offsets from the centre of the gracenote head to the point where the stem touches it
 const stemXOf = (x: number) => x + 3;
@@ -192,7 +192,9 @@ export abstract class Gracenote {
   }
   private renderSingle(note: Pitch, props: GracenoteProps) {
     const y = noteY(props.y, note);
-    const wholeSelected = props.state.selected?.note === 'all';
+    const wholeSelected =
+      props.state.selected?.gracenote === this &&
+      props.state.selected?.note === 'all';
     const selected =
       props.state.selected?.gracenote === this &&
       (props.state.selected?.note === 0 || wholeSelected);
@@ -224,13 +226,17 @@ export abstract class Gracenote {
     ]);
   }
   public render(props: GracenoteProps): V {
-    const wholeSelected = props.state.selected?.note === 'all';
+    const wholeSelected =
+      props.state.selected?.gracenote === this &&
+      props.state.selected?.note === 'all';
     const pitches = this.notes(props.thisNote, props.previousNote);
     // If each note is an object, then we can use .indexOf and other related functions
     const uniqueNotes = pitches.notes().map((note) => ({ note }));
 
     const xOf = (noteObj: { note: Pitch }) =>
-      props.x + uniqueNotes.indexOf(noteObj) * gracenoteHeadGap;
+      props.x +
+      gapAfterGracenote / 2 +
+      uniqueNotes.indexOf(noteObj) * gracenoteHeadGap;
     const y = (note: Pitch) => noteY(props.y, note);
 
     if (uniqueNotes.length === 0) {
@@ -409,11 +415,11 @@ export class CustomGracenote extends Gracenote {
     return new CustomGracenote().addNotes(...this.pitches);
   }
   public static fromObject(o: Obj) {
-    return new CustomGracenote().addNotes(o.note);
+    return new CustomGracenote().addNotes(...o.pitches);
   }
   public toObject() {
     return {
-      notes: this.notes,
+      pitches: this.pitches,
     };
   }
   public notes() {

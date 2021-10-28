@@ -53,7 +53,9 @@ export class Bar extends Item implements Previewable<SingleNote> {
     this.backBarline = new NormalB();
   }
   public static fromJSON(o: Obj) {
-    const b = new Bar(TimeSignature.fromJSON(o.timeSignature));
+    const b = o.isAnacrusis
+      ? new Anacrusis(TimeSignature.fromJSON(o.timeSignature))
+      : new Bar(TimeSignature.fromJSON(o.timeSignature));
     b.notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
     b.backBarline = Barline.fromJSON(o.backBarline);
@@ -63,6 +65,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public toJSON() {
     return {
       id: this.id,
+      isAnacrusis: this instanceof Anacrusis,
       notes: this.notes.map((n) => n.toJSON()),
       backBarline: this.backBarline.toJSON(),
       frontBarline: this.frontBarline.toJSON(),
@@ -284,6 +287,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     const barWidth =
       props.width -
       (hasTimeSignature ? this.ts.width() : 0) -
+      SingleNote.width -
       this.frontBarline.width() -
       this.backBarline.width();
     const xAfterTimeSignature =
@@ -295,7 +299,9 @@ export class Bar extends Item implements Previewable<SingleNote> {
       this.ts.beatDivision()
     );
     const oneNoteInBar =
-      this.notes.length === 1 && this.notes[0] instanceof SingleNote;
+      this.notes.length === 1 &&
+      this.notes[0] instanceof SingleNote &&
+      !(this instanceof Anacrusis);
 
     const previousNote = props.previousBar && props.previousBar.lastNote();
     const previousPitch = props.previousBar && props.previousBar.lastPitch();

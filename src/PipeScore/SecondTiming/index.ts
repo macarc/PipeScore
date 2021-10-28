@@ -114,7 +114,7 @@ export abstract class BaseTiming {
       return svg('g');
 
     const height = 45;
-    const mid = 20;
+    const mid = 30;
     const clickWidth = 10;
     const y = (i: number) => a.y + i * props.staveGap;
 
@@ -182,7 +182,7 @@ export abstract class BaseTiming {
             ]),
         svg(
           'text',
-          { x: a.beforeX + 5, y: a.y - height / 2 },
+          { x: a.beforeX + 5, y: a.y - (height * 2) / 3 },
           { mousedown: () => click(true), dblclick: clickText },
           [text]
         ),

@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     user: string,
     score: string,
     value: Score
-  ): Promise<Score> {
+  ): Promise<Score | null> {
     await db
       .ref(`/scores/${user}/scores/${score}`)
       .set(value.toJSON())
@@ -30,12 +30,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     return get(user, score);
   }
 
-  function get(user: string, score: string) {
+  function get(user: string, score: string): Promise<Score | null> {
     return db
       .ref(`scores/${user}/scores/${score}`)
       .get()
       .then(Score.fromJSON)
-      .catch(() => save(user, score, new Score()));
+      .catch(() => null);
   }
 
   function parsePath() {
@@ -57,13 +57,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       const score = await get(userid, scoreid);
       // If it is a new score, then it won't have staves
-      if (!score.staves) {
+      if (!score || !score.staves) {
+        saveScore(new Score());
         const opts = await quickStart();
-        startController(
-          await save(userid, scoreid, opts.toScore()),
-          saveScore,
-          true
-        );
+        const score = await save(userid, scoreid, opts.toScore());
+        if (!score) throw new Error("Couldn't save score.");
+        startController(score, saveScore, true);
       } else {
         startController(score, saveScore, true);
       }
