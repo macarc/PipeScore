@@ -384,7 +384,7 @@ export class SingleGracenote extends Gracenote {
     return this.note;
   }
   public notes() {
-    return new MaybeGracenote([this.note]);
+    return new MaybeGracenote([this.note], true);
   }
 }
 
@@ -452,7 +452,7 @@ export class NoGracenote extends Gracenote {
     return {};
   }
   public notes() {
-    return new MaybeGracenote([]);
+    return new MaybeGracenote([], true);
   }
   public name() {
     return 'none';

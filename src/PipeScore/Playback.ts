@@ -70,6 +70,8 @@ const e = new Sample('e');
 const f = new Sample('f');
 const highg = new Sample('highg');
 const higha = new Sample('higha');
+const drones = new Sample('drones');
+const dronesInitial = new Sample('drones_initial');
 
 export async function playback(
   state: PlaybackState,
@@ -91,6 +93,8 @@ export async function playback(
     f.load(context),
     highg.load(context),
     higha.load(context),
+    drones.load(context),
+    dronesInitial.load(context),
   ]);
   function pitchToSample(pitch: Pitch): Sample {
     switch (pitch) {
@@ -116,41 +120,57 @@ export async function playback(
   }
 
   // Need to create an array of different buffers since each buffer can only be played once
-  const audioBuffers = new Array(elements.length);
+  const audioBuffers: AudioBufferSourceNode[] = new Array(elements.length);
   for (const el in elements) {
     audioBuffers[el] = pitchToSample(elements[el].pitch).getSource(context);
     audioBuffers[el].connect(context.destination);
   }
-  const gracenoteLength = 50;
-  Promise.all(audioBuffers).then(async (audioBuffers) => {
-    document.body.classList.remove('loading');
-    for (let i = 0; i < audioBuffers.length; i++) {
-      if (elements[i].tied) continue;
-      const audio = audioBuffers[i];
-      const duration = elements[i].duration;
-      if (audioStopped) {
-        break;
-      }
-      audio.start(0);
-      if (duration === 0) {
-        await sleep(gracenoteLength);
-      } else {
-        // Subtract the length of the next gracenote (so that each note lands on the beat
-        // while the gracenote is before the beat)
-        let j = 0;
-        while (elements[i + j] && elements[i + j].duration === 0) {
-          j++;
-        }
-        let duration = elements[i].duration;
-        for (let k = 1; elements[i + k] && elements[i + k].tied; k++) {
-          duration += elements[i + k].duration;
-        }
-        await sleep((1000 * duration * 60) / state.bpm - gracenoteLength * j);
-      }
-      audio.stop();
-    }
+  let droneSource = dronesInitial.getSource(context);
+  function loopDrones(start: boolean) {
+    return sleep(
+      start ? 0 : 1000 * ((droneSource.buffer?.duration || 3) - 3)
+    ).then(() => {
+      if (!playing) return;
+      droneSource = (start ? dronesInitial : drones).getSource(context);
+      const droneGain = context.createGain();
+      droneGain.gain.value = 0.1;
+      droneSource.connect(droneGain).connect(context.destination);
+      droneSource.start(0);
+      loopDrones(false);
+    });
+  }
+  loopDrones(true);
+  await sleep(1000);
 
-    audioStopped = false;
-    playing = false;
-  });
+  const gracenoteLength = 50;
+  document.body.classList.remove('loading');
+  for (let i = 0; i < audioBuffers.length; i++) {
+    if (elements[i].tied) continue;
+    const audio = audioBuffers[i];
+    const duration = elements[i].duration;
+    if (audioStopped) {
+      break;
+    }
+    audio.start(0);
+    if (duration === 0) {
+      await sleep(gracenoteLength);
+    } else {
+      // Subtract the length of the next gracenote (so that each note lands on the beat
+      // while the gracenote is before the beat)
+      let j = 0;
+      while (elements[i + j] && elements[i + j].duration === 0) {
+        j++;
+      }
+      let duration = elements[i].duration;
+      for (let k = 1; elements[i + k] && elements[i + k].tied; k++) {
+        duration += elements[i + k].duration;
+      }
+      await sleep((1000 * duration * 60) / state.bpm - gracenoteLength * j);
+    }
+    audio.stop();
+  }
+
+  droneSource.stop();
+  audioStopped = false;
+  playing = false;
 }

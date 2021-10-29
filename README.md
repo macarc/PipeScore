@@ -2,11 +2,11 @@
 
 ## A bagpipe notation app
 
-I started building this a while ago...it's getting there...
-
 PipeScore's "killer feature" is reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
 
 ![GIF of reactive gracenote](dragging-gracenote.gif)
+
+[Watch the video](https://pipescore.web.app/help) for an introduction to using PipeScore.
 
 It is currently under development - see `todo.md` for a rough roadmap.
 
