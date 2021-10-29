@@ -142,7 +142,7 @@ export async function playback(
   loopDrones(true);
   await sleep(1000);
 
-  const gracenoteLength = 50;
+  const gracenoteLength = 44;
   document.body.classList.remove('loading');
   for (let i = 0; i < audioBuffers.length; i++) {
     if (elements[i].tied) continue;
@@ -158,14 +158,16 @@ export async function playback(
       // Subtract the length of the next gracenote (so that each note lands on the beat
       // while the gracenote is before the beat)
       let j = 0;
-      while (elements[i + j] && elements[i + j].duration === 0) {
+      while (elements[i + j + 1] && elements[i + j + 1].duration === 0) {
         j++;
       }
       let duration = elements[i].duration;
       for (let k = 1; elements[i + k] && elements[i + k].tied; k++) {
         duration += elements[i + k].duration;
       }
-      await sleep((1000 * duration * 60) / state.bpm - gracenoteLength * j);
+      await sleep(
+        Math.max((1000 * duration * 60) / state.bpm - gracenoteLength * j, 0)
+      );
     }
     audio.stop();
   }

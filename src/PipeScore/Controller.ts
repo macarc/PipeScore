@@ -22,7 +22,7 @@ const initialState: State = {
   isLoggedIn: false,
   justClickedNote: false,
   demo: null,
-  playback: { bpm: 100 },
+  playback: { bpm: 80 },
   ui: { menu: 'note' },
   doc: { show: true, current: null },
   clipboard: null,
