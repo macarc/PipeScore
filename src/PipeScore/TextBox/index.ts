@@ -21,10 +21,10 @@ export class TextBox {
   private size: number;
   private _text: string;
 
-  constructor(text = '', predictable = false) {
-    this.centred = predictable;
+  constructor(text = '') {
+    this.centred = true;
     this.x = Math.random() * 100;
-    this.y = predictable ? 100 : Math.random() * 150;
+    this.y = Math.random() * 150;
     this.size = 20;
     this._text = text;
   }

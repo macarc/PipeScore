@@ -11,7 +11,7 @@ import { stopInputtingNotes } from './Note';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
-    state.score.addText(new TextBox());
+    state.score.addText(new TextBox(''));
     return Update.ShouldSave;
   };
 }

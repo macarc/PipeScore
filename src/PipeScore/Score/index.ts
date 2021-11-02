@@ -49,7 +49,7 @@ export class Score {
     this.landscape = true;
     this.showNumberOfPages = true;
     this._staves = foreach(numberOfStaves, () => new Stave(timeSignature));
-    this.textBoxes = [[new TextBox(name, true)]];
+    this.textBoxes = [[new TextBox(name)]];
     this.secondTimings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
