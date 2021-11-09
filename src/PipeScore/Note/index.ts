@@ -19,7 +19,7 @@ import { svg } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
-import { mouseOverPitch } from '../Controllers/Mouse';
+import { mouseOffPitch, mouseOverPitch } from '../Controllers/Mouse';
 import { getXY, setXY } from '../global/xy';
 import {
   addNoteBefore,
@@ -572,13 +572,11 @@ export class SingleNote
     // dragged, it shouldn't get pointer events because
     // that interferes with the drag boxes (you can't
     // drag downwards a single box)
-    const drawNoteBox = !(
-      props.state.dragged ||
-      gracenoteBeingDragged ||
-      props.state.inputtingNotes
-    );
+
+    // if we're dragging the note, disable the note box since it prevents
+    // pitch boxes underneath from being triggered
+    const drawNoteBox = !(props.state.dragged === this || this.isDemo());
     const pointerEvents = drawNoteBox ? 'visiblePainted' : 'none';
-    const cursor = drawNoteBox ? 'pointer' : 'normal';
 
     const filled = this.isFilled();
 
@@ -649,12 +647,12 @@ export class SingleNote
           width: clickableWidth,
           height: clickableHeight,
           'pointer-events': pointerEvents,
-          style: `cursor: ${cursor}`,
+          style: 'cursor: pointer;',
           opacity: 0,
         },
         {
           mousedown: mousedown as (e: Event) => void,
-          mouseover: () => props.dispatch(mouseOverPitch(this.pitch, this)),
+          mouseover: () => props.dispatch(mouseOffPitch()),
         }
       ),
     ]);
@@ -740,12 +738,17 @@ export class SingleNote
     const stemBottomY = y + 30;
     const numberOfTails = this.numTails();
 
+    const noteBoxStart = props.previousNote
+      ? getXY(props.previousNote.id)?.afterX || props.x
+      : props.x;
+    const noteBoxWidth = (getXY(this.id)?.afterX || 0) - noteBoxStart;
+
     return svg('g', { class: 'singleton' }, [
       props.state.inputtingNotes
         ? noteBoxes(
-            props.x,
+            noteBoxStart,
             props.y,
-            x + noteHeadRadius - props.x,
+            noteBoxWidth,
             (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
             (pitch) => props.dispatch(addNoteBefore(pitch, this))
           )

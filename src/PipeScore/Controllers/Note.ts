@@ -12,7 +12,7 @@ import { Bar } from '../Bar';
 import { ScoreSelection, TripletLineSelection } from '../Selection';
 
 import { Note, SingleNote, Triplet } from '../Note';
-import { NoteLength } from '../Note/notelength';
+import { NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { DemoNote, DemoReactive } from '../DemoNote';
 import { SingleGracenote } from '../Gracenote';
 
@@ -197,9 +197,13 @@ export function clickTripletLine(triplet: Triplet): ScoreEvent {
 }
 export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
-    if (note.isDemo() && state.demo instanceof DemoNote) {
-      state.demo?.addSelf(null);
-      return Update.ShouldSave;
+    if (state.demo instanceof DemoNote) {
+      if (note.isDemo()) {
+        state.demo?.addSelf(null);
+        return Update.ShouldSave;
+      } else {
+        stopInputtingNotes(state);
+      }
     }
     if (
       state.demo instanceof DemoReactive ||
@@ -245,7 +249,11 @@ export function setInputLength(length: NoteLength): ScoreEvent {
         state.demo = new DemoNote(length);
       }
     } else if (state.demo instanceof DemoNote) {
-      state.demo.setLength(length);
+      if (sameNoteLengthName(state.demo.length(), length)) {
+        stopInputtingNotes(state);
+      } else {
+        state.demo.setLength(length);
+      }
     } else {
       state.selection = null;
       stopInputtingNotes(state);

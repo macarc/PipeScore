@@ -67,23 +67,13 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
     bar.insertNote(noteBefore, n);
     return n;
   }
-  public setPitch(
-    pitch: Pitch | null,
-    noteBefore: SingleNote | null,
-    bar: Bar
-  ) {
-    // Has to be done first since it's possible this._pitch is null but
-    // this.previous still has a preview
-    if (pitch === null && this.previous) {
-      this.previous.removePreview();
-      return Update.ViewChanged;
-    }
+  public setPitch(pitch: Pitch, noteBefore: SingleNote | null, bar: Bar) {
     if (pitch !== this._pitch) {
       if (this.previous && bar !== this.previous) {
         this.previous.removePreview();
       }
       this.previous = bar;
-      if (this.previous && pitch)
+      if (this.previous)
         this.previous.setPreview(noteBefore, this.toPreviewNote(pitch));
       return Update.ViewChanged;
     }
