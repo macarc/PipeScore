@@ -21,11 +21,11 @@ export class TextBox {
   private size: number;
   private _text: string;
 
-  constructor(text = '') {
-    this.centred = true;
-    this.x = Math.random() * 100;
-    this.y = Math.random() * 150;
-    this.size = 20;
+  constructor(text = '', centred = true, x = 0, y = 0, size = 20) {
+    this.centred = centred;
+    this.x = x ? x : Math.random() * 100;
+    this.y = y ? y : Math.random() * 150;
+    this.size = size;
     this._text = text;
   }
   public static fromJSON(o: Obj) {

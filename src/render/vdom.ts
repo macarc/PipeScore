@@ -71,7 +71,11 @@ export default function patch(before: VElement, after: VElement): boolean {
   after.node = before.node;
   for (const attr in { ...before.attrs, ...after.attrs }) {
     if (before.attrs[attr] !== after.attrs[attr]) {
-      if (!after.attrs[attr]) {
+      if (
+        after.attrs[attr] === null ||
+        after.attrs[attr] === undefined ||
+        after.attrs[attr] === false
+      ) {
         before.node.removeAttribute(attr);
       } else if (typeof after.attrs[attr] === 'boolean') {
         before.node.setAttribute(attr, after.attrs[attr].toString());

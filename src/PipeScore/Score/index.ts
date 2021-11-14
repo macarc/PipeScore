@@ -42,6 +42,8 @@ export class Score {
 
   constructor(
     name = 'My Tune',
+    composer = '',
+    tuneType = '',
     numberOfParts = 2,
     repeatParts = true,
     timeSignature: TimeSignature | undefined = undefined
@@ -55,12 +57,40 @@ export class Score {
         index % 2 === 0 ? stave.repeatFirst() : stave.repeatLast()
       );
     }
-    this.textBoxes = [[new TextBox(name)]];
+    this.textBoxes = [
+      [new TextBox(name, true, this.width() / 2, settings.topOffset / 2)],
+    ];
+
+    // Detailed text - composer / tuneType
+    const detailTextSize = 15;
+    const detailY = Math.max(settings.topOffset - 45, 10);
+    const detailX = 8;
+    if (composer.length > 0)
+      this.textBoxes[0].push(
+        new TextBox(
+          composer,
+          false,
+          ((detailX - 1) * this.width()) / detailX,
+          detailY,
+          detailTextSize
+        )
+      );
+    if (tuneType.length > 0)
+      this.textBoxes[0].push(
+        new TextBox(
+          tuneType,
+          false,
+          this.width() / detailX,
+          detailY,
+          detailTextSize
+        )
+      );
+
     this.secondTimings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
   public static fromJSON(o: Obj) {
-    const s = new Score(o.name, 0);
+    const s = new Score(o.name);
     s.landscape = o.landscape;
     s._staves = o._staves.map(Stave.fromJSON);
     s.textBoxes = o.textBoxes.map((p: Obj) => p.texts.map(TextBox.fromJSON));

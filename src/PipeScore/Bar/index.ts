@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
  */
 import { TimeSignature } from '../TimeSignature';
-import { BaseNote, Note, SingleNote, Triplet } from '../Note';
+import { BaseNote, Note, NoteProps, SingleNote, Triplet } from '../Note';
 import { genId, ID, Item } from '../global/id';
 import { first, last, nlast, Obj } from '../global/utils';
 import width from '../global/width';
@@ -317,16 +317,16 @@ export class Bar extends Item implements Previewable<SingleNote> {
 
     const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
 
-    const noteProps = (notes: SingleNote[] | Triplet) => {
+    const noteProps = (notes: SingleNote[] | Triplet): NoteProps => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];
       const index = this.notes.indexOf(firstNote);
       return {
         x: xOf(index),
         y: staveY,
+        boxToLast: index === 0 ? xAfterBarline : 'lastnote',
         noteWidth: beatWidth,
         previousNote:
           this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
-        selectedNotes: [],
         endOfLastStave: props.endOfLastStave,
         dispatch: props.dispatch,
         xOffset: oneNoteInBar ? -props.width / 4 : 0,

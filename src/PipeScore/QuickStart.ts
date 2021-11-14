@@ -11,6 +11,8 @@ import { TimeSignature } from './TimeSignature';
 
 class ScoreOptions {
   name = 'Blank Score';
+  composer = '';
+  tuneType = '';
   numberOfParts = 4;
   repeatParts = true;
   timeSignature = new TimeSignature('cut time');
@@ -18,6 +20,8 @@ class ScoreOptions {
   toScore(): Score {
     return new Score(
       this.name,
+      this.composer,
+      this.tuneType,
       this.numberOfParts,
       this.repeatParts,
       this.timeSignature
@@ -30,14 +34,34 @@ const blankForm = async (): Promise<ScoreOptions> => {
     [
       h('h1', { style: 'font-size: 2rem' }, ['Quick Start']),
       h('p', ['These values may all be changed later if necessary']),
-      h('label', [
-        'Name:',
-        h('input', {
-          type: 'text',
-          id: 'name',
-          value: 'My Tune',
-          style: 'display: block',
-        }),
+      h('div', { class: 'invisible-div' }, [
+        h('p', ['About:']),
+        h('div', { class: 'quickstart-section', style: 'display: flex' }, [
+          h('label', [
+            'Title:',
+            h('input', {
+              type: 'text',
+              id: 'name',
+              value: 'My Tune',
+            }),
+          ]),
+          h('label', [
+            'Composer:',
+            h('input', {
+              type: 'text',
+              id: 'composer',
+              value: 'My name',
+            }),
+          ]),
+          h('label', [
+            'Tune type:',
+            h('input', {
+              type: 'text',
+              id: 'tune-type',
+              value: 'March',
+            }),
+          ]),
+        ]),
       ]),
       h('div', { class: 'invisible-div' }, [
         h('p', ['Parts:']),
@@ -94,6 +118,8 @@ const blankForm = async (): Promise<ScoreOptions> => {
     () => {
       const options = new ScoreOptions();
       const nameElement = document.getElementById('name');
+      const composerElement = document.getElementById('composer');
+      const tuneTypeElement = document.getElementById('tune-type');
       const partsElement = document.getElementById('stave-number');
       const repeatElement = document.getElementById('repeat-parts');
       const numElement = document.getElementById('num');
@@ -101,6 +127,8 @@ const blankForm = async (): Promise<ScoreOptions> => {
       const cutTimeElement = document.getElementById('cut-time');
       if (
         nameElement instanceof HTMLInputElement &&
+        composerElement instanceof HTMLInputElement &&
+        tuneTypeElement instanceof HTMLInputElement &&
         partsElement instanceof HTMLInputElement &&
         repeatElement instanceof HTMLInputElement &&
         numElement instanceof HTMLInputElement &&
@@ -108,6 +136,8 @@ const blankForm = async (): Promise<ScoreOptions> => {
         cutTimeElement instanceof HTMLInputElement
       ) {
         options.name = nameElement.value;
+        options.composer = composerElement.value;
+        options.tuneType = tuneTypeElement.value;
         options.numberOfParts = parseInt(partsElement.value);
         options.repeatParts = repeatElement.checked;
         options.timeSignature = new TimeSignature(

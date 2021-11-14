@@ -46,9 +46,10 @@ const noteHeadWidth = 2 * noteHeadRadius;
 const dotXOffset = 10;
 const dotRadius = 1.5;
 
-interface NoteProps {
+export interface NoteProps {
   x: number;
   y: number;
+  boxToLast: number | 'lastnote';
   previousNote: SingleNote | null;
   noteWidth: number;
   endOfLastStave: number;
@@ -548,8 +549,6 @@ export class SingleNote
   ): V {
     // Draws note head, ledger line and dot, as well as mouse event box
 
-    const gracenoteBeingDragged = props.gracenoteState.dragged !== null;
-
     const rotation = this.hasStem() ? -35 : 0;
     const noteWidth = 4.5; //Math.abs( noteHeadRadius / Math.cos((2 * Math.PI * rotation) / 360));
     const noteHeight = 3;
@@ -738,9 +737,12 @@ export class SingleNote
     const stemBottomY = y + 30;
     const numberOfTails = this.numTails();
 
-    const noteBoxStart = props.previousNote
-      ? getXY(props.previousNote.id)?.afterX || props.x
-      : props.x;
+    const noteBoxStart =
+      props.boxToLast === 'lastnote'
+        ? props.previousNote
+          ? getXY(props.previousNote.id)?.afterX || props.x
+          : props.x
+        : props.boxToLast;
     const noteBoxWidth = (getXY(this.id)?.afterX || 0) - noteBoxStart;
 
     return svg('g', { class: 'singleton' }, [

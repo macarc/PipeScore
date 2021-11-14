@@ -38,6 +38,7 @@ export function noteBoxes(
     svg(
       'rect',
       {
+        class: 'notebox',
         x,
         y: y - settings.lineGap - heightOfBetweenBoxes,
         width,
