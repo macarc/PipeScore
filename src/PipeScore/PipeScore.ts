@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   function parsePath() {
     const path = window.location.pathname.split('/').slice(2);
     if (path.length < 2) {
-      window.location.replace('/scores');
+      return null; //window.location.replace('/scores');
     }
     return path;
   }
@@ -51,24 +51,39 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (alreadyStarted) return;
     alreadyStarted = true;
 
-    if (user) {
-      const [userid, scoreid] = parsePath();
-      const saveScore = (score: Score) => save(userid, scoreid, score);
-
-      const score = await get(userid, scoreid);
-      // If it is a new score, then it won't have staves
-      if (!score || !score.staves) {
-        saveScore(new Score());
-        const opts = await quickStart();
-        const score = await save(userid, scoreid, opts.toScore());
-        if (!score) throw new Error("Couldn't save score.");
-        startController(score, saveScore, true);
+    const path = parsePath();
+    if (path === null) {
+      if (user) {
+        // We don't want someone logged in to edit a blank score since
+        // it won't be saved, so coming here was probably a mistake
+        window.location.replace('/scores');
       } else {
-        startController(score, saveScore, true);
+        const opts = await quickStart();
+        startController(opts.toScore(), () => null, false);
       }
     } else {
-      const opts = await quickStart();
-      startController(opts.toScore(), () => null, false);
+      const [userid, scoreid] = path;
+
+      if (user && user.localId === userid) {
+        const saveScore = (score: Score) => save(userid, scoreid, score);
+
+        const score = await get(userid, scoreid);
+        // If it is a new score, then it won't have staves
+        if (!score || !score.staves) {
+          saveScore(new Score());
+          const opts = await quickStart();
+          const score = await save(userid, scoreid, opts.toScore());
+          if (!score) throw new Error("Couldn't save score.");
+          startController(score, saveScore, true);
+        } else {
+          startController(score, saveScore, true);
+        }
+      } else {
+        const score = await get(userid, scoreid);
+        if (score && score.staves) {
+          startController(score, () => null, false, false);
+        }
+      }
     }
   });
 });

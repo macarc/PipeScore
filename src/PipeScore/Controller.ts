@@ -19,6 +19,7 @@ import renderUI from './UI/view';
 import Documentation from './Documentation';
 
 const initialState: State = {
+  canEdit: true,
   isLoggedIn: false,
   justClickedNote: false,
   demo: null,
@@ -36,6 +37,7 @@ const state: State = { ...initialState };
 let save: (score: Score) => void = () => null;
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
+  if (!state.canEdit) return;
   const res = await event(state);
   if (res === Update.ViewChanged || res === Update.ShouldSave) {
     if (res === Update.ShouldSave) {
@@ -96,7 +98,7 @@ const updateView = (state: State) => {
   const newView = h('div', [state.score.render(scoreProps)]);
   const newUIView = renderUI(dispatch, uiProps);
   if (state.view.score) patch(state.view.score, newView);
-  if (state.view.ui) patch(state.view.ui, newUIView);
+  if (state.view.ui && state.canEdit) patch(state.view.ui, newUIView);
   state.view.score = newView;
   state.view.ui = newUIView;
 };
@@ -134,12 +136,14 @@ function mouseMove(event: MouseEvent) {
 export default function startController(
   score: Score,
   saveFn: (score: Score) => void,
-  isLoggedIn: boolean
+  isLoggedIn: boolean,
+  canEdit = true
 ): void {
   // Initial render, hooks event listeners
 
   save = saveFn;
   state.isLoggedIn = isLoggedIn;
+  state.canEdit = canEdit;
   state.score = score;
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
