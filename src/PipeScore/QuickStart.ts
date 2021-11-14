@@ -11,11 +11,17 @@ import { TimeSignature } from './TimeSignature';
 
 class ScoreOptions {
   name = 'Blank Score';
-  numberOfStaves = 4;
+  numberOfParts = 4;
+  repeatParts = true;
   timeSignature = new TimeSignature('cut time');
 
   toScore(): Score {
-    return new Score(this.name, this.numberOfStaves, this.timeSignature);
+    return new Score(
+      this.name,
+      this.numberOfParts,
+      this.repeatParts,
+      this.timeSignature
+    );
   }
 }
 
@@ -26,56 +32,84 @@ const blankForm = async (): Promise<ScoreOptions> => {
       h('p', ['These values may all be changed later if necessary']),
       h('label', [
         'Name:',
-        h('input', { type: 'text', id: 'name', value: 'My Tune' }),
-      ]),
-      h('label', [
-        'Number of Staves:',
         h('input', {
-          type: 'number',
-          id: 'stave-number',
-          min: 0,
-          max: 16,
-          value: 4,
-          required: true,
-        }),
-      ]),
-      h('label', [
-        'Time Signature:',
-        h('input', {
-          type: 'number',
-          id: 'num',
-          min: 0,
-          value: 2,
+          type: 'text',
+          id: 'name',
+          value: 'My Tune',
           style: 'display: block',
-          required: true,
         }),
-        h('select', { style: 'display: block', id: 'denom', name: 'denom' }, [
-          h('option', { value: '4', name: 'denom' }, ['4']),
-          h('option', { value: '2', name: 'denom' }, ['2']),
-          h('option', { value: '8', name: 'denom' }, ['8']),
+      ]),
+      h('div', { class: 'invisible-div' }, [
+        h('p', ['Parts:']),
+        h('div', { class: 'quickstart-section' }, [
+          h('label', [
+            'Number:',
+            h('input', {
+              type: 'number',
+              id: 'stave-number',
+              min: 0,
+              max: 16,
+              value: 2,
+              required: true,
+            }),
+          ]),
+          h('label', [
+            h('input', { type: 'checkbox', id: 'repeat-parts', checked: '' }),
+            'Repeat parts?',
+          ]),
         ]),
       ]),
-      h('label', [
-        h('input', { type: 'checkbox', id: 'cut-time' }),
-        'Cut time?',
+      h('div', { class: 'invisible-div' }, [
+        h('p', ['Time Signature:']),
+        h('div', { class: 'quickstart-section', style: 'display: flex' }, [
+          h('label', [
+            'Time Signature:',
+            h('div', { class: 'quickstart-time-signature' }, [
+              h('input', {
+                type: 'number',
+                id: 'num',
+                min: 0,
+                value: 2,
+                style: 'display: block',
+                required: true,
+              }),
+              h(
+                'select',
+                { style: 'display: block', id: 'denom', name: 'denom' },
+                [
+                  h('option', { value: '4', name: 'denom' }, ['4']),
+                  h('option', { value: '2', name: 'denom' }, ['2']),
+                  h('option', { value: '8', name: 'denom' }, ['8']),
+                ]
+              ),
+            ]),
+          ]),
+          h('label', [
+            h('input', { type: 'checkbox', id: 'cut-time' }),
+            'Cut time?',
+          ]),
+        ]),
       ]),
     ],
     () => {
       const options = new ScoreOptions();
       const nameElement = document.getElementById('name');
-      const stavesElement = document.getElementById('stave-number');
+      const partsElement = document.getElementById('stave-number');
+      const repeatElement = document.getElementById('repeat-parts');
       const numElement = document.getElementById('num');
       const denomElement = document.getElementById('denom');
       const cutTimeElement = document.getElementById('cut-time');
       if (
         nameElement instanceof HTMLInputElement &&
-        stavesElement instanceof HTMLInputElement &&
+        partsElement instanceof HTMLInputElement &&
+        repeatElement instanceof HTMLInputElement &&
         numElement instanceof HTMLInputElement &&
         denomElement instanceof HTMLSelectElement &&
         cutTimeElement instanceof HTMLInputElement
       ) {
         options.name = nameElement.value;
-        options.numberOfStaves = parseInt(stavesElement.value);
+        options.numberOfParts = parseInt(partsElement.value);
+        options.repeatParts = repeatElement.checked;
         options.timeSignature = new TimeSignature(
           cutTimeElement.checked
             ? 'cut time'

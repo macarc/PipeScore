@@ -42,13 +42,19 @@ export class Score {
 
   constructor(
     name = 'My Tune',
-    numberOfStaves = 2,
+    numberOfParts = 2,
+    repeatParts = true,
     timeSignature: TimeSignature | undefined = undefined
   ) {
     this.name = name;
     this.landscape = true;
     this.showNumberOfPages = true;
-    this._staves = foreach(numberOfStaves, () => new Stave(timeSignature));
+    this._staves = foreach(2 * numberOfParts, () => new Stave(timeSignature));
+    if (repeatParts) {
+      this._staves.forEach((stave, index) =>
+        index % 2 === 0 ? stave.repeatFirst() : stave.repeatLast()
+      );
+    }
     this.textBoxes = [[new TextBox(name)]];
     this.secondTimings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();

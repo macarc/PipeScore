@@ -11,6 +11,27 @@
     <link rel="icon" href="/images/favicon.ico" />
     <link type="text/css" rel="stylesheet" href="styles/base.css" />
     <link type="text/css" rel="stylesheet" href="styles/help.css" />
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const iframe = document.querySelector('iframe');
+        const loader = document.getElementById('iframe-loading');
+        if (iframe && loader) {
+          const width = iframe.width;
+          const height = iframe.height;
+          iframe.width = 0;
+          iframe.height = 0;
+          loader.style.display = 'block';
+          loader.style.width = width + 'px';
+          loader.style.height = height + 'px';
+          console.log(loader);
+          iframe.addEventListener('load', () => {
+            loader.style.display = 'none';
+            iframe.width = width;
+            iframe.height = height;
+          });
+        }
+      });
+    </script>
   </head>
   <body>
     <header>
@@ -68,11 +89,15 @@
           width="560"
           height="315"
           src="https://www.youtube-nocookie.com/embed/WstxQvtMaPo"
-          title="YouTube video player"
+          title="PipeScore introductory video, via YouTube"
           frameborder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
-        ></iframe>
+        >
+        </iframe>
+        <div id="iframe-loading" style="display: none">
+          <div id="iframe-spinner"></div>
+        </div>
         <p>
           Welcome! This page contains information about how to use PipeScore.
           You can search through this page using the
@@ -88,9 +113,9 @@
           want me to add any features) just tell me and I'll do my best.
         </p>
         <p>
-          You can also hover over many elements in the main PipeScore interface,
-          and it shows the documentation for that thing at the bottom of the
-          page.
+          You can also hover over many elements in the main PipeScore interface.
+          A relevant help message will be displayed in the bottom right hand
+          corner of the screen.
         </p>
 
         <h2 id="before-begin">Before you begin</h2>
@@ -256,8 +281,7 @@
           pressing the tie icon in the top panel.
         </p>
         <p>
-          You can add a dot to any note (making the note 50% longer) by
-          selecting the note then pressing the
+          You can add a dot to any note by selecting the note then pressing the
           <span class="button-name">.</span> button in the top panel.
         </p>
 

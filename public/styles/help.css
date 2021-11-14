@@ -12,6 +12,31 @@ main {
   height: auto;
   background: none;
 }
+
+#iframe-loading {
+  border: 1px solid black;
+}
+#iframe-spinner {
+  margin: auto;
+  margin-top: 142.5px; /* (315 / 2) - 15 */
+  width: 30px;
+  height: 30px;
+  background: black;
+  border-radius: 20%;
+  animation: rotation 3s infinite;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 main li {
   margin-top: 0.5rem;
 }

@@ -286,6 +286,21 @@ input[type='number'] {
   min-height: 4rem;
   white-space: pre-line;
 }
+/* Invisible as in no effect on layout */
+.invisible-div {
+  margin: 0 !important;
+  padding: 0;
+}
+.quickstart-section {
+  display: block;
+  background: lightgrey;
+}
+.quickstart-section label {
+  display: inline !important;
+}
+.quickstart-time-signature {
+  display: inline;
+}
 @media only screen and (max-width: 800px) {
   html {
     background: white;

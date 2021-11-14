@@ -4,6 +4,7 @@
 */
 import { svg, V } from '../../render/h';
 import { Anacrusis, Bar } from '../Bar';
+import { RepeatB } from '../Bar/barline';
 import { Dispatch } from '../Controllers/Controller';
 import { settings } from '../global/settings';
 import { first, foreach, last, Obj } from '../global/utils';
@@ -60,6 +61,13 @@ export class Stave {
   }
   public allBars() {
     return this.bars;
+  }
+
+  public repeatFirst() {
+    this.firstBar()?.setBarline('start', new RepeatB());
+  }
+  public repeatLast() {
+    this.lastBar()?.setBarline('end', new RepeatB());
   }
 
   public insertBar(newBar: Bar, oldBar: Bar, before: boolean) {
