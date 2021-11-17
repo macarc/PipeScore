@@ -39,7 +39,7 @@ function patchNew(v: VElement, topLevel = false): Element {
   }
   for (const child in v.children) {
     const aft = v.children[child];
-    if (aft === null) continue;
+    if (aft === null || aft === undefined) continue;
 
     if (isVString(aft)) {
       const d = document.createTextNode(aft.s);
@@ -110,7 +110,7 @@ export default function patch(before: VElement, after: VElement): boolean {
     const oldNode: Node | null = bef && bef.node;
 
     reachedEndOfBeforeChildren = child >= beforeChildrenLength;
-    if (aft === null) {
+    if (aft === null || aft === undefined) {
       if (bef && oldNode) {
         after.node.removeChild(oldNode);
       }
@@ -122,8 +122,13 @@ export default function patch(before: VElement, after: VElement): boolean {
           before.node.children[child] || null
         );
         aft.node = newElement;
-      } else {
-        console.error("Haven't handled this case yet");
+      } else if (isVString(aft)) {
+        const newElement = document.createTextNode(aft.s);
+        after.node.insertBefore(
+          newElement,
+          before.node.children[child] || null
+        );
+        aft.node = newElement;
       }
     } else if (!bef || !oldNode || reachedEndOfBeforeChildren) {
       if (isVElement(aft)) {

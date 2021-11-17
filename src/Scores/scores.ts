@@ -56,7 +56,7 @@ const updateScores = async () => {
               h(
                 'button',
                 { class: 'delete' },
-                { click: () => deleteScore(score[1]) },
+                { click: () => deleteScore(score[1], score[0]) },
                 ['Delete']
               ),
             ]),
@@ -75,17 +75,23 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
-async function deleteScore(path: string) {
-  await db.ref(`scores${path}`).delete();
-  updateScores();
+async function deleteScore(path: string, name: string) {
+  const sure = confirm(`Are you sure you want to delete ${name}?`);
+  if (sure) {
+    await db.ref(`scores${path}`).delete();
+    updateScores();
+  }
 }
 async function renameScore(path: string) {
   const score = await db.ref(`scores${path}`).get();
-  const newName = prompt('Rename:', score.name);
+  const newName = prompt('Rename:', score.n || score.name);
   if (newName) {
-    score.name = newName;
-    if (score.textBoxes[0]) {
-      score.textBoxes[0].text = newName;
+    score.n = newName;
+    if (score.t && score.t[0] && score.t[0].p[0]) {
+      score.t[0].p[0].t = newName;
+    }
+    if (score.textBoxes && score.textBoxes[0] && score.textBoxes[0][0]) {
+      score.textBoxes[0][0].text = newName;
     }
     await db.ref(`scores${path}`).set(score);
     updateScores();

@@ -35,7 +35,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       .ref(`scores/${user}/scores/${score}`)
       .get()
       .then(Score.fromJSON)
-      .catch(() => null);
+      .catch((e) => {
+        console.log('error when getting / parsing score: ', e);
+        return null;
+      });
   }
 
   function parsePath() {

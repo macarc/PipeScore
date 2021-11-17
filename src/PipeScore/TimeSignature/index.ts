@@ -160,9 +160,12 @@ export class TimeSignature {
         ],
         (form) => {
           try {
-            const num = parseInt(
-              (form.querySelector('input[name = "num"]') as HTMLInputElement)
-                .value
+            const num = Math.max(
+              parseInt(
+                (form.querySelector('input[name = "num"]') as HTMLInputElement)
+                  .value
+              ),
+              1
             );
             const denom = TimeSignature.parseDenominator(
               (form.querySelector('select') as HTMLSelectElement).value

@@ -36,7 +36,7 @@ const blankForm = async (): Promise<ScoreOptions> => {
       h('p', ['These values may all be changed later if necessary']),
       h('div', { class: 'invisible-div' }, [
         h('p', ['About:']),
-        h('div', { class: 'quickstart-section', style: 'display: flex' }, [
+        h('div', { class: 'quickstart-section quickstart-flex' }, [
           h('label', [
             'Title:',
             h('input', {
@@ -85,7 +85,7 @@ const blankForm = async (): Promise<ScoreOptions> => {
       ]),
       h('div', { class: 'invisible-div' }, [
         h('p', ['Time Signature:']),
-        h('div', { class: 'quickstart-section', style: 'display: flex' }, [
+        h('div', { class: 'quickstart-section quickstart-flex' }, [
           h('label', [
             'Time Signature:',
             h('div', { class: 'quickstart-time-signature' }, [

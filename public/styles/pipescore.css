@@ -301,6 +301,13 @@ input[type='number'] {
 .quickstart-time-signature {
   display: inline;
 }
+.quickstart-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+.quickstart-flex label {
+  display: block;
+}
 @media only screen and (max-width: 800px) {
   html {
     background: white;
