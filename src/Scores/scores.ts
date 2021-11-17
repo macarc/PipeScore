@@ -84,14 +84,11 @@ async function deleteScore(path: string, name: string) {
 }
 async function renameScore(path: string) {
   const score = await db.ref(`scores${path}`).get();
-  const newName = prompt('Rename:', score.n || score.name);
+  const newName = prompt('Rename:', score.name);
   if (newName) {
-    score.n = newName;
-    if (score.t && score.t[0] && score.t[0].p[0]) {
-      score.t[0].p[0].t = newName;
-    }
-    if (score.textBoxes && score.textBoxes[0] && score.textBoxes[0][0]) {
-      score.textBoxes[0][0].text = newName;
+    score.name = newName;
+    if (score.textBoxes && score.textBoxes[0] && score.textBoxes[0].texts[0]) {
+      score.textBoxes[0].texts[0].text = newName;
     }
     await db.ref(`scores${path}`).set(score);
     updateScores();
