@@ -628,6 +628,10 @@ export default function render(dispatch: Dispatch, state: UIState): V {
         menuHead('playback'),
         menuHead('document'),
         menuHead('settings'),
+        help(
+          'View the help page',
+          h('button', [h('a', { href: '/help', target: '_blank' }, ['Help'])])
+        ),
       ]),
       h('div', { id: 'topbar' }, [
         h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),

@@ -54,7 +54,6 @@ export interface NoteProps {
   noteWidth: number;
   endOfLastStave: number;
   dispatch: Dispatch;
-  xOffset: number;
   state: NoteState;
   gracenoteState: GracenoteState;
 }
@@ -397,6 +396,11 @@ export class SingleNote
           0
         );
   }
+  // This is used as an invisible empty note in bars with single
+  // notes to make positioning correct
+  public static invisibleWidth(): Width {
+    return width.init(noteHeadWidth, 1);
+  }
   public width(prevNote: Pitch | null): Width {
     return width.addAll(
       width.init(noteHeadWidth, 1),
@@ -699,8 +703,7 @@ export class SingleNote
   }
   public render(props: NoteProps): V {
     // Draws a single note
-    const xOffset =
-      width.reify(SingleNote.spacerWidth(), props.noteWidth) + props.xOffset;
+    const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
 
     setXY(
       this.id,

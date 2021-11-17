@@ -265,7 +265,14 @@ export class Bar extends Item implements Previewable<SingleNote> {
       ],
       [width.zero() /*width.init(0, 1)*/]
     );
-    return [...beats, width.add(nlast(beats), SingleNote.spacerWidth())];
+    return [
+      ...beats,
+      width.addAll(
+        nlast(beats),
+        SingleNote.spacerWidth(),
+        this.notes.length === 1 ? SingleNote.invisibleWidth() : width.zero()
+      ),
+    ];
   }
   public play(previous: Bar | null) {
     return this.notes.flatMap((note, i) =>
@@ -329,7 +336,6 @@ export class Bar extends Item implements Previewable<SingleNote> {
           this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
         endOfLastStave: props.endOfLastStave,
         dispatch: props.dispatch,
-        xOffset: oneNoteInBar ? -props.width / 4 : 0,
         state: props.noteState,
         gracenoteState: props.gracenoteState,
       };
