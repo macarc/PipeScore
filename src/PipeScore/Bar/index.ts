@@ -167,9 +167,14 @@ export class Bar extends Item implements Previewable<SingleNote> {
     } else {
       if (this.previewNote) this.removePreview();
       this.previewNote = note;
-      if (noteBefore)
-        this.notes.splice(this.notes.indexOf(noteBefore), 0, this.previewNote);
-      else this.notes.push(this.previewNote);
+
+      if (noteBefore) {
+        let index = this.notes.indexOf(noteBefore);
+        // If it is a note within a triplet, we need to do this
+        if (index === -1)
+          index = this.notes.findIndex((note) => note.hasID(noteBefore.id));
+        this.notes.splice(index, 0, this.previewNote);
+      } else this.notes.push(this.previewNote);
     }
   }
   public hasPreview() {
@@ -252,15 +257,13 @@ export class Bar extends Item implements Previewable<SingleNote> {
   }
   // Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
   // Returned array is guaranteed to have at least one element
-  protected beats(previousPitch: Pitch | null) {
-    const beats = this.notes.reduce(
+  protected beats(previousPitch: Pitch | null, notes = this.notes) {
+    const beats = notes.reduce(
       (nums, n, index) => [
         ...nums,
         width.add(
           nlast(nums),
-          n.width(
-            index === 0 ? previousPitch : this.notes[index - 1].lastPitch()
-          )
+          n.width(index === 0 ? previousPitch : notes[index - 1].lastPitch())
         ),
       ],
       [width.zero() /*width.init(0, 1)*/]
@@ -270,7 +273,9 @@ export class Bar extends Item implements Previewable<SingleNote> {
       width.addAll(
         nlast(beats),
         SingleNote.spacerWidth(),
-        this.notes.length === 1 ? SingleNote.invisibleWidth() : width.zero()
+        notes.length === 1 && notes[0] instanceof SingleNote
+          ? SingleNote.invisibleWidth()
+          : width.zero()
       ),
     ];
   }
@@ -301,22 +306,19 @@ export class Bar extends Item implements Previewable<SingleNote> {
       props.x + (hasTimeSignature ? this.ts.width() : 0);
     const xAfterBarline = xAfterTimeSignature + this.frontBarline.width();
 
+    const actualNotes = this.notes.filter((note) => note !== this.previewNote);
+
     const groupedNotes = SingleNote.groupNotes(
-      this.notes,
+      actualNotes,
       this.ts.beatDivision()
     );
-    const oneNoteInBar =
-      this.notes.length === 1 &&
-      this.notes[0] instanceof SingleNote &&
-      !(this instanceof Anacrusis);
 
     const previousNote = props.previousBar && props.previousBar.lastNote();
     const previousPitch = props.previousBar && props.previousBar.lastPitch();
 
-    const beats = this.beats(previousPitch);
-
-    const totalNumberOfBeats = nlast(beats).extend;
-    const beatWidth = (barWidth - nlast(beats).min) / totalNumberOfBeats;
+    const beats = this.beats(previousPitch, actualNotes);
+    const numberOfBeats = nlast(beats).extend;
+    const beatWidth = (barWidth - nlast(beats).min) / numberOfBeats;
 
     if (beatWidth < 0) {
       console.error('bar too small');
@@ -326,7 +328,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
 
     const noteProps = (notes: SingleNote[] | Triplet): NoteProps => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];
-      const index = this.notes.indexOf(firstNote);
+      const index = actualNotes.indexOf(firstNote);
       return {
         x: xOf(index),
         y: staveY,
@@ -360,6 +362,23 @@ export class Bar extends Item implements Previewable<SingleNote> {
           ? notes.render(noteProps(notes))
           : SingleNote.renderMultiple(notes, noteProps(notes))
       ),
+      this.previewNote
+        ? this.previewNote.render({
+            x:
+              this.notes.length === 1
+                ? xAfterBarline - barWidth / 4
+                : xOf(this.notes.indexOf(this.previewNote)) -
+                  2 * SingleNote.noteHeadRadius,
+            y: props.y,
+            boxToLast: 'lastnote',
+            noteWidth: beatWidth / 2,
+            previousNote: null,
+            endOfLastStave: props.endOfLastStave,
+            state: props.noteState,
+            gracenoteState: props.gracenoteState,
+            dispatch: props.dispatch,
+          }) || null
+        : null,
 
       !this.frontBarline.symmetric ||
       props.shouldRenderFirstBarline ||

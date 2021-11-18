@@ -80,6 +80,7 @@ export abstract class BaseNote extends Item {
     this.length = length;
     this.tied = tied;
   }
+  public static noteHeadRadius = noteHeadRadius;
   public static fromJSON(o: Obj) {
     let s: Note | null = null;
     switch (o.notetype) {
@@ -749,7 +750,7 @@ export class SingleNote
     const noteBoxWidth = (getXY(this.id)?.afterX || 0) - noteBoxStart;
 
     return svg('g', { class: 'singleton' }, [
-      props.state.inputtingNotes
+      props.state.inputtingNotes && !this.isDemo()
         ? noteBoxes(
             noteBoxStart,
             props.y,
@@ -903,7 +904,7 @@ export class SingleNote
             props
           ),
 
-          props.state.inputtingNotes
+          props.state.inputtingNotes && !note.isDemo()
             ? noteBoxes(
                 noteBoxX,
                 props.y,
