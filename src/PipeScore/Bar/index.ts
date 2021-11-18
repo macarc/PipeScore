@@ -326,6 +326,17 @@ export class Bar extends Item implements Previewable<SingleNote> {
 
     const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
 
+    // There are a few special cases to deal with single notes being further
+    // forward than they should be.
+    const previewX = this.previewNote
+      ? this.notes.length === 1
+        ? xAfterBarline - barWidth / 4
+        : this.notes.length === 2
+        ? xOf(this.notes.indexOf(this.previewNote)) + beatWidth / 2
+        : xOf(this.notes.indexOf(this.previewNote)) -
+          2 * SingleNote.noteHeadRadius
+      : 0;
+
     const noteProps = (notes: SingleNote[] | Triplet): NoteProps => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];
       const index = actualNotes.indexOf(firstNote);
@@ -364,11 +375,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
       ),
       this.previewNote
         ? this.previewNote.render({
-            x:
-              this.notes.length === 1
-                ? xAfterBarline - barWidth / 4
-                : xOf(this.notes.indexOf(this.previewNote)) -
-                  2 * SingleNote.noteHeadRadius,
+            x: previewX,
             y: props.y,
             boxToLast: 'lastnote',
             noteWidth: beatWidth / 2,
