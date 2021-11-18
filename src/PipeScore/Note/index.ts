@@ -856,7 +856,10 @@ export class SingleNote
         const previousNote = notes[index - 1] || props.previousNote;
 
         setNoteXY(note, index);
-        const noteBoxX = index === 0 ? props.x : xOf(index - 1); // xOf(index) + noteHeadWidth,
+        const noteBoxX =
+          index === 0
+            ? props.x + noteHeadWidth
+            : xOf(index - 1) + noteHeadWidth;
 
         const gracenoteProps = {
           x: xOfGracenote(index) + noteHeadRadius, // So that it doesn't overlap the previous note
@@ -871,6 +874,16 @@ export class SingleNote
         };
 
         return svg('g', { class: `grouped-note ${note.pitch}` }, [
+          props.state.inputtingNotes && !note.isDemo()
+            ? noteBoxes(
+                noteBoxX,
+                props.y,
+                xOf(index) + noteHeadRadius - noteBoxX,
+                (pitch) => props.dispatch(mouseOverPitch(pitch, note)),
+                (pitch) => props.dispatch(addNoteBefore(pitch, note))
+              )
+            : svg('g'),
+
           note.shouldTie(previousNote)
             ? note.tie(
                 xOf(index),
@@ -903,16 +916,6 @@ export class SingleNote
             (event: MouseEvent) => props.dispatch(clickNote(note, event)),
             props
           ),
-
-          props.state.inputtingNotes && !note.isDemo()
-            ? noteBoxes(
-                noteBoxX,
-                props.y,
-                xOf(index) + noteHeadRadius - noteBoxX,
-                (pitch) => props.dispatch(mouseOverPitch(pitch, note)),
-                (pitch) => props.dispatch(addNoteBefore(pitch, note))
-              )
-            : svg('g'),
 
           svg('line', {
             x1: xOf(index),

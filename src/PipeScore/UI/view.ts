@@ -616,10 +616,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
   return h('div', [
     h('div', { id: 'ui' }, [
       h('div', { id: 'menu' }, [
-        help(
-          'Return to Scores page',
-          h('button', [h('a', { href: '/scores' }, ['Home'])])
-        ),
+        help('home', h('button', [h('a', { href: '/scores' }, ['Home'])])),
         menuHead('note'),
         menuHead('gracenote'),
         menuHead('bar'),
@@ -629,7 +626,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
         menuHead('document'),
         menuHead('settings'),
         help(
-          'View the help page',
+          'help',
           h('button', [h('a', { href: '/help', target: '_blank' }, ['Help'])])
         ),
       ]),

@@ -11,6 +11,7 @@ const gracenoteDoc = (name: string) =>
 export default new Map(
   Object.entries({
     home: 'Go back to the scores page',
+    help: 'View the help page',
     sb: noteDoc('semibreve'),
     m: noteDoc('minim'),
     c: noteDoc('crotchet'),
