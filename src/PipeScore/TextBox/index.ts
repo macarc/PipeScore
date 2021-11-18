@@ -2,7 +2,7 @@ import { h, svg, V } from '../../render/h';
 import { Dispatch, Update } from '../Controllers/Controller';
 import { changeText, clickText } from '../Controllers/Text';
 import dialogueBox from '../global/dialogueBox';
-import { Obj } from '../global/utils';
+import { Obj, svgCoords } from '../global/utils';
 import { Selection, TextSelection } from '../Selection';
 
 /*
@@ -18,6 +18,8 @@ export class TextBox {
   private centred: boolean;
   private x: number;
   private y: number;
+  private mouseXOffset = 0;
+  private mouseYOffset = 0;
   private size: number;
   private _text: string;
 
@@ -49,6 +51,10 @@ export class TextBox {
   public text() {
     return this._text;
   }
+  public setClickOffsetCoords(mouseX: number, mouseY: number) {
+    this.mouseXOffset = this.x - mouseX;
+    this.mouseYOffset = this.y - mouseY;
+  }
   public set(text: string, size: number) {
     if (text !== this._text || size !== this.size) {
       this._text = text;
@@ -71,8 +77,8 @@ export class TextBox {
     this.y = (this.y / newHeight) * newWidth;
   }
   public setCoords(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    this.x = x + this.mouseXOffset;
+    this.y = y + this.mouseYOffset;
     this.centred = false;
   }
 
@@ -116,7 +122,11 @@ export class TextBox {
       },
       {
         dblclick: () => this.edit(props.dispatch),
-        mousedown: () => props.dispatch(clickText(this)),
+        mousedown: (e: Event) => {
+          const pt = svgCoords(e as MouseEvent);
+          if (pt) this.setClickOffsetCoords(pt.x, pt.y);
+          props.dispatch(clickText(this));
+        },
       },
       [this._text || 'Double Click to Edit']
     );

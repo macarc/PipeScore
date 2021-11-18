@@ -36,7 +36,6 @@ export function noteBoxes(
     (settings.staveGap - settings.lineHeightOf(4) - gap) / 2;
 
   const over = mouseMoveIsMouseOver ? 'mousemove' : 'mouseover';
-  console.log(over);
 
   return svg('g', { class: 'drag-boxes' }, [
     svg(

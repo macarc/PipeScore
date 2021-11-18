@@ -46,3 +46,28 @@ export const last = <T>(array: T[]): T | null =>
   array[array.length - 1] || null;
 // ONLY use this if you have checked before hand that the array length is >= 1
 export const nlast = <T>(array: T[]): T => array[array.length - 1];
+
+type SvgPt = { x: number; y: number; page: number };
+export function svgCoords(event: MouseEvent): SvgPt | null {
+  let svg: SVGSVGElement | null = null;
+  if (event.target instanceof SVGElement) {
+    svg = event.target.ownerSVGElement;
+  } else {
+    svg = document.getElementsByTagName('svg')[0];
+  }
+  if (svg == null) {
+    return null;
+  } else if (svg instanceof SVGSVGElement) {
+    const page = parseInt(svg.classList[0]);
+    const CTM = svg.getScreenCTM();
+    if (CTM == null) return null;
+    const pt = svg.createSVGPoint();
+    pt.x = event.clientX;
+    pt.y = event.clientY;
+
+    const svgPt = pt.matrixTransform(CTM.inverse());
+
+    return { x: svgPt.x, y: svgPt.y, page };
+  }
+  return null;
+}

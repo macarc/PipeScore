@@ -17,6 +17,7 @@ import {
 import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
 import Documentation from './Documentation';
+import { svgCoords } from './global/utils';
 
 const initialState: State = {
   canEdit: true,
@@ -112,27 +113,9 @@ function mouseMove(event: MouseEvent) {
   // - moves demo note (if necessary)
   const mouseButtonIsDown = event.buttons === 1;
   if (mouseButtonIsDown) {
-    let svg: SVGSVGElement | null = null;
-    if (event.target instanceof SVGElement) {
-      svg = event.target.ownerSVGElement;
-    } else {
-      svg = document.getElementsByTagName('svg')[0];
-    }
-    if (svg == null) {
-      return;
-    } else if (svg instanceof SVGSVGElement) {
-      const page = parseInt(svg.classList[0]);
-      const CTM = svg.getScreenCTM();
-      if (CTM == null) return;
-      const pt = svg.createSVGPoint();
-      pt.x = event.clientX;
-      pt.y = event.clientY;
-
-      const svgPt = pt.matrixTransform(CTM.inverse());
-
-      // If the left mouse button is held down
-      if (event.buttons === 1) dispatch(mouseDrag(svgPt.x, svgPt.y, page));
-    }
+    const pt = svgCoords(event);
+    // If the left mouse button is held down
+    if (pt && event.buttons === 1) dispatch(mouseDrag(pt.x, pt.y, pt.page));
   }
 }
 
