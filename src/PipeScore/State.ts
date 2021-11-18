@@ -15,6 +15,12 @@ export interface State {
   canEdit: boolean;
   isLoggedIn: boolean;
   justClickedNote: boolean;
+  // justAddedNote is needed for a hack -
+  // after adding a note, in order to show the
+  // demo note as soon as possible, it changes from
+  // mouseOverPitch to mouseMovedOnPitch
+  // this just tracks whether or not to do that
+  justAddedNote: boolean;
   demo: Demo | null;
   ui: { menu: Menu };
   doc: { current: string | null; show: boolean };

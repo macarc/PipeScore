@@ -30,6 +30,7 @@ export function addNoteBefore(
         previous
       );
       if (note) note.makeCorrectTie(state.score.notes());
+      state.justAddedNote = true;
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -42,6 +43,7 @@ export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
       const note = state.demo.addNote(null, pitch, bar, previous);
       if (note) note.makeCorrectTie(state.score.notes());
       state.justClickedNote = true;
+      state.justAddedNote = true;
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -200,6 +202,7 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
     if (state.demo instanceof DemoNote) {
       if (note.isDemo()) {
         state.demo?.addSelf(null);
+        state.justAddedNote = true;
         return Update.ShouldSave;
       } else {
         stopInputtingNotes(state);

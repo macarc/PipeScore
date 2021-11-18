@@ -22,6 +22,7 @@ const initialState: State = {
   canEdit: true,
   isLoggedIn: false,
   justClickedNote: false,
+  justAddedNote: false,
   demo: null,
   playback: { bpm: 80 },
   ui: { menu: 'note' },
@@ -38,6 +39,7 @@ let save: (score: Score) => void = () => null;
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
   if (!state.canEdit) return;
+
   const res = await event(state);
   if (res === Update.ViewChanged || res === Update.ShouldSave) {
     if (res === Update.ShouldSave) {
@@ -59,6 +61,7 @@ const updateView = (state: State) => {
   if (!scoreRoot || !uiRoot) return;
 
   const scoreProps = {
+    justAddedNote: state.justAddedNote,
     noteState: {
       dragged:
         (state.selection instanceof ScoreSelection &&

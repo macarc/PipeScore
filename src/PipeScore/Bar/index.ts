@@ -24,6 +24,7 @@ export interface BarProps {
   x: number;
   y: number;
   width: number;
+  justAddedNote: boolean;
   previousBar: Bar | null;
   shouldRenderLastBarline: boolean;
   shouldRenderFirstBarline: boolean;
@@ -343,6 +344,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
       return {
         x: xOf(index),
         y: staveY,
+        justAddedNote: props.justAddedNote,
         boxToLast: index === 0 ? xAfterBarline : 'lastnote',
         noteWidth: beatWidth,
         previousNote:
@@ -366,7 +368,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
         (pitch, e) =>
           props.noteState.inputtingNotes
             ? props.dispatch(addNoteToBarEnd(pitch, this))
-            : props.dispatch(clickBar(this, e))
+            : props.dispatch(clickBar(this, e)),
+        props.justAddedNote
       ),
       ...groupedNotes.map((notes) =>
         notes instanceof Triplet
@@ -377,6 +380,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
         ? this.previewNote.render({
             x: previewX,
             y: props.y,
+            justAddedNote: props.justAddedNote,
             boxToLast: 'lastnote',
             noteWidth: beatWidth / 2,
             previousNote: null,

@@ -11,7 +11,8 @@ export function noteBoxes(
   y: number,
   width: number,
   mouseOver: (pitch: Pitch, event: MouseEvent) => void = () => null,
-  mouseDown: (pitch: Pitch, event: MouseEvent) => void = () => null
+  mouseDown: (pitch: Pitch, event: MouseEvent) => void = () => null,
+  mouseMoveIsMouseOver: boolean
 ): V {
   // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap
   // and there are 0 pixel gaps between that can nevertheless be hovered over
@@ -34,6 +35,9 @@ export function noteBoxes(
   const heightOfBetweenBoxes =
     (settings.staveGap - settings.lineHeightOf(4) - gap) / 2;
 
+  const over = mouseMoveIsMouseOver ? 'mousemove' : 'mouseover';
+  console.log(over);
+
   return svg('g', { class: 'drag-boxes' }, [
     svg(
       'rect',
@@ -46,7 +50,7 @@ export function noteBoxes(
         opacity: 0,
       },
       {
-        mouseover: (e) => mouseOver(Pitch.HA, e as MouseEvent),
+        [over]: (e) => mouseOver(Pitch.HA, e as MouseEvent),
         mousedown: (e) => mouseDown(Pitch.HA, e as MouseEvent),
       }
     ),
@@ -60,7 +64,7 @@ export function noteBoxes(
         opacity: 0,
       },
       {
-        mouseover: (e) => mouseOver(Pitch.G, e as MouseEvent),
+        [over]: (e) => mouseOver(Pitch.G, e as MouseEvent),
         mousedown: (e) => mouseDown(Pitch.G, e as MouseEvent),
       }
     ),
@@ -77,7 +81,7 @@ export function noteBoxes(
             opacity: 0,
           },
           {
-            mouseover: (e) => mouseOver(note, e as MouseEvent),
+            [over]: (e) => mouseOver(note, e as MouseEvent),
             mousedown: (e) => mouseDown(note, e as MouseEvent),
           }
         )

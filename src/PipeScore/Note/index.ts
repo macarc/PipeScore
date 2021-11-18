@@ -50,6 +50,7 @@ export interface NoteProps {
   x: number;
   y: number;
   boxToLast: number | 'lastnote';
+  justAddedNote: boolean;
   previousNote: SingleNote | null;
   noteWidth: number;
   endOfLastStave: number;
@@ -756,7 +757,8 @@ export class SingleNote
             props.y,
             noteBoxWidth,
             (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
-            (pitch) => props.dispatch(addNoteBefore(pitch, this))
+            (pitch) => props.dispatch(addNoteBefore(pitch, this)),
+            props.justAddedNote
           )
         : null,
       this.shouldTie(props.previousNote)
@@ -880,7 +882,8 @@ export class SingleNote
                 props.y,
                 xOf(index) + noteHeadRadius - noteBoxX,
                 (pitch) => props.dispatch(mouseOverPitch(pitch, note)),
-                (pitch) => props.dispatch(addNoteBefore(pitch, note))
+                (pitch) => props.dispatch(addNoteBefore(pitch, note)),
+                props.justAddedNote
               )
             : svg('g'),
 

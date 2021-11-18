@@ -24,6 +24,7 @@ import { setXYPage } from '../global/xy';
 interface ScoreProps {
   selection: Selection | null;
   dispatch: Dispatch;
+  justAddedNote: boolean;
   noteState: NoteState;
   demoNote: Demo | null;
   gracenoteState: GracenoteState;
@@ -392,6 +393,7 @@ export class Score {
     const staveProps = (stave: Stave, index: number, pageIndex: number) => ({
       x: settings.margin,
       y: index * settings.staveGap + this.topGap(pageIndex),
+      justAddedNote: props.justAddedNote,
       width: width - 2 * settings.margin,
       previousStave: this._staves[index - 1] || null,
       previousStaveY: this.staveY(stave, pageIndex),

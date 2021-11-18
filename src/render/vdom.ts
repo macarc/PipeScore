@@ -84,7 +84,7 @@ export default function patch(before: VElement, after: VElement): boolean {
       }
     }
   }
-  for (const event in after.events) {
+  for (const event in { ...before.events, ...after.events }) {
     if (before.events[event] !== after.events[event]) {
       after.node.removeEventListener(event, before.events[event]);
       after.node.addEventListener(event, after.events[event]);

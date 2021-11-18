@@ -143,6 +143,7 @@ export function print(): ScoreEvent {
     const blankEl = document.createElement('div');
     const blankH = hFrom(blankEl);
     const props = {
+      justAddedNote: false,
       selection: null,
       selectedSecondTiming: null,
       noteState: {

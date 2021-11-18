@@ -35,6 +35,9 @@ export function mouseOverPitch(
   return async (state: State) => {
     // We return viewChanged from everything since we only want to save when the note is released
 
+    const mustUpdate = state.justAddedNote;
+    state.justAddedNote = false;
+
     // This occurs when the note's head is changed from receiving pointer events to not receiving them.
     // That triggers a mouseOver on the note box below, which is undesirable as it moves the note head.
     if (state.justClickedNote) {
@@ -58,7 +61,7 @@ export function mouseOverPitch(
     ) {
       return state.selection.mouseOverPitch(pitch, state.score);
     }
-    return Update.NoChange;
+    return mustUpdate ? Update.ViewChanged : Update.NoChange;
   };
 }
 export function mouseUp(): ScoreEvent {

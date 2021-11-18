@@ -16,6 +16,7 @@ interface StaveProps {
   x: number;
   y: number;
   width: number;
+  justAddedNote: boolean;
   previousStaveY: number;
   previousStave: Stave | null;
   dispatch: Dispatch;
@@ -137,6 +138,7 @@ export class Stave {
       y: staveY,
       width: width(bar),
       previousBar: previousBar(index),
+      justAddedNote: props.justAddedNote,
       shouldRenderLastBarline: index === this.numberOfBars() - 1,
       shouldRenderFirstBarline: index !== 0,
       endOfLastStave: props.x + props.width, // should always be the same
