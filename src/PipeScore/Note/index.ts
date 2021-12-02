@@ -580,7 +580,11 @@ export class SingleNote
 
     // if we're dragging the note, disable the note box since it prevents
     // pitch boxes underneath from being triggered
-    const drawNoteBox = !(props.state.dragged === this || this.isDemo());
+    const drawNoteBox = !(
+      props.state.dragged ||
+      props.gracenoteState.dragged ||
+      this.isDemo()
+    );
     const pointerEvents = drawNoteBox ? 'visiblePainted' : 'none';
 
     const filled = this.isFilled();
@@ -770,16 +774,16 @@ export class SingleNote
             props.endOfLastStave
           )
         : null,
-      this.shouldTie(props.previousNote)
-        ? null
-        : this.renderGracenote(gracenoteProps),
-
       this.head(
         x + noteHeadRadius,
         y,
         (event: MouseEvent) => props.dispatch(clickNote(this, event)),
         props
       ),
+      this.shouldTie(props.previousNote)
+        ? null
+        : this.renderGracenote(gracenoteProps),
+
       this.hasStem()
         ? svg('line', {
             x1: x,
@@ -896,6 +900,13 @@ export class SingleNote
                 props.endOfLastStave
               )
             : null,
+          note.head(
+            xOf(index) + noteHeadRadius,
+            yOf(note),
+            (event: MouseEvent) => props.dispatch(clickNote(note, event)),
+            props
+          ),
+
           note.shouldTie(previousNote)
             ? null
             : note.renderGracenote(gracenoteProps),
@@ -912,13 +923,6 @@ export class SingleNote
                 (notes[index + 1] && notes[index + 1].numTails()) || 0
               )
             : null,
-
-          note.head(
-            xOf(index) + noteHeadRadius,
-            yOf(note),
-            (event: MouseEvent) => props.dispatch(clickNote(note, event)),
-            props
-          ),
 
           svg('line', {
             x1: xOf(index),
@@ -1009,7 +1013,9 @@ export class Triplet extends BaseNote {
   }
   public play(previous: Pitch | null) {
     return this._notes
-      .flatMap((n, i) => n.play(this._notes[i - 1].lastPitch() || previous))
+      .flatMap((n, i) =>
+        n.play(i === 0 ? previous : this._notes[i - 1].lastPitch() || previous)
+      )
       .map((n) => ({ ...n, duration: (2 / 3) * n.duration }));
   }
   private tripletLine(

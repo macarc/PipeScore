@@ -331,9 +331,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
     // forward than they should be.
     const previewX = this.previewNote
       ? this.notes.length === 1
-        ? xAfterBarline - barWidth / 4
+        ? xAfterBarline - barWidth / 5
         : this.notes.length === 2
-        ? xOf(this.notes.indexOf(this.previewNote)) + beatWidth / 2
+        ? this.notes[0] === this.previewNote
+          ? xAfterBarline
+          : xOf(this.notes.indexOf(this.previewNote)) + beatWidth / 2
         : xOf(this.notes.indexOf(this.previewNote)) -
           2 * SingleNote.noteHeadRadius
       : 0;

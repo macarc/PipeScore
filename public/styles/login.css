@@ -5,12 +5,21 @@ label {
 }
 input {
   display: block;
-  padding: 0.3rem;
 }
 
 button,
 input[type='submit'] {
-  padding: 0.3rem;
   font-size: 0.9rem;
-  cursor: pointer;
+}
+
+input[type='email'],
+input[type='password'] {
+  border-radius: 0.5rem;
+  border: 1px solid darkgrey;
+  padding: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+form {
+  margin: 2rem 1rem 1rem;
 }

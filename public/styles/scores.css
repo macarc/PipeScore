@@ -7,13 +7,21 @@ button {
   padding: 1rem;
   border-bottom: 1px solid black;
 }
-
+/* 
 #sign-out {
-  position: absolute;
-  top: 0;
-  left: auto;
-  right: 0;
+  float: right;
   margin: 1rem;
+} */
+
+#horizontal-buttons {
+  display: block;
+  overflow: auto;
+}
+#new-score {
+  float: left;
+}
+#sign-out {
+  float: right;
 }
 
 #help-page {

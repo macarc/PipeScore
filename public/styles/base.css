@@ -49,6 +49,14 @@ header ul li a {
   text-decoration: none;
 }
 
+button,
+input[type='submit'] {
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  border: 1px solid darkgrey;
+  cursor: pointer;
+}
+
 @media only screen and (min-width: 800px) {
   main {
     width: 60vw;

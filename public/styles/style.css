@@ -29,7 +29,7 @@ main {
   right: 10vw;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1100px) {
   .message {
     background-color: rgba(255, 255, 255, 0.7);
     position: static;
