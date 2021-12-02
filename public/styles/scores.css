@@ -7,11 +7,6 @@ button {
   padding: 1rem;
   border-bottom: 1px solid black;
 }
-/* 
-#sign-out {
-  float: right;
-  margin: 1rem;
-} */
 
 #horizontal-buttons {
   display: block;

@@ -12,22 +12,40 @@
     <link type="text/css" rel="stylesheet" href="styles/base.css" />
     <link type="text/css" rel="stylesheet" href="styles/help.css" />
     <script>
+      // None of this is essential, but it makes it look nicer:
+      // - add a loading screen to the iframe
+      // - make sure the iframe doesn't overflow
+      const fullWidth = 560;
+      const fullHeight = 315;
+      function iframeDimensions() {
+        const main = document.querySelector('main');
+        const width =
+          main && fullWidth > main.offsetWidth * 0.9
+            ? main.offsetWidth * 0.9
+            : fullWidth;
+        const height = (fullHeight / fullWidth) * width;
+        return [width, height];
+      }
+      function setIframe(width, height) {
+        const iframe = document.querySelector('iframe');
+        iframe.width = width;
+        iframe.height = height;
+      }
       document.addEventListener('DOMContentLoaded', () => {
         const iframe = document.querySelector('iframe');
         const loader = document.getElementById('iframe-loading');
         if (iframe && loader) {
-          const width = iframe.width;
-          const height = iframe.height;
-          iframe.width = 0;
-          iframe.height = 0;
+          const [width, height] = iframeDimensions();
+          setIframe(0, 0);
           loader.style.display = 'block';
           loader.style.width = width + 'px';
           loader.style.height = height + 'px';
-          console.log(loader);
           iframe.addEventListener('load', () => {
             loader.style.display = 'none';
-            iframe.width = width;
-            iframe.height = height;
+            setIframe(width, height);
+            window.addEventListener('resize', () =>
+              setIframe(...iframeDimensions())
+            );
           });
         }
       });

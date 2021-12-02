@@ -18,7 +18,7 @@ main {
 }
 #iframe-spinner {
   margin: auto;
-  margin-top: 142.5px; /* (315 / 2) - 15 */
+  margin-top: 25%;
   width: 30px;
   height: 30px;
   background: black;
