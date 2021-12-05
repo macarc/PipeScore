@@ -18,24 +18,43 @@ import {
   moveRight,
   expandSelection,
   detractSelection,
+  addNoteAfterSelection,
 } from './Controllers/Note';
 import { undo, redo, print } from './Controllers/Misc';
 import { deleteSelection } from './Controllers/Mouse';
+import { Pitch } from './global/pitch';
 
 import { NoteLength } from './Note/notelength';
+import { moveLeftBarwise, moveRightBarwise } from './Controllers/Bar';
 
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;
 
+  if (e.ctrlKey) {
+    switch (e.key) {
+      case 'c':
+        dispatch(copy());
+        break;
+      case 'v':
+        dispatch(paste());
+        break;
+
+      case 'z':
+        dispatch(undo());
+        break;
+      case 'y':
+        dispatch(redo());
+        break;
+      case 'p':
+        e.preventDefault();
+        dispatch(print());
+        break;
+    }
+  }
+
   switch (e.key) {
     case 'Escape':
       dispatch(stopInput());
-      break;
-    case 'c':
-      if (e.ctrlKey) dispatch(copy());
-      break;
-    case 'v':
-      if (e.ctrlKey) dispatch(paste());
       break;
     case 'Backspace':
     case 'Delete':
@@ -67,23 +86,19 @@ export function keyHandler(e: KeyboardEvent): void {
       dispatch(moveNoteDown());
       break;
 
+    case 'Tab':
+      if (e.shiftKey) {
+        dispatch(moveLeftBarwise());
+      } else {
+        dispatch(moveRightBarwise());
+      }
+      break;
+
     case '.':
       dispatch(toggleDot());
       break;
     case 't':
       dispatch(tieSelectedNotes());
-      break;
-    case 'z':
-      if (e.ctrlKey) dispatch(undo());
-      break;
-    case 'y':
-      if (e.ctrlKey) dispatch(redo());
-      break;
-    case 'p':
-      if (e.ctrlKey) {
-        e.preventDefault();
-        dispatch(print());
-      }
       break;
 
     case '1':
@@ -106,6 +121,34 @@ export function keyHandler(e: KeyboardEvent): void {
       break;
     case '7':
       dispatch(setInputLength(NoteLength.HemiDemiSemiQuaver));
+      break;
+
+    case 'g':
+      dispatch(addNoteAfterSelection(Pitch.G));
+      break;
+    case 'a':
+      dispatch(addNoteAfterSelection(Pitch.A));
+      break;
+    case 'b':
+      dispatch(addNoteAfterSelection(Pitch.B));
+      break;
+    case 'c':
+      dispatch(addNoteAfterSelection(Pitch.C));
+      break;
+    case 'd':
+      dispatch(addNoteAfterSelection(Pitch.D));
+      break;
+    case 'e':
+      dispatch(addNoteAfterSelection(Pitch.E));
+      break;
+    case 'f':
+      dispatch(addNoteAfterSelection(Pitch.F));
+      break;
+    case 'G':
+      dispatch(addNoteAfterSelection(Pitch.HG));
+      break;
+    case 'A':
+      dispatch(addNoteAfterSelection(Pitch.HA));
       break;
   }
 }

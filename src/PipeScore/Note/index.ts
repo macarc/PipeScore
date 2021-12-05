@@ -12,7 +12,13 @@ import {
   SingleGracenote,
 } from '../Gracenote';
 import { foreach, nfirst, nlast, Obj } from '../global/utils';
-import { dot, dotted, lengthInBeats, NoteLength } from './notelength';
+import {
+  dot,
+  dotted,
+  lengthInBeats,
+  NoteLength,
+  sameNoteLengthName,
+} from './notelength';
 import width, { Width } from '../global/width';
 import { V } from '../../render/types';
 import { svg } from '../../render/h';
@@ -116,10 +122,13 @@ export abstract class BaseNote extends Item {
     }
   }
   public isLength(length: NoteLength) {
-    return this.length === length;
+    return sameNoteLengthName(this.length, length);
   }
   public setLength(length: NoteLength) {
     this.length = length;
+  }
+  public lengthForInput() {
+    return this.length;
   }
   public toggleDot() {
     return (this.length = dot(this.length));

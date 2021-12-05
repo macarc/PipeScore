@@ -36,6 +36,24 @@ export function addNoteBefore(
     return Update.NoChange;
   };
 }
+export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const last = state.selection.lastBar(state.score);
+      const length =
+        state.demo instanceof DemoNote
+          ? state.demo.length()
+          : state.selection.selectedNote(state.score)?.lengthForInput() || null;
+      if (length) {
+        const note = new SingleNote(pitch, length);
+        last.bar.insertNote(last.note, note);
+        state.selection = new ScoreSelection(note.id, note.id);
+        return Update.ShouldSave;
+      }
+    }
+    return Update.NoChange;
+  };
+}
 export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => {
     if (state.demo) {
@@ -248,7 +266,6 @@ export function setInputLength(length: NoteLength): ScoreEvent {
       const notes = state.selection.notesAndTriplets(state.score);
       if (notes.length > 0) notes.forEach((note) => note.setLength(length));
       else {
-        state.selection = null;
         stopInputtingNotes(state);
         state.demo = new DemoNote(length);
       }

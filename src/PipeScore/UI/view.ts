@@ -148,7 +148,10 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             {
               id: 'toggle-dotted',
               class:
-                state.demo instanceof DemoNote && dotted(state.demo.length())
+                (state.demo instanceof DemoNote &&
+                  dotted(state.demo.length())) ||
+                (state.selectedNote &&
+                  dotted(state.selectedNote.lengthForInput()))
                   ? 'highlighted'
                   : 'not-highlighted',
             },

@@ -15,7 +15,7 @@ import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
 import { Gracenote, NoGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { car, foreach } from '../global/utils';
+import { car, foreach, last, nlast } from '../global/utils';
 import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
 
@@ -86,6 +86,10 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
   }
   public mouseDrag() {
     // TODO make this empty method unnecessary :)
+  }
+  public lastBar(score: Score): { note: Note | null; bar: Bar } {
+    const notes = this.notes(score);
+    return { note: last(notes), bar: score.location(this.end).bar };
   }
   public delete(score: Score) {
     let started = false;

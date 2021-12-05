@@ -13,6 +13,27 @@ import { TimeSignature } from '../TimeSignature';
 import { itemBefore } from '../global/xy';
 import { ScoreSelection } from '../Selection';
 
+export function moveLeftBarwise(): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const prev = state.score.previousBar(state.selection.end);
+      if (prev) state.selection = new ScoreSelection(prev.id, prev.id);
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  };
+}
+export function moveRightBarwise(): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const next = state.score.nextBar(state.selection.end);
+      if (next) state.selection = new ScoreSelection(next.id, next.id);
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  };
+}
+
 function setTimeSignatureFrom(
   timeSignature: TimeSignature,
   newTimeSignature: TimeSignature,

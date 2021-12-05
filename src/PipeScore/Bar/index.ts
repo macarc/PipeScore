@@ -96,6 +96,34 @@ export class Bar extends Item implements Previewable<SingleNote> {
       }
     }
   }
+  public static nextBar(id: ID, bars: Bar[]) {
+    let lastWasIt = false;
+    for (const bar of bars) {
+      if (lastWasIt) return bar;
+      if (bar.hasID(id)) {
+        lastWasIt = true;
+        continue;
+      }
+      for (const note of bar.notes) {
+        if (note.hasID(id)) {
+          lastWasIt = true;
+          break;
+        }
+      }
+    }
+    return null;
+  }
+  public static previousBar(id: ID, bars: Bar[]) {
+    let prev: Bar | null = null;
+    for (const bar of bars) {
+      if (bar.hasID(id)) return prev;
+      prev = bar;
+      for (const note of bar.notes) {
+        if (note.hasID(id)) return prev;
+      }
+    }
+    return prev;
+  }
   public static nextNote(id: ID, bars: Bar[]) {
     let lastWasIt = false;
     for (const bar of bars) {

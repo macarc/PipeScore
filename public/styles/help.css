@@ -72,6 +72,8 @@ span.option {
     position: sticky;
     top: 0;
     height: 100vh;
+    flex-basis: auto;
+    overflow-y: scroll;
     background: lightblue;
     flex-grow: 0;
     padding: 0.5rem;

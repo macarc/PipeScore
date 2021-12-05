@@ -244,6 +244,12 @@ export class Score {
     }
   }
 
+  public nextBar(id: ID) {
+    return Bar.nextBar(id, this.bars());
+  }
+  public previousBar(id: ID) {
+    return Bar.previousBar(id, this.bars());
+  }
   public nextNote(id: ID) {
     return Bar.nextNote(id, this.bars());
   }
