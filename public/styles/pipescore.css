@@ -240,9 +240,13 @@ text {
   top: 0;
   width: 100vw;
   height: 100vh;
+  overflow: scroll;
 }
 
 #dialogue-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   background: black;
@@ -251,9 +255,9 @@ text {
 
 #dialogue-box {
   position: absolute;
-  top: 50vh;
+  top: 2vh;
   left: 50vw;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, 0% /*-50%*/);
   padding: 2rem;
   background: white;
   width: 75vw;
@@ -319,10 +323,12 @@ input[type='number'] {
     text-align: center;
     margin: 30% auto;
     font-size: 1.5rem;
+    z-index: 500;
   }
   #score,
   #ui,
-  #doc {
-    display: none;
+  #doc,
+  #dialogue-parent {
+    display: none !important;
   }
 }
