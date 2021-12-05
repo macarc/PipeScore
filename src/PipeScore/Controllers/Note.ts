@@ -133,6 +133,7 @@ export function tieSelectedNotes(): ScoreEvent {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     state.selection
       .notes(state.score)
+      .slice(1) // So that it only ties between the selected notes
       .forEach((note) => note.toggleTie(state.score.notes()));
     return Update.ShouldSave;
   };

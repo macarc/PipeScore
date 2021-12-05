@@ -203,6 +203,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
         gracenoteInput('g-gracenote-birl'),
         gracenoteInput('g-strike'),
         gracenoteInput('shake'),
+        gracenoteInput('c-shake'),
         gracenoteInput('edre'),
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),

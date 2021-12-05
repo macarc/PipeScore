@@ -78,6 +78,7 @@ embellishments = {
         "g-gracenote-birl": ['hg','a','g','a','g'],
         "g-strike": ['hg', 'd', 'g'],
         "shake": ['hg','d','e','d','g'],
+        "c-shake": ['hg','d','e','d','c'],
         "toarluath": ['g','d','g','e'],
         "crunluath": ['g','d','g','e','a','f','a'],
         "edre": ['e','a','f','a']

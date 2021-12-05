@@ -42,6 +42,7 @@ export default new Map(
     'g-gracenote-birl': gracenoteDoc('G gracenote birl'),
     'g-strike': gracenoteDoc('gracenote strike'),
     shake: gracenoteDoc('shake'),
+    'c-shake': gracenoteDoc('C shake'),
     toarluath: gracenoteDoc('toarluath'),
     crunluath: gracenoteDoc('crunluath'),
     edre: gracenoteDoc('edre'),
