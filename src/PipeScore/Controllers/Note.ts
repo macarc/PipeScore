@@ -298,7 +298,7 @@ export function copy(): ScoreEvent {
           state.clipboard?.push('bar-break');
           currentBarId = bar.id;
         }
-        state.clipboard?.push(note.copy());
+        state.clipboard?.push(note);
       });
       return Update.NoChange;
     }
@@ -311,7 +311,15 @@ export function paste(): ScoreEvent {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
       const id = state.selection.end;
       const { bar } = noteLocation(id, state.score);
-      Bar.pasteNotes(state.clipboard.slice(), bar, id, state.score.bars());
+      Bar.pasteNotes(
+        state.clipboard
+          .slice()
+          // we have to do it here rather than when copying in case they paste it more than once
+          .map((note) => (typeof note === 'string' ? note : note.copy())),
+        bar,
+        id,
+        state.score.bars()
+      );
       return Update.ShouldSave;
     }
     return Update.NoChange;
