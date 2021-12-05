@@ -12,6 +12,14 @@ auth.listen((user) => {
   if (user) window.location.assign('/scores');
 });
 
+function prettifyError(e: { message: string }) {
+  let s = '';
+  for (const word of e.message.split('_')) {
+    s += ' ';
+    s += word[0] + word.slice(1).toLowerCase();
+  }
+  return s.slice(1);
+}
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login');
   if (loginForm && loginForm instanceof HTMLFormElement)
@@ -32,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           auth
             .signIn(email, passwd)
-            .catch(() => alert('Invalid username or password'));
+            .catch((e) => alert('An error occurred: ' + prettifyError(e)));
         }
       }
     });

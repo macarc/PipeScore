@@ -23,3 +23,7 @@ input[type='password'] {
 form {
   margin: 2rem 1rem 1rem;
 }
+
+.forgot-password {
+  font-size: 0.9rem;
+}

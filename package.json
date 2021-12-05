@@ -7,8 +7,8 @@
     "deploy": "firebase deploy",
     "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
     "dev": "firebase serve",
-    "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
-    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; ./scripts/buildall.sh",
+    "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
+    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; ./scripts/buildall.sh",
     "lint": "prettier --write .; eslint src --ext .ts",
     "circles": "madge -c --warning --ts-config=tsconfig.json src/PipeScore/PipeScore.ts"
   },

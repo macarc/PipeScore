@@ -66,7 +66,7 @@ declare module 'firebase-auth-lite' {
 
   export interface AuthOptions {
     apiKey: string;
-    redirectUrl?: string;
+    redirectUri?: string;
   }
 
   export default class Auth {
@@ -84,8 +84,8 @@ declare module 'firebase-auth-lite' {
     resetPassword(oobCode: string, newPassword: string): Promise<string>;
     deleteAccount(): Promise<void>;
 
-    sendOobCode(requestType: 'PASSWORD_RESET', email: string): void;
-    sendOobCode(requestType: 'EMAIL_SIGNIN' | 'VERIFY_EMAIL'): void;
+    sendOobCode(requestType: 'PASSWORD_RESET', email: string): Promise<void>;
+    sendOobCode(requestType: 'EMAIL_SIGNIN' | 'VERIFY_EMAIL'): Promise<void>;
 
     fetchProvidersForEmail(email: string): ProvidersForEmailResponse;
     fetchProfile(tokenManager?: TokenManager): Promise<User>;
