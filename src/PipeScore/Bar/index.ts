@@ -34,8 +34,6 @@ export interface BarProps {
   gracenoteState: GracenoteState;
 }
 
-const minimumBeatWidth = 15;
-
 export class Bar extends Item implements Previewable<SingleNote> {
   protected ts: TimeSignature;
   protected notes: Note[];
@@ -444,9 +442,8 @@ export class Anacrusis extends Bar {
     const previousPitch = previousBar && previousBar.lastPitch();
     const previousTimeSignature = previousBar && previousBar.timeSignature();
     const beats = this.beats(previousPitch);
-    const totalNumberOfBeats = Math.max(nlast(beats).extend, 2);
     return (
-      minimumBeatWidth * totalNumberOfBeats +
+      width.reify(nlast(beats), 2) +
       (previousTimeSignature && !this.ts.equals(previousTimeSignature)
         ? 0
         : this.ts.width())

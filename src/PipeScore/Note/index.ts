@@ -481,7 +481,9 @@ export class SingleNote
     tails1: number,
     tails2: number,
     tailsBefore: number,
-    tailsAfter: number
+    tailsAfter: number,
+    // whether or not the first note is the 2nd, 4th, e.t.c. note in the group
+    even: boolean
   ): V {
     // Draws beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
 
@@ -494,9 +496,9 @@ export class SingleNote
     const yR = leftIs1 ? y2 - 1 : y1 - 1;
 
     const moreTailsOnLeft = leftTails > rightTails;
-    const drawExtraTails = moreTailsOnLeft
-      ? leftTails > tailsBefore
-      : rightTails > tailsAfter;
+    const drawExtraTails =
+      even &&
+      (moreTailsOnLeft ? leftTails > tailsBefore : rightTails > tailsAfter);
 
     // tails shared by both notes
     const sharedTails = moreTailsOnLeft ? rightTails : leftTails;
@@ -523,7 +525,7 @@ export class SingleNote
           'stroke-width': 2,
         })
       ),
-      ...foreach(extraTails, (i) => i + 1).map((i) =>
+      ...foreach(extraTails, (i) => i + sharedTails).map((i) =>
         svg('line', {
           x1: moreTailsOnLeft ? xL : xR,
           x2: moreTailsOnLeft ? xL + shortTailLength : xR - shortTailLength,
@@ -929,7 +931,8 @@ export class SingleNote
                 note.numTails(),
                 previousNote.numTails(),
                 (notes[index - 2] && notes[index - 2].numTails()) || 0,
-                (notes[index + 1] && notes[index + 1].numTails()) || 0
+                (notes[index + 1] && notes[index + 1].numTails()) || 0,
+                index % 2 === 1
               )
             : null,
 
