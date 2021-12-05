@@ -50,6 +50,8 @@ export default new Map(
       'Add a new bar. Choose whether to add it before or after the currently selected bar.',
     'edit bar time signature':
       'Edit the time signature of the bar.\n\nIf the time signature is displayed at the start of the bar, you can also edit it by clicking it',
+    'reset bar length':
+      "Reset the bar length to the automatic size.\n\nIf you've changed the bar length by dragging the barlines around, this resets on the current selected bar(s).",
     'normal barline':
       'Set the barline of the currently selected bar to the default single line',
     'repeat barline':

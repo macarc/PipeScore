@@ -18,6 +18,7 @@ import { GracenoteState } from '../Gracenote/state';
 import { car, foreach, last, nlast } from '../global/utils';
 import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
+import { Barline } from '../Bar/barline';
 
 interface ScoreSelectionProps {
   page: number;
@@ -28,6 +29,7 @@ interface ScoreSelectionProps {
 }
 
 export type Selection =
+  | BarlineSelection
   | ScoreSelection
   | TextSelection
   | SecondTimingSelection
@@ -64,6 +66,7 @@ abstract class BaseSelection<A> {
     return svg('g', { class: 'selection' });
   }
 }
+
 // Using the equivalent of 'case classes'
 // This allows using instanceof to check selection type
 export class ScoreSelection extends BaseSelection<SingleNote> {
@@ -160,6 +163,17 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       if (bar.hasID(this.end)) break;
     }
     return notes;
+  }
+  public bars(score: Score): Bar[] {
+    const allBars = score.bars();
+    let foundStart = false;
+    let bars: Bar[] = [];
+    for (const bar of allBars) {
+      if (bar.hasID(this.start)) foundStart = true;
+      if (foundStart) bars.push(bar);
+      if (bar.hasID(this.end)) break;
+    }
+    return bars;
   }
   public bar(score: Score): Bar | null {
     if (this.start === this.end) {
@@ -284,6 +298,18 @@ export class TextSelection extends BaseSelection<TextBox> {
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
     if (this.dragged) score.dragTextBox(this.dragged, x, y, page);
+  }
+}
+export class BarlineSelection extends BaseSelection<Barline> {
+  public barline: Barline;
+
+  constructor(barline: Barline) {
+    super();
+    this.barline = barline;
+  }
+  public delete() {}
+  public mouseDrag(x: number, y: number, score: Score, page: number) {
+    if (this.dragged) this.dragged.drag(x);
   }
 }
 

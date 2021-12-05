@@ -30,6 +30,7 @@ export interface BarProps {
   shouldRenderFirstBarline: boolean;
   endOfLastStave: number;
   dispatch: Dispatch;
+  resize: (x: number) => boolean;
   noteState: NoteState;
   gracenoteState: GracenoteState;
 }
@@ -40,9 +41,9 @@ export class Bar extends Item implements Previewable<SingleNote> {
   protected frontBarline: Barline;
   protected backBarline: Barline;
 
-  // TODO when saving, ensure that this is removed from the array
-  // We don't want to save the preview note!
-  private previewNote: SingleNote | null = null;
+  public fixedWidth: number | 'auto' = 'auto';
+
+  protected previewNote: SingleNote | null = null;
 
   constructor(timeSignature = new TimeSignature()) {
     super(genId());
@@ -57,6 +58,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
       : new Bar(TimeSignature.fromJSON(o.timeSignature));
     b.notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
+    b.fixedWidth = o.width === undefined ? 'auto' : o.width;
     b.backBarline = Barline.fromJSON(o.backBarline);
     b.frontBarline = Barline.fromJSON(o.frontBarline);
     return b;
@@ -65,10 +67,13 @@ export class Bar extends Item implements Previewable<SingleNote> {
     return {
       id: this.id,
       isAnacrusis: this instanceof Anacrusis,
-      notes: this.notes.map((n) => n.toJSON()),
+      notes: this.notes
+        .filter((n) => n !== this.previewNote)
+        .map((n) => n.toJSON()),
       backBarline: this.backBarline.toJSON(),
       frontBarline: this.frontBarline.toJSON(),
       timeSignature: this.ts.toJSON(),
+      width: this.fixedWidth,
     };
   }
   public static setTimeSignatureFrom(
@@ -275,6 +280,10 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public timeSignature() {
     return this.ts;
   }
+  public adjustWidth(ratio: number) {
+    this.fixedWidth =
+      this.fixedWidth === 'auto' ? 'auto' : this.fixedWidth * ratio;
+  }
   public setBarline(position: 'start' | 'end', barline: Barline) {
     if (position === 'start') {
       this.frontBarline = barline;
@@ -347,9 +356,10 @@ export class Bar extends Item implements Previewable<SingleNote> {
     const numberOfBeats = nlast(beats).extend;
     const beatWidth = (barWidth - nlast(beats).min) / numberOfBeats;
 
-    if (beatWidth < 0) {
-      console.error('bar too small');
-    }
+    // Commented out for performance - yes, it makes quite a big difference
+    // if (beatWidth < 0) {
+    //   console.error('bar too small');
+    // }
 
     const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
 
@@ -422,10 +432,24 @@ export class Bar extends Item implements Previewable<SingleNote> {
       !this.frontBarline.symmetric ||
       props.shouldRenderFirstBarline ||
       hasTimeSignature
-        ? this.frontBarline.render(xAfterTimeSignature, props.y, true)
+        ? this.frontBarline.render(
+            () => null,
+            xAfterTimeSignature,
+            props.y,
+            true
+          )
         : null,
       !this.backBarline.symmetric || props.shouldRenderLastBarline
-        ? this.backBarline.render(props.x + props.width, props.y, false)
+        ? this.backBarline.render(
+            (x) => {
+              const newWidth = x - props.x;
+              if (props.resize(newWidth - props.width))
+                this.fixedWidth = newWidth;
+            },
+            props.x + props.width,
+            props.y,
+            false
+          )
         : null,
       hasTimeSignature
         ? this.ts.render({
@@ -439,14 +463,19 @@ export class Bar extends Item implements Previewable<SingleNote> {
 }
 export class Anacrusis extends Bar {
   public width(previousBar: Bar | null) {
+    if (this.fixedWidth !== 'auto') return this.fixedWidth;
     const previousPitch = previousBar && previousBar.lastPitch();
     const previousTimeSignature = previousBar && previousBar.timeSignature();
-    const beats = this.beats(previousPitch);
-    return (
-      width.reify(nlast(beats), 2) +
-      (previousTimeSignature && !this.ts.equals(previousTimeSignature)
-        ? 0
-        : this.ts.width())
+    const beats = this.beats(
+      previousPitch,
+      this.notes.filter((note) => note !== this.previewNote)
+    );
+    return Math.max(
+      width.reify(nlast(beats), 5) +
+        (previousTimeSignature && !this.ts.equals(previousTimeSignature)
+          ? 0
+          : this.ts.width()),
+      60
     );
   }
 }

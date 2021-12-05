@@ -7,7 +7,7 @@ import { Anacrusis, Bar } from '../Bar';
 import { RepeatB } from '../Bar/barline';
 import { Dispatch } from '../Controllers/Controller';
 import { settings } from '../global/settings';
-import { first, foreach, last, Obj } from '../global/utils';
+import { first, foreach, last, nlast, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
 import { TimeSignature } from '../TimeSignature';
@@ -52,7 +52,10 @@ export class Stave {
     return this.bars.length;
   }
   public deleteBar(bar: Bar) {
-    this.bars.splice(this.bars.indexOf(bar), 1);
+    const index = this.bars.indexOf(bar);
+    this.bars.splice(index, 1);
+    if (index === this.bars.length && this.bars.length > 0)
+      nlast(this.bars).fixedWidth = 'auto';
   }
   public firstBar() {
     return first(this.bars);
@@ -119,32 +122,61 @@ export class Stave {
       0
     );
 
-    const barWidth =
+    const theoreticalBarWidth =
       (props.width - trebleClefWidth - totalAnacrusisWidth) /
       this.bars.filter((bar) => !(bar instanceof Anacrusis)).length;
 
-    const width = (bar: Bar) =>
-      bar instanceof Anacrusis
-        ? bar.width(previousBar(this.bars.indexOf(bar)))
-        : barWidth;
+    const { xs, width: w } = this.bars.reduce(
+      ({ xs, width, iOffset }, bar, i) => {
+        if (bar instanceof Anacrusis)
+          return {
+            xs: [...xs, bar.width(previousBar(i))],
+            width,
+            iOffset: iOffset + 1,
+          };
+
+        const barWidth =
+          bar.fixedWidth === 'auto'
+            ? theoreticalBarWidth * (i - iOffset + 1) - width
+            : bar.fixedWidth;
+
+        return { xs: [...xs, barWidth], width: width + barWidth, iOffset };
+      },
+      { xs: [] as number[], width: 0, iOffset: 0 }
+    );
+
+    const width = (index: number) => xs[index];
 
     const getX = (barIdx: number) =>
       this.bars
         .slice(0, barIdx)
-        .reduce((soFar, bar) => soFar + width(bar), props.x + trebleClefWidth);
+        .reduce((soFar, _, i) => soFar + width(i), props.x + trebleClefWidth);
 
     const barProps = (bar: Bar, index: number) => ({
       x: getX(index),
       y: staveY,
-      width: width(bar),
+      width: width(index),
       previousBar: previousBar(index),
       justAddedNote: props.justAddedNote,
-      shouldRenderLastBarline: index === this.numberOfBars() - 1,
-      shouldRenderFirstBarline: index !== 0,
+      shouldRenderLastBarline: this.bars[index + 1]
+        ? this.bars[index + 1].timeSignature().equals(bar.timeSignature())
+        : true,
+      shouldRenderFirstBarline: false,
       endOfLastStave: props.x + props.width, // should always be the same
       dispatch: props.dispatch,
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
+      resize: (changeInWidth: number) => {
+        const next = this.bars[index + 1];
+        if (next)
+          if (next.fixedWidth !== 'auto' && next.fixedWidth > changeInWidth) {
+            next.fixedWidth -= changeInWidth;
+            return true;
+          } else if (next.fixedWidth === 'auto') {
+            return true;
+          }
+        return false;
+      },
     });
 
     return svg('g', { class: 'stave' }, [

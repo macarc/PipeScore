@@ -60,11 +60,12 @@ export default function dialogueBox<A>(
             h('input', {
               type: 'submit',
               class: 'continue',
-              value: 'Continue',
+              value: 'Ok',
             }),
           ]
         ),
       ])
     );
+    (document.querySelector('.continue') as HTMLInputElement | null)?.focus();
   });
 }

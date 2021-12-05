@@ -18,6 +18,7 @@ import {
   addBar,
   setBarRepeat,
   editBarTimeSignature,
+  resetBarLength,
 } from '../Controllers/Bar';
 import {
   setMenu,
@@ -344,20 +345,6 @@ export default function render(dispatch: Dispatch, state: UIState): V {
       h('div', { class: 'section-content' }, addBarOrAnacrusis('anacrusis')),
     ]),
     h('section', [
-      h('h2', ['Time Signature']),
-      h('div', { class: 'section-content' }, [
-        help(
-          'edit bar time signature',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(editBarTimeSignature()) },
-            ['Edit Time Signature']
-          )
-        ),
-      ]),
-    ]),
-    h('section', [
       h('h2', ['Second Timing']),
       h('div', { class: 'section-content' }, [
         help(
@@ -376,6 +363,29 @@ export default function render(dispatch: Dispatch, state: UIState): V {
             { id: 'add-second-timing' },
             { click: () => dispatch(addSingleTiming()) },
             ['2nd']
+          )
+        ),
+      ]),
+    ]),
+    h('section', [
+      h('h2', ['Other options']),
+      h('div', { class: 'section-content flex' }, [
+        help(
+          'edit bar time signature',
+          h(
+            'button',
+            { class: 'textual' },
+            { click: () => dispatch(editBarTimeSignature()) },
+            ['Edit Time Signature']
+          )
+        ),
+        help(
+          'reset bar length',
+          h(
+            'button',
+            { class: 'textual' },
+            { click: () => dispatch(resetBarLength()) },
+            ['Reset Bar Length']
           )
         ),
       ]),

@@ -145,6 +145,7 @@ export class Score {
         text.adjustAfterOrientation(this.width(), this.height())
       )
     );
+    this.bars().forEach((b) => b.adjustWidth(this.width() / this.height()));
     this.zoom = (this.zoom * this.height()) / this.width();
   }
   public updateName() {

@@ -11,7 +11,9 @@ import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
 
 import { itemBefore } from '../global/xy';
-import { ScoreSelection } from '../Selection';
+import { BarlineSelection, ScoreSelection } from '../Selection';
+import { stopInputtingNotes } from './Note';
+import { nlast } from '../global/utils';
 
 export function moveLeftBarwise(): ScoreEvent {
   return async (state: State) => {
@@ -72,6 +74,27 @@ export function addBar(before: boolean): ScoreEvent {
   };
 }
 
+export function clickBarline(barline: Barline): ScoreEvent {
+  return async (state: State) => {
+    stopInputtingNotes(state);
+    state.selection = new BarlineSelection(barline).drag(barline);
+    return Update.ViewChanged;
+  };
+}
+export function resetBarLength(): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const bars = state.selection.bars(state.score);
+      bars.forEach((bar) => (bar.fixedWidth = 'auto'));
+      if (bars.length > 0) {
+        const prev = state.score.previousBar(bars[0].id);
+        if (prev) prev.fixedWidth = 'auto';
+      }
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
 export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
