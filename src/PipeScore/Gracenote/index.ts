@@ -3,13 +3,13 @@
   Copyright (C) 2021 macarc
  */
 import { svg, V } from '../../render/h';
-import { Dispatch } from '../Controllers/Controller';
 import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
+import { dispatch } from '../Controller';
 
 const tailXOffset = 2.6;
 // actually this is half of the head width
@@ -30,7 +30,6 @@ export interface GracenoteProps {
   y: number;
   x: number;
   preview: boolean;
-  dispatch: Dispatch;
   state: GracenoteState;
 }
 
@@ -129,7 +128,6 @@ export abstract class Gracenote {
       : [];
   }
   protected head(
-    dispatch: Dispatch,
     x: number,
     y: number,
     note: Pitch,
@@ -204,7 +202,6 @@ export abstract class Gracenote {
 
     return svg('g', { class: 'gracenote' }, [
       this.head(
-        props.dispatch,
         props.x,
         y,
         note,
@@ -269,11 +266,10 @@ export abstract class Gracenote {
             opacity: 0,
             style: 'cursor: pointer;',
           },
-          { mousedown: () => props.dispatch(clickGracenote(this, 'all')) }
+          { mousedown: () => dispatch(clickGracenote(this, 'all')) }
         ),
         ...uniqueNotes.map((noteObj, i) =>
           this.head(
-            props.dispatch,
             xOf(noteObj),
             y(noteObj.note),
             noteObj.note,

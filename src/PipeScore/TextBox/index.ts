@@ -1,5 +1,6 @@
 import { h, svg, V } from '../../render/h';
-import { Dispatch, Update } from '../Controllers/Controller';
+import { dispatch } from '../Controller';
+import { Update } from '../Controllers/Controller';
 import { changeText, clickText } from '../Controllers/Text';
 import dialogueBox from '../global/dialogueBox';
 import { Obj, svgCoords } from '../global/utils';
@@ -10,7 +11,6 @@ import { Selection, TextSelection } from '../Selection';
   Copyright (C) 2021 macarc
 */
 interface TextBoxProps {
-  dispatch: Dispatch;
   scoreWidth: number;
   selection: Selection | null;
 }
@@ -82,7 +82,7 @@ export class TextBox {
     this.centred = false;
   }
 
-  private edit(dispatch: Dispatch) {
+  private edit() {
     dialogueBox(
       [
         h('label', ['Text:', h('input', { type: 'text', value: this._text })]),
@@ -121,11 +121,11 @@ export class TextBox {
         fill: selected ? 'orange' : '',
       },
       {
-        dblclick: () => this.edit(props.dispatch),
+        dblclick: () => this.edit(),
         mousedown: (e: Event) => {
           const pt = svgCoords(e as MouseEvent);
           if (pt) this.setClickOffsetCoords(pt.x, pt.y);
-          props.dispatch(clickText(this));
+          dispatch(clickText(this));
         },
       },
       [this._text || 'Double Click to Edit']

@@ -8,7 +8,6 @@ import { genId, ID, Item } from '../global/id';
 import { first, last, nlast, Obj } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
-import { Dispatch } from '../Controllers/Controller';
 import { NoteState } from '../Note/state';
 import { GracenoteState } from '../Gracenote/state';
 import { svg, V } from '../../render/h';
@@ -19,6 +18,7 @@ import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Controllers/Mouse';
 import { Barline, NormalB } from './barline';
 import { Previewable } from '../DemoNote/previewable';
+import { dispatch } from '../Controller';
 
 export interface BarProps {
   x: number;
@@ -29,7 +29,6 @@ export interface BarProps {
   shouldRenderLastBarline: boolean;
   shouldRenderFirstBarline: boolean;
   endOfLastStave: number;
-  dispatch: Dispatch;
   resize: (x: number) => boolean;
   noteState: NoteState;
   gracenoteState: GracenoteState;
@@ -388,7 +387,6 @@ export class Bar extends Item implements Previewable<SingleNote> {
         previousNote:
           this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
         endOfLastStave: props.endOfLastStave,
-        dispatch: props.dispatch,
         state: props.noteState,
         gracenoteState: props.gracenoteState,
       };
@@ -402,11 +400,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
         xAfterBarline,
         staveY,
         barWidth,
-        (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
+        (pitch) => dispatch(mouseOverPitch(pitch, this)),
         (pitch, e) =>
           props.noteState.inputtingNotes
-            ? props.dispatch(addNoteToBarEnd(pitch, this))
-            : props.dispatch(clickBar(this, e)),
+            ? dispatch(addNoteToBarEnd(pitch, this))
+            : dispatch(clickBar(this, e)),
         props.justAddedNote
       ),
       ...groupedNotes.map((notes) =>
@@ -425,7 +423,6 @@ export class Bar extends Item implements Previewable<SingleNote> {
             endOfLastStave: props.endOfLastStave,
             state: props.noteState,
             gracenoteState: props.gracenoteState,
-            dispatch: props.dispatch,
           }) || null
         : null,
 
@@ -455,7 +452,6 @@ export class Bar extends Item implements Previewable<SingleNote> {
         ? this.ts.render({
             x: props.x + 10,
             y: props.y,
-            dispatch: props.dispatch,
           })
         : null,
     ]);

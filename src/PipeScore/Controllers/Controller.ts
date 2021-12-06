@@ -8,7 +8,6 @@ import { Score } from '../Score';
 import { ID } from '../global/id';
 
 export type ScoreEvent = (state: State) => Promise<Update>;
-export type Dispatch = (e: ScoreEvent) => void;
 
 export const enum Update {
   NoChange,

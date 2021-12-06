@@ -3,10 +3,10 @@
   Copyright (C) 2021 macarc
 */
 import { V } from '../../render/h';
-import { Dispatch } from '../Controllers/Controller';
+import { dispatch } from '../Controller';
 import { hoverDoc } from '../Controllers/Doc';
 
-export function help(dispatch: Dispatch, docName: string, element: V): V {
+export function help(docName: string, element: V): V {
   const initialMouseOver = element.events['mouseover'];
   const initialMouseOut = element.events['mouseout'];
   element.events['mouseover'] = (e) => {

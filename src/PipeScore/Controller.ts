@@ -100,7 +100,7 @@ const updateView = (state: State) => {
     playbackBpm: state.playback.bpm,
   };
   const newView = h('div', [state.score.render(scoreProps)]);
-  const newUIView = renderUI(dispatch, uiProps);
+  const newUIView = renderUI(uiProps);
   if (state.view.score) patch(state.view.score, newView);
   if (state.view.ui && state.canEdit) patch(state.view.ui, newUIView);
   state.view.score = newView;

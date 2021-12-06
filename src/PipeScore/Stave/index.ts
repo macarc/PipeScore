@@ -5,7 +5,6 @@
 import { svg, V } from '../../render/h';
 import { Anacrusis, Bar } from '../Bar';
 import { RepeatB } from '../Bar/barline';
-import { Dispatch } from '../Controllers/Controller';
 import { settings } from '../global/settings';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
@@ -19,7 +18,6 @@ interface StaveProps {
   justAddedNote: boolean;
   previousStaveY: number;
   previousStave: Stave | null;
-  dispatch: Dispatch;
   noteState: NoteState;
   gracenoteState: GracenoteState;
 }
@@ -163,7 +161,6 @@ export class Stave {
         : true,
       shouldRenderFirstBarline: false,
       endOfLastStave: props.x + props.width, // should always be the same
-      dispatch: props.dispatch,
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
       resize: (changeInWidth: number) => {

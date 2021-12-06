@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import { svg, V } from '../../render/h';
-import { Dispatch } from '../Controllers/Controller';
+import { dispatch } from '../Controller';
 import { editText } from '../Controllers/Misc';
 import { clickSecondTiming } from '../Controllers/SecondTiming';
 import { ID } from '../global/id';
@@ -25,7 +25,6 @@ interface TimingProps {
   staveEndX: number;
   selection: Selection | null;
   staveGap: number;
-  dispatch: Dispatch;
 }
 export abstract class BaseTiming {
   abstract toObject(): Obj;
@@ -328,11 +327,9 @@ export class SecondTiming extends BaseTiming {
         this.firstText,
         colour,
         (first) =>
-          props.dispatch(clickSecondTiming(this, first ? 'start' : 'middle')),
+          dispatch(clickSecondTiming(this, first ? 'start' : 'middle')),
         () =>
-          props.dispatch(
-            editText(this.firstText, (text) => (this.firstText = text))
-          ),
+          dispatch(editText(this.firstText, (text) => (this.firstText = text))),
         false,
         props
       ),
@@ -341,10 +338,9 @@ export class SecondTiming extends BaseTiming {
         end,
         this.secondText,
         colour,
-        (first) =>
-          props.dispatch(clickSecondTiming(this, first ? 'middle' : 'end')),
+        (first) => dispatch(clickSecondTiming(this, first ? 'middle' : 'end')),
         () =>
-          props.dispatch(
+          dispatch(
             editText(this.secondText, (text) => (this.secondText = text))
           ),
         true,
@@ -430,9 +426,8 @@ export class SingleTiming extends BaseTiming {
         end,
         this.text,
         colour,
-        (first) =>
-          props.dispatch(clickSecondTiming(this, first ? 'start' : 'end')),
-        () => props.dispatch(editText(this.text, (text) => (this.text = text))),
+        (first) => dispatch(clickSecondTiming(this, first ? 'start' : 'end')),
+        () => dispatch(editText(this.text, (text) => (this.text = text))),
         true,
         props
       ),

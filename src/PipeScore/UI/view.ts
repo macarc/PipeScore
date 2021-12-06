@@ -4,7 +4,6 @@
 */
 import { Menu } from './model';
 import { h, V, Attributes } from '../../render/h';
-import { Dispatch } from '../Controllers/Controller';
 import {
   addTriplet,
   tieSelectedNotes,
@@ -53,6 +52,7 @@ import { capitalise } from '../global/utils';
 import { Bar } from '../Bar';
 import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note } from '../Note';
+import { dispatch } from '../Controller';
 
 export interface UIState {
   loggedIn: boolean;
@@ -68,7 +68,7 @@ export interface UIState {
   zoomLevel: number;
 }
 
-export default function render(dispatch: Dispatch, state: UIState): V {
+export default function render(state: UIState): V {
   const isCurrentNoteInput = (length: NoteLength) =>
     state.demo instanceof DemoNote
       ? sameNoteLengthName(state.demo.length(), length)
@@ -124,7 +124,7 @@ export default function render(dispatch: Dispatch, state: UIState): V {
     }
   };
 
-  const help = (s: string, v: V): V => dochelp(dispatch, s, v);
+  const help = (s: string, v: V): V => dochelp(s, v);
 
   const noteMenu = [
     h('section', [

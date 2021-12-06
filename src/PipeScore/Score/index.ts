@@ -11,7 +11,7 @@ import { h, svg, V } from '../../render/h';
 import { clickBackground, mouseOffPitch, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
-import { Dispatch, Update } from '../Controllers/Controller';
+import { Update } from '../Controllers/Controller';
 import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
@@ -20,10 +20,10 @@ import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
 import { setXYPage } from '../global/xy';
+import { dispatch } from '../Controller';
 
 interface ScoreProps {
   selection: Selection | null;
-  dispatch: Dispatch;
   justAddedNote: boolean;
   noteState: NoteState;
   demoNote: Demo | null;
@@ -404,7 +404,6 @@ export class Score {
       width: width - 2 * settings.margin,
       previousStave: this._staves[index - 1] || null,
       previousStaveY: this.staveY(stave, pageIndex),
-      dispatch: props.dispatch,
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
     });
@@ -416,7 +415,6 @@ export class Score {
       staveEndX: width - settings.margin,
       selection: props.selection,
       staveGap: settings.staveGap,
-      dispatch: props.dispatch,
     });
     const selectionProps = (i: number) => ({
       page: i,
@@ -441,14 +439,14 @@ export class Score {
             viewBox: `0 0 ${width} ${height}`,
             class: i.toString(),
           },
-          { mouseup: () => props.dispatch(mouseUp()) },
+          { mouseup: () => dispatch(mouseUp()) },
           [
             svg(
               'rect',
               { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
               {
-                mousedown: () => props.dispatch(clickBackground()),
-                mouseover: () => props.dispatch(mouseOffPitch()),
+                mousedown: () => dispatch(clickBackground()),
+                mouseover: () => dispatch(mouseOffPitch()),
               }
             ),
             ...brokenStaves[i].map((stave, idx) =>
@@ -456,7 +454,6 @@ export class Score {
             ),
             ...texts(i).map((textBox) =>
               textBox.render({
-                dispatch: props.dispatch,
                 scoreWidth: width,
                 selection: props.selection,
               })

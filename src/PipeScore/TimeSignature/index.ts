@@ -1,6 +1,6 @@
 import { h, svg, V } from '../../render/h';
+import { dispatch } from '../Controller';
 import { editTimeSignature } from '../Controllers/Bar';
-import { Dispatch } from '../Controllers/Controller';
 import dialogueBox from '../global/dialogueBox';
 import { settings } from '../global/settings';
 import { Obj } from '../global/utils';
@@ -14,7 +14,6 @@ export type Denominator = 2 | 4 | 8;
 interface TimeSignatureProps {
   x: number;
   y: number;
-  dispatch: Dispatch;
 }
 
 export class TimeSignature {
@@ -201,7 +200,7 @@ export class TimeSignature {
 
     const edit = () =>
       this.edit().then((newTimeSignature) =>
-        props.dispatch(editTimeSignature(this, newTimeSignature))
+        dispatch(editTimeSignature(this, newTimeSignature))
       );
 
     if (this.cutTime()) {

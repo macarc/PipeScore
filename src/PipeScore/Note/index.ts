@@ -22,7 +22,6 @@ import {
 import width, { Width } from '../global/width';
 import { V } from '../../render/types';
 import { svg } from '../../render/h';
-import { Dispatch, Update } from '../Controllers/Controller';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
 import { mouseOffPitch, mouseOverPitch } from '../Controllers/Mouse';
@@ -36,6 +35,8 @@ import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
 import { Previewable } from '../DemoNote/previewable';
 import { settings } from '../global/settings';
+import { Update } from '../Controllers/Controller';
+import { dispatch } from '../Controller';
 
 export interface PreviousNote {
   pitch: Pitch;
@@ -60,7 +61,6 @@ export interface NoteProps {
   previousNote: SingleNote | null;
   noteWidth: number;
   endOfLastStave: number;
-  dispatch: Dispatch;
   state: NoteState;
   gracenoteState: GracenoteState;
 }
@@ -672,7 +672,7 @@ export class SingleNote
         },
         {
           mousedown: mousedown as (e: Event) => void,
-          mouseover: () => props.dispatch(mouseOffPitch()),
+          mouseover: () => dispatch(mouseOffPitch()),
         }
       ),
     ]);
@@ -741,7 +741,6 @@ export class SingleNote
       thisNote: this.pitch,
       preview: false,
       previousNote: props.previousNote?.lastPitch() || null,
-      dispatch: props.dispatch,
       state: props.gracenoteState,
     };
 
@@ -771,8 +770,8 @@ export class SingleNote
             noteBoxStart,
             props.y,
             noteBoxWidth,
-            (pitch) => props.dispatch(mouseOverPitch(pitch, this)),
-            (pitch) => props.dispatch(addNoteBefore(pitch, this)),
+            (pitch) => dispatch(mouseOverPitch(pitch, this)),
+            (pitch) => dispatch(addNoteBefore(pitch, this)),
             props.justAddedNote
           )
         : null,
@@ -788,7 +787,7 @@ export class SingleNote
       this.head(
         x + noteHeadRadius,
         y,
-        (event: MouseEvent) => props.dispatch(clickNote(this, event)),
+        (event: MouseEvent) => dispatch(clickNote(this, event)),
         props
       ),
       this.shouldTie(props.previousNote)
@@ -886,7 +885,6 @@ export class SingleNote
           previousNote:
             (previousNote && previousNote.lastPitch()) ||
             (props.previousNote && props.previousNote.lastPitch()),
-          dispatch: props.dispatch,
           state: props.gracenoteState,
         };
 
@@ -896,8 +894,8 @@ export class SingleNote
                 noteBoxX,
                 props.y,
                 xOf(index) + noteHeadRadius - noteBoxX,
-                (pitch) => props.dispatch(mouseOverPitch(pitch, note)),
-                (pitch) => props.dispatch(addNoteBefore(pitch, note)),
+                (pitch) => dispatch(mouseOverPitch(pitch, note)),
+                (pitch) => dispatch(addNoteBefore(pitch, note)),
                 props.justAddedNote
               )
             : svg('g'),
@@ -914,7 +912,7 @@ export class SingleNote
           note.head(
             xOf(index) + noteHeadRadius,
             yOf(note),
-            (event: MouseEvent) => props.dispatch(clickNote(note, event)),
+            (event: MouseEvent) => dispatch(clickNote(note, event)),
             props
           ),
 
@@ -1036,8 +1034,7 @@ export class Triplet extends BaseNote {
     x2: number,
     y1: number,
     y2: number,
-    selected: boolean,
-    dispatch: Dispatch
+    selected: boolean
   ): V {
     // Draws a triplet marking from x1,y1 to x2,y2
 
@@ -1075,8 +1072,7 @@ export class Triplet extends BaseNote {
       getXY(this.lastSingle().id)?.beforeX || 0,
       this.firstSingle().y(props.y),
       this.lastSingle().y(props.y),
-      props.state.selectedTripletLine === this,
-      props.dispatch
+      props.state.selectedTripletLine === this
     );
 
     return svg('g', [renderedNotes, line]);
