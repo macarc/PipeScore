@@ -4,33 +4,25 @@ This directory contains the main implementation of PipeScore - the actual PipeSc
 
 ## Project Structure
 
-**Note**: I'm currently rewiring this slightly. This is out of date.
+I spent a long time trying to create the perfect architecture. Then I gave up, and decided just to focus on making something that worked.
 
-Each component of a score (e.g. note, gracenote, stave) gets its own folder, with 3-5 files:
+So, PipeScore works (just about), and uses the [Big Ball of Mud](http://laputan.org/mud/) architecture.
 
-- `model` - this defines the type associated with the component
-- `functions` - this defines a set of functions for transforming the type defined in model
-- `view` - this defines a render function which takes the model defined in model, along with a props object defined in this file, and returns the virtual dom associated with the view
-- `play` - if the item can be played, then the default export of `play.ts` should be an array of `PlaybackElement`
-- `state` - if the item has state associated with it, the type definition of the state is defined here
+The following components are in PipeScore:
 
-The following components are here:
-
-- `Gracenote` - handles single gracenotes and reactive gracenotes
-- `Note` - handles notes and triplets. The render function is slightly different - since notes are drawn in groups (joined by beams) rather than individually, the `Note` render function takes either a list of notes (that will be rendered in a group) or a triplet.
-- `Bar` - handles bars, barlines
+- `Gracenote` - handles single gracenotes, custom embellishments and reactive gracenotes
+- `Note` - handles notes and triplets.
+- `Bar` - handles bars, barlines.
 - `TimeSignature` - handles time signatures (as they're drawn, not as they're grouped - that is handled by `groupNotes` in `Note/functions`)
 - `Stave` - handles staves (staffs) - each line of music is its own stave
 - `Score` - draws the staves, textboxes, and other items
-- `DemoNote` - the orange note that shows a preview of note placement
+- `DemoNote` - the orange note that shows a preview of note/gracenote placement
 - `TextBox` - text boxes
-- `ScoreSelection` - the orange rectangle that shows the current selection
+- `Selection` - selection
 - `SecondTiming` - First/second timings
 - `UI` - the top/side panel, containing user controls
 
-For events, the `dispatch` function is passed down to all the components that need it, and it is called with an event from the `Controller` folder. The `Controller` folder contains a lot of event functions. This is a new rearchitecture so it still needs a bit of cleaning up (e.g. a lot of helper functions are also in the controller files which probably shouldn't be there, also there's a fair amount of filename duplication). The controller files are stored in a separate directory rather than with their respective components since they need knowledge of the whole score in order to update it, not just the single component.
-
-When events are dispatched, all the parts of the score that change are replaced rather than modified. This means that it will be easy to add optimisation later, by doing a simple equality check to see changes. While this isn't actually immutability, it is called that in code comments just to give a name to it.
+For events, the `dispatch` function is used, passing an event from the `Controller` folder. The `Controller` folder contains a lot of event functions. The controller files are stored in a separate directory rather than with their respective components since they need knowledge of the entire state in order to update it, not just the single component.
 
 To keep track of all the x/y coordinates, there is a global map containing `afterX`/`beforeX`/`y` coordinates of each item. Using a global mutable variable like this means that code duplication is less - for example, when tieing to a previous note, looking up the x value in the map is simple, whereas trying to recalculate where the note was placed introduces more code, and dependency between that code and the code that actually calculated where it was in the first place.
 
