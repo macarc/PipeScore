@@ -40,9 +40,12 @@ class Sample {
     // Need to do this because when it's used later on `this` refers to something else
     // eslint-disable-next-line
     const s = this;
+
+    const file_format = (window as any).safari !== undefined ? '.wav' : '.mp3';
+
     return new Promise((res) => {
       const request = new XMLHttpRequest();
-      request.open('GET', '/audio/' + this.name + '.mp3', true);
+      request.open('GET', '/audio/' + this.name + file_format, true);
       request.responseType = 'arraybuffer';
       request.onload = function () {
         context.decodeAudioData(request.response, (buffer) => {
