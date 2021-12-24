@@ -15,7 +15,7 @@ import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
 import { Gracenote, NoGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { car, foreach, last, nlast } from '../global/utils';
+import { car, foreach, last } from '../global/utils';
 import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
 import { Barline } from '../Bar/barline';
@@ -167,7 +167,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
   public bars(score: Score): Bar[] {
     const allBars = score.bars();
     let foundStart = false;
-    let bars: Bar[] = [];
+    const bars: Bar[] = [];
     for (const bar of allBars) {
       if (bar.hasID(this.start)) foundStart = true;
       if (foundStart) bars.push(bar);
@@ -307,8 +307,10 @@ export class BarlineSelection extends BaseSelection<Barline> {
     super();
     this.barline = barline;
   }
-  public delete() {}
-  public mouseDrag(x: number, y: number, score: Score, page: number) {
+  public delete() {
+    /* Nothing to do */
+  }
+  public mouseDrag(x: number) {
     if (this.dragged) this.dragged.drag(x);
   }
 }

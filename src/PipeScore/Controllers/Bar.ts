@@ -13,7 +13,6 @@ import { TimeSignature } from '../TimeSignature';
 import { itemBefore } from '../global/xy';
 import { BarlineSelection, ScoreSelection } from '../Selection';
 import { stopInputtingNotes } from './Note';
-import { nlast } from '../global/utils';
 
 export function moveLeftBarwise(): ScoreEvent {
   return async (state: State) => {

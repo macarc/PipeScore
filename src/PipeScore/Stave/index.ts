@@ -124,7 +124,7 @@ export class Stave {
       (props.width - trebleClefWidth - totalAnacrusisWidth) /
       this.bars.filter((bar) => !(bar instanceof Anacrusis)).length;
 
-    const { xs, width: w } = this.bars.reduce(
+    const { xs } = this.bars.reduce(
       ({ xs, width, iOffset }, bar, i) => {
         if (bar instanceof Anacrusis)
           return {
