@@ -12,6 +12,7 @@ import dialogueBox from '../global/dialogueBox';
 import { stopInputtingNotes } from './Note';
 import { settings, Settings } from '../global/settings';
 import { Score } from '../Score';
+import { setupAudio } from '../Playback';
 
 export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   return async (state: State) => {
@@ -85,6 +86,7 @@ export function setMenu(menu: Menu): ScoreEvent {
   return async (state: State) => {
     state.ui.menu = menu;
     stopInputtingNotes(state);
+    if (state.ui.menu === 'playback') setupAudio();
     return Update.ViewChanged;
   };
 }
