@@ -474,31 +474,23 @@ export class SingleNote
     return new Triplet(first.length, first, second, third);
   }
   private static beamFrom(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    tails1: number,
-    tails2: number,
-    tailsBefore: number,
-    tailsAfter: number,
+    xL: number,
+    yL: number,
+    xR: number,
+    yR: number,
+    leftTails: number,
+    rightTails: number,
+    tailsBefore: number | null,
+    tailsAfter: number | null,
     // whether or not the first note is the 2nd, 4th, e.t.c. note in the group
     even: boolean
   ): V {
-    // Draws beams from note1 at x1,y1 with tails1 to note2 x2,y2 with tails2
-
-    const leftIs1 = x1 < x2;
-    const leftTails = leftIs1 ? tails1 : tails2;
-    const rightTails = leftIs1 ? tails2 : tails1;
-    const xL = leftIs1 ? x1 : x2;
-    const xR = leftIs1 ? x2 : x1;
-    const yL = leftIs1 ? y1 - 1 : y2 - 1;
-    const yR = leftIs1 ? y2 - 1 : y1 - 1;
+    // Draws beams from left note to right note
 
     const moreTailsOnLeft = leftTails > rightTails;
-    const drawExtraTails =
-      even &&
-      (moreTailsOnLeft ? leftTails > tailsBefore : rightTails > tailsAfter);
+    const drawExtraTails = moreTailsOnLeft
+      ? tailsBefore === null || (even && leftTails > tailsBefore)
+      : tailsAfter === null || (even && rightTails > tailsAfter);
 
     // tails shared by both notes
     const sharedTails = moreTailsOnLeft ? rightTails : leftTails;
@@ -922,14 +914,14 @@ export class SingleNote
 
           previousNote !== null && index > 0
             ? SingleNote.beamFrom(
-                xOf(index),
-                stemY,
                 xOf(index - 1),
                 stemY,
-                note.numTails(),
+                xOf(index),
+                stemY,
                 previousNote.numTails(),
-                (notes[index - 2] && notes[index - 2].numTails()) || 0,
-                (notes[index + 1] && notes[index + 1].numTails()) || 0,
+                note.numTails(),
+                (notes[index - 2] && notes[index - 2].numTails()) || null,
+                (notes[index + 1] && notes[index + 1].numTails()) || null,
                 index % 2 === 1
               )
             : null,
