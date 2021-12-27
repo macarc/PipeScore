@@ -59,6 +59,7 @@ export interface UIState {
   selectedGracenote: Gracenote | null;
   selectedNote: Note | null;
   selectedBar: Bar | null;
+  allSelectedNotes: Note[];
   showingPageNumbers: boolean;
   demo: Demo | null;
   isLandscape: boolean;
@@ -125,6 +126,12 @@ export default function render(state: UIState): V {
   };
 
   const help = (s: string, v: V): V => dochelp(s, v);
+  const tied =
+    state.allSelectedNotes.length === 0
+      ? false
+      : state.allSelectedNotes.length === 1
+      ? state.allSelectedNotes[0].isTied()
+      : state.allSelectedNotes.slice(1).every((note) => note.isTied());
 
   const noteMenu = [
     h('section', [
@@ -164,7 +171,10 @@ export default function render(state: UIState): V {
           'tie',
           h(
             'button',
-            { id: 'tie' },
+            {
+              id: 'tie',
+              class: tied ? 'highlighted' : 'not-highlighted',
+            },
             { click: () => dispatch(tieSelectedNotes()) }
           )
         ),

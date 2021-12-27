@@ -88,6 +88,7 @@ const updateView = (state: State) => {
     demo: state.demo,
     showingPageNumbers: state.score.showNumberOfPages,
     selectedNote: state.selection && state.selection.selectedNote(state.score),
+    allSelectedNotes: state.selection ? state.selection.notes(state.score) : [],
     selectedGracenote:
       state.selection && state.selection.gracenote(state.score),
     isLandscape: state.score.landscape,

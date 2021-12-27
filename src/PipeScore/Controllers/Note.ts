@@ -149,10 +149,12 @@ export function moveNoteDown(): ScoreEvent {
 export function tieSelectedNotes(): ScoreEvent {
   return async (state: State) => {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
-    state.selection
-      .notes(state.score)
-      .slice(1) // So that it only ties between the selected notes
-      .forEach((note) => note.toggleTie(state.score.notes()));
+    const notes = state.selection.notes(state.score);
+    notes.length === 1
+      ? notes[0].toggleTie(state.score.notes())
+      : notes
+          .slice(1) // So that it only ties between the selected notes
+          .forEach((note) => note.toggleTie(state.score.notes()));
     return Update.ShouldSave;
   };
 }

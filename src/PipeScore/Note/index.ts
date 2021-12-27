@@ -137,6 +137,9 @@ export abstract class BaseNote extends Item {
     this.tied = !this.tied;
     this.makeCorrectTie(notes);
   }
+  public isTied() {
+    return this.tied;
+  }
   public makeCorrectTie(notes: SingleNote[]) {
     // Corrects the pitches of any notes tied to this note
 
