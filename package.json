@@ -9,8 +9,7 @@
     "dev": "firebase serve",
     "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
     "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; ./scripts/buildall.sh",
-    "lint": "prettier --write .; eslint src --ext .ts",
-    "circles": "madge -c --warning --ts-config=tsconfig.json src/PipeScore/PipeScore.ts"
+    "lint": "prettier --write .; eslint src --ext .ts"
   },
   "author": "macarc",
   "license": "GPL-3.0",
@@ -23,7 +22,6 @@
     "firebase-auth-lite": "^0.8.9",
     "firebase-firestore-lite": "^1.0.3",
     "google-gax": "^2.27.0",
-    "madge": "^4.0.2",
     "prettier": "^2.3.2",
     "typescript": "^4.1.3"
   }
