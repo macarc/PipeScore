@@ -5,8 +5,7 @@
 import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 import { Menu } from '../UI/model';
-import { h, hFrom } from '../../render/h';
-import patch from '../../render/vdom';
+import { h, hFrom, patch } from 'marender';
 
 import dialogueBox from '../global/dialogueBox';
 import { stopInputtingNotes } from './Note';

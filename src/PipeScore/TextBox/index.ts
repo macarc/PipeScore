@@ -1,4 +1,4 @@
-import { h, svg, V } from '../../render/h';
+import { h, svg, V } from 'marender';
 import { dispatch } from '../Controller';
 import { Update } from '../Controllers/Controller';
 import { changeText, clickText } from '../Controllers/Text';

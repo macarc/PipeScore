@@ -2,7 +2,7 @@
   Stave format
   Copyright (C) 2021 macarc
 */
-import { svg, V } from '../../render/h';
+import { svg, V } from 'marender';
 import { Anacrusis, Bar } from '../Bar';
 import { RepeatB } from '../Bar/barline';
 import { settings } from '../global/settings';

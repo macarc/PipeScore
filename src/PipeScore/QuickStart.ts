@@ -3,7 +3,7 @@
 
   Copyright (C) 2021 macarc
 */
-import { h } from '../render/h';
+import { h } from 'marender';
 import dialogueBox from './global/dialogueBox';
 import { Score } from './Score';
 

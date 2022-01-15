@@ -7,7 +7,7 @@ import { TextBox } from '../TextBox';
 import { BaseTiming, DraggedTiming, Timing } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
-import { h, svg, V } from '../../render/h';
+import { h, svg, V } from 'marender';
 import { clickBackground, mouseOffPitch, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';

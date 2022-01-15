@@ -10,7 +10,7 @@ import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
 import { GracenoteState } from '../Gracenote/state';
-import { svg, V } from '../../render/h';
+import { svg, V } from 'marender';
 import { setXY } from '../global/xy';
 import { addNoteToBarEnd } from '../Controllers/Note';
 import { clickBar } from '../Controllers/Bar';

@@ -22,6 +22,7 @@
     "firebase-auth-lite": "^0.8.9",
     "firebase-firestore-lite": "^1.0.3",
     "google-gax": "^2.27.0",
+    "marender": "^0.8.3",
     "prettier": "^2.3.2",
     "typescript": "^4.1.3"
   }

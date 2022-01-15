@@ -2,7 +2,7 @@
   Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
   Copyright (C) 2021 macarc
 */
-import { svg, V } from '../../render/h';
+import { svg, V } from 'marender';
 import { settings } from './settings';
 import { Pitch, pitchToHeight } from './pitch';
 

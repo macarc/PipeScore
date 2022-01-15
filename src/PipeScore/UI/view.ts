@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import { Menu } from './model';
-import { h, V, Attributes } from '../../render/h';
+import { h, V, Attributes } from 'marender';
 import {
   addTriplet,
   tieSelectedNotes,

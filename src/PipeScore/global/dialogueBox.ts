@@ -2,8 +2,7 @@
   A simple HTML dialogue box
   Copyright (C) 2021 macarc
 */
-import { h, hFrom, V } from '../../render/h';
-import patch from '../../render/vdom';
+import { h, hFrom, V, patch } from 'marender';
 
 export let dialogueBoxIsOpen = false;
 

@@ -4,8 +4,7 @@
  */
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
-import { h, hFrom, V } from '../render/h';
-import patch from '../render/vdom';
+import { h, hFrom, V, patch } from 'marender';
 
 let userId = '';
 

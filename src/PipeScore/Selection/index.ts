@@ -8,7 +8,7 @@ import { DraggedTiming, Timing, TimingPart } from '../SecondTiming';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
 import { before, deleteXY, getXY } from '../global/xy';
-import { h, svg, V } from '../../render/h';
+import { h, svg, V } from 'marender';
 import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';

@@ -2,7 +2,7 @@
   SecondTiming format
   Copyright (C) 2021 macarc
 */
-import { svg, V } from '../../render/h';
+import { svg, V } from 'marender';
 import { dispatch } from '../Controller';
 import { editText } from '../Controllers/Misc';
 import { clickSecondTiming } from '../Controllers/SecondTiming';

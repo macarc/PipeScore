@@ -20,8 +20,7 @@ import {
   sameNoteLengthName,
 } from './notelength';
 import width, { Width } from '../global/width';
-import { V } from '../../render/types';
-import { svg } from '../../render/h';
+import { svg, V } from 'marender';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
 import { mouseOffPitch, mouseOverPitch } from '../Controllers/Mouse';

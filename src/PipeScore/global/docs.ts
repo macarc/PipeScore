@@ -2,7 +2,7 @@
   Helper to add hoverable documentation to any HTML element
   Copyright (C) 2021 macarc
 */
-import { V } from '../../render/h';
+import { V } from 'marender';
 import { dispatch } from '../Controller';
 import { hoverDoc } from '../Controllers/Doc';
 

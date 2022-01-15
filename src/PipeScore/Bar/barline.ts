@@ -1,4 +1,4 @@
-import { svg, V } from '../../render/h';
+import { svg, V } from 'marender';
 import { dispatch } from '../Controller';
 import { clickBarline } from '../Controllers/Bar';
 import { settings } from '../global/settings';
