@@ -563,7 +563,7 @@ export class SingleNote
     const rotation = this.hasStem() ? -35 : 0;
     const noteWidth = 4.5; //Math.abs( noteHeadRadius / Math.cos((2 * Math.PI * rotation) / 360));
     const noteHeight = 3;
-    const maskRotation = this.hasStem() ? 0 : rotation + 60;
+    const holeRotation = this.hasStem() ? rotation : 240;
 
     const maskrx = this.hasStem() ? 5 : 4;
     const maskry = 2;
@@ -595,29 +595,9 @@ export class SingleNote
     const filled = this.isFilled();
 
     const rotateText = `rotate(${rotation} ${x} ${y})`;
-    const maskRotateText = `rotate(${maskRotation} ${x} ${y})`;
+    const holeRotateText = `rotate(${holeRotation} ${x} ${y})`;
 
-    const maskId = Math.random();
-    const mask = `url(#${maskId})`;
     return svg('g', { class: 'note-head' }, [
-      svg('mask', { id: maskId }, [
-        svg('rect', {
-          x: x - 10,
-          y: y - 10,
-          width: 20,
-          height: 20,
-          fill: 'white',
-        }),
-        svg('ellipse', {
-          cx: x,
-          cy: y,
-          rx: maskrx,
-          ry: maskry,
-          'stroke-width': 0,
-          fill: this.colour(),
-          transform: maskRotateText,
-        }),
-      ]),
       svg('ellipse', {
         cx: x,
         cy: y,
@@ -628,8 +608,21 @@ export class SingleNote
         transform: rotateText,
         'pointer-events': pointerEvents,
         opacity,
-        mask: filled ? '' : mask,
       }),
+      filled
+        ? null
+        : svg('g', { class: 'centre-hole' }, [
+            svg('ellipse', {
+              cx: x,
+              cy: y,
+              rx: maskrx,
+              ry: maskry,
+              'stroke-width': 0,
+              fill: 'white',
+              'pointer-events': pointerEvents,
+              transform: holeRotateText,
+            }),
+          ]),
       dotted
         ? svg('circle', {
             cx: x + dotXOffset,
