@@ -17,6 +17,7 @@ import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
 import Documentation from './Documentation';
 import { svgCoords } from './global/utils';
+import { loadSamples } from './Playback';
 
 const initialState: State = {
   canEdit: true,
@@ -131,6 +132,7 @@ export default function startController(
   state.isLoggedIn = isLoggedIn;
   state.canEdit = canEdit;
   state.score = score;
+  loadSamples();
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));

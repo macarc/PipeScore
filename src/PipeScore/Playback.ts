@@ -110,19 +110,23 @@ const higha = new Sample('higha');
 const drones = new Sample('drones');
 const dronesInitial = new Sample('drones_initial');
 
-const loading = Promise.all([
-  lowg.load(),
-  lowa.load(),
-  b.load(),
-  c.load(),
-  d.load(),
-  e.load(),
-  f.load(),
-  highg.load(),
-  higha.load(),
-  drones.load(),
-  dronesInitial.load(),
-]);
+let loading = new Promise(() => null);
+
+export function loadSamples() {
+  loading = Promise.all([
+    lowg.load(),
+    lowa.load(),
+    b.load(),
+    c.load(),
+    d.load(),
+    e.load(),
+    f.load(),
+    highg.load(),
+    higha.load(),
+    drones.load(),
+    dronesInitial.load(),
+  ]);
+}
 
 // Some programming horror to try to massage the WebAudio API to do what I want
 // We have to:
