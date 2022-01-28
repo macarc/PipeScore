@@ -119,12 +119,10 @@ gracenotes.set('edre', (note, prev) => {
     return invalid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
   }
 });
-gracenotes.set('grip', (note) => {
-  if (note === Pitch.D) {
-    return valid([Pitch.G, Pitch.B, Pitch.G]);
-  } else {
-    return valid([Pitch.G, Pitch.D, Pitch.G]);
-  }
+gracenotes.set('grip', (note, prev) => {
+  return note === Pitch.D || prev === Pitch.D
+    ? valid([Pitch.G, Pitch.B, Pitch.G])
+    : valid([Pitch.G, Pitch.D, Pitch.G]);
 });
 gracenotes.set('shake', (note, prev) => {
   let pitches = [];
