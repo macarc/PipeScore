@@ -5,7 +5,7 @@
 import { ScoreEvent, noteLocation, Update } from './Controller';
 import { State } from '../State';
 
-import { Bar } from '../Bar';
+import { Anacrusis, Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
@@ -54,8 +54,14 @@ export function editTimeSignature(
 }
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
-    if (state.selection instanceof ScoreSelection) {
-      state.selection.addAnacrusis(before, state.score);
+    const firstBar =
+      state.selection instanceof ScoreSelection
+        ? state.selection.bar(state.score)
+        : state.score.firstOnPage(0);
+
+    if (firstBar) {
+      const { stave, bar } = state.score.location(firstBar.id);
+      stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
       return Update.ShouldSave;
     }
     return Update.NoChange;
