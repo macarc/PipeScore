@@ -110,7 +110,9 @@ const higha = new Sample('higha');
 const drones = new Sample('drones');
 const dronesInitial = new Sample('drones_initial');
 
-let loading: Promise<((context: AudioContext) => void)[]> = new Promise(() => null);
+let loading: Promise<((context: AudioContext) => void)[]> = new Promise(
+  () => null
+);
 
 export function loadSamples() {
   loading = Promise.all([
@@ -161,7 +163,7 @@ export async function setupAudio() {
   // I'm not really sure why, but let's appease the browser gods with
   // a hacky solution
   // This has to be triggered by a user action (in order to create an AudioContext)
-    (await loading).forEach((fn) => fn(context));
+  (await loading).forEach((fn) => fn(context));
   initialiseContext();
   finishSetup();
 }
