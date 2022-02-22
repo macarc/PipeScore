@@ -13,7 +13,7 @@ import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
-import { Gracenote, NoGracenote } from '../Gracenote';
+import { SingleGracenote, Gracenote, NoGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { car, foreach, last } from '../global/utils';
 import { Stave } from '../Stave';
@@ -423,6 +423,11 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
       return Update.ViewChanged;
     }
     return Update.NoChange;
+  }
+  public single(): SingleGracenote | null {
+    if (this.selected instanceof SingleGracenote) return this.selected;
+
+    return null;
   }
   public state(): GracenoteState {
     return {

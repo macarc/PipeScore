@@ -9,7 +9,11 @@ import { Pitch } from '../global/pitch';
 import { itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar';
-import { ScoreSelection, TripletLineSelection } from '../Selection';
+import {
+  ScoreSelection,
+  TripletLineSelection,
+  GracenoteSelection,
+} from '../Selection';
 
 import { Note, SingleNote, Triplet } from '../Note';
 import { NoteLength, sameNoteLengthName } from '../Note/notelength';
@@ -124,25 +128,39 @@ export function moveRight(): ScoreEvent {
 
 export function moveNoteUp(): ScoreEvent {
   return async (state: State) => {
-    if (!state.selection) return Update.NoChange;
-    const notes = state.score.notes();
-    state.selection.notes(state.score).forEach((note) => {
-      note.moveUp();
-      note.makeCorrectTie(notes);
-    });
-    return Update.ShouldSave;
+    if (state.selection instanceof GracenoteSelection) {
+      const gracenote = state.selection.single();
+      if (gracenote) gracenote.moveUp();
+      return Update.ShouldSave;
+    } else if (state.selection) {
+      const notes = state.score.notes();
+      state.selection.notes(state.score).forEach((note) => {
+        note.moveUp();
+        note.makeCorrectTie(notes);
+      });
+      return Update.ShouldSave;
+    } else {
+      return Update.NoChange;
+    }
   };
 }
 
 export function moveNoteDown(): ScoreEvent {
   return async (state: State) => {
-    if (!state.selection) return Update.NoChange;
-    const notes = state.score.notes();
-    state.selection.notes(state.score).forEach((note) => {
-      note.moveDown();
-      note.makeCorrectTie(notes);
-    });
-    return Update.ShouldSave;
+    if (state.selection instanceof GracenoteSelection) {
+      const gracenote = state.selection.single();
+      if (gracenote) gracenote.moveDown();
+      return Update.ShouldSave;
+    } else if (state.selection) {
+      const notes = state.score.notes();
+      state.selection.notes(state.score).forEach((note) => {
+        note.moveDown();
+        note.makeCorrectTie(notes);
+      });
+      return Update.ShouldSave;
+    } else {
+      return Update.NoChange;
+    }
   };
 }
 

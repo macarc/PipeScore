@@ -5,7 +5,7 @@
 import { svg, V } from 'marender';
 import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
-import { noteY, Pitch } from '../global/pitch';
+import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';
 import { gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
@@ -369,6 +369,12 @@ export class SingleGracenote extends Gracenote {
     return {
       note: this.note,
     };
+  }
+  public moveUp() {
+    this.note = pitchUp(this.note);
+  }
+  public moveDown() {
+    this.note = pitchDown(this.note);
   }
   public drag(pitch: Pitch) {
     if (this.note != pitch) {
