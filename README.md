@@ -32,7 +32,7 @@ Piping features:
 
 Programming features:
 
-- ~7400 source lines (2500 semicolons) of TypeScript
+- ~7000 source lines of TypeScript
 
 ## Running locally
 
