@@ -285,7 +285,7 @@ export class SecondTiming extends BaseTiming {
   protected validToItself() {
     return (
       itemBefore(this.start, this.middle) &&
-      (this.middle === this.end || itemBefore(this.middle, this.end))
+      (this.middle === this.end || itemBefore(this.middle, this.end, true))
     );
   }
   public drag(
@@ -386,7 +386,7 @@ export class SingleTiming extends BaseTiming {
     throw new Error('SecondTiming points to invalid start point.');
   }
   protected validToItself() {
-    return this.start === this.end || itemBefore(this.start, this.end);
+    return this.start === this.end || itemBefore(this.start, this.end, true);
   }
   public drag(
     drag: TimingPart,

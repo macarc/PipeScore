@@ -42,19 +42,19 @@ export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 };
 
-export const before = (a: XY, b: XY): boolean => {
+export const before = (a: XY, b: XY, useAfterX = false): boolean => {
   if (b.page > a.page) return true;
   if (b.y > a.y) return true;
   else if (a.y > b.y) return false;
-  else return b.beforeX > a.beforeX;
+  else return useAfterX ? b.afterX > a.beforeX : b.beforeX > a.beforeX;
 };
 
-export const itemBefore = (a: ID, b: ID): boolean => {
+export const itemBefore = (a: ID, b: ID, useAfterX = false): boolean => {
   const f = getXY(a);
   const g = getXY(b);
 
   if (f && g) {
-    return before(f, g);
+    return before(f, g, useAfterX);
   } else {
     return false;
   }
