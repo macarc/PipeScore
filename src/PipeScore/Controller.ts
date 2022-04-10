@@ -54,8 +54,18 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
     updateView(state);
   }
 }
+let needsRedrawn = false;
+
 const updateView = (state: State) => {
+  if (!needsRedrawn) {
+    requestAnimationFrame(redraw);
+    needsRedrawn = true;
+  }
+};
+
+function redraw() {
   // Redraws the view
+  needsRedrawn = false;
 
   const scoreRoot = document.getElementById('score');
   const uiRoot = document.getElementById('ui');
@@ -106,7 +116,7 @@ const updateView = (state: State) => {
   if (state.view.ui && state.canEdit) patch(state.view.ui, newUIView);
   state.view.score = newView;
   state.view.ui = newUIView;
-};
+}
 
 function mouseMove(event: MouseEvent) {
   // The callback that occurs on mouse move
