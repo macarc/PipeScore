@@ -53,11 +53,11 @@ export class Score {
     this.landscape = true;
     this.showNumberOfPages = true;
     this._staves = foreach(2 * numberOfParts, () => new Stave(timeSignature));
-    if (repeatParts) {
-      this._staves.forEach((stave, index) =>
-        index % 2 === 0 ? stave.repeatFirst() : stave.repeatLast()
-      );
-    }
+    const first = repeatParts ? 'repeatFirst' : 'partFirst';
+    const last = repeatParts ? 'repeatLast' : 'partLast';
+    this._staves.forEach((stave, index) =>
+      index % 2 === 0 ? stave[first]() : stave[last]()
+    );
     this.textBoxes = [
       [new TextBox(name, true, this.width() / 2, settings.topOffset / 2)],
     ];

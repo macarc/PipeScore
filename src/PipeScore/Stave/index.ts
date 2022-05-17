@@ -4,7 +4,7 @@
 */
 import { svg, V } from 'marender';
 import { Anacrusis, Bar } from '../Bar';
-import { RepeatB } from '../Bar/barline';
+import { RepeatB, EndB } from '../Bar/barline';
 import { settings } from '../global/settings';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
@@ -63,6 +63,13 @@ export class Stave {
   }
   public allBars() {
     return this.bars;
+  }
+
+  public partFirst() {
+    this.firstBar()?.setBarline('start', new EndB());
+  }
+  public partLast() {
+    this.lastBar()?.setBarline('end', new EndB());
   }
 
   public repeatFirst() {

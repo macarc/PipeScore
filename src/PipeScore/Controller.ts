@@ -51,15 +51,15 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
         save(state.score);
       }
     }
-    updateView(state);
+    updateView();
   }
 }
 let needsRedrawn = false;
 
-const updateView = (state: State) => {
+const updateView = () => {
   if (!needsRedrawn) {
-    requestAnimationFrame(redraw);
     needsRedrawn = true;
+    requestAnimationFrame(redraw);
   }
 };
 
@@ -150,5 +150,5 @@ export default function startController(
   state.view.score = hFrom('score');
   state.view.ui = hFrom('ui');
   save(state.score);
-  updateView(state);
+  updateView();
 }
