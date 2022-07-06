@@ -22,6 +22,8 @@ interface StaveProps {
   gracenoteState: GracenoteState;
 }
 
+export const trebleClefWidth = 40;
+
 export class Stave {
   private bars: Bar[];
   constructor(timeSignature = new TimeSignature()) {
@@ -112,7 +114,6 @@ export class Stave {
   }
   public render(props: StaveProps): V {
     const staveY = props.y;
-    const trebleClefWidth = 40;
 
     const staveLines = foreach(5, (idx) => settings.lineHeightOf(idx) + staveY);
 

@@ -2,7 +2,7 @@
   Score format
   Copyright (C) 2021 macarc
 */
-import { Stave } from '../Stave';
+import { Stave, trebleClefWidth } from '../Stave';
 import { TextBox } from '../TextBox';
 import { BaseTiming, DraggedTiming, Timing } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
@@ -411,7 +411,7 @@ export class Score {
     const secondTimingProps = (page: number) => ({
       page,
       score: this,
-      staveStartX: settings.margin,
+      staveStartX: settings.margin + trebleClefWidth,
       staveEndX: width - settings.margin,
       selection: props.selection,
       staveGap: settings.staveGap,
