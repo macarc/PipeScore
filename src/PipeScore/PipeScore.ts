@@ -83,7 +83,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
       } else {
         const score = await get(userid, scoreid);
-        if (score && score.staves) {
+        if (score && (score.staves as any | null)) {
           startController(score, () => null, false, false);
         }
       }

@@ -1087,6 +1087,9 @@ export class Triplet extends BaseNote {
   public addGracenote(g: Pitch | Gracenote, previous: Note | null) {
     this.firstSingle().addGracenote(g, previous);
   }
+  public natural() {
+    return this._notes.every((note) => note.natural());
+  }
   public play(previous: Pitch | null) {
     return this._notes
       .flatMap((n, i) =>
