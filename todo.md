@@ -5,6 +5,7 @@
 - [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
+- [ ] Make it possible to input natural notes immediately
 
 ### Cleanups
 

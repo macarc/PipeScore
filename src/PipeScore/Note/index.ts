@@ -307,6 +307,7 @@ export class SingleNote
 {
   private pitch: Pitch;
   private gracenote: Gracenote;
+  private hasNatural: boolean;
 
   private previewGracenote: Gracenote | null;
   private preview = false;
@@ -315,11 +316,13 @@ export class SingleNote
     pitch: Pitch,
     length: NoteLength,
     tied = false,
+    hasNatural = false,
     gracenote: Gracenote = new NoGracenote()
   ) {
     super(length, tied);
     this.pitch = pitch;
     this.gracenote = gracenote;
+    this.hasNatural = hasNatural;
     this.previewGracenote = null;
   }
   public static width = (noteHeadWidth * 2) / 3;
@@ -337,6 +340,7 @@ export class SingleNote
       o.pitch,
       o.length,
       o.tied,
+      o.hasNatural || false,
       Gracenote.fromJSON(o.gracenote)
     );
   }
@@ -345,6 +349,7 @@ export class SingleNote
       pitch: this.pitch,
       length: this.length,
       tied: this.tied,
+      hasNatural: this.hasNatural,
       gracenote: this.gracenote.toJSON(),
     };
   }
@@ -417,6 +422,9 @@ export class SingleNote
   public width(prevNote: Pitch | null): Width {
     return width.addAll(
       width.init(noteHeadWidth, 1),
+      this.shouldDrawNatural()
+        ? width.init(SingleNote.naturalWidth, 0)
+        : width.zero(),
       this.hasDot()
         ? width.init(dotXOffset - noteHeadRadius + dotRadius, 0)
         : width.zero(),
@@ -453,6 +461,21 @@ export class SingleNote
         duration: this.lengthInBeats(),
       },
     ];
+  }
+  private static naturalWidth = 14;
+  private shouldDrawNatural() {
+    return this.hasNatural && this.canHaveNatural();
+  }
+  public natural() {
+    return this.hasNatural;
+  }
+  public toggleNatural() {
+    if (this.canHaveNatural()) {
+      this.hasNatural = !this.hasNatural;
+    }
+  }
+  public canHaveNatural() {
+    return this.pitch === Pitch.C || this.pitch === Pitch.F;
   }
   public addGracenote(g: Pitch | Gracenote, previous: Note | null = null) {
     if (g instanceof Gracenote) {
@@ -705,15 +728,60 @@ export class SingleNote
           }, ${x1},${y1} `;
     return svg('path', { class: 'note-tie', d: path, stroke: this.colour() });
   }
+  private renderNatural(x: number, y: number): V {
+    const verticalLineLength = 15;
+    const width = 8;
+    // The vertical distance from the centre to the start of the horizontal line
+    const boxGapHeight = 3.5;
+    const slantHeight = 4;
+    const yShift = 1.5;
+    const xShift = 1;
+    return svg('g', { class: 'natural' }, [
+      svg('line', {
+        x1: x + xShift,
+        x2: x + xShift,
+        y1: y - verticalLineLength + yShift,
+        y2: y + boxGapHeight + 1.5 + yShift, // 1.5 = half the width of the horizontal line
+        'stroke-width': 1.5,
+        stroke: 'black',
+      }),
+      svg('line', {
+        x1: x + width + xShift,
+        x2: x + width + xShift,
+        y1: y - slantHeight - boxGapHeight - 1.5 + yShift,
+        y2: y - slantHeight + verticalLineLength + yShift, // 1.5 = half the width of the horizontal line
+        'stroke-width': 1.5,
+        stroke: 'black',
+      }),
+      svg('line', {
+        x1: x + xShift,
+        x2: x + width + xShift,
+        y1: y - boxGapHeight + yShift,
+        y2: y - slantHeight - boxGapHeight + yShift,
+        'stroke-width': 3,
+        stroke: 'black',
+      }),
+      svg('line', {
+        x1: x + xShift,
+        x2: x + width + xShift,
+        y1: y + boxGapHeight + yShift,
+        y2: y - slantHeight + boxGapHeight + yShift,
+        'stroke-width': 3,
+        stroke: 'black',
+      }),
+    ]);
+  }
   public render(props: NoteProps): V {
     // Draws a single note
     const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
+    const naturalWidth = this.shouldDrawNatural() ? SingleNote.naturalWidth : 0;
 
     setXY(
       this.id,
       props.x + xOffset,
       props.x +
         xOffset +
+        naturalWidth +
         width.reify(
           this.widthOfGracenote(props.previousNote?.lastPitch() || null),
           props.noteWidth
@@ -731,13 +799,15 @@ export class SingleNote
       state: props.gracenoteState,
     };
 
-    const x =
+    const naturalX =
       props.x +
       xOffset +
       width.reify(
         this.widthOfGracenote(props.previousNote?.lastPitch() || null),
         props.noteWidth
       );
+
+    const x = naturalX + naturalWidth;
     const y = this.y(props.y);
     const stemTopY = y + 1.5;
     const stemBottomY = y + 30;
@@ -771,6 +841,7 @@ export class SingleNote
             props.endOfLastStave
           )
         : null,
+      this.shouldDrawNatural() ? this.renderNatural(naturalX, y) : null,
       this.head(
         x + noteHeadRadius,
         y,
@@ -837,7 +908,7 @@ export class SingleNote
         SingleNote.totalWidth(notes.slice(0, noteIndex), previousPitch),
         props.noteWidth
       );
-    const xOf = (i: number) =>
+    const naturalXOf = (i: number) =>
       xOfGracenote(i) +
       width.reify(
         notes[i].widthOfGracenote(
@@ -845,6 +916,9 @@ export class SingleNote
         ),
         props.noteWidth
       );
+    const xOf = (i: number) =>
+      naturalXOf(i) +
+      (notes[i].shouldDrawNatural() ? SingleNote.naturalWidth : 0);
     const yOf = (note: SingleNote) => note.y(props.y);
 
     const setNoteXY = (note: SingleNote, index: number) =>
@@ -896,6 +970,11 @@ export class SingleNote
                 props.endOfLastStave
               )
             : null,
+
+          note.shouldDrawNatural()
+            ? note.renderNatural(naturalXOf(index), yOf(note))
+            : null,
+
           note.head(
             xOf(index) + noteHeadRadius,
             yOf(note),

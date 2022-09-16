@@ -125,6 +125,9 @@ div .flex {
   flex-direction: column;
 }
 
+#natural {
+  background-image: url('../images/natural.svg');
+}
 #tie {
   background-image: url('../images/tie.png');
 }

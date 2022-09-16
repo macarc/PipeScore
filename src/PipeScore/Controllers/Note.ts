@@ -177,6 +177,15 @@ export function tieSelectedNotes(): ScoreEvent {
   };
 }
 
+export function toggleNatural(): ScoreEvent {
+  return async (state: State) => {
+    if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
+    const notes = state.selection.notes(state.score);
+    notes.forEach((note) => note.toggleNatural());
+    return Update.ShouldSave;
+  };
+}
+
 export function addTriplet(): ScoreEvent {
   return async (state: State) => {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;

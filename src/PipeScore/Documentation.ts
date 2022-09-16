@@ -26,6 +26,8 @@ export default new Map(
     'single timing':
       'Add a 2nd timing. Select the start of where the timing should go and press this, then drag to change the position',
     triplet: 'Make the three selected notes into a triplet',
+    natural:
+      'Add/remove a natural mark to a note.\n\nThis only applies to C and F notes',
     delete:
       'Delete the current selected note, gracenote, text or bar.\n\nFor gracenotes, clicking the beam at the top will select the entire gracenote, or clicking the head will select a single note from the gracenote.\n\nTo delete a stave, delete all the bars in it.',
     copy: 'Copy the current selected notes (or bars).\n\nTo select notes, click on the first note to select then hold shift and click the last note you want to select',

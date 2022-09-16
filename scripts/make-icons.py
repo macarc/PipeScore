@@ -52,3 +52,37 @@ doc.add(doc.path(
     ))
 doc.save()
 
+## Natural icon
+x_gap = 10
+y_gap = 20
+y_off = 8
+y_height = 40
+y_shift = 3
+
+doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/natural.svg', size=(width,height))
+doc.add(doc.line(
+    start=(hmid-x_gap, vmid + y_gap / 2 + y_shift + 3.5),
+    end=(hmid-x_gap, vmid - y_height + y_gap / 2),
+    stroke="black",
+    stroke_width=4
+    ))
+doc.add(doc.line(
+    start=(hmid+x_gap, vmid - y_off - y_gap/2 + y_shift - 3.5),
+    end=(hmid+x_gap, vmid + y_height - y_gap/2),
+    stroke="black",
+    stroke_width=4
+    ))
+doc.add(doc.line(
+    start=(hmid-x_gap, vmid + y_gap/2 + y_shift),
+    end=(hmid+x_gap, vmid - y_off + y_gap/2 + y_shift),
+    stroke="black",
+    stroke_width=7
+    ))
+doc.add(doc.line(
+    start=(hmid-x_gap, vmid - y_gap/2 + y_shift),
+    end=(hmid+x_gap, vmid - y_off - y_gap/2 + y_shift),
+    stroke="black",
+    stroke_width=7
+    ))
+doc.save()
+

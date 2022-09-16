@@ -6,6 +6,7 @@ import { Menu } from './model';
 import { h, V, Attributes } from 'marender';
 import {
   addTriplet,
+  toggleNatural,
   tieSelectedNotes,
   toggleDot,
   copy,
@@ -133,6 +134,11 @@ export default function render(state: UIState): V {
       ? state.allSelectedNotes[0].isTied()
       : state.allSelectedNotes.slice(1).every((note) => note.isTied());
 
+  const naturalAlready =
+    state.allSelectedNotes.length === 0
+      ? false
+      : state.allSelectedNotes.every((note) => note.natural());
+
   const noteMenu = [
     h('section', [
       h('h2', ['Input Notes']),
@@ -184,6 +190,17 @@ export default function render(state: UIState): V {
             'button',
             { id: 'triplet' },
             { click: () => dispatch(addTriplet()) }
+          )
+        ),
+        help(
+          'natural',
+          h(
+            'button',
+            {
+              id: 'natural',
+              class: naturalAlready ? 'highlighted' : 'not-highlighted',
+            },
+            { click: () => dispatch(toggleNatural()) }
           )
         ),
       ]),
