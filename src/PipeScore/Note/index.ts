@@ -396,13 +396,16 @@ export class SingleNote
   public drag(pitch: Pitch): Update {
     if (pitch === this.pitch) return Update.NoChange;
     this.pitch = pitch;
+    this.hasNatural = false;
     return Update.ViewChanged;
   }
   public moveUp() {
     this.pitch = pitchUp(this.pitch);
+    this.hasNatural = false;
   }
   public moveDown() {
     this.pitch = pitchDown(this.pitch);
+    this.hasNatural = false;
   }
   private widthOfGracenote(prevNote: Pitch | null) {
     return this.tied
@@ -442,12 +445,14 @@ export class SingleNote
   }
   public setFirstPitch(pitch: Pitch) {
     this.pitch = pitch;
+    this.hasNatural = false;
   }
   public lastPitch() {
     return this.pitch;
   }
   public setLastPitch(pitch: Pitch) {
     this.pitch = pitch;
+    this.hasNatural = false;
   }
   public y(staveY: number) {
     return noteY(staveY, this.pitch);
