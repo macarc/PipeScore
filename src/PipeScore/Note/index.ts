@@ -741,6 +741,7 @@ export class SingleNote
     const slantHeight = 4;
     const yShift = 1.5;
     const xShift = 1;
+    const colour = this.colour();
     return svg('g', { class: 'natural' }, [
       svg('line', {
         x1: x + xShift,
@@ -748,7 +749,7 @@ export class SingleNote
         y1: y - verticalLineLength + yShift,
         y2: y + boxGapHeight + 1.5 + yShift, // 1.5 = half the width of the horizontal line
         'stroke-width': 1.5,
-        stroke: 'black',
+        stroke: colour,
       }),
       svg('line', {
         x1: x + width + xShift,
@@ -756,7 +757,7 @@ export class SingleNote
         y1: y - slantHeight - boxGapHeight - 1.5 + yShift,
         y2: y - slantHeight + verticalLineLength + yShift, // 1.5 = half the width of the horizontal line
         'stroke-width': 1.5,
-        stroke: 'black',
+        stroke: colour,
       }),
       svg('line', {
         x1: x + xShift,
@@ -764,7 +765,7 @@ export class SingleNote
         y1: y - boxGapHeight + yShift,
         y2: y - slantHeight - boxGapHeight + yShift,
         'stroke-width': 3,
-        stroke: 'black',
+        stroke: colour,
       }),
       svg('line', {
         x1: x + xShift,
@@ -772,7 +773,7 @@ export class SingleNote
         y1: y + boxGapHeight + yShift,
         y2: y - slantHeight + boxGapHeight + yShift,
         'stroke-width': 3,
-        stroke: 'black',
+        stroke: colour,
       }),
     ]);
   }

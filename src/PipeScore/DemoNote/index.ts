@@ -100,7 +100,7 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
     return new SingleNote(pitch, this._length, false, this._natural);
   }
   private toPreviewNote(pitch: Pitch) {
-    return new SingleNote(pitch, this._length).demo();
+    return new SingleNote(pitch, this._length, false, this._natural).demo();
   }
 }
 export class DemoGracenote extends BaseDemo<SingleGracenote, SingleNote> {
