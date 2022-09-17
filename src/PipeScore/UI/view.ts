@@ -72,9 +72,11 @@ export interface UIState {
 
 export default function render(state: UIState): V {
   const isCurrentNoteInput = (length: NoteLength) =>
-    state.demo instanceof DemoNote
-      ? sameNoteLengthName(state.demo.length(), length)
-      : false;
+    state.demo instanceof DemoNote &&
+    sameNoteLengthName(state.demo.length(), length);
+
+  const inputtingNatural =
+    state.demo instanceof DemoNote && state.demo.natural();
 
   const noteInputButton = (length: NoteLength) =>
     help(
@@ -198,7 +200,10 @@ export default function render(state: UIState): V {
             'button',
             {
               id: 'natural',
-              class: naturalAlready ? 'highlighted' : 'not-highlighted',
+              class:
+                inputtingNatural || (!state.demo && naturalAlready)
+                  ? 'highlighted'
+                  : 'not-highlighted',
             },
             { click: () => dispatch(toggleNatural()) }
           )

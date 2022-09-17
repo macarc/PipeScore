@@ -47,11 +47,13 @@ export abstract class BaseDemo<U, T extends Previewable<U>> {
 
 export class DemoNote extends BaseDemo<SingleNote, Bar> {
   private _length: NoteLength;
+  private _natural: boolean;
 
   constructor(length: NoteLength) {
     super();
     this._length = length;
     this.previous = null;
+    this._natural = false;
   }
   public addNote(
     note: Note | null,
@@ -79,6 +81,12 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
     }
     return Update.NoChange;
   }
+  public natural() {
+    return this._natural;
+  }
+  public toggleNatural() {
+    this._natural = !this._natural;
+  }
   public length() {
     return this._length;
   }
@@ -89,7 +97,7 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
     this._length = dot(this._length);
   }
   private toNote(pitch: Pitch) {
-    return new SingleNote(pitch, this._length);
+    return new SingleNote(pitch, this._length, false, this._natural);
   }
   private toPreviewNote(pitch: Pitch) {
     return new SingleNote(pitch, this._length).demo();
