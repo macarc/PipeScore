@@ -10,7 +10,7 @@ import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
 import { GracenoteState } from '../Gracenote/state';
-import { svg, V } from 'marender';
+import m from 'mithril';
 import { setXY } from '../global/xy';
 import { addNoteToBarEnd } from '../Controllers/Note';
 import { clickBar } from '../Controllers/Bar';
@@ -324,7 +324,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     );
   }
 
-  public render(props: BarProps): V {
+  public render(props: BarProps): m.Children {
     setXY(this.id, props.x, props.x + props.width, props.y);
     const staveY = props.y;
     const hasTimeSignature =
@@ -395,7 +395,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
     // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
     // note adds a note to the start of the bar
-    return svg('g', { class: 'bar' }, [
+    return m('g[class=bar]', [
       noteBoxes(
         xAfterBarline,
         staveY,

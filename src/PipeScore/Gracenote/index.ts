@@ -2,7 +2,7 @@
   Define gracenote format
   Copyright (C) 2021 macarc
  */
-import { svg, V } from 'marender';
+import m from 'mithril';
 import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
@@ -135,7 +135,7 @@ export abstract class Gracenote {
     isValid: boolean,
     isSelected: boolean,
     index: number
-  ): V {
+  ): m.Children {
     // Draws head and stem
 
     const stemY = y - 1;
@@ -146,9 +146,9 @@ export abstract class Gracenote {
     const boxHeight = 8;
     const colour = colourOf(isSelected);
 
-    return svg('g', { class: 'gracenote-head' }, [
+    return m('g[class=gracenote-head]', [
       note === Pitch.HA
-        ? svg('line', {
+        ? m('line', {
             x1: x - ledgerLeft,
             x2: x + ledgerRight,
             y1: y,
@@ -156,7 +156,7 @@ export abstract class Gracenote {
             stroke: colour,
           })
         : null,
-      svg('ellipse', {
+      m('ellipse', {
         cx: x,
         cy: y,
         rx: gracenoteHeadRadius,
@@ -166,20 +166,17 @@ export abstract class Gracenote {
         'pointer-events': 'none',
       }),
 
-      svg(
-        'rect',
-        {
-          x: x - boxWidth / 2,
-          y: y - boxHeight / 2,
-          width: boxWidth,
-          height: boxHeight,
-          'pointer-events': isSelected ? 'none' : 'default',
-          style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
-          opacity: 0,
-        },
-        { mousedown: () => dispatch(clickGracenote(this, index)) }
-      ),
-      svg('line', {
+      m('rect', {
+        x: x - boxWidth / 2,
+        y: y - boxHeight / 2,
+        width: boxWidth,
+        height: boxHeight,
+        'pointer-events': isSelected ? 'none' : 'default',
+        style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
+        opacity: 0,
+        onmousedown: () => dispatch(clickGracenote(this, index)),
+      }),
+      m('line', {
         x1: x + tailXOffset,
         x2: x + tailXOffset,
         y1: stemY,
@@ -200,7 +197,7 @@ export abstract class Gracenote {
     const colour = colourOf(wholeSelected || props.preview);
     const height = settings.lineHeightOf(3);
 
-    return svg('g', { class: 'gracenote' }, [
+    return m('g[class=gracenote]', [
       this.head(
         props.x,
         y,
@@ -212,7 +209,7 @@ export abstract class Gracenote {
       ),
 
       ...[0, 1, 2].map((n) =>
-        svg('line', {
+        m('line', {
           x1: stemXOf(props.x),
           x2: stemXOf(props.x) + 5,
           y1: y - height + 3 * n,
@@ -222,7 +219,7 @@ export abstract class Gracenote {
       ),
     ]);
   }
-  public render(props: GracenoteProps): V {
+  public render(props: GracenoteProps): m.Children {
     const wholeSelected =
       props.state.selected?.gracenote === this &&
       props.state.selected?.note === 'all';
@@ -237,7 +234,7 @@ export abstract class Gracenote {
     const y = (note: Pitch) => noteY(props.y, note);
 
     if (uniqueNotes.length === 0) {
-      return svg('g');
+      return m('g');
     } else if (uniqueNotes.length === 1) {
       return this.renderSingle(uniqueNotes[0].note, props);
     } else {
@@ -246,9 +243,9 @@ export abstract class Gracenote {
       const tailStart = xOf(uniqueNotes[0]) + tailXOffset - 0.5;
       const tailEnd = xOf(nlast(uniqueNotes)) + tailXOffset + 0.5;
       const clickBoxMargin = 3;
-      return svg('g', { class: 'reactive-gracenote' }, [
+      return m('g[class=reactive-gracenote]', [
         ...[0, 2, 4].map((i) =>
-          svg('line', {
+          m('line', {
             x1: tailStart,
             x2: tailEnd,
             y1: beamY + i,
@@ -256,18 +253,15 @@ export abstract class Gracenote {
             stroke: colour,
           })
         ),
-        svg(
-          'rect',
-          {
-            x: tailStart,
-            y: beamY - clickBoxMargin,
-            width: tailEnd - tailStart,
-            height: 4 + 2 * clickBoxMargin,
-            opacity: 0,
-            style: 'cursor: pointer;',
-          },
-          { mousedown: () => dispatch(clickGracenote(this, 'all')) }
-        ),
+        m('rect', {
+          x: tailStart,
+          y: beamY - clickBoxMargin,
+          width: tailEnd - tailStart,
+          height: 4 + 2 * clickBoxMargin,
+          opacity: 0,
+          style: 'cursor: pointer;',
+          onmousedown: () => dispatch(clickGracenote(this, 'all')),
+        }),
         ...uniqueNotes.map((noteObj, i) =>
           this.head(
             xOf(noteObj),

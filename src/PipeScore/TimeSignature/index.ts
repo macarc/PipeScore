@@ -1,4 +1,4 @@
-import { h, svg, V } from 'marender';
+import m from 'mithril';
 import { dispatch } from '../Controller';
 import { editTimeSignature } from '../Controllers/Bar';
 import dialogueBox from '../global/dialogueBox';
@@ -118,36 +118,36 @@ export class TimeSignature {
     // Makes a dialogue box for the user to edit the text, then updates the text
 
     const denominatorOption = (i: Denominator) =>
-      h(
+      m(
         'option',
         { value: i, name: 'denominator', selected: this.bottom() === i },
-        [i.toString()]
+        i.toString()
       );
 
     return new Promise((res) =>
       dialogueBox(
         [
-          h('input', {
+          m('input', {
             type: 'number',
             name: 'num',
             min: 1,
             value: this.top(),
           }),
-          h('br'),
-          h('select', { name: 'denominator' }, [
+          m('br'),
+          m('select', { name: 'denominator' }, [
             denominatorOption(2),
             denominatorOption(4),
             denominatorOption(8),
           ]),
-          h('label', [
+          m('label', [
             'Cut time ',
-            h('input', { type: 'checkbox', checked: this.cutTime() }),
+            m('input', { type: 'checkbox', checked: this.cutTime() }),
           ]),
-          h('details', [
-            h('summary', ['Advanced']),
-            h('label', [
+          m('details', [
+            m('summary', 'Advanced'),
+            m('label', [
               'Custom grouping (the number of quavers in each group, separated by `,`)',
-              h('input', {
+              m('input', {
                 type: 'text',
                 name: 'breaks',
                 // Need to do \. for the pattern regex
@@ -193,7 +193,7 @@ export class TimeSignature {
       ).then((newTimeSignature) => res(newTimeSignature || this))
     );
   }
-  public render(props: TimeSignatureProps): V {
+  public render(props: TimeSignatureProps): m.Children {
     const y =
       props.y +
       (this.cutTime() ? settings.lineHeightOf(4) : settings.lineHeightOf(2));
@@ -204,8 +204,8 @@ export class TimeSignature {
       );
 
     if (this.cutTime()) {
-      return svg('g', { class: 'time-signature' }, [
-        svg(
+      return m('g[class=time-signature]', [
+        m(
           'text',
           {
             style: 'font-family: serif; font-weight: bold;',
@@ -213,14 +213,14 @@ export class TimeSignature {
             x: props.x,
             y: y,
             'font-size': this.cutTimeFontSize(),
+            onclick: edit,
           },
-          { click: edit },
-          ['C']
+          'C'
         ),
       ]);
     } else {
-      return svg('g', { class: 'time-signature' }, [
-        svg(
+      return m('g[class=time-signature]', [
+        m(
           'text',
           {
             'text-anchor': 'middle',
@@ -228,11 +228,11 @@ export class TimeSignature {
             y,
             style: 'font-family: serif; font-weight: bold; cursor: pointer;',
             'font-size': this.fontSize(),
+            onclick: edit,
           },
-          { click: edit },
-          [this.top().toString()]
+          this.top().toString()
         ),
-        svg(
+        m(
           'text',
           {
             'text-anchor': 'middle',
@@ -240,9 +240,9 @@ export class TimeSignature {
             y: y + settings.lineHeightOf(2.1),
             style: 'font-family: serif; font-weight: bold; cursor: pointer;',
             'font-size': this.fontSize(),
+            onclick: edit,
           },
-          { click: edit },
-          [this.bottom().toString()]
+          this.bottom().toString()
         ),
       ]);
     }

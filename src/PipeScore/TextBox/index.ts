@@ -1,4 +1,4 @@
-import { h, svg, V } from 'marender';
+import m from 'mithril';
 import { dispatch } from '../Controller';
 import { Update } from '../Controllers/Controller';
 import { changeText, clickText } from '../Controllers/Text';
@@ -85,10 +85,10 @@ export class TextBox {
   private edit() {
     dialogueBox(
       [
-        h('label', ['Text:', h('input', { type: 'text', value: this._text })]),
-        h('label', [
+        m('label', ['Text:', m('input', { type: 'text', value: this._text })]),
+        m('label', [
           'Font size:',
-          h('input', {
+          m('input', {
             type: 'number',
             min: 5,
             max: 50,
@@ -107,11 +107,11 @@ export class TextBox {
     ).then(({ size, text }) => dispatch(changeText(text, size, this)));
   }
 
-  public render(props: TextBoxProps): V {
+  public render(props: TextBoxProps): m.Children {
     if (this.centred) this.x = props.scoreWidth / 2;
     const selected =
       props.selection instanceof TextSelection && props.selection.text === this;
-    return svg(
+    return m(
       'text',
       {
         x: this.x,
@@ -119,16 +119,14 @@ export class TextBox {
         style: `font-size: ${this.size}px; cursor: pointer;`,
         'text-anchor': 'middle',
         fill: selected ? 'orange' : '',
-      },
-      {
-        dblclick: () => this.edit(),
-        mousedown: (e: Event) => {
+        ondblclick: () => this.edit(),
+        onmousedown: (e: Event) => {
           const pt = svgCoords(e as MouseEvent);
           if (pt) this.setClickOffsetCoords(pt.x, pt.y);
           dispatch(clickText(this));
         },
       },
-      [this._text || 'Double Click to Edit']
+      this._text || 'Double Click to Edit'
     );
   }
 }

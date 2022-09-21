@@ -6,7 +6,7 @@
 import { Demo } from './DemoNote';
 import { PlaybackState } from './Playback';
 import { Menu } from './UI/model';
-import { V } from 'marender';
+import m from 'mithril';
 import { Score } from './Score';
 import { Selection } from './Selection';
 import { Note, Triplet } from './Note';
@@ -27,7 +27,7 @@ export interface State {
   clipboard: (Note | Triplet | 'bar-break')[] | null;
   selection: Selection | null;
   history: { past: string[]; future: string[] };
-  view: { ui: V | null; score: V | null };
+  view: { ui: HTMLElement | null; score: HTMLElement | null };
   playback: PlaybackState;
   score: Score;
 }

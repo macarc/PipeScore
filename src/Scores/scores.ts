@@ -4,67 +4,70 @@
  */
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
-import { h, hFrom, V, patch } from 'marender';
+import m from 'mithril';
+
+function nonNull<T>(a: T | null): T {
+  if (a === null) {
+    throw new Error('Tried to nonNull a null value');
+  }
+  return a as T;
+}
 
 let userId = '';
 
-let scoreRoot: V | null = null;
 const updateScores = async () => {
   const collection = await db.ref(`scores/${userId}/scores`).list();
   const scores = collection.documents.map((doc) => [
     doc.name,
     doc.__meta__.path.replace('/scores', ''),
   ]);
-  if (scoreRoot) {
-    const oldScoreRoot = scoreRoot;
-    scoreRoot = h('section', { id: 'scores' }, [
-      h('p', ['Scores:']),
-      scores.length === 0 ? h('p', ['You have no scores.']) : null,
-      h('table', [
-        ...scores.map((score) =>
-          h('tr', [
-            h('td', { class: 'td-name' }, [
-              h(
-                'a',
-                { href: '/pipescore' + score[1].replace('/scores/', '/') },
-                [score[0]]
-              ),
-            ]),
-            h('td', [
-              h(
-                'button',
-                { class: 'rename' },
-                { click: () => renameScore(score[1]) },
-                ['Rename']
-              ),
-            ]),
-            h('td', [
-              h(
-                'button',
-                { class: 'edit' },
-                {
-                  click: () =>
-                    window.location.assign(
-                      '/pipescore' + score[1].replace('/scores/', '/')
-                    ),
-                },
-                ['Edit']
-              ),
-            ]),
-            h('td', [
-              h(
-                'button',
-                { class: 'delete' },
-                { click: () => deleteScore(score[1], score[0]) },
-                ['Delete']
-              ),
-            ]),
-          ])
-        ),
-      ]),
-    ]);
-    patch(oldScoreRoot, scoreRoot);
-  }
+  m.render(nonNull(document.getElementById('scores')), [
+    m('p', 'Scores:'),
+    scores.length === 0 ? m('p', 'You have no scores.') : null,
+    m('table', [
+      ...scores.map((score) =>
+        m('tr', [
+          m('td[class=td-name]', [
+            m(
+              'a',
+              { href: '/pipescore' + score[1].replace('/scores/', '/') },
+              score[0]
+            ),
+          ]),
+          m('td', [
+            m(
+              'button[class=rename]',
+              { onclick: () => renameScore(score[1]) },
+              'Rename'
+            ),
+          ]),
+          m('td', [
+            m(
+              'button',
+              {
+                class: 'edit',
+                onclick: () =>
+                  window.location.assign(
+                    '/pipescore' + score[1].replace('/scores/', '/')
+                  ),
+              },
+              'Edit'
+            ),
+          ]),
+          m('td', [
+            m(
+              'button',
+              {
+                class: 'delete',
+                onclick: () => deleteScore(score[1], score[0]),
+              },
+              'Delete'
+            ),
+          ]),
+        ])
+      ),
+    ]),
+  ]);
 };
 
 // This can be safely public
@@ -103,9 +106,8 @@ auth.listen(async (user) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  const root = hFrom('scores');
-  scoreRoot = h('section', { id: 'scores' }, [h('p', ['Loading...'])]);
-  patch(root, scoreRoot);
+  const root = document.getElementById('scores');
+  m.render(nonNull(root), m('section[id="scores"]', m('p', 'Loading...')));
   const signOutBtn = document.getElementById('sign-out');
   if (signOutBtn) signOutBtn.addEventListener('click', () => auth.signOut());
 

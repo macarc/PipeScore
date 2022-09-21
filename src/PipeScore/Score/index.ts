@@ -7,7 +7,7 @@ import { TextBox } from '../TextBox';
 import { BaseTiming, DraggedTiming, Timing } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
-import { h, svg, V } from 'marender';
+import m from 'mithril';
 import { clickBackground, mouseOffPitch, mouseUp } from '../Controllers/Mouse';
 import { Demo } from '../DemoNote';
 import { NoteState } from '../Note/state';
@@ -393,7 +393,7 @@ export class Score {
       st.play(i === 0 ? null : this._staves[i - 1])
     );
   }
-  public render(props: ScoreProps): V {
+  public render(props: ScoreProps): m.Children {
     const width = this.width();
     const height = this.height();
 
@@ -427,28 +427,29 @@ export class Score {
     const brokenStaves = this.brokenStaves();
     const texts = (i: number) => this.textBoxes[i] || [];
 
-    return h(
+    return m(
       'div',
       foreach(this.numberOfPages, (i) => {
         setXYPage(i);
-        return svg(
+        return m(
           'svg',
           {
             width: (width * this.zoom) / 100,
             height: (height * this.zoom) / 100,
             viewBox: `0 0 ${width} ${height}`,
             class: i.toString(),
+            onmouseup: () => dispatch(mouseUp()),
           },
-          { mouseup: () => dispatch(mouseUp()) },
           [
-            svg(
-              'rect',
-              { x: '0', y: '0', width: '100%', height: '100%', fill: 'white' },
-              {
-                mousedown: () => dispatch(clickBackground()),
-                mouseover: () => dispatch(mouseOffPitch()),
-              }
-            ),
+            m('rect', {
+              x: '0',
+              y: '0',
+              width: '100%',
+              height: '100%',
+              fill: 'white',
+              onmousedown: () => dispatch(clickBackground()),
+              onmouseover: () => dispatch(mouseOffPitch()),
+            }),
             ...brokenStaves[i].map((stave, idx) =>
               stave.render(staveProps(stave, idx, i))
             ),
@@ -463,7 +464,7 @@ export class Score {
             ),
             props.selection && props.selection.render(selectionProps(i)),
             this.showNumberOfPages && this.numberOfPages > 1
-              ? svg(
+              ? m(
                   'text',
                   {
                     x: this.width() / 2,
@@ -472,7 +473,7 @@ export class Score {
                       settings.margin +
                       settings.lineHeightOf(5),
                   },
-                  [(i + 1).toString()]
+                  (i + 1).toString()
                 )
               : null,
           ]

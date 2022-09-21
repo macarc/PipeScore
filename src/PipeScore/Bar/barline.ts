@@ -1,4 +1,4 @@
-import { svg, V } from 'marender';
+import m from 'mithril';
 import { dispatch } from '../Controller';
 import { clickBarline } from '../Controllers/Bar';
 import { settings } from '../global/settings';
@@ -7,7 +7,12 @@ import { Obj } from '../global/utils';
 type Drag = (x: number) => void;
 
 export abstract class Barline {
-  abstract render(drag: Drag, x: number, y: number, atStart: boolean): V;
+  abstract render(
+    drag: Drag,
+    x: number,
+    y: number,
+    atStart: boolean
+  ): m.Children;
   abstract toJSON(): Obj;
   protected lineOffset = 6;
   protected thickLineWidth = 2.5;
@@ -46,26 +51,23 @@ export class NormalB extends Barline {
   public render(drag: Drag, x: number, y: number) {
     this.drag = drag;
     const dragWidth = 2;
-    return svg('g', [
-      svg('line', {
+    return m('g', [
+      m('line', {
         x1: x,
         x2: x,
         y1: y,
         y2: y + this.height(),
         stroke: 'black',
       }),
-      svg(
-        'rect',
-        {
-          x: x - dragWidth,
-          y: y,
-          width: 2 * dragWidth,
-          height: this.height(),
-          opacity: 0,
-          style: 'cursor: ew-resize',
-        },
-        { mousedown: () => dispatch(clickBarline(this)) }
-      ),
+      m('rect', {
+        x: x - dragWidth,
+        y: y,
+        width: 2 * dragWidth,
+        height: this.height(),
+        opacity: 0,
+        style: 'cursor: ew-resize',
+        onmousedown: () => dispatch(clickBarline(this)),
+      }),
     ]);
   }
 }
@@ -82,15 +84,15 @@ export class RepeatB extends Barline {
     const bottomCircleY = y + settings.lineHeightOf(2.7);
     const circleRadius = 2;
     const cx = atStart ? x + circleXOffset : x - circleXOffset;
-    return svg('g', { class: 'barline-repeat' }, [
+    return m('g', { class: 'barline-repeat' }, [
       new EndB().render(drag, x, y, atStart),
-      svg('circle', {
+      m('circle', {
         cx,
         cy: topCircleY,
         r: circleRadius,
         fill: 'black',
       }),
-      svg('circle', {
+      m('circle', {
         cx,
         cy: bottomCircleY,
         r: circleRadius,
@@ -109,20 +111,17 @@ export class EndB extends Barline {
     this.drag = drag;
     const thickX = atStart ? x : x - this.thickLineWidth;
     const thinX = atStart ? x + this.lineOffset : x - this.lineOffset;
-    return svg('g', { class: 'barline-end' }, [
-      svg(
-        'rect',
-        {
-          x: thickX,
-          y,
-          width: this.thickLineWidth,
-          height: this.height(),
-          fill: 'black',
-          style: 'cursor: ew-resize',
-        },
-        { mousedown: () => dispatch(clickBarline(this)) }
-      ),
-      svg('line', {
+    return m('g', { class: 'barline-end' }, [
+      m('rect', {
+        x: thickX,
+        y,
+        width: this.thickLineWidth,
+        height: this.height(),
+        fill: 'black',
+        style: 'cursor: ew-resize',
+        mousedown: () => dispatch(clickBarline(this)),
+      }),
+      m('line', {
         x1: thinX,
         x2: thinX,
         y1: y,

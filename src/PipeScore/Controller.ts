@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 
-import { h, hFrom, patch } from 'marender';
+import m from 'mithril';
 import { ScoreEvent, Update } from './Controllers/Controller';
 import { mouseUp, mouseDrag } from './Controllers/Mouse';
 import { State } from './State';
@@ -110,12 +110,10 @@ function redraw() {
     currentMenu: state.ui.menu,
     playbackBpm: state.playback.bpm,
   };
-  const newView = h('div', [state.score.render(scoreProps)]);
-  const newUIView = renderUI(uiProps);
-  if (state.view.score) patch(state.view.score, newView);
-  if (state.view.ui && state.canEdit) patch(state.view.ui, newUIView);
-  state.view.score = newView;
-  state.view.ui = newUIView;
+  if (state.view.score)
+    m.render(state.view.score, state.score.render(scoreProps));
+  if (state.view.ui && state.canEdit)
+    m.render(state.view.ui, renderUI(uiProps));
 }
 
 function mouseMove(event: MouseEvent) {
@@ -147,8 +145,8 @@ export default function startController(
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
   // initially set the notes to be the right groupings
-  state.view.score = hFrom('score');
-  state.view.ui = hFrom('ui');
+  state.view.score = document.getElementById('score');
+  state.view.ui = document.getElementById('ui');
   save(state.score);
   updateView();
 }

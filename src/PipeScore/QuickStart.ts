@@ -3,7 +3,7 @@
 
   Copyright (C) 2021 macarc
 */
-import { h } from 'marender';
+import m from 'mithril';
 import dialogueBox from './global/dialogueBox';
 import { Score } from './Score';
 
@@ -32,30 +32,30 @@ class ScoreOptions {
 const blankForm = async (): Promise<ScoreOptions> => {
   const ts = await dialogueBox(
     [
-      h('h1', { style: 'font-size: 2rem' }, ['Quick Start']),
-      h('p', ['These values may all be changed later if necessary']),
-      h('div', { class: 'invisible-div' }, [
-        h('p', ['About:']),
-        h('div', { class: 'quickstart-section quickstart-flex' }, [
-          h('label', [
+      m('h1', { style: 'font-size: 2rem' }, 'Quick Start'),
+      m('p', 'These values may all be changed later if necessary'),
+      m('div[class=invisible-div]', [
+        m('p', 'About:'),
+        m('div', { class: 'quickstart-section quickstart-flex' }, [
+          m('label', [
             'Title:',
-            h('input', {
+            m('input', {
               type: 'text',
               id: 'name',
               value: 'My Tune',
             }),
           ]),
-          h('label', [
+          m('label', [
             'Composer:',
-            h('input', {
+            m('input', {
               type: 'text',
               id: 'composer',
               value: 'My name',
             }),
           ]),
-          h('label', [
+          m('label', [
             'Tune type:',
-            h('input', {
+            m('input', {
               type: 'text',
               id: 'tune-type',
               value: 'March',
@@ -63,33 +63,32 @@ const blankForm = async (): Promise<ScoreOptions> => {
           ]),
         ]),
       ]),
-      h('div', { class: 'invisible-div' }, [
-        h('p', ['Parts:']),
-        h('div', { class: 'quickstart-section' }, [
-          h('label', [
+      m('div[class=invisible-div]', [
+        m('p', 'Parts:'),
+        m('div[class=quickstart-section]', [
+          m('label', [
             'Number:',
-            h('input', {
+            m('input[id=stave-number]', {
               type: 'number',
-              id: 'stave-number',
               min: 0,
               max: 16,
               value: 2,
               required: true,
             }),
           ]),
-          h('label', [
-            h('input', { type: 'checkbox', id: 'repeat-parts', checked: '' }),
+          m('label', [
+            m('input[id=repeat-parts]', { type: 'checkbox', checked: '' }),
             'Repeat parts?',
           ]),
         ]),
       ]),
-      h('div', { class: 'invisible-div' }, [
-        h('p', ['Time Signature:']),
-        h('div', { class: 'quickstart-section quickstart-flex' }, [
-          h('label', [
+      m('div[class=invisible-div]', [
+        m('p', 'Time Signature:'),
+        m('div', { class: 'quickstart-section quickstart-flex' }, [
+          m('label', [
             'Time Signature:',
-            h('div', { class: 'quickstart-time-signature' }, [
-              h('input', {
+            m('div', { class: 'quickstart-time-signature' }, [
+              m('input', {
                 type: 'number',
                 id: 'num',
                 min: 0,
@@ -97,19 +96,19 @@ const blankForm = async (): Promise<ScoreOptions> => {
                 style: 'display: block',
                 required: true,
               }),
-              h(
-                'select',
-                { style: 'display: block', id: 'denom', name: 'denom' },
+              m(
+                'select[id=denom]',
+                { style: 'display: block', name: 'denom' },
                 [
-                  h('option', { value: '4', name: 'denom' }, ['4']),
-                  h('option', { value: '2', name: 'denom' }, ['2']),
-                  h('option', { value: '8', name: 'denom' }, ['8']),
+                  m('option', { value: '4', name: 'denom' }, '4'),
+                  m('option', { value: '2', name: 'denom' }, '2'),
+                  m('option', { value: '8', name: 'denom' }, '8'),
                 ]
               ),
             ]),
           ]),
-          h('label', [
-            h('input', { type: 'checkbox', id: 'cut-time' }),
+          m('label', [
+            m('input[id=cut-time]', { type: 'checkbox' }),
             'Cut time?',
           ]),
         ]),

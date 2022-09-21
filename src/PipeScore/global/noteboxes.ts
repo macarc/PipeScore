@@ -2,7 +2,7 @@
   Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
   Copyright (C) 2021 macarc
 */
-import { svg, V } from 'marender';
+import m from 'mithril';
 import { settings } from './settings';
 import { Pitch, pitchToHeight } from './pitch';
 
@@ -13,7 +13,7 @@ export function noteBoxes(
   mouseOver: (pitch: Pitch, event: MouseEvent) => void = () => null,
   mouseDown: (pitch: Pitch, event: MouseEvent) => void = () => null,
   mouseMoveIsMouseOver: boolean
-): V {
+): m.Children {
   // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap
   // and there are 0 pixel gaps between that can nevertheless be hovered over
   const height = settings.lineGap / 2 + 0.2;
@@ -35,55 +35,39 @@ export function noteBoxes(
   const heightOfBetweenBoxes =
     (settings.staveGap - settings.lineHeightOf(4) - gap) / 2;
 
-  const over = mouseMoveIsMouseOver ? 'mousemove' : 'mouseover';
+  const over = mouseMoveIsMouseOver ? 'onmousemove' : 'onmouseover';
 
-  return svg('g', { class: 'drag-boxes' }, [
-    svg(
-      'rect',
-      {
-        class: 'notebox',
-        x,
-        y: y - settings.lineGap - heightOfBetweenBoxes,
-        width,
-        height: heightOfBetweenBoxes,
-        opacity: 0,
-      },
-      {
-        [over]: (e) => mouseOver(Pitch.HA, e as MouseEvent),
-        mousedown: (e) => mouseDown(Pitch.HA, e as MouseEvent),
-      }
-    ),
-    svg(
-      'rect',
-      {
-        x,
-        y: y + settings.lineHeightOf(3),
-        width,
-        height: heightOfBetweenBoxes,
-        opacity: 0,
-      },
-      {
-        [over]: (e) => mouseOver(Pitch.G, e as MouseEvent),
-        mousedown: (e) => mouseDown(Pitch.G, e as MouseEvent),
-      }
-    ),
+  return m('g[class=drag-boxes]', [
+    m('rect[class=notebox]', {
+      x,
+      y: y - settings.lineGap - heightOfBetweenBoxes,
+      width,
+      height: heightOfBetweenBoxes,
+      opacity: 0,
+      [over]: (e: MouseEvent) => mouseOver(Pitch.HA, e),
+      onmousedown: (e: MouseEvent) => mouseDown(Pitch.HA, e),
+    }),
+    m('rect', {
+      x,
+      y: y + settings.lineHeightOf(3),
+      width,
+      height: heightOfBetweenBoxes,
+      opacity: 0,
+      [over]: (e: MouseEvent) => mouseOver(Pitch.G, e),
+      onmousedown: (e: MouseEvent) => mouseDown(Pitch.G, e),
+    }),
     ...pitches
       .map((n) => [n, pitchToHeight(n)] as [Pitch, number])
       .map(([note, boxY]) =>
-        svg(
-          'rect',
-          {
-            x,
-            y: y + settings.lineGap * boxY - settings.lineGap / 2,
-            width,
-            height,
-            opacity: 0,
-          },
-          {
-            [over]: (e) => mouseOver(note, e as MouseEvent),
-            mousedown: (e) => mouseDown(note, e as MouseEvent),
-          }
-        )
+        m('rect', {
+          x,
+          y: y + settings.lineGap * boxY - settings.lineGap / 2,
+          width,
+          height,
+          opacity: 0,
+          [over]: (e: MouseEvent) => mouseOver(note, e),
+          onmousedown: (e: MouseEvent) => mouseDown(note, e),
+        })
       ),
   ]);
 }

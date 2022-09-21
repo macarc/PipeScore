@@ -5,7 +5,7 @@
 import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
 import { Menu } from '../UI/model';
-import { h, hFrom, patch } from 'marender';
+import m from 'mithril';
 
 import dialogueBox from '../global/dialogueBox';
 import { stopInputtingNotes } from './Note';
@@ -26,7 +26,7 @@ export function editText(
 ): ScoreEvent {
   return async () => {
     await dialogueBox(
-      [h('label', ['Text:', h('input', { type: 'text', value })])],
+      [m('label', ['Text:', m('input', { type: 'text', value })])],
       (form) =>
         (form.querySelector('input[type="text"]') as HTMLInputElement).value,
       value
@@ -142,7 +142,6 @@ export function print(): ScoreEvent {
     // makes it uncentred, and that can't be changed in JS. So I'm just adding a plea to the user to fix it :)
 
     const blankEl = document.createElement('div');
-    const blankH = hFrom(blankEl);
     const props = {
       justAddedNote: false,
       selection: null,
@@ -163,22 +162,23 @@ export function print(): ScoreEvent {
 
     state.score.zoom = 100;
     // Patch it onto a new element with none of the state (e.g. zoom, selected elements)
-    patch(blankH, h('div', [state.score.render(props)]));
+    m.render(blankEl, m('div', state.score.render(props)));
     const contents = blankEl.querySelector('div')?.innerHTML;
 
     // TODO this might have fixed somehow?
     await dialogueBox(
       [
-        h('p', [
+        m('p', [
           'When printing, please ensure you set ',
-          h('span', { style: 'font-family: monospace;' }, ['Margins']),
+          m('span', { style: 'font-family: monospace;' }, 'Margins'),
           'to',
-          h('span', { style: 'font-family: monospace;' }, ['None']),
+          m('span', { style: 'font-family: monospace;' }, 'None'),
           '.',
         ]),
-        h('p', [
-          'This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.',
-        ]),
+        m(
+          'p',
+          'This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.'
+        ),
       ],
       () => null,
       null,

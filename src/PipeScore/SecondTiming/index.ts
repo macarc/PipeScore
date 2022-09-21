@@ -2,7 +2,7 @@
   SecondTiming format
   Copyright (C) 2021 macarc
 */
-import { svg, V } from 'marender';
+import m from 'mithril';
 import { dispatch } from '../Controller';
 import { editText } from '../Controllers/Misc';
 import { clickSecondTiming } from '../Controllers/SecondTiming';
@@ -29,7 +29,7 @@ interface TimingProps {
 export abstract class BaseTiming {
   abstract toObject(): Obj;
   abstract pointsTo(id: ID): boolean;
-  abstract render(props: TimingProps): V;
+  abstract render(props: TimingProps): m.Children;
 
   protected abstract front(): XY;
   protected abstract back(): XY;
@@ -102,7 +102,7 @@ export abstract class BaseTiming {
     // if true, we use b.afterX, otherwise we use b.beforeX
     drawLast: boolean,
     props: TimingProps
-  ): V {
+  ): m.Children {
     if (
       !(
         a.page === props.page ||
@@ -110,7 +110,7 @@ export abstract class BaseTiming {
         (a.page < props.page && props.page < b.page)
       )
     )
-      return svg('g');
+      return m('g');
 
     const height = 45;
     const mid = 30;
@@ -118,7 +118,7 @@ export abstract class BaseTiming {
     const y = (i: number) => a.y + i * props.staveGap;
 
     const horizontal = (x1: number, x2: number, y: number) =>
-      svg('line', {
+      m('line', {
         x1,
         x2,
         y1: y - height,
@@ -126,7 +126,7 @@ export abstract class BaseTiming {
         stroke: colour,
       });
     const vertical = (x: number, y: number) =>
-      svg('line', {
+      m('line', {
         x1: x,
         x2: x,
         y1: y - mid,
@@ -135,19 +135,14 @@ export abstract class BaseTiming {
       });
 
     const dragBox = (x: number, y: number, start: boolean) =>
-      svg(
-        'rect',
-        {
-          x: x - clickWidth / 2,
-          y: y - height,
-          width: clickWidth,
-          height: height - mid,
-          opacity: 0,
-        },
-        {
-          mousedown: () => click(start),
-        }
-      );
+      m('rect', {
+        x: x - clickWidth / 2,
+        y: y - height,
+        width: clickWidth,
+        height: height - mid,
+        opacity: 0,
+        onmousedown: () => click(start),
+      });
     const lastx = drawLast ? b.afterX : b.beforeX;
 
     if (a.page === b.page && a.page === props.page) {
@@ -161,7 +156,7 @@ export abstract class BaseTiming {
         Math.round((b.y - a.y) / props.staveGap) - 1,
         0
       );
-      return svg('g', [
+      return m('g', [
         ...(a.y === b.y
           ? [horizontal(a.beforeX, lastx, a.y), ...verticalLines]
           : [
@@ -171,7 +166,7 @@ export abstract class BaseTiming {
               vertical(props.staveStartX, b.y),
 
               ...foreach(stavesBetween, (i) => i + 1).map((i) =>
-                svg('g', [
+                m('g', [
                   horizontal(props.staveStartX, props.staveEndX, y(i)),
                   vertical(props.staveStartX, y(i)),
                   vertical(props.staveEndX, y(i)),
@@ -179,11 +174,15 @@ export abstract class BaseTiming {
               ),
               ...verticalLines,
             ]),
-        svg(
+        m(
           'text',
-          { x: a.beforeX + 5, y: a.y - (height * 2) / 3 },
-          { mousedown: () => click(true), dblclick: clickText },
-          [text]
+          {
+            x: a.beforeX + 5,
+            y: a.y - (height * 2) / 3,
+            onmousedown: () => click(true),
+            ondblclick: clickText,
+          },
+          text
         ),
       ]);
     } else if (a.page === props.page) {
@@ -237,7 +236,7 @@ export abstract class BaseTiming {
           );
       }
     }
-    return svg('g');
+    return m('g');
   }
 }
 
@@ -304,7 +303,7 @@ export class SecondTiming extends BaseTiming {
       }
     }
   }
-  public render(props: TimingProps): V {
+  public render(props: TimingProps): m.Children {
     const start = getXY(this.start);
     const middle = getXY(this.middle);
     const end = getXY(this.end);
@@ -317,10 +316,10 @@ export class SecondTiming extends BaseTiming {
 
     if (!(start && middle && end)) {
       console.error('invalid second timing!');
-      return svg('g');
+      return m('g');
     }
 
-    return svg('g', { class: 'second-timing' }, [
+    return m('g[class=second-timing]', [
       this.lineFrom(
         start,
         middle,
@@ -405,7 +404,7 @@ export class SingleTiming extends BaseTiming {
       }
     }
   }
-  public render(props: TimingProps): V {
+  public render(props: TimingProps): m.Children {
     const start = getXY(this.start);
     const end = getXY(this.end);
 
@@ -417,10 +416,10 @@ export class SingleTiming extends BaseTiming {
 
     if (!(start && end)) {
       console.error('invalid second timing!');
-      return svg('g');
+      return m('g');
     }
 
-    return svg('g', { class: 'second-timing' }, [
+    return m('g[class=second-timing]', [
       this.lineFrom(
         start,
         end,

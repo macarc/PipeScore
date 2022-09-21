@@ -8,7 +8,7 @@ import { DraggedTiming, Timing, TimingPart } from '../SecondTiming';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
 import { before, deleteXY, getXY } from '../global/xy';
-import { h, svg, V } from 'marender';
+import m from 'mithril';
 import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
@@ -62,8 +62,8 @@ abstract class BaseSelection<A> {
     if (notes.length === 1) return notes[0];
     return null;
   }
-  public render(props: ScoreSelectionProps) {
-    return svg('g', { class: 'selection' });
+  public render(props: ScoreSelectionProps): m.Children {
+    return m('g[class=selection]');
   }
 }
 
@@ -199,12 +199,12 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
     stave.insertBar(new Bar(bar.timeSignature()), bar, before);
   }
 
-  public render(props: ScoreSelectionProps): V {
+  public render(props: ScoreSelectionProps): m.Children {
     const a = getXY(this.start);
     const b = getXY(this.end);
     if (!a || !b) {
       console.error('Invalid note in selection');
-      return svg('g');
+      return m('g');
     }
     const start = before(a, b) ? a : b;
     const end = before(a, b) ? b : a;
@@ -214,7 +214,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       end.page !== props.page &&
       !(start.page < props.page && props.page < end.page)
     ) {
-      return svg('g');
+      return m('g');
     }
 
     const height = 6 * settings.lineGap;
@@ -232,14 +232,14 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
         if (first && last)
           return new ScoreSelection(first.id, last.id).render(props);
       }
-      return svg('g');
+      return m('g');
     } else if (end.y !== start.y) {
       const higher = start.y > end.y ? end : start;
       const lower = start.y > end.y ? start : end;
       const numStavesBetween =
         Math.round((lower.y - higher.y) / props.staveGap) - 1;
-      return svg('g', { class: 'selection' }, [
-        svg('rect', {
+      return m('g[class=selection]', [
+        m('rect', {
           x: higher.beforeX,
           y: higher.y - settings.lineGap,
           width: props.staveEndX - higher.beforeX,
@@ -248,7 +248,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
           opacity: 0.5,
           'pointer-events': 'none',
         }),
-        svg('rect', {
+        m('rect', {
           x: props.staveStartX,
           y: lower.y - settings.lineGap,
           width: lower.afterX - props.staveStartX,
@@ -258,7 +258,7 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
           'pointer-events': 'none',
         }),
         ...foreach(numStavesBetween, (i) => i + 1).map((i) =>
-          svg('rect', {
+          m('rect', {
             x: props.staveStartX,
             y: higher.y + i * props.staveGap - settings.lineGap,
             width: props.staveEndX - props.staveStartX,
@@ -271,8 +271,8 @@ export class ScoreSelection extends BaseSelection<SingleNote> {
       ]);
     } else {
       const width = end.afterX - start.beforeX;
-      return svg('g', { class: 'selection' }, [
-        svg('rect', {
+      return m('g[class=selection]', [
+        m('rect', {
           x: start.beforeX,
           y: start.y - settings.lineGap,
           width,
@@ -348,7 +348,7 @@ export class SecondTimingSelection {
     return null;
   }
   public render() {
-    return h('g');
+    return m('g');
   }
 }
 
@@ -381,7 +381,7 @@ export class TripletLineSelection {
     return [];
   }
   public render() {
-    return svg('g');
+    return m('g');
   }
 }
 

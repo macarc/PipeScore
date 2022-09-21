@@ -20,7 +20,7 @@ import {
   sameNoteLengthName,
 } from './notelength';
 import width, { Width } from '../global/width';
-import { svg, V } from 'marender';
+import m from 'mithril';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
 import { mouseOffPitch, mouseOverPitch } from '../Controllers/Mouse';
@@ -79,7 +79,7 @@ export abstract class BaseNote extends Item {
   protected abstract setLastPitch(pitch: Pitch): void;
   abstract play(previous: Pitch | null): PlaybackElement[];
   abstract toObject(): Obj;
-  abstract render(props: NoteProps): V;
+  abstract render(props: NoteProps): m.Children;
 
   constructor(length: NoteLength, tied = false) {
     super(genId());
@@ -514,7 +514,7 @@ export class SingleNote
     tailsAfter: number | null,
     // whether or not the first note is the 2nd, 4th, e.t.c. note in the group
     even: boolean
-  ): V {
+  ): m.Children {
     // Draws beams from left note to right note
 
     const moreTailsOnLeft = leftTails > rightTails;
@@ -536,9 +536,9 @@ export class SingleNote
         yL + (shortTailLength / (xR - xL)) * (yR - yL)
       : yR - (shortTailLength / (xR - xL)) * (yR - yL);
 
-    return svg('g', { class: 'tails' }, [
+    return m('g[class=tails]', [
       ...foreach(sharedTails, (i) =>
-        svg('line', {
+        m('line', {
           x1: xL,
           x2: xR,
           y1: yL - i * tailGap,
@@ -548,7 +548,7 @@ export class SingleNote
         })
       ),
       ...foreach(extraTails, (i) => i + sharedTails).map((i) =>
-        svg('line', {
+        m('line', {
           x1: moreTailsOnLeft ? xL : xR,
           x2: moreTailsOnLeft ? xL + shortTailLength : xR - shortTailLength,
           y1: (moreTailsOnLeft ? yL : yR) - i * tailGap,
@@ -585,7 +585,7 @@ export class SingleNote
     mousedown: (e: MouseEvent) => void,
     props: NoteProps,
     opacity = 1
-  ): V {
+  ): m.Children {
     // Draws note head, ledger line and dot, as well as mouse event box
 
     const rotation = this.hasStem() ? -35 : 0;
@@ -625,8 +625,8 @@ export class SingleNote
     const rotateText = `rotate(${rotation} ${x} ${y})`;
     const holeRotateText = `rotate(${holeRotation} ${x} ${y})`;
 
-    return svg('g', { class: 'note-head' }, [
-      svg('ellipse', {
+    return m('g[class=note-head]', [
+      m('ellipse', {
         cx: x,
         cy: y,
         rx: noteWidth,
@@ -639,8 +639,8 @@ export class SingleNote
       }),
       filled
         ? null
-        : svg('g', { class: 'centre-hole' }, [
-            svg('ellipse', {
+        : m('g[class=centre-hole]', [
+            m('ellipse', {
               cx: x,
               cy: y,
               rx: maskrx,
@@ -652,7 +652,7 @@ export class SingleNote
             }),
           ]),
       dotted
-        ? svg('circle', {
+        ? m('circle', {
             cx: x + dotXOffset,
             cy: y + dotYOffset,
             r: dotRadius,
@@ -662,8 +662,7 @@ export class SingleNote
           })
         : null,
       this.pitch === Pitch.HA
-        ? svg('line', {
-            class: 'ledger',
+        ? m('line[class=ledger]', {
             x1: x - 8,
             x2: x + 8,
             y1: y,
@@ -674,22 +673,17 @@ export class SingleNote
           })
         : null,
 
-      svg(
-        'rect',
-        {
-          x: x - clickableWidth / 2,
-          y: y - clickableHeight / 2,
-          width: clickableWidth,
-          height: clickableHeight,
-          'pointer-events': pointerEvents,
-          style: 'cursor: pointer;',
-          opacity: 0,
-        },
-        {
-          mousedown: mousedown as (e: Event) => void,
-          mouseover: () => dispatch(mouseOffPitch()),
-        }
-      ),
+      m('rect', {
+        x: x - clickableWidth / 2,
+        y: y - clickableHeight / 2,
+        width: clickableWidth,
+        height: clickableHeight,
+        'pointer-events': pointerEvents,
+        style: 'cursor: pointer;',
+        opacity: 0,
+        onmousedown: mousedown as (e: Event) => void,
+        onmouseover: () => dispatch(mouseOffPitch()),
+      }),
     ]);
   }
   private tie(
@@ -698,11 +692,11 @@ export class SingleNote
     noteWidth: number,
     previousNote: SingleNote,
     lastStaveX: number
-  ): V {
+  ): m.Children {
     // Draws a tie to previousNote
 
     const previous = getXY(previousNote.id);
-    if (!previous) return svg('g');
+    if (!previous) return m('g');
 
     const tieOffsetY = 10;
     const tieHeight = 15;
@@ -731,9 +725,9 @@ export class SingleNote
           `M ${lastStaveX},${y1} S ${(lastStaveX - x1) / 2 + x1},${
             y1 - tieHeight
           }, ${x1},${y1} `;
-    return svg('path', { class: 'note-tie', d: path, stroke: this.colour() });
+    return m('path[class=note-tie]', { d: path, stroke: this.colour() });
   }
-  private renderNatural(x: number, y: number): V {
+  private renderNatural(x: number, y: number): m.Children {
     const verticalLineLength = 15;
     const width = 8;
     // The vertical distance from the centre to the start of the horizontal line
@@ -742,8 +736,8 @@ export class SingleNote
     const yShift = 1.5;
     const xShift = 1;
     const colour = this.colour();
-    return svg('g', { class: 'natural' }, [
-      svg('line', {
+    return m('g[class=natural]', [
+      m('line', {
         x1: x + xShift,
         x2: x + xShift,
         y1: y - verticalLineLength + yShift,
@@ -751,7 +745,7 @@ export class SingleNote
         'stroke-width': 1.5,
         stroke: colour,
       }),
-      svg('line', {
+      m('line', {
         x1: x + width + xShift,
         x2: x + width + xShift,
         y1: y - slantHeight - boxGapHeight - 1.5 + yShift,
@@ -759,7 +753,7 @@ export class SingleNote
         'stroke-width': 1.5,
         stroke: colour,
       }),
-      svg('line', {
+      m('line', {
         x1: x + xShift,
         x2: x + width + xShift,
         y1: y - boxGapHeight + yShift,
@@ -767,7 +761,7 @@ export class SingleNote
         'stroke-width': 3,
         stroke: colour,
       }),
-      svg('line', {
+      m('line', {
         x1: x + xShift,
         x2: x + width + xShift,
         y1: y + boxGapHeight + yShift,
@@ -777,7 +771,7 @@ export class SingleNote
       }),
     ]);
   }
-  public render(props: NoteProps): V {
+  public render(props: NoteProps): m.Children {
     // Draws a single note
     const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
     const naturalWidth = this.shouldDrawNatural() ? SingleNote.naturalWidth : 0;
@@ -827,7 +821,7 @@ export class SingleNote
         : props.boxToLast;
     const noteBoxWidth = (getXY(this.id)?.afterX || 0) - noteBoxStart;
 
-    return svg('g', { class: 'singleton' }, [
+    return m('g[class=singleton]', [
       props.state.inputtingNotes && !this.isDemo()
         ? noteBoxes(
             noteBoxStart,
@@ -859,7 +853,7 @@ export class SingleNote
         : this.renderGracenote(gracenoteProps),
 
       this.hasStem()
-        ? svg('line', {
+        ? m('line', {
             x1: x,
             x2: x,
             y1: stemTopY,
@@ -869,21 +863,18 @@ export class SingleNote
         : null,
 
       numberOfTails > 0
-        ? svg(
-            'g',
-            { class: 'tails' },
+        ? m(
+            'g[class=tails]',
             numberOfTails === 1
-              ? [
-                  svg('path', {
-                    fill: this.colour(),
-                    stroke: this.colour(),
-                    'stroke-width': 0.5,
-                    // d: `M ${x},${stemBottomY} q 8,-6 8,-15 q 0,-8 -4,-11 q 4,5 3,11 q -1,7 -7,11`,
-                    d: `M ${x},${stemBottomY} c 16,-10 6,-22 4,-25 c 3,6 8,15 -4,22`,
-                  }),
-                ]
+              ? m('path', {
+                  fill: this.colour(),
+                  stroke: this.colour(),
+                  'stroke-width': 0.5,
+                  // d: `M ${x},${stemBottomY} q 8,-6 8,-15 q 0,-8 -4,-11 q 4,5 3,11 q -1,7 -7,11`,
+                  d: `M ${x},${stemBottomY} c 16,-10 6,-22 4,-25 c 3,6 8,15 -4,22`,
+                })
               : foreach(numberOfTails, (t) =>
-                  svg('path', {
+                  m('path', {
                     fill: this.colour(),
                     stroke: this.colour(),
                     // d: `M ${x},${
@@ -900,7 +891,7 @@ export class SingleNote
   }
   public static renderMultiple(notes: SingleNote[], props: NoteProps) {
     if (notes.length === 0) {
-      return svg('g');
+      return m('g');
     } else if (notes.length === 1) {
       return notes[0].render(props);
     }
@@ -932,9 +923,8 @@ export class SingleNote
 
     const stemY = props.y + settings.lineHeightOf(6);
 
-    return svg(
-      'g',
-      { class: 'grouped-notes' },
+    return m(
+      'g[class=grouped-notes]',
       notes.map((note, index) => {
         const previousNote = notes[index - 1] || props.previousNote;
 
@@ -955,7 +945,7 @@ export class SingleNote
           state: props.gracenoteState,
         };
 
-        return svg('g', { class: `grouped-note ${note.pitch}` }, [
+        return m('g', { class: `grouped-note ${note.pitch}` }, [
           props.state.inputtingNotes && !note.isDemo()
             ? noteBoxes(
                 noteBoxX,
@@ -965,7 +955,7 @@ export class SingleNote
                 (pitch) => dispatch(addNoteBefore(pitch, note)),
                 props.justAddedNote
               )
-            : svg('g'),
+            : m('g'),
 
           note.shouldTie(previousNote)
             ? note.tie(
@@ -1006,7 +996,7 @@ export class SingleNote
               )
             : null,
 
-          svg('line', {
+          m('line', {
             x1: xOf(index),
             x2: xOf(index),
             y1: yOf(note),
@@ -1110,7 +1100,7 @@ export class Triplet extends BaseNote {
     y1: number,
     y2: number,
     selected: boolean
-  ): V {
+  ): m.Children {
     // Draws a triplet marking from x1,y1 to x2,y2
 
     const midx = x1 + (x2 - x1) / 2;
@@ -1119,9 +1109,9 @@ export class Triplet extends BaseNote {
     const gap = 15;
     const path = `M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}`;
     const colour = selected ? 'orange' : 'black';
-    const events = { mousedown: () => dispatch(clickTripletLine(this)) };
-    return svg('g', { class: 'triplet' }, [
-      svg(
+    const events = { onmousedown: () => dispatch(clickTripletLine(this)) };
+    return m('g[class=triplet]', [
+      m(
         'text',
         {
           x: midx - 2.5,
@@ -1129,11 +1119,11 @@ export class Triplet extends BaseNote {
           'text-anchor': 'center',
           fill: colour,
           style: 'font-size: 10px;',
+          ...events,
         },
-        events,
-        ['3']
+        '3'
       ),
-      svg('path', { d: path, stroke: colour, fill: 'none' }, events),
+      m('path', { d: path, stroke: colour, fill: 'none', ...events }),
     ]);
   }
   public render(props: NoteProps) {
@@ -1150,7 +1140,7 @@ export class Triplet extends BaseNote {
       props.state.selectedTripletLine === this
     );
 
-    return svg('g', [renderedNotes, line]);
+    return m('g', [renderedNotes, line]);
   }
 }
 

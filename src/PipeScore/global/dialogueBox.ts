@@ -2,12 +2,12 @@
   A simple HTML dialogue box
   Copyright (C) 2021 macarc
 */
-import { h, hFrom, V, patch } from 'marender';
+import m from 'mithril';
 
 export let dialogueBoxIsOpen = false;
 
 export default function dialogueBox<A>(
-  inner: V[],
+  inner: m.Children[],
   serialise: (form: HTMLFormElement) => A | null,
   blank: A,
   cancelable = true
@@ -22,49 +22,43 @@ export default function dialogueBox<A>(
   parent.appendChild(back);
   parent.appendChild(box);
   document.body.append(parent);
-  const root = hFrom(box);
   return new Promise((res) => {
-    patch(
-      root,
-      h('div', { id: 'dialogue-box' }, [
-        h(
-          'form',
-          { id: 'dialogue-form' },
-          {
-            submit: (e: Event) => {
-              dialogueBoxIsOpen = false;
-              e.preventDefault();
-              let data: A | null = blank;
-              const form = e.target;
-              if (form instanceof HTMLFormElement) data = serialise(form);
-              document.body.removeChild(parent);
-              res(data || blank);
-            },
+    m.render(box, [
+      m(
+        'form[id=dialogue-form]',
+        {
+          onsubmit: (e: Event) => {
+            dialogueBoxIsOpen = false;
+            e.preventDefault();
+            let data: A | null = blank;
+            const form = e.target;
+            if (form instanceof HTMLFormElement) data = serialise(form);
+            document.body.removeChild(parent);
+            res(data || blank);
           },
-          [
-            ...inner,
-            cancelable
-              ? h(
-                  'input',
-                  { type: 'button', id: 'cancel-btn', value: 'Cancel' },
-                  {
-                    click: () => {
-                      dialogueBoxIsOpen = false;
-                      document.body.removeChild(parent);
-                      res(blank);
-                    },
-                  }
-                )
-              : null,
-            h('input', {
-              type: 'submit',
-              class: 'continue',
-              value: 'Ok',
-            }),
-          ]
-        ),
-      ])
-    );
+        },
+        [
+          ...inner,
+          cancelable
+            ? m('input', {
+                type: 'button',
+                id: 'cancel-btn',
+                value: 'Cancel',
+                onclick: () => {
+                  dialogueBoxIsOpen = false;
+                  document.body.removeChild(parent);
+                  res(blank);
+                },
+              })
+            : null,
+          m('input', {
+            type: 'submit',
+            class: 'continue',
+            value: 'Ok',
+          }),
+        ]
+      ),
+    ]);
     (document.querySelector('.continue') as HTMLInputElement | null)?.focus();
   });
 }

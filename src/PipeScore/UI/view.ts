@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import { Menu } from './model';
-import { h, V, Attributes } from 'marender';
+import m from 'mithril';
 import {
   addTriplet,
   toggleNatural,
@@ -70,7 +70,7 @@ export interface UIState {
   zoomLevel: number;
 }
 
-export default function render(state: UIState): V {
+export default function render(state: UIState): m.Children {
   const isCurrentNoteInput = (length: NoteLength) =>
     state.demo instanceof DemoNote &&
     sameNoteLengthName(state.demo.length(), length);
@@ -81,18 +81,15 @@ export default function render(state: UIState): V {
   const noteInputButton = (length: NoteLength) =>
     help(
       length,
-      h(
-        'button',
-        {
-          class:
-            isCurrentNoteInput(length) ||
-            (state.selectedNote && state.selectedNote.isLength(length))
-              ? 'highlighted'
-              : 'not-highlighted',
-          id: `note-${length}`,
-        },
-        { click: () => dispatch(setInputLength(length)) }
-      )
+      m('button', {
+        class:
+          isCurrentNoteInput(length) ||
+          (state.selectedNote && state.selectedNote.isLength(length))
+            ? 'highlighted'
+            : 'not-highlighted',
+        id: `note-${length}`,
+        onclick: () => dispatch(setInputLength(length)),
+      })
     );
 
   const isGracenoteInput = (name: string) =>
@@ -105,17 +102,14 @@ export default function render(state: UIState): V {
   const gracenoteInput = (name: string) =>
     help(
       name,
-      h(
-        'button',
-        {
-          class:
-            isGracenoteInput(name) || isSelectedGracenote(name)
-              ? 'highlighted'
-              : 'not-highlighted',
-          style: `background-image: url("/images/icons/gracenote-${name}.svg")`,
-        },
-        { click: () => dispatch(setGracenoteOnSelectedNotes(name)) }
-      )
+      m('button', {
+        class:
+          isGracenoteInput(name) || isSelectedGracenote(name)
+            ? 'highlighted'
+            : 'not-highlighted',
+        style: `background-image: url("/images/icons/gracenote-${name}.svg")`,
+        onclick: () => dispatch(setGracenoteOnSelectedNotes(name)),
+      })
     );
 
   const inputZoomLevel = (e: Event) => {
@@ -128,7 +122,7 @@ export default function render(state: UIState): V {
     }
   };
 
-  const help = (s: string, v: V): V => dochelp(s, v);
+  const help = (s: string, v: m.Children): m.Children => dochelp(s, v);
   const tied =
     state.allSelectedNotes.length === 0
       ? false
@@ -142,9 +136,9 @@ export default function render(state: UIState): V {
       : state.allSelectedNotes.every((note) => note.natural());
 
   const noteMenu = [
-    h('section', [
-      h('h2', ['Input Notes']),
-      h('div', { class: 'section-content note-inputs' }, [
+    m('section', [
+      m('h2', 'Input Notes'),
+      m('div', { class: 'section-content note-inputs' }, [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
         noteInputButton(NoteLength.Crotchet),
@@ -154,15 +148,14 @@ export default function render(state: UIState): V {
         noteInputButton(NoteLength.HemiDemiSemiQuaver),
       ]),
     ]),
-    h('section', [
-      h('h2', ['Modify Notes']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Modify Notes'),
+      m('div[class=section-content]', [
         help(
           'dot',
-          h(
-            'button',
+          m(
+            'button[id=toggle-dotted]',
             {
-              id: 'toggle-dotted',
               class:
                 (state.demo instanceof DemoNote &&
                   dotted(state.demo.length())) ||
@@ -170,66 +163,52 @@ export default function render(state: UIState): V {
                   dotted(state.selectedNote.lengthForInput()))
                   ? 'highlighted'
                   : 'not-highlighted',
+              onclick: () => dispatch(toggleDot()),
             },
-            { click: () => dispatch(toggleDot()) },
-            ['•']
+            '•'
           )
         ),
         help(
           'tie',
-          h(
-            'button',
-            {
-              id: 'tie',
-              class: tied ? 'highlighted' : 'not-highlighted',
-            },
-            { click: () => dispatch(tieSelectedNotes()) }
-          )
+          m('button[id=tie]', {
+            class: tied ? 'highlighted' : 'not-highlighted',
+            onclick: () => dispatch(tieSelectedNotes()),
+          })
         ),
         help(
           'triplet',
-          h(
-            'button',
-            { id: 'triplet' },
-            { click: () => dispatch(addTriplet()) }
-          )
+          m('button[id=triplet]', { onclick: () => dispatch(addTriplet()) })
         ),
         help(
           'natural',
-          h(
-            'button',
-            {
-              id: 'natural',
-              class:
-                inputtingNatural || (!state.demo && naturalAlready)
-                  ? 'highlighted'
-                  : 'not-highlighted',
-            },
-            { click: () => dispatch(toggleNatural()) }
-          )
+          m('button[id=natural]', {
+            id: 'natural',
+            class:
+              inputtingNatural || (!state.demo && naturalAlready)
+                ? 'highlighted'
+                : 'not-highlighted',
+            onclick: () => dispatch(toggleNatural()),
+          })
         ),
       ]),
     ]),
   ];
 
   const gracenoteMenu = [
-    h('section', [
-      h('h2', ['Add Gracenote']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Add Gracenote'),
+      m('div[class=section-content]', [
         help(
           'single',
-          h(
-            'button',
-            {
-              class:
-                state.demo instanceof DemoGracenote ||
-                state.selectedGracenote instanceof SingleGracenote
-                  ? 'highlighted'
-                  : 'not-highlighted',
-              style: 'background-image: url("/images/icons/single.svg")',
-            },
-            { click: () => dispatch(setGracenoteOnSelectedNotes(null)) }
-          )
+          m('button', {
+            class:
+              state.demo instanceof DemoGracenote ||
+              state.selectedGracenote instanceof SingleGracenote
+                ? 'highlighted'
+                : 'not-highlighted',
+            style: 'background-image: url("/images/icons/single.svg")',
+            onclick: () => dispatch(setGracenoteOnSelectedNotes(null)),
+          })
         ),
         gracenoteInput('doubling'),
         gracenoteInput('half-doubling'),
@@ -252,29 +231,25 @@ export default function render(state: UIState): V {
     return [
       help(
         which === 'bar' ? 'add bar' : 'add anacrusis',
-        h(
-          'button',
-          { class: 'add' },
-          {
-            click: () =>
-              dispatch(
-                event(
-                  (() => {
-                    const el = document.getElementById(`${which}-add-where`);
-                    if (el && el instanceof HTMLSelectElement) {
-                      return el.value === 'before';
-                    } else {
-                      return true;
-                    }
-                  })()
-                )
-              ),
-          }
-        )
+        m('button[class=add]', {
+          onclick: () =>
+            dispatch(
+              event(
+                (() => {
+                  const el = document.getElementById(`${which}-add-where`);
+                  if (el && el instanceof HTMLSelectElement) {
+                    return el.value === 'before';
+                  } else {
+                    return true;
+                  }
+                })()
+              )
+            ),
+        })
       ),
-      h('select', { id: `${which}-add-where`, class: 'fit-nicely' }, [
-        h('option', { name: `add-${which}`, value: 'before' }, ['before']),
-        h('option', { name: `add-${which}`, value: 'after' }, ['after']),
+      m('select', { id: `${which}-add-where`, class: 'fit-nicely' }, [
+        m('option', { name: `add-${which}`, value: 'before' }, 'before'),
+        m('option', { name: `add-${which}`, value: 'after' }, 'after'),
       ]),
     ];
   };
@@ -291,80 +266,82 @@ export default function render(state: UIState): V {
       : '');
 
   const barMenu = [
-    h('section', [
-      h('h2', ['Bar']),
-      h('div', { class: 'section-content' }, addBarOrAnacrusis('bar')),
+    m('section', [
+      m('h2', 'Bar'),
+      m('div[class=section-content]', addBarOrAnacrusis('bar')),
     ]),
-    h('section', [
-      h('h2', { style: 'display: inline' }, ['Bar lines']),
-      h('div', { class: 'section-content flex' }, [
-        h('div', [
-          h('label', ['Start:']),
+    m('section', [
+      m('h2', { style: 'display: inline' }, 'Bar lines'),
+      m('div', { class: 'section-content flex' }, [
+        m('div', [
+          m('label', 'Start:'),
           help(
             'normal barline',
-            h(
+            m(
               'button',
-              { class: startBarClass(NormalB), style: 'margin-left: .5rem;' },
               {
-                click: () => dispatch(setBarRepeat('start', new NormalB())),
+                class: startBarClass(NormalB),
+                style: 'margin-left: .5rem;',
+                onclick: () => dispatch(setBarRepeat('start', new NormalB())),
               },
-              ['Normal']
+              'Normal'
             )
           ),
           help(
             'repeat barline',
-            h(
+            m(
               'button',
-              { class: startBarClass(RepeatB) },
               {
-                click: () => dispatch(setBarRepeat('start', new RepeatB())),
+                class: startBarClass(RepeatB),
+                onclick: () => dispatch(setBarRepeat('start', new RepeatB())),
               },
-              ['Repeat']
+              'Repeat'
             )
           ),
           help(
             'part barline',
-            h(
+            m(
               'button',
-              { class: startBarClass(EndB) },
               {
-                click: () => dispatch(setBarRepeat('start', new EndB())),
+                class: startBarClass(EndB),
+                onclick: () => dispatch(setBarRepeat('start', new EndB())),
               },
-              ['Part']
+              'Part'
             )
           ),
         ]),
-        h('div', [
-          h('label', ['End: ']),
+        m('div', [
+          m('label', 'End: '),
           help(
             'normal barline',
-            h(
+            m(
               'button',
-              { class: endBarClass(NormalB), style: 'margin-left: .5rem;' },
               {
-                click: () => dispatch(setBarRepeat('end', new NormalB())),
+                class: endBarClass(NormalB),
+                style: 'margin-left: .5rem;',
+                onclick: () => dispatch(setBarRepeat('end', new NormalB())),
               },
-              ['Normal']
+              'Normal'
             )
           ),
           help(
             'repeat barline',
-            h(
+            m(
               'button',
-              { class: endBarClass(RepeatB) },
               {
-                click: () => dispatch(setBarRepeat('end', new RepeatB())),
+                class: endBarClass(RepeatB),
+                onclick: () => dispatch(setBarRepeat('end', new RepeatB())),
               },
-              ['Repeat']
+              'Repeat'
             )
           ),
           help(
             'part barline',
-            h(
+            m(
               'button',
-              { class: endBarClass(EndB) },
               {
-                click: () => dispatch(setBarRepeat('end', new EndB())),
+                class: endBarClass(EndB),
+                onclick: () => dispatch(setBarRepeat('end', new EndB())),
               },
               ['Part']
             )
@@ -372,52 +349,48 @@ export default function render(state: UIState): V {
         ]),
       ]),
     ]),
-    h('section', [
-      h('h2', ['Lead In']),
-      h('div', { class: 'section-content' }, addBarOrAnacrusis('anacrusis')),
+    m('section', [
+      m('h2', 'Lead In'),
+      m('div[class=section-content]', addBarOrAnacrusis('anacrusis')),
     ]),
-    h('section', [
-      h('h2', ['Second Timing']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Second Timing'),
+      m('div[class=section-content]', [
         help(
           'second timing',
-          h(
-            'button',
-            { id: 'add-second-timing' },
-            { click: () => dispatch(addSecondTiming()) },
-            ['1st/ 2nd']
+          m(
+            'button[id=add-second-timing]',
+            { onclick: () => dispatch(addSecondTiming()) },
+            '1st/ 2nd'
           )
         ),
         help(
           'single timing',
-          h(
-            'button',
-            { id: 'add-second-timing' },
-            { click: () => dispatch(addSingleTiming()) },
-            ['2nd']
+          m(
+            'button[id=add-single-timing]',
+            { onclick: () => dispatch(addSingleTiming()) },
+            '2nd'
           )
         ),
       ]),
     ]),
-    h('section', [
-      h('h2', ['Other options']),
-      h('div', { class: 'section-content flex' }, [
+    m('section', [
+      m('h2', 'Other options'),
+      m('div', { class: 'section-content flex' }, [
         help(
           'edit bar time signature',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(editBarTimeSignature()) },
-            ['Edit Time Signature']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(editBarTimeSignature()) },
+            'Edit Time Signature'
           )
         ),
         help(
           'reset bar length',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(resetBarLength()) },
-            ['Reset Bar Length']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(resetBarLength()) },
+            'Reset Bar Length'
           )
         ),
       ]),
@@ -425,25 +398,23 @@ export default function render(state: UIState): V {
   ];
 
   const staveMenu = [
-    h('section', [
-      h('h2', ['Stave']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Stave'),
+      m('div[class=section-content]', [
         help(
           'add stave before',
-          h(
+          m(
             'button',
-            { class: 'add text' },
-            { click: () => dispatch(addStave(true)) },
-            ['before']
+            { class: 'add text', onclick: () => dispatch(addStave(true)) },
+            'before'
           )
         ),
         help(
           'add stave after',
-          h(
+          m(
             'button',
-            { class: 'add text' },
-            { click: () => dispatch(addStave(false)) },
-            ['after']
+            { class: 'add text', onclick: () => dispatch(addStave(false)) },
+            'after'
           )
         ),
       ]),
@@ -451,20 +422,22 @@ export default function render(state: UIState): V {
   ];
 
   const textMenu = [
-    h('section', [
-      h('h2', ['Text']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Text'),
+      m('div[class=section-content]', [
         help(
           'add text',
-          h('button', { class: 'add' }, { click: () => dispatch(addText()) })
+          m('button[class=add]', { onclick: () => dispatch(addText()) })
         ),
         help(
           'centre text',
-          h(
+          m(
             'button',
-            { class: 'double-width text' },
-            { click: () => dispatch(centreText()) },
-            ['Centre text']
+            {
+              class: 'double-width text',
+              onclick: () => dispatch(centreText()),
+            },
+            'Centre text'
           )
         ),
       ]),
@@ -472,49 +445,40 @@ export default function render(state: UIState): V {
   ];
 
   const playBackMenu = [
-    h('section', [
-      h('h2', ['Playback']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Playback'),
+      m('div[class=section-content]', [
         help(
           'play',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(startPlayback()) },
-            ['Play']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(startPlayback()) },
+            'Play'
           )
         ),
         help(
           'stop',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(stopPlayback()) },
-            ['Stop']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(stopPlayback()) },
+            'Stop'
           )
         ),
         help(
           'playback speed',
-          h('label', [
+          m('label', [
             'Playback speed:',
-            h(
-              'input',
-              {
-                type: 'range',
-                min: '30',
-                max: '200',
-                step: '1',
-                value: state.playbackBpm,
-              },
-              {
-                input: (e) =>
-                  dispatch(
-                    setPlaybackBpm(
-                      parseInt((e.target as HTMLInputElement).value)
-                    )
-                  ),
-              }
-            ),
+            m('input', {
+              type: 'range',
+              min: '30',
+              max: '200',
+              step: '1',
+              value: state.playbackBpm,
+              oninput: (e: InputEvent) =>
+                dispatch(
+                  setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                ),
+            }),
           ])
         ),
       ]),
@@ -522,126 +486,117 @@ export default function render(state: UIState): V {
   ];
 
   const setting = <T extends keyof Settings>(property: T, name: string) => [
-    h('label', [name]),
-    h(
-      'input',
-      { type: 'number', value: settings[property].toString() },
-      {
-        input: (e) =>
-          dispatch(changeSetting(property, e.target as HTMLInputElement)),
-      }
-    ),
+    m('label', name),
+    m('input', {
+      type: 'number',
+      value: settings[property].toString(),
+      oninput: (e: InputEvent) =>
+        dispatch(changeSetting(property, e.target as HTMLInputElement)),
+    }),
   ];
   const documentMenu = [
-    h('section', [
-      h('h2', ['Pages']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Pages'),
+      m('div[class=section-content]', [
         help(
           'add-page',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(addPage()) },
-            ['Add']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(addPage()) },
+            'Add'
           )
         ),
         help(
           'remove-page',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(removePage()) },
-            ['Remove']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(removePage()) },
+            'Remove'
           )
         ),
       ]),
     ]),
-    h('section', [
-      h('h2', ['Orientation']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Orientation'),
+      m('div[class=section-content]', [
         help(
           'landscape',
-          h(
+          m(
             'button',
-            { class: 'textual' + (state.isLandscape ? ' highlighted' : '') },
-            { click: () => dispatch(landscape()) },
-            ['Landscape']
+            {
+              class: 'textual' + (state.isLandscape ? ' highlighted' : ''),
+              onclick: () => dispatch(landscape()),
+            },
+            'Landscape'
           )
         ),
         help(
           'portrait',
-          h(
+          m(
             'button',
-            { class: 'textual' + (state.isLandscape ? '' : ' highlighted') },
-            { click: () => dispatch(portrait()) },
-            ['Portrait']
+            {
+              class: 'textual' + (state.isLandscape ? '' : ' highlighted'),
+              onclick: () => dispatch(portrait()),
+            },
+            'Portrait'
           )
         ),
       ]),
     ]),
-    h('section', [
-      h('h2', ['Options']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Options'),
+      m('div[class=section-content]', [
         help(
           'page numbers',
-          h('label', [
+          m('label', [
             'Show page numbers: ',
-            h(
-              'input',
-              { type: 'checkbox', checked: state.showingPageNumbers },
-              {
-                click: (e) =>
-                  dispatch(
-                    setPageNumberVisibility(e.target as HTMLInputElement)
-                  ),
-              }
-            ),
+            m('input', {
+              type: 'checkbox',
+              checked: state.showingPageNumbers,
+              onclick: (e: MouseEvent) =>
+                dispatch(setPageNumberVisibility(e.target as HTMLInputElement)),
+            }),
           ])
         ),
       ]),
     ]),
-    h('section', [
-      h('h2', ['Export']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Export'),
+      m('div[class=section-content]', [
         help(
           'print',
-          h(
-            'button',
-            { class: 'textual' },
-            { click: () => dispatch(print()) },
-            ['Print (to PDF, or printer)']
+          m(
+            'button[class=textual]',
+            { onclick: () => dispatch(print()) },
+            'Print (to PDF, or printer)'
           )
         ),
       ]),
     ]),
   ];
   const settingsMenu = [
-    h('section', [
-      h('h2', ['Settings']),
-      h('div', { class: 'section-content' }, [
+    m('section', [
+      m('h2', 'Settings'),
+      m('div[class=section-content]', [
         ...setting('lineGap', 'Gap between lines'),
         ...setting('topOffset', 'Gap at top of page'),
         ...setting('margin', 'Margin'),
         ...setting('staveGap', 'Gap between staves'),
       ]),
     ]),
-    h('section', [
-      h('h2', ['View']),
-      h('div', { class: 'section-content' }, [
-        h('label', ['Disable Help']),
+    m('section', [
+      m('h2', 'View'),
+      m('div[class=section-content]', [
+        m('label', 'Disable Help'),
         help(
           'disable help',
-          h(
-            'input',
-            { type: 'checkbox' },
-            { click: () => dispatch(toggleDoc()) }
-          )
+          m('input', { type: 'checkbox', onclick: () => dispatch(toggleDoc()) })
         ),
       ]),
     ]),
   ];
 
-  const menuMap: Record<Menu, V[]> = {
+  const menuMap: Record<Menu, m.Children[]> = {
     note: noteMenu,
     gracenote: gracenoteMenu,
     bar: barMenu,
@@ -652,17 +607,22 @@ export default function render(state: UIState): V {
     document: documentMenu,
   };
 
-  const menuClass = (s: Menu): Attributes =>
-    s === state.currentMenu ? { class: 'selected' } : {};
+  const menuClass = (s: Menu): string =>
+    s === state.currentMenu ? 'selected' : '';
 
   const menuHead = (name: Menu) =>
-    h('button', menuClass(name), { mousedown: () => dispatch(setMenu(name)) }, [
-      capitalise(name),
-    ]);
-  return h('div', [
-    h('div', { id: 'ui' }, [
-      h('div', { id: 'menu' }, [
-        help('home', h('button', [h('a', { href: '/scores' }, ['Home'])])),
+    m(
+      'button',
+      {
+        class: menuClass(name),
+        onmousedown: () => dispatch(setMenu(name)),
+      },
+      [capitalise(name)]
+    );
+  return m('div', [
+    m('div[id=ui]', [
+      m('div[id=menu]', [
+        help('home', m('button', m('a[href=/scores]', 'Home'))),
         menuHead('note'),
         menuHead('gracenote'),
         menuHead('bar'),
@@ -673,65 +633,60 @@ export default function render(state: UIState): V {
         menuHead('settings'),
         help(
           'help',
-          h('button', [h('a', { href: '/help', target: '_blank' }, ['Help'])])
+          m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
         ),
       ]),
-      h('div', { id: 'topbar' }, [
-        h('div', { id: 'topbar-main' }, menuMap[state.currentMenu]),
-        h('section', { id: 'general-commands' }, [
-          h('h2', ['General Commands']),
-          h('div', { class: 'section-content flex' }, [
-            h('div', [
+      m('div[id=topbar]', [
+        m('div[id=topbar-main]', menuMap[state.currentMenu]),
+        m('section[id=general-commands]', [
+          m('h2', 'General Commands'),
+          m('div', { class: 'section-content flex' }, [
+            m('div', [
               help(
                 'delete',
-                h(
-                  'button',
-                  { id: 'delete-notes', class: 'delete' },
-                  { click: () => dispatch(deleteSelection()) }
-                )
+                m('button[id=delete-notes]', {
+                  class: 'delete',
+                  onclick: () => dispatch(deleteSelection()),
+                })
               ),
               help(
                 'copy',
-                h('button', { id: 'copy' }, { click: () => dispatch(copy()) })
+                m('button[id=copy]', { onclick: () => dispatch(copy()) })
               ),
               help(
                 'paste',
-                h('button', { id: 'paste' }, { click: () => dispatch(paste()) })
+                m('button[id=paste]', { onclick: () => dispatch(paste()) })
               ),
               help(
                 'undo',
-                h('button', { id: 'undo' }, { click: () => dispatch(undo()) })
+                m('button[id=undo]', { onclick: () => dispatch(undo()) })
               ),
               help(
                 'redo',
-                h('button', { id: 'redo' }, { click: () => dispatch(redo()) })
+                m('button[id=redo]', { onclick: () => dispatch(redo()) })
               ),
             ]),
             help(
               'zoom',
-              h(
-                'input',
-                {
-                  id: 'zoom-level',
-                  type: 'range',
-                  min: '10',
-                  max: '200',
-                  step: '2',
-                  value: state.zoomLevel,
-                },
-                { input: inputZoomLevel }
-              )
+              m('input[id=zoom-level]', {
+                type: 'range',
+                min: '10',
+                max: '200',
+                step: '2',
+                value: state.zoomLevel,
+                oninput: inputZoomLevel,
+              })
             ),
           ]),
         ]),
       ]),
       state.loggedIn
         ? null
-        : h('div', { id: 'login-warning' }, [
+        : m('div[id=login-warning]', [
             'You are currently not logged in. Any changes you make will not be saved. ',
-            h('a', { href: '/login' }, ['Create a free account here!']),
+            m('a[href=/login]', 'Create a free account here!'),
           ]),
     ]),
-    state.docs ? h('div', { id: 'doc' }, [state.docs]) : null,
+    state.docs ? m('div[id=doc]', state.docs) : null,
   ]);
 }
