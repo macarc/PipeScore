@@ -6,69 +6,7 @@ import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import m from 'mithril';
 
-function nonNull<T>(a: T | null): T {
-  if (a === null) {
-    throw new Error('Tried to nonNull a null value');
-  }
-  return a as T;
-}
-
 let userId = '';
-
-const updateScores = async () => {
-  const collection = await db.ref(`scores/${userId}/scores`).list();
-  const scores = collection.documents.map((doc) => [
-    doc.name,
-    doc.__meta__.path.replace('/scores', ''),
-  ]);
-  m.render(nonNull(document.getElementById('scores')), [
-    m('p', 'Scores:'),
-    scores.length === 0 ? m('p', 'You have no scores.') : null,
-    m('table', [
-      ...scores.map((score) =>
-        m('tr', [
-          m('td[class=td-name]', [
-            m(
-              'a',
-              { href: '/pipescore' + score[1].replace('/scores/', '/') },
-              score[0]
-            ),
-          ]),
-          m('td', [
-            m(
-              'button[class=rename]',
-              { onclick: () => renameScore(score[1]) },
-              'Rename'
-            ),
-          ]),
-          m('td', [
-            m(
-              'button',
-              {
-                class: 'edit',
-                onclick: () =>
-                  window.location.assign(
-                    '/pipescore' + score[1].replace('/scores/', '/')
-                  ),
-              },
-              'Edit'
-            ),
-          ]),
-          m('td', [
-            m(
-              'button',
-              {
-                class: 'delete',
-                onclick: () => deleteScore(score[1], score[0]),
-              },
-              'Delete'
-            ),
-          ]),
-        ])
-      ),
-    ]),
-  ]);
-};
 
 // This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
@@ -77,37 +15,112 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
-async function deleteScore(path: string, name: string) {
-  const sure = confirm(`Are you sure you want to delete ${name}?`);
-  if (sure) {
-    await db.ref(`scores${path}`).delete();
-    updateScores();
-  }
-}
-async function renameScore(path: string) {
-  const score = await db.ref(`scores${path}`).get();
-  const newName = prompt('Rename:', score.name);
-  if (newName) {
-    score.name = newName;
-    if (score.textBoxes && score.textBoxes[0] && score.textBoxes[0].texts[0]) {
-      score.textBoxes[0].texts[0].text = newName;
+type ScoreRef = { name: string; path: string };
+
+const scoresList = {
+  loading: true,
+  scores: [] as ScoreRef[],
+
+  oninit: function () {
+    auth.listen(async (user) => {
+      if (user) {
+        userId = user.localId;
+        this.refreshScores();
+      } else {
+        window.location.assign('/login');
+      }
+    });
+  },
+
+  view: function () {
+    if (this.loading) return m('p', 'Loading');
+
+    return [
+      m('p', 'Scores:'),
+      this.scores.length === 0 ? m('p', 'You have no scores.') : null,
+      m('table', [
+        ...this.scores.map((score) =>
+          m('tr', [
+            m('td[class=td-name]', [
+              m(
+                'a',
+                { href: '/pipescore' + score.path.replace('/scores/', '/') },
+                score.name
+              ),
+            ]),
+            m('td', [
+              m(
+                'button[class=rename]',
+                { onclick: () => this.rename(score) },
+                'Rename'
+              ),
+            ]),
+            m('td', [
+              m(
+                'button[class=edit]',
+                {
+                  onclick: () =>
+                    window.location.assign(
+                      '/pipescore' + score.path.replace('/scores/', '/')
+                    ),
+                },
+                'Edit'
+              ),
+            ]),
+            m('td', [
+              m(
+                'button[class=delete]',
+                {
+                  onclick: () => this.delete(score),
+                },
+                'Delete'
+              ),
+            ]),
+          ])
+        ),
+      ]),
+    ];
+  },
+
+  delete: async function (score: ScoreRef) {
+    const sure = confirm(`Are you sure you want to delete ${score.name}?`);
+    if (sure) {
+      await db.ref(`scores${score.path}`).delete();
+      this.refreshScores();
     }
-    await db.ref(`scores${path}`).set(score);
-    updateScores();
-  }
-}
-auth.listen(async (user) => {
-  if (user) {
-    userId = user.localId;
-    updateScores();
-  } else {
-    window.location.assign('/login');
-  }
-});
+  },
+
+  rename: async function (scoreRef: ScoreRef) {
+    const score = await db.ref(`scores${scoreRef.path}`).get();
+    const newName = prompt('Rename:', score.name);
+    if (newName) {
+      score.name = newName;
+      if (
+        score.textBoxes &&
+        score.textBoxes[0] &&
+        score.textBoxes[0].texts[0]
+      ) {
+        score.textBoxes[0].texts[0].text = newName;
+      }
+      await db.ref(`scores${scoreRef.path}`).set(score);
+      this.refreshScores();
+    }
+  },
+
+  refreshScores: async function () {
+    const collection = await db.ref(`scores/${userId}/scores`).list();
+    this.scores = collection.documents.map((doc) => ({
+      name: doc.name,
+      path: doc.__meta__.path.replace('/scores', ''),
+    }));
+    this.loading = false;
+    m.redraw();
+  },
+};
 
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('scores');
-  m.render(nonNull(root), m('section[id="scores"]', m('p', 'Loading...')));
+  if (root) m.mount(root, scoresList);
   const signOutBtn = document.getElementById('sign-out');
   if (signOutBtn) signOutBtn.addEventListener('click', () => auth.signOut());
 
