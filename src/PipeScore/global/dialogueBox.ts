@@ -40,9 +40,8 @@ export default function dialogueBox<A>(
         [
           ...inner,
           cancelable
-            ? m('input', {
+            ? m('input[id=cancel-btn]', {
                 type: 'button',
-                id: 'cancel-btn',
                 value: 'Cancel',
                 onclick: () => {
                   dialogueBoxIsOpen = false;
@@ -51,9 +50,8 @@ export default function dialogueBox<A>(
                 },
               })
             : null,
-          m('input', {
+          m('input[class=continue]', {
             type: 'submit',
-            class: 'continue',
             value: 'Ok',
           }),
         ]

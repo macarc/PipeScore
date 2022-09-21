@@ -182,7 +182,6 @@ export default function render(state: UIState): m.Children {
         help(
           'natural',
           m('button[id=natural]', {
-            id: 'natural',
             class:
               inputtingNatural || (!state.demo && naturalAlready)
                 ? 'highlighted'

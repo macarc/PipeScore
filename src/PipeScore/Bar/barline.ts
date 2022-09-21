@@ -84,7 +84,7 @@ export class RepeatB extends Barline {
     const bottomCircleY = y + settings.lineHeightOf(2.7);
     const circleRadius = 2;
     const cx = atStart ? x + circleXOffset : x - circleXOffset;
-    return m('g', { class: 'barline-repeat' }, [
+    return m('g[class=barline-repeat]', [
       new EndB().render(drag, x, y, atStart),
       m('circle', {
         cx,
@@ -111,7 +111,7 @@ export class EndB extends Barline {
     this.drag = drag;
     const thickX = atStart ? x : x - this.thickLineWidth;
     const thinX = atStart ? x + this.lineOffset : x - this.lineOffset;
-    return m('g', { class: 'barline-end' }, [
+    return m('g[class=barline-end]', [
       m('rect', {
         x: thickX,
         y,

@@ -39,25 +39,22 @@ const blankForm = async (): Promise<ScoreOptions> => {
         m('div', { class: 'quickstart-section quickstart-flex' }, [
           m('label', [
             'Title:',
-            m('input', {
+            m('input[id=name]', {
               type: 'text',
-              id: 'name',
               value: 'My Tune',
             }),
           ]),
           m('label', [
             'Composer:',
-            m('input', {
+            m('input[id=composer]', {
               type: 'text',
-              id: 'composer',
               value: 'My name',
             }),
           ]),
           m('label', [
             'Tune type:',
-            m('input', {
+            m('input[id=tune-type]', {
               type: 'text',
-              id: 'tune-type',
               value: 'March',
             }),
           ]),
@@ -88,9 +85,8 @@ const blankForm = async (): Promise<ScoreOptions> => {
           m('label', [
             'Time Signature:',
             m('div', { class: 'quickstart-time-signature' }, [
-              m('input', {
+              m('input[id=num]', {
                 type: 'number',
-                id: 'num',
                 min: 0,
                 value: 2,
                 style: 'display: block',
