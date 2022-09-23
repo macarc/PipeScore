@@ -6,21 +6,20 @@ import m from 'mithril';
 import { dispatch } from '../Controller';
 import { hoverDoc } from '../Controllers/Doc';
 
-export function help(docName: string, element: m.Children): m.Children {
-  docName;
-  dispatch;
-  hoverDoc;
-  /*
-  const initialMouseOver = element.events['mouseover'];
-  const initialMouseOut = element.events['mouseout'];
-  element.events['mouseover'] = (e) => {
+export function help(docName: string, element: m.Vnode): m.Vnode {
+  const attrs = element.attrs as {
+    onmouseover: (e: MouseEvent) => void;
+    onmouseout: (e: MouseEvent) => void;
+  };
+  const initialMouseOver = attrs.onmouseover;
+  const initialMouseOut = attrs.onmouseout;
+  attrs.onmouseover = (e: MouseEvent) => {
     dispatch(hoverDoc(docName));
     if (initialMouseOver) initialMouseOver(e);
   };
-  element.events['mouseout'] = (e) => {
+  attrs.onmouseout = (e: MouseEvent) => {
     dispatch(hoverDoc(''));
     if (initialMouseOut) initialMouseOut(e);
   };
-  */
   return element;
 }

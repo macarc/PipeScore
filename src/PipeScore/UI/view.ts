@@ -78,6 +78,8 @@ export default function render(state: UIState): m.Children {
   const inputtingNatural =
     state.demo instanceof DemoNote && state.demo.natural();
 
+  const help = (s: string, v: m.Vnode): m.Vnode => dochelp(s, v);
+
   const noteInputButton = (length: NoteLength) =>
     help(
       length,
@@ -122,7 +124,6 @@ export default function render(state: UIState): m.Children {
     }
   };
 
-  const help = (s: string, v: m.Children): m.Children => dochelp(s, v);
   const tied =
     state.allSelectedNotes.length === 0
       ? false
