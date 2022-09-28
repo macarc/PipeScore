@@ -91,7 +91,9 @@ class Drones {
     droneGain.gain.value = 0.1;
     this.source.connect(droneGain).connect(this.context.destination);
     this.source.start(0);
-    sleep(1000 * (this.source.buffer?.duration || 0)).then(() => this.loop());
+    const sampleLength = this.source.buffer?.duration || 0;
+    const repeatAfter = sampleLength > 1 ? sampleLength - 3 : sampleLength;
+    sleep(1000 * repeatAfter).then(() => this.loop());
   }
   stop() {
     if (this.source) this.source.stop();
