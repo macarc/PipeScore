@@ -6,7 +6,6 @@
 import { Demo } from './DemoNote';
 import { PlaybackState } from './Playback';
 import { Menu } from './UI/model';
-import m from 'mithril';
 import { Score } from './Score';
 import { Selection } from './Selection';
 import { Note, Triplet } from './Note';
