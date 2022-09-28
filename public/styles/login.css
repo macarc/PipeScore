@@ -27,3 +27,7 @@ form {
 .forgot-password {
   font-size: 0.9rem;
 }
+
+.padding {
+  margin-bottom: 2rem;
+}
