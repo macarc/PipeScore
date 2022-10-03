@@ -5,7 +5,8 @@
 - [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
-- [ ] Make it possible to input natural notes immediately
+
+- [ ] Allow choosing fonts
 
 ### Cleanups
 
@@ -14,10 +15,6 @@
 - [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 
 ## General features
-
-- [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
-- [ ] Add optimised list render
-- [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 
 - [x] Single notes
 - [x] Note groups
@@ -213,3 +210,4 @@
 - [x] Too large a gap before embellishments
 - [x] If the width of gracenotes gets too large, it is limited. This should be taken into account when sizing the bar
 - [x] Shift-left
+- [x] Make it possible to input natural notes immediately
