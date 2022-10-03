@@ -134,6 +134,7 @@ export abstract class Gracenote {
     beamY: number,
     isValid: boolean,
     isSelected: boolean,
+    dragging: boolean,
     index: number
   ): m.Children {
     // Draws head and stem
@@ -171,7 +172,7 @@ export abstract class Gracenote {
         y: y - boxHeight / 2,
         width: boxWidth,
         height: boxHeight,
-        'pointer-events': isSelected ? 'none' : 'default',
+        'pointer-events': dragging ? 'none' : 'default',
         style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
         opacity: 0,
         onmousedown: () => dispatch(clickGracenote(this, index)),
@@ -205,6 +206,7 @@ export abstract class Gracenote {
         y - height,
         true,
         props.preview || selected,
+        props.state.dragged !== null,
         0
       ),
 
@@ -272,6 +274,7 @@ export abstract class Gracenote {
             props.preview ||
               (props.state.selected?.gracenote === this &&
                 (i === props.state.selected?.note || wholeSelected)),
+            props.state.dragged !== null,
             i
           )
         ),
