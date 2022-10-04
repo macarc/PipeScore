@@ -301,17 +301,17 @@ export class TextSelection extends BaseSelection<TextBox> {
   }
 }
 export class BarlineSelection extends BaseSelection<Barline> {
-  public barline: Barline;
+  public drag_cb: (x: number) => void;
 
-  constructor(barline: Barline) {
+  constructor(drag: (x: number) => void) {
     super();
-    this.barline = barline;
+    this.drag_cb = drag;
   }
   public delete() {
     /* Nothing to do */
   }
   public mouseDrag(x: number) {
-    if (this.dragged) this.dragged.drag(x);
+    this.drag_cb(x);
   }
 }
 

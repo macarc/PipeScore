@@ -79,10 +79,10 @@ export function addBar(before: boolean): ScoreEvent {
   };
 }
 
-export function clickBarline(barline: Barline): ScoreEvent {
+export function clickBarline(drag: (x: number) => void): ScoreEvent {
   return async (state: State) => {
     stopInputtingNotes(state);
-    state.selection = new BarlineSelection(barline).drag(barline);
+    state.selection = new BarlineSelection(drag);
     return Update.ViewChanged;
   };
 }

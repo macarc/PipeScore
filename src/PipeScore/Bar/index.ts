@@ -16,7 +16,7 @@ import { addNoteToBarEnd } from '../Controllers/Note';
 import { clickBar } from '../Controllers/Bar';
 import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Controllers/Mouse';
-import { Barline, NormalB } from './barline';
+import bl, { Barline } from './barline';
 import { Previewable } from '../DemoNote/previewable';
 import { dispatch } from '../Controller';
 
@@ -48,8 +48,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
     super(genId());
     this.ts = timeSignature.copy();
     this.notes = [];
-    this.frontBarline = new NormalB();
-    this.backBarline = new NormalB();
+    this.frontBarline = 'normal';
+    this.backBarline = 'normal';
   }
   public static fromJSON(o: Obj) {
     const b = o.isAnacrusis
@@ -58,8 +58,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
     b.notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
     b.fixedWidth = o.width === undefined ? 'auto' : o.width;
-    b.backBarline = Barline.fromJSON(o.backBarline);
-    b.frontBarline = Barline.fromJSON(o.frontBarline);
+    b.backBarline = bl.fromJSON(o.backBarline);
+    b.frontBarline = bl.fromJSON(o.frontBarline);
     return b;
   }
   public toJSON() {
@@ -69,8 +69,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
       notes: this.notes
         .filter((n) => n !== this.previewNote)
         .map((n) => n.toJSON()),
-      backBarline: this.backBarline.toJSON(),
-      frontBarline: this.frontBarline.toJSON(),
+      backBarline: bl.toJSON(this.backBarline),
+      frontBarline: bl.toJSON(this.frontBarline),
       timeSignature: this.ts.toJSON(),
       width: this.fixedWidth,
     };
@@ -185,11 +185,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
     }
   }
 
-  public startBarline(barline: typeof Barline) {
-    return this.frontBarline instanceof barline;
+  public startBarline(barline: Barline) {
+    return this.frontBarline === barline;
   }
-  public endBarline(barline: typeof Barline) {
-    return this.backBarline instanceof barline;
+  public endBarline(barline: Barline) {
+    return this.backBarline === barline;
   }
   public setPreview(noteBefore: SingleNote | null, note: SingleNote) {
     if (noteBefore && noteBefore.isDemo()) {
@@ -335,11 +335,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
       props.width -
       (hasTimeSignature ? this.ts.width() : 0) -
       SingleNote.width -
-      this.frontBarline.width() -
-      this.backBarline.width();
+      bl.width(this.frontBarline) -
+      bl.width(this.backBarline);
     const xAfterTimeSignature =
       props.x + (hasTimeSignature ? this.ts.width() : 0);
-    const xAfterBarline = xAfterTimeSignature + this.frontBarline.width();
+    const xAfterBarline = xAfterTimeSignature + bl.width(this.frontBarline);
 
     const actualNotes = this.notes.filter((note) => note !== this.previewNote);
 
@@ -426,27 +426,27 @@ export class Bar extends Item implements Previewable<SingleNote> {
           }) || null
         : null,
 
-      !this.frontBarline.symmetric ||
+      bl.mustDraw(this.frontBarline) ||
       props.shouldRenderFirstBarline ||
       hasTimeSignature
-        ? this.frontBarline.render(
-            () => null,
-            xAfterTimeSignature,
-            props.y,
-            true
-          )
+        ? bl.render(this.frontBarline, {
+            x: xAfterTimeSignature,
+            y: props.y,
+            atStart: true,
+            drag: () => null,
+          })
         : null,
-      !this.backBarline.symmetric || props.shouldRenderLastBarline
-        ? this.backBarline.render(
-            (x) => {
+      bl.mustDraw(this.backBarline) || props.shouldRenderLastBarline
+        ? bl.render(this.backBarline, {
+            x: props.x + props.width,
+            y: props.y,
+            atStart: false,
+            drag: (x) => {
               const newWidth = x - props.x;
               if (props.resize(newWidth - props.width))
                 this.fixedWidth = newWidth;
             },
-            props.x + props.width,
-            props.y,
-            false
-          )
+          })
         : null,
       hasTimeSignature
         ? this.ts.render({

@@ -46,7 +46,7 @@ import { centreText, addText } from '../Controllers/Text';
 import { addStave } from '../Controllers/Stave';
 import { help as dochelp } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
-import { Barline, EndB, NormalB, RepeatB } from '../Bar/barline';
+import { Barline } from '../Bar/barline';
 import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
 import { Settings, settings } from '../global/settings';
 import { capitalise } from '../global/utils';
@@ -254,12 +254,12 @@ export default function render(state: UIState): m.Children {
     ];
   };
 
-  const startBarClass = (type: typeof Barline) =>
+  const startBarClass = (type: Barline) =>
     'textual' +
     (state.selectedBar && state.selectedBar.startBarline(type)
       ? ' highlighted'
       : '');
-  const endBarClass = (type: typeof Barline) =>
+  const endBarClass = (type: Barline) =>
     'textual' +
     (state.selectedBar && state.selectedBar.endBarline(type)
       ? ' highlighted'
@@ -280,9 +280,9 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: startBarClass(NormalB),
+                class: startBarClass('normal'),
                 style: 'margin-left: .5rem;',
-                onclick: () => dispatch(setBarRepeat('start', new NormalB())),
+                onclick: () => dispatch(setBarRepeat('start', 'normal')),
               },
               'Normal'
             )
@@ -292,8 +292,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: startBarClass(RepeatB),
-                onclick: () => dispatch(setBarRepeat('start', new RepeatB())),
+                class: startBarClass('repeat'),
+                onclick: () => dispatch(setBarRepeat('start', 'repeat')),
               },
               'Repeat'
             )
@@ -303,8 +303,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: startBarClass(EndB),
-                onclick: () => dispatch(setBarRepeat('start', new EndB())),
+                class: startBarClass('end'),
+                onclick: () => dispatch(setBarRepeat('start', 'end')),
               },
               'Part'
             )
@@ -317,9 +317,9 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: endBarClass(NormalB),
+                class: endBarClass('normal'),
                 style: 'margin-left: .5rem;',
-                onclick: () => dispatch(setBarRepeat('end', new NormalB())),
+                onclick: () => dispatch(setBarRepeat('end', 'normal')),
               },
               'Normal'
             )
@@ -329,8 +329,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: endBarClass(RepeatB),
-                onclick: () => dispatch(setBarRepeat('end', new RepeatB())),
+                class: endBarClass('repeat'),
+                onclick: () => dispatch(setBarRepeat('end', 'repeat')),
               },
               'Repeat'
             )
@@ -340,8 +340,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: endBarClass(EndB),
-                onclick: () => dispatch(setBarRepeat('end', new EndB())),
+                class: endBarClass('end'),
+                onclick: () => dispatch(setBarRepeat('end', 'end')),
               },
               ['Part']
             )
