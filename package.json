@@ -1,5 +1,12 @@
 {
-  "dependencies": {
-    "typescript": "^4.8.4"
-  }
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch"
+    },
+    "dependencies": {
+        "typescript": "^4.8.4"
+    },
+    "devDependencies": {
+        "@types/node": "^18.8.1"
+    }
 }
