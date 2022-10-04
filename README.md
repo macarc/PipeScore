@@ -2,7 +2,7 @@
 
 ## A bagpipe notation app
 
-PipeScore's "killer feature" is reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
+PipeScore is designed around reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
 
 ![GIF of reactive gracenote](dragging-gracenote.gif)
 
@@ -10,9 +10,15 @@ PipeScore's "killer feature" is reactive gracenotes - pipe embellishments that a
 
 It is currently under development - see `todo.md` for a rough roadmap.
 
-PipeScore is written in [TypeScript](https://www.typescriptlang.org/). I use my own [virtual dom library](https://github.com/macarc/marender). It uses [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite) and [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite) for a smaller, faster experience.
-
-Building is done with the amazing [esbuild](https://github.com/evanw/esbuild), linting with [eslint](https://eslint.org/), and circular dependency detection with [madge](https://github.com/pahen/madge). Code formatting is done with [prettier](https://prettier.io).
+PipeScore is powered by:
+- [typescript](https://www.typescriptlang.org/)
+- [mithril](https://mithril.js.org/) for rendering
+- [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via the following libraries:
+  - [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite)
+  - [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite)
+- [esbuild](https://github.com/evanw/esbuild) for building
+- [eslint](https://eslint.org/) for linting
+- [prettier](https://prettier.io) for code formatting
 
 To learn more about how it works, have a look at the READMEs in `src/PipeScore` and `src/render`.
 
@@ -44,29 +50,31 @@ $ ./scripts/linecount.zsh
 
 You will need:
 
-- `pandoc`
 - `python3` (and `pip3`)
 - `npm`
-- `tsc`
+
+To install dependencies, run:
+```bash
+$ npm install            # install JS dependencies
+$ pip3 install svgwrite  # install svgwrite, for building icons
+```
 
 To make icons and HTML pages, run:
 
 ```bash
-$ pip3 install svgwrite
-$ ./scripts/buildall.sh
+$ ./scripts/buildall.sh  # build static pages and icons
 ```
 
 Run the following commands to run locally, ideally in separate terminals:
 
 ```bash
-$ npm run dev       # to run the development server
-$ npm run watch     # to rebuild JS on changes
-$ npx tsc --watch   # to typecheck
+$ npm run dev       # run the development server
+$ npm run watch     # rebuild JS on changes
+$ npx tsc --watch   # typecheck
 ```
 
-To deploy:
+To build a production bundle run:
 
 ```bash
-$ npm run build    # to build minified bundle
-$ npm run deploy   # to deploy to Firebase
+$ npm run build    # build minified bundle
 ```
