@@ -59,6 +59,13 @@ span.option {
   font-family: monospace;
 }
 
+table.shortcut-table tr td:first-child {
+  min-width: 11rem;
+}
+table.shortcut-table th {
+  text-align: left;
+}
+
 @media only screen and (min-width: 650px) {
   #main {
     display: flex;
