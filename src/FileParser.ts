@@ -3,6 +3,8 @@ export default class FileParser {
         /^Bagpipe Reader|^Bagpipe Music Writer Gold:\d.\d|^MIDINoteMappings|^FrequencyMappings|^InstrumentMappings|^GracenoteDurations|^FontSizes|^TuneFormat/;
     tempoRegexp: RegExp = /^TuneTempo,(\d+)/;
     definitionRegexp: RegExp = /^\"(.*)\",.+/;
+    tempo!: number;
+    definitions: string[] = [];
 
     parse(data: string): void {
         let lines: string[] = data.split("\r\n");
@@ -12,14 +14,18 @@ export default class FileParser {
             if (line.match(this.headerRegexp)) {
                 return;
             } else if ((match = line.match(this.tempoRegexp))) {
-                console.log(`Matched Tempo: ${match[1]}`);
+                this.tempo = Number(match[1]);
             } else if ((match = line.match(this.definitionRegexp))) {
-                console.log(`Matched Definition: ${match[1]}`);
+                this.definitions.push(match[1]);
             } else if (line === "") {
                 return;
             } else {
-                console.log(line);
+                // console.log(line);
             }
         });
+    }
+
+    getTempo(): number {
+        return this.tempo;
     }
 }
