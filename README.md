@@ -11,6 +11,7 @@ PipeScore is designed around reactive gracenotes - pipe embellishments that auto
 It is currently under development - see `todo.md` for a rough roadmap.
 
 PipeScore is powered by:
+
 - [typescript](https://www.typescriptlang.org/)
 - [mithril](https://mithril.js.org/) for rendering
 - [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via the following libraries:
@@ -54,6 +55,7 @@ You will need:
 - `npm`
 
 To install dependencies, run:
+
 ```bash
 $ npm install            # install JS dependencies
 $ pip3 install svgwrite  # install svgwrite, for building icons
