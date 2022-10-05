@@ -3,22 +3,32 @@
   Copyright (C) 2021 macarc
  */
 import { Pitch } from '../global/pitch';
-import { MaybeGracenote } from '.';
+export type GracenoteNoteList = Pitch[] & {
+  invalid: boolean;
+};
 
-type GracenoteFn = (note: Pitch, prev: Pitch | null) => MaybeGracenote;
+export function noteList(
+  list: Pitch[],
+  valid: boolean = true
+): GracenoteNoteList {
+  const noteList = list as GracenoteNoteList;
+  noteList.invalid = !valid;
+  return noteList;
+}
 
-const invalidateIf = (pred: boolean, gracenote: Pitch[]): MaybeGracenote =>
-  new MaybeGracenote(gracenote, !pred);
+type GracenoteFn = (note: Pitch, prev: Pitch | null) => GracenoteNoteList;
+
+const invalidateIf = (pred: boolean, gracenote: Pitch[]) =>
+  noteList(gracenote, !pred);
 
 // Where are monads when you need them
 const invalidateIfBind = (
   prev: boolean,
-  gracenote: MaybeGracenote
-): MaybeGracenote =>
-  new MaybeGracenote(gracenote.notes(), !(prev || !gracenote.isValid()));
+  gracenote: GracenoteNoteList
+): GracenoteNoteList => noteList(gracenote, !(prev || gracenote.invalid));
 
-const invalid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, false);
-const valid = (gracenote: Pitch[]) => new MaybeGracenote(gracenote, true);
+const invalid = (gracenote: Pitch[]) => noteList(gracenote, false);
+const valid = (gracenote: Pitch[]) => noteList(gracenote, true);
 
 // gracenotes is a map containing all the possible embellishments in the form of functions
 // To get the notes of an embellishment, first get the gracenote type you want, e.g. gracenote["doubling"]

@@ -4,12 +4,13 @@
  */
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
-import {
+import g, {
   Gracenote,
   GracenoteProps,
   NoGracenote,
   ReactiveGracenote,
   SingleGracenote,
+  CustomGracenote,
 } from '../Gracenote';
 import { foreach, nfirst, nlast, Obj } from '../global/utils';
 import {
@@ -66,10 +67,8 @@ export interface NoteProps {
 export abstract class BaseNote extends Item {
   protected length: NoteLength;
   protected tied: boolean;
-  abstract addGracenote(
-    gracenote: Pitch | Gracenote,
-    previous: Note | null
-  ): void;
+  abstract setGracenote(gracenote: Gracenote): void;
+  abstract addSingleGracenote(gracenote: Pitch, previous: Note | null): void;
   abstract width(previous: Pitch | null): Width;
   abstract firstSingle(): SingleNote;
   abstract lastSingle(): SingleNote;
@@ -341,7 +340,7 @@ export class SingleNote
       o.length,
       o.tied,
       o.hasNatural || false,
-      Gracenote.fromJSON(o.gracenote)
+      g.fromJSON(o.gracenote)
     );
   }
   public toObject() {
@@ -350,25 +349,30 @@ export class SingleNote
       length: this.length,
       tied: this.tied,
       hasNatural: this.hasNatural,
-      gracenote: this.gracenote.toJSON(),
+      gracenote: g.toJSON(this.gracenote),
     };
   }
   public hasPreview() {
     return this.previewGracenote !== null;
   }
   public makePreviewReal(previous: Note | null) {
-    if (this.previewGracenote)
-      this.addGracenote(this.previewGracenote, previous);
+    if (this.previewGracenote) this.setGracenote(this.previewGracenote);
   }
   public setPreview(gracenote: Gracenote | Pitch, previous: Note | null) {
-    if (gracenote instanceof Gracenote) {
+    if (
+      gracenote instanceof SingleGracenote ||
+      gracenote instanceof ReactiveGracenote ||
+      gracenote instanceof NoGracenote ||
+      gracenote instanceof CustomGracenote
+    ) {
       if (!this.gracenote.equals(gracenote)) {
         this.previewGracenote = gracenote;
       } else {
         this.previewGracenote = null;
       }
     } else {
-      this.previewGracenote = this.gracenote.addSingle(
+      this.previewGracenote = g.addSingle(
+        this.gracenote,
         gracenote,
         this.pitch,
         previous?.lastPitch() || null
@@ -412,8 +416,8 @@ export class SingleNote
       ? width.zero()
       : width.init(
           this.previewGracenote
-            ? this.previewGracenote.width(this.pitch, prevNote)
-            : this.gracenote.width(this.pitch, prevNote),
+            ? g.width(this.previewGracenote, this.pitch, prevNote)
+            : g.width(this.gracenote, this.pitch, prevNote),
           0
         );
   }
@@ -459,7 +463,7 @@ export class SingleNote
   }
   public play(previous: Pitch | null) {
     return [
-      ...this.gracenote.play(this.pitch, previous),
+      ...g.play(this.gracenote, this.pitch, previous),
       {
         pitch: this.pitch,
         tied: this.tied,
@@ -482,16 +486,16 @@ export class SingleNote
   public canHaveNatural() {
     return this.pitch === Pitch.C || this.pitch === Pitch.F;
   }
-  public addGracenote(g: Pitch | Gracenote, previous: Note | null = null) {
-    if (g instanceof Gracenote) {
-      this.gracenote = g;
-    } else {
-      this.gracenote = this.gracenote.addSingle(
-        g,
-        this.pitch,
-        previous && previous.lastPitch()
-      );
-    }
+  public setGracenote(grace: Gracenote) {
+    this.gracenote = grace;
+  }
+  public addSingleGracenote(grace: Pitch, previous: Note | null = null) {
+    this.gracenote = g.addSingle(
+      this.gracenote,
+      grace,
+      this.pitch,
+      previous && previous.lastPitch()
+    );
   }
   public replaceGracenote(g: Gracenote, n: Gracenote) {
     if (this.gracenote === g) this.gracenote = n;
@@ -561,13 +565,13 @@ export class SingleNote
   }
   private renderGracenote(props: GracenoteProps) {
     if (this.previewGracenote) {
-      return this.previewGracenote.render({
+      return g.render(this.previewGracenote, {
         ...props,
         x: props.x + noteHeadRadius / 2,
         preview: true,
       });
     }
-    return this.gracenote.render({
+    return g.render(this.gracenote, {
       ...props,
       x: props.x + noteHeadRadius / 2,
       preview: false,
@@ -1080,8 +1084,11 @@ export class Triplet extends BaseNote {
   public setLastPitch(pitch: Pitch) {
     nlast(this._notes).setLastPitch(pitch);
   }
-  public addGracenote(g: Pitch | Gracenote, previous: Note | null) {
-    this.firstSingle().addGracenote(g, previous);
+  public setGracenote(g: Gracenote) {
+    this.firstSingle().setGracenote(g);
+  }
+  public addSingleGracenote(g: Pitch, previous: Note | null) {
+    this.firstSingle().addSingleGracenote(g, previous);
   }
   public natural() {
     return this._notes.every((note) => note.natural());

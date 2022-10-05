@@ -13,7 +13,7 @@ import { settings } from '../global/settings';
 import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
 import { Update } from '../Controllers/Controller';
-import { SingleGracenote, Gracenote, NoGracenote } from '../Gracenote';
+import g, { Gracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { car, foreach, last } from '../global/utils';
 import { Stave } from '../Stave';
@@ -385,6 +385,19 @@ export class TripletLineSelection {
   }
 }
 
+/*
+interface Callbacks {
+  drag?: () => void;
+  overPitch?: () => void;
+  delete?: () => void;
+}
+export class GeneralSelection {
+  cb: Callbacks;
+  constructor(cb: Callbacks) {
+    this.cb = cb;
+  }
+}
+*/
 export class GracenoteSelection extends BaseSelection<Gracenote> {
   // Selected must be separate from dragged as it is used for deleting
   // e.g. clicking a gracenote to select in, then deleting it
@@ -404,8 +417,8 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
     changeGracenoteFrom(
       this.selected,
       this.note === 'all'
-        ? new NoGracenote()
-        : this.selected.removeSingle(this.note),
+        ? g.fromName('none')
+        : g.removeSingle(this.selected, this.note),
       score
     );
   }
@@ -423,6 +436,12 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
       return Update.ViewChanged;
     }
     return Update.NoChange;
+  }
+  public moveUp() {
+    this.single()?.moveUp();
+  }
+  public moveDown() {
+    this.single()?.moveDown();
   }
   public single(): SingleGracenote | null {
     if (this.selected instanceof SingleGracenote) return this.selected;

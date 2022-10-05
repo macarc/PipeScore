@@ -111,7 +111,7 @@ export class DemoGracenote extends BaseDemo<SingleGracenote, SingleNote> {
     noteBefore: Note | null
   ) {
     this.previous?.removePreview();
-    if (note) note.addGracenote(pitch, noteBefore);
+    if (note) note.addSingleGracenote(pitch, noteBefore);
   }
   public setPitch(
     pitch: Pitch,
@@ -145,7 +145,7 @@ export class DemoReactive extends BaseDemo<ReactiveGracenote, SingleNote> {
     noteBefore: Note | null
   ) {
     this.previous?.removePreview();
-    if (note) note.addGracenote(this.toGracenote(), noteBefore);
+    if (note) note.setGracenote(this.toGracenote());
   }
   public setPitch(
     pitch: Pitch | null,

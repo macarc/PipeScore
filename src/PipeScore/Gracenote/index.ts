@@ -7,22 +7,9 @@ import { clickGracenote } from '../Controllers/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';
-import { gracenotes } from './gracenotes';
+import { noteList, gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 import { dispatch } from '../Controller';
-
-const tailXOffset = 2.6;
-// actually this is half of the head width
-const gracenoteHeadRadius = 3;
-const gracenoteHeadHeight = 2;
-const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
-const gracenoteHeadGap = 1.5 * gracenoteHeadWidth;
-const gapAfterGracenote = 6;
-
-// Offsets from the centre of the gracenote head to the point where the stem touches it
-const stemXOf = (x: number) => x + 3;
-
-const colourOf = (selected: boolean) => (selected ? 'orange' : 'black');
 
 export interface GracenoteProps {
   thisNote: Pitch;
@@ -33,37 +20,14 @@ export interface GracenoteProps {
   state: GracenoteState;
 }
 
-export abstract class Gracenote {
-  abstract equals(other: Gracenote): boolean;
-  abstract notes(thisNote?: Pitch, previousNote?: Pitch | null): MaybeGracenote;
-  abstract toObject(): Obj;
-  abstract copy(): Gracenote;
-  abstract drag(pitch: Pitch, note: number): Gracenote;
+export type Gracenote =
+  | SingleGracenote
+  | ReactiveGracenote
+  | CustomGracenote
+  | NoGracenote;
 
-  public static from(name: string | null) {
-    if (name === null) {
-      return new SingleGracenote(Pitch.HG);
-    } else if (name === 'none') {
-      return new NoGracenote();
-    } else {
-      return new ReactiveGracenote(name);
-    }
-  }
-  public static fromJSON(o: Obj) {
-    switch (o.type) {
-      case 'single':
-        return SingleGracenote.fromObject(o.value);
-      case 'reactive':
-        return ReactiveGracenote.fromObject(o.value);
-      case 'custom':
-        return CustomGracenote.fromObject(o.value);
-      case 'none':
-        return NoGracenote.fromObject();
-      default:
-        throw new Error(`Unrecognised Gracenote type ${o.type}`);
-    }
-  }
-  public toJSON(): Obj {
+export default {
+  toJSON: function (g: Gracenote): Obj {
     let type = 'single';
     if (this instanceof SingleGracenote) {
       type = 'single';
@@ -80,18 +44,50 @@ export abstract class Gracenote {
       type,
       value: this.toObject(),
     };
-  }
-
-  public name() {
-    return '';
-  }
-  public numberOfNotes(thisNote: Pitch, previous: Pitch) {
-    const notes = this.notes(thisNote, previous).notes().length;
+  },
+  fromJSON: function (o: Obj): Gracenote {
+    switch (o.type) {
+      case 'single':
+        return SingleGracenote.fromObject(o.value);
+      case 'reactive':
+        return ReactiveGracenote.fromObject(o.value);
+      case 'custom':
+        return CustomGracenote.fromObject(o.value);
+      case 'none':
+        return NoGracenote.fromObject();
+      default:
+        throw new Error(`Unrecognised Gracenote type ${o.type}`);
+    }
+  },
+  fromName: function (name: string | null) {
+    if (name === null) {
+      return new SingleGracenote(Pitch.HG);
+    } else if (name === 'none') {
+      return new NoGracenote();
+    } else {
+      return new ReactiveGracenote(name);
+    }
+  },
+  equal(a: Gracenote, b: Gracenote) {
+    return a.equals(b);
+  },
+  copy: function (g: Gracenote): Gracenote {
+    return g.copy();
+  },
+  drag: function (g: Gracenote, pitch: Pitch, note: number): Gracenote {
+    return g.drag(pitch, note);
+  },
+  numberOfNotes(g: Gracenote, thisNote: Pitch, previous: Pitch) {
+    const notes = g.notes(thisNote, previous).length;
     if (notes === 0) return 0;
     // We need extra space before the note, so add one note
     return notes + 1;
-  }
-  public addSingle(
+  },
+  name: function (g: Gracenote) {
+    return g.name();
+  },
+  addSingle: function (
+    g: Gracenote,
     newPitch: Pitch,
     note: Pitch,
     prev: Pitch | null
@@ -99,191 +95,212 @@ export abstract class Gracenote {
     // Add a single to an existing gracenote
     // Used for creating custom embellisments
 
-    const notes = this.notes(note, prev).notes();
-    if (notes.length > 0)
-      return new CustomGracenote().addNotes(...notes, newPitch);
+    const notes = g.notes(note, prev);
+    if (notes.length > 0) return new CustomGracenote(...notes, newPitch);
     else return new SingleGracenote(newPitch);
-  }
-  public removeSingle(index: number) {
-    const notes = this.notes().notes();
+  },
+  removeSingle: function (g: Gracenote, index: number) {
+    const notes = g.notes();
     if (notes.length <= 1) {
       return new NoGracenote();
     } else {
-      return new CustomGracenote().addNotes(
+      return new CustomGracenote(
         ...notes.slice(0, index),
         ...notes.slice(index + 1)
       );
     }
-  }
+  },
 
-  public width(thisNote: Pitch, previousNote: Pitch | null): number {
-    const notes = this.notes(thisNote, previousNote);
-    const length = notes.notes().length;
+  play: function (g: Gracenote, thisNote: Pitch, previousNote: Pitch | null) {
+    const notes = g.notes(thisNote, previousNote);
+    return notes.invalid
+      ? []
+      : notes.map((pitch) => ({ pitch, tied: false, duration: 0 }));
+  },
+  width: function (g: Gracenote, thisNote: Pitch, previousNote: Pitch | null) {
+    const notes = g.notes(thisNote, previousNote);
+    const length = notes.length;
     return gracenoteHeadGap * length + gapAfterGracenote;
-  }
-  public play(thisNote: Pitch, previous: Pitch | null) {
-    const notes = this.notes(thisNote, previous);
-    return notes.isValid()
-      ? notes.notes().map((pitch) => ({ pitch, tied: false, duration: 0 }))
-      : [];
-  }
-  protected head(
-    x: number,
-    y: number,
-    note: Pitch,
-    beamY: number,
-    isValid: boolean,
-    isSelected: boolean,
-    dragging: boolean,
-    index: number
-  ): m.Children {
-    // Draws head and stem
+  },
+  render,
+};
 
-    const stemY = y - 1;
-    const ledgerLeft = 5;
-    const ledgerRight = 5.1;
-    const rotateText = 'rotate(-30 ' + x + ' ' + y + ')';
-    const boxWidth = 3 * gracenoteHeadRadius;
-    const boxHeight = 8;
-    const colour = colourOf(isSelected);
+const tailXOffset = 2.6;
+// actually this is half of the head width
+const gracenoteHeadRadius = 3;
+const gracenoteHeadHeight = 2;
+const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
+const gracenoteHeadGap = 1.5 * gracenoteHeadWidth;
+const gapAfterGracenote = 6;
 
-    return m('g[class=gracenote-head]', [
-      note === Pitch.HA
-        ? m('line', {
-            x1: x - ledgerLeft,
-            x2: x + ledgerRight,
-            y1: y,
-            y2: y,
-            stroke: colour,
-          })
-        : null,
-      m('ellipse', {
-        cx: x,
-        cy: y,
-        rx: gracenoteHeadRadius,
-        ry: gracenoteHeadHeight,
-        transform: rotateText,
-        fill: isValid ? colour : 'red',
-        'pointer-events': 'none',
-      }),
+// Offsets from the centre of the gracenote head to the point where the stem touches it
+const stemXOf = (x: number) => x + 3;
+const colourOf = (selected: boolean) => (selected ? 'orange' : 'black');
 
-      m('rect', {
-        x: x - boxWidth / 2,
-        y: y - boxHeight / 2,
-        width: boxWidth,
-        height: boxHeight,
-        'pointer-events': dragging ? 'none' : 'default',
-        style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
-        opacity: 0,
-        onmousedown: () => dispatch(clickGracenote(this, index)),
-      }),
+function head(
+  gracenote: Gracenote,
+  x: number,
+  y: number,
+  note: Pitch,
+  beamY: number,
+  isValid: boolean,
+  isSelected: boolean,
+  dragging: boolean,
+  index: number
+): m.Children {
+  // Draws head and stem
+
+  const stemY = y - 1;
+  const ledgerLeft = 5;
+  const ledgerRight = 5.1;
+  const rotateText = 'rotate(-30 ' + x + ' ' + y + ')';
+  const boxWidth = 3 * gracenoteHeadRadius;
+  const boxHeight = 8;
+  const colour = colourOf(isSelected);
+
+  return m('g[class=gracenote-head]', [
+    note === Pitch.HA
+      ? m('line', {
+          x1: x - ledgerLeft,
+          x2: x + ledgerRight,
+          y1: y,
+          y2: y,
+          stroke: colour,
+        })
+      : null,
+    m('ellipse', {
+      cx: x,
+      cy: y,
+      rx: gracenoteHeadRadius,
+      ry: gracenoteHeadHeight,
+      transform: rotateText,
+      fill: isValid ? colour : 'red',
+      'pointer-events': 'none',
+    }),
+
+    m('rect', {
+      x: x - boxWidth / 2,
+      y: y - boxHeight / 2,
+      width: boxWidth,
+      height: boxHeight,
+      'pointer-events': dragging ? 'none' : 'default',
+      style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
+      opacity: 0,
+      onmousedown: () => dispatch(clickGracenote(gracenote, index)),
+    }),
+    m('line', {
+      x1: x + tailXOffset,
+      x2: x + tailXOffset,
+      y1: stemY,
+      y2: beamY,
+      stroke: colour,
+    }),
+  ]);
+}
+function renderSingle(
+  gracenote: Gracenote,
+  note: Pitch,
+  props: GracenoteProps
+) {
+  const y = noteY(props.y, note);
+  const wholeSelected =
+    props.state.selected?.gracenote === gracenote &&
+    props.state.selected?.note === 'all';
+  const selected =
+    props.state.selected?.gracenote === gracenote &&
+    (props.state.selected?.note === 0 || wholeSelected);
+
+  const colour = colourOf(wholeSelected || props.preview);
+  const height = settings.lineHeightOf(3);
+
+  return m('g[class=gracenote]', [
+    head(
+      gracenote,
+      props.x,
+      y,
+      note,
+      y - height,
+      true,
+      props.preview || selected,
+      props.state.dragged !== null,
+      0
+    ),
+
+    ...[0, 1, 2].map((n) =>
       m('line', {
-        x1: x + tailXOffset,
-        x2: x + tailXOffset,
-        y1: stemY,
-        y2: beamY,
+        x1: stemXOf(props.x),
+        x2: stemXOf(props.x) + 5,
+        y1: y - height + 3 * n,
+        y2: y - height + 4 + 3 * n,
         stroke: colour,
-      }),
-    ]);
-  }
-  private renderSingle(note: Pitch, props: GracenoteProps) {
-    const y = noteY(props.y, note);
-    const wholeSelected =
-      props.state.selected?.gracenote === this &&
-      props.state.selected?.note === 'all';
-    const selected =
-      props.state.selected?.gracenote === this &&
-      (props.state.selected?.note === 0 || wholeSelected);
+      })
+    ),
+  ]);
+}
 
+function render(g: Gracenote, props: GracenoteProps): m.Children {
+  const wholeSelected =
+    props.state.selected?.gracenote === g &&
+    props.state.selected?.note === 'all';
+  const pitches = g.notes(props.thisNote, props.previousNote);
+  // If each note is an object, then we can use .indexOf and other related functions
+  const uniqueNotes = pitches.map((note) => ({ note }));
+
+  const xOf = (noteObj: { note: Pitch }) =>
+    props.x +
+    gapAfterGracenote / 2 +
+    uniqueNotes.indexOf(noteObj) * gracenoteHeadGap;
+  const y = (note: Pitch) => noteY(props.y, note);
+
+  if (uniqueNotes.length === 0) {
+    return m('g');
+  } else if (uniqueNotes.length === 1) {
+    return renderSingle(g, uniqueNotes[0].note, props);
+  } else {
     const colour = colourOf(wholeSelected || props.preview);
-    const height = settings.lineHeightOf(3);
-
-    return m('g[class=gracenote]', [
-      this.head(
-        props.x,
-        y,
-        note,
-        y - height,
-        true,
-        props.preview || selected,
-        props.state.dragged !== null,
-        0
-      ),
-
-      ...[0, 1, 2].map((n) =>
+    const beamY = props.y - settings.lineHeightOf(3.5);
+    const tailStart = xOf(uniqueNotes[0]) + tailXOffset - 0.5;
+    const tailEnd = xOf(nlast(uniqueNotes)) + tailXOffset + 0.5;
+    const clickBoxMargin = 3;
+    return m('g[class=reactive-gracenote]', [
+      ...[0, 2, 4].map((i) =>
         m('line', {
-          x1: stemXOf(props.x),
-          x2: stemXOf(props.x) + 5,
-          y1: y - height + 3 * n,
-          y2: y - height + 4 + 3 * n,
+          x1: tailStart,
+          x2: tailEnd,
+          y1: beamY + i,
+          y2: beamY + i,
           stroke: colour,
         })
       ),
+      m('rect', {
+        x: tailStart,
+        y: beamY - clickBoxMargin,
+        width: tailEnd - tailStart,
+        height: 4 + 2 * clickBoxMargin,
+        opacity: 0,
+        style: 'cursor: pointer;',
+        onmousedown: () => dispatch(clickGracenote(g, 'all')),
+      }),
+      ...uniqueNotes.map((noteObj, i) =>
+        head(
+          g,
+          xOf(noteObj),
+          y(noteObj.note),
+          noteObj.note,
+          beamY,
+          !pitches.invalid,
+          props.preview ||
+            (props.state.selected?.gracenote === g &&
+              (i === props.state.selected?.note || wholeSelected)),
+          props.state.dragged !== null,
+          i
+        )
+      ),
     ]);
-  }
-  public render(props: GracenoteProps): m.Children {
-    const wholeSelected =
-      props.state.selected?.gracenote === this &&
-      props.state.selected?.note === 'all';
-    const pitches = this.notes(props.thisNote, props.previousNote);
-    // If each note is an object, then we can use .indexOf and other related functions
-    const uniqueNotes = pitches.notes().map((note) => ({ note }));
-
-    const xOf = (noteObj: { note: Pitch }) =>
-      props.x +
-      gapAfterGracenote / 2 +
-      uniqueNotes.indexOf(noteObj) * gracenoteHeadGap;
-    const y = (note: Pitch) => noteY(props.y, note);
-
-    if (uniqueNotes.length === 0) {
-      return m('g');
-    } else if (uniqueNotes.length === 1) {
-      return this.renderSingle(uniqueNotes[0].note, props);
-    } else {
-      const colour = colourOf(wholeSelected || props.preview);
-      const beamY = props.y - settings.lineHeightOf(3.5);
-      const tailStart = xOf(uniqueNotes[0]) + tailXOffset - 0.5;
-      const tailEnd = xOf(nlast(uniqueNotes)) + tailXOffset + 0.5;
-      const clickBoxMargin = 3;
-      return m('g[class=reactive-gracenote]', [
-        ...[0, 2, 4].map((i) =>
-          m('line', {
-            x1: tailStart,
-            x2: tailEnd,
-            y1: beamY + i,
-            y2: beamY + i,
-            stroke: colour,
-          })
-        ),
-        m('rect', {
-          x: tailStart,
-          y: beamY - clickBoxMargin,
-          width: tailEnd - tailStart,
-          height: 4 + 2 * clickBoxMargin,
-          opacity: 0,
-          style: 'cursor: pointer;',
-          onmousedown: () => dispatch(clickGracenote(this, 'all')),
-        }),
-        ...uniqueNotes.map((noteObj, i) =>
-          this.head(
-            xOf(noteObj),
-            y(noteObj.note),
-            noteObj.note,
-            beamY,
-            pitches.isValid(),
-            props.preview ||
-              (props.state.selected?.gracenote === this &&
-                (i === props.state.selected?.note || wholeSelected)),
-            props.state.dragged !== null,
-            i
-          )
-        ),
-      ]);
-    }
   }
 }
 
-export class ReactiveGracenote extends Gracenote {
+export class ReactiveGracenote {
   private grace: string;
 
   // These are just cached so we don't have to pass them to every method
@@ -291,7 +308,6 @@ export class ReactiveGracenote extends Gracenote {
   private previousNote: Pitch | null = null;
 
   constructor(grace: string) {
-    super();
     if (gracenotes.has(grace)) {
       this.grace = grace;
     } else {
@@ -320,16 +336,16 @@ export class ReactiveGracenote extends Gracenote {
     if (notes) {
       return notes(this.thisNote, this.previousNote);
     } else {
-      return new MaybeGracenote([]);
+      return noteList([]);
     }
   }
   public drag(pitch: Pitch, index: number) {
     const notes = this.notes(this.thisNote, this.previousNote);
-    if (notes.notes()[index] !== pitch) {
-      return new CustomGracenote().addNotes(
-        ...notes.notes().slice(0, index),
+    if (notes[index] !== pitch) {
+      return new CustomGracenote(
+        ...notes.slice(0, index),
         pitch,
-        ...notes.notes().slice(index + 1)
+        ...notes.slice(index + 1)
       );
     }
     return this;
@@ -340,16 +356,18 @@ export class ReactiveGracenote extends Gracenote {
   public render(props: GracenoteProps) {
     this.thisNote = props.thisNote;
     this.previousNote = props.previousNote;
-    return super.render(props);
+    return render(this, props);
   }
 }
 
-export class SingleGracenote extends Gracenote {
+export class SingleGracenote {
   private note: Pitch;
 
   constructor(note: Pitch) {
-    super();
     this.note = note;
+  }
+  public name() {
+    return 'single';
   }
   public equals(other: Gracenote): boolean {
     // Just check that it is also a single
@@ -383,12 +401,20 @@ export class SingleGracenote extends Gracenote {
     return this.note;
   }
   public notes() {
-    return new MaybeGracenote([this.note], true);
+    return noteList([this.note]);
   }
 }
 
-export class CustomGracenote extends Gracenote {
+export class CustomGracenote {
   private pitches: Pitch[] = [];
+
+  constructor(...pitches: Pitch[]) {
+    this.pitches = pitches;
+  }
+
+  public name() {
+    return '';
+  }
 
   public equals(other: Gracenote): boolean {
     return (
@@ -402,7 +428,7 @@ export class CustomGracenote extends Gracenote {
   public drag(pitch: Pitch, index: number) {
     if (pitch !== this.pitches[index]) {
       this.pitches[index] = pitch;
-      return new CustomGracenote().addNotes(
+      return new CustomGracenote(
         ...this.pitches.slice(0, index),
         pitch,
         ...this.pitches.slice(index + 1)
@@ -411,10 +437,10 @@ export class CustomGracenote extends Gracenote {
     return this;
   }
   public copy() {
-    return new CustomGracenote().addNotes(...this.pitches);
+    return new CustomGracenote(...this.pitches);
   }
   public static fromObject(o: Obj) {
-    return new CustomGracenote().addNotes(...o.pitches);
+    return new CustomGracenote(...o.pitches);
   }
   public toObject() {
     return {
@@ -422,7 +448,7 @@ export class CustomGracenote extends Gracenote {
     };
   }
   public notes() {
-    return new MaybeGracenote(this.pitches, true);
+    return noteList(this.pitches);
   }
   public addNotes(...notes: Pitch[]) {
     this.pitches = this.pitches.concat(notes);
@@ -434,7 +460,7 @@ export class CustomGracenote extends Gracenote {
   }
 }
 
-export class NoGracenote extends Gracenote {
+export class NoGracenote {
   public copy() {
     return new NoGracenote();
   }
@@ -451,26 +477,9 @@ export class NoGracenote extends Gracenote {
     return {};
   }
   public notes() {
-    return new MaybeGracenote([], true);
+    return noteList([]);
   }
   public name() {
     return 'none';
-  }
-}
-
-// consider naming this better
-export class MaybeGracenote {
-  private pitches: Pitch[];
-  private valid: boolean;
-
-  constructor(pitches: Pitch[], valid?: boolean) {
-    this.pitches = pitches;
-    this.valid = valid || false;
-  }
-  public isValid() {
-    return this.valid;
-  }
-  public notes() {
-    return this.pitches;
   }
 }

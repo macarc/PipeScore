@@ -129,8 +129,7 @@ export function moveRight(): ScoreEvent {
 export function moveNoteUp(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof GracenoteSelection) {
-      const gracenote = state.selection.single();
-      if (gracenote) gracenote.moveUp();
+      state.selection.moveUp();
       return Update.ShouldSave;
     } else if (state.selection) {
       const notes = state.score.notes();
@@ -148,8 +147,7 @@ export function moveNoteUp(): ScoreEvent {
 export function moveNoteDown(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof GracenoteSelection) {
-      const gracenote = state.selection.single();
-      if (gracenote) gracenote.moveDown();
+      state.selection.moveDown();
       return Update.ShouldSave;
     } else if (state.selection) {
       const notes = state.score.notes();
@@ -261,7 +259,11 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
     ) {
       const previous = state.score.previousNote(note.id);
       // TODO BUG this should use the demo note
-      note.addGracenote(state.demo.toGracenote(), previous);
+      if (state.demo instanceof SingleGracenote) {
+        note.addSingleGracenote(state.demo.toGracenote(), previous);
+      } else {
+        note.setGracenote(state.demo.toGracenote());
+      }
       return Update.ShouldSave;
     } else {
       if (event.shiftKey) {

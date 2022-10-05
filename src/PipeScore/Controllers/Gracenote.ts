@@ -4,7 +4,7 @@
 */
 import { ScoreEvent, Update } from './Controller';
 import { State } from '../State';
-import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
+import g, { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
 import { Score } from '../Score';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { DemoGracenote, DemoReactive } from '../DemoNote';
@@ -15,8 +15,6 @@ export function changeGracenoteFrom(
   newGracenote: Gracenote,
   score: Score
 ): Score {
-  // Replaces oldGracenote with newGracenote
-
   score.notes().forEach((n) => n.replaceGracenote(oldGracenote, newGracenote));
   return score;
 }
@@ -34,12 +32,10 @@ export function clickGracenote(
 
 export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
   return async (state: State) => {
-    const newGracenote = Gracenote.from(value);
+    const newGracenote = g.fromName(value);
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notes(state.score);
-      notes.forEach((note, i) =>
-        note.addGracenote(newGracenote.copy(), notes[i - 1])
-      );
+      notes.forEach((note) => note.setGracenote(newGracenote.copy()));
       return Update.ShouldSave;
     } else {
       stopInputtingNotes(state);
