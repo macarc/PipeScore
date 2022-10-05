@@ -8,6 +8,8 @@
 
 - [ ] Allow choosing fonts
 
+- BWW Example: https://bagpipetunes.intertechnics.com/files/Bagpipe_Player/S/Scotland_the_Brave.bww
+
 ### Cleanups
 
 - [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes

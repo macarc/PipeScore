@@ -2,8 +2,6 @@
 
 ## A bagpipe notation app
 
-https://bagpipetunes.intertechnics.com/files/Bagpipe_Player/S/Scotland_the_Brave.bww
-
 PipeScore is designed around reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
 
 ![GIF of reactive gracenote](dragging-gracenote.gif)
