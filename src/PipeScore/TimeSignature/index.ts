@@ -61,9 +61,9 @@ export class TimeSignature {
     }
   }
 
-  public beatDivision(): (i: number) => number {
-    // The number of beats in a group
-
+  // The number of beats in a group
+  // Where n means the nth group in the bar
+  public beatDivision(): (n: number) => number {
     return (i: number) => {
       if (i < this.breaks.length) {
         return this.breaks[i] / 2.0;

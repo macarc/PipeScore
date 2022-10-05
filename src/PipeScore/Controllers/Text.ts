@@ -2,12 +2,11 @@
   Controller for text events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
 import { State } from '../State';
 
 import { TextBox } from '../TextBox';
 import { TextSelection } from '../Selection';
-import { stopInputtingNotes } from './Note';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
@@ -27,7 +26,7 @@ export function changeText(
 export function clickText(text: TextBox): ScoreEvent {
   return async (state: State) => {
     stopInputtingNotes(state);
-    state.selection = new TextSelection(text).drag(text);
+    state.selection = new TextSelection(text);
     return Update.ViewChanged;
   };
 }

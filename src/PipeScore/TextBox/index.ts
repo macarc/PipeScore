@@ -6,10 +6,6 @@ import dialogueBox from '../global/dialogueBox';
 import { Obj, svgCoords } from '../global/utils';
 import { Selection, TextSelection } from '../Selection';
 
-/*
-  TextBox format
-  Copyright (C) 2021 macarc
-*/
 interface TextBoxProps {
   scoreWidth: number;
   selection: Selection | null;
@@ -30,7 +26,7 @@ export class TextBox {
     this.size = size;
     this._text = text;
   }
-  public static fromJSON(o: Obj) {
+  static fromJSON(o: Obj) {
     const tx = new TextBox(o.name);
     tx.x = o.x;
     tx.y = o.y;
@@ -39,7 +35,7 @@ export class TextBox {
     tx.centred = o.centred;
     return tx;
   }
-  public toJSON() {
+  toJSON() {
     return {
       x: this.x,
       y: this.y,
@@ -48,14 +44,14 @@ export class TextBox {
       centred: this.centred,
     };
   }
-  public text() {
+  text() {
     return this._text;
   }
-  public setClickOffsetCoords(mouseX: number, mouseY: number) {
+  setCursorDragOffset(mouseX: number, mouseY: number) {
     this.mouseXOffset = this.x - mouseX;
     this.mouseYOffset = this.y - mouseY;
   }
-  public set(text: string, size: number) {
+  set(text: string, size: number) {
     if (text !== this._text || size !== this.size) {
       this._text = text;
       this.size = size;
@@ -63,20 +59,14 @@ export class TextBox {
     }
     return Update.NoChange;
   }
-  public setText(text: string) {
-    this._text = text;
-  }
-  public setSize(size: number) {
-    this.size = size;
-  }
-  public toggleCentre() {
+  toggleCentre() {
     this.centred = !this.centred;
   }
-  public adjustAfterOrientation(newWidth: number, newHeight: number) {
+  adjustAfterOrientation(newWidth: number, newHeight: number) {
     this.x = (this.x / newHeight) * newWidth;
     this.y = (this.y / newHeight) * newWidth;
   }
-  public setCoords(x: number, y: number) {
+  setCoords(x: number, y: number) {
     this.x = x + this.mouseXOffset;
     this.y = y + this.mouseYOffset;
     this.centred = false;
@@ -107,7 +97,7 @@ export class TextBox {
     ).then(({ size, text }) => dispatch(changeText(text, size, this)));
   }
 
-  public render(props: TextBoxProps): m.Children {
+  render(props: TextBoxProps): m.Children {
     if (this.centred) this.x = props.scoreWidth / 2;
     const selected =
       props.selection instanceof TextSelection && props.selection.text === this;
@@ -122,8 +112,8 @@ export class TextBox {
         ondblclick: () => this.edit(),
         onmousedown: (e: Event) => {
           const pt = svgCoords(e as MouseEvent);
-          if (pt) this.setClickOffsetCoords(pt.x, pt.y);
-          dispatch(clickText(this));
+          if (pt) this.setCursorDragOffset(pt.x, pt.y);
+          return dispatch(clickText(this));
         },
       },
       this._text || 'Double Click to Edit'

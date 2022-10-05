@@ -2,7 +2,13 @@
   Controller for bar-related events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, noteLocation, Update } from './Controller';
+import {
+  ScoreEvent,
+  noteLocation,
+  Update,
+  stopInputtingNotes,
+  addToSelection,
+} from './Controller';
 import { State } from '../State';
 
 import { Anacrusis, Bar } from '../Bar';
@@ -10,9 +16,7 @@ import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
 
-import { itemBefore } from '../global/xy';
 import { BarlineSelection, ScoreSelection } from '../Selection';
-import { stopInputtingNotes } from './Note';
 
 export function moveLeftBarwise(): ScoreEvent {
   return async (state: State) => {
@@ -39,9 +43,8 @@ function setTimeSignatureFrom(
   timeSignature: TimeSignature,
   newTimeSignature: TimeSignature,
   score: Score
-): Score {
+) {
   Bar.setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
-  return score;
 }
 export function editTimeSignature(
   timeSignature: TimeSignature,
@@ -54,13 +57,15 @@ export function editTimeSignature(
 }
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
-    const firstBar =
+    const bar =
       state.selection instanceof ScoreSelection
         ? state.selection.bar(state.score)
-        : state.score.firstOnPage(0);
+        : before
+        ? state.score.firstOnPage(0)
+        : state.score.lastOnPage(0);
 
-    if (firstBar) {
-      const { stave, bar } = state.score.location(firstBar.id);
+    if (bar) {
+      const { stave } = state.score.location(bar.id);
       stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
       return Update.ShouldSave;
     }
@@ -103,13 +108,8 @@ export function resetBarLength(): ScoreEvent {
 export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
-      if (itemBefore(state.selection.end, bar.id)) {
-        state.selection.end = bar.id;
-        return Update.ViewChanged;
-      } else if (itemBefore(bar.id, state.selection.end)) {
-        state.selection.start = bar.id;
-        return Update.ViewChanged;
-      }
+      addToSelection(bar.id, state.selection);
+      return Update.ViewChanged;
     }
     state.selection = new ScoreSelection(bar.id, bar.id);
     return Update.ViewChanged;
@@ -132,20 +132,16 @@ export function setBarRepeat(
 
 export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection instanceof ScoreSelection) {
-      const { bar } = noteLocation(state.selection.start, state.score);
+    const bar =
+      state.selection instanceof ScoreSelection
+        ? noteLocation(state.selection.start, state.score).bar
+        : state.score.bars()[0];
+
+    if (bar) {
       const newTimeSignature = await bar.timeSignature().edit();
       setTimeSignatureFrom(bar.timeSignature(), newTimeSignature, state.score);
-    } else {
-      const bar = state.score.bars()[0];
-      const newTimeSignature = await bar.timeSignature().edit();
-      if (bar)
-        setTimeSignatureFrom(
-          bar.timeSignature(),
-          newTimeSignature,
-          state.score
-        );
+      return Update.ShouldSave;
     }
-    return Update.ShouldSave;
+    return Update.NoChange;
   };
 }

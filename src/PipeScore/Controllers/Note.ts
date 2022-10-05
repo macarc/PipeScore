@@ -2,11 +2,16 @@
   Controller for note-related events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, noteLocation, Update } from './Controller';
+import {
+  ScoreEvent,
+  noteLocation,
+  Update,
+  stopInputtingNotes,
+  addToSelection,
+} from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
-import { itemBefore } from '../global/xy';
 
 import { Bar } from '../Bar';
 import {
@@ -43,11 +48,11 @@ export function addNoteBefore(
 export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const last = state.selection.lastBar(state.score);
+      const last = state.selection.lastNoteAndBar(state.score);
       const length =
         state.demo instanceof DemoNote
           ? state.demo.length()
-          : state.selection.selectedNote(state.score)?.lengthForInput() || null;
+          : state.selection.note(state.score)?.lengthForInput();
       if (length) {
         const note = new SingleNote(pitch, length);
         last.bar.insertNote(last.note, note);
@@ -131,7 +136,7 @@ export function moveNoteUp(): ScoreEvent {
     if (state.selection instanceof GracenoteSelection) {
       state.selection.moveUp();
       return Update.ShouldSave;
-    } else if (state.selection) {
+    } else if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
       state.selection.notes(state.score).forEach((note) => {
         note.moveUp();
@@ -149,7 +154,7 @@ export function moveNoteDown(): ScoreEvent {
     if (state.selection instanceof GracenoteSelection) {
       state.selection.moveDown();
       return Update.ShouldSave;
-    } else if (state.selection) {
+    } else if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
       state.selection.notes(state.score).forEach((note) => {
         note.moveDown();
@@ -164,49 +169,64 @@ export function moveNoteDown(): ScoreEvent {
 
 export function tieSelectedNotes(): ScoreEvent {
   return async (state: State) => {
-    if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
-    const notes = state.selection.notes(state.score);
-    notes.length === 1
-      ? notes[0].toggleTie(state.score.notes())
-      : notes
-          .slice(1) // So that it only ties between the selected notes
+    if (state.selection instanceof ScoreSelection) {
+      const notes = state.selection.notes(state.score);
+      if (notes.length === 1) {
+        notes[0].toggleTie(state.score.notes());
+      } else {
+        notes
+          // Don't tie the first note so that it
+          // ties *between* the selected notes
+          .slice(1)
           .forEach((note) => note.toggleTie(state.score.notes()));
-    return Update.ShouldSave;
+      }
+      return Update.ShouldSave;
+    } else {
+      return Update.NoChange;
+    }
   };
 }
 
 export function toggleNatural(): ScoreEvent {
   return async (state: State) => {
     if (state.demo instanceof DemoNote) state.demo.toggleNatural();
-    state.selection?.notes(state.score).forEach((note) => note.toggleNatural());
-    return Update.ShouldSave;
+    if (state.selection instanceof ScoreSelection) {
+      state.selection
+        ?.notes(state.score)
+        .forEach((note) => note.toggleNatural());
+      return Update.ShouldSave;
+    }
+    return Update.ViewChanged;
   };
 }
 
 export function addTriplet(): ScoreEvent {
   return async (state: State) => {
-    if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
-    const selected = state.selection.notesAndTriplets(state.score);
+    if (state.selection instanceof ScoreSelection) {
+      const selected = state.selection.notesAndTriplets(state.score);
 
-    if (selected.length >= 3) {
-      const first = selected[0];
-      const second = selected[1];
-      const third = selected[2];
-      if (
-        first instanceof SingleNote &&
-        second instanceof SingleNote &&
-        third instanceof SingleNote
-      ) {
-        const { bar } = noteLocation(first, state.score);
-        bar.makeTriplet(first, second, third);
-        return Update.ShouldSave;
-      }
-    } else if (selected.length >= 1) {
-      const tr = selected[0];
-      if (tr instanceof Triplet) {
-        const { bar } = noteLocation(tr, state.score);
-        bar.unmakeTriplet(tr);
-        return Update.ShouldSave;
+      if (selected.length >= 3) {
+        // Create triplet
+        const first = selected[0];
+        const second = selected[1];
+        const third = selected[2];
+        if (
+          first instanceof SingleNote &&
+          second instanceof SingleNote &&
+          third instanceof SingleNote
+        ) {
+          const { bar } = noteLocation(first, state.score);
+          bar.makeTriplet(first, second, third);
+          return Update.ShouldSave;
+        }
+      } else if (selected.length >= 1) {
+        // Remove triplet
+        const tr = selected[0];
+        if (tr instanceof Triplet) {
+          const { bar } = noteLocation(tr, state.score);
+          bar.unmakeTriplet(tr);
+          return Update.ShouldSave;
+        }
       }
     }
     return Update.NoChange;
@@ -223,10 +243,6 @@ export function toggleDot(): ScoreEvent {
     if (state.demo instanceof DemoNote) state.demo.toggleDot();
     return Update.ShouldSave;
   };
-}
-export function stopInputtingNotes(state: State) {
-  state.demo?.stop();
-  state.demo = null;
 }
 export function stopInput(): ScoreEvent {
   return async (state: State) => {
@@ -258,7 +274,6 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
       state.demo instanceof SingleGracenote
     ) {
       const previous = state.score.previousNote(note.id);
-      // TODO BUG this should use the demo note
       if (state.demo instanceof SingleGracenote) {
         note.addSingleGracenote(state.demo.toGracenote(), previous);
       } else {
@@ -266,25 +281,12 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
       }
       return Update.ShouldSave;
     } else {
-      if (event.shiftKey) {
-        if (state.selection instanceof ScoreSelection) {
-          if (itemBefore(state.selection.end, note.id)) {
-            state.selection.end = note.id;
-            state.selection.drag(note);
-            state.justClickedNote = true;
-            return Update.ViewChanged;
-          } else if (itemBefore(note.id, state.selection.start)) {
-            state.selection.start = note.id;
-            state.selection.drag(note);
-            state.justClickedNote = true;
-            return Update.ViewChanged;
-          } else {
-            return Update.ShouldSave;
-          }
-        }
+      if (event.shiftKey && state.selection instanceof ScoreSelection) {
+        addToSelection(note.id, state.selection);
+        return Update.ViewChanged;
       }
       state.justClickedNote = true;
-      state.selection = new ScoreSelection(note.id, note.id).drag(note);
+      state.selection = new ScoreSelection(note.id, note.id);
       return Update.ViewChanged;
     }
   };

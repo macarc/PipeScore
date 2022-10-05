@@ -44,7 +44,7 @@ import {
 } from '../Controllers/Playback';
 import { centreText, addText } from '../Controllers/Text';
 import { addStave } from '../Controllers/Stave';
-import { help as dochelp } from '../global/docs';
+import { help } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
 import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
@@ -58,9 +58,8 @@ import { dispatch } from '../Controller';
 export interface UIState {
   loggedIn: boolean;
   selectedGracenote: Gracenote | null;
-  selectedNote: Note | null;
   selectedBar: Bar | null;
-  allSelectedNotes: Note[];
+  selectedNotes: Note[];
   showingPageNumbers: boolean;
   demo: Demo | null;
   isLandscape: boolean;
@@ -78,7 +77,8 @@ export default function render(state: UIState): m.Children {
   const inputtingNatural =
     state.demo instanceof DemoNote && state.demo.natural();
 
-  const help = (s: string, v: m.Vnode): m.Vnode => dochelp(s, v);
+  const allNotes = (pred: (note: Note) => boolean) =>
+    state.selectedNotes.length > 0 && state.selectedNotes.every(pred);
 
   const noteInputButton = (length: NoteLength) =>
     help(
@@ -86,7 +86,7 @@ export default function render(state: UIState): m.Children {
       m('button', {
         class:
           isCurrentNoteInput(length) ||
-          (state.selectedNote && state.selectedNote.isLength(length))
+          allNotes((note) => note.isLength(length))
             ? 'highlighted'
             : 'not-highlighted',
         id: `note-${length}`,
@@ -125,16 +125,16 @@ export default function render(state: UIState): m.Children {
   };
 
   const tied =
-    state.allSelectedNotes.length === 0
+    state.selectedNotes.length === 0
       ? false
-      : state.allSelectedNotes.length === 1
-      ? state.allSelectedNotes[0].isTied()
-      : state.allSelectedNotes.slice(1).every((note) => note.isTied());
+      : state.selectedNotes.length === 1
+      ? state.selectedNotes[0].isTied()
+      : state.selectedNotes.slice(1).every((note) => note.isTied());
 
   const naturalAlready =
-    state.allSelectedNotes.length === 0
+    state.selectedNotes.length === 0
       ? false
-      : state.allSelectedNotes.every((note) => note.natural());
+      : allNotes((note) => note.natural());
 
   const noteMenu = [
     m('section', [
@@ -160,8 +160,7 @@ export default function render(state: UIState): m.Children {
               class:
                 (state.demo instanceof DemoNote &&
                   dotted(state.demo.length())) ||
-                (state.selectedNote &&
-                  dotted(state.selectedNote.lengthForInput()))
+                allNotes((note) => dotted(note.lengthForInput()))
                   ? 'highlighted'
                   : 'not-highlighted',
               onclick: () => dispatch(toggleDot()),

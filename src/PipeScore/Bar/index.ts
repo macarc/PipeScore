@@ -80,7 +80,10 @@ export class Bar extends Item implements Previewable<SingleNote> {
     newTimeSignature: TimeSignature,
     bars: Bar[]
   ) {
-    // Replaces timeSignature with newTimeSignature, and flows forward
+    // Replaces timeSignature with newTimeSignature.
+    // It will change the time signature on all bars from
+    // timeSignature onwards, until it hits a bar where
+    // the time signature is different
 
     let atTimeSignature = false;
     for (const bar of bars) {
@@ -99,32 +102,22 @@ export class Bar extends Item implements Previewable<SingleNote> {
     }
   }
   public static nextBar(id: ID, bars: Bar[]) {
-    let lastWasIt = false;
-    for (const bar of bars) {
-      if (lastWasIt) return bar;
-      if (bar.hasID(id)) {
-        lastWasIt = true;
-        continue;
-      }
-      for (const note of bar.notes) {
-        if (note.hasID(id)) {
-          lastWasIt = true;
-          break;
-        }
+    for (let i = 0; i < bars.length - 1; i++) {
+      if (bars[i].hasID(id)) return bars[i + 1];
+      for (const note of bars[i].notes) {
+        if (note.hasID(id)) return bars[i + 1];
       }
     }
     return null;
   }
   public static previousBar(id: ID, bars: Bar[]) {
-    let prev: Bar | null = null;
-    for (const bar of bars) {
-      if (bar.hasID(id)) return prev;
-      prev = bar;
-      for (const note of bar.notes) {
-        if (note.hasID(id)) return prev;
+    for (let i = 1; i < bars.length; i++) {
+      if (bars[i].hasID(id)) return bars[i - 1];
+      for (const note of bars[i].notes) {
+        if (note.hasID(id)) return bars[i - 1];
       }
     }
-    return prev;
+    return last(bars);
   }
   public static nextNote(id: ID, bars: Bar[]) {
     let lastWasIt = false;
@@ -148,15 +141,14 @@ export class Bar extends Item implements Previewable<SingleNote> {
     }
     return prev;
   }
+  // Puts all the notes in the notes array into the score with the correct bar breaks
+  // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
   public static pasteNotes(
     notes: (Note | 'bar-break')[],
     start: Bar,
     id: ID,
     bars: Bar[]
   ) {
-    // Puts all the notes in the notes array into the score with the correct bar breaks
-    // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
-
     let startedPasting = false;
     let onFirst = false;
 
@@ -263,7 +255,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public unmakeTriplet(tr: Triplet) {
     this.notes.splice(this.notes.indexOf(tr), 1, ...tr.tripletSingleNotes());
   }
-  public location(id: ID) {
+  public includesNote(id: ID) {
     for (const note of this.notes) {
       if (note.hasID(id)) {
         return true;
@@ -354,11 +346,6 @@ export class Bar extends Item implements Previewable<SingleNote> {
     const beats = this.beats(previousPitch, actualNotes);
     const numberOfBeats = nlast(beats).extend;
     const beatWidth = (barWidth - nlast(beats).min) / numberOfBeats;
-
-    // Commented out for performance - yes, it makes quite a big difference
-    // if (beatWidth < 0) {
-    //   console.error('bar too small');
-    // }
 
     const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
 

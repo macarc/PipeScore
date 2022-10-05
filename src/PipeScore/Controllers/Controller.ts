@@ -6,6 +6,8 @@ import { State } from '../State';
 import { Note } from '../Note';
 import { Score } from '../Score';
 import { ID } from '../global/id';
+import { itemBefore } from '../global/xy';
+import { ScoreSelection } from '../Selection';
 
 export type ScoreEvent = (state: State) => Promise<Update>;
 
@@ -20,4 +22,16 @@ export function noteLocation(note: Note | ID, score: Score) {
 
   const id = typeof note === 'number' ? note : note.id;
   return score.location(id);
+}
+
+export function stopInputtingNotes(state: State) {
+  state.demo?.stop();
+  state.demo = null;
+}
+export function addToSelection(id: ID, selection: ScoreSelection) {
+  if (itemBefore(selection.end, id)) {
+    selection.end = id;
+  } else if (itemBefore(id, selection.start)) {
+    selection.start = id;
+  }
 }

@@ -76,7 +76,8 @@ function redraw() {
     noteState: {
       dragged:
         (state.selection instanceof ScoreSelection &&
-          state.selection.draggedNote()) ||
+          state.selection.dragging &&
+          state.selection.note(state.score)) ||
         null,
       selectedTripletLine:
         (state.selection instanceof TripletLineSelection &&
@@ -97,12 +98,20 @@ function redraw() {
     zoomLevel: state.score.zoom,
     demo: state.demo,
     showingPageNumbers: state.score.showNumberOfPages,
-    selectedNote: state.selection && state.selection.selectedNote(state.score),
-    allSelectedNotes: state.selection ? state.selection.notes(state.score) : [],
+    selectedNotes:
+      state.selection instanceof ScoreSelection
+        ? state.selection.notes(state.score)
+        : [],
     selectedGracenote:
-      state.selection && state.selection.gracenote(state.score),
+      // TODO should this do something for GracenoteSelection too
+      (state.selection instanceof ScoreSelection &&
+        state.selection.gracenote(state.score)) ||
+      null,
     isLandscape: state.score.landscape,
-    selectedBar: state.selection && state.selection.bar(state.score),
+    selectedBar:
+      (state.selection instanceof ScoreSelection &&
+        state.selection.bar(state.score)) ||
+      null,
     docs: state.doc.show
       ? Documentation.get(state.doc.current || '') ||
         'Hover over different icons to view Help here.'

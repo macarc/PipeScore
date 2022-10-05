@@ -2,291 +2,20 @@
   ScoreSelection format
   Copyright (C) 2021 macarc
 */
-import { ID, Item } from '../global/id';
-import { Note, SingleNote, Triplet } from '../Note';
-import { DraggedTiming, Timing, TimingPart } from '../SecondTiming';
+import { Triplet } from '../Note';
+import { Timing, TimingPart } from '../SecondTiming';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
-import { before, deleteXY, getXY } from '../global/xy';
-import m from 'mithril';
-import { settings } from '../global/settings';
-import { Anacrusis, Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
-import { Update } from '../Controllers/Controller';
-import g, { Gracenote, SingleGracenote } from '../Gracenote';
+import { Gracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { car, foreach, last } from '../global/utils';
-import { Stave } from '../Stave';
 import { changeGracenoteFrom } from '../Controllers/Gracenote';
-import { Barline } from '../Bar/barline';
+import { Drags } from './model';
 
-interface ScoreSelectionProps {
-  page: number;
-  score: Score;
-  staveStartX: number;
-  staveEndX: number;
-  staveGap: number;
-}
+export { Selection } from './model';
+export { ScoreSelection } from './score_selection';
 
-export type Selection =
-  | BarlineSelection
-  | ScoreSelection
-  | TextSelection
-  | SecondTimingSelection
-  | TripletLineSelection
-  | GracenoteSelection;
-
-abstract class BaseSelection<A> {
-  abstract delete(score: Score): void;
-  abstract mouseDrag(x: number, y: number, score: Score, page: number): void;
-
-  protected dragged: A | null = null;
-  public drag(a: A) {
-    this.dragged = a;
-    return this;
-  }
-  public mouseUp() {
-    this.dragged = null;
-  }
-  public notes(score: Score): SingleNote[] {
-    return [];
-  }
-  public bar(score: Score): Bar | null {
-    return null;
-  }
-  public gracenote(score: Score): Gracenote | null {
-    return null;
-  }
-  public selectedNote(score: Score) {
-    const notes = this.notes(score);
-    if (notes.length === 1) return notes[0];
-    return null;
-  }
-  public render(props: ScoreSelectionProps): m.Children {
-    return m('g[class=selection]');
-  }
-}
-
-// Using the equivalent of 'case classes'
-// This allows using instanceof to check selection type
-export class ScoreSelection extends BaseSelection<SingleNote> {
-  public start: ID;
-  public end: ID;
-
-  constructor(start: ID, end: ID) {
-    super();
-    this.start = start;
-    this.end = end;
-  }
-  // TODO see if we can get rid of this
-  public draggedNote() {
-    return this.dragged;
-  }
-  public mouseOverPitch(pitch: Pitch, score: Score) {
-    const change = this.dragged?.drag(pitch);
-    this.dragged?.makeCorrectTie(score.notes());
-    return change || Update.NoChange;
-  }
-  public mouseDrag() {
-    // TODO make this empty method unnecessary :)
-  }
-  public lastBar(score: Score): { note: Note | null; bar: Bar } {
-    const notes = this.notes(score);
-    return { note: last(notes), bar: score.location(this.end).bar };
-  }
-  public delete(score: Score) {
-    let started = false;
-    let deletingBars = false;
-    const notesToDelete: [Note, Bar][] = [];
-    const barsToDelete: [Bar, Stave][] = [];
-
-    all: for (const stave of score.staves()) {
-      for (const bar of stave.allBars()) {
-        if (bar.hasID(this.start)) {
-          deletingBars = true;
-          started = true;
-        }
-        for (const note of bar.notesAndTriplets()) {
-          if (note.hasID(this.start)) started = true;
-          if (started) notesToDelete.push([note, bar]);
-          if (note.hasID(this.end)) break all;
-        }
-        if (started && deletingBars) barsToDelete.push([bar, stave]);
-        if (bar.hasID(this.end)) break all;
-      }
-    }
-    notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
-
-    for (const [bar, stave] of barsToDelete) {
-      stave.deleteBar(bar);
-      if (stave.numberOfBars() === 0) score.deleteStave(stave);
-    }
-
-    this.purgeItems(
-      [...notesToDelete.map(car), ...barsToDelete.map(car)],
-      score
-    );
-  }
-  private purgeItems(items: Item[], score: Score) {
-    // Deletes all references to the items in the array
-    score.purgeSecondTimings(items);
-    for (const note of items) {
-      deleteXY(note.id);
-    }
-  }
-  public notesAndTriplets(score: Score): Note[] {
-    const bars = score.bars();
-    let foundStart = false;
-    const notes: Note[] = [];
-    all: for (const bar of bars) {
-      if (bar.hasID(this.start)) foundStart = true;
-      for (const note of bar.notesAndTriplets()) {
-        if (note.hasID(this.start)) foundStart = true;
-        if (foundStart && !note.isDemo()) notes.push(note);
-        if (note.hasID(this.end)) break all;
-      }
-      if (bar.hasID(this.end)) break;
-    }
-    return notes;
-  }
-  public notes(score: Score): SingleNote[] {
-    const bars = score.bars();
-    let foundStart = false;
-    const notes: SingleNote[] = [];
-    all: for (const bar of bars) {
-      if (bar.hasID(this.start)) foundStart = true;
-      for (const note of Triplet.flatten(bar.notesAndTriplets())) {
-        if (note.hasID(this.start)) foundStart = true;
-        if (foundStart && !note.isDemo()) notes.push(note);
-        if (note.hasID(this.end)) break all;
-      }
-      if (bar.hasID(this.end)) break;
-    }
-    return notes;
-  }
-  public bars(score: Score): Bar[] {
-    const allBars = score.bars();
-    let foundStart = false;
-    const bars: Bar[] = [];
-    for (const bar of allBars) {
-      if (bar.hasID(this.start)) foundStart = true;
-      if (foundStart) bars.push(bar);
-      if (bar.hasID(this.end)) break;
-    }
-    return bars;
-  }
-  public bar(score: Score): Bar | null {
-    if (this.start === this.end) {
-      for (const bar of score.bars()) {
-        if (bar.id === this.start) return bar;
-      }
-    }
-    return null;
-  }
-  public gracenote(score: Score): Gracenote | null {
-    const notes = this.notes(score);
-    if (notes.length === 1) {
-      return notes[0].gracenoteType();
-    }
-    return null;
-  }
-  public addAnacrusis(before: boolean, score: Score) {
-    const { bar, stave } = score.location(this.start);
-    stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
-  }
-  public addBar(before: boolean, score: Score) {
-    const { bar, stave } = score.location(this.start);
-    stave.insertBar(new Bar(bar.timeSignature()), bar, before);
-  }
-
-  public render(props: ScoreSelectionProps): m.Children {
-    const a = getXY(this.start);
-    const b = getXY(this.end);
-    if (!a || !b) {
-      console.error('Invalid note in selection');
-      return m('g');
-    }
-    const start = before(a, b) ? a : b;
-    const end = before(a, b) ? b : a;
-
-    if (
-      start.page !== props.page &&
-      end.page !== props.page &&
-      !(start.page < props.page && props.page < end.page)
-    ) {
-      return m('g');
-    }
-
-    const height = 6 * settings.lineGap;
-
-    if (end.page !== start.page) {
-      if (start.page === props.page) {
-        const last = props.score.lastOnPage(props.page);
-        if (last) return new ScoreSelection(this.start, last.id).render(props);
-      } else if (end.page === props.page) {
-        const first = props.score.firstOnPage(props.page);
-        if (first) return new ScoreSelection(first.id, this.end).render(props);
-      } else {
-        const first = props.score.firstOnPage(props.page);
-        const last = props.score.lastOnPage(props.page);
-        if (first && last)
-          return new ScoreSelection(first.id, last.id).render(props);
-      }
-      return m('g');
-    } else if (end.y !== start.y) {
-      const higher = start.y > end.y ? end : start;
-      const lower = start.y > end.y ? start : end;
-      const numStavesBetween =
-        Math.round((lower.y - higher.y) / props.staveGap) - 1;
-      return m('g[class=selection]', [
-        m('rect', {
-          x: higher.beforeX,
-          y: higher.y - settings.lineGap,
-          width: props.staveEndX - higher.beforeX,
-          height,
-          fill: 'orange',
-          opacity: 0.5,
-          'pointer-events': 'none',
-        }),
-        m('rect', {
-          x: props.staveStartX,
-          y: lower.y - settings.lineGap,
-          width: lower.afterX - props.staveStartX,
-          height,
-          fill: 'orange',
-          opacity: 0.5,
-          'pointer-events': 'none',
-        }),
-        ...foreach(numStavesBetween, (i) => i + 1).map((i) =>
-          m('rect', {
-            x: props.staveStartX,
-            y: higher.y + i * props.staveGap - settings.lineGap,
-            width: props.staveEndX - props.staveStartX,
-            height,
-            fill: 'orange',
-            opacity: 0.5,
-            'pointer-events': 'none',
-          })
-        ),
-      ]);
-    } else {
-      const width = end.afterX - start.beforeX;
-      return m('g[class=selection]', [
-        m('rect', {
-          x: start.beforeX,
-          y: start.y - settings.lineGap,
-          width,
-          height,
-          fill: 'orange',
-          opacity: 0.5,
-          'pointer-events': 'none',
-        }),
-      ]);
-    }
-  }
-}
-
-export class TextSelection extends BaseSelection<TextBox> {
+export class TextSelection extends Drags {
   public text: TextBox;
 
   constructor(text: TextBox) {
@@ -297,112 +26,54 @@ export class TextSelection extends BaseSelection<TextBox> {
     score.deleteTextBox(this.text);
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
-    if (this.dragged) score.dragTextBox(this.dragged, x, y, page);
+    score.dragTextBox(this.text, x, y, page);
   }
 }
-export class BarlineSelection extends BaseSelection<Barline> {
+
+export class BarlineSelection extends Drags {
   public drag_cb: (x: number) => void;
 
   constructor(drag: (x: number) => void) {
     super();
     this.drag_cb = drag;
   }
-  public delete() {
-    /* Nothing to do */
-  }
   public mouseDrag(x: number) {
     this.drag_cb(x);
   }
 }
 
-export class SecondTimingSelection {
+export class SecondTimingSelection extends Drags {
   secondTiming: Timing;
-  private dragged: DraggedTiming | null = null;
+  private part: TimingPart;
 
-  constructor(secondTiming: Timing) {
+  constructor(secondTiming: Timing, clickedPart: TimingPart) {
+    super();
     this.secondTiming = secondTiming;
+    this.part = clickedPart;
   }
   public delete(score: Score) {
     score.deleteSecondTiming(this.secondTiming);
   }
-  public mouseUp() {
-    this.dragged = null;
-  }
-  public drag(part: TimingPart) {
-    this.dragged = { timing: this.secondTiming, dragged: part };
-    return this;
-  }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
-    if (this.dragged) score.dragSecondTiming(this.dragged, x, y, page);
-  }
-  public notes() {
-    return [];
-  }
-  public bar() {
-    return null;
-  }
-  public gracenote() {
-    return null;
-  }
-  public selectedNote() {
-    return null;
-  }
-  public render() {
-    return m('g');
+    score.dragSecondTiming(this.secondTiming, this.part, x, y, page);
   }
 }
 
-export class TripletLineSelection {
+export class TripletLineSelection extends Drags {
   public selected: Triplet;
 
   constructor(triplet: Triplet) {
+    super();
     this.selected = triplet;
   }
   delete(score: Score) {
     const location = score.location(this.selected.id);
     if (location) location.bar.unmakeTriplet(this.selected);
   }
-  mouseDrag() {
-    // Unneeded
-  }
-  mouseUp() {
-    // Unneeded
-  }
-  selectedNote() {
-    return null;
-  }
-  bar() {
-    return null;
-  }
-  gracenote() {
-    return null;
-  }
-  notes() {
-    return [];
-  }
-  public render() {
-    return m('g');
-  }
 }
 
-/*
-interface Callbacks {
-  drag?: () => void;
-  overPitch?: () => void;
-  delete?: () => void;
-}
-export class GeneralSelection {
-  cb: Callbacks;
-  constructor(cb: Callbacks) {
-    this.cb = cb;
-  }
-}
-*/
-export class GracenoteSelection extends BaseSelection<Gracenote> {
-  // Selected must be separate from dragged as it is used for deleting
-  // e.g. clicking a gracenote to select in, then deleting it
+export class GracenoteSelection extends Drags {
   private selected: Gracenote;
-
   private note: number | 'all';
 
   constructor(gracenote: Gracenote, note: number | 'all') {
@@ -410,49 +81,38 @@ export class GracenoteSelection extends BaseSelection<Gracenote> {
     this.selected = gracenote;
     this.note = note;
   }
-  public mouseDrag() {
-    // TODO make this empty method unnecessary :)
-  }
-  public delete(score: Score) {
+  delete(score: Score) {
     changeGracenoteFrom(
       this.selected,
       this.note === 'all'
-        ? g.fromName('none')
-        : g.removeSingle(this.selected, this.note),
+        ? Gracenote.fromName('none')
+        : this.selected.removeSingle(this.note),
       score
     );
   }
-  public drag(gracenote: Gracenote) {
-    this.selected = gracenote;
-    this.dragged = gracenote;
-    return this;
-  }
-  public mouseOverPitch(pitch: Pitch, score: Score) {
-    if (this.dragged && this.note !== 'all') {
-      const dragged = this.dragged.drag(pitch, this.note);
-      changeGracenoteFrom(this.dragged, dragged, score);
-      this.dragged = dragged;
+  dragOverPitch(pitch: Pitch, score: Score) {
+    if (this.note !== 'all') {
+      const dragged = this.selected.drag(pitch, this.note);
+      changeGracenoteFrom(this.selected, dragged, score);
       this.selected = dragged;
-      return Update.ViewChanged;
     }
-    return Update.NoChange;
   }
-  public moveUp() {
+  moveUp() {
     this.single()?.moveUp();
   }
-  public moveDown() {
+  moveDown() {
     this.single()?.moveDown();
   }
-  public single(): SingleGracenote | null {
+  private single(): SingleGracenote | null {
     if (this.selected instanceof SingleGracenote) return this.selected;
 
     return null;
   }
-  public state(): GracenoteState {
+  state(): GracenoteState {
     return {
       dragged:
-        this.dragged && this.note !== 'all'
-          ? { gracenote: this.dragged, note: this.note }
+        this.dragging && this.note !== 'all'
+          ? { gracenote: this.selected, note: this.note }
           : null,
       selected: { gracenote: this.selected, note: this.note },
     };

@@ -2,13 +2,12 @@
   Controller for gracenote-related events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
 import { State } from '../State';
-import g, { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
+import { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
 import { Score } from '../Score';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { DemoGracenote, DemoReactive } from '../DemoNote';
-import { stopInputtingNotes } from './Note';
 
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,
@@ -25,14 +24,14 @@ export function clickGracenote(
   return async (state: State) => {
     state.justClickedNote = true;
     stopInputtingNotes(state);
-    state.selection = new GracenoteSelection(gracenote, index).drag(gracenote);
+    state.selection = new GracenoteSelection(gracenote, index);
     return Update.ViewChanged;
   };
 }
 
 export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
   return async (state: State) => {
-    const newGracenote = g.fromName(value);
+    const newGracenote = Gracenote.fromName(value);
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notes(state.score);
       notes.forEach((note) => note.setGracenote(newGracenote.copy()));

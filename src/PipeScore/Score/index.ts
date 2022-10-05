@@ -4,7 +4,7 @@
 */
 import { Stave, trebleClefWidth } from '../Stave';
 import { TextBox } from '../TextBox';
-import { BaseTiming, DraggedTiming, Timing } from '../SecondTiming';
+import { BaseTiming, Timing, TimingPart } from '../SecondTiming';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import m from 'mithril';
@@ -188,8 +188,6 @@ export class Score {
     );
   }
   public addStave(afterStave: Stave | null, before: boolean) {
-    // Appends a stave after afterStave
-
     const brokenStaves = this.brokenStaves();
     let pageIndex = brokenStaves.length - 1;
     if (afterStave) {
@@ -294,7 +292,7 @@ export class Score {
     return Triplet.flatten(this.notesAndTriplets());
   }
   public bars() {
-    return this._staves.flatMap((stave) => stave.allBars());
+    return this._staves.flatMap((stave) => stave.bars());
   }
   public staves() {
     return this._staves;
@@ -303,36 +301,32 @@ export class Score {
     return last(this._staves);
   }
 
+  // Finds the parent bar and stave of the bar/note passed
   public location(id: ID) {
-    // Finds the parent bar and stave of the note passed
-
     const staves = this.staves();
 
     if (staves.length === 0)
       throw Error('Tried to get location of a note, but there are no staves!');
 
     for (const stave of staves) {
-      const bars = stave.allBars();
-      for (const bar of bars) {
-        if (bar.hasID(id)) {
+      for (const bar of stave.bars()) {
+        if (bar.hasID(id) || bar.includesNote(id)) {
           return { stave, bar };
         }
-        const loc = bar.location(id);
-        if (loc) return { stave, bar };
       }
     }
 
-    const lastStaveBars = nlast(staves).allBars();
+    const lastStave = nlast(staves);
+    const lastBar = nlast(lastStave.bars());
     return {
-      stave: staves[staves.length - 1],
-      bar: lastStaveBars[lastStaveBars.length - 1],
+      stave: lastStave,
+      bar: lastBar,
     };
   }
 
+  // Converts the y coordinate to the index of stave that the y coordinate lies within
+  // If it is below 0, it returns 0; if it doesn't lie on any stave it returns null
   public coordinateToStaveIndex(y: number): number | null {
-    // Converts the y coordinate to the index of stave that the y coordinate lies in
-    // If it is below 0, it returns 0; if it doesn't lie on any stave it returns null
-
     const offset = y + 4 * settings.lineGap - settings.topOffset;
     if (offset > 0 && offset % settings.staveGap <= 12 * settings.lineGap) {
       return Math.max(Math.floor(offset / settings.staveGap), 0);
@@ -351,6 +345,7 @@ export class Score {
   }
   public dragTextBox(text: TextBox, x: number, y: number, page: number) {
     if (page >= this.numberOfPages) return;
+    // TODO can I remove this first check?
     if (this.textBoxes[page] || !this.textBoxes[page].includes(text)) {
       for (const page of this.textBoxes) {
         if (page.includes(text)) {
@@ -365,18 +360,13 @@ export class Score {
     }
   }
   public dragSecondTiming(
-    secondTiming: DraggedTiming,
+    secondTiming: Timing,
+    part: TimingPart,
     x: number,
     y: number,
     page: number
   ) {
-    secondTiming.timing.drag(
-      secondTiming.dragged,
-      x,
-      y,
-      page,
-      this.secondTimings
-    );
+    secondTiming.drag(part, x, y, page, this.secondTimings);
   }
 
   public purgeSecondTimings(items: Item[]) {
@@ -462,7 +452,8 @@ export class Score {
             ...this.secondTimings.map((secondTiming) =>
               secondTiming.render(secondTimingProps(i))
             ),
-            props.selection && props.selection.render(selectionProps(i)),
+            props.selection instanceof ScoreSelection &&
+              props.selection.render(selectionProps(i)),
             this.showNumberOfPages && this.numberOfPages > 1
               ? m(
                   'text',

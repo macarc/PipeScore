@@ -4,13 +4,12 @@
  */
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
-import g, {
+import {
   Gracenote,
   GracenoteProps,
   NoGracenote,
   ReactiveGracenote,
   SingleGracenote,
-  CustomGracenote,
 } from '../Gracenote';
 import { foreach, nfirst, nlast, Obj } from '../global/utils';
 import {
@@ -35,7 +34,6 @@ import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
 import { Previewable } from '../DemoNote/previewable';
 import { settings } from '../global/settings';
-import { Update } from '../Controllers/Controller';
 import { dispatch } from '../Controller';
 
 export interface PreviousNote {
@@ -185,76 +183,48 @@ export abstract class BaseNote extends Item {
   public static ungroupNotes(notes: Note[][]): Note[] {
     return ([] as Note[]).concat(...notes);
   }
+  // Given a list of notes, and a function for finding out how long
+  // each group should be, turns the notes into a set of groups
   public static groupNotes(
     notes: Note[],
     findLengthOfGroup: (i: number) => number
   ): (SingleNote[] | Triplet)[] {
     let i = 0;
-    let lengthOfGroup = findLengthOfGroup(i);
-    const pushNote = (
-      group: SingleNote[],
-      note: SingleNote,
-      currentLength: number,
-      lengthOfNote: number
-    ): number => {
-      if (note.hasBeam()) {
-        group.push(note);
-        return currentLength + lengthOfNote;
-      } else {
-        // Push the note as its own group.
-        if (group.length > 0) groupedNotes.push(group.slice());
-        group.splice(0, group.length, note);
-        groupedNotes.push(group.slice());
-        group.splice(0, group.length);
-
-        return (currentLength + lengthOfNote) % lengthOfGroup;
-      }
-    };
+    let remainingLength = findLengthOfGroup(i);
     let currentGroup: SingleNote[] = [];
     const groupedNotes: (SingleNote[] | Triplet)[] = [];
-    // This must be separate from currentGroup in the case that , e.g. it goes Quaver,Crotchet,Quaver,Quaver
-    // In this case, the last two quavers should not be tied. If currentLength was tied to currentGroup, that
-    // behaviour would not be achievable
-    let currentLength = 0;
+
+    function endGroup() {
+      if (currentGroup.length > 0) {
+        groupedNotes.push(currentGroup);
+        currentGroup = [];
+      }
+    }
+    function pushNote(note: SingleNote) {
+      if (note.hasBeam()) {
+        currentGroup.push(note);
+      } else {
+        endGroup();
+        currentGroup.push(note);
+        endGroup();
+      }
+      remainingLength -= note.lengthInBeats();
+    }
     for (const note of notes) {
       if (note instanceof Triplet) {
-        if (currentGroup.length > 0) {
-          groupedNotes.push(currentGroup);
-          lengthOfGroup = findLengthOfGroup(++i);
-        }
+        endGroup();
         groupedNotes.push(note);
-        lengthOfGroup = findLengthOfGroup(++i);
-        currentGroup = [];
-        currentLength = 0;
       } else {
-        const length = note.lengthInBeats();
-        if (currentLength + length < lengthOfGroup) {
-          currentLength = pushNote(currentGroup, note, currentLength, length);
-        } else if (currentLength + length === lengthOfGroup) {
-          currentLength = pushNote(currentGroup, note, currentLength, length);
-          // this check is needed since pushNote could end up setting currentGroup to have no notes in it
-          if (currentGroup.length > 0) {
-            groupedNotes.push(currentGroup);
-            lengthOfGroup = findLengthOfGroup(++i);
-          }
-          currentLength = 0;
-          currentGroup = [];
+        if (remainingLength >= note.lengthInBeats()) {
+          pushNote(note);
         } else {
-          if (currentGroup.length > 0) groupedNotes.push(currentGroup);
-          currentGroup = [];
-          currentLength = pushNote(currentGroup, note, currentLength, length);
-          if (currentLength >= lengthOfGroup) {
-            if (currentGroup.length > 0) {
-              groupedNotes.push(currentGroup);
-              lengthOfGroup = findLengthOfGroup(++i);
-            }
-            currentGroup = [];
-            currentLength = 0;
-          }
+          endGroup();
+          remainingLength = findLengthOfGroup(++i);
+          pushNote(note);
         }
       }
     }
-    if (currentGroup.length > 0) groupedNotes.push(currentGroup);
+    endGroup();
     return groupedNotes;
   }
 
@@ -340,7 +310,7 @@ export class SingleNote
       o.length,
       o.tied,
       o.hasNatural || false,
-      g.fromJSON(o.gracenote)
+      Gracenote.fromJSON(o.gracenote)
     );
   }
   public toObject() {
@@ -349,7 +319,7 @@ export class SingleNote
       length: this.length,
       tied: this.tied,
       hasNatural: this.hasNatural,
-      gracenote: g.toJSON(this.gracenote),
+      gracenote: this.gracenote.toJSON(),
     };
   }
   public hasPreview() {
@@ -359,20 +329,14 @@ export class SingleNote
     if (this.previewGracenote) this.setGracenote(this.previewGracenote);
   }
   public setPreview(gracenote: Gracenote | Pitch, previous: Note | null) {
-    if (
-      gracenote instanceof SingleGracenote ||
-      gracenote instanceof ReactiveGracenote ||
-      gracenote instanceof NoGracenote ||
-      gracenote instanceof CustomGracenote
-    ) {
+    if (gracenote instanceof Gracenote) {
       if (!this.gracenote.equals(gracenote)) {
         this.previewGracenote = gracenote;
       } else {
         this.previewGracenote = null;
       }
     } else {
-      this.previewGracenote = g.addSingle(
-        this.gracenote,
+      this.previewGracenote = this.gracenote.addSingle(
         gracenote,
         this.pitch,
         previous?.lastPitch() || null
@@ -397,11 +361,9 @@ export class SingleNote
     this.preview = true;
     return this;
   }
-  public drag(pitch: Pitch): Update {
-    if (pitch === this.pitch) return Update.NoChange;
+  public drag(pitch: Pitch) {
     this.pitch = pitch;
     this.hasNatural = false;
-    return Update.ViewChanged;
   }
   public moveUp() {
     this.pitch = pitchUp(this.pitch);
@@ -416,8 +378,8 @@ export class SingleNote
       ? width.zero()
       : width.init(
           this.previewGracenote
-            ? g.width(this.previewGracenote, this.pitch, prevNote)
-            : g.width(this.gracenote, this.pitch, prevNote),
+            ? this.previewGracenote.width(this.pitch, prevNote)
+            : this.gracenote.width(this.pitch, prevNote),
           0
         );
   }
@@ -463,7 +425,7 @@ export class SingleNote
   }
   public play(previous: Pitch | null) {
     return [
-      ...g.play(this.gracenote, this.pitch, previous),
+      ...this.gracenote.play(this.pitch, previous),
       {
         pitch: this.pitch,
         tied: this.tied,
@@ -490,8 +452,7 @@ export class SingleNote
     this.gracenote = grace;
   }
   public addSingleGracenote(grace: Pitch, previous: Note | null = null) {
-    this.gracenote = g.addSingle(
-      this.gracenote,
+    this.gracenote = this.gracenote.addSingle(
       grace,
       this.pitch,
       previous && previous.lastPitch()
@@ -565,13 +526,13 @@ export class SingleNote
   }
   private renderGracenote(props: GracenoteProps) {
     if (this.previewGracenote) {
-      return g.render(this.previewGracenote, {
+      return this.previewGracenote.render({
         ...props,
         x: props.x + noteHeadRadius / 2,
         preview: true,
       });
     }
-    return g.render(this.gracenote, {
+    return this.gracenote.render({
       ...props,
       x: props.x + noteHeadRadius / 2,
       preview: false,

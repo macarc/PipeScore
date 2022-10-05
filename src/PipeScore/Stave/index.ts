@@ -24,9 +24,9 @@ interface StaveProps {
 export const trebleClefWidth = 40;
 
 export class Stave {
-  private bars: Bar[];
+  private _bars: Bar[];
   constructor(timeSignature = new TimeSignature()) {
-    this.bars = [
+    this._bars = [
       new Bar(timeSignature),
       new Bar(timeSignature),
       new Bar(timeSignature),
@@ -35,12 +35,12 @@ export class Stave {
   }
   public static fromJSON(o: Obj) {
     const st = new Stave();
-    st.bars = o.bars.map(Bar.fromJSON);
+    st._bars = o.bars.map(Bar.fromJSON);
     return st;
   }
   public toJSON() {
     return {
-      bars: this.bars.map((bar) => bar.toJSON()),
+      bars: this._bars.map((bar) => bar.toJSON()),
     };
   }
   public static minWidth() {
@@ -48,22 +48,22 @@ export class Stave {
     return settings.lineHeightOf(10);
   }
   public numberOfBars() {
-    return this.bars.length;
+    return this._bars.length;
   }
   public deleteBar(bar: Bar) {
-    const index = this.bars.indexOf(bar);
-    this.bars.splice(index, 1);
-    if (index === this.bars.length && this.bars.length > 0)
-      nlast(this.bars).fixedWidth = 'auto';
+    const index = this._bars.indexOf(bar);
+    this._bars.splice(index, 1);
+    if (index === this._bars.length && this._bars.length > 0)
+      nlast(this._bars).fixedWidth = 'auto';
   }
   public firstBar() {
-    return first(this.bars);
+    return first(this._bars);
   }
   public lastBar() {
-    return last(this.bars);
+    return last(this._bars);
   }
-  public allBars() {
-    return this.bars;
+  public bars() {
+    return this._bars;
   }
 
   public partFirst() {
@@ -81,13 +81,13 @@ export class Stave {
   }
 
   public insertBar(newBar: Bar, oldBar: Bar, before: boolean) {
-    const barInd = this.bars.indexOf(oldBar);
+    const barInd = this._bars.indexOf(oldBar);
     const ind = before ? barInd : barInd + 1;
-    this.bars.splice(ind, 0, newBar);
+    this._bars.splice(ind, 0, newBar);
   }
   public play(previous: Stave | null) {
-    return this.bars.flatMap((b, i) =>
-      b.play(i === 0 ? previous && previous.lastBar() : this.bars[i - 1])
+    return this._bars.flatMap((b, i) =>
+      b.play(i === 0 ? previous && previous.lastBar() : this._bars[i - 1])
     );
   }
   public renderTrebleClef(x: number, y: number) {
@@ -119,9 +119,9 @@ export class Stave {
     const previousBar = (barIdx: number) =>
       barIdx === 0
         ? props.previousStave && props.previousStave.lastBar()
-        : this.bars[barIdx - 1] || null;
+        : this._bars[barIdx - 1] || null;
 
-    const totalAnacrusisWidth = this.bars.reduce(
+    const totalAnacrusisWidth = this._bars.reduce(
       (width, bar, i) =>
         width + (bar instanceof Anacrusis ? bar.width(previousBar(i)) : 0),
       0
@@ -129,9 +129,9 @@ export class Stave {
 
     const theoreticalBarWidth =
       (props.width - trebleClefWidth - totalAnacrusisWidth) /
-      this.bars.filter((bar) => !(bar instanceof Anacrusis)).length;
+      this._bars.filter((bar) => !(bar instanceof Anacrusis)).length;
 
-    const { xs } = this.bars.reduce(
+    const { xs } = this._bars.reduce(
       ({ xs, width, iOffset }, bar, i) => {
         if (bar instanceof Anacrusis)
           return {
@@ -153,7 +153,7 @@ export class Stave {
     const width = (index: number) => xs[index];
 
     const getX = (barIdx: number) =>
-      this.bars
+      this._bars
         .slice(0, barIdx)
         .reduce((soFar, _, i) => soFar + width(i), props.x + trebleClefWidth);
 
@@ -163,15 +163,15 @@ export class Stave {
       width: width(index),
       previousBar: previousBar(index),
       justAddedNote: props.justAddedNote,
-      shouldRenderLastBarline: this.bars[index + 1]
-        ? this.bars[index + 1].timeSignature().equals(bar.timeSignature())
+      shouldRenderLastBarline: this._bars[index + 1]
+        ? this._bars[index + 1].timeSignature().equals(bar.timeSignature())
         : true,
       shouldRenderFirstBarline: false,
       endOfLastStave: props.x + props.width, // should always be the same
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
       resize: (changeInWidth: number) => {
-        const next = this.bars[index + 1];
+        const next = this._bars[index + 1];
         if (next)
           if (next.fixedWidth !== 'auto' && next.fixedWidth > changeInWidth) {
             next.fixedWidth -= changeInWidth;
@@ -187,7 +187,7 @@ export class Stave {
       this.renderTrebleClef(props.x, props.y),
       m(
         'g[class=bars]',
-        this.bars.map((bar, idx) => bar.render(barProps(bar, idx)))
+        this._bars.map((bar, idx) => bar.render(barProps(bar, idx)))
       ),
       m(
         'g[class=stave-lines]',

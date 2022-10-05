@@ -13,11 +13,6 @@ import { Score } from '../Score';
 import { SecondTimingSelection } from '../Selection';
 import { Selection } from '../Selection';
 
-export type DraggedTiming = {
-  timing: Timing;
-  dragged: TimingPart;
-};
-
 interface TimingProps {
   score: Score;
   page: number;

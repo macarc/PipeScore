@@ -2,13 +2,11 @@
   Controller for mouse events (ish, this needs to be organised better)
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';
-import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { SingleNote } from '../Note';
-import { stopInputtingNotes } from './Note';
 import { Bar } from '../Bar';
 
 export function deleteSelection(): ScoreEvent {
@@ -55,11 +53,9 @@ export function mouseOverPitch(
           state.score.previousNote(where.id)
         );
       }
-    } else if (
-      state.selection instanceof ScoreSelection ||
-      state.selection instanceof GracenoteSelection
-    ) {
-      return state.selection.mouseOverPitch(pitch, state.score);
+    } else if (state.selection && state.selection.dragging) {
+      state.selection.dragOverPitch(pitch, state.score);
+      return Update.ViewChanged;
     }
     return mustUpdate ? Update.ViewChanged : Update.NoChange;
   };
