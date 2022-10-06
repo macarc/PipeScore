@@ -2,7 +2,7 @@
   Controller for gracenote-related events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 import { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
 import { Score } from '../Score';

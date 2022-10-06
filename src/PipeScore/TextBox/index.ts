@@ -1,7 +1,7 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { Update } from '../Controllers/Controller';
-import { changeText, clickText } from '../Controllers/Text';
+import { Update } from '../Events/common';
+import { changeText, clickText } from '../Events/Text';
 import dialogueBox from '../global/dialogueBox';
 import { Obj, svgCoords } from '../global/utils';
 import { Selection, TextSelection } from '../Selection';

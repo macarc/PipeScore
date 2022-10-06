@@ -19,13 +19,13 @@ import {
   expandSelection,
   detractSelection,
   addNoteAfterSelection,
-} from './Controllers/Note';
-import { undo, redo, print } from './Controllers/Misc';
-import { deleteSelection } from './Controllers/Mouse';
+} from './Events/Note';
+import { undo, redo, print } from './Events/Misc';
+import { deleteSelection } from './Events/Mouse';
 import { Pitch } from './global/pitch';
 
 import { NoteLength } from './Note/notelength';
-import { moveLeftBarwise, moveRightBarwise } from './Controllers/Bar';
+import { moveLeftBarwise, moveRightBarwise } from './Events/Bar';
 
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;

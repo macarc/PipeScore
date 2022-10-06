@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
  */
 import m from 'mithril';
-import { clickGracenote } from '../Controllers/Gracenote';
+import { clickGracenote } from '../Events/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { nlast, Obj } from '../global/utils';

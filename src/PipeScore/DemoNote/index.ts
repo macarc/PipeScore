@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
  */
 import { Bar } from '../Bar';
-import { Update } from '../Controllers/Controller';
+import { Update } from '../Events/common';
 import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note, SingleNote } from '../Note';

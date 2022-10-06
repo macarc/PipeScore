@@ -4,8 +4,8 @@
 */
 
 import m from 'mithril';
-import { ScoreEvent, Update } from './Controllers/Controller';
-import { mouseUp, mouseDrag } from './Controllers/Mouse';
+import { ScoreEvent, Update } from './Events/common';
+import { mouseUp, mouseDrag } from './Events/Mouse';
 import { State } from './State';
 import { Score } from './Score';
 import {

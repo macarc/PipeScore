@@ -1,6 +1,6 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { editTimeSignature } from '../Controllers/Bar';
+import { editTimeSignature } from '../Events/Bar';
 import dialogueBox from '../global/dialogueBox';
 import { settings } from '../global/settings';
 import { Obj } from '../global/utils';

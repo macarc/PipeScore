@@ -2,7 +2,7 @@
   Controller for text events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 
 import { TextBox } from '../TextBox';

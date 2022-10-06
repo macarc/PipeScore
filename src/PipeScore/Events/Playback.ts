@@ -2,7 +2,7 @@
   Controller for playback events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update } from './Controller';
+import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 
 import { playback, stopAudio } from '../Playback';

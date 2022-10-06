@@ -5,7 +5,7 @@
 
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { clickBarline } from '../Controllers/Bar';
+import { clickBarline } from '../Events/Bar';
 import { settings } from '../global/settings';
 import { Obj } from '../global/utils';
 

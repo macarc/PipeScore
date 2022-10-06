@@ -4,8 +4,8 @@
 */
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { editText } from '../Controllers/Misc';
-import { clickSecondTiming } from '../Controllers/SecondTiming';
+import { editText } from '../Events/Misc';
+import { clickSecondTiming } from '../Events/SecondTiming';
 import { ID } from '../global/id';
 import { foreach, Obj } from '../global/utils';
 import { before, closestItem, getXY, itemBefore, XY } from '../global/xy';

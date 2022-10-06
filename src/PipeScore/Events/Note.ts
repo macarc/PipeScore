@@ -8,7 +8,7 @@ import {
   Update,
   stopInputtingNotes,
   addToSelection,
-} from './Controller';
+} from './common';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';

@@ -4,7 +4,7 @@
 */
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { hoverDoc } from '../Controllers/Doc';
+import { hoverDoc } from '../Events/Doc';
 
 export function help(docName: string, element: m.Vnode): m.Vnode {
   const attrs = element.attrs as {

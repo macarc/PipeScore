@@ -2,7 +2,7 @@
   Controller for mouse events (ish, this needs to be organised better)
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 
 import { Pitch } from '../global/pitch';

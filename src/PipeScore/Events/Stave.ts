@@ -2,7 +2,7 @@
   Controller for stave events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, noteLocation, Update } from './Controller';
+import { ScoreEvent, noteLocation, Update } from './common';
 import { State } from '../State';
 import { ScoreSelection } from '../Selection';
 

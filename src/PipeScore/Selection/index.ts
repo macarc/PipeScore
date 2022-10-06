@@ -9,7 +9,7 @@ import { Score } from '../Score';
 import { Pitch } from '../global/pitch';
 import { Gracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { changeGracenoteFrom } from '../Controllers/Gracenote';
+import { changeGracenoteFrom } from '../Events/Gracenote';
 import { Drags } from './model';
 
 export { Selection } from './model';

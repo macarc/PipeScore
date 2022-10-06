@@ -23,13 +23,13 @@ import width, { Width } from '../global/width';
 import m from 'mithril';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
-import { mouseOffPitch, mouseOverPitch } from '../Controllers/Mouse';
+import { mouseOffPitch, mouseOverPitch } from '../Events/Mouse';
 import { getXY, setXY } from '../global/xy';
 import {
   addNoteBefore,
   clickNote,
   clickTripletLine,
-} from '../Controllers/Note';
+} from '../Events/Note';
 import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
 import { Previewable } from '../DemoNote/previewable';

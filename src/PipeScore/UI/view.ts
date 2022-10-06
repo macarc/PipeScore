@@ -12,14 +12,14 @@ import {
   copy,
   paste,
   setInputLength,
-} from '../Controllers/Note';
+} from '../Events/Note';
 import {
   addAnacrusis,
   addBar,
   setBarRepeat,
   editBarTimeSignature,
   resetBarLength,
-} from '../Controllers/Bar';
+} from '../Events/Bar';
 import {
   setMenu,
   undo,
@@ -32,18 +32,18 @@ import {
   landscape,
   portrait,
   setPageNumberVisibility,
-} from '../Controllers/Misc';
-import { addSecondTiming, addSingleTiming } from '../Controllers/SecondTiming';
-import { deleteSelection } from '../Controllers/Mouse';
-import { setGracenoteOnSelectedNotes } from '../Controllers/Gracenote';
-import { toggleDoc } from '../Controllers/Doc';
+} from '../Events/Misc';
+import { addSecondTiming, addSingleTiming } from '../Events/SecondTiming';
+import { deleteSelection } from '../Events/Mouse';
+import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
+import { toggleDoc } from '../Events/Doc';
 import {
   startPlayback,
   stopPlayback,
   setPlaybackBpm,
-} from '../Controllers/Playback';
-import { centreText, addText } from '../Controllers/Text';
-import { addStave } from '../Controllers/Stave';
+} from '../Events/Playback';
+import { centreText, addText } from '../Events/Text';
+import { addStave } from '../Events/Stave';
 import { help } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';

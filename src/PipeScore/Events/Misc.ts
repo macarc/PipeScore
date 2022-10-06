@@ -2,7 +2,7 @@
   Controller for miscellaneous events
   Copyright (C) 2021 macarc
 */
-import { ScoreEvent, Update, stopInputtingNotes } from './Controller';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 import { Menu } from '../UI/model';
 import m from 'mithril';
