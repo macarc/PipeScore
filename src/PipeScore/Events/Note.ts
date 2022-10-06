@@ -10,16 +10,13 @@ import {
   addToSelection,
 } from './common';
 import { State } from '../State';
-
 import { Pitch } from '../global/pitch';
-
 import { Bar } from '../Bar';
 import {
   ScoreSelection,
   TripletLineSelection,
   GracenoteSelection,
 } from '../Selection';
-
 import { Note, SingleNote, Triplet } from '../Note';
 import { NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { DemoNote, DemoReactive } from '../DemoNote';

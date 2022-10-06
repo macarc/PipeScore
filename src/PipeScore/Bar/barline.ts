@@ -17,38 +17,50 @@ interface BarlineProps {
   drag: (x: number) => void;
 }
 
-export type Barline = 'normal' | 'repeat' | 'end';
+type BarlineType = 'normal' | 'repeat' | 'end';
 
-export default {
-  fromJSON: function (o: Obj): Barline {
-    return o.type;
-  },
-  toJSON: function (barline: Barline): Obj {
-    return { type: barline };
-  },
-  render: function (barline: Barline, props: BarlineProps) {
-    if (barline === 'normal') {
-      return renderNormal(props);
-    } else if (barline === 'repeat') {
-      return renderRepeat(props);
-    } else {
-      return renderPart(props);
-    }
-  },
+export class Barline {
+  private type: BarlineType;
+
+  static normal = new Barline('normal');
+  static repeat = new Barline('repeat');
+  static part = new Barline('end'); // It's called end for "legacy reasons"
+
+  private constructor(type: BarlineType) {
+    this.type = type;
+  }
+  static fromJSON(o: Obj): Barline {
+    if (o.type === 'normal') return Barline.normal;
+    else if (o.type === 'repeat') return Barline.repeat;
+    else if (o.type === 'end') return Barline.part;
+    else throw new Error(`Unrecognised barline type ${o.type}`);
+  }
+  toJSON(): Obj {
+    return { type: this.type };
+  }
   // Repeat and end barlines must be drawn. Normal barlines may
   // be skipped, e.g. if the previous bar ended in a normal barline,
   // there's no need to draw another normal barline at the start of this bar
-  mustDraw: function (barline: Barline) {
-    return barline === 'repeat' || barline === 'end';
-  },
-  width: function (barline: Barline) {
-    if (barline === 'normal') {
+  mustDraw() {
+    return this.type === 'repeat' || this.type === 'end';
+  }
+  width() {
+    if (this.type === 'normal') {
       return 1;
     } else {
       return 10;
     }
-  },
-};
+  }
+  render(props: BarlineProps) {
+    if (this.type === 'normal') {
+      return renderNormal(props);
+    } else if (this.type === 'repeat') {
+      return renderRepeat(props);
+    } else {
+      return renderPart(props);
+    }
+  }
+}
 
 const lineOffset = 6;
 const thickLineWidth = 2.5;

@@ -16,7 +16,7 @@ import { addNoteToBarEnd } from '../Events/Note';
 import { clickBar } from '../Events/Bar';
 import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Events/Mouse';
-import bl, { Barline } from './barline';
+import { Barline } from './barline';
 import { Previewable } from '../DemoNote/previewable';
 import { dispatch } from '../Controller';
 
@@ -48,8 +48,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
     super(genId());
     this.ts = timeSignature.copy();
     this.notes = [];
-    this.frontBarline = 'normal';
-    this.backBarline = 'normal';
+    this.frontBarline = Barline.normal;
+    this.backBarline = Barline.normal;
   }
   public static fromJSON(o: Obj) {
     const b = o.isAnacrusis
@@ -58,8 +58,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
     b.notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
     b.fixedWidth = o.width === undefined ? 'auto' : o.width;
-    b.backBarline = bl.fromJSON(o.backBarline);
-    b.frontBarline = bl.fromJSON(o.frontBarline);
+    b.backBarline = Barline.fromJSON(o.backBarline);
+    b.frontBarline = Barline.fromJSON(o.frontBarline);
     return b;
   }
   public toJSON() {
@@ -69,8 +69,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
       notes: this.notes
         .filter((n) => n !== this.previewNote)
         .map((n) => n.toJSON()),
-      backBarline: bl.toJSON(this.backBarline),
-      frontBarline: bl.toJSON(this.frontBarline),
+      backBarline: this.backBarline.toJSON(),
+      frontBarline: this.frontBarline.toJSON(),
       timeSignature: this.ts.toJSON(),
       width: this.fixedWidth,
     };
@@ -327,11 +327,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
       props.width -
       (hasTimeSignature ? this.ts.width() : 0) -
       SingleNote.width -
-      bl.width(this.frontBarline) -
-      bl.width(this.backBarline);
+      this.frontBarline.width() -
+      this.backBarline.width();
     const xAfterTimeSignature =
       props.x + (hasTimeSignature ? this.ts.width() : 0);
-    const xAfterBarline = xAfterTimeSignature + bl.width(this.frontBarline);
+    const xAfterBarline = xAfterTimeSignature + this.frontBarline.width();
 
     const actualNotes = this.notes.filter((note) => note !== this.previewNote);
 
@@ -413,18 +413,18 @@ export class Bar extends Item implements Previewable<SingleNote> {
           }) || null
         : null,
 
-      bl.mustDraw(this.frontBarline) ||
+      this.frontBarline.mustDraw() ||
       props.shouldRenderFirstBarline ||
       hasTimeSignature
-        ? bl.render(this.frontBarline, {
+        ? this.frontBarline.render({
             x: xAfterTimeSignature,
             y: props.y,
             atStart: true,
             drag: () => null,
           })
         : null,
-      bl.mustDraw(this.backBarline) || props.shouldRenderLastBarline
-        ? bl.render(this.backBarline, {
+      this.backBarline.mustDraw() || props.shouldRenderLastBarline
+        ? this.backBarline.render({
             x: props.x + props.width,
             y: props.y,
             atStart: false,

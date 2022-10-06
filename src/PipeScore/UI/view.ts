@@ -16,7 +16,7 @@ import {
 import {
   addAnacrusis,
   addBar,
-  setBarRepeat,
+  setBarline,
   editBarTimeSignature,
   resetBarLength,
 } from '../Events/Bar';
@@ -279,9 +279,9 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: startBarClass('normal'),
+                class: startBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
-                onclick: () => dispatch(setBarRepeat('start', 'normal')),
+                onclick: () => dispatch(setBarline('start', Barline.normal)),
               },
               'Normal'
             )
@@ -291,8 +291,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: startBarClass('repeat'),
-                onclick: () => dispatch(setBarRepeat('start', 'repeat')),
+                class: startBarClass(Barline.repeat),
+                onclick: () => dispatch(setBarline('start', Barline.repeat)),
               },
               'Repeat'
             )
@@ -302,8 +302,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: startBarClass('end'),
-                onclick: () => dispatch(setBarRepeat('start', 'end')),
+                class: startBarClass(Barline.part),
+                onclick: () => dispatch(setBarline('start', Barline.part)),
               },
               'Part'
             )
@@ -316,9 +316,9 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: endBarClass('normal'),
+                class: endBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
-                onclick: () => dispatch(setBarRepeat('end', 'normal')),
+                onclick: () => dispatch(setBarline('end', Barline.normal)),
               },
               'Normal'
             )
@@ -328,8 +328,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: endBarClass('repeat'),
-                onclick: () => dispatch(setBarRepeat('end', 'repeat')),
+                class: endBarClass(Barline.repeat),
+                onclick: () => dispatch(setBarline('end', Barline.repeat)),
               },
               'Repeat'
             )
@@ -339,8 +339,8 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                class: endBarClass('end'),
-                onclick: () => dispatch(setBarRepeat('end', 'end')),
+                class: endBarClass(Barline.part),
+                onclick: () => dispatch(setBarline('end', Barline.part)),
               },
               ['Part']
             )

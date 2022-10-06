@@ -4,6 +4,7 @@
 */
 import m from 'mithril';
 import { Anacrusis, Bar } from '../Bar';
+import { Barline } from '../Bar/barline';
 import { settings } from '../global/settings';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
@@ -67,17 +68,17 @@ export class Stave {
   }
 
   public partFirst() {
-    this.firstBar()?.setBarline('start', 'end');
+    this.firstBar()?.setBarline('start', Barline.part);
   }
   public partLast() {
-    this.lastBar()?.setBarline('end', 'end');
+    this.lastBar()?.setBarline('end', Barline.part);
   }
 
   public repeatFirst() {
-    this.firstBar()?.setBarline('start', 'repeat');
+    this.firstBar()?.setBarline('start', Barline.repeat);
   }
   public repeatLast() {
-    this.lastBar()?.setBarline('end', 'repeat');
+    this.lastBar()?.setBarline('end', Barline.repeat);
   }
 
   public insertBar(newBar: Bar, oldBar: Bar, before: boolean) {

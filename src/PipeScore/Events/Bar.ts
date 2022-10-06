@@ -116,10 +116,7 @@ export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
   };
 }
 
-export function setBarRepeat(
-  which: 'start' | 'end',
-  what: Barline
-): ScoreEvent {
+export function setBarline(which: 'start' | 'end', what: Barline): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const { bar } = noteLocation(state.selection.start, state.score);
