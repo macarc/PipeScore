@@ -10,7 +10,7 @@ import { Score } from './Score';
 import { Selection } from './Selection';
 import { Note, Triplet } from './Note';
 
-export interface State {
+export type State = {
   canEdit: boolean;
   isLoggedIn: boolean;
   justClickedNote: boolean;
@@ -29,4 +29,4 @@ export interface State {
   view: { ui: HTMLElement | null; score: HTMLElement | null };
   playback: PlaybackState;
   score: Score;
-}
+};

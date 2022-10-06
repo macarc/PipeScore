@@ -19,7 +19,7 @@ import Documentation from './Documentation';
 import { svgCoords } from './global/utils';
 import { loadSamples } from './Playback';
 
-const initialState: State = {
+const state: State = {
   canEdit: true,
   isLoggedIn: false,
   justClickedNote: false,
@@ -34,7 +34,6 @@ const initialState: State = {
   history: { past: [], future: [] },
   view: { score: null, ui: null },
 };
-const state: State = { ...initialState };
 
 let save: (score: Score) => void = () => null;
 
@@ -64,71 +63,74 @@ const updateView = () => {
 };
 
 function redraw() {
-  // Redraws the view
   needsRedrawn = false;
 
   const scoreRoot = document.getElementById('score');
   const uiRoot = document.getElementById('ui');
   if (!scoreRoot || !uiRoot) return;
 
-  const scoreProps = {
-    justAddedNote: state.justAddedNote,
-    noteState: {
-      dragged:
-        (state.selection instanceof ScoreSelection &&
-          state.selection.dragging &&
-          state.selection.note(state.score)) ||
-        null,
-      selectedTripletLine:
-        (state.selection instanceof TripletLineSelection &&
-          state.selection.selected) ||
-        null,
-      inputtingNotes: state.demo !== null,
-    },
-    gracenoteState:
-      state.selection instanceof GracenoteSelection
-        ? state.selection.state()
-        : emptyGracenoteState,
-    selection: state.selection,
-    dispatch,
-    demoNote: state.demo,
-  };
-  const uiProps = {
-    loggedIn: state.isLoggedIn,
-    zoomLevel: state.score.zoom,
-    demo: state.demo,
-    showingPageNumbers: state.score.showNumberOfPages,
-    selectedNotes:
-      state.selection instanceof ScoreSelection
-        ? state.selection.notes(state.score)
-        : [],
-    selectedGracenote:
-      // TODO should this do something for GracenoteSelection too
-      (state.selection instanceof ScoreSelection &&
-        state.selection.gracenote(state.score)) ||
-      null,
-    isLandscape: state.score.landscape,
-    selectedBar:
-      (state.selection instanceof ScoreSelection &&
-        state.selection.bar(state.score)) ||
-      null,
-    docs: state.doc.show
-      ? Documentation.get(state.doc.current || '') ||
-        'Hover over different icons to view Help here.'
-      : null,
-    currentMenu: state.ui.menu,
-    playbackBpm: state.playback.bpm,
-  };
   if (state.view.score)
-    m.render(state.view.score, state.score.render(scoreProps));
+    m.render(
+      state.view.score,
+      state.score.render({
+        justAddedNote: state.justAddedNote,
+        noteState: {
+          dragged:
+            (state.selection instanceof ScoreSelection &&
+              state.selection.dragging &&
+              state.selection.note(state.score)) ||
+            null,
+          selectedTripletLine:
+            (state.selection instanceof TripletLineSelection &&
+              state.selection.selected) ||
+            null,
+          inputtingNotes: state.demo !== null,
+        },
+        gracenoteState:
+          state.selection instanceof GracenoteSelection
+            ? state.selection.state()
+            : emptyGracenoteState,
+        selection: state.selection,
+        demoNote: state.demo,
+      })
+    );
+
   if (state.view.ui && state.canEdit)
-    m.render(state.view.ui, renderUI(uiProps));
+    m.render(
+      state.view.ui,
+      renderUI({
+        loggedIn: state.isLoggedIn,
+        zoomLevel: state.score.zoom,
+        demo: state.demo,
+        showingPageNumbers: state.score.showNumberOfPages,
+        selectedNotes:
+          state.selection instanceof ScoreSelection
+            ? state.selection.notes(state.score)
+            : [],
+        selectedGracenote:
+          // TODO should this do something for GracenoteSelection too
+          (state.selection instanceof ScoreSelection &&
+            state.selection.gracenote(state.score)) ||
+          null,
+        isLandscape: state.score.landscape,
+        selectedBar:
+          (state.selection instanceof ScoreSelection &&
+            state.selection.bar(state.score)) ||
+          null,
+        docs: state.doc.show
+          ? Documentation.get(state.doc.current || '') ||
+            'Hover over different icons to view Help here.'
+          : null,
+        currentMenu: state.ui.menu,
+        playbackBpm: state.playback.bpm,
+      })
+    );
 }
 
+// The callback that occurs on mouse move
+// - registers a mouse dragged event if the mouse button is held down
+// - moves demo note (if necessary)
 function mouseMove(event: MouseEvent) {
-  // The callback that occurs on mouse move
-  // - registers a mouse dragged event if the mouse button is held down
-  // - moves demo note (if necessary)
   const mouseButtonIsDown = event.buttons === 1;
   if (mouseButtonIsDown) {
     const pt = svgCoords(event);

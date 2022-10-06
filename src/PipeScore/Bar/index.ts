@@ -40,21 +40,21 @@ export class Bar extends Item implements Previewable<SingleNote> {
   protected frontBarline: Barline;
   protected backBarline: Barline;
 
+  public isAnacrusis: boolean;
   public fixedWidth: number | 'auto' = 'auto';
 
   protected previewNote: SingleNote | null = null;
 
-  constructor(timeSignature = new TimeSignature()) {
+  constructor(timeSignature = new TimeSignature(), isAnacrusis = false) {
     super(genId());
     this.ts = timeSignature.copy();
     this.notes = [];
+    this.isAnacrusis = isAnacrusis;
     this.frontBarline = Barline.normal;
     this.backBarline = Barline.normal;
   }
   public static fromJSON(o: Obj) {
-    const b = o.isAnacrusis
-      ? new Anacrusis(TimeSignature.fromJSON(o.timeSignature))
-      : new Bar(TimeSignature.fromJSON(o.timeSignature));
+    const b = new Bar(TimeSignature.fromJSON(o.timeSignature), o.isAnacrusis);
     b.notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
     b.fixedWidth = o.width === undefined ? 'auto' : o.width;
@@ -65,7 +65,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public toJSON() {
     return {
       id: this.id,
-      isAnacrusis: this instanceof Anacrusis,
+      isAnacrusis: this.isAnacrusis,
       notes: this.notes
         .filter((n) => n !== this.previewNote)
         .map((n) => n.toJSON()),
@@ -282,6 +282,26 @@ export class Bar extends Item implements Previewable<SingleNote> {
       this.backBarline = barline;
     }
   }
+  public anacrusisWidth(previousBar: Bar | null) {
+    if (this.isAnacrusis) {
+      if (this.fixedWidth !== 'auto') return this.fixedWidth;
+      const previousPitch = previousBar && previousBar.lastPitch();
+      const previousTimeSignature = previousBar && previousBar.timeSignature();
+      const beats = this.beats(
+        previousPitch,
+        this.notes.filter((note) => note !== this.previewNote)
+      );
+      return Math.max(
+        width.reify(nlast(beats), 5) +
+          (previousTimeSignature && !this.ts.equals(previousTimeSignature)
+            ? 0
+            : this.ts.width()),
+        60
+      );
+    } else {
+      return 0;
+    }
+  }
   // Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
   // Returned array is guaranteed to have at least one element
   protected beats(previousPitch: Pitch | null, notes = this.notes) {
@@ -430,8 +450,11 @@ export class Bar extends Item implements Previewable<SingleNote> {
             atStart: false,
             drag: (x) => {
               const newWidth = x - props.x;
-              if (props.resize(newWidth - props.width))
-                this.fixedWidth = newWidth;
+              // The reason we can't just do props.width here is that when
+              // this is called in the future, props.width may be out of date
+              const oldWidth =
+                this.fixedWidth === 'auto' ? props.width : this.fixedWidth;
+              if (props.resize(newWidth - oldWidth)) this.fixedWidth = newWidth;
             },
           })
         : null,
@@ -442,23 +465,5 @@ export class Bar extends Item implements Previewable<SingleNote> {
           })
         : null,
     ]);
-  }
-}
-export class Anacrusis extends Bar {
-  public width(previousBar: Bar | null) {
-    if (this.fixedWidth !== 'auto') return this.fixedWidth;
-    const previousPitch = previousBar && previousBar.lastPitch();
-    const previousTimeSignature = previousBar && previousBar.timeSignature();
-    const beats = this.beats(
-      previousPitch,
-      this.notes.filter((note) => note !== this.previewNote)
-    );
-    return Math.max(
-      width.reify(nlast(beats), 5) +
-        (previousTimeSignature && !this.ts.equals(previousTimeSignature)
-          ? 0
-          : this.ts.width()),
-      60
-    );
   }
 }

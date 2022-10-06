@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import m from 'mithril';
-import { Anacrusis, Bar } from '../Bar';
+import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { settings } from '../global/settings';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
@@ -44,7 +44,7 @@ export class Stave {
       bars: this._bars.map((bar) => bar.toJSON()),
     };
   }
-  public static minWidth() {
+  public static minHeight() {
     // Almost exactly the height of the treble clef
     return settings.lineHeightOf(10);
   }
@@ -91,6 +91,47 @@ export class Stave {
       b.play(i === 0 ? previous && previous.lastBar() : this._bars[i - 1])
     );
   }
+  // The algorithm for computing bar widths is thusly:
+  // - Ignoring anacruses, work out the average bar width
+  // - Each anacruses should be its .anacrusisWidth()
+  // - Each fixedWidth bar m (i.e. each bar where the barline has been dragged
+  //   by the user) should have width m.fixedWidth, and the next non-fixedWidth
+  //   bar should be longer by the difference between m.fixedWidth and the average
+  //   bar width
+  // The reason we can't ignore fixedWidth bars when computing average bar width
+  // is that when dragging the barline of a bar, the other barlines shouldn't move
+
+  // Returns a list where the pixel width at the nth index is that of the nth bar
+  public computeBarWidths(
+    staveWidth: number,
+    previousBar: (i: number) => Bar | null
+  ): number[] {
+    const anacruses = this._bars.filter((bar) => bar.isAnacrusis);
+    const totalAnacrusisWidth = anacruses.reduce(
+      (width, bar, i) => width + bar.anacrusisWidth(previousBar(i)),
+      0
+    );
+    const averageBarWidth =
+      (staveWidth - trebleClefWidth - totalAnacrusisWidth) /
+      (this._bars.length - anacruses.length);
+
+    let widths: number[] = [];
+    let extraWidth = 0;
+
+    this._bars.forEach((bar, i) => {
+      if (bar.isAnacrusis) {
+        widths.push(bar.anacrusisWidth(previousBar(i)));
+      } else if (bar.fixedWidth !== 'auto') {
+        widths.push(bar.fixedWidth);
+        extraWidth += bar.fixedWidth - averageBarWidth;
+      } else {
+        widths.push(averageBarWidth - extraWidth);
+        extraWidth = 0;
+      }
+    });
+
+    return widths;
+  }
   public renderTrebleClef(x: number, y: number) {
     const scale = (0.08 / 35) * settings.lineHeightOf(5);
     return m(
@@ -122,37 +163,8 @@ export class Stave {
         ? props.previousStave && props.previousStave.lastBar()
         : this._bars[barIdx - 1] || null;
 
-    const totalAnacrusisWidth = this._bars.reduce(
-      (width, bar, i) =>
-        width + (bar instanceof Anacrusis ? bar.width(previousBar(i)) : 0),
-      0
-    );
-
-    const theoreticalBarWidth =
-      (props.width - trebleClefWidth - totalAnacrusisWidth) /
-      this._bars.filter((bar) => !(bar instanceof Anacrusis)).length;
-
-    const { xs } = this._bars.reduce(
-      ({ xs, width, iOffset }, bar, i) => {
-        if (bar instanceof Anacrusis)
-          return {
-            xs: [...xs, bar.width(previousBar(i))],
-            width,
-            iOffset: iOffset + 1,
-          };
-
-        const barWidth =
-          bar.fixedWidth === 'auto'
-            ? theoreticalBarWidth * (i - iOffset + 1) - width
-            : bar.fixedWidth;
-
-        return { xs: [...xs, barWidth], width: width + barWidth, iOffset };
-      },
-      { xs: [] as number[], width: 0, iOffset: 0 }
-    );
-
-    const width = (index: number) => xs[index];
-
+    const widths = this.computeBarWidths(props.width, previousBar);
+    const width = (index: number) => widths[index];
     const getX = (barIdx: number) =>
       this._bars
         .slice(0, barIdx)
@@ -168,18 +180,15 @@ export class Stave {
         ? this._bars[index + 1].timeSignature().equals(bar.timeSignature())
         : true,
       shouldRenderFirstBarline: false,
-      endOfLastStave: props.x + props.width, // should always be the same
+      endOfLastStave: props.x + props.width, // width should always be the same
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
-      resize: (changeInWidth: number) => {
+      resize: (widthChange: number) => {
         const next = this._bars[index + 1];
-        if (next)
-          if (next.fixedWidth !== 'auto' && next.fixedWidth > changeInWidth) {
-            next.fixedWidth -= changeInWidth;
-            return true;
-          } else if (next.fixedWidth === 'auto') {
-            return true;
-          }
+        if (next) {
+          if (next.fixedWidth !== 'auto') next.fixedWidth -= widthChange;
+          return true;
+        }
         return false;
       },
     });

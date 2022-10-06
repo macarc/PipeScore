@@ -137,7 +137,7 @@ export class Score {
     return Update.ShouldSave;
   }
   private adjustAfterOrientationChange() {
-    if (this.notEnoughSpace(this.numberOfPages - 1)) {
+    while (this.notEnoughSpace(this.numberOfPages - 1)) {
       this.numberOfPages += 1;
     }
     this.textBoxes.forEach((p) =>
@@ -169,73 +169,48 @@ export class Score {
   private topGap(pageIndex: number) {
     return pageIndex === 0 ? settings.topOffset : settings.margin;
   }
-  private brokenStaves() {
-    const brokenStaves: Stave[][] = foreach(this.numberOfPages, () => []);
+  private stavesSplitByPage() {
+    const splitStaves: Stave[][] = foreach(this.numberOfPages, () => []);
     let i = 0;
     for (const stave of this._staves) {
       i = Math.floor(
         (settings.topOffset + settings.staveGap * this._staves.indexOf(stave)) /
           (this.height() - settings.margin)
       );
-      brokenStaves[Math.min(i, this.numberOfPages - 1)].push(stave);
+      splitStaves[Math.min(i, this.numberOfPages - 1)].push(stave);
     }
-    return brokenStaves;
+    return splitStaves;
   }
   private notEnoughSpace(page: number) {
     return (
-      this.topGap(page) + settings.staveGap * this.brokenStaves()[page].length >
+      this.topGap(page) +
+        settings.staveGap * this.stavesSplitByPage()[page].length >
       this.height() - settings.margin
     );
   }
-  public addStave(afterStave: Stave | null, before: boolean) {
-    const brokenStaves = this.brokenStaves();
-    let pageIndex = brokenStaves.length - 1;
-    if (afterStave) {
-      for (let page = 0; page < brokenStaves.length; page++) {
-        if (brokenStaves[page].includes(afterStave)) {
-          pageIndex = page;
-          break;
-        }
-      }
-    }
-    const spaceForAnotherStave = (i: number) => {
-      const page = brokenStaves[i];
-      if (this.notEnoughSpace(i)) {
-        const newStaveGap =
-          (this.height() - settings.topOffset - settings.margin) /
-          (page.length + 0.5);
-        if (newStaveGap < Stave.minWidth()) {
-          return null;
-        }
-        return newStaveGap;
-      } else {
-        return settings.staveGap;
-      }
-    };
-    let originalPageIndex = pageIndex;
-    let page = brokenStaves[pageIndex];
-    while (this.notEnoughSpace(pageIndex)) {
-      page = brokenStaves[++pageIndex];
-      if (!page) {
-        while (spaceForAnotherStave(originalPageIndex) === null) {
-          page = brokenStaves[++originalPageIndex];
-          if (!page)
-            alert(
-              'Cannot add stave - not enough space. Add another page, or reduce the margin at the top of the page.'
-            );
-          return;
-        }
-        const newStaveGap = spaceForAnotherStave(originalPageIndex);
-        if (newStaveGap) settings.staveGap = newStaveGap;
-        else return;
-        break;
-      }
+  public addStave(nearStave: Stave | null, before: boolean) {
+    const usefulHeightPerPage = this.height() - 2 * settings.margin;
+    // First page is different since it has a gap at the top (of size topOffset)
+    const usefulHeightOnFirstPage =
+      this.height() - settings.margin - settings.topOffset;
+    const gapNeededBetweenStaves =
+      (usefulHeightOnFirstPage +
+        usefulHeightPerPage * (this.numberOfPages - 1)) /
+      (this._staves.length + 0.5);
+
+    if (gapNeededBetweenStaves < Stave.minHeight()) {
+      alert(
+        'Cannot add stave - not enough space. Add another page, or reduce the margin at the top of the page.'
+      );
+      return;
+    } else if (gapNeededBetweenStaves < settings.staveGap) {
+      settings.staveGap = gapNeededBetweenStaves;
     }
 
-    if (afterStave) {
-      const adjacentBar = before ? afterStave.firstBar() : afterStave.lastBar();
+    if (nearStave) {
+      const adjacentBar = before ? nearStave.firstBar() : nearStave.lastBar();
       const ts = adjacentBar && adjacentBar.timeSignature();
-      const ind = this._staves.indexOf(afterStave);
+      const ind = this._staves.indexOf(nearStave);
       const newStave = new Stave(ts || new TimeSignature());
       if (ind !== -1) this._staves.splice(before ? ind : ind + 1, 0, newStave);
     } else {
@@ -256,16 +231,16 @@ export class Score {
     return Bar.previousNote(id, this.bars());
   }
   public hasStuffOnLastPage() {
-    return nlast(this.brokenStaves()).length > 0;
+    return nlast(this.stavesSplitByPage()).length > 0;
   }
   public firstOnPage(page: number) {
-    return first(this.brokenStaves()[page])?.firstBar() || null;
+    return first(this.stavesSplitByPage()[page])?.firstBar() || null;
   }
   public lastOnPage(page: number) {
-    return last(this.brokenStaves()[page])?.lastBar() || null;
+    return last(this.stavesSplitByPage()[page])?.lastBar() || null;
   }
   public deletePage() {
-    const stavesToDelete = this.brokenStaves()[this.numberOfPages - 1];
+    const stavesToDelete = this.stavesSplitByPage()[this.numberOfPages - 1];
     if (stavesToDelete) {
       const first = stavesToDelete[0]?.firstBar() || null;
       const last = nlast(stavesToDelete)?.lastBar() || null;
@@ -278,10 +253,9 @@ export class Score {
     this.textBoxes[this.numberOfPages - 1] = [];
     this.numberOfPages--;
   }
+  // Deletes the stave from the score
+  // Does not worry about purging notes/bars; that should be handled elsewhere
   public deleteStave(stave: Stave) {
-    // Deletes the stave from the score
-    // Does not worry about purging notes/bars; that should be handled elsewhere
-
     const ind = this._staves.indexOf(stave);
     if (ind !== -1) this._staves.splice(ind, 1);
   }
@@ -414,7 +388,7 @@ export class Score {
       staveGap: settings.staveGap,
     });
 
-    const brokenStaves = this.brokenStaves();
+    const splitStaves = this.stavesSplitByPage();
     const texts = (i: number) => this.textBoxes[i] || [];
 
     return m(
@@ -440,7 +414,7 @@ export class Score {
               onmousedown: () => dispatch(clickBackground()),
               onmouseover: () => dispatch(mouseOffPitch()),
             }),
-            ...brokenStaves[i].map((stave, idx) =>
+            ...splitStaves[i].map((stave, idx) =>
               stave.render(staveProps(stave, idx, i))
             ),
             ...texts(i).map((textBox) =>

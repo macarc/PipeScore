@@ -11,7 +11,7 @@ import {
 } from './common';
 import { State } from '../State';
 
-import { Anacrusis, Bar } from '../Bar';
+import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
@@ -66,7 +66,7 @@ export function addAnacrusis(before: boolean): ScoreEvent {
 
     if (bar) {
       const { stave } = state.score.location(bar.id);
-      stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
+      stave.insertBar(new Bar(bar.timeSignature(), true), bar, before);
       return Update.ShouldSave;
     }
     return Update.NoChange;

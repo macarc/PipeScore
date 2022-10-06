@@ -12,7 +12,7 @@ import { settings } from '../global/settings';
 import m from 'mithril';
 import { Score } from '../Score';
 import { Stave } from '../Stave';
-import { Bar, Anacrusis } from '../Bar';
+import { Bar } from '../Bar';
 import { Note, SingleNote, Triplet } from '../Note';
 import { Gracenote } from '../Gracenote';
 
@@ -123,7 +123,7 @@ export class ScoreSelection extends Drags {
   }
   public addAnacrusis(before: boolean, score: Score) {
     const { bar, stave } = score.location(this.start);
-    stave.insertBar(new Anacrusis(bar.timeSignature()), bar, before);
+    stave.insertBar(new Bar(bar.timeSignature(), true), bar, before);
   }
   public addBar(before: boolean, score: Score) {
     const { bar, stave } = score.location(this.start);
