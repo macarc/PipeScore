@@ -1,3 +1,5 @@
+import Token from "./types/Token";
+
 interface BWWFileSpec {
     regex: RegExp;
     type: string;
@@ -6,7 +8,7 @@ interface BWWFileSpec {
 const spec: BWWFileSpec[] = [
     {
         regex: /^Bagpipe Music Writer Gold:\d\.\d/,
-        type: "Program Header",
+        type: "SOFTWARE_HEADER",
     },
     {
         regex: /^MIDINoteMappings,\((\d{0,2},?){27}\)/,
@@ -55,21 +57,21 @@ export default class Tokenizer {
         return this.cursor < this.stream.length;
     }
 
-    getNextToken(): string | null {
+    getNextToken(): Token | null {
         if (!this.hasMoreTokens()) {
             return null;
         }
 
         const slice = this.stream.slice(this.cursor);
-        console.log("Getting slice");
-        console.log(slice, spec[0]);
 
         let matched = spec[0].regex.exec(slice);
-
         if (matched) {
-            console.log("Found a match");
+            return {
+                type: spec[0].type,
+                value: {},
+            };
         }
 
-        return "";
+        return null;
     }
 }
