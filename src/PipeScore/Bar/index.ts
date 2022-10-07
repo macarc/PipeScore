@@ -35,15 +35,15 @@ export interface BarProps {
 }
 
 export class Bar extends Item implements Previewable<SingleNote> {
-  protected ts: TimeSignature;
-  protected notes: Note[];
-  protected frontBarline: Barline;
-  protected backBarline: Barline;
+  private ts: TimeSignature;
+  private notes: Note[];
+  private frontBarline: Barline;
+  private backBarline: Barline;
 
   public isAnacrusis: boolean;
   public fixedWidth: number | 'auto' = 'auto';
 
-  protected previewNote: SingleNote | null = null;
+  private previewNote: SingleNote | null = null;
 
   constructor(timeSignature = new TimeSignature(), isAnacrusis = false) {
     super(genId());
@@ -66,9 +66,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     return {
       id: this.id,
       isAnacrusis: this.isAnacrusis,
-      notes: this.notes
-        .filter((n) => n !== this.previewNote)
-        .map((n) => n.toJSON()),
+      notes: this.nonPreviewNotes().map((n) => n.toJSON()),
       backBarline: this.backBarline.toJSON(),
       frontBarline: this.frontBarline.toJSON(),
       timeSignature: this.ts.toJSON(),
@@ -263,7 +261,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     }
     return false;
   }
-  // Not ecstatic about this, but it's need to loop over them in Selection.notesAndTriplets()
+  // Not ecstatic about this, but it's need to loop over them in ScoreSelection.notesAndTriplets()
   // Also in allNotesAndTriplets
   public notesAndTriplets() {
     return this.notes;
@@ -286,45 +284,43 @@ export class Bar extends Item implements Previewable<SingleNote> {
     if (this.isAnacrusis) {
       if (this.fixedWidth !== 'auto') return this.fixedWidth;
       const previousPitch = previousBar && previousBar.lastPitch();
+      const { total } = this.noteOffsets(previousPitch, this.nonPreviewNotes());
       const previousTimeSignature = previousBar && previousBar.timeSignature();
-      const beats = this.beats(
-        previousPitch,
-        this.notes.filter((note) => note !== this.previewNote)
-      );
+      const drawTimeSignature =
+        previousTimeSignature && !this.ts.equals(previousTimeSignature);
       return Math.max(
-        width.reify(nlast(beats), 5) +
-          (previousTimeSignature && !this.ts.equals(previousTimeSignature)
-            ? 0
-            : this.ts.width()),
+        width.reify(total, 5) + (drawTimeSignature ? 0 : this.ts.width()),
         60
       );
-    } else {
-      return 0;
     }
+    return 0;
   }
-  // Returns a parallel array to the bars notes, with how many 'beats widths' from the left that note should be
-  // Returned array is guaranteed to have at least one element
-  protected beats(previousPitch: Pitch | null, notes = this.notes) {
-    const beats = notes.reduce(
-      (nums, n, index) => [
-        ...nums,
+  // Returns an array where the nth item is the offset of the nth note
+  // from the start of the bar.
+  private noteOffsets(previousPitch: Pitch | null, notes: Note[]) {
+    const widths = notes.reduce(
+      (soFar, n, index) => [
+        ...soFar,
         width.add(
-          nlast(nums),
+          nlast(soFar),
           n.width(index === 0 ? previousPitch : notes[index - 1].lastPitch())
         ),
       ],
-      [width.zero() /*width.init(0, 1)*/]
+      [width.zero()]
     );
-    return [
-      ...beats,
-      width.addAll(
-        nlast(beats),
+    return {
+      widths,
+      total: width.addAll(
+        nlast(widths),
         SingleNote.spacerWidth(),
         notes.length === 1 && notes[0] instanceof SingleNote
           ? SingleNote.invisibleWidth()
           : width.zero()
       ),
-    ];
+    };
+  }
+  private nonPreviewNotes() {
+    return this.notes.filter((note) => note !== this.previewNote);
   }
   public play(previous: Bar | null) {
     return this.notes.flatMap((note, i) =>
@@ -353,7 +349,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
       props.x + (hasTimeSignature ? this.ts.width() : 0);
     const xAfterBarline = xAfterTimeSignature + this.frontBarline.width();
 
-    const actualNotes = this.notes.filter((note) => note !== this.previewNote);
+    const actualNotes = this.nonPreviewNotes();
 
     const groupedNotes = SingleNote.groupNotes(
       actualNotes,
@@ -363,11 +359,12 @@ export class Bar extends Item implements Previewable<SingleNote> {
     const previousNote = props.previousBar && props.previousBar.lastNote();
     const previousPitch = props.previousBar && props.previousBar.lastPitch();
 
-    const beats = this.beats(previousPitch, actualNotes);
-    const numberOfBeats = nlast(beats).extend;
-    const beatWidth = (barWidth - nlast(beats).min) / numberOfBeats;
+    const beats = this.noteOffsets(previousPitch, actualNotes);
+    const numberOfBeats = beats.total.extend;
+    const beatWidth = (barWidth - beats.total.min) / numberOfBeats;
 
-    const xOf = (i: number) => xAfterBarline + width.reify(beats[i], beatWidth);
+    const xOf = (i: number) =>
+      xAfterBarline + width.reify(beats.widths[i], beatWidth);
 
     // There are a few special cases to deal with single notes being further
     // forward than they should be.
