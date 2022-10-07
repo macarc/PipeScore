@@ -45,6 +45,14 @@ const Spec: SpecType[] = [
         regex: /^&/,
         type: TokenType.CLEF,
     },
+    {
+        regex: /^((?:sharp|flat)(?:lg|la|b|c|d|e|f|g|a))/,
+        type: TokenType.KEY_SIGNATURE,
+    },
+    {
+        regex: /^(?:(\d)_(\d))|(C_)|(C)/,
+        type: TokenType.TIME_SIGNATURE,
+    },
 ];
 
 export default Spec;

@@ -62,8 +62,52 @@ export default class Parser {
         return {
             name: "",
             headers: this.Headers(),
-            staves: [],
+            staves: this.tokenizer.hasMoreTokens() ? this.Staves() : [],
         };
+    }
+
+    Staves() {
+        let staves = [];
+
+        const token = this.eat(TokenType.CLEF);
+
+        staves.push({
+            clef: {
+                key: this.KeySignature(),
+                time: this.TimeSignature(),
+            },
+            bars: [],
+        });
+
+        return staves;
+    }
+
+    KeySignature() {
+        let keys = [];
+
+        while (this.lookahead?.type === TokenType.KEY_SIGNATURE) {
+            keys.push(this.eat(TokenType.KEY_SIGNATURE).value[1]);
+        }
+
+        return keys;
+    }
+
+    TimeSignature() {
+        if (this.lookahead?.type === TokenType.TIME_SIGNATURE) {
+            let token = this.eat(TokenType.TIME_SIGNATURE);
+            if (token.value[1]) {
+                return {
+                    top: token.value[1],
+                    bottom: token.value[2],
+                };
+            } else if (token.value[3]) {
+                return "cut";
+            } else {
+                return "common";
+            }
+        }
+
+        return {};
     }
 
     Headers() {
