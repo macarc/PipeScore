@@ -42,7 +42,7 @@ export default class Parser {
         }
 
         if (token.type !== tokenType) {
-            throw new SyntaxError(`Unexpected token: "${token.value}"`);
+            throw new SyntaxError(`Unexpected token: "${token.type}"`);
         }
 
         this.lookahead = this.tokenizer.getNextToken();
@@ -51,10 +51,56 @@ export default class Parser {
     }
 
     Score() {
-        const token = this.eat("SOFTWARE_HEADER");
+        if (!this.lookahead) {
+            return {
+                name: "",
+                headers: [],
+                staves: [],
+            };
+        }
+
         return {
             name: "",
+            headers: this.Headers(),
             staves: [],
+        };
+    }
+
+    Headers() {
+        let headers = [];
+
+        if (this.lookahead) {
+            switch (this.lookahead.type) {
+                case "SOFTWARE_HEADER":
+                    headers.push(this.SoftwareHeader());
+                    break;
+                case "MIDI_NOTE_MAPPINGS_HEADER":
+                    headers.push(this.MIDIHeader());
+                    break;
+            }
+        }
+
+        return headers;
+    }
+
+    SoftwareHeader() {
+        const token = this.eat("SOFTWARE_HEADER");
+
+        return {
+            type: token.type,
+            value: {
+                program: token.value[1],
+                version: token.value[2],
+            },
+        };
+    }
+
+    MIDIHeader() {
+        const token = this.eat("MIDI_NOTE_MAPPINGS_HEADER");
+
+        return {
+            type: token.type,
+            value: token.value[0],
         };
     }
 }
