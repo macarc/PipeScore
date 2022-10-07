@@ -134,11 +134,7 @@ describe("correctly parses file header", () => {
     });
 
     test("it works without any headers", () => {
-        expect(
-            parser.parse(`
-                & sharpf sharpc 4_4
-            `)
-        ).toStrictEqual({
+        expect(parser.parse(`& sharpf sharpc 4_4`)).toStrictEqual({
             name: "",
             headers: [],
             staves: [],
