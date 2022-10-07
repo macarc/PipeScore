@@ -8,6 +8,10 @@ interface BWWFileSpec {
 
 const spec: BWWFileSpec[] = [
     {
+        regex: /^\s+/,
+        type: "SKIP",
+    },
+    {
         regex: /^(Bagpipe Music Writer Gold):(\d\.\d)/,
         type: "SOFTWARE_HEADER",
     },
@@ -16,7 +20,7 @@ const spec: BWWFileSpec[] = [
         type: "MIDI_NOTE_MAPPINGS_HEADER",
     },
     {
-        regex: /^FrequencyMappings,\((\d{2},?){27}\)/,
+        regex: /^FrequencyMappings,\((\d{3},?){27}\)/,
         type: "FREQUENCY_MAPPINGS_HEADER",
     },
     {
@@ -32,11 +36,11 @@ const spec: BWWFileSpec[] = [
         type: "FONT_SIZES_HEADER",
     },
     {
-        regex: /TuneFormat,\(\d,\d,([a-zA-Z]*),([a-zA-Z]*),\d{2,4},\d{3,4},\d{3,4},\d{3,4},([a-zA-Z]*),\d,\d\)/,
+        regex: /^TuneFormat,\(\d,\d,([a-zA-Z]*),([a-zA-Z]*),\d{2,4},\d{3,4},\d{3,4},\d{3,4},([a-zA-Z]*),\d,\d\)/,
         type: "TUNE_FORMAT_HEADER",
     },
     {
-        regex: /TuneTempo,(\d*)/,
+        regex: /^TuneTempo,(\d*)/,
         type: "TUNE_TEMPO_HEADER",
     },
     {
@@ -44,8 +48,8 @@ const spec: BWWFileSpec[] = [
         type: "TEXT_TAG",
     },
     {
-        regex: /^\s+/,
-        type: "SKIP",
+        regex: /^&/,
+        type: "CLEF",
     },
 ];
 

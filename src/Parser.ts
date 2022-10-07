@@ -68,15 +68,39 @@ export default class Parser {
 
     Headers() {
         let headers = [];
+        let matching = true;
 
-        if (this.lookahead) {
+        while (this.lookahead && matching) {
             switch (this.lookahead.type) {
                 case "SOFTWARE_HEADER":
                     headers.push(this.SoftwareHeader());
                     break;
                 case "MIDI_NOTE_MAPPINGS_HEADER":
-                    headers.push(this.MIDIHeader());
+                    headers.push(this.Header(this.lookahead.type));
                     break;
+                case "FREQUENCY_MAPPINGS_HEADER":
+                    headers.push(this.Header(this.lookahead.type));
+                    break;
+                case "INSTRUMENT_MAPPINGS_HEADER":
+                    headers.push(this.Header(this.lookahead.type));
+                    break;
+                case "GRACENOTE_DURATIONS_HEADER":
+                    headers.push(this.Header(this.lookahead.type));
+                    break;
+                case "FONT_SIZES_HEADER":
+                    headers.push(this.Header(this.lookahead.type));
+                    break;
+                case "TUNE_FORMAT_HEADER":
+                    headers.push(this.Header(this.lookahead.type));
+                    break;
+                case "TUNE_TEMPO_HEADER":
+                    headers.push(this.TuneTempoHeader());
+                    break;
+                case "TEXT_TAG":
+                    headers.push(this.TextTagHeader());
+                    break;
+                default:
+                    matching = false;
             }
         }
 
@@ -95,8 +119,29 @@ export default class Parser {
         };
     }
 
-    MIDIHeader() {
-        const token = this.eat("MIDI_NOTE_MAPPINGS_HEADER");
+    TuneTempoHeader() {
+        const token = this.eat("TUNE_TEMPO_HEADER");
+
+        return {
+            type: token.type,
+            value: token.value[1],
+        };
+    }
+
+    TextTagHeader() {
+        const token = this.eat("TEXT_TAG");
+
+        return {
+            type: token.type,
+            value: {
+                text: token.value[1],
+                textType: token.value[2],
+            },
+        };
+    }
+
+    Header(tokenType: string) {
+        const token = this.eat(tokenType);
 
         return {
             type: token.type,
