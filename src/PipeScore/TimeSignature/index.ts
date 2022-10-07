@@ -1,8 +1,8 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { editTimeSignature } from '../Events/Bar';
-import dialogueBox from '../global/dialogueBox';
 import { settings } from '../global/settings';
+import { edit } from './edit';
 import { Obj } from '../global/utils';
 
 /*
@@ -42,6 +42,9 @@ export class TimeSignature {
   }
   public fontSize() {
     return settings.lineHeightOf(5) / 1.6;
+  }
+  public breaksString() {
+    return this.breaks.toString();
   }
 
   public numberOfBeats(): number {
@@ -114,84 +117,8 @@ export class TimeSignature {
   public bottom() {
     return this.ts === 'cut time' ? 2 : this.ts[1];
   }
-  public edit(): Promise<TimeSignature> {
-    // Makes a dialogue box for the user to edit the text, then updates the text
-
-    const denominatorOption = (i: Denominator) =>
-      m(
-        'option',
-        { value: i, name: 'denominator', selected: this.bottom() === i },
-        i.toString()
-      );
-
-    return new Promise((res) =>
-      dialogueBox(
-        [
-          m('input', {
-            type: 'number',
-            name: 'num',
-            min: 1,
-            value: this.top(),
-          }),
-          m('br'),
-          m('select', { name: 'denominator' }, [
-            denominatorOption(2),
-            denominatorOption(4),
-            denominatorOption(8),
-          ]),
-          m('label', [
-            'Cut time ',
-            m('input', { type: 'checkbox', checked: this.cutTime() }),
-          ]),
-          m('details', [
-            m('summary', 'Advanced'),
-            m('label', [
-              'Custom grouping (the number of quavers in each group, separated by `,`)',
-              m('input', {
-                type: 'text',
-                name: 'breaks',
-                // Need to do \. for the pattern regex
-                pattern: '^([1-9][0-9]*(,\\s*[1-9][0-9]*)*|())$',
-                value: this.breaks.toString(),
-              }),
-            ]),
-          ]),
-        ],
-        (form) => {
-          try {
-            const num = Math.max(
-              parseInt(
-                (form.querySelector('input[name = "num"]') as HTMLInputElement)
-                  .value
-              ),
-              1
-            );
-            const denom = TimeSignature.parseDenominator(
-              (form.querySelector('select') as HTMLSelectElement).value
-            );
-            const isCutTime = (
-              form.querySelector('input[type="checkbox"]') as HTMLInputElement
-            ).checked;
-            const breaks = (
-              form.querySelector('input[name="breaks"]') as HTMLInputElement
-            ).value
-              .split(/,\s*/)
-              .filter((l) => l.length > 0)
-              // map(parseInt) passes in the index as a radix :)
-              // glad I new that already and didn't have to debug...
-              .map((i) => parseInt(i));
-
-            return (
-              denom &&
-              new TimeSignature(isCutTime ? 'cut time' : [num, denom], breaks)
-            );
-          } catch (e) {
-            return this;
-          }
-        },
-        this
-      ).then((newTimeSignature) => res(newTimeSignature || this))
-    );
+  public edit() {
+    return edit(this);
   }
   public render(props: TimeSignatureProps): m.Children {
     const y =

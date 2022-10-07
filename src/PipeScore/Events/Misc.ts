@@ -24,12 +24,12 @@ export function editText(
   cb: (text: string) => void
 ): ScoreEvent {
   return async () => {
-    await dialogueBox(
-      [m('label', ['Text:', m('input', { type: 'text', value })])],
-      (form) =>
-        (form.querySelector('input[type="text"]') as HTMLInputElement).value,
-      value
-    ).then((text) => cb(text));
+    let form = await dialogueBox([
+      m('label', ['Text:', m('input', { type: 'text', value })]),
+    ]);
+    if (form) {
+      cb((form.querySelector('input[type="text"]') as HTMLInputElement).value);
+    }
 
     return Update.ShouldSave;
   };
@@ -164,7 +164,6 @@ export function print(): ScoreEvent {
     m.render(blankEl, m('div', state.score.render(props)));
     const contents = blankEl.querySelector('div')?.innerHTML;
 
-    // TODO this might have fixed somehow?
     await dialogueBox(
       [
         m('p', [
@@ -179,8 +178,6 @@ export function print(): ScoreEvent {
           'This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.'
         ),
       ],
-      () => null,
-      null,
       false
     );
     const popupWindow = window.open(

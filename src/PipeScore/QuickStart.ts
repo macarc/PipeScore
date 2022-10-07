@@ -29,8 +29,8 @@ class ScoreOptions {
   }
 }
 
-const blankForm = async (): Promise<ScoreOptions> => {
-  const ts = await dialogueBox(
+export default async function blankForm(): Promise<ScoreOptions> {
+  const form = await dialogueBox(
     [
       m('h1', { style: 'font-size: 2rem' }, 'Quick Start'),
       m('p', 'These values may all be changed later if necessary'),
@@ -110,46 +110,46 @@ const blankForm = async (): Promise<ScoreOptions> => {
         ]),
       ]),
     ],
-    () => {
-      const options = new ScoreOptions();
-      const nameElement = document.getElementById('name');
-      const composerElement = document.getElementById('composer');
-      const tuneTypeElement = document.getElementById('tune-type');
-      const partsElement = document.getElementById('stave-number');
-      const repeatElement = document.getElementById('repeat-parts');
-      const numElement = document.getElementById('num');
-      const denomElement = document.getElementById('denom');
-      const cutTimeElement = document.getElementById('cut-time');
-      if (
-        nameElement instanceof HTMLInputElement &&
-        composerElement instanceof HTMLInputElement &&
-        tuneTypeElement instanceof HTMLInputElement &&
-        partsElement instanceof HTMLInputElement &&
-        repeatElement instanceof HTMLInputElement &&
-        numElement instanceof HTMLInputElement &&
-        denomElement instanceof HTMLSelectElement &&
-        cutTimeElement instanceof HTMLInputElement
-      ) {
-        options.name = nameElement.value;
-        options.composer = composerElement.value;
-        options.tuneType = tuneTypeElement.value;
-        options.numberOfParts = parseInt(partsElement.value);
-        options.repeatParts = repeatElement.checked;
-        options.timeSignature = new TimeSignature(
-          cutTimeElement.checked
-            ? 'cut time'
-            : [
-                parseInt(numElement.value),
-                TimeSignature.parseDenominator(denomElement.value) || 4,
-              ]
-        );
-      }
-      return options;
-    },
-    new ScoreOptions(),
     false
   );
-  return ts;
-};
+  const options = new ScoreOptions();
+  if (form) {
+    const nameElement = form.querySelector('#name');
+    if (nameElement instanceof HTMLInputElement)
+      options.name = nameElement.value;
 
-export default blankForm;
+    const composerElement = form.querySelector('#composer');
+    if (composerElement instanceof HTMLInputElement)
+      options.composer = composerElement.value;
+
+    const tuneTypeElement = form.querySelector('#tune-type');
+    if (tuneTypeElement instanceof HTMLInputElement)
+      options.tuneType = tuneTypeElement.value;
+
+    const partsElement = form.querySelector('#stave-number');
+    if (partsElement instanceof HTMLInputElement)
+      options.numberOfParts = parseInt(partsElement.value);
+
+    const repeatElement = form.querySelector('#repeat-parts');
+    if (repeatElement instanceof HTMLInputElement)
+      options.repeatParts = repeatElement.checked;
+
+    const numElement = form.querySelector('#num');
+    const denomElement = form.querySelector('#denom');
+    const cutTimeElement = form.querySelector('#cut-time');
+    if (
+      numElement instanceof HTMLInputElement &&
+      denomElement instanceof HTMLSelectElement &&
+      cutTimeElement instanceof HTMLInputElement
+    )
+      options.timeSignature = new TimeSignature(
+        cutTimeElement.checked
+          ? 'cut time'
+          : [
+              parseInt(numElement.value),
+              TimeSignature.parseDenominator(denomElement.value) || 4,
+            ]
+      );
+  }
+  return options;
+}

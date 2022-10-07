@@ -244,23 +244,14 @@ text {
   width: 100vw;
   height: 100vh;
   overflow: scroll;
-}
-
-#dialogue-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: black;
-  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 #dialogue-box {
   position: absolute;
   top: 2vh;
   left: 50vw;
-  transform: translate(-50%, 0% /*-50%*/);
+  transform: translate(-50%, 0%);
   padding: 2rem;
   background: white;
   width: 75vw;

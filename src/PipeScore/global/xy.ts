@@ -45,8 +45,8 @@ export const deleteXY = (item: ID): void => {
 export const before = (a: XY, b: XY, useAfterX = false): boolean => {
   if (b.page > a.page) return true;
   if (b.y > a.y) return true;
-  else if (a.y > b.y) return false;
-  else return useAfterX ? b.afterX > a.beforeX : b.beforeX > a.beforeX;
+  if (a.y > b.y) return false;
+  return useAfterX ? b.afterX > a.beforeX : b.beforeX > a.beforeX;
 };
 
 export const itemBefore = (a: ID, b: ID, useAfterX = false): boolean => {
@@ -60,35 +60,34 @@ export const itemBefore = (a: ID, b: ID, useAfterX = false): boolean => {
   }
 };
 
+// This finds the item the closest to the point (x,y)
+// rightMost should be set to true if it should (in the case of a draw) favour the right-most element
 export const closestItem = (
   x: number,
   y: number,
   page: number,
   rightMost: boolean
 ): ID | null => {
-  // This finds the item the closest to the point (x,y)
-  // rightMost should be set to true if it should (in the case of a draw) favour the right-most element
-
   let closestDistance = Infinity;
   let closestID = null;
-  const cmp = (a: number, b: number) => (rightMost ? a <= b : a < b);
-  const itemCoordinates = [...itemCoords].sort((a, b) =>
-    b[1].beforeX < a[1].beforeX ? 1 : -1
-  );
+  const closer = (distance: number, previousBest: number) =>
+    rightMost ? distance <= previousBest : distance < previousBest;
+  [...itemCoords]
+    .filter(([_, coord]) => coord.page === page)
+    .sort((a, b) => (b[1].beforeX < a[1].beforeX ? 1 : -1))
+    .forEach(([id, xy]) => {
+      const xDistance = Math.min(
+        Math.abs(xy.beforeX - x),
+        Math.abs(xy.afterX - x)
+      );
+      const yDistance = xy.y - y;
+      const dist = xDistance ** 2 + yDistance ** 2;
 
-  for (const [id, xy] of itemCoordinates) {
-    if (xy.page !== page) continue;
-    const xDistance = Math.min(
-      Math.abs(xy.beforeX - x),
-      Math.abs(xy.afterX - x)
-    );
-    const yDistance = xy.y - y;
-    const dist = xDistance ** 2 + yDistance ** 2;
+      if (closer(dist, closestDistance)) {
+        closestDistance = dist;
+        closestID = id;
+      }
+    });
 
-    if (cmp(dist, closestDistance)) {
-      closestDistance = dist;
-      closestID = id;
-    }
-  }
   return closestID;
 };

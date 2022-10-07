@@ -72,29 +72,28 @@ export class TextBox {
     this.centred = false;
   }
 
-  private edit() {
-    dialogueBox(
-      [
-        m('label', ['Text:', m('input', { type: 'text', value: this._text })]),
-        m('label', [
-          'Font size:',
-          m('input', {
-            type: 'number',
-            min: 5,
-            max: 50,
-            value: this.size,
-          }),
-        ]),
-      ],
-      (form) => ({
-        size: parseInt(
-          (form.querySelector('input[type="number"]') as HTMLInputElement).value
-        ),
-        text: (form.querySelector('input[type="text"]') as HTMLInputElement)
-          .value,
-      }),
-      { size: this.size, text: this._text }
-    ).then(({ size, text }) => dispatch(changeText(text, size, this)));
+  private async edit() {
+    const form = await dialogueBox([
+      m('label', ['Text:', m('input', { type: 'text', value: this._text })]),
+      m('label', [
+        'Font size:',
+        m('input', {
+          type: 'number',
+          min: 5,
+          max: 50,
+          value: this.size,
+        }),
+      ]),
+    ]);
+    if (form) {
+      const size = parseInt(
+        (form.querySelector('input[type="number"]') as HTMLInputElement).value
+      );
+      const text = (
+        form.querySelector('input[type="text"]') as HTMLInputElement
+      ).value;
+      dispatch(changeText(text, size, this));
+    }
   }
 
   render(props: TextBoxProps): m.Children {

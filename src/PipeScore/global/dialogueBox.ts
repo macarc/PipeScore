@@ -6,57 +6,54 @@ import m from 'mithril';
 
 export let dialogueBoxIsOpen = false;
 
-export default function dialogueBox<A>(
+// Display a pop-up form
+export default function dialogueBox(
   inner: m.Children[],
-  serialise: (form: HTMLFormElement) => A | null,
-  blank: A,
   cancelable = true
-): Promise<A> {
+): Promise<HTMLFormElement | null> {
   dialogueBoxIsOpen = true;
   const parent = document.createElement('div');
   parent.id = 'dialogue-parent';
-  const back = document.createElement('div');
-  back.id = 'dialogue-modal';
-  const box = document.createElement('div');
-  box.id = 'dialogue-box';
-  parent.appendChild(back);
-  parent.appendChild(box);
   document.body.append(parent);
   return new Promise((res) => {
-    m.render(box, [
-      m(
-        'form[id=dialogue-form]',
-        {
-          onsubmit: (e: Event) => {
-            dialogueBoxIsOpen = false;
-            e.preventDefault();
-            let data: A | null = blank;
-            const form = e.target;
-            if (form instanceof HTMLFormElement) data = serialise(form);
-            document.body.removeChild(parent);
-            res(data || blank);
+    m.render(
+      parent,
+      m('div#dialogue-box', [
+        m(
+          'form[id=dialogue-form]',
+          {
+            onsubmit: (e: Event) => {
+              dialogueBoxIsOpen = false;
+              e.preventDefault();
+              const form = e.target;
+              if (form instanceof HTMLFormElement) {
+                document.body.removeChild(parent);
+                res(form);
+              }
+              res(null);
+            },
           },
-        },
-        [
-          ...inner,
-          cancelable
-            ? m('input[id=cancel-btn]', {
-                type: 'button',
-                value: 'Cancel',
-                onclick: () => {
-                  dialogueBoxIsOpen = false;
-                  document.body.removeChild(parent);
-                  res(blank);
-                },
-              })
-            : null,
-          m('input[class=continue]', {
-            type: 'submit',
-            value: 'Ok',
-          }),
-        ]
-      ),
-    ]);
+          [
+            ...inner,
+            cancelable
+              ? m('input[id=cancel-btn]', {
+                  type: 'button',
+                  value: 'Cancel',
+                  onclick: () => {
+                    dialogueBoxIsOpen = false;
+                    document.body.removeChild(parent);
+                    res(null);
+                  },
+                })
+              : null,
+            m('input[class=continue]', {
+              type: 'submit',
+              value: 'Ok',
+            }),
+          ]
+        ),
+      ])
+    );
     (document.querySelector('.continue') as HTMLInputElement | null)?.focus();
   });
 }
