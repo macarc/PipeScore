@@ -1,5 +1,5 @@
+import { Token, TokenType } from "../types/main";
 import Tokenizer from "./Tokenizer";
-import Token from "./types/Token";
 
 export default class Parser {
     private data: string;
@@ -32,7 +32,7 @@ export default class Parser {
         return this.Score();
     }
 
-    private eat(tokenType: string) {
+    private eat(tokenType: TokenType) {
         const token = this.lookahead;
 
         if (token == null) {
@@ -72,31 +72,31 @@ export default class Parser {
 
         while (this.lookahead && matching) {
             switch (this.lookahead.type) {
-                case "SOFTWARE_HEADER":
+                case TokenType.SOFTWARE_HEADER:
                     headers.push(this.SoftwareHeader());
                     break;
-                case "MIDI_NOTE_MAPPINGS_HEADER":
+                case TokenType.MIDI_NOTE_MAPPINGS_HEADER:
                     headers.push(this.Header(this.lookahead.type));
                     break;
-                case "FREQUENCY_MAPPINGS_HEADER":
+                case TokenType.FREQUENCY_MAPPINGS_HEADER:
                     headers.push(this.Header(this.lookahead.type));
                     break;
-                case "INSTRUMENT_MAPPINGS_HEADER":
+                case TokenType.INSTRUMENT_MAPPINGS_HEADER:
                     headers.push(this.Header(this.lookahead.type));
                     break;
-                case "GRACENOTE_DURATIONS_HEADER":
+                case TokenType.GRACENOTE_DURATIONS_HEADER:
                     headers.push(this.Header(this.lookahead.type));
                     break;
-                case "FONT_SIZES_HEADER":
+                case TokenType.FONT_SIZES_HEADER:
                     headers.push(this.Header(this.lookahead.type));
                     break;
-                case "TUNE_FORMAT_HEADER":
+                case TokenType.TUNE_FORMAT_HEADER:
                     headers.push(this.Header(this.lookahead.type));
                     break;
-                case "TUNE_TEMPO_HEADER":
+                case TokenType.TUNE_TEMPO_HEADER:
                     headers.push(this.TuneTempoHeader());
                     break;
-                case "TEXT_TAG":
+                case TokenType.TEXT_TAG:
                     headers.push(this.TextTagHeader());
                     break;
                 default:
@@ -108,7 +108,7 @@ export default class Parser {
     }
 
     SoftwareHeader() {
-        const token = this.eat("SOFTWARE_HEADER");
+        const token = this.eat(TokenType.SOFTWARE_HEADER);
 
         return {
             type: token.type,
@@ -120,7 +120,7 @@ export default class Parser {
     }
 
     TuneTempoHeader() {
-        const token = this.eat("TUNE_TEMPO_HEADER");
+        const token = this.eat(TokenType.TUNE_TEMPO_HEADER);
 
         return {
             type: token.type,
@@ -129,7 +129,7 @@ export default class Parser {
     }
 
     TextTagHeader() {
-        const token = this.eat("TEXT_TAG");
+        const token = this.eat(TokenType.TEXT_TAG);
 
         return {
             type: token.type,
@@ -140,7 +140,7 @@ export default class Parser {
         };
     }
 
-    Header(tokenType: string) {
+    Header(tokenType: TokenType) {
         const token = this.eat(tokenType);
 
         return {

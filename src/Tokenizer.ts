@@ -1,5 +1,5 @@
+import { Token, TokenType } from "../types/main";
 import Spec from "./Spec";
-import Token from "./types/Token";
 
 export default class Tokenizer {
     private stream: string;
@@ -40,7 +40,7 @@ export default class Tokenizer {
 
             this.cursor += token[0].length;
 
-            if (item.type === "SKIP") {
+            if (item.type === TokenType.SKIP) {
                 return this.getNextToken();
             }
 
