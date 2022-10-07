@@ -61,10 +61,7 @@ describe("correctly parses file header", () => {
                 "Scotland the Brave",(T,C,0,0,Times New Roman,18,700,0,0,18,0,0,0)
                 "March",(Y,L,0,0,Times New Roman,12,700,255,0,18,0,0,0)
                 "Traditional",(M,R,0,0,Times New Roman,12,700,255,0,18,0,0,0)
-                "",(F,C,0,0,Times New Roman,12,700,1,0,18,0,0,0)
-
-                & sharpf sharpc 4_4
-            `)
+                "",(F,C,0,0,Times New Roman,12,700,1,0,18,0,0,0)`)
         ).toStrictEqual({
             name: "",
             headers: [
@@ -132,6 +129,18 @@ describe("correctly parses file header", () => {
                     },
                 },
             ],
+            staves: [],
+        });
+    });
+
+    test("it works without any headers", () => {
+        expect(
+            parser.parse(`
+                & sharpf sharpc 4_4
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
             staves: [],
         });
     });
