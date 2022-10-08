@@ -4,7 +4,7 @@
 */
 import { Stave, trebleClefWidth } from '../Stave';
 import { TextBox } from '../TextBox';
-import { BaseTiming, Timing, TimingPart } from '../SecondTiming';
+import { BaseTiming, Timing, TimingPart } from '../Timing';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import m from 'mithril';

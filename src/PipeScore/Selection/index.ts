@@ -3,7 +3,7 @@
   Copyright (C) 2021 macarc
 */
 import { Triplet } from '../Note';
-import { Timing, TimingPart } from '../SecondTiming';
+import { Timing, TimingPart } from '../Timing';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
 import { Pitch } from '../global/pitch';

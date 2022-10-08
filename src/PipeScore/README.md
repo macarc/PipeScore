@@ -15,7 +15,7 @@ PipeScore is split into the following components:
 - `Preview` - the orange note that shows a preview of note/gracenote placement
 - `TextBox`
 - `Selection`
-- `SecondTiming` - timings can be second timings or first/second timings
+- `Timing` - timings can be second timings or first/second timings
 - `UI` - the top/side panel, containing user controls
 
 For events, the `dispatch` function is used, passing an event from the `Events` folder. The `Events` folder contains a lot of event functions. The event functions are stored in a separate directory from their respective components since they need knowledge of the entire state in order to update it, not just that of the single component.

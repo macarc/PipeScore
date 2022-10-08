@@ -5,12 +5,7 @@
 import { ScoreEvent, noteLocation, Update } from './common';
 import { State } from '../State';
 import { ScoreSelection, SecondTimingSelection } from '../Selection';
-import {
-  SecondTiming,
-  SingleTiming,
-  Timing,
-  TimingPart,
-} from '../SecondTiming';
+import { SecondTiming, SingleTiming, Timing, TimingPart } from '../Timing';
 
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {
