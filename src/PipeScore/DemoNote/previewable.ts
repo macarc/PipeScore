@@ -5,8 +5,8 @@
 import { SingleNote } from '../Note';
 
 export interface Previewable<T> {
-  setPreview(preview: T, noteBefore: SingleNote | null): void;
+  setPreview(preview: T, noteAfter: SingleNote | null): void;
   removePreview(): void;
   hasPreview(): boolean;
-  makePreviewReal(noteBefore: SingleNote | null): void;
+  makePreviewReal(notes: SingleNote[]): void;
 }

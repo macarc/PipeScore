@@ -3,83 +3,82 @@
   Copyright (C) 2021 macarc
  */
 import { Bar } from '../Bar';
-import { Update } from '../Events/common';
 import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note, SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
 import { Previewable } from './previewable';
 
-// This could be cleaned up a bit so that BaseDemo is parameterised
-// over the previous
-export abstract class BaseDemo<U, T extends Previewable<U>> {
-  abstract addNote(
-    note: Note | null,
-    pitch: Pitch,
+export interface Demo {
+  setPitch(pitch: Pitch | null): boolean;
+  setLocation(
     bar: Bar,
-    noteBefore: Note | null
-  ): void;
-
-  protected _pitch: Pitch | null;
-  protected previous: T | null = null;
-
-  constructor() {
-    this._pitch = null;
-  }
-  public pitch() {
-    return this._pitch;
-  }
-  public removePitch() {
-    this._pitch = null;
-    if (this.previous && this.previous.hasPreview()) {
-      this.previous.removePreview();
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
-  }
-  public stop() {
-    this.previous?.removePreview();
-  }
-  public addSelf(noteBefore: SingleNote | null) {
-    this.previous?.makePreviewReal(noteBefore);
-  }
+    noteBefore: Note | null,
+    noteAfter: Note | null
+  ): boolean;
+  stop(): void;
+  makeReal(notes: SingleNote[]): void;
 }
 
-export class DemoNote extends BaseDemo<SingleNote, Bar> {
+abstract class BaseDemo<U> implements Demo {
+  protected _pitch: Pitch | null = null;
+  protected bar: Bar | null = null;
+  protected noteBefore: SingleNote | null = null;
+  protected noteAfter: SingleNote | null = null;
+
+  setLocation(
+    bar: Bar,
+    noteBefore: SingleNote | null,
+    noteAfter: SingleNote | null
+  ) {
+    if (
+      bar !== this.bar ||
+      noteBefore !== this.noteBefore ||
+      noteAfter !== this.noteAfter
+    ) {
+      this.parent()?.removePreview();
+      this.bar = bar;
+      this.noteBefore = noteBefore;
+      this.noteAfter = noteAfter;
+      this.update();
+      return true;
+    }
+    return false;
+  }
+  setPitch(pitch: Pitch | null) {
+    if (pitch !== this._pitch) {
+      if (pitch === null) this.parent()?.removePreview();
+      this._pitch = pitch;
+      this.update();
+      return true;
+    }
+    return false;
+  }
+  stop() {
+    this.parent()?.removePreview();
+  }
+  makeReal(notes: SingleNote[]) {
+    this.parent()?.makePreviewReal(notes);
+  }
+
+  private update() {
+    const preview = this.toPreview();
+    // If this._pitch is null we always want to hide it
+    if (this._pitch && preview)
+      this.parent()?.setPreview(preview, this.noteAfter);
+  }
+  protected abstract parent(): Previewable<U> | null;
+  protected abstract toPreview(): U | null;
+}
+
+export class DemoNote extends BaseDemo<SingleNote> {
   private _length: NoteLength;
   private _natural: boolean;
 
   constructor(length: NoteLength) {
     super();
     this._length = length;
-    this.previous = null;
     this._natural = false;
-  }
-  public addNote(
-    note: Note | null,
-    pitch: Pitch,
-    bar: Bar,
-    noteBefore: Note | null
-  ) {
-    if (noteBefore?.isDemo()) {
-      noteBefore = this.previous?.previousNote(noteBefore) || null;
-    }
-    this.previous?.removePreview();
-    const n = this.toNote(pitch);
-    bar.insertNote(noteBefore, n);
-    return n;
-  }
-  public setPitch(pitch: Pitch, noteBefore: SingleNote | null, bar: Bar) {
-    if (pitch !== this._pitch) {
-      if (this.previous && bar !== this.previous) {
-        this.previous.removePreview();
-      }
-      this.previous = bar;
-      if (this.previous)
-        this.previous.setPreview(noteBefore, this.toPreviewNote(pitch));
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
   }
   public natural() {
     return this._natural;
@@ -96,78 +95,39 @@ export class DemoNote extends BaseDemo<SingleNote, Bar> {
   public toggleDot() {
     this._length = dot(this._length);
   }
-  private toNote(pitch: Pitch) {
-    return new SingleNote(pitch, this._length, false, this._natural);
+  protected parent() {
+    return this.bar;
   }
-  private toPreviewNote(pitch: Pitch) {
-    return new SingleNote(pitch, this._length, false, this._natural).demo();
+  protected toPreview() {
+    return (
+      this._pitch &&
+      new SingleNote(this._pitch, this._length, false, this._natural).demo()
+    );
   }
 }
-export class DemoGracenote extends BaseDemo<SingleGracenote, SingleNote> {
-  public addNote(
-    note: Note | null,
-    pitch: Pitch,
-    bar: Bar,
-    noteBefore: Note | null
-  ) {
-    this.previous?.removePreview();
-    if (note) note.addSingleGracenote(pitch, noteBefore);
+export class DemoGracenote extends BaseDemo<SingleGracenote> {
+  protected parent() {
+    return this.noteAfter;
   }
-  public setPitch(
-    pitch: Pitch,
-    note: SingleNote | null,
-    bar: Bar,
-    previous: Note | null
-  ) {
-    if (note !== this.previous || pitch !== this._pitch) {
-      this._pitch = pitch;
-      if (this.previous) this.previous.removePreview();
-      this.previous = note;
-      if (this.previous && this._pitch)
-        this.previous.setPreview(this._pitch, previous);
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
+  protected toPreview() {
+    return this._pitch && new SingleGracenote(this._pitch);
   }
 }
 
-export class DemoReactive extends BaseDemo<ReactiveGracenote, SingleNote> {
+export class DemoReactive extends BaseDemo<ReactiveGracenote> {
   private name: string;
 
   constructor(name: string) {
     super();
     this.name = name;
   }
-  public addNote(
-    note: Note | null,
-    pitch: Pitch,
-    bar: Bar,
-    noteBefore: Note | null
-  ) {
-    this.previous?.removePreview();
-    if (note) note.setGracenote(this.toGracenote());
+  protected parent() {
+    return this.noteAfter;
   }
-  public setPitch(
-    pitch: Pitch | null,
-    note: SingleNote | null,
-    bar: Bar | null,
-    previous: Note | null
-  ) {
-    if (note !== this.previous || !this.previous?.hasPreview()) {
-      if (this.previous) this.previous.removePreview();
-      this.previous = note;
-      if (this.previous)
-        this.previous.setPreview(new ReactiveGracenote(this.name), previous);
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
-  }
-  public toGracenote() {
+  protected toPreview() {
     return new ReactiveGracenote(this.name);
   }
   public isInputting(name: string) {
     return name === this.name;
   }
 }
-
-export type Demo = DemoNote | DemoGracenote | DemoReactive;

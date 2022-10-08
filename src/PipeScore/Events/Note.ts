@@ -29,15 +29,15 @@ export function addNoteBefore(
   return async (state: State) => {
     if (state.demo) {
       const previous = state.score.previousNote(noteAfter.id);
-      const note = state.demo.addNote(
-        noteAfter,
-        pitch,
+      state.demo.setLocation(
         state.score.location(noteAfter.id).bar,
-        previous
+        previous,
+        noteAfter
       );
-      if (note) note.makeCorrectTie(state.score.notes());
+      state.demo.setPitch(pitch);
+      state.demo.makeReal(state.score.notes());
       state.justAddedNote = true;
-      return Update.ViewChanged;
+      return Update.ShouldSave;
     }
     return Update.NoChange;
   };
@@ -64,11 +64,12 @@ export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => {
     if (state.demo) {
       const previous = bar.lastNote();
-      const note = state.demo.addNote(null, pitch, bar, previous);
-      if (note) note.makeCorrectTie(state.score.notes());
+      state.demo.setLocation(bar, previous, null);
+      state.demo.setPitch(pitch);
+      state.demo.makeReal(state.score.notes());
       state.justClickedNote = true;
       state.justAddedNote = true;
-      return Update.ViewChanged;
+      return Update.ShouldSave;
     }
     return Update.NoChange;
   };
@@ -259,7 +260,7 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (state.demo instanceof DemoNote) {
       if (note.isDemo()) {
-        state.demo?.addSelf(null);
+        state.demo?.makeReal(state.score.notes());
         state.justAddedNote = true;
         return Update.ShouldSave;
       } else {
@@ -271,21 +272,21 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
       state.demo instanceof SingleGracenote
     ) {
       const previous = state.score.previousNote(note.id);
-      if (state.demo instanceof SingleGracenote) {
-        note.addSingleGracenote(state.demo.toGracenote(), previous);
-      } else {
-        note.setGracenote(state.demo.toGracenote());
-      }
+      state.demo.setLocation(
+        state.score.location(note.id).bar,
+        previous && previous.lastSingle(),
+        note
+      );
+      state.demo.makeReal(state.score.notes());
       return Update.ShouldSave;
-    } else {
-      if (event.shiftKey && state.selection instanceof ScoreSelection) {
-        addToSelection(note.id, state.selection);
-        return Update.ViewChanged;
-      }
-      state.justClickedNote = true;
-      state.selection = new ScoreSelection(note.id, note.id);
+    }
+    if (event.shiftKey && state.selection instanceof ScoreSelection) {
+      addToSelection(note.id, state.selection);
       return Update.ViewChanged;
     }
+    state.justClickedNote = true;
+    state.selection = new ScoreSelection(note.id, note.id);
+    return Update.ViewChanged;
   };
 }
 

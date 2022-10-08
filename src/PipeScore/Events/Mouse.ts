@@ -22,7 +22,9 @@ export function deleteSelection(): ScoreEvent {
 
 export function mouseOffPitch(): ScoreEvent {
   return async (state: State) => {
-    if (state.demo) return state.demo.removePitch();
+    if (state.demo) {
+      if (state.demo.setPitch(null)) return Update.ViewChanged;
+    }
     return Update.NoChange;
   };
 }
@@ -43,16 +45,19 @@ export function mouseOverPitch(
       return Update.NoChange;
     }
     if (state.demo) {
+      let viewChanged = false;
       if (where instanceof Bar) {
-        return state.demo.setPitch(pitch, null, where, null);
+        viewChanged ||= state.demo.setLocation(where, null, null);
+        viewChanged ||= state.demo.setPitch(pitch);
       } else {
-        return state.demo.setPitch(
-          pitch,
-          where,
+        viewChanged ||= state.demo.setLocation(
           state.score.location(where.id).bar,
-          state.score.previousNote(where.id)
+          state.score.previousNote(where.id),
+          where
         );
+        viewChanged ||= state.demo.setPitch(pitch);
       }
+      return viewChanged ? Update.ViewChanged : Update.NoChange;
     } else if (state.selection && state.selection.dragging) {
       state.selection.dragOverPitch(pitch, state.score);
       return Update.ViewChanged;

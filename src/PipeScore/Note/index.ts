@@ -25,16 +25,12 @@ import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
 import { mouseOffPitch, mouseOverPitch } from '../Events/Mouse';
 import { getXY, setXY } from '../global/xy';
-import {
-  addNoteBefore,
-  clickNote,
-  clickTripletLine,
-} from '../Events/Note';
+import { addNoteBefore, clickNote, clickTripletLine } from '../Events/Note';
 import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
-import { Previewable } from '../DemoNote/previewable';
 import { settings } from '../global/settings';
 import { dispatch } from '../Controller';
+import { Previewable } from '../DemoNote/previewable';
 
 export interface PreviousNote {
   pitch: Pitch;
@@ -267,13 +263,7 @@ export abstract class BaseNote extends Item {
   }
 }
 
-export class SingleNote
-  extends BaseNote
-  implements
-    Previewable<ReactiveGracenote>,
-    Previewable<SingleGracenote>,
-    Previewable<Pitch>
-{
+export class SingleNote extends BaseNote implements Previewable<Gracenote> {
   private pitch: Pitch;
   private gracenote: Gracenote;
   private hasNatural: boolean;
@@ -325,22 +315,17 @@ export class SingleNote
   public hasPreview() {
     return this.previewGracenote !== null;
   }
-  public makePreviewReal(previous: Note | null) {
+  public makePreviewReal() {
     if (this.previewGracenote) this.setGracenote(this.previewGracenote);
+    this.previewGracenote = null;
   }
-  public setPreview(gracenote: Gracenote | Pitch, previous: Note | null) {
+  public setPreview(gracenote: Gracenote) {
     if (gracenote instanceof Gracenote) {
       if (!this.gracenote.equals(gracenote)) {
         this.previewGracenote = gracenote;
       } else {
         this.previewGracenote = null;
       }
-    } else {
-      this.previewGracenote = this.gracenote.addSingle(
-        gracenote,
-        this.pitch,
-        previous?.lastPitch() || null
-      );
     }
   }
   // TODO name this better

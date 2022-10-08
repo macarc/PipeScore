@@ -17,8 +17,8 @@ import { clickBar } from '../Events/Bar';
 import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Events/Mouse';
 import { Barline } from './barline';
-import { Previewable } from '../DemoNote/previewable';
 import { dispatch } from '../Controller';
+import { Previewable } from '../DemoNote/previewable';
 
 export interface BarProps {
   x: number;
@@ -181,19 +181,19 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public endBarline(barline: Barline) {
     return this.backBarline === barline;
   }
-  public setPreview(noteBefore: SingleNote | null, note: SingleNote) {
-    if (noteBefore && noteBefore.isDemo()) {
-      this.notes.splice(this.notes.indexOf(noteBefore), 1, note);
+  public setPreview(note: SingleNote, noteAfter: SingleNote | null) {
+    if (noteAfter && noteAfter.isDemo()) {
+      this.notes.splice(this.notes.indexOf(noteAfter), 1, note);
       this.previewNote = note;
     } else {
       if (this.previewNote) this.removePreview();
       this.previewNote = note;
 
-      if (noteBefore) {
-        let index = this.notes.indexOf(noteBefore);
+      if (noteAfter) {
+        let index = this.notes.indexOf(noteAfter);
         // If it is a note within a triplet, we need to do this
         if (index === -1)
-          index = this.notes.findIndex((note) => note.hasID(noteBefore.id));
+          index = this.notes.findIndex((note) => note.hasID(noteAfter.id));
         this.notes.splice(index, 0, this.previewNote);
       } else this.notes.push(this.previewNote);
     }
@@ -201,8 +201,8 @@ export class Bar extends Item implements Previewable<SingleNote> {
   public hasPreview() {
     return this.previewNote !== null;
   }
-  public makePreviewReal() {
-    this.previewNote?.unDemo();
+  public makePreviewReal(notes: SingleNote[]) {
+    this.previewNote?.unDemo().makeCorrectTie(notes);
     this.previewNote = null;
   }
   public removePreview() {
@@ -389,7 +389,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
         boxToLast: index === 0 ? xAfterBarline : 'lastnote',
         noteWidth: beatWidth,
         previousNote:
-          this.notes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
+          actualNotes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
         endOfLastStave: props.endOfLastStave,
         state: props.noteState,
         gracenoteState: props.gracenoteState,
