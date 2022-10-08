@@ -24,7 +24,7 @@ export function editText(
   cb: (text: string) => void
 ): ScoreEvent {
   return async () => {
-    let form = await dialogueBox([
+    const form = await dialogueBox([
       m('label', ['Text:', m('input', { type: 'text', value })]),
     ]);
     if (form) {

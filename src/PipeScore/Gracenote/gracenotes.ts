@@ -7,10 +7,7 @@ export type GracenoteNoteList = Pitch[] & {
   invalid: boolean;
 };
 
-export function noteList(
-  list: Pitch[],
-  valid: boolean = true
-): GracenoteNoteList {
+export function noteList(list: Pitch[], valid = true): GracenoteNoteList {
   const noteList = list as GracenoteNoteList;
   noteList.invalid = !valid;
   return noteList;

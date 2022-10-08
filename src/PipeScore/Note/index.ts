@@ -4,13 +4,7 @@
  */
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
-import {
-  Gracenote,
-  GracenoteProps,
-  NoGracenote,
-  ReactiveGracenote,
-  SingleGracenote,
-} from '../Gracenote';
+import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
 import { foreach, nfirst, nlast, Obj } from '../global/utils';
 import {
   dot,

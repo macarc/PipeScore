@@ -115,7 +115,7 @@ export class Stave {
       (staveWidth - trebleClefWidth - totalAnacrusisWidth) /
       (this._bars.length - anacruses.length);
 
-    let widths: number[] = [];
+    const widths: number[] = [];
     let extraWidth = 0;
 
     this._bars.forEach((bar, i) => {

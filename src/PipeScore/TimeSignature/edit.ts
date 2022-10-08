@@ -45,27 +45,24 @@ function textDialogue(ts: TimeSignature) {
 
 // Makes a dialogue box for the user to edit the text, then updates the text
 export async function edit(ts: TimeSignature): Promise<TimeSignature> {
-  let form = await dialogueBox(textDialogue(ts));
+  const form = await dialogueBox(textDialogue(ts));
   let newTimeSignature: TimeSignature = ts;
 
-  try {
-    if (form) {
-      const numInput = form.querySelector(
-        'input[name = "num"]'
-      ) as HTMLInputElement;
+  if (form) {
+    const numInput = form.querySelector('input[name = "num"]');
+    const denomInput = form.querySelector('select');
+    const cutTimeInput = form.querySelector('input[type="checkbox"]');
+    const breaksInput = form.querySelector('input[name="breaks"]');
+
+    if (
+      numInput instanceof HTMLInputElement &&
+      denomInput instanceof HTMLSelectElement &&
+      cutTimeInput instanceof HTMLInputElement &&
+      breaksInput instanceof HTMLInputElement
+    ) {
       const num = Math.max(parseInt(numInput.value), 1);
-
-      const denomInput = form.querySelector('select') as HTMLSelectElement;
       const denom = TimeSignature.parseDenominator(denomInput.value);
-
-      const cutTimeInput = form.querySelector(
-        'input[type="checkbox"]'
-      ) as HTMLInputElement;
       const isCutTime = cutTimeInput.checked;
-
-      const breaksInput = form.querySelector(
-        'input[name="breaks"]'
-      ) as HTMLInputElement;
       const breaks = breaksInput.value
         .split(/,\s*/)
         .filter((l) => l.length > 0)
@@ -79,7 +76,6 @@ export async function edit(ts: TimeSignature): Promise<TimeSignature> {
           breaks
         );
     }
-  } finally {
-    return newTimeSignature;
   }
+  return newTimeSignature;
 }

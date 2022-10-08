@@ -5,7 +5,7 @@
   "repository": "https://github.com/macarc/PipeScore",
   "scripts": {
     "deploy": "firebase deploy",
-    "test": "echo 'Run `npm run lint` and `npm run circles` to test'",
+    "test": "echo 'Run `npm run lint`'",
     "dev": "firebase serve",
     "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts --bundle --watch --outdir=public/dist",
     "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts --bundle --minify --outdir=public/dist; ./scripts/buildall.sh",

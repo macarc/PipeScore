@@ -21,7 +21,7 @@ PipeScore is powered by:
 - [eslint](https://eslint.org/) for linting
 - [prettier](https://prettier.io) for code formatting
 
-To learn more about how it works, have a look at the READMEs in `src/PipeScore` and `src/render`.
+To learn more about how it works, have a look at the README in `src/PipeScore`.
 
 ## Features
 
@@ -43,12 +43,6 @@ Programming features:
 
 ## Running locally
 
-All of the scripts in the `scripts` directory are designed to be run from the top level, like:
-
-```zsh
-$ ./scripts/linecount.zsh
-```
-
 You will need:
 
 - `python3` (and `pip3`)
@@ -61,10 +55,10 @@ $ npm install            # install JS dependencies
 $ pip3 install svgwrite  # install svgwrite, for building icons
 ```
 
-To make icons and HTML pages, run:
+To build JS files, icons and HTML pages, run:
 
 ```bash
-$ ./scripts/buildall.sh  # build static pages and icons
+$ npm run build     # build JS, static pages and icons
 ```
 
 Run the following commands to run locally, ideally in separate terminals:
@@ -75,7 +69,7 @@ $ npm run watch     # rebuild JS on changes
 $ npx tsc --watch   # typecheck
 ```
 
-To build a production bundle run:
+To build a production JS bundle run:
 
 ```bash
 $ npm run build    # build minified bundle
