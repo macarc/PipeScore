@@ -43,6 +43,13 @@ export interface PreviousNote {
   y: number;
 }
 
+type NoteLayout = {
+  gracenote: number;
+  natural: number;
+  x: number;
+  y: number;
+}[];
+
 const tailGap = 3;
 const shortTailLength = 10;
 // note that this is half the width of the note, not the actual radius
@@ -486,157 +493,81 @@ export class Note
       }),
     ]);
   }
-  // Draws a single note
-  public render(props: NoteProps): m.Children {
-    const naturalWidth = this.shouldDrawNatural() ? Note.naturalWidth : 0;
-    const gracenoteWidth = width.reify(
-      this.widthOfGracenote(props.previousNote?.pitch() || null),
-      props.noteWidth
-    );
-    const xOffset = width.reify(Note.spacerWidth(), props.noteWidth);
-    const xAfterOffset = props.x + xOffset;
-    const naturalX = xAfterOffset + gracenoteWidth;
-    const x = naturalX + naturalWidth;
-    const xAfter = x + noteHeadWidth;
-
-    const y = this.y(props.y);
-    const stemTopY = y + 1.5;
-    const stemBottomY = y + normalStemHeight;
-
-    setXY(this.id, xAfterOffset, xAfter, props.y);
-
-    const noteBoxStart =
-      props.boxToLast === 'lastnote'
-        ? (props.previousNote && getXY(props.previousNote.id)?.afterX) ||
-          props.x
-        : props.boxToLast;
-    const noteBoxWidth = xAfter - noteBoxStart;
-
-    const tail = (t: number) =>
-      `M ${x}, ${stemBottomY - 5 * t} c 12,-5 9,-8 6,-10 c 4,3 4,5 -6,8`;
-
-    return m('g[class=singleton]', [
-      props.state.inputtingNotes && !this.isPreview()
-        ? pitchBoxes(
-            noteBoxStart,
-            props.y,
-            noteBoxWidth,
-            (pitch) => dispatch(mouseOverPitch(pitch, this)),
-            (pitch) => dispatch(addNoteBefore(pitch, this)),
-            props.justAddedNote
-          )
-        : null,
-      this.shouldTie(props.previousNote) && props.previousNote
-        ? this.tie(
-            x,
-            props.y,
-            props.noteWidth,
-            props.previousNote,
-            props.endOfLastStave
-          )
-        : null,
-      this.shouldDrawNatural() ? this.renderNatural(naturalX, y) : null,
-      this.head(x + noteHeadRadius, y, props),
-      this.shouldTie(props.previousNote)
-        ? null
-        : this.renderGracenote({
-            x: xAfterOffset + noteHeadRadius,
-            y: props.y,
-            thisNote: this.pitch(),
-            preview: false,
-            previousNote: props.previousNote?.pitch() || null,
-            state: props.gracenoteState,
-          }),
-      this.hasStem()
-        ? m('line', {
-            x1: x,
-            x2: x,
-            y1: stemTopY,
-            y2: stemBottomY,
-            stroke: this.colour(),
-          })
-        : null,
+  private renderTails(x: number, y: number) {
+    const stemY = y + normalStemHeight;
+    return (
       this.numTails() > 0 &&
-        m(
-          'g[class=tails]',
-          this.numTails() === 1
-            ? m('path', {
+      m(
+        'g[class=tails]',
+        this.numTails() === 1
+          ? m('path', {
+              fill: this.colour(),
+              stroke: this.colour(),
+              'stroke-width': 0.5,
+              d: `M ${x},${stemY} c 16,-10 6,-22 4,-25 c 3,6 8,15 -4,22`,
+            })
+          : foreach(this.numTails(), (t) =>
+              m('path', {
                 fill: this.colour(),
                 stroke: this.colour(),
-                'stroke-width': 0.5,
-                d: `M ${x},${stemBottomY} c 16,-10 6,-22 4,-25 c 3,6 8,15 -4,22`,
+                d: `M ${x}, ${stemY - 5 * t} c 12,-5 9,-8 6,-10 c 4,3 4,5 -6,8`,
               })
-            : foreach(this.numTails(), (t) =>
-                m('path', {
-                  fill: this.colour(),
-                  stroke: this.colour(),
-                  d: tail(t),
-                })
-              )
-        ),
-    ]);
+            )
+      )
+    );
   }
-  public static renderMultiple(notes: Note[], props: NoteProps) {
-    if (notes.length === 0) {
-      return m('g');
-    } else if (notes.length === 1) {
-      return notes[0].render(props);
-    }
-
+  private static layout(notes: Note[], props: NoteProps): NoteLayout {
     const xOffset = width.reify(Note.spacerWidth(), props.noteWidth);
-    const xAfterOffset = props.x + xOffset;
     const previousPitch = props.previousNote?.pitch() || null;
-    const xOfGracenote = (noteIndex: number) =>
-      xAfterOffset +
-      width.reify(
-        Note.totalWidth(notes.slice(0, noteIndex), previousPitch),
-        props.noteWidth
-      );
-    const naturalXOf = (i: number) =>
-      xOfGracenote(i) +
-      width.reify(
-        notes[i].widthOfGracenote(
-          i === 0 ? previousPitch : notes[i - 1].pitch()
-        ),
-        props.noteWidth
-      );
-    const xOf = (i: number) =>
-      naturalXOf(i) + (notes[i].shouldDrawNatural() ? Note.naturalWidth : 0);
-    const yOf = (note: Note) => note.y(props.y);
 
-    const setNoteXY = (note: Note, index: number) =>
-      setXY(note.id, xOfGracenote(index), xOf(index) + noteHeadWidth, props.y);
+    return notes.map((note, i) => {
+      const gracenote =
+        props.x +
+        xOffset +
+        width.reify(
+          Note.totalWidth(notes.slice(0, i), previousPitch),
+          props.noteWidth
+        );
+      const natural =
+        gracenote +
+        width.reify(
+          note.widthOfGracenote(i === 0 ? previousPitch : notes[i - 1].pitch()),
+          props.noteWidth
+        );
+      const x = natural + (note.shouldDrawNatural() ? Note.naturalWidth : 0);
+      const y = note.y(props.y);
+      return { gracenote, natural, x, y };
+    });
+  }
+  // Render a group of notes
+  public static renderGroup(notes: Note[], props: NoteProps) {
+    if (notes.length === 0) return m('g');
+
+    const layout = Note.layout(notes, props);
+
+    const gracenoteX = (i: number) => layout[i].gracenote;
+    const naturalX = (i: number) => layout[i].natural;
+    const x = (i: number) => layout[i].x;
+    const y = (i: number) => layout[i].y;
 
     const stemY = props.y + settings.lineHeightOf(6);
 
     return m(
       'g[class=grouped-notes]',
       notes.map((note, index) => {
+        setXY(note.id, gracenoteX(index), x(index) + noteHeadWidth, props.y);
+
         const previousNote = notes[index - 1] || props.previousNote;
 
-        setNoteXY(note, index);
         const noteBoxX =
-          index === 0
-            ? props.x + noteHeadWidth
-            : xOf(index - 1) + noteHeadWidth;
-
-        const gracenoteProps = {
-          x: xOfGracenote(index) + noteHeadRadius,
-          y: props.y,
-          thisNote: note.pitch(),
-          preview: false,
-          previousNote:
-            (previousNote && previousNote.pitch()) ||
-            (props.previousNote && props.previousNote.pitch()),
-          state: props.gracenoteState,
-        };
+          index === 0 ? props.x + noteHeadWidth : x(index - 1) + noteHeadWidth;
 
         return m('g', { class: `grouped-note ${note.pitch()}` }, [
           props.state.inputtingNotes && !note.isPreview()
             ? pitchBoxes(
                 noteBoxX,
                 props.y,
-                xOf(index) + noteHeadRadius - noteBoxX,
+                x(index) + noteHeadRadius - noteBoxX,
                 (pitch) => dispatch(mouseOverPitch(pitch, note)),
                 (pitch) => dispatch(addNoteBefore(pitch, note)),
                 props.justAddedNote
@@ -645,7 +576,7 @@ export class Note
 
           note.shouldTie(previousNote)
             ? note.tie(
-                xOf(index),
+                x(index),
                 props.y,
                 props.noteWidth,
                 previousNote,
@@ -654,19 +585,28 @@ export class Note
             : null,
 
           note.shouldDrawNatural()
-            ? note.renderNatural(naturalXOf(index), yOf(note))
+            ? note.renderNatural(naturalX(index), y(index))
             : null,
 
-          note.head(xOf(index) + noteHeadRadius, yOf(note), props),
+          note.head(x(index) + noteHeadRadius, y(index), props),
 
           note.shouldTie(previousNote)
             ? null
-            : note.renderGracenote(gracenoteProps),
+            : note.renderGracenote({
+                x: gracenoteX(index) + noteHeadRadius,
+                y: props.y,
+                thisNote: note.pitch(),
+                preview: false,
+                previousNote:
+                  (previousNote && previousNote.pitch()) ||
+                  (props.previousNote && props.previousNote.pitch()),
+                state: props.gracenoteState,
+              }),
 
           previousNote !== null && index > 0
             ? Note.beamFrom(
-                xOf(index - 1),
-                xOf(index),
+                x(index - 1),
+                x(index),
                 stemY,
                 previousNote.numTails(),
                 note.numTails(),
@@ -676,11 +616,16 @@ export class Note
               )
             : null,
 
+          notes.length === 1 && note.renderTails(x(index), y(index)),
+
           m('line', {
-            x1: xOf(index),
-            x2: xOf(index),
-            y1: yOf(note),
-            y2: note.hasBeam() ? stemY : yOf(note) + normalStemHeight,
+            x1: x(index),
+            x2: x(index),
+            y1: y(index),
+            y2:
+              note.hasBeam() && notes.length > 1
+                ? stemY
+                : y(index) + normalStemHeight,
             stroke: note.colour(),
           }),
         ]);
@@ -789,7 +734,7 @@ export class Triplet extends BaseNote {
   public render(props: NoteProps) {
     Note.makeSameLength(this._notes);
 
-    const renderedNotes = Note.renderMultiple(this._notes, props);
+    const renderedNotes = Note.renderGroup(this._notes, props);
     const line = this.tripletLine(
       props.y,
       getXY(this.firstSingle().id)?.afterX || 0,

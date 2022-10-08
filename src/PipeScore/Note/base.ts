@@ -51,7 +51,7 @@ export abstract class BaseNote extends Item {
   public static fromJSON(o: Obj) {
     let s: Note | Triplet | null = null;
     switch (o.notetype) {
-      case 'note':
+      case 'single':
         s = Note.fromObject(o.value);
         break;
       case 'triplet':

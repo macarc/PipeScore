@@ -436,10 +436,10 @@ export class Bar extends Item implements Previews<Note> {
       ...groupedNotes.map((notes) =>
         notes instanceof Triplet
           ? notes.render(noteProps(notes))
-          : Note.renderMultiple(notes, noteProps(notes))
+          : Note.renderGroup(notes, noteProps(notes))
       ),
       this.previewNote
-        ? this.previewNote.render({
+        ? Note.renderGroup([this.previewNote], {
             x: previewX,
             y: props.y,
             justAddedNote: props.justAddedNote,
