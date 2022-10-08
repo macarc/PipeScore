@@ -38,6 +38,7 @@ export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
     if (state.preview) {
       state.preview.setLocation(
         state.score.location(noteAfter.id).bar,
+        state.score.previousNote(noteAfter.id),
         noteAfter
       );
       state.preview.setPitch(pitch);
@@ -68,7 +69,7 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
 export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => {
     if (state.preview) {
-      state.preview.setLocation(bar, null);
+      state.preview.setLocation(bar, bar.lastNote(), null);
       state.preview.setPitch(pitch);
       state.preview.makeReal(state.score.notes());
       return Update.ShouldSave;
@@ -220,7 +221,11 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
       state.preview instanceof ReactiveGracenotePreview ||
       state.preview instanceof SingleGracenote
     ) {
-      state.preview.setLocation(state.score.location(note.id).bar, note);
+      state.preview.setLocation(
+        state.score.location(note.id).bar,
+        state.score.previousNote(note.id),
+        note
+      );
       state.preview.makeReal(state.score.notes());
       return Update.ShouldSave;
     }

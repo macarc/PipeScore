@@ -24,7 +24,7 @@
 
 import { Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
-import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
+import { ReactiveGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
 import { Previews } from './previews';
@@ -33,7 +33,11 @@ export interface Preview {
   // Returns true if the pitch changed
   setPitch(pitch: Pitch | null): boolean;
   // Returns true if the location changed
-  setLocation(bar: Bar, noteAfter: Note | null): boolean;
+  setLocation(
+    bar: Bar,
+    noteBefore: Note | null,
+    noteAfter: Note | null
+  ): boolean;
   stop(): void;
   makeReal(notes: Note[]): void;
   justAdded(): boolean;
@@ -54,13 +58,19 @@ export interface Preview {
 abstract class BasePreview<U> implements Preview {
   protected _pitch: Pitch | null = null;
   protected bar: Bar | null = null;
+  protected noteBefore: Note | null = null;
   protected noteAfter: Note | null = null;
   protected justMadeReal = false;
 
-  setLocation(bar: Bar, noteAfter: Note | null) {
-    if (bar !== this.bar || noteAfter !== this.noteAfter) {
+  setLocation(bar: Bar, noteBefore: Note | null, noteAfter: Note | null) {
+    if (
+      bar !== this.bar ||
+      noteBefore !== this.noteBefore ||
+      noteAfter !== this.noteAfter
+    ) {
       this.parent()?.removePreview();
       this.bar = bar;
+      this.noteBefore = noteBefore;
       this.noteAfter = noteAfter;
       this.update();
       return true;
@@ -92,7 +102,7 @@ abstract class BasePreview<U> implements Preview {
     const preview = this.toPreview();
     // If this._pitch is null we always want to hide it
     if (this._pitch && preview)
-      this.parent()?.setPreview(preview, this.noteAfter);
+      this.parent()?.setPreview(preview, this.noteBefore, this.noteAfter);
   }
   protected abstract parent(): Previews<U> | null;
   protected abstract toPreview(): U | null;
@@ -133,12 +143,12 @@ export class NotePreview extends BasePreview<Note> {
   }
 }
 
-export class SingleGracenotePreview extends BasePreview<SingleGracenote> {
+export class SingleGracenotePreview extends BasePreview<Pitch> {
   protected parent() {
     return this.noteAfter;
   }
   protected toPreview() {
-    return this._pitch && new SingleGracenote(this._pitch);
+    return this._pitch;
   }
 }
 

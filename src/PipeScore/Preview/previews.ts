@@ -23,7 +23,7 @@
 import { Note } from '../Note';
 
 export interface Previews<T> {
-  setPreview(preview: T, noteAfter: Note | null): void;
+  setPreview(preview: T, noteBefore: Note | null, noteAfter: Note | null): void;
   removePreview(): void;
   hasPreview(): boolean;
   makePreviewReal(notes: Note[]): void;

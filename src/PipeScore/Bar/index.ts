@@ -195,7 +195,7 @@ export class Bar extends Item implements Previews<Note> {
   public endBarline(barline: Barline) {
     return this.backBarline === barline;
   }
-  public setPreview(note: Note, noteAfter: Note | null) {
+  public setPreview(note: Note, _: Note | null, noteAfter: Note | null) {
     if (noteAfter && noteAfter.isPreview()) {
       this.notes.splice(this.notes.indexOf(noteAfter), 1, note);
       this.previewNote = note;
@@ -237,7 +237,7 @@ export class Bar extends Item implements Previews<Note> {
     const lastNote = this.lastNote();
     return lastNote && lastNote.pitch();
   }
-  private lastNote() {
+  public lastNote() {
     return last(this.realNotes());
   }
   public previousNote(note: Note) {

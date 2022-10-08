@@ -99,6 +99,17 @@ export function pitchDown(pitch: Pitch): Pitch {
   }
 }
 
+// Good Boys Deserve Football Always
+export function pitchOnLine(pitch: Pitch) {
+  return (
+    pitch === Pitch.G ||
+    pitch === Pitch.B ||
+    pitch == Pitch.D ||
+    pitch === Pitch.F ||
+    pitch === Pitch.HA
+  );
+}
+
 // Calculate the difference from the top of the stave
 // to the note
 export const pitchOffset = (note: Pitch): number =>
