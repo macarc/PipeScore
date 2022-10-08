@@ -42,20 +42,20 @@ export class BarlineSelection extends Drags {
   }
 }
 
-export class SecondTimingSelection extends Drags {
-  secondTiming: Timing;
+export class TimingSelection extends Drags {
+  timing: Timing;
   private part: TimingPart;
 
-  constructor(secondTiming: Timing, clickedPart: TimingPart) {
+  constructor(timing: Timing, clickedPart: TimingPart) {
     super();
-    this.secondTiming = secondTiming;
+    this.timing = timing;
     this.part = clickedPart;
   }
   public delete(score: Score) {
-    score.deleteSecondTiming(this.secondTiming);
+    score.deleteTiming(this.timing);
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
-    score.dragSecondTiming(this.secondTiming, this.part, x, y, page);
+    score.dragTiming(this.timing, this.part, x, y, page);
   }
 }
 

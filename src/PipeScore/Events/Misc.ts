@@ -83,9 +83,9 @@ export function setMenu(menu: Menu): ScoreEvent {
   // Set preview/inputGracenote because we don't want to have
   // them showing when another menu is up
   return async (state: State) => {
-    state.ui.menu = menu;
+    state.menu = menu;
     stopInputtingNotes(state);
-    if (state.ui.menu === 'playback') setupAudio();
+    if (state.menu === 'playback') setupAudio();
     return Update.ViewChanged;
   };
 }
@@ -145,7 +145,6 @@ export function print(): ScoreEvent {
     const props = {
       justAddedNote: false,
       selection: null,
-      selectedSecondTiming: null,
       noteState: {
         dragged: null,
         inputtingNotes: false,

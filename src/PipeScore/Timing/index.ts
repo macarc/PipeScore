@@ -5,12 +5,12 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { editText } from '../Events/Misc';
-import { clickSecondTiming } from '../Events/SecondTiming';
+import { clickTiming } from '../Events/Timing';
 import { ID } from '../global/id';
-import { foreach, Obj } from '../global/utils';
-import { before, closestItem, getXY, itemBefore, XY } from '../global/xy';
+import { foreach, Obj, nmap } from '../global/utils';
+import { inOrder, closestItem, getXY, itemBefore, XY } from '../global/xy';
 import { Score } from '../Score';
-import { SecondTimingSelection } from '../Selection';
+import { TimingSelection } from '../Selection';
 import { Selection } from '../Selection';
 
 interface TimingProps {
@@ -21,14 +21,24 @@ interface TimingProps {
   selection: Selection | null;
   staveGap: number;
 }
-export abstract class BaseTiming {
-  abstract toObject(): Obj;
+
+export type TimingPart = 'start' | 'middle' | 'end';
+
+export abstract class Timing {
   abstract pointsTo(id: ID): boolean;
+  abstract drag(
+    part: TimingPart,
+    x: number,
+    y: number,
+    page: number,
+    others: Timing[]
+  ): void;
   abstract render(props: TimingProps): m.Children;
 
+  protected abstract toObject(): Obj;
   protected abstract front(): XY;
   protected abstract back(): XY;
-  protected abstract validToItself(): boolean;
+  protected abstract noSelfOverlap(): boolean;
 
   public static fromJSON(o: Obj) {
     switch (o.type) {
@@ -55,31 +65,25 @@ export abstract class BaseTiming {
       throw new Error(`Unrecognised type of timing: ${this}`);
     }
   }
-  public isValid(others: Timing[]): boolean {
-    // This function checks if a second timing model is valid
-    // It checks that start, middle, and end are in a valid order
-    if (!this.validToItself()) return false;
+  // Checks that there is no overlap, either with itself or with
+  // the other timings in the array
+  public noOverlap(others: Timing[]) {
+    if (!this.noSelfOverlap()) return false;
 
     const start = this.front();
     const end = this.back();
     for (const other of others) {
-      // check for overlapping
       const ostart = other.front();
       const oend = other.back();
       if (
-        // Don't need to check middle, as those will be dealt with in the other clauses; however we do need to do start/end
         start === oend ||
         end === ostart ||
         start === ostart ||
         end === oend ||
-        // If start is between other.start/other.end
-        (before(start, oend) && before(ostart, start)) ||
-        // If other's start is between start/end
-        (before(ostart, end) && before(start, ostart)) ||
-        // If end is between other.start/other.end
-        (before(end, oend) && before(ostart, end)) ||
-        // If other's end is between start/end
-        (before(oend, end) && before(start, oend))
+        inOrder(ostart, start, oend) ||
+        inOrder(start, ostart, end) ||
+        inOrder(ostart, end, oend) ||
+        inOrder(start, oend, end)
       ) {
         return false;
       }
@@ -90,27 +94,44 @@ export abstract class BaseTiming {
     a: XY,
     b: XY,
     text: string,
-    colour: string,
     click: (first: boolean) => void,
     clickText: () => void,
-    // if true, draw the end.
+    // if true, draw the vertical line at the end
     // if true, we use b.afterX, otherwise we use b.beforeX
     drawLast: boolean,
     props: TimingProps
   ): m.Children {
-    if (
-      !(
-        a.page === props.page ||
-        b.page === props.page ||
-        (a.page < props.page && props.page < b.page)
-      )
-    )
-      return m('g');
+    const willDrawOnThisPage =
+      a.page === props.page ||
+      b.page === props.page ||
+      (a.page < props.page && props.page < b.page);
+    if (!willDrawOnThisPage) return m('g');
+
+    let start = a;
+    if (a.page !== props.page) {
+      const firstBar = props.score.firstOnPage(props.page);
+      const xy = nmap(firstBar, (bar) => getXY(bar.id));
+      if (xy) start = xy;
+    }
+    let end = b;
+    if (b.page !== props.page) {
+      const lastBar = props.score.lastOnPage(props.page);
+      const xy = nmap(lastBar, (bar) => getXY(bar.id));
+      if (xy) end = xy;
+    }
+
+    text = a === start ? text : '';
+
+    const selected =
+      props.selection instanceof TimingSelection &&
+      props.selection.timing === this;
+
+    const colour = selected ? 'orange' : 'black';
 
     const height = 45;
     const mid = 30;
     const clickWidth = 10;
-    const y = (i: number) => a.y + i * props.staveGap;
+    const y = (i: number) => start.y + i * props.staveGap;
 
     const horizontal = (x1: number, x2: number, y: number) =>
       m('line', {
@@ -136,106 +157,54 @@ export abstract class BaseTiming {
         width: clickWidth,
         height: height - mid,
         opacity: 0,
+        cursor: 'ew-resize',
         onmousedown: () => click(start),
       });
-    const lastx = drawLast ? b.afterX : b.beforeX;
+    const lastx = drawLast ? end.afterX : end.beforeX;
 
-    if (a.page === b.page && a.page === props.page) {
-      const verticalLines = [
-        vertical(a.beforeX, a.y),
-        dragBox(a.beforeX, a.y, true),
-        drawLast ? vertical(lastx, b.y) : null,
-        drawLast ? dragBox(lastx, b.y, false) : null,
-      ];
-      const stavesBetween = Math.max(
-        Math.round((b.y - a.y) / props.staveGap) - 1,
-        0
-      );
-      return m('g', [
-        ...(a.y === b.y
-          ? [horizontal(a.beforeX, lastx, a.y), ...verticalLines]
-          : [
-              horizontal(a.beforeX, props.staveEndX, a.y),
-              vertical(props.staveEndX, a.y),
-              horizontal(props.staveStartX, lastx, b.y),
-              vertical(props.staveStartX, b.y),
+    const verticalLines = [
+      vertical(start.beforeX, start.y),
+      dragBox(start.beforeX, start.y, true),
+      drawLast ? vertical(lastx, end.y) : null,
+      drawLast ? dragBox(lastx, end.y, false) : null,
+    ];
+    const stavesBetween = Math.max(
+      Math.round((end.y - start.y) / props.staveGap) - 1,
+      0
+    );
+    return m('g', [
+      ...(start.y === end.y
+        ? [horizontal(start.beforeX, lastx, start.y), ...verticalLines]
+        : [
+            horizontal(start.beforeX, props.staveEndX, start.y),
+            vertical(props.staveEndX, start.y),
+            horizontal(props.staveStartX, lastx, end.y),
+            vertical(props.staveStartX, end.y),
 
-              ...foreach(stavesBetween, (i) => i + 1).map((i) =>
-                m('g', [
-                  horizontal(props.staveStartX, props.staveEndX, y(i)),
-                  vertical(props.staveStartX, y(i)),
-                  vertical(props.staveEndX, y(i)),
-                ])
-              ),
-              ...verticalLines,
-            ]),
-        m(
-          'text',
-          {
-            x: a.beforeX + 5,
-            y: a.y - (height * 2) / 3,
-            onmousedown: () => click(true),
-            ondblclick: clickText,
-          },
-          text
-        ),
-      ]);
-    } else if (a.page === props.page) {
-      const last = props.score.lastOnPage(props.page);
-      if (last) {
-        const xy = getXY(last.id);
-        if (xy)
-          return this.lineFrom(
-            a,
-            xy,
-            text,
-            colour,
-            click,
-            clickText,
-            true,
-            props
-          );
-      }
-    } else if (b.page === props.page) {
-      const first = props.score.firstOnPage(props.page);
-      if (first) {
-        const xy = getXY(first.id);
-        if (xy)
-          return this.lineFrom(
-            xy,
-            b,
-            '',
-            colour,
-            click,
-            clickText,
-            drawLast,
-            props
-          );
-      }
-    } else {
-      const first = props.score.firstOnPage(props.page);
-      const last = props.score.lastOnPage(props.page);
-      if (first && last) {
-        const firstxy = getXY(first.id);
-        const lastxy = getXY(last.id);
-        if (firstxy && lastxy)
-          return this.lineFrom(
-            firstxy,
-            lastxy,
-            '',
-            colour,
-            click,
-            clickText,
-            true,
-            props
-          );
-      }
-    }
-    return m('g');
+            ...foreach(stavesBetween, (i) => i + 1).map((i) =>
+              m('g', [
+                horizontal(props.staveStartX, props.staveEndX, y(i)),
+                vertical(props.staveStartX, y(i)),
+                vertical(props.staveEndX, y(i)),
+              ])
+            ),
+            ...verticalLines,
+          ]),
+      m(
+        'text',
+        {
+          x: start.beforeX + 5,
+          y: start.y - (height * 2) / 3,
+          onmousedown: () => click(true),
+          ondblclick: clickText,
+        },
+        text
+      ),
+    ]);
   }
 }
 
-export class SecondTiming extends BaseTiming {
+export class SecondTiming extends Timing {
   private start: ID;
   private middle: ID;
   private end: ID;
@@ -276,10 +245,10 @@ export class SecondTiming extends BaseTiming {
     if (end) return end;
     throw new Error('SecondTiming points to invalid start point.');
   }
-  protected validToItself() {
+  protected noSelfOverlap() {
     return (
       itemBefore(this.start, this.middle) &&
-      (this.middle === this.end || itemBefore(this.middle, this.end, true))
+      itemBefore(this.middle, this.end, true)
     );
   }
   public drag(
@@ -293,7 +262,7 @@ export class SecondTiming extends BaseTiming {
     if (closest) {
       const test = new SecondTiming(this.start, this.middle, this.end);
       test[drag] = closest;
-      if (test.isValid(others.filter((s) => s !== this))) {
+      if (test.noOverlap(others.filter((s) => s !== this))) {
         this[drag] = closest;
       }
     }
@@ -302,12 +271,6 @@ export class SecondTiming extends BaseTiming {
     const start = getXY(this.start);
     const middle = getXY(this.middle);
     const end = getXY(this.end);
-
-    const selected =
-      props.selection instanceof SecondTimingSelection &&
-      props.selection.secondTiming === this;
-
-    const colour = selected ? 'orange' : 'black';
 
     if (!(start && middle && end)) {
       console.error('invalid second timing!');
@@ -319,9 +282,7 @@ export class SecondTiming extends BaseTiming {
         start,
         middle,
         this.firstText,
-        colour,
-        (first) =>
-          dispatch(clickSecondTiming(this, first ? 'start' : 'middle')),
+        (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
         () =>
           dispatch(editText(this.firstText, (text) => (this.firstText = text))),
         false,
@@ -331,8 +292,7 @@ export class SecondTiming extends BaseTiming {
         middle,
         end,
         this.secondText,
-        colour,
-        (first) => dispatch(clickSecondTiming(this, first ? 'middle' : 'end')),
+        (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
         () =>
           dispatch(
             editText(this.secondText, (text) => (this.secondText = text))
@@ -344,7 +304,7 @@ export class SecondTiming extends BaseTiming {
   }
 }
 
-export class SingleTiming extends BaseTiming {
+export class SingleTiming extends Timing {
   private start: ID;
   private end: ID;
   private text = '2.';
@@ -379,8 +339,8 @@ export class SingleTiming extends BaseTiming {
     if (end) return end;
     throw new Error('SecondTiming points to invalid start point.');
   }
-  protected validToItself() {
-    return this.start === this.end || itemBefore(this.start, this.end, true);
+  protected noSelfOverlap() {
+    return itemBefore(this.start, this.end, true);
   }
   public drag(
     drag: TimingPart,
@@ -394,7 +354,7 @@ export class SingleTiming extends BaseTiming {
     if (closest) {
       const test = new SingleTiming(this.start, this.end);
       test[drag] = closest;
-      if (test.isValid(others.filter((s) => s !== this))) {
+      if (test.noOverlap(others.filter((s) => s !== this))) {
         this[drag] = closest;
       }
     }
@@ -402,12 +362,6 @@ export class SingleTiming extends BaseTiming {
   public render(props: TimingProps): m.Children {
     const start = getXY(this.start);
     const end = getXY(this.end);
-
-    const selected =
-      props.selection instanceof SecondTimingSelection &&
-      props.selection.secondTiming === this;
-
-    const colour = selected ? 'orange' : 'black';
 
     if (!(start && end)) {
       console.error('invalid second timing!');
@@ -419,8 +373,7 @@ export class SingleTiming extends BaseTiming {
         start,
         end,
         this.text,
-        colour,
-        (first) => dispatch(clickSecondTiming(this, first ? 'start' : 'end')),
+        (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
         () => dispatch(editText(this.text, (text) => (this.text = text))),
         true,
         props
@@ -428,6 +381,3 @@ export class SingleTiming extends BaseTiming {
     ]);
   }
 }
-
-export type Timing = SingleTiming | SecondTiming;
-export type TimingPart = 'start' | 'middle' | 'end';

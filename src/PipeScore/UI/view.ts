@@ -33,7 +33,7 @@ import {
   portrait,
   setPageNumberVisibility,
 } from '../Events/Misc';
-import { addSecondTiming, addSingleTiming } from '../Events/SecondTiming';
+import { addSecondTiming, addSingleTiming } from '../Events/Timing';
 import { deleteSelection } from '../Events/Mouse';
 import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
 import { toggleDoc } from '../Events/Doc';

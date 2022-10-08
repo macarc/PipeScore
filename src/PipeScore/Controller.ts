@@ -26,7 +26,7 @@ const state: State = {
   justAddedNote: false,
   preview: null,
   playback: { bpm: 80 },
-  ui: { menu: 'note' },
+  menu: 'note',
   doc: { show: true, current: null },
   clipboard: null,
   selection: null,
@@ -121,7 +121,7 @@ function redraw() {
           ? Documentation.get(state.doc.current || '') ||
             'Hover over different icons to view Help here.'
           : null,
-        currentMenu: state.ui.menu,
+        currentMenu: state.menu,
         playbackBpm: state.playback.bpm,
       })
     );

@@ -4,14 +4,14 @@
 */
 import { ScoreEvent, noteLocation, Update } from './common';
 import { State } from '../State';
-import { ScoreSelection, SecondTimingSelection } from '../Selection';
+import { ScoreSelection, TimingSelection } from '../Selection';
 import { SecondTiming, SingleTiming, Timing, TimingPart } from '../Timing';
 
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const { bar } = noteLocation(state.selection.start, state.score);
-      state.score.addSecondTiming(new SingleTiming(bar.id, bar.id));
+      state.score.addTiming(new SingleTiming(bar.id, bar.id));
       return Update.ShouldSave;
     }
     return Update.NoChange;
@@ -25,9 +25,7 @@ export function addSecondTiming(): ScoreEvent {
       let foundStart = false;
       for (const bar of state.score.bars()) {
         if (foundStart) {
-          state.score.addSecondTiming(
-            new SecondTiming(start.id, bar.id, bar.id)
-          );
+          state.score.addTiming(new SecondTiming(start.id, bar.id, bar.id));
           return Update.ShouldSave;
         }
         if (bar === start) {
@@ -39,12 +37,9 @@ export function addSecondTiming(): ScoreEvent {
   };
 }
 
-export function clickSecondTiming(
-  secondTiming: Timing,
-  part: TimingPart
-): ScoreEvent {
+export function clickTiming(timing: Timing, part: TimingPart): ScoreEvent {
   return async (state: State) => {
-    state.selection = new SecondTimingSelection(secondTiming, part);
+    state.selection = new TimingSelection(timing, part);
     return Update.ViewChanged;
   };
 }

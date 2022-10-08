@@ -21,7 +21,7 @@ export type State = {
   // this just tracks whether or not to do that
   justAddedNote: boolean;
   preview: Preview | null;
-  ui: { menu: Menu };
+  menu: Menu;
   doc: { current: string | null; show: boolean };
   clipboard: (Note | Triplet | 'bar-break')[] | null;
   selection: Selection | null;

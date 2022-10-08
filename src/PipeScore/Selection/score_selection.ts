@@ -131,7 +131,7 @@ export class ScoreSelection extends Drags {
   }
   // Deletes all references to the items in the array
   private purgeItems(items: Item[], score: Score) {
-    score.purgeSecondTimings(items);
+    score.purgeTimings(items);
     for (const note of items) {
       deleteXY(note.id);
     }

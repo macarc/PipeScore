@@ -4,7 +4,7 @@
 */
 import { Stave, trebleClefWidth } from '../Stave';
 import { TextBox } from '../TextBox';
-import { BaseTiming, Timing, TimingPart } from '../Timing';
+import { Timing, TimingPart } from '../Timing';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import m from 'mithril';
@@ -35,7 +35,7 @@ export class Score {
   private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[][];
-  private secondTimings: Timing[];
+  private timings: Timing[];
 
   public showNumberOfPages: boolean;
   public numberOfPages = 1;
@@ -87,7 +87,7 @@ export class Score {
         )
       );
 
-    this.secondTimings = [];
+    this.timings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
   public static fromJSON(o: Obj) {
@@ -95,7 +95,7 @@ export class Score {
     s.landscape = o.landscape;
     s._staves = o._staves.map(Stave.fromJSON);
     s.textBoxes = o.textBoxes.map((p: Obj) => p.texts.map(TextBox.fromJSON));
-    s.secondTimings = o.secondTimings.map(BaseTiming.fromJSON);
+    s.timings = o.secondTimings.map(Timing.fromJSON);
     s.numberOfPages = o.numberOfPages;
     s.showNumberOfPages = o.showNumberOfPages;
     settings.fromJSON(o.settings);
@@ -110,7 +110,7 @@ export class Score {
       textBoxes: this.textBoxes.map((p) => ({
         texts: p.map((txt) => txt.toJSON()),
       })),
-      secondTimings: this.secondTimings.map((st) => st.toJSON()),
+      secondTimings: this.timings.map((st) => st.toJSON()),
       numberOfPages: this.numberOfPages,
       settings: settings.toJSON(),
     };
@@ -154,9 +154,9 @@ export class Score {
   public addText(text: TextBox) {
     this.textBoxes[0].push(text);
   }
-  public addSecondTiming(secondTiming: Timing) {
-    if (secondTiming.isValid(this.secondTimings)) {
-      this.secondTimings.push(secondTiming);
+  public addTiming(timing: Timing) {
+    if (timing.noOverlap(this.timings)) {
+      this.timings.push(timing);
       return true;
     }
     return false;
@@ -308,8 +308,8 @@ export class Score {
       return null;
     }
   }
-  public deleteSecondTiming(secondTiming: Timing) {
-    this.secondTimings.splice(this.secondTimings.indexOf(secondTiming), 1);
+  public deleteTiming(timing: Timing) {
+    this.timings.splice(this.timings.indexOf(timing), 1);
   }
   public deleteTextBox(text: TextBox) {
     for (const p of this.textBoxes) {
@@ -333,24 +333,24 @@ export class Score {
       text.setCoords(x, y);
     }
   }
-  public dragSecondTiming(
-    secondTiming: Timing,
+  public dragTiming(
+    timing: Timing,
     part: TimingPart,
     x: number,
     y: number,
     page: number
   ) {
-    secondTiming.drag(part, x, y, page, this.secondTimings);
+    timing.drag(part, x, y, page, this.timings);
   }
 
-  public purgeSecondTimings(items: Item[]) {
-    const secondTimingsToDelete: Timing[] = [];
+  public purgeTimings(items: Item[]) {
+    const timingsToDelete: Timing[] = [];
     for (const item of items) {
-      for (const st of this.secondTimings) {
-        if (st.pointsTo(item.id)) secondTimingsToDelete.push(st);
+      for (const st of this.timings) {
+        if (st.pointsTo(item.id)) timingsToDelete.push(st);
       }
     }
-    secondTimingsToDelete.forEach((t) => this.deleteSecondTiming(t));
+    timingsToDelete.forEach((t) => this.deleteTiming(t));
   }
   public play() {
     return this._staves.flatMap((st, i) =>
@@ -372,7 +372,7 @@ export class Score {
       gracenoteState: props.gracenoteState,
     });
 
-    const secondTimingProps = (page: number) => ({
+    const timingProps = (page: number) => ({
       page,
       score: this,
       staveStartX: settings.margin + trebleClefWidth,
@@ -423,9 +423,7 @@ export class Score {
                 selection: props.selection,
               })
             ),
-            ...this.secondTimings.map((secondTiming) =>
-              secondTiming.render(secondTimingProps(i))
-            ),
+            ...this.timings.map((timing) => timing.render(timingProps(i))),
             props.selection instanceof ScoreSelection &&
               props.selection.render(selectionProps(i)),
             this.showNumberOfPages && this.numberOfPages > 1
