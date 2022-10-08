@@ -19,7 +19,8 @@ export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
     return Update.ShouldSave;
   };
 }
-export function editText(
+
+export function editTimingText(
   value: string,
   cb: (text: string) => void
 ): ScoreEvent {
@@ -34,12 +35,14 @@ export function editText(
     return Update.ShouldSave;
   };
 }
+
 export function addPage(): ScoreEvent {
   return async (state: State) => {
     state.score.numberOfPages += 1;
     return Update.ShouldSave;
   };
 }
+
 export function removePage(): ScoreEvent {
   return async (state: State) => {
     let sure = true;
@@ -58,6 +61,7 @@ export function removePage(): ScoreEvent {
     return Update.NoChange;
   };
 }
+
 export function changeSetting<T extends keyof Settings>(
   setting: T,
   target: HTMLInputElement
@@ -69,6 +73,7 @@ export function changeSetting<T extends keyof Settings>(
     return Update.ViewChanged;
   };
 }
+
 export function changeZoomLevel(zoom: number): ScoreEvent {
   return async (state: State) => {
     if (state.score.zoom !== zoom) {
@@ -80,8 +85,6 @@ export function changeZoomLevel(zoom: number): ScoreEvent {
 }
 
 export function setMenu(menu: Menu): ScoreEvent {
-  // Set preview/inputGracenote because we don't want to have
-  // them showing when another menu is up
   return async (state: State) => {
     state.menu = menu;
     stopInputtingNotes(state);
@@ -89,11 +92,13 @@ export function setMenu(menu: Menu): ScoreEvent {
     return Update.ViewChanged;
   };
 }
+
 export function landscape(): ScoreEvent {
   return async (state: State) => {
     return state.score.makeLandscape();
   };
 }
+
 export function portrait(): ScoreEvent {
   return async (state: State) => {
     return state.score.makePortrait();

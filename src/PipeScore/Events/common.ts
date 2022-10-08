@@ -17,9 +17,8 @@ export const enum Update {
   ShouldSave,
 }
 
+// Finds the parent bar and stave of the note passed
 export function noteLocation(note: Note | ID, score: Score) {
-  // Finds the parent bar and stave of the note passed
-
   const id = typeof note === 'number' ? note : note.id;
   return score.location(id);
 }
@@ -28,6 +27,8 @@ export function stopInputtingNotes(state: State) {
   state.preview?.stop();
   state.preview = null;
 }
+
+// Extend the current selection to include the item
 export function addToSelection(id: ID, selection: ScoreSelection) {
   if (itemBefore(selection.end, id)) {
     selection.end = id;

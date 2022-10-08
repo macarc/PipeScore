@@ -1,12 +1,13 @@
 /*
-  Invisible rectangles that are used to detect note dragging, clicking, e.t.c. on different pitches
   Copyright (C) 2021 macarc
 */
 import m from 'mithril';
-import { settings } from './settings';
-import { Pitch, pitchToHeight } from './pitch';
+import { settings } from '../global/settings';
+import { Pitch, pitchToHeight } from '../global/pitch';
 
-export function noteBoxes(
+// Invisible rectangles that are used to detect note dragging, clicking
+// Maybe name this better?
+export function pitchBoxes(
   x: number,
   y: number,
   width: number,

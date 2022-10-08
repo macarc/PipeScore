@@ -10,34 +10,11 @@ import {
   addToSelection,
 } from './common';
 import { State } from '../State';
-
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
-
 import { BarlineSelection, ScoreSelection } from '../Selection';
-
-export function moveLeftBarwise(): ScoreEvent {
-  return async (state: State) => {
-    if (state.selection instanceof ScoreSelection) {
-      const prev = state.score.previousBar(state.selection.end);
-      if (prev) state.selection = new ScoreSelection(prev.id, prev.id);
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
-  };
-}
-export function moveRightBarwise(): ScoreEvent {
-  return async (state: State) => {
-    if (state.selection instanceof ScoreSelection) {
-      const next = state.score.nextBar(state.selection.end);
-      if (next) state.selection = new ScoreSelection(next.id, next.id);
-      return Update.ViewChanged;
-    }
-    return Update.NoChange;
-  };
-}
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignature,
@@ -46,6 +23,7 @@ function setTimeSignatureFrom(
 ) {
   Bar.setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
 }
+
 export function editTimeSignature(
   timeSignature: TimeSignature,
   newTimeSignature: TimeSignature
@@ -55,6 +33,7 @@ export function editTimeSignature(
     return Update.ShouldSave;
   };
 }
+
 export function addAnacrusis(before: boolean): ScoreEvent {
   return async (state: State) => {
     const bar =
@@ -91,6 +70,7 @@ export function clickBarline(drag: (x: number) => void): ScoreEvent {
     return Update.ViewChanged;
   };
 }
+
 export function resetBarLength(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
@@ -105,6 +85,7 @@ export function resetBarLength(): ScoreEvent {
     return Update.NoChange;
   };
 }
+
 export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {

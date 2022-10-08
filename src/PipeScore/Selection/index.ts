@@ -9,7 +9,6 @@ import { Score } from '../Score';
 import { Pitch } from '../global/pitch';
 import { Gracenote, SingleGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { changeGracenoteFrom } from '../Events/Gracenote';
 import { Drags } from './model';
 
 export { Selection } from './model';
@@ -81,9 +80,13 @@ export class GracenoteSelection extends Drags {
     this.selected = gracenote;
     this.note = note;
   }
+  changeGracenote(newGracenote: Gracenote, score: Score) {
+    for (const note of score.notes()) {
+      note.replaceGracenote(this.selected, newGracenote);
+    }
+  }
   delete(score: Score) {
-    changeGracenoteFrom(
-      this.selected,
+    this.changeGracenote(
       this.note === 'all'
         ? Gracenote.fromName('none')
         : this.selected.removeSingle(this.note),
@@ -93,7 +96,7 @@ export class GracenoteSelection extends Drags {
   dragOverPitch(pitch: Pitch, score: Score) {
     if (this.note !== 'all') {
       const dragged = this.selected.drag(pitch, this.note);
-      changeGracenoteFrom(this.selected, dragged, score);
+      this.changeGracenote(dragged, score);
       this.selected = dragged;
     }
   }

@@ -5,18 +5,9 @@
 import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 import { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
-import { Score } from '../Score';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { SingleGracenotePreview, ReactiveGracenotePreview } from '../Preview';
 
-export function changeGracenoteFrom(
-  oldGracenote: Gracenote,
-  newGracenote: Gracenote,
-  score: Score
-): Score {
-  score.notes().forEach((n) => n.replaceGracenote(oldGracenote, newGracenote));
-  return score;
-}
 export function clickGracenote(
   gracenote: Gracenote,
   index: number | 'all'

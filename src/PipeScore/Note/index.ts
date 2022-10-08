@@ -17,10 +17,10 @@ import width, { Width } from '../global/width';
 import m from 'mithril';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
-import { mouseOffPitch, mouseOverPitch } from '../Events/Mouse';
+import { mouseOffPitch, mouseOverPitch } from '../Events/PitchBoxes';
 import { getXY, setXY } from '../global/xy';
 import { addNoteBefore, clickNote, clickTripletLine } from '../Events/Note';
-import { noteBoxes } from '../global/noteboxes';
+import { pitchBoxes } from '../PitchBoxes';
 import { PlaybackElement } from '../Playback';
 import { settings } from '../global/settings';
 import { dispatch } from '../Controller';
@@ -40,6 +40,7 @@ const noteHeadRadius = 4;
 const noteHeadWidth = 2 * noteHeadRadius;
 const dotXOffset = 10;
 const dotRadius = 1.5;
+const normalStemHeight = 30;
 
 export interface NoteProps {
   x: number;
@@ -754,7 +755,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
     const x = naturalX + naturalWidth;
     const y = this.y(props.y);
     const stemTopY = y + 1.5;
-    const stemBottomY = y + 30;
+    const stemBottomY = y + normalStemHeight;
     const numberOfTails = this.numTails();
 
     const noteBoxStart =
@@ -767,7 +768,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
 
     return m('g[class=singleton]', [
       props.state.inputtingNotes && !this.isPreview()
-        ? noteBoxes(
+        ? pitchBoxes(
             noteBoxStart,
             props.y,
             noteBoxWidth,
@@ -891,7 +892,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
 
         return m('g', { class: `grouped-note ${note.pitch}` }, [
           props.state.inputtingNotes && !note.isPreview()
-            ? noteBoxes(
+            ? pitchBoxes(
                 noteBoxX,
                 props.y,
                 xOf(index) + noteHeadRadius - noteBoxX,
@@ -944,7 +945,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
             x1: xOf(index),
             x2: xOf(index),
             y1: yOf(note),
-            y2: stemY,
+            y2: note.hasBeam() ? stemY : yOf(note) + normalStemHeight,
             stroke: note.colour(),
           }),
         ]);

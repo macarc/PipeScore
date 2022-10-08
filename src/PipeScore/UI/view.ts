@@ -9,10 +9,9 @@ import {
   toggleNatural,
   tieSelectedNotes,
   toggleDot,
-  copy,
-  paste,
   setInputLength,
 } from '../Events/Note';
+import { copy, paste, deleteSelection } from '../Events/Selection';
 import {
   addAnacrusis,
   addBar,
@@ -34,7 +33,6 @@ import {
   setPageNumberVisibility,
 } from '../Events/Misc';
 import { addSecondTiming, addSingleTiming } from '../Events/Timing';
-import { deleteSelection } from '../Events/Mouse';
 import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
 import { toggleDoc } from '../Events/Doc';
 import {

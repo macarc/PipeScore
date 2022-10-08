@@ -7,14 +7,9 @@
 - [ ] Triplets with tails can group
 
 - [ ] Allow choosing fonts
+- [ ] Contenteditable to allow editing text / e.t.c. without popup ?
 
 - BWW Example: https://bagpipetunes.intertechnics.com/files/Bagpipe_Player/S/Scotland_the_Brave.bww
-
-### Cleanups
-
-- [ ] Expose applyToSelectedNotes from NoteEvents instead of selectionToNotes and changeNotes
-- [ ] Add optimised list render
-- [ ] See if I can clean up the .allBars() and .notesAndTriplets() to prevent leaking state
 
 ## General features
 

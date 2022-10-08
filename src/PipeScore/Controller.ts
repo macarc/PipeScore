@@ -23,7 +23,6 @@ const state: State = {
   canEdit: true,
   isLoggedIn: false,
   justClickedNote: false,
-  justAddedNote: false,
   preview: null,
   playback: { bpm: 80 },
   menu: 'note',
@@ -73,7 +72,7 @@ function redraw() {
     m.render(
       state.view.score,
       state.score.render({
-        justAddedNote: state.justAddedNote,
+        justAddedNote: state.preview?.justAdded() || false,
         noteState: {
           dragged:
             (state.selection instanceof ScoreSelection &&

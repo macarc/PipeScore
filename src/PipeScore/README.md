@@ -17,6 +17,7 @@ PipeScore is split into the following components:
 - `Selection`
 - `Timing` - timings can be second timings or first/second timings
 - `UI` - the top/side panel, containing user controls
+- `PitchBoxes` - the mechanism for detecting which pitch the mouse is hovering over
 
 For events, the `dispatch` function is used, passing an event from the `Events` folder. The `Events` folder contains a lot of event functions. The event functions are stored in a separate directory from their respective components since they need knowledge of the entire state in order to update it, not just that of the single component.
 

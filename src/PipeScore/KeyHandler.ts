@@ -8,24 +8,26 @@ import { dialogueBoxIsOpen } from './global/dialogueBox';
 import {
   setInputLength,
   stopInput,
-  copy,
-  paste,
   tieSelectedNotes,
   moveNoteDown,
   moveNoteUp,
   toggleDot,
-  moveLeft,
-  moveRight,
-  expandSelection,
-  detractSelection,
   addNoteAfterSelection,
 } from './Events/Note';
+import {
+  copy,
+  paste,
+  expandSelection,
+  detractSelection,
+  deleteSelection,
+  moveLeftBarwise,
+  moveRightBarwise,
+  moveLeft,
+  moveRight,
+} from './Events/Selection';
 import { undo, redo, print } from './Events/Misc';
-import { deleteSelection } from './Events/Mouse';
 import { Pitch } from './global/pitch';
-
 import { NoteLength } from './Note/notelength';
-import { moveLeftBarwise, moveRightBarwise } from './Events/Bar';
 
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;

@@ -14,13 +14,13 @@ import m from 'mithril';
 import { setXY } from '../global/xy';
 import { addNoteToBarEnd } from '../Events/Note';
 import { clickBar } from '../Events/Bar';
-import { noteBoxes } from '../global/noteboxes';
-import { mouseOverPitch } from '../Events/Mouse';
+import { pitchBoxes } from '../PitchBoxes';
+import { mouseOverPitch } from '../Events/PitchBoxes';
 import { Barline } from './barline';
 import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 
-export interface BarProps {
+interface BarProps {
   x: number;
   y: number;
   width: number;
@@ -396,11 +396,11 @@ export class Bar extends Item implements Previews<SingleNote> {
       };
     };
 
-    // note that the noteBoxes must extend the whole width of the bar because they are used to drag notes
+    // note that the pitch boxes must extend the whole width of the bar because they are used to drag notes
     // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
     // note adds a note to the start of the bar
     return m('g[class=bar]', [
-      noteBoxes(
+      pitchBoxes(
         xAfterBarline,
         staveY,
         barWidth,

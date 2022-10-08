@@ -4,7 +4,7 @@
 */
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { editText } from '../Events/Misc';
+import { editTimingText } from '../Events/Misc';
 import { clickTiming } from '../Events/Timing';
 import { ID } from '../global/id';
 import { foreach, Obj, nmap } from '../global/utils';
@@ -284,7 +284,9 @@ export class SecondTiming extends Timing {
         this.firstText,
         (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
         () =>
-          dispatch(editText(this.firstText, (text) => (this.firstText = text))),
+          dispatch(
+            editTimingText(this.firstText, (text) => (this.firstText = text))
+          ),
         false,
         props
       ),
@@ -295,7 +297,7 @@ export class SecondTiming extends Timing {
         (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
         () =>
           dispatch(
-            editText(this.secondText, (text) => (this.secondText = text))
+            editTimingText(this.secondText, (text) => (this.secondText = text))
           ),
         true,
         props
@@ -374,7 +376,7 @@ export class SingleTiming extends Timing {
         end,
         this.text,
         (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
-        () => dispatch(editText(this.text, (text) => (this.text = text))),
+        () => dispatch(editTimingText(this.text, (text) => (this.text = text))),
         true,
         props
       ),
