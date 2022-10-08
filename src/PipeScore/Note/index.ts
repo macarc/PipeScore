@@ -1,7 +1,23 @@
-/*
-  Note format
-  Copyright (C) 2021 macarc
- */
+//  PipeScore - online bagpipe notation
+//  Copyright (C) 2022 macarc
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  This file contains code for both triplets and single notes
+//  (single notes being non-triplet notes).
+//  TODO: perhaps this could be split up?
+
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { genId, ID, Item } from '../global/id';
 import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';

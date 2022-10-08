@@ -1,4 +1,5 @@
-/* Type declarations for firebase-auth-lite */
+// Type declarations for firebase-auth-lite
+
 declare module 'firebase-auth-lite' {
   export type ProviderUser = {
     readonly email: string;

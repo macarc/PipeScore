@@ -1,7 +1,29 @@
-/*
-  Define gracenote format
-  Copyright (C) 2021 macarc
- */
+//  PipeScore - online bagpipe notation
+//  Copyright (C) 2022 macarc
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  There are three types of gracenote:
+//  - SingleGracenote - e.g. a HG gracenote: a single note.
+//  - ReactiveGracenote - e.g. doubling: a gracenote whose notes depend on
+//      the notes in front of and behind it. See ./gracenotes for all
+//      reactive gracenote types.
+//  - CustomGracenote - if a user drags an individual note of a reactive
+//      gracenote, it becomes a custom gracenote. It won't react to note
+//      changes any more.
+//  - (NoGracenote - used if the note has no gracenote)
+
 import m from 'mithril';
 import { clickGracenote } from '../Events/Gracenote';
 import { settings } from '../global/settings';

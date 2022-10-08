@@ -1,20 +1,39 @@
-/*
-  All the gracenotes (reactive embellishments) possible with PipeScore
-  Copyright (C) 2021 macarc
- */
+//  PipeScore - online bagpipe notation
+//  Copyright (C) 2022 macarc
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  The main export of this file is gracenotes: Map<string, GracenoteFn> -
+//  this the set of all possible reactive gracenotes.
+
 import { Pitch } from '../global/pitch';
 export type GracenoteNoteList = Pitch[] & {
   invalid: boolean;
 };
+
+type GracenoteFn = (note: Pitch, prev: Pitch | null) => GracenoteNoteList;
+
+// gracenotes is a map containing all the possible embellishments
+// To get the notes of a reactive gracenote, do:
+// gracenotes[reactiveGracenoteName](notePitch, previousNotePitch)
+export const gracenotes: Map<string, GracenoteFn> = new Map();
 
 export function noteList(list: Pitch[], valid = true): GracenoteNoteList {
   const noteList = list as GracenoteNoteList;
   noteList.invalid = !valid;
   return noteList;
 }
-
-type GracenoteFn = (note: Pitch, prev: Pitch | null) => GracenoteNoteList;
-
 const invalidateIf = (pred: boolean, gracenote: Pitch[]) =>
   noteList(gracenote, !pred);
 
@@ -26,11 +45,6 @@ const invalidateIfBind = (
 
 const invalid = (gracenote: Pitch[]) => noteList(gracenote, false);
 const valid = (gracenote: Pitch[]) => noteList(gracenote, true);
-
-// gracenotes is a map containing all the possible embellishments in the form of functions
-// To get the notes of an embellishment, first get the gracenote type you want, e.g. gracenote["doubling"]
-// Then call the resulting function with two arguments: pitch of the note it is on, and pitch of previous note (or null)
-export const gracenotes: Map<string, GracenoteFn> = new Map();
 
 gracenotes.set('throw-d', (note, prev) =>
   invalidateIf(

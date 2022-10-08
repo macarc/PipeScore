@@ -1,16 +1,28 @@
-/*
-  Copyright (C) 2021 macarc
+//  PipeScore - online bagpipe notation
+//  Copyright (C) 2022 macarc
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  Widths are dealt with slightly oddly
-  They are split into two parts
-  - min : the minimum width (in pixels) - so for example, the physical width of the note head is the min
-  - extend : a relative fraction, a bit like `fr` in display: flex, that determines how the remaining width is split up
+//  Widths are dealt with slightly oddly - they are split into two parts:
+//  - min : the minimum width (in pixels) - so for example, the physical
+//     width of the note head is the min
+//  - extend : a relative fraction, a bit like `fr` in display: flex,
+//     that determines how the remaining width is split up
 
-  So when it is reified (when the actual width is found) it will fill up the space with the mins, then grow the rest
-  according to extend
+//  So when it is reified (when the actual width is found) it will fill up
+//  the space with the mins, then grow the rest according to extend.
 
-  (or it should anyway :) )
-*/
 export interface Width {
   // min - the minimum possible width for an element
   min: number;

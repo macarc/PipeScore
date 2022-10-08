@@ -1,9 +1,25 @@
-/*
-  Playback - given a list of pitches and lengths, play them using the Web Audio API
-  See https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
-  There's some pretty horrible stuff here, to try and make the API work (especially on Safari)
-  Copyright (C) 2021 macarc
-*/
+//  PipeScore - online bagpipe notation
+//  Copyright (C) 2022 macarc
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  Playback - given a list of pitches and lengths, play them using the
+//  Web Audio API:
+//  <https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API>
+//  There's some pretty horrible stuff here, to try and make the API work
+//  (especially on Safari).
+
 import { Pitch } from './global/pitch';
 
 export interface PlaybackState {
