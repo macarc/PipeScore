@@ -18,7 +18,7 @@ import { noteBoxes } from '../global/noteboxes';
 import { mouseOverPitch } from '../Events/Mouse';
 import { Barline } from './barline';
 import { dispatch } from '../Controller';
-import { Previewable } from '../DemoNote/previewable';
+import { Previews } from '../Preview/previews';
 
 export interface BarProps {
   x: number;
@@ -34,7 +34,7 @@ export interface BarProps {
   gracenoteState: GracenoteState;
 }
 
-export class Bar extends Item implements Previewable<SingleNote> {
+export class Bar extends Item implements Previews<SingleNote> {
   private ts: TimeSignature;
   private notes: Note[];
   private frontBarline: Barline;
@@ -122,7 +122,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     for (const bar of bars) {
       if (bar.hasID(id)) lastWasIt = true;
       for (const note of bar.notes) {
-        if (lastWasIt && !note.isDemo()) return note;
+        if (lastWasIt && !note.isPreview()) return note;
         if (note.hasID(id)) lastWasIt = true;
       }
     }
@@ -134,7 +134,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
       if (bar.hasID(id)) return prev;
       for (const note of bar.notes) {
         if (note.hasID(id)) return prev;
-        if (!note.isDemo()) prev = note;
+        if (!note.isPreview()) prev = note;
       }
     }
     return prev;
@@ -182,7 +182,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     return this.backBarline === barline;
   }
   public setPreview(note: SingleNote, noteAfter: SingleNote | null) {
-    if (noteAfter && noteAfter.isDemo()) {
+    if (noteAfter && noteAfter.isPreview()) {
       this.notes.splice(this.notes.indexOf(noteAfter), 1, note);
       this.previewNote = note;
     } else {
@@ -202,7 +202,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     return this.previewNote !== null;
   }
   public makePreviewReal(notes: SingleNote[]) {
-    this.previewNote?.unDemo().makeCorrectTie(notes);
+    this.previewNote?.makeUnPreview().makeCorrectTie(notes);
     this.previewNote = null;
   }
   public removePreview() {
@@ -234,7 +234,7 @@ export class Bar extends Item implements Previewable<SingleNote> {
     return this.notes[this.notes.indexOf(note) - 1] || null;
   }
   public insertNote(noteBefore: Note | null, note: Note) {
-    if (noteBefore?.isDemo()) {
+    if (noteBefore?.isPreview()) {
       noteBefore = this.notes[this.notes.indexOf(noteBefore) - 1] || null;
     }
     const ind = noteBefore ? this.notes.indexOf(noteBefore) + 1 : 0;

@@ -25,8 +25,8 @@ export function noteLocation(note: Note | ID, score: Score) {
 }
 
 export function stopInputtingNotes(state: State) {
-  state.demo?.stop();
-  state.demo = null;
+  state.preview?.stop();
+  state.preview = null;
 }
 export function addToSelection(id: ID, selection: ScoreSelection) {
   if (itemBefore(selection.end, id)) {

@@ -1,5 +1,12 @@
 /*
-  DemoNote (preview note) model
+  There are 3 things that can be previewed:
+  - Notes
+  - Single gracenotes
+  - Reactive gracenotes
+  When you are inputting these, the preview shows
+  up as an orange note in the place that the note
+  would be if you placed it.
+
   Copyright (C) 2021 macarc
  */
 import { Bar } from '../Bar';
@@ -7,10 +14,12 @@ import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
 import { Note, SingleNote } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
-import { Previewable } from './previewable';
+import { Previews } from './previews';
 
-export interface Demo {
+export interface Preview {
+  // Returns true if the pitch changed
   setPitch(pitch: Pitch | null): boolean;
+  // Returns true if the location changed
   setLocation(
     bar: Bar,
     noteBefore: Note | null,
@@ -20,7 +29,7 @@ export interface Demo {
   makeReal(notes: SingleNote[]): void;
 }
 
-abstract class BaseDemo<U> implements Demo {
+abstract class BasePreview<U> implements Preview {
   protected _pitch: Pitch | null = null;
   protected bar: Bar | null = null;
   protected noteBefore: SingleNote | null = null;
@@ -67,11 +76,11 @@ abstract class BaseDemo<U> implements Demo {
     if (this._pitch && preview)
       this.parent()?.setPreview(preview, this.noteAfter);
   }
-  protected abstract parent(): Previewable<U> | null;
+  protected abstract parent(): Previews<U> | null;
   protected abstract toPreview(): U | null;
 }
 
-export class DemoNote extends BaseDemo<SingleNote> {
+export class NotePreview extends BasePreview<SingleNote> {
   private _length: NoteLength;
   private _natural: boolean;
 
@@ -101,11 +110,17 @@ export class DemoNote extends BaseDemo<SingleNote> {
   protected toPreview() {
     return (
       this._pitch &&
-      new SingleNote(this._pitch, this._length, false, this._natural).demo()
+      new SingleNote(
+        this._pitch,
+        this._length,
+        false,
+        this._natural
+      ).makePreview()
     );
   }
 }
-export class DemoGracenote extends BaseDemo<SingleGracenote> {
+
+export class SingleGracenotePreview extends BasePreview<SingleGracenote> {
   protected parent() {
     return this.noteAfter;
   }
@@ -114,7 +129,7 @@ export class DemoGracenote extends BaseDemo<SingleGracenote> {
   }
 }
 
-export class DemoReactive extends BaseDemo<ReactiveGracenote> {
+export class ReactiveGracenotePreview extends BasePreview<ReactiveGracenote> {
   private name: string;
 
   constructor(name: string) {

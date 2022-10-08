@@ -22,8 +22,8 @@ export function deleteSelection(): ScoreEvent {
 
 export function mouseOffPitch(): ScoreEvent {
   return async (state: State) => {
-    if (state.demo) {
-      if (state.demo.setPitch(null)) return Update.ViewChanged;
+    if (state.preview) {
+      if (state.preview.setPitch(null)) return Update.ViewChanged;
     }
     return Update.NoChange;
   };
@@ -44,18 +44,18 @@ export function mouseOverPitch(
       state.justClickedNote = false;
       return Update.NoChange;
     }
-    if (state.demo) {
+    if (state.preview) {
       let viewChanged = false;
       if (where instanceof Bar) {
-        viewChanged ||= state.demo.setLocation(where, null, null);
-        viewChanged ||= state.demo.setPitch(pitch);
+        viewChanged ||= state.preview.setLocation(where, null, null);
+        viewChanged ||= state.preview.setPitch(pitch);
       } else {
-        viewChanged ||= state.demo.setLocation(
+        viewChanged ||= state.preview.setLocation(
           state.score.location(where.id).bar,
           state.score.previousNote(where.id),
           where
         );
-        viewChanged ||= state.demo.setPitch(pitch);
+        viewChanged ||= state.preview.setPitch(pitch);
       }
       return viewChanged ? Update.ViewChanged : Update.NoChange;
     } else if (state.selection && state.selection.dragging) {

@@ -150,7 +150,7 @@ export class ScoreSelection extends Drags {
         : bar.notesAndTriplets();
       for (const note of barNotes) {
         if (note.hasID(this.start)) foundStart = true;
-        if (foundStart && !note.isDemo()) notes.push(note);
+        if (foundStart && !note.isPreview()) notes.push(note);
         if (note.hasID(this.end)) break all;
       }
       if (bar.hasID(this.end)) break;

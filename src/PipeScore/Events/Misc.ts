@@ -80,7 +80,8 @@ export function changeZoomLevel(zoom: number): ScoreEvent {
 }
 
 export function setMenu(menu: Menu): ScoreEvent {
-  // Set demoNote/inputGracenote because we don't want to have them showing when another menu is up
+  // Set preview/inputGracenote because we don't want to have
+  // them showing when another menu is up
   return async (state: State) => {
     state.ui.menu = menu;
     stopInputtingNotes(state);
@@ -155,7 +156,7 @@ export function print(): ScoreEvent {
         selected: null,
       },
       textBoxState: { selectedText: null },
-      demoNote: null,
+      preview: null,
       dispatch: () => null,
     };
 

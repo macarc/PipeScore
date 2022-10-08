@@ -19,7 +19,7 @@ import {
 } from '../Selection';
 import { Note, SingleNote, Triplet } from '../Note';
 import { NoteLength, sameNoteLengthName } from '../Note/notelength';
-import { DemoNote, DemoReactive } from '../DemoNote';
+import { NotePreview, ReactiveGracenotePreview } from '../Preview';
 import { SingleGracenote } from '../Gracenote';
 
 export function addNoteBefore(
@@ -27,15 +27,15 @@ export function addNoteBefore(
   noteAfter: Note | Triplet
 ): ScoreEvent {
   return async (state: State) => {
-    if (state.demo) {
+    if (state.preview) {
       const previous = state.score.previousNote(noteAfter.id);
-      state.demo.setLocation(
+      state.preview.setLocation(
         state.score.location(noteAfter.id).bar,
         previous,
         noteAfter
       );
-      state.demo.setPitch(pitch);
-      state.demo.makeReal(state.score.notes());
+      state.preview.setPitch(pitch);
+      state.preview.makeReal(state.score.notes());
       state.justAddedNote = true;
       return Update.ShouldSave;
     }
@@ -47,8 +47,8 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const last = state.selection.lastNoteAndBar(state.score);
       const length =
-        state.demo instanceof DemoNote
-          ? state.demo.length()
+        state.preview instanceof NotePreview
+          ? state.preview.length()
           : state.selection.note(state.score)?.lengthForInput();
       if (length) {
         const note = new SingleNote(pitch, length);
@@ -62,11 +62,11 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
 }
 export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => {
-    if (state.demo) {
+    if (state.preview) {
       const previous = bar.lastNote();
-      state.demo.setLocation(bar, previous, null);
-      state.demo.setPitch(pitch);
-      state.demo.makeReal(state.score.notes());
+      state.preview.setLocation(bar, previous, null);
+      state.preview.setPitch(pitch);
+      state.preview.makeReal(state.score.notes());
       state.justClickedNote = true;
       state.justAddedNote = true;
       return Update.ShouldSave;
@@ -187,7 +187,7 @@ export function tieSelectedNotes(): ScoreEvent {
 
 export function toggleNatural(): ScoreEvent {
   return async (state: State) => {
-    if (state.demo instanceof DemoNote) state.demo.toggleNatural();
+    if (state.preview instanceof NotePreview) state.preview.toggleNatural();
     if (state.selection instanceof ScoreSelection) {
       state.selection
         ?.notes(state.score)
@@ -238,7 +238,7 @@ export function toggleDot(): ScoreEvent {
         .notesAndTriplets(state.score)
         .forEach((note) => note.toggleDot());
     }
-    if (state.demo instanceof DemoNote) state.demo.toggleDot();
+    if (state.preview instanceof NotePreview) state.preview.toggleDot();
     return Update.ShouldSave;
   };
 }
@@ -258,9 +258,9 @@ export function clickTripletLine(triplet: Triplet): ScoreEvent {
 }
 export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
-    if (state.demo instanceof DemoNote) {
-      if (note.isDemo()) {
-        state.demo?.makeReal(state.score.notes());
+    if (state.preview instanceof NotePreview) {
+      if (note.isPreview()) {
+        state.preview?.makeReal(state.score.notes());
         state.justAddedNote = true;
         return Update.ShouldSave;
       } else {
@@ -268,16 +268,16 @@ export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
       }
     }
     if (
-      state.demo instanceof DemoReactive ||
-      state.demo instanceof SingleGracenote
+      state.preview instanceof ReactiveGracenotePreview ||
+      state.preview instanceof SingleGracenote
     ) {
       const previous = state.score.previousNote(note.id);
-      state.demo.setLocation(
+      state.preview.setLocation(
         state.score.location(note.id).bar,
         previous && previous.lastSingle(),
         note
       );
-      state.demo.makeReal(state.score.notes());
+      state.preview.makeReal(state.score.notes());
       return Update.ShouldSave;
     }
     if (event.shiftKey && state.selection instanceof ScoreSelection) {
@@ -297,18 +297,18 @@ export function setInputLength(length: NoteLength): ScoreEvent {
       if (notes.length > 0) notes.forEach((note) => note.setLength(length));
       else {
         stopInputtingNotes(state);
-        state.demo = new DemoNote(length);
+        state.preview = new NotePreview(length);
       }
-    } else if (state.demo instanceof DemoNote) {
-      if (sameNoteLengthName(state.demo.length(), length)) {
+    } else if (state.preview instanceof NotePreview) {
+      if (sameNoteLengthName(state.preview.length(), length)) {
         stopInputtingNotes(state);
       } else {
-        state.demo.setLength(length);
+        state.preview.setLength(length);
       }
     } else {
       state.selection = null;
       stopInputtingNotes(state);
-      state.demo = new DemoNote(length);
+      state.preview = new NotePreview(length);
     }
     return Update.ShouldSave;
   };

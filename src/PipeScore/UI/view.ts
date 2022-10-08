@@ -47,7 +47,12 @@ import { addStave } from '../Events/Stave';
 import { help } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
-import { Demo, DemoGracenote, DemoNote, DemoReactive } from '../DemoNote';
+import {
+  Preview,
+  SingleGracenotePreview,
+  NotePreview,
+  ReactiveGracenotePreview,
+} from '../Preview';
 import { Settings, settings } from '../global/settings';
 import { capitalise } from '../global/utils';
 import { Bar } from '../Bar';
@@ -61,7 +66,7 @@ export interface UIState {
   selectedBar: Bar | null;
   selectedNotes: Note[];
   showingPageNumbers: boolean;
-  demo: Demo | null;
+  preview: Preview | null;
   isLandscape: boolean;
   currentMenu: Menu;
   docs: string | null;
@@ -71,11 +76,11 @@ export interface UIState {
 
 export default function render(state: UIState): m.Children {
   const isCurrentNoteInput = (length: NoteLength) =>
-    state.demo instanceof DemoNote &&
-    sameNoteLengthName(state.demo.length(), length);
+    state.preview instanceof NotePreview &&
+    sameNoteLengthName(state.preview.length(), length);
 
   const inputtingNatural =
-    state.demo instanceof DemoNote && state.demo.natural();
+    state.preview instanceof NotePreview && state.preview.natural();
 
   const allNotes = (pred: (note: Note) => boolean) =>
     state.selectedNotes.length > 0 && state.selectedNotes.every(pred);
@@ -95,7 +100,8 @@ export default function render(state: UIState): m.Children {
     );
 
   const isGracenoteInput = (name: string) =>
-    state.demo instanceof DemoReactive && state.demo.isInputting(name);
+    state.preview instanceof ReactiveGracenotePreview &&
+    state.preview.isInputting(name);
 
   const isSelectedGracenote = (name: string) =>
     state.selectedGracenote instanceof ReactiveGracenote &&
@@ -158,8 +164,8 @@ export default function render(state: UIState): m.Children {
             'button[id=toggle-dotted]',
             {
               class:
-                (state.demo instanceof DemoNote &&
-                  dotted(state.demo.length())) ||
+                (state.preview instanceof NotePreview &&
+                  dotted(state.preview.length())) ||
                 allNotes((note) => dotted(note.lengthForInput()))
                   ? 'highlighted'
                   : 'not-highlighted',
@@ -183,7 +189,7 @@ export default function render(state: UIState): m.Children {
           'natural',
           m('button[id=natural]', {
             class:
-              inputtingNatural || (!state.demo && naturalAlready)
+              inputtingNatural || (!state.preview && naturalAlready)
                 ? 'highlighted'
                 : 'not-highlighted',
             onclick: () => dispatch(toggleNatural()),
@@ -201,7 +207,7 @@ export default function render(state: UIState): m.Children {
           'single',
           m('button', {
             class:
-              state.demo instanceof DemoGracenote ||
+              state.preview instanceof SingleGracenotePreview ||
               state.selectedGracenote instanceof SingleGracenote
                 ? 'highlighted'
                 : 'not-highlighted',

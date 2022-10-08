@@ -7,7 +7,7 @@ import { State } from '../State';
 import { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
 import { Score } from '../Score';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
-import { DemoGracenote, DemoReactive } from '../DemoNote';
+import { SingleGracenotePreview, ReactiveGracenotePreview } from '../Preview';
 
 export function changeGracenoteFrom(
   oldGracenote: Gracenote,
@@ -38,11 +38,11 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
       return Update.ShouldSave;
     } else {
       stopInputtingNotes(state);
-      state.demo =
+      state.preview =
         newGracenote instanceof SingleGracenote
-          ? new DemoGracenote()
+          ? new SingleGracenotePreview()
           : newGracenote instanceof ReactiveGracenote && value
-          ? new DemoReactive(value)
+          ? new ReactiveGracenotePreview(value)
           : null;
       return Update.ViewChanged;
     }

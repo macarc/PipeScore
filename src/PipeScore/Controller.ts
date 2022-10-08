@@ -24,7 +24,7 @@ const state: State = {
   isLoggedIn: false,
   justClickedNote: false,
   justAddedNote: false,
-  demo: null,
+  preview: null,
   playback: { bpm: 80 },
   ui: { menu: 'note' },
   doc: { show: true, current: null },
@@ -84,14 +84,14 @@ function redraw() {
             (state.selection instanceof TripletLineSelection &&
               state.selection.selected) ||
             null,
-          inputtingNotes: state.demo !== null,
+          inputtingNotes: state.preview !== null,
         },
         gracenoteState:
           state.selection instanceof GracenoteSelection
             ? state.selection.state()
             : emptyGracenoteState,
         selection: state.selection,
-        demoNote: state.demo,
+        preview: state.preview,
       })
     );
 
@@ -101,7 +101,7 @@ function redraw() {
       renderUI({
         loggedIn: state.isLoggedIn,
         zoomLevel: state.score.zoom,
-        demo: state.demo,
+        preview: state.preview,
         showingPageNumbers: state.score.showNumberOfPages,
         selectedNotes:
           state.selection instanceof ScoreSelection
@@ -129,7 +129,7 @@ function redraw() {
 
 // The callback that occurs on mouse move
 // - registers a mouse dragged event if the mouse button is held down
-// - moves demo note (if necessary)
+// - moves preview note (if necessary)
 function mouseMove(event: MouseEvent) {
   const mouseButtonIsDown = event.buttons === 1;
   if (mouseButtonIsDown) {

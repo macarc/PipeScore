@@ -9,7 +9,7 @@ import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import m from 'mithril';
 import { clickBackground, mouseOffPitch, mouseUp } from '../Events/Mouse';
-import { Demo } from '../DemoNote';
+import { Preview } from '../Preview';
 import { NoteState } from '../Note/state';
 import { Update } from '../Events/common';
 import { ScoreSelection, Selection } from '../Selection';
@@ -26,7 +26,7 @@ interface ScoreProps {
   selection: Selection | null;
   justAddedNote: boolean;
   noteState: NoteState;
-  demoNote: Demo | null;
+  preview: Preview | null;
   gracenoteState: GracenoteState;
 }
 export class Score {

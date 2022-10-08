@@ -30,7 +30,7 @@ import { noteBoxes } from '../global/noteboxes';
 import { PlaybackElement } from '../Playback';
 import { settings } from '../global/settings';
 import { dispatch } from '../Controller';
-import { Previewable } from '../DemoNote/previewable';
+import { Previews } from '../Preview/previews';
 
 export interface PreviousNote {
   pitch: Pitch;
@@ -263,7 +263,7 @@ export abstract class BaseNote extends Item {
   }
 }
 
-export class SingleNote extends BaseNote implements Previewable<Gracenote> {
+export class SingleNote extends BaseNote implements Previews<Gracenote> {
   private pitch: Pitch;
   private gracenote: Gracenote;
   private hasNatural: boolean;
@@ -335,14 +335,14 @@ export class SingleNote extends BaseNote implements Previewable<Gracenote> {
   public removePreview() {
     this.previewGracenote = null;
   }
-  public isDemo() {
+  public isPreview() {
     return this.preview;
   }
-  public unDemo() {
+  public makeUnPreview() {
     this.preview = false;
     return this;
   }
-  public demo() {
+  public makePreview() {
     this.preview = true;
     return this;
   }
@@ -524,7 +524,7 @@ export class SingleNote extends BaseNote implements Previewable<Gracenote> {
     });
   }
   private shouldTie(previous: SingleNote | null): previous is SingleNote {
-    return this.tied && !this.isDemo() && !previous?.isDemo();
+    return this.tied && !this.isPreview() && !previous?.isPreview();
   }
   private colour() {
     return this.preview ? 'orange' : 'black';
@@ -566,7 +566,7 @@ export class SingleNote extends BaseNote implements Previewable<Gracenote> {
     const drawNoteBox = !(
       props.state.dragged ||
       props.gracenoteState.dragged ||
-      this.isDemo()
+      this.isPreview()
     );
     const pointerEvents = drawNoteBox ? 'visiblePainted' : 'none';
 
@@ -772,7 +772,7 @@ export class SingleNote extends BaseNote implements Previewable<Gracenote> {
     const noteBoxWidth = (getXY(this.id)?.afterX || 0) - noteBoxStart;
 
     return m('g[class=singleton]', [
-      props.state.inputtingNotes && !this.isDemo()
+      props.state.inputtingNotes && !this.isPreview()
         ? noteBoxes(
             noteBoxStart,
             props.y,
@@ -896,7 +896,7 @@ export class SingleNote extends BaseNote implements Previewable<Gracenote> {
         };
 
         return m('g', { class: `grouped-note ${note.pitch}` }, [
-          props.state.inputtingNotes && !note.isDemo()
+          props.state.inputtingNotes && !note.isPreview()
             ? noteBoxes(
                 noteBoxX,
                 props.y,
@@ -973,7 +973,7 @@ export class Triplet extends BaseNote {
     super(length);
     this._notes = [first, second, third];
   }
-  public isDemo() {
+  public isPreview() {
     return false;
   }
   public copy() {
