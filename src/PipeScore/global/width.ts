@@ -34,6 +34,10 @@ function init(min: number, extend: number): Width {
   return { min, extend };
 }
 
+function constant(width: number): Width {
+  return init(width, 0);
+}
+
 function addAll(...widths: Width[]): Width {
   return widths.reduce(add, zero());
 }
@@ -65,6 +69,7 @@ function zero(): Width {
 
 export default {
   init,
+  constant,
   add,
   addAll,
   mul,

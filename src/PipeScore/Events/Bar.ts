@@ -16,7 +16,6 @@
 
 import {
   ScoreEvent,
-  noteLocation,
   Update,
   stopInputtingNotes,
   addToSelection,
@@ -112,7 +111,7 @@ export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
 export function setBarline(which: 'start' | 'end', what: Barline): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar } = noteLocation(state.selection.start, state.score);
+      const { bar } = state.score.location(state.selection.start);
       bar.setBarline(which, what);
       return Update.ShouldSave;
     }
@@ -124,7 +123,7 @@ export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     const bar =
       state.selection instanceof ScoreSelection
-        ? noteLocation(state.selection.start, state.score).bar
+        ? state.score.location(state.selection.start).bar
         : state.score.bars()[0];
 
     if (bar) {

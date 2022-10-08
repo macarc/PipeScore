@@ -25,7 +25,7 @@
 import { Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
 import { ReactiveGracenote, SingleGracenote } from '../Gracenote';
-import { Note, SingleNote } from '../Note';
+import { Note } from '../Note';
 import { dot, NoteLength } from '../Note/notelength';
 import { Previews } from './previews';
 
@@ -35,7 +35,7 @@ export interface Preview {
   // Returns true if the location changed
   setLocation(bar: Bar, noteAfter: Note | null): boolean;
   stop(): void;
-  makeReal(notes: SingleNote[]): void;
+  makeReal(notes: Note[]): void;
   justAdded(): boolean;
 }
 
@@ -54,10 +54,10 @@ export interface Preview {
 abstract class BasePreview<U> implements Preview {
   protected _pitch: Pitch | null = null;
   protected bar: Bar | null = null;
-  protected noteAfter: SingleNote | null = null;
+  protected noteAfter: Note | null = null;
   protected justMadeReal = false;
 
-  setLocation(bar: Bar, noteAfter: SingleNote | null) {
+  setLocation(bar: Bar, noteAfter: Note | null) {
     if (bar !== this.bar || noteAfter !== this.noteAfter) {
       this.parent()?.removePreview();
       this.bar = bar;
@@ -80,7 +80,7 @@ abstract class BasePreview<U> implements Preview {
   stop() {
     this.parent()?.removePreview();
   }
-  makeReal(notes: SingleNote[]) {
+  makeReal(notes: Note[]) {
     this.parent()?.makePreviewReal(notes);
     this.justMadeReal = true;
   }
@@ -98,7 +98,7 @@ abstract class BasePreview<U> implements Preview {
   protected abstract toPreview(): U | null;
 }
 
-export class NotePreview extends BasePreview<SingleNote> {
+export class NotePreview extends BasePreview<Note> {
   private _length: NoteLength;
   private _natural: boolean;
 
@@ -128,12 +128,7 @@ export class NotePreview extends BasePreview<SingleNote> {
   protected toPreview() {
     return (
       this._pitch &&
-      new SingleNote(
-        this._pitch,
-        this._length,
-        false,
-        this._natural
-      ).makePreview()
+      new Note(this._pitch, this._length, false, this._natural).makePreview()
     );
   }
 }

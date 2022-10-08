@@ -15,9 +15,10 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { TimeSignature } from '../TimeSignature';
-import { BaseNote, Note, NoteProps, SingleNote, Triplet } from '../Note';
+import { NoteProps, Note, Triplet } from '../Note';
+import { BaseNote } from '../Note/base';
 import { genId, ID, Item } from '../global/id';
-import { first, last, nlast, Obj } from '../global/utils';
+import { last, nlast, Obj } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
@@ -46,16 +47,16 @@ interface BarProps {
   gracenoteState: GracenoteState;
 }
 
-export class Bar extends Item implements Previews<SingleNote> {
+export class Bar extends Item implements Previews<Note> {
   private ts: TimeSignature;
-  private notes: Note[];
+  private notes: (Note | Triplet)[];
   private frontBarline: Barline;
   private backBarline: Barline;
 
   public isAnacrusis: boolean;
   public fixedWidth: number | 'auto' = 'auto';
 
-  private previewNote: SingleNote | null = null;
+  private previewNote: Note | null = null;
 
   constructor(timeSignature = new TimeSignature(), isAnacrusis = false) {
     super(genId());
@@ -85,16 +86,15 @@ export class Bar extends Item implements Previews<SingleNote> {
       width: this.fixedWidth,
     };
   }
+  // Replaces timeSignature with newTimeSignature.
+  // It will change the time signature on all bars from
+  // timeSignature onwards, until it hits a bar where
+  // the time signature is different
   public static setTimeSignatureFrom(
     timeSignature: TimeSignature,
     newTimeSignature: TimeSignature,
     bars: Bar[]
   ) {
-    // Replaces timeSignature with newTimeSignature.
-    // It will change the time signature on all bars from
-    // timeSignature onwards, until it hits a bar where
-    // the time signature is different
-
     let atTimeSignature = false;
     for (const bar of bars) {
       if (bar.timeSignature() === timeSignature) {
@@ -133,8 +133,9 @@ export class Bar extends Item implements Previews<SingleNote> {
     let lastWasIt = false;
     for (const bar of bars) {
       if (bar.hasID(id)) lastWasIt = true;
-      for (const note of bar.notes) {
-        if (lastWasIt && !note.isPreview()) return note;
+      for (const note of Triplet.flatten(bar.notes)) {
+        if (note.isPreview()) continue;
+        if (lastWasIt) return note;
         if (note.hasID(id)) lastWasIt = true;
       }
     }
@@ -144,9 +145,10 @@ export class Bar extends Item implements Previews<SingleNote> {
     let prev: Note | null = null;
     for (const bar of bars) {
       if (bar.hasID(id)) return prev;
-      for (const note of bar.notes) {
+      for (const note of Triplet.flatten(bar.notes)) {
+        if (note.isPreview()) continue;
         if (note.hasID(id)) return prev;
-        if (!note.isPreview()) prev = note;
+        prev = note;
       }
     }
     return prev;
@@ -154,7 +156,7 @@ export class Bar extends Item implements Previews<SingleNote> {
   // Puts all the notes in the notes array into the score with the correct bar breaks
   // Does *not* change ids, e.t.c. so notes should already be unique with notes on score
   public static pasteNotes(
-    notes: (Note | 'bar-break')[],
+    notes: (Note | Triplet | 'bar-break')[],
     start: Bar,
     id: ID,
     bars: Bar[]
@@ -193,7 +195,7 @@ export class Bar extends Item implements Previews<SingleNote> {
   public endBarline(barline: Barline) {
     return this.backBarline === barline;
   }
-  public setPreview(note: SingleNote, noteAfter: SingleNote | null) {
+  public setPreview(note: Note, noteAfter: Note | null) {
     if (noteAfter && noteAfter.isPreview()) {
       this.notes.splice(this.notes.indexOf(noteAfter), 1, note);
       this.previewNote = note;
@@ -213,7 +215,7 @@ export class Bar extends Item implements Previews<SingleNote> {
   public hasPreview() {
     return this.previewNote !== null;
   }
-  public makePreviewReal(notes: SingleNote[]) {
+  public makePreviewReal(notes: Note[]) {
     this.previewNote?.makeUnPreview().makeCorrectTie(notes);
     this.previewNote = null;
   }
@@ -231,35 +233,42 @@ export class Bar extends Item implements Previews<SingleNote> {
   public numberOfNotes() {
     return this.notes.length;
   }
-  public firstNote() {
-    const n = first(this.notes);
-    return n && n.firstSingle();
-  }
-  public lastPitch() {
+  private lastPitch() {
     const lastNote = this.lastNote();
-    return lastNote && lastNote.lastPitch();
+    return lastNote && lastNote.pitch();
   }
-  public lastNote() {
-    return last(this.notes);
+  private lastNote() {
+    return last(this.realNotes());
   }
   public previousNote(note: Note) {
     return this.notes[this.notes.indexOf(note) - 1] || null;
   }
+  public realNotes(): Note[] {
+    return Triplet.flatten(this.notes);
+  }
   public insertNote(noteBefore: Note | null, note: Note) {
-    if (noteBefore?.isPreview()) {
-      noteBefore = this.notes[this.notes.indexOf(noteBefore) - 1] || null;
-    }
-    const ind = noteBefore ? this.notes.indexOf(noteBefore) + 1 : 0;
+    let ind = noteBefore
+      ? this.notes.findIndex((note) => note.hasID(noteBefore.id)) + 1
+      : 0;
+    if (noteBefore?.isPreview() && ind > 0) ind -= 1;
+
     this.notes.splice(ind, 0, note);
   }
   public deleteNote(note: Note) {
-    this.notes.splice(this.notes.indexOf(note), 1);
+    let ind = this.notes.findIndex((n) => n.hasID(note.id));
+    const noteToDelete = this.notes[ind];
+    if (noteToDelete instanceof Triplet) {
+      this.unmakeTriplet(noteToDelete);
+      this.deleteNote(note);
+    } else {
+      this.notes.splice(ind, 1);
+    }
   }
-  public makeTriplet(first: SingleNote, second: SingleNote, third: SingleNote) {
+  public makeTriplet(first: Note, second: Note, third: Note) {
     this.notes.splice(
       this.notes.indexOf(first),
       3,
-      SingleNote.toTriplet(first, second, third)
+      Note.toTriplet(first, second, third)
     );
   }
   public unmakeTriplet(tr: Triplet) {
@@ -309,13 +318,17 @@ export class Bar extends Item implements Previews<SingleNote> {
   }
   // Returns an array where the nth item is the offset of the nth note
   // from the start of the bar.
-  private noteOffsets(previousPitch: Pitch | null, notes: Note[]) {
+  private noteOffsets(previousPitch: Pitch | null, notes: (Note | Triplet)[]) {
     const widths = notes.reduce(
       (soFar, n, index) => [
         ...soFar,
         width.add(
           nlast(soFar),
-          n.width(index === 0 ? previousPitch : notes[index - 1].lastPitch())
+          n.width(
+            index === 0
+              ? previousPitch
+              : Triplet.lastNote(notes[index - 1]).pitch()
+          )
         ),
       ],
       [width.zero()]
@@ -324,9 +337,9 @@ export class Bar extends Item implements Previews<SingleNote> {
       widths,
       total: width.addAll(
         nlast(widths),
-        SingleNote.spacerWidth(),
-        notes.length === 1 && notes[0] instanceof SingleNote
-          ? SingleNote.invisibleWidth()
+        Note.spacerWidth(),
+        notes.length === 1 && notes[0] instanceof Note
+          ? Note.invisibleWidth()
           : width.zero()
       ),
     };
@@ -339,7 +352,7 @@ export class Bar extends Item implements Previews<SingleNote> {
       note.play(
         i === 0
           ? previous && previous.lastPitch()
-          : this.notes[i - 1].lastPitch()
+          : Triplet.lastNote(this.notes[i - 1]).pitch()
       )
     );
   }
@@ -354,7 +367,7 @@ export class Bar extends Item implements Previews<SingleNote> {
     const barWidth =
       props.width -
       (hasTimeSignature ? this.ts.width() : 0) -
-      SingleNote.width -
+      Note.width -
       this.frontBarline.width() -
       this.backBarline.width();
     const xAfterTimeSignature =
@@ -363,10 +376,7 @@ export class Bar extends Item implements Previews<SingleNote> {
 
     const actualNotes = this.nonPreviewNotes();
 
-    const groupedNotes = SingleNote.groupNotes(
-      actualNotes,
-      this.ts.beatDivision()
-    );
+    const groupedNotes = Note.groupNotes(actualNotes, this.ts.beatDivision());
 
     const previousNote = props.previousBar && props.previousBar.lastNote();
     const previousPitch = props.previousBar && props.previousBar.lastPitch();
@@ -380,6 +390,7 @@ export class Bar extends Item implements Previews<SingleNote> {
 
     // There are a few special cases to deal with single notes being further
     // forward than they should be.
+    // TODO BUG this is incorrect if the first note is a triplet
     const previewX = this.previewNote
       ? this.notes.length === 1
         ? xAfterBarline - barWidth / 5
@@ -387,11 +398,10 @@ export class Bar extends Item implements Previews<SingleNote> {
         ? this.notes[0] === this.previewNote
           ? xAfterBarline
           : xOf(this.notes.indexOf(this.previewNote)) + beatWidth / 2
-        : xOf(this.notes.indexOf(this.previewNote)) -
-          2 * SingleNote.noteHeadRadius
+        : xOf(this.notes.indexOf(this.previewNote)) - 2 * Note.noteHeadRadius
       : 0;
 
-    const noteProps = (notes: SingleNote[] | Triplet): NoteProps => {
+    const noteProps = (notes: Note[] | Triplet): NoteProps => {
       const firstNote = notes instanceof Triplet ? notes : notes[0];
       const index = actualNotes.indexOf(firstNote);
       return {
@@ -401,7 +411,7 @@ export class Bar extends Item implements Previews<SingleNote> {
         boxToLast: index === 0 ? xAfterBarline : 'lastnote',
         noteWidth: beatWidth,
         previousNote:
-          actualNotes[index - 1]?.lastSingle() || previousNote?.lastSingle(),
+          index === 0 ? previousNote : Triplet.lastNote(actualNotes[index - 1]),
         endOfLastStave: props.endOfLastStave,
         state: props.noteState,
         gracenoteState: props.gracenoteState,
@@ -426,7 +436,7 @@ export class Bar extends Item implements Previews<SingleNote> {
       ...groupedNotes.map((notes) =>
         notes instanceof Triplet
           ? notes.render(noteProps(notes))
-          : SingleNote.renderMultiple(notes, noteProps(notes))
+          : Note.renderMultiple(notes, noteProps(notes))
       ),
       this.previewNote
         ? this.previewNote.render({

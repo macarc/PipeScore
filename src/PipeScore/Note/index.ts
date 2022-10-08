@@ -14,33 +14,28 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  This file contains code for both triplets and single notes
-//  (single notes being non-triplet notes).
-//  TODO: perhaps this could be split up?
+//  Implementations of notes and triplets
 
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
-import { genId, ID, Item } from '../global/id';
 import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
-import { foreach, nfirst, nlast, Obj } from '../global/utils';
-import {
-  dot,
-  dotted,
-  lengthInBeats,
-  NoteLength,
-  sameNoteLengthName,
-} from './notelength';
+import { ID, genId } from '../global/id';
+import { clickTripletLine } from '../Events/Note';
+import { nfirst, nlast, foreach, Obj } from '../global/utils';
+import { NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import m from 'mithril';
-import { NoteState } from './state';
-import { GracenoteState } from '../Gracenote/state';
 import { mouseOffPitch, mouseOverPitch } from '../Events/PitchBoxes';
 import { getXY, setXY } from '../global/xy';
-import { addNoteBefore, clickNote, clickTripletLine } from '../Events/Note';
+import { addNoteBefore, clickNote } from '../Events/Note';
 import { pitchBoxes } from '../PitchBoxes';
-import { PlaybackElement } from '../Playback';
 import { settings } from '../global/settings';
 import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
+
+import { BaseNote, NoteProps } from './base';
+export type { NoteProps } from './base';
+
+export type NoteOrTriplet = Note | Triplet;
 
 export interface PreviousNote {
   pitch: Pitch;
@@ -58,226 +53,11 @@ const dotXOffset = 10;
 const dotRadius = 1.5;
 const normalStemHeight = 30;
 
-export interface NoteProps {
-  x: number;
-  y: number;
-  boxToLast: number | 'lastnote';
-  justAddedNote: boolean;
-  previousNote: SingleNote | null;
-  noteWidth: number;
-  endOfLastStave: number;
-  state: NoteState;
-  gracenoteState: GracenoteState;
-}
-export abstract class BaseNote extends Item {
-  protected length: NoteLength;
-  protected tied: boolean;
-  abstract setGracenote(gracenote: Gracenote): void;
-  abstract addSingleGracenote(gracenote: Pitch, previous: Note | null): void;
-  abstract width(previous: Pitch | null): Width;
-  abstract firstSingle(): SingleNote;
-  abstract lastSingle(): SingleNote;
-  abstract firstPitch(): Pitch;
-  abstract lastPitch(): Pitch;
-  protected abstract setFirstPitch(pitch: Pitch): void;
-  protected abstract setLastPitch(pitch: Pitch): void;
-  abstract play(previous: Pitch | null): PlaybackElement[];
-  abstract toObject(): Obj;
-  abstract render(props: NoteProps): m.Children;
-
-  constructor(length: NoteLength, tied = false) {
-    super(genId());
-    this.length = length;
-    this.tied = tied;
-  }
-  public static noteHeadRadius = noteHeadRadius;
-  public static fromJSON(o: Obj) {
-    let s: Note | null = null;
-    switch (o.notetype) {
-      case 'single':
-        s = SingleNote.fromObject(o.value);
-        break;
-      case 'triplet':
-        s = Triplet.fromObject(o.value);
-        break;
-    }
-    if (s) {
-      s.id = o.id;
-      return s;
-    }
-    throw new Error(`Unrecognised note type ${o.notetype}`);
-  }
-  public toJSON() {
-    if (this instanceof SingleNote) {
-      return {
-        notetype: 'single',
-        id: this.id,
-        value: this.toObject(),
-      };
-    } else if (this instanceof Triplet) {
-      return {
-        notetype: 'triplet',
-        id: this.id,
-        value: this.toObject(),
-      };
-    } else {
-      throw new Error('Unrecognised note type.');
-    }
-  }
-  public isLength(length: NoteLength) {
-    return sameNoteLengthName(this.length, length);
-  }
-  public setLength(length: NoteLength) {
-    this.length = length;
-  }
-  public lengthForInput() {
-    return this.length;
-  }
-  public toggleDot() {
-    return (this.length = dot(this.length));
-  }
-  public toggleTie(notes: SingleNote[]) {
-    this.tied = !this.tied;
-    this.makeCorrectTie(notes);
-  }
-  public isTied() {
-    return this.tied;
-  }
-  public makeCorrectTie(notes: SingleNote[]) {
-    // Corrects the pitches of any notes tied to this note
-
-    for (let i = 0; i < notes.length; i++) {
-      if (notes[i].hasID(this.id)) {
-        let pitch = this.firstPitch();
-        // Work backwards while tied, ensuring all notes
-        // are the same pitch
-        for (
-          let b = i - 1, previousNote = notes[b];
-          b >= 0 && notes[b + 1].tied;
-          b--, previousNote = notes[b]
-        ) {
-          previousNote.setLastPitch(pitch);
-        }
-        pitch = this.lastPitch();
-        // Work forwards while tied, ensuring all notes
-        // are the same pitch
-        if (this instanceof SingleNote) {
-          for (
-            let a = i + 1, nextNote = notes[a];
-            a < notes.length && nextNote.tied;
-            a++, nextNote = notes[a]
-          ) {
-            nextNote.setFirstPitch(pitch);
-          }
-          break;
-        }
-      }
-    }
-  }
-  public copy() {
-    const n = BaseNote.fromJSON(this.toJSON());
-    n.id = genId();
-    return n;
-  }
-  public static flatten(notes: Note[]): SingleNote[] {
-    return notes.flatMap((note) =>
-      note instanceof Triplet ? note.tripletSingleNotes() : note
-    );
-  }
-  public static makeSameLength(notes: SingleNote[]) {
-    notes.forEach((note) => (note.length = notes[0].length));
-  }
-  public static ungroupNotes(notes: Note[][]): Note[] {
-    return ([] as Note[]).concat(...notes);
-  }
-  // Given a list of notes, and a function for finding out how long
-  // each group should be, turns the notes into a set of groups
-  public static groupNotes(
-    notes: Note[],
-    findLengthOfGroup: (i: number) => number
-  ): (SingleNote[] | Triplet)[] {
-    let i = 0;
-    let remainingLength = findLengthOfGroup(i);
-    let currentGroup: SingleNote[] = [];
-    const groupedNotes: (SingleNote[] | Triplet)[] = [];
-
-    function endGroup() {
-      if (currentGroup.length > 0) {
-        groupedNotes.push(currentGroup);
-        currentGroup = [];
-      }
-    }
-    function pushNote(note: SingleNote) {
-      if (note.hasBeam()) {
-        currentGroup.push(note);
-      } else {
-        endGroup();
-        currentGroup.push(note);
-        endGroup();
-      }
-      remainingLength -= note.lengthInBeats();
-    }
-    for (const note of notes) {
-      if (note instanceof Triplet) {
-        endGroup();
-        groupedNotes.push(note);
-      } else {
-        if (remainingLength >= note.lengthInBeats()) {
-          pushNote(note);
-        } else {
-          endGroup();
-          remainingLength = findLengthOfGroup(++i);
-          pushNote(note);
-        }
-      }
-    }
-    endGroup();
-    return groupedNotes;
-  }
-
-  protected numTails() {
-    switch (this.length) {
-      case NoteLength.Semibreve:
-      case NoteLength.DottedMinim:
-      case NoteLength.Minim:
-      case NoteLength.DottedCrotchet:
-      case NoteLength.Crotchet:
-        return 0;
-      case NoteLength.DottedQuaver:
-      case NoteLength.Quaver:
-        return 1;
-      case NoteLength.DottedSemiQuaver:
-      case NoteLength.SemiQuaver:
-        return 2;
-      case NoteLength.DottedDemiSemiQuaver:
-      case NoteLength.DemiSemiQuaver:
-        return 3;
-      case NoteLength.DottedHemiDemiSemiQuaver:
-      case NoteLength.HemiDemiSemiQuaver:
-        return 4;
-    }
-  }
-  protected lengthInBeats(): number {
-    return lengthInBeats(this.length);
-  }
-  protected hasDot() {
-    return dotted(this.length);
-  }
-  protected hasBeam() {
-    return this.lengthInBeats() < 1;
-  }
-  protected isFilled() {
-    return this.lengthInBeats() < 2;
-  }
-  protected hasStem() {
-    return this.length !== NoteLength.Semibreve;
-  }
-}
-
-export class SingleNote extends BaseNote implements Previews<Gracenote> {
-  private pitch: Pitch;
-  private gracenote: Gracenote;
+export class Note extends BaseNote implements Previews<Gracenote> {
+  private _pitch: Pitch;
+  private _gracenote: Gracenote;
   private hasNatural: boolean;
+  private tied: boolean;
 
   private previewGracenote: Gracenote | null;
   private preview = false;
@@ -289,24 +69,26 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
     hasNatural = false,
     gracenote: Gracenote = new NoGracenote()
   ) {
-    super(length, tied);
-    this.pitch = pitch;
-    this.gracenote = gracenote;
+    super(length);
+    this.tied = tied;
+    this._pitch = pitch;
+    this._gracenote = gracenote;
     this.hasNatural = hasNatural;
     this.previewGracenote = null;
   }
   public static width = (noteHeadWidth * 2) / 3;
+  public static noteHeadRadius = noteHeadRadius;
   public static spacerWidth() {
     return width.init(noteHeadWidth, 1);
   }
-  public static totalWidth(notes: SingleNote[], prevNote: Pitch | null): Width {
-    // Finds the total width of the note array in beat widths
+  // Finds the total width of the note array in beat widths
+  public static totalWidth(notes: Note[], prevNote: Pitch | null): Width {
     return notes
-      .map((n, i) => n.width(i === 0 ? prevNote : notes[i - 1].lastPitch()))
+      .map((n, i) => n.width(i === 0 ? prevNote : notes[i - 1]._pitch))
       .reduce(width.add, width.zero());
   }
   public static fromObject(o: Obj) {
-    return new SingleNote(
+    return new Note(
       o.pitch,
       o.length,
       o.tied,
@@ -314,34 +96,60 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
       Gracenote.fromJSON(o.gracenote)
     );
   }
+  public toggleTie(notes: Note[]) {
+    this.tied = !this.tied;
+    this.makeCorrectTie(notes);
+  }
+  public isTied() {
+    return this.tied;
+  }
+  // Corrects the pitches of any notes tied to this note
+  public makeCorrectTie(notes: Note[]) {
+    for (let i = 0; i < notes.length; i++) {
+      if (notes[i].hasID(this.id)) {
+        let pitch = this.pitch();
+        let j = i;
+        // Ensure previous tied notes are the same pitch
+        while (j > 0 && notes[j].tied) notes[--j].setPitch(pitch);
+        j = i + 1;
+        // Ensure subsequent tied notes are the same pitch
+        while (j < notes.length && notes[j].tied) notes[j++].setPitch(pitch);
+        break;
+      }
+    }
+  }
   public toObject() {
     return {
-      pitch: this.pitch,
+      pitch: this._pitch,
       length: this.length,
       tied: this.tied,
       hasNatural: this.hasNatural,
-      gracenote: this.gracenote.toJSON(),
+      gracenote: this._gracenote.toJSON(),
     };
   }
   public hasPreview() {
     return this.previewGracenote !== null;
+  }
+  public pitch() {
+    return this._pitch;
+  }
+  public setPitch(pitch: Pitch) {
+    this._pitch = pitch;
   }
   public makePreviewReal() {
     if (this.previewGracenote) this.setGracenote(this.previewGracenote);
     this.previewGracenote = null;
   }
   public setPreview(gracenote: Gracenote) {
-    if (gracenote instanceof Gracenote) {
-      if (!this.gracenote.equals(gracenote)) {
-        this.previewGracenote = gracenote;
-      } else {
-        this.previewGracenote = null;
-      }
+    // TODO BUG fix creating custom gracenotes from scratch
+    if (!this._gracenote.equals(gracenote)) {
+      this.previewGracenote = gracenote;
+    } else {
+      this.previewGracenote = null;
     }
   }
-  // TODO name this better
-  public gracenoteType(): Gracenote {
-    return this.gracenote;
+  public gracenote(): Gracenote {
+    return this._gracenote;
   }
   public removePreview() {
     this.previewGracenote = null;
@@ -358,15 +166,15 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
     return this;
   }
   public drag(pitch: Pitch) {
-    this.pitch = pitch;
+    this.setPitch(pitch);
     this.hasNatural = false;
   }
   public moveUp() {
-    this.pitch = pitchUp(this.pitch);
+    this.setPitch(pitchUp(this.pitch()));
     this.hasNatural = false;
   }
   public moveDown() {
-    this.pitch = pitchDown(this.pitch);
+    this.setPitch(pitchDown(this.pitch()));
     this.hasNatural = false;
   }
   private widthOfGracenote(prevNote: Pitch | null) {
@@ -374,8 +182,8 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
       ? width.zero()
       : width.init(
           this.previewGracenote
-            ? this.previewGracenote.width(this.pitch, prevNote)
-            : this.gracenote.width(this.pitch, prevNote),
+            ? this.previewGracenote.width(this.pitch(), prevNote)
+            : this._gracenote.width(this.pitch(), prevNote),
           0
         );
   }
@@ -388,42 +196,22 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
     return width.addAll(
       width.init(noteHeadWidth, 1),
       this.shouldDrawNatural()
-        ? width.init(SingleNote.naturalWidth, 0)
+        ? width.constant(Note.naturalWidth)
         : width.zero(),
       this.hasDot()
-        ? width.init(dotXOffset - noteHeadRadius + dotRadius, 0)
+        ? width.constant(dotXOffset - noteHeadRadius + dotRadius)
         : width.zero(),
       this.widthOfGracenote(prevNote)
     );
   }
-  public firstSingle() {
-    return this;
-  }
-  public lastSingle() {
-    return this;
-  }
-  public firstPitch() {
-    return this.pitch;
-  }
-  public setFirstPitch(pitch: Pitch) {
-    this.pitch = pitch;
-    this.hasNatural = false;
-  }
-  public lastPitch() {
-    return this.pitch;
-  }
-  public setLastPitch(pitch: Pitch) {
-    this.pitch = pitch;
-    this.hasNatural = false;
-  }
   public y(staveY: number) {
-    return noteY(staveY, this.pitch);
+    return noteY(staveY, this.pitch());
   }
   public play(previous: Pitch | null) {
     return [
-      ...this.gracenote.play(this.pitch, previous),
+      ...this._gracenote.play(this.pitch(), previous),
       {
-        pitch: this.pitch,
+        pitch: this.pitch(),
         tied: this.tied,
         duration: this.lengthInBeats(),
       },
@@ -442,26 +230,22 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
     }
   }
   public canHaveNatural() {
-    return this.pitch === Pitch.C || this.pitch === Pitch.F;
+    return this.pitch() === Pitch.C || this.pitch() === Pitch.F;
   }
   public setGracenote(grace: Gracenote) {
-    this.gracenote = grace;
+    this._gracenote = grace;
   }
   public addSingleGracenote(grace: Pitch, previous: Note | null = null) {
-    this.gracenote = this.gracenote.addSingle(
+    this._gracenote = this._gracenote.addSingle(
       grace,
-      this.pitch,
-      previous && previous.lastPitch()
+      this.pitch(),
+      previous && previous.pitch()
     );
   }
   public replaceGracenote(g: Gracenote, n: Gracenote) {
-    if (this.gracenote === g) this.gracenote = n;
+    if (this._gracenote === g) this._gracenote = n;
   }
-  public static toTriplet(
-    first: SingleNote,
-    second: SingleNote,
-    third: SingleNote
-  ) {
+  public static toTriplet(first: Note, second: Note, third: Note) {
     return new Triplet(first.length, first, second, third);
   }
   private static beamFrom(
@@ -528,13 +312,13 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
         preview: true,
       });
     }
-    return this.gracenote.render({
+    return this._gracenote.render({
       ...props,
       x: props.x + noteHeadRadius / 2,
       preview: false,
     });
   }
-  private shouldTie(previous: SingleNote | null): previous is SingleNote {
+  private shouldTie(previous: Note | null): previous is Note {
     return this.tied && !this.isPreview() && !previous?.isPreview();
   }
   private colour() {
@@ -562,7 +346,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
 
     const dotted = this.hasDot();
     const dotYOffset = [Pitch.G, Pitch.B, Pitch.D, Pitch.F, Pitch.HA].includes(
-      this.pitch
+      this.pitch()
     )
       ? -3
       : 0;
@@ -622,7 +406,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
             opacity,
           })
         : null,
-      this.pitch === Pitch.HA
+      this.pitch() === Pitch.HA
         ? m('line[class=ledger]', {
             x1: x - 8,
             x2: x + 8,
@@ -651,7 +435,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
     x: number,
     staveY: number,
     noteWidth: number,
-    previousNote: SingleNote,
+    previousNote: Note,
     lastStaveX: number
   ): m.Children {
     // Draws a tie to previousNote
@@ -734,8 +518,8 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
   }
   public render(props: NoteProps): m.Children {
     // Draws a single note
-    const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
-    const naturalWidth = this.shouldDrawNatural() ? SingleNote.naturalWidth : 0;
+    const xOffset = width.reify(Note.spacerWidth(), props.noteWidth);
+    const naturalWidth = this.shouldDrawNatural() ? Note.naturalWidth : 0;
 
     setXY(
       this.id,
@@ -744,7 +528,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
         xOffset +
         naturalWidth +
         width.reify(
-          this.widthOfGracenote(props.previousNote?.lastPitch() || null),
+          this.widthOfGracenote(props.previousNote?.pitch() || null),
           props.noteWidth
         ) +
         noteHeadWidth,
@@ -754,9 +538,9 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
       // can just be props.x since it is the first note
       x: props.x + xOffset + noteHeadRadius,
       y: props.y,
-      thisNote: this.pitch,
+      thisNote: this.pitch(),
       preview: false,
-      previousNote: props.previousNote?.lastPitch() || null,
+      previousNote: props.previousNote?.pitch() || null,
       state: props.gracenoteState,
     };
 
@@ -764,7 +548,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
       props.x +
       xOffset +
       width.reify(
-        this.widthOfGracenote(props.previousNote?.lastPitch() || null),
+        this.widthOfGracenote(props.previousNote?.pitch() || null),
         props.noteWidth
       );
 
@@ -850,36 +634,35 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
         : null,
     ]);
   }
-  public static renderMultiple(notes: SingleNote[], props: NoteProps) {
+  public static renderMultiple(notes: Note[], props: NoteProps) {
     if (notes.length === 0) {
       return m('g');
     } else if (notes.length === 1) {
       return notes[0].render(props);
     }
 
-    const xOffset = width.reify(SingleNote.spacerWidth(), props.noteWidth);
-    const previousPitch = props.previousNote?.lastPitch() || null;
+    const xOffset = width.reify(Note.spacerWidth(), props.noteWidth);
+    const previousPitch = props.previousNote?.pitch() || null;
     const xOfGracenote = (noteIndex: number) =>
       props.x +
       xOffset +
       width.reify(
-        SingleNote.totalWidth(notes.slice(0, noteIndex), previousPitch),
+        Note.totalWidth(notes.slice(0, noteIndex), previousPitch),
         props.noteWidth
       );
     const naturalXOf = (i: number) =>
       xOfGracenote(i) +
       width.reify(
         notes[i].widthOfGracenote(
-          i === 0 ? previousPitch : notes[i - 1].lastPitch()
+          i === 0 ? previousPitch : notes[i - 1].pitch()
         ),
         props.noteWidth
       );
     const xOf = (i: number) =>
-      naturalXOf(i) +
-      (notes[i].shouldDrawNatural() ? SingleNote.naturalWidth : 0);
-    const yOf = (note: SingleNote) => note.y(props.y);
+      naturalXOf(i) + (notes[i].shouldDrawNatural() ? Note.naturalWidth : 0);
+    const yOf = (note: Note) => note.y(props.y);
 
-    const setNoteXY = (note: SingleNote, index: number) =>
+    const setNoteXY = (note: Note, index: number) =>
       setXY(note.id, xOfGracenote(index), xOf(index) + noteHeadWidth, props.y);
 
     const stemY = props.y + settings.lineHeightOf(6);
@@ -898,15 +681,15 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
         const gracenoteProps = {
           x: xOfGracenote(index) + noteHeadRadius, // So that it doesn't overlap the previous note
           y: props.y,
-          thisNote: note.pitch,
+          thisNote: note.pitch(),
           preview: false,
           previousNote:
-            (previousNote && previousNote.lastPitch()) ||
-            (props.previousNote && props.previousNote.lastPitch()),
+            (previousNote && previousNote.pitch()) ||
+            (props.previousNote && props.previousNote.pitch()),
           state: props.gracenoteState,
         };
 
-        return m('g', { class: `grouped-note ${note.pitch}` }, [
+        return m('g', { class: `grouped-note ${note.pitch()}` }, [
           props.state.inputtingNotes && !note.isPreview()
             ? pitchBoxes(
                 noteBoxX,
@@ -944,7 +727,7 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
             : note.renderGracenote(gracenoteProps),
 
           previousNote !== null && index > 0
-            ? SingleNote.beamFrom(
+            ? Note.beamFrom(
                 xOf(index - 1),
                 stemY,
                 xOf(index),
@@ -971,21 +754,11 @@ export class SingleNote extends BaseNote implements Previews<Gracenote> {
 }
 
 export class Triplet extends BaseNote {
-  // It is assumed that _notes always has length >= 1
-  // Whenever notes are deleted, this should be ensured
-  private _notes: [SingleNote, SingleNote, SingleNote];
+  private _notes: [Note, Note, Note];
 
-  constructor(
-    length: NoteLength,
-    first: SingleNote,
-    second: SingleNote,
-    third: SingleNote
-  ) {
+  constructor(length: NoteLength, first: Note, second: Note, third: Note) {
     super(length);
     this._notes = [first, second, third];
-  }
-  public isPreview() {
-    return false;
   }
   public copy() {
     const n = Triplet.fromObject(this.toObject());
@@ -996,17 +769,11 @@ export class Triplet extends BaseNote {
   public static fromObject(o: Obj) {
     return new Triplet(
       o.length,
-      ...(o.notes.map((note: Obj) => SingleNote.fromObject(note)) as [
-        SingleNote,
-        SingleNote,
-        SingleNote
+      ...(o.notes.map((note: Obj) => Note.fromObject(note)) as [
+        Note,
+        Note,
+        Note
       ])
-    );
-  }
-  public hasID(id: ID) {
-    return (
-      super.hasID(id) ||
-      this._notes.reduce<boolean>((acc, n) => acc || n.hasID(id), false)
     );
   }
   public toObject() {
@@ -1014,49 +781,44 @@ export class Triplet extends BaseNote {
       id: this.id,
       notes: this._notes.map((n) => n.toObject()),
       length: this.length,
-      tied: this.tied,
+      tied: this.firstSingle().isTied(), // previously: this.tied,
     };
+  }
+  public hasID(id: ID) {
+    return (
+      super.hasID(id) ||
+      this._notes.reduce<boolean>((acc, n) => acc || n.hasID(id), false)
+    );
   }
   public tripletSingleNotes() {
     return this._notes;
   }
   public width(prevNote: Pitch | null): Width {
-    return SingleNote.totalWidth(this._notes, prevNote);
+    return Note.totalWidth(this._notes, prevNote);
   }
   public firstSingle() {
     return nfirst(this._notes);
   }
-  public firstPitch() {
-    return this.firstSingle().firstPitch();
-  }
-  public setFirstPitch(pitch: Pitch) {
-    this.firstSingle().setFirstPitch(pitch);
-  }
   public lastSingle() {
     return nlast(this._notes);
-  }
-  public lastPitch() {
-    return this.lastSingle().lastPitch();
-  }
-  public setLastPitch(pitch: Pitch) {
-    nlast(this._notes).setLastPitch(pitch);
-  }
-  public setGracenote(g: Gracenote) {
-    this.firstSingle().setGracenote(g);
-  }
-  public addSingleGracenote(g: Pitch, previous: Note | null) {
-    this.firstSingle().addSingleGracenote(g, previous);
-  }
-  public natural() {
-    return this._notes.every((note) => note.natural());
   }
   public play(previous: Pitch | null) {
     return this._notes
       .flatMap((n, i) =>
-        n.play(i === 0 ? previous : this._notes[i - 1].lastPitch() || previous)
+        n.play(i === 0 ? previous : this._notes[i - 1].pitch() || previous)
       )
       .map((n) => ({ ...n, duration: (2 / 3) * n.duration }));
   }
+  public static flatten(notes: (Note | Triplet)[]): Note[] {
+    return notes.flatMap((note) =>
+      note instanceof Triplet ? note.tripletSingleNotes() : note
+    );
+  }
+  public static lastNote(note: Note | Triplet): Note {
+    if (note instanceof Triplet) return note.lastSingle();
+    return note;
+  }
+  // Draws a triplet marking from x1,y1 to x2,y2
   private tripletLine(
     staveY: number,
     x1: number,
@@ -1065,8 +827,6 @@ export class Triplet extends BaseNote {
     y2: number,
     selected: boolean
   ): m.Children {
-    // Draws a triplet marking from x1,y1 to x2,y2
-
     const midx = x1 + (x2 - x1) / 2;
     const height = 40;
     const midy = staveY - height;
@@ -1091,10 +851,9 @@ export class Triplet extends BaseNote {
     ]);
   }
   public render(props: NoteProps) {
-    // Draws a triplet
-    SingleNote.makeSameLength(this._notes);
+    Note.makeSameLength(this._notes);
 
-    const renderedNotes = SingleNote.renderMultiple(this._notes, props);
+    const renderedNotes = Note.renderMultiple(this._notes, props);
     const line = this.tripletLine(
       props.y,
       getXY(this.firstSingle().id)?.afterX || 0,
@@ -1107,5 +866,3 @@ export class Triplet extends BaseNote {
     return m('g', [renderedNotes, line]);
   }
 }
-
-export type Note = SingleNote | Triplet;

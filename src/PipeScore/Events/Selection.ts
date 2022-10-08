@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update, noteLocation } from './common';
+import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 import { ScoreSelection } from '../Selection/score_selection';
 import { Bar } from '../Bar';
@@ -112,12 +112,12 @@ export function copy(): ScoreEvent {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
     const notes = state.selection.notesAndTriplets(state.score);
     if (notes.length > 0) {
-      const { bar: initBar } = noteLocation(notes[0], state.score);
+      const { bar: initBar } = state.score.location(notes[0].id);
       let currentBarId = initBar.id;
 
       state.clipboard = [];
       notes.forEach((note) => {
-        const { bar } = noteLocation(note.id, state.score);
+        const { bar } = state.score.location(note.id);
         if (currentBarId !== bar.id) {
           state.clipboard?.push('bar-break');
           currentBarId = bar.id;
@@ -134,7 +134,7 @@ export function paste(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
       const id = state.selection.end;
-      const { bar } = noteLocation(id, state.score);
+      const { bar } = state.score.location(id);
       Bar.pasteNotes(
         state.clipboard
           .slice()

@@ -17,7 +17,7 @@
 import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 import { Pitch } from '../global/pitch';
-import { SingleNote } from '../Note';
+import { Note } from '../Note';
 import { Bar } from '../Bar';
 
 export function mouseOffPitch(): ScoreEvent {
@@ -29,10 +29,7 @@ export function mouseOffPitch(): ScoreEvent {
   };
 }
 
-export function mouseOverPitch(
-  pitch: Pitch,
-  where: SingleNote | Bar
-): ScoreEvent {
+export function mouseOverPitch(pitch: Pitch, where: Note | Bar): ScoreEvent {
   // This event never returns ShouldSave - if it did, the intermediate steps of
   // dragging a note would be in the history, which we don't want. Instead
   // it should be saved only on mouse up.

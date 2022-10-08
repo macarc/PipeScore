@@ -29,7 +29,7 @@ import m from 'mithril';
 import { Score } from '../Score';
 import { Stave } from '../Stave';
 import { Bar } from '../Bar';
-import { Note, SingleNote, Triplet } from '../Note';
+import { Note, Triplet } from '../Note';
 import { Gracenote } from '../Gracenote';
 
 interface ScoreSelectionProps {
@@ -67,7 +67,7 @@ export class ScoreSelection extends Drags {
           deleteBars = true;
           started = true;
         }
-        for (const note of bar.notesAndTriplets()) {
+        for (const note of bar.realNotes()) {
           if (note.hasID(this.start)) started = true;
           if (started) notesToDelete.push([note, bar]);
           if (note.hasID(this.end)) break all;
@@ -95,14 +95,14 @@ export class ScoreSelection extends Drags {
     return { note: last(notes), bar: score.location(this.end).bar };
   }
   // Get all selected notes and triplets
-  public notesAndTriplets(score: Score): Note[] {
+  public notesAndTriplets(score: Score): (Note | Triplet)[] {
     return this.collectNotes(score, false);
   }
   // Get all selected single notes, including notes
   // that are part of a triplet
-  public notes(score: Score): SingleNote[] {
+  public notes(score: Score): Note[] {
     // When true is passed, this will always be a SingleNote[]
-    return this.collectNotes(score, true) as SingleNote[];
+    return this.collectNotes(score, true) as Note[];
   }
   public bars(score: Score): Bar[] {
     const allBars = score.bars();
@@ -116,7 +116,7 @@ export class ScoreSelection extends Drags {
     return bars;
   }
   public note(score: Score): Note | null {
-    const notes = this.notesAndTriplets(score);
+    const notes = this.notes(score);
     if (notes.length > 0) {
       return notes[0];
     }
@@ -133,7 +133,7 @@ export class ScoreSelection extends Drags {
   public gracenote(score: Score): Gracenote | null {
     const notes = this.notes(score);
     if (notes.length === 1) {
-      return notes[0].gracenoteType();
+      return notes[0].gracenote();
     }
     return null;
   }
@@ -154,19 +154,20 @@ export class ScoreSelection extends Drags {
   }
   private collectNotes(
     score: Score,
-    addSingleNotesInTriplets: boolean
-  ): Note[] {
+    splitUpTriplets: boolean
+  ): (Note | Triplet)[] {
     const bars = score.bars();
     let foundStart = false;
-    const notes: Note[] = [];
+    const notes: (Note | Triplet)[] = [];
     all: for (const bar of bars) {
       if (bar.hasID(this.start)) foundStart = true;
-      const barNotes = addSingleNotesInTriplets
+      const barNotes = splitUpTriplets
         ? Triplet.flatten(bar.notesAndTriplets())
         : bar.notesAndTriplets();
       for (const note of barNotes) {
         if (note.hasID(this.start)) foundStart = true;
-        if (foundStart && !note.isPreview()) notes.push(note);
+        if (foundStart && !(note instanceof Note && note.isPreview()))
+          notes.push(note);
         if (note.hasID(this.end)) break all;
       }
       if (bar.hasID(this.end)) break;

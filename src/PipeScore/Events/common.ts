@@ -17,8 +17,6 @@
 //  Types / functions shared between multiple event handlers.
 
 import { State } from '../State';
-import { Note } from '../Note';
-import { Score } from '../Score';
 import { ID } from '../global/id';
 import { itemBefore } from '../global/xy';
 import { ScoreSelection } from '../Selection';
@@ -29,12 +27,6 @@ export const enum Update {
   NoChange,
   ViewChanged,
   ShouldSave,
-}
-
-// Finds the parent bar and stave of the note passed
-export function noteLocation(note: Note | ID, score: Score) {
-  const id = typeof note === 'number' ? note : note.id;
-  return score.location(id);
 }
 
 export function stopInputtingNotes(state: State) {

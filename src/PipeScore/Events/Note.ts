@@ -16,7 +16,6 @@
 
 import {
   ScoreEvent,
-  noteLocation,
   Update,
   stopInputtingNotes,
   addToSelection,
@@ -29,15 +28,12 @@ import {
   TripletLineSelection,
   GracenoteSelection,
 } from '../Selection';
-import { Note, SingleNote, Triplet } from '../Note';
+import { Note, Triplet } from '../Note';
 import { NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { NotePreview, ReactiveGracenotePreview } from '../Preview';
 import { SingleGracenote } from '../Gracenote';
 
-export function addNoteBefore(
-  pitch: Pitch,
-  noteAfter: Note | Triplet
-): ScoreEvent {
+export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
   return async (state: State) => {
     if (state.preview) {
       state.preview.setLocation(
@@ -60,7 +56,7 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
           ? state.preview.length()
           : state.selection.note(state.score)?.lengthForInput();
       if (length) {
-        const note = new SingleNote(pitch, length);
+        const note = new Note(pitch, length);
         last.bar.insertNote(last.note, note);
         state.selection = new ScoreSelection(note.id, note.id);
         return Update.ShouldSave;
@@ -161,11 +157,11 @@ export function addTriplet(): ScoreEvent {
         const second = selected[1];
         const third = selected[2];
         if (
-          first instanceof SingleNote &&
-          second instanceof SingleNote &&
-          third instanceof SingleNote
+          first instanceof Note &&
+          second instanceof Note &&
+          third instanceof Note
         ) {
-          const { bar } = noteLocation(first, state.score);
+          const { bar } = state.score.location(first.id);
           bar.makeTriplet(first, second, third);
           return Update.ShouldSave;
         }
@@ -173,7 +169,7 @@ export function addTriplet(): ScoreEvent {
         // Remove triplet
         const tr = selected[0];
         if (tr instanceof Triplet) {
-          const { bar } = noteLocation(tr, state.score);
+          const { bar } = state.score.location(tr.id);
           bar.unmakeTriplet(tr);
           return Update.ShouldSave;
         }
@@ -210,7 +206,7 @@ export function clickTripletLine(triplet: Triplet): ScoreEvent {
   };
 }
 
-export function clickNote(note: SingleNote, event: MouseEvent): ScoreEvent {
+export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (state.preview instanceof NotePreview) {
       if (note.isPreview()) {

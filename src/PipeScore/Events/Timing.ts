@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, noteLocation, Update } from './common';
+import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 import { ScoreSelection, TimingSelection } from '../Selection';
 import { SecondTiming, SingleTiming, Timing, TimingPart } from '../Timing';
@@ -22,7 +22,7 @@ import { SecondTiming, SingleTiming, Timing, TimingPart } from '../Timing';
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar } = noteLocation(state.selection.start, state.score);
+      const { bar } = state.score.location(state.selection.start);
       state.score.addTiming(new SingleTiming(bar.id, bar.id));
       return Update.ShouldSave;
     }
@@ -33,7 +33,7 @@ export function addSingleTiming(): ScoreEvent {
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar: start } = noteLocation(state.selection.start, state.score);
+      const { bar: start } = state.score.location(state.selection.start);
       let foundStart = false;
       for (const bar of state.score.bars()) {
         if (foundStart) {
