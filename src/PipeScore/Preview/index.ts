@@ -20,11 +20,7 @@ export interface Preview {
   // Returns true if the pitch changed
   setPitch(pitch: Pitch | null): boolean;
   // Returns true if the location changed
-  setLocation(
-    bar: Bar,
-    noteBefore: Note | null,
-    noteAfter: Note | null
-  ): boolean;
+  setLocation(bar: Bar, noteAfter: Note | null): boolean;
   stop(): void;
   makeReal(notes: SingleNote[]): void;
 }
@@ -32,22 +28,12 @@ export interface Preview {
 abstract class BasePreview<U> implements Preview {
   protected _pitch: Pitch | null = null;
   protected bar: Bar | null = null;
-  protected noteBefore: SingleNote | null = null;
   protected noteAfter: SingleNote | null = null;
 
-  setLocation(
-    bar: Bar,
-    noteBefore: SingleNote | null,
-    noteAfter: SingleNote | null
-  ) {
-    if (
-      bar !== this.bar ||
-      noteBefore !== this.noteBefore ||
-      noteAfter !== this.noteAfter
-    ) {
+  setLocation(bar: Bar, noteAfter: SingleNote | null) {
+    if (bar !== this.bar || noteAfter !== this.noteAfter) {
       this.parent()?.removePreview();
       this.bar = bar;
-      this.noteBefore = noteBefore;
       this.noteAfter = noteAfter;
       this.update();
       return true;

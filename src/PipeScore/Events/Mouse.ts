@@ -47,12 +47,11 @@ export function mouseOverPitch(
     if (state.preview) {
       let viewChanged = false;
       if (where instanceof Bar) {
-        viewChanged ||= state.preview.setLocation(where, null, null);
+        viewChanged ||= state.preview.setLocation(where, null);
         viewChanged ||= state.preview.setPitch(pitch);
       } else {
         viewChanged ||= state.preview.setLocation(
           state.score.location(where.id).bar,
-          state.score.previousNote(where.id),
           where
         );
         viewChanged ||= state.preview.setPitch(pitch);
