@@ -27,7 +27,7 @@ import m from 'mithril';
 import { clickGracenote } from '../Events/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
-import { nlast, Obj } from '../global/utils';
+import { Obj } from '../global/utils';
 import { GracenoteNoteList, noteList, gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 import { dispatch } from '../Controller';
@@ -140,6 +140,7 @@ export abstract class Gracenote {
     beamY: number,
     isValid: boolean,
     isSelected: boolean,
+    isPreview: boolean,
     dragging: boolean,
     index: number
   ): m.Children {
@@ -176,7 +177,7 @@ export abstract class Gracenote {
         y: y - boxHeight / 2,
         width: boxWidth,
         height: boxHeight,
-        'pointer-events': dragging ? 'none' : 'default',
+        'pointer-events': isPreview || dragging ? 'none' : 'default',
         style: `cursor: ${isSelected ? 'normal' : 'pointer'}`,
         opacity: 0,
         onmousedown: () => dispatch(clickGracenote(this, index)),
@@ -210,6 +211,7 @@ export abstract class Gracenote {
         y - height,
         true,
         props.preview || selected,
+        props.preview,
         props.state.dragged !== null,
         0
       ),
@@ -274,6 +276,7 @@ export abstract class Gracenote {
             props.preview ||
               (props.state.selected?.gracenote === this &&
                 (i === props.state.selected?.note || wholeSelected)),
+            props.preview,
             props.state.dragged !== null,
             i
           )
