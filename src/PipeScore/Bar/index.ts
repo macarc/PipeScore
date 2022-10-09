@@ -255,7 +255,7 @@ export class Bar extends Item implements Previews<Note> {
     this._notes.splice(ind, 0, note);
   }
   public deleteNote(note: Note) {
-    let ind = this._notes.findIndex((n) => n.hasID(note.id));
+    const ind = this._notes.findIndex((n) => n.hasID(note.id));
     const noteToDelete = this._notes[ind];
     if (noteToDelete instanceof Triplet) {
       this.unmakeTriplet(noteToDelete);

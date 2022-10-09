@@ -35,6 +35,9 @@ button {
     outline: 1px solid grey;
   }
 }
+input[type='range'] {
+  display: block;
+}
 
 /* top bar */
 #ui {
@@ -53,7 +56,7 @@ button {
     background: white;
     height: 2rem;
     padding: 0;
-         
+
     & > * + * {
       border-left: 1px solid white;
     }
@@ -61,7 +64,7 @@ button {
     button {
       height: 2rem;
       margin: 0;
-      border-radius: .3rem .3rem 0 0;
+      border-radius: 0.3rem 0.3rem 0 0;
       background: #eee;
 
       &:active {
@@ -85,14 +88,16 @@ button {
     #topbar-main {
       flex: 1;
     }
-    #topbar-main, #general-commands {
+    #topbar-main,
+    #general-commands {
       display: flex;
       align-items: stretch;
       gap: 1rem;
       padding: 0.4rem 0rem;
     }
 
-    .text, .twice-width {
+    .text,
+    .twice-width {
       width: 6.4rem !important; /* 2 x normal width (3) + gap between them (0.4) */
       text-align: center;
       word-break: keep-all;
@@ -107,11 +112,7 @@ button {
       padding: 0.2rem 0.3rem;
     }
 
-    input[type='range'] {
-      display: block;
-    }
-
-    button:not(.textual), {
+    button:not(.textual) {
       background-position: center;
       background-size: contain;
       background-repeat: no-repeat;
@@ -120,7 +121,7 @@ button {
       width: 3rem;
       height: 3rem;
     }
-    
+
     .full-width {
       height: 3rem;
       width: auto;
@@ -159,7 +160,6 @@ button {
         gap: 0.3rem;
       }
     }
-
   }
 }
 
@@ -178,7 +178,7 @@ text {
 #browser-size-warning {
   display: none;
 }
-input[type=number] {
+input[type='number'] {
   width: 3rem !important;
 }
 
@@ -193,8 +193,8 @@ input[type=number] {
   padding: 1rem;
   min-height: 4rem;
   white-space: pre-line;
-  
-  input[type=range] {
+
+  input[type='range'] {
     margin-top: 1rem;
   }
 }

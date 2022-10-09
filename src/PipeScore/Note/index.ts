@@ -117,7 +117,7 @@ export class Note
   public makeCorrectTie(notes: Note[]) {
     for (let i = 0; i < notes.length; i++) {
       if (notes[i].hasID(this.id)) {
-        let pitch = this.pitch();
+        const pitch = this.pitch();
         let j = i;
         // Ensure previous tied notes are the same pitch
         while (j > 0 && notes[j].tied) notes[--j].setPitch(pitch);
