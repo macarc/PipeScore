@@ -49,7 +49,7 @@ interface BarProps {
 
 export class Bar extends Item implements Previews<Note> {
   private ts: TimeSignature;
-  private notes: (Note | Triplet)[];
+  private _notes: (Note | Triplet)[];
   private frontBarline: Barline;
   private backBarline: Barline;
 
@@ -61,14 +61,14 @@ export class Bar extends Item implements Previews<Note> {
   constructor(timeSignature = new TimeSignature(), isAnacrusis = false) {
     super(genId());
     this.ts = timeSignature.copy();
-    this.notes = [];
+    this._notes = [];
     this.isAnacrusis = isAnacrusis;
     this.frontBarline = Barline.normal;
     this.backBarline = Barline.normal;
   }
   public static fromJSON(o: Obj) {
     const b = new Bar(TimeSignature.fromJSON(o.timeSignature), o.isAnacrusis);
-    b.notes = o.notes.map(BaseNote.fromJSON);
+    b._notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
     b.fixedWidth = o.width === undefined ? 'auto' : o.width;
     b.backBarline = Barline.fromJSON(o.backBarline);
@@ -114,7 +114,7 @@ export class Bar extends Item implements Previews<Note> {
   public static nextBar(id: ID, bars: Bar[]) {
     for (let i = 0; i < bars.length - 1; i++) {
       if (bars[i].hasID(id)) return bars[i + 1];
-      for (const note of bars[i].notes) {
+      for (const note of bars[i].notesAndTriplets()) {
         if (note.hasID(id)) return bars[i + 1];
       }
     }
@@ -123,7 +123,7 @@ export class Bar extends Item implements Previews<Note> {
   public static previousBar(id: ID, bars: Bar[]) {
     for (let i = 1; i < bars.length; i++) {
       if (bars[i].hasID(id)) return bars[i - 1];
-      for (const note of bars[i].notes) {
+      for (const note of bars[i].notesAndTriplets()) {
         if (note.hasID(id)) return bars[i - 1];
       }
     }
@@ -133,7 +133,7 @@ export class Bar extends Item implements Previews<Note> {
     let lastWasIt = false;
     for (const bar of bars) {
       if (bar.hasID(id)) lastWasIt = true;
-      for (const note of Triplet.flatten(bar.notes)) {
+      for (const note of bar.notes()) {
         if (note.isPreview()) continue;
         if (lastWasIt) return note;
         if (note.hasID(id)) lastWasIt = true;
@@ -145,7 +145,7 @@ export class Bar extends Item implements Previews<Note> {
     let prev: Note | null = null;
     for (const bar of bars) {
       if (bar.hasID(id)) return prev;
-      for (const note of Triplet.flatten(bar.notes)) {
+      for (const note of bar.notes()) {
         if (note.isPreview()) continue;
         if (note.hasID(id)) return prev;
         prev = note;
@@ -168,17 +168,17 @@ export class Bar extends Item implements Previews<Note> {
       if (bar.hasID(start.id)) {
         startedPasting = true;
         onFirst = true;
-        if (bar.hasID(id)) bar.notes = [];
+        if (bar.hasID(id)) bar._notes = [];
       }
       if (startedPasting) {
         // Only delete the current notes if we aren't on the first bar
         // since we should append to the first, then replace for the rest
-        if (!onFirst) bar.notes = [];
+        if (!onFirst) bar._notes = [];
         else onFirst = false;
 
         let currentPastingNote = notes.shift();
         while (currentPastingNote && currentPastingNote !== 'bar-break') {
-          bar.notes.push(currentPastingNote);
+          bar._notes.push(currentPastingNote);
           currentPastingNote = notes.shift();
         }
 
@@ -197,19 +197,19 @@ export class Bar extends Item implements Previews<Note> {
   }
   public setPreview(note: Note, _: Note | null, noteAfter: Note | null) {
     if (noteAfter && noteAfter.isPreview()) {
-      this.notes.splice(this.notes.indexOf(noteAfter), 1, note);
+      this._notes.splice(this._notes.indexOf(noteAfter), 1, note);
       this.previewNote = note;
     } else {
       if (this.previewNote) this.removePreview();
       this.previewNote = note;
 
       if (noteAfter) {
-        let index = this.notes.indexOf(noteAfter);
+        let index = this._notes.indexOf(noteAfter);
         // If it is a note within a triplet, we need to do this
         if (index === -1)
-          index = this.notes.findIndex((note) => note.hasID(noteAfter.id));
-        this.notes.splice(index, 0, this.previewNote);
-      } else this.notes.push(this.previewNote);
+          index = this._notes.findIndex((note) => note.hasID(noteAfter.id));
+        this._notes.splice(index, 0, this.previewNote);
+      } else this._notes.push(this.previewNote);
     }
   }
   public hasPreview() {
@@ -221,71 +221,69 @@ export class Bar extends Item implements Previews<Note> {
   }
   public removePreview() {
     if (this.previewNote)
-      this.notes.splice(this.notes.indexOf(this.previewNote), 1);
+      this._notes.splice(this._notes.indexOf(this.previewNote), 1);
     this.previewNote = null;
   }
   public copy() {
     const b = new Bar(this.ts);
-    b.notes = this.notes; //.map((n) => n.copy());
+    b._notes = this._notes; //.map((n) => n.copy());
     b.frontBarline = this.frontBarline;
     b.backBarline = this.backBarline;
   }
   public numberOfNotes() {
-    return this.notes.length;
+    return this._notes.length;
   }
   private lastPitch() {
     const lastNote = this.lastNote();
     return lastNote && lastNote.pitch();
   }
   public lastNote() {
-    return last(this.realNotes());
+    return last(this.notes());
   }
   public previousNote(note: Note) {
-    return this.notes[this.notes.indexOf(note) - 1] || null;
+    return this._notes[this._notes.indexOf(note) - 1] || null;
   }
-  public realNotes(): Note[] {
-    return Triplet.flatten(this.notes);
+  public notes(): Note[] {
+    return Triplet.flatten(this._notes);
   }
   public insertNote(noteBefore: Note | null, note: Note) {
     let ind = noteBefore
-      ? this.notes.findIndex((note) => note.hasID(noteBefore.id)) + 1
+      ? this._notes.findIndex((note) => note.hasID(noteBefore.id)) + 1
       : 0;
     if (noteBefore?.isPreview() && ind > 0) ind -= 1;
 
-    this.notes.splice(ind, 0, note);
+    this._notes.splice(ind, 0, note);
   }
   public deleteNote(note: Note) {
-    let ind = this.notes.findIndex((n) => n.hasID(note.id));
-    const noteToDelete = this.notes[ind];
+    let ind = this._notes.findIndex((n) => n.hasID(note.id));
+    const noteToDelete = this._notes[ind];
     if (noteToDelete instanceof Triplet) {
       this.unmakeTriplet(noteToDelete);
       this.deleteNote(note);
     } else {
-      this.notes.splice(ind, 1);
+      this._notes.splice(ind, 1);
     }
   }
   public makeTriplet(first: Note, second: Note, third: Note) {
-    this.notes.splice(
-      this.notes.indexOf(first),
+    this._notes.splice(
+      this._notes.indexOf(first),
       3,
       Note.toTriplet(first, second, third)
     );
   }
   public unmakeTriplet(tr: Triplet) {
-    this.notes.splice(this.notes.indexOf(tr), 1, ...tr.tripletSingleNotes());
+    this._notes.splice(this._notes.indexOf(tr), 1, ...tr.tripletSingleNotes());
   }
   public includesNote(id: ID) {
-    for (const note of this.notes) {
+    for (const note of this.notesAndTriplets()) {
       if (note.hasID(id)) {
         return true;
       }
     }
     return false;
   }
-  // Not ecstatic about this, but it's need to loop over them in ScoreSelection.notesAndTriplets()
-  // Also in allNotesAndTriplets
   public notesAndTriplets() {
-    return this.notes;
+    return this._notes;
   }
   public timeSignature() {
     return this.ts;
@@ -345,14 +343,14 @@ export class Bar extends Item implements Previews<Note> {
     };
   }
   private nonPreviewNotes() {
-    return this.notes.filter((note) => note !== this.previewNote);
+    return this.notesAndTriplets().filter((note) => note !== this.previewNote);
   }
   public play(previous: Bar | null) {
-    return this.notes.flatMap((note, i) =>
+    return this._notes.flatMap((note, i) =>
       note.play(
         i === 0
           ? previous && previous.lastPitch()
-          : Triplet.lastNote(this.notes[i - 1]).pitch()
+          : Triplet.lastNote(this._notes[i - 1]).pitch()
       )
     );
   }
@@ -391,13 +389,13 @@ export class Bar extends Item implements Previews<Note> {
     // There are a few special cases to deal with single notes being further
     // forward than they should be.
     const previewX = this.previewNote
-      ? this.realNotes().length === 1
+      ? this.notes().length === 1
         ? xAfterBarline - barWidth / 5
-        : this.realNotes().length === 2
-        ? this.realNotes()[0] === this.previewNote
+        : this.notes().length === 2
+        ? this.notes()[0] === this.previewNote
           ? xAfterBarline
-          : xOf(this.notes.indexOf(this.previewNote)) + beatWidth / 2
-        : xOf(this.notes.indexOf(this.previewNote)) - 2 * Note.noteHeadRadius
+          : xOf(this._notes.indexOf(this.previewNote)) + beatWidth / 2
+        : xOf(this._notes.indexOf(this.previewNote)) - 2 * Note.noteHeadRadius
       : 0;
 
     const noteProps = (notes: Note[] | Triplet): NoteProps => {

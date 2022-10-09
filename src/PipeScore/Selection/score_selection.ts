@@ -67,7 +67,7 @@ export class ScoreSelection extends Drags {
           deleteBars = true;
           started = true;
         }
-        for (const note of bar.realNotes()) {
+        for (const note of bar.notes()) {
           if (note.hasID(this.start)) started = true;
           if (started) notesToDelete.push([note, bar]);
           if (note.hasID(this.end)) break all;
