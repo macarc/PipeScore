@@ -25,7 +25,8 @@ export default function dialogueBox(
   title: string,
   inner: m.Children[],
   cancelable = true,
-  subtitle = ''
+  subtitle = '',
+  autofocus = true
 ): Promise<HTMLFormElement | null> {
   dialogueBoxIsOpen = true;
   const parent = document.createElement('div');
@@ -72,6 +73,7 @@ export default function dialogueBox(
         ),
       ])
     );
-    (document.querySelector('.continue') as HTMLInputElement | null)?.focus();
+    if (autofocus)
+      (document.querySelector('.continue') as HTMLInputElement | null)?.focus();
   });
 }

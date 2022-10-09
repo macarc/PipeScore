@@ -130,7 +130,7 @@ export abstract class BaseNote extends Item {
           pushNote(note);
         } else {
           endGroup();
-          remainingLength = findLengthOfGroup(++i);
+          remainingLength += findLengthOfGroup(++i);
           pushNote(note);
         }
       }

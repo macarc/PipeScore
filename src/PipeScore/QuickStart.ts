@@ -96,7 +96,8 @@ export default async function blankForm(): Promise<ScoreOptions> {
       ]),
     ],
     false,
-    'These options can be changed later.'
+    'These options can be changed later.',
+    false
   );
   const options = new ScoreOptions();
   if (form) {
