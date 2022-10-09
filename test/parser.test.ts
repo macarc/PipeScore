@@ -188,15 +188,10 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("it can parse a whole stave", () => {
+    test("it can parse a single bar", () => {
         expect(
             parser.parse(`
-            & sharpf sharpc 4_4
-            E_8
-            !		gg LA_4			tar LAr_8 'la Bl_16		dbc Cr_8 eg LAl_8	dbc Cr_8 El_8
-            !		dbha HA_4		strhg HA_4			grp HAr_8 El_8	dbc Cr_8 eg LAl_8
-            !		thrd D_4			gg Fr_8 'f Dl_16		dbc Cr_8 El_8		dbc Cr_8 eg LAl_8
-            !		grp B_4			dbe E_4				strla Er_8 'e Fl_16	gg Er_16 'e Dl_32 gg Cr_16 'c Bl_32	!t
+            & sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 !I
             `)
         ).toStrictEqual({
             name: "",
@@ -211,9 +206,34 @@ describe("correctly parses score body", () => {
                         },
                     },
                     bars: [
-                        // {
-                        //     notes: [],
-                        // },
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {},
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {},
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {},
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {},
+                                },
+                            ],
+                        },
                     ],
                 },
             ],

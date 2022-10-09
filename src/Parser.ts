@@ -70,16 +70,63 @@ export default class Parser {
         let staves = [];
 
         const token = this.eat(TokenType.CLEF);
+        const key = this.KeySignature();
+        const time = this.TimeSignature();
 
+        if (this.lookahead?.type !== TokenType.PART_BEGINNING) {
+            staves.push({
+                clef: {
+                    key: key,
+                    time: time,
+                },
+                bars: [],
+            });
+
+            return staves;
+        }
+
+        this.eat(TokenType.PART_BEGINNING);
+        const bars = this.Bars();
         staves.push({
             clef: {
-                key: this.KeySignature(),
-                time: this.TimeSignature(),
+                key: key,
+                time: time,
             },
-            bars: [],
+            bars: bars,
         });
+        // this.eat(TokenType.PART_BEGINNING);
 
         return staves;
+    }
+
+    Bars() {
+        const bars = [];
+        bars.push(this.Bar());
+
+        return bars;
+    }
+
+    Bar() {
+        const notes = [];
+
+        while (this.lookahead?.type === TokenType.MELODY_NOTE) {
+            notes.push(this.Note());
+        }
+
+        return {
+            notes: notes,
+        };
+    }
+
+    Note() {
+        const token = this.eat(TokenType.MELODY_NOTE);
+
+        return {
+            length: token.value[3],
+            pitch: token.value[1],
+            tied: false,
+            gracenote: {},
+        };
     }
 
     KeySignature() {

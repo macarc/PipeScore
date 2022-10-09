@@ -46,16 +46,32 @@ const Spec: SpecType[] = [
         type: TokenType.CLEF,
     },
     {
+        regex: /^I!/,
+        type: TokenType.PART_BEGINNING,
+    },
+    {
+        regex: /^!I/,
+        type: TokenType.PART_END,
+    },
+    {
         regex: /^((?:sharp|flat)(?:lg|la|b|c|d|e|f|g|a))/,
         type: TokenType.KEY_SIGNATURE,
     },
     {
-        regex: /^(?:(\d)_(\d))|(C_)|(C)/,
+        regex: /^((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})/,
+        type: TokenType.MELODY_NOTE,
+    },
+    {
+        regex: /^(?:(\d)_(\d))|^(C_)|^(C)/,
         type: TokenType.TIME_SIGNATURE,
     },
     {
-        regex: /((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})/,
-        type: TokenType.MELODY_NOTE,
+        regex: /^REST_(\d{1,2})/,
+        type: TokenType.REST,
+    },
+    {
+        regex: /^'{1,2}((?:lg)|(?:la)|[bcdef]|(?:hg)|(?:ha))/,
+        type: TokenType.DOTTED_NOTE,
     },
 ];
 
