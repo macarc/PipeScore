@@ -81,7 +81,7 @@ export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
 export function moveNoteUp(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof GracenoteSelection) {
-      state.selection.moveUp();
+      state.selection.moveUp(state.score);
       return Update.ShouldSave;
     } else if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
@@ -99,7 +99,7 @@ export function moveNoteUp(): ScoreEvent {
 export function moveNoteDown(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof GracenoteSelection) {
-      state.selection.moveDown();
+      state.selection.moveDown(state.score);
       return Update.ShouldSave;
     } else if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();

@@ -88,6 +88,16 @@ export abstract class Gracenote {
       return new ReactiveGracenote(name);
     }
   }
+  moveUp(index: number) {
+    const pitch = this.notes()[index];
+    if (pitch) return this.drag(pitchUp(pitch), index);
+    return null;
+  }
+  moveDown(index: number) {
+    const pitch = this.notes()[index];
+    if (pitch) return this.drag(pitchDown(pitch), index);
+    return null;
+  }
   equals(other: Gracenote) {
     return this.type === other.type;
   }
@@ -303,12 +313,6 @@ export class SingleGracenote extends Gracenote {
   }
   copy() {
     return new SingleGracenote(this.note);
-  }
-  moveUp() {
-    this.note = pitchUp(this.note);
-  }
-  moveDown() {
-    this.note = pitchDown(this.note);
   }
   drag(pitch: Pitch) {
     if (this.note != pitch) {

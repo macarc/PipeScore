@@ -17,6 +17,7 @@
 import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 import { ScoreSelection } from '../Selection/score_selection';
+import { GracenoteSelection } from '../Selection';
 import { Bar } from '../Bar';
 
 export function moveLeft(): ScoreEvent {
@@ -27,6 +28,9 @@ export function moveLeft(): ScoreEvent {
         state.selection = new ScoreSelection(prev.id, prev.id);
         return Update.ViewChanged;
       }
+    } else if (state.selection instanceof GracenoteSelection) {
+      state.selection.previousNote();
+      return Update.ViewChanged;
     }
     return Update.NoChange;
   };
@@ -40,6 +44,9 @@ export function moveRight(): ScoreEvent {
         state.selection = new ScoreSelection(next.id, next.id);
         return Update.ViewChanged;
       }
+    } else if (state.selection instanceof GracenoteSelection) {
+      state.selection.nextNote();
+      return Update.ViewChanged;
     }
     return Update.NoChange;
   };

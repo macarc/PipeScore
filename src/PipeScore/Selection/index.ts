@@ -112,16 +112,24 @@ export class GracenoteSelection extends Drags {
       this.changeGracenote(dragged, score);
     }
   }
-  public moveUp() {
-    this.single()?.moveUp();
+  public moveUp(score: Score) {
+    if (this.note !== 'all') {
+      const changed = this.selected.moveUp(this.note);
+      if (changed) this.changeGracenote(changed, score);
+    }
   }
-  public moveDown() {
-    this.single()?.moveDown();
+  public moveDown(score: Score) {
+    if (this.note !== 'all') {
+      const changed = this.selected.moveDown(this.note);
+      if (changed) this.changeGracenote(changed, score);
+    }
   }
-  private single(): SingleGracenote | null {
-    if (this.selected instanceof SingleGracenote) return this.selected;
-
-    return null;
+  public nextNote() {
+    if (this.note !== 'all' && this.note < this.selected.notes().length - 1)
+      this.note++;
+  }
+  public previousNote() {
+    if (this.note !== 'all' && this.note > 0) this.note--;
   }
   public gracenote() {
     return this.selected;
