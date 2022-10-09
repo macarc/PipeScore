@@ -8,6 +8,11 @@ firebase-debug.log
 
 public/*.html
 public/styles
+
+plus.svg
+minus.svg
+natural.svg
+
 *.wav
 dist
 icons

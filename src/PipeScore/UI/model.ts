@@ -18,6 +18,7 @@ export type Menu =
   | 'note'
   | 'gracenote'
   | 'bar'
+  | 'second_timing'
   | 'stave'
   | 'text'
   | 'playback'

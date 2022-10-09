@@ -78,7 +78,7 @@ function redraw() {
   needsRedrawn = false;
 
   const scoreRoot = document.getElementById('score');
-  const uiRoot = document.getElementById('ui');
+  const uiRoot = document.getElementById('interface');
   if (!scoreRoot || !uiRoot) return;
 
   if (state.view.score)
@@ -170,7 +170,7 @@ export default function startController(
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
   // initially set the notes to be the right groupings
   state.view.score = document.getElementById('score');
-  state.view.ui = document.getElementById('ui');
+  state.view.ui = document.getElementById('interface');
   save(state.score);
   updateView();
 }

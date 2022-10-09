@@ -14,16 +14,24 @@ hmid = 50
 vmid = 50
 
 
-## PLUS icon
 line_length = 40
 
+def add_horizontal_line(doc):
+    doc.add(doc.line(
+        start=(hmid-line_length, vmid),
+        end=(hmid+line_length, vmid),
+        stroke="black",
+        stroke_width=5
+        ))
+
+## MINUS icon
+doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/minus.svg', size=(width,height))
+add_horizontal_line(doc)
+doc.save()
+
+## PLUS icon
 doc = svgwrite.Drawing(filename=os.getcwd() + '/public/images/plus.svg', size=(width,height))
-doc.add(doc.line(
-    start=(hmid-line_length, vmid),
-    end=(hmid+line_length, vmid),
-    stroke="black",
-    stroke_width=5
-    ))
+add_horizontal_line(doc)
 doc.add(doc.line(
     start=(hmid,vmid-line_length),
     end=(hmid,vmid+line_length),

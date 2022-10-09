@@ -1,0 +1,67 @@
+#dialogue-parent {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: scroll;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+#dialogue-box {
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%, max(-60%, -50vh));
+  padding: 2rem;
+  background: white;
+  width: 75vw;
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .sections {
+    margin: 1rem 0;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+
+    section {
+      display: inline;
+      flex-grow: 1;
+      background: lightgrey;
+      padding: 1.5rem;
+
+      input:not([type='checkbox']) {
+        display: block;
+      }
+      label {
+        display: block;
+        margin: 1rem 0;
+      }
+      summary {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  * {
+    font-size: 1.1rem;
+  }
+  input {
+    display: block;
+
+    &.cancel {
+      margin-right: 1rem;
+      display: inline;
+    }
+    &.continue {
+      display: inline;
+    }
+    &[type='checkbox'] {
+      display: inline;
+      margin-right: 1rem;
+    }
+  }
+}

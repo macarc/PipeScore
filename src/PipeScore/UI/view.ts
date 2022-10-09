@@ -156,8 +156,8 @@ export default function render(state: UIState): m.Children {
 
   const noteMenu = [
     m('section', [
-      m('h2', 'Input Notes'),
-      m('div.section-content.note-inputs', [
+      m('h2', 'Add Notes'),
+      m('div.section-content', [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
         noteInputButton(NoteLength.Crotchet),
@@ -213,7 +213,7 @@ export default function render(state: UIState): m.Children {
 
   const gracenoteMenu = [
     m('section', [
-      m('h2', 'Add Gracenote'),
+      m('h2', 'Add Gracenotes'),
       m('div.section-content', [
         help(
           'single',
@@ -265,7 +265,7 @@ export default function render(state: UIState): m.Children {
             ),
         })
       ),
-      m('select', { id: `${which}-add-where`, class: 'fit-nicely' }, [
+      m('select.full-width', { id: `${which}-add-where` }, [
         m('option', { name: `add-${which}`, value: 'before' }, 'before'),
         m('option', { name: `add-${which}`, value: 'after' }, 'after'),
       ]),
@@ -285,13 +285,13 @@ export default function render(state: UIState): m.Children {
 
   const barMenu = [
     m('section', [
-      m('h2', 'Bar'),
+      m('h2', 'Add Bars'),
       m('div.section-content', addBarOrAnacrusis('bar')),
     ]),
     m('section', [
       m('h2', { style: 'display: inline' }, 'Bar lines'),
-      m('div.section-content.flex', [
-        m('div', [
+      m('div.section-content.vertical', [
+        m('div.horizontal', [
           m('label', 'Start:'),
           help(
             'normal barline',
@@ -328,8 +328,8 @@ export default function render(state: UIState): m.Children {
             )
           ),
         ]),
-        m('div', [
-          m('label', 'End: '),
+        m('div.horizontal', [
+          m('label', 'End:  '),
           help(
             'normal barline',
             m(
@@ -368,29 +368,12 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Lead In'),
+      m('h2', 'Add Lead In'),
       m('div.section-content', addBarOrAnacrusis('anacrusis')),
     ]),
     m('section', [
-      m('h2', 'Second Timing'),
-      m('div.section-content', [
-        help(
-          'second timing',
-          m(
-            'button',
-            { onclick: () => dispatch(addSecondTiming()) },
-            '1st/ 2nd'
-          )
-        ),
-        help(
-          'single timing',
-          m('button', { onclick: () => dispatch(addSingleTiming()) }, '2nd')
-        ),
-      ]),
-    ]),
-    m('section', [
       m('h2', 'Other options'),
-      m('div.section-content.flex', [
+      m('div.section-content.vertical', [
         help(
           'edit bar time signature',
           m(
@@ -411,9 +394,29 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
+  const secondTimingMenu = [
+    m('section', [
+      m('h2', 'Add Second Timings'),
+      m('div.section-content', [
+        help(
+          'second timing',
+          m(
+            'button',
+            { onclick: () => dispatch(addSecondTiming()) },
+            '1st/ 2nd'
+          )
+        ),
+        help(
+          'single timing',
+          m('button', { onclick: () => dispatch(addSingleTiming()) }, '2nd')
+        ),
+      ]),
+    ]),
+  ];
+
   const staveMenu = [
     m('section', [
-      m('h2', 'Stave'),
+      m('h2', 'Add Staves'),
       m('div.section-content', [
         help(
           'add stave before',
@@ -437,7 +440,7 @@ export default function render(state: UIState): m.Children {
 
   const textMenu = [
     m('section', [
-      m('h2', 'Text'),
+      m('h2', 'Add Text Boxes'),
       m('div.section-content', [
         help(
           'add text',
@@ -461,19 +464,11 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', [
         help(
           'play',
-          m(
-            'button.textual',
-            { onclick: () => dispatch(startPlayback()) },
-            'Play'
-          )
+          m('button', { onclick: () => dispatch(startPlayback()) }, 'Play')
         ),
         help(
           'stop',
-          m(
-            'button.textual',
-            { onclick: () => dispatch(stopPlayback()) },
-            'Stop'
-          )
+          m('button', { onclick: () => dispatch(stopPlayback()) }, 'Stop')
         ),
         help(
           'playback speed',
@@ -496,30 +491,27 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
-  const setting = <T extends keyof Settings>(property: T, name: string) => [
-    m('label', name),
-    m('input', {
-      type: 'number',
-      value: settings[property].toString(),
-      oninput: (e: InputEvent) =>
-        dispatch(changeSetting(property, e.target as HTMLInputElement)),
-    }),
-  ];
+  const setting = <T extends keyof Settings>(property: T, name: string) =>
+    m('div.horizontal', [
+      m('label', name + ': '),
+      m('input', {
+        type: 'number',
+        value: settings[property].toString(),
+        oninput: (e: InputEvent) =>
+          dispatch(changeSetting(property, e.target as HTMLInputElement)),
+      }),
+    ]);
   const documentMenu = [
     m('section', [
       m('h2', 'Pages'),
       m('div.section-content', [
         help(
           'add-page',
-          m('button.textual', { onclick: () => dispatch(addPage()) }, 'Add')
+          m('button.add', { onclick: () => dispatch(addPage()) })
         ),
         help(
           'remove-page',
-          m(
-            'button.textual',
-            { onclick: () => dispatch(removePage()) },
-            'Remove'
-          )
+          m('button.remove', { onclick: () => dispatch(removePage()) })
         ),
       ]),
     ]),
@@ -531,7 +523,8 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class: 'textual' + (state.isLandscape ? ' highlighted' : ''),
+              class:
+                'text double-width' + (state.isLandscape ? ' highlighted' : ''),
               onclick: () => dispatch(landscape()),
             },
             'Landscape'
@@ -542,7 +535,8 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class: 'textual' + (state.isLandscape ? '' : ' highlighted'),
+              class:
+                'text double-width' + (state.isLandscape ? '' : ' highlighted'),
               onclick: () => dispatch(portrait()),
             },
             'Portrait'
@@ -573,7 +567,7 @@ export default function render(state: UIState): m.Children {
         help(
           'print',
           m(
-            'button.textual',
+            'button.text.double-width',
             { onclick: () => dispatch(print()) },
             'Print (to PDF, or printer)'
           )
@@ -583,22 +577,32 @@ export default function render(state: UIState): m.Children {
   ];
   const settingsMenu = [
     m('section', [
-      m('h2', 'Settings'),
-      m('div.section-content', [
-        ...setting('lineGap', 'Gap between lines'),
-        ...setting('topOffset', 'Gap at top of page'),
-        ...setting('margin', 'Margin'),
-        ...setting('staveGap', 'Gap between staves'),
+      m('h2', 'Layout'),
+      m('div.section-content.vertical', [
+        setting('lineGap', 'Gap between lines'),
+        setting('staveGap', 'Gap between staves'),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Margins'),
+      m('div.section-content.vertical', [
+        setting('topOffset', 'Gap at top of page'),
+        setting('margin', 'Margin'),
       ]),
     ]),
     m('section', [
       m('h2', 'View'),
       m('div.section-content', [
-        m('label', 'Disable Help'),
-        help(
-          'disable help',
-          m('input', { type: 'checkbox', onclick: () => dispatch(toggleDoc()) })
-        ),
+        m('label', [
+          'Disable Help',
+          help(
+            'disable help',
+            m('input', {
+              type: 'checkbox',
+              onclick: () => dispatch(toggleDoc()),
+            })
+          ),
+        ]),
       ]),
     ]),
   ];
@@ -607,6 +611,7 @@ export default function render(state: UIState): m.Children {
     note: noteMenu,
     gracenote: gracenoteMenu,
     bar: barMenu,
+    second_timing: secondTimingMenu,
     stave: staveMenu,
     text: textMenu,
     settings: settingsMenu,
@@ -617,6 +622,13 @@ export default function render(state: UIState): m.Children {
   const menuClass = (s: Menu): string =>
     s === state.currentMenu ? 'selected' : '';
 
+  const prettify = (name: Menu): string => {
+    if (name === 'second_timing') {
+      return 'Second Timing';
+    }
+    return capitalise(name);
+  };
+
   const menuHead = (name: Menu) =>
     m(
       'button',
@@ -624,15 +636,16 @@ export default function render(state: UIState): m.Children {
         class: menuClass(name),
         onmousedown: () => dispatch(setMenu(name)),
       },
-      [capitalise(name)]
+      [prettify(name)]
     );
   return m('div', [
     m('div#ui', [
-      m('div#menu', [
+      m('div#headings', [
         help('home', m('button', m('a[href=/scores]', 'Home'))),
         menuHead('note'),
         menuHead('gracenote'),
         menuHead('bar'),
+        menuHead('second_timing'),
         menuHead('stave'),
         menuHead('text'),
         menuHead('playback'),
@@ -645,10 +658,10 @@ export default function render(state: UIState): m.Children {
       ]),
       m('div#topbar', [
         m('div#topbar-main', menuMap[state.currentMenu]),
-        m('section', [
-          m('h2', 'General Commands'),
-          m('div.section-content.flex', [
-            m('div', [
+        m('div#general-commands', [
+          m('section', [
+            m('h2', 'General Commands'),
+            m('div.section-content', [
               help(
                 'delete',
                 m('button.delete', {
@@ -672,17 +685,6 @@ export default function render(state: UIState): m.Children {
                 m('button#redo', { onclick: () => dispatch(redo()) })
               ),
             ]),
-            help(
-              'zoom',
-              m('input#zoom-level', {
-                type: 'range',
-                min: '10',
-                max: '200',
-                step: '2',
-                value: state.zoomLevel,
-                oninput: inputZoomLevel,
-              })
-            ),
           ]),
         ]),
       ]),
@@ -693,6 +695,19 @@ export default function render(state: UIState): m.Children {
             m('a[href=/login]', 'Create a free account here!'),
           ]),
     ]),
-    state.docs ? m('div#doc', state.docs) : null,
+    m('div#doc', [
+      state.docs ? state.docs : null,
+      help(
+        'zoom',
+        m('input#zoom-level', {
+          type: 'range',
+          min: '10',
+          max: '200',
+          step: '2',
+          value: state.zoomLevel,
+          oninput: inputZoomLevel,
+        })
+      ),
+    ]),
   ]);
 }
