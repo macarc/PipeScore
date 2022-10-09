@@ -22,4 +22,5 @@ export enum TokenType {
     CLEF = "CLEF",
     KEY_SIGNATURE = "KEY_SIGNATURE",
     TIME_SIGNATURE = "TIME_SIGNATURE",
+    MELODY_NOTE = "MELODY_NOTE",
 }

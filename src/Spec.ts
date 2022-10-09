@@ -53,6 +53,10 @@ const Spec: SpecType[] = [
         regex: /^(?:(\d)_(\d))|(C_)|(C)/,
         type: TokenType.TIME_SIGNATURE,
     },
+    {
+        regex: /((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})/,
+        type: TokenType.MELODY_NOTE,
+    },
 ];
 
 export default Spec;
