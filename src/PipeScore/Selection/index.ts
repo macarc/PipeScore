@@ -19,7 +19,7 @@ import { Timing, TimingPart } from '../Timing';
 import { TextBox } from '../TextBox';
 import { Score } from '../Score';
 import { Pitch } from '../global/pitch';
-import { Gracenote, SingleGracenote } from '../Gracenote';
+import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { Drags } from './model';
 

@@ -16,9 +16,9 @@
 
 import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
-import { Gracenote, SingleGracenote, ReactiveGracenote } from '../Gracenote';
+import { Gracenote, CustomGracenote, ReactiveGracenote } from '../Gracenote';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
-import { SingleGracenotePreview, ReactiveGracenotePreview } from '../Preview';
+import { CustomGracenotePreview, ReactiveGracenotePreview } from '../Preview';
 
 export function clickGracenote(
   gracenote: Gracenote,
@@ -45,8 +45,8 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
     } else {
       stopInputtingNotes(state);
       state.preview =
-        newGracenote instanceof SingleGracenote
-          ? new SingleGracenotePreview()
+        newGracenote instanceof CustomGracenote
+          ? new CustomGracenotePreview()
           : newGracenote instanceof ReactiveGracenote && value
           ? new ReactiveGracenotePreview(value)
           : null;

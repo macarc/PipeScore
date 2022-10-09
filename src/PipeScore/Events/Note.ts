@@ -30,8 +30,11 @@ import {
 } from '../Selection';
 import { Note, Triplet } from '../Note';
 import { NoteLength, sameNoteLengthName } from '../Note/notelength';
-import { NotePreview, ReactiveGracenotePreview } from '../Preview';
-import { SingleGracenote } from '../Gracenote';
+import {
+  NotePreview,
+  CustomGracenotePreview,
+  ReactiveGracenotePreview,
+} from '../Preview';
 
 export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
   return async (state: State) => {
@@ -219,7 +222,7 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
     }
     if (
       state.preview instanceof ReactiveGracenotePreview ||
-      state.preview instanceof SingleGracenote
+      state.preview instanceof CustomGracenotePreview
     ) {
       state.preview.setLocation(
         state.score.location(note.id).bar,

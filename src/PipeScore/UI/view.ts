@@ -61,14 +61,14 @@ import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
 import {
   Preview,
-  SingleGracenotePreview,
+  CustomGracenotePreview,
   NotePreview,
   ReactiveGracenotePreview,
 } from '../Preview';
 import { Settings, settings } from '../global/settings';
 import { capitalise } from '../global/utils';
 import { Bar } from '../Bar';
-import { Gracenote, ReactiveGracenote, SingleGracenote } from '../Gracenote';
+import { Gracenote, ReactiveGracenote, CustomGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { dispatch } from '../Controller';
 
@@ -219,8 +219,9 @@ export default function render(state: UIState): m.Children {
           'single',
           m('button', {
             class:
-              state.preview instanceof SingleGracenotePreview ||
-              state.selectedGracenote instanceof SingleGracenote
+              state.preview instanceof CustomGracenotePreview ||
+              (state.selectedGracenote instanceof CustomGracenote &&
+                state.selectedGracenote.notes().length === 1)
                 ? 'highlighted'
                 : 'not-highlighted',
             style: 'background-image: url("/images/icons/single.svg")',

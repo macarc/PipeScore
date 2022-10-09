@@ -14,14 +14,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  There are three types of gracenote:
-//  - SingleGracenote - e.g. a HG gracenote: a single note.
+//  There are two types of gracenote:
 //  - ReactiveGracenote - e.g. doubling: a gracenote whose notes depend on
 //      the notes in front of and behind it. See ./gracenotes for all
 //      reactive gracenote types.
-//  - CustomGracenote - if a user drags an individual note of a reactive
-//      gracenote, it becomes a custom gracenote. It won't react to note
-//      changes any more.
+//  - CustomGracenote - just a list of pitches. This includes single gracenotes
+//      (e.g. High G gracenote) and gracenotes made by dragging a note of
+//      a reactive gracenote.
 //  - (NoGracenote - used if the note has no gracenote)
 
 import m from 'mithril';
@@ -58,6 +57,7 @@ export abstract class Gracenote {
   protected abstract type: string;
   abstract drag(pitch: Pitch, index: number): Gracenote;
   abstract notes(thisNote?: Pitch, previous?: Pitch | null): GracenoteNoteList;
+  abstract equals(other: Gracenote): boolean;
 
   toJSON() {
     return {
@@ -67,10 +67,10 @@ export abstract class Gracenote {
   }
   static fromJSON(o: Obj): Gracenote {
     switch (o.type) {
-      case 'single':
-        return SingleGracenote.fromObject(o.value);
       case 'reactive':
         return ReactiveGracenote.fromObject(o.value);
+      case 'single':
+        return new CustomGracenote(o.value.note);
       case 'custom':
         return CustomGracenote.fromObject(o.value);
       case 'none':
@@ -81,7 +81,7 @@ export abstract class Gracenote {
   }
   static fromName(name: string | null) {
     if (name === null) {
-      return new SingleGracenote(Pitch.HG);
+      return new CustomGracenote(Pitch.HG);
     } else if (name === 'none') {
       return new NoGracenote();
     } else {
@@ -97,9 +97,6 @@ export abstract class Gracenote {
     const pitch = this.notes()[index];
     if (pitch) return this.drag(pitchDown(pitch), index);
     return null;
-  }
-  equals(other: Gracenote) {
-    return this.type === other.type;
   }
   numberOfNotes(g: Gracenote, thisNote: Pitch, previous: Pitch) {
     const notes = g.notes(thisNote, previous).length;
@@ -118,13 +115,11 @@ export abstract class Gracenote {
     const length = notes.length;
     return gracenoteHeadGap * length + gapAfterGracenote;
   }
+  // Add a single to an existing gracenote
+  // Used for creating custom embellisments
   addSingle(newPitch: Pitch, note: Pitch, prev: Pitch | null): Gracenote {
-    // Add a single to an existing gracenote
-    // Used for creating custom embellisments
-
     const notes = this.notes(note, prev);
-    if (notes.length > 0) return new CustomGracenote(...notes, newPitch);
-    else return new SingleGracenote(newPitch);
+    return new CustomGracenote(...notes, newPitch);
   }
   removeSingle(index: number) {
     const notes = this.notes();
@@ -137,6 +132,7 @@ export abstract class Gracenote {
       );
     }
   }
+  // Draws head and stem
   head(
     x: number,
     y: number,
@@ -147,8 +143,6 @@ export abstract class Gracenote {
     dragging: boolean,
     index: number
   ): m.Children {
-    // Draws head and stem
-
     const stemY = y - 1;
     const ledgerLeft = 5;
     const ledgerRight = 5.1;
@@ -236,24 +230,20 @@ export abstract class Gracenote {
       props.state.selected?.gracenote === this &&
       props.state.selected?.note === 'all';
     const pitches = this.notes(props.thisNote, props.previousNote);
-    // If each note is an object, then we can use .indexOf and other related functions
-    const uniqueNotes = pitches.map((note) => ({ note }));
 
-    const xOf = (noteObj: { note: Pitch }) =>
-      props.x +
-      gapAfterGracenote / 2 +
-      uniqueNotes.indexOf(noteObj) * gracenoteHeadGap;
-    const y = (note: Pitch) => noteY(props.y, note);
+    const x = (i: number) =>
+      props.x + gapAfterGracenote / 2 + i * gracenoteHeadGap;
+    const y = (p: Pitch) => noteY(props.y, p);
 
-    if (uniqueNotes.length === 0) {
+    if (pitches.length === 0) {
       return m('g');
-    } else if (uniqueNotes.length === 1) {
-      return this.renderSingle(uniqueNotes[0].note, props);
+    } else if (pitches.length === 1) {
+      return this.renderSingle(pitches[0], props);
     } else {
       const colour = colourOf(wholeSelected || props.preview);
       const beamY = props.y - settings.lineHeightOf(3.5);
-      const tailStart = xOf(uniqueNotes[0]) + tailXOffset - 0.5;
-      const tailEnd = xOf(nlast(uniqueNotes)) + tailXOffset + 0.5;
+      const tailStart = x(0) + tailXOffset - 0.5;
+      const tailEnd = x(pitches.length - 1) + tailXOffset + 0.5;
       const clickBoxMargin = 3;
       return m('g[class=reactive-gracenote]', [
         ...[0, 2, 4].map((i) =>
@@ -274,11 +264,11 @@ export abstract class Gracenote {
           style: 'cursor: pointer;',
           onmousedown: () => dispatch(clickGracenote(this, 'all')),
         }),
-        ...uniqueNotes.map((noteObj, i) =>
+        ...pitches.map((pitch, i) =>
           this.head(
-            xOf(noteObj),
-            y(noteObj.note),
-            noteObj.note,
+            x(i),
+            y(pitch),
+            pitch,
             beamY,
             !pitches.invalid,
             props.preview ||
@@ -290,41 +280,6 @@ export abstract class Gracenote {
         ),
       ]);
     }
-  }
-}
-export class SingleGracenote extends Gracenote {
-  private note: Pitch;
-  type = 'single';
-
-  constructor(note: Pitch) {
-    super();
-    this.note = note;
-  }
-  static fromObject(o: Obj) {
-    return new SingleGracenote(o.note);
-  }
-  protected toObject() {
-    return {
-      note: this.note,
-    };
-  }
-  name() {
-    return 'single';
-  }
-  copy() {
-    return new SingleGracenote(this.note);
-  }
-  drag(pitch: Pitch) {
-    if (this.note != pitch) {
-      return new SingleGracenote(pitch);
-    }
-    return this;
-  }
-  toGracenote() {
-    return this.note;
-  }
-  notes() {
-    return noteList([this.note]);
   }
 }
 
@@ -399,18 +354,15 @@ export class CustomGracenote extends Gracenote {
     super();
     this.pitches = pitches;
   }
-  static fromObject(o: Obj) {
-    return new CustomGracenote(...o.pitches);
-  }
   toObject() {
     return {
       pitches: this.pitches,
     };
   }
-
-  name() {
-    return '';
+  static fromObject(o: Obj) {
+    return new CustomGracenote(...o.pitches);
   }
+
   equals(other: Gracenote): boolean {
     return (
       other instanceof CustomGracenote &&
@@ -448,6 +400,9 @@ export class NoGracenote extends Gracenote {
   toObject() {
     return {};
   }
+  equals(other: Gracenote) {
+    return other instanceof NoGracenote;
+  }
   copy() {
     return new NoGracenote();
   }
@@ -456,8 +411,5 @@ export class NoGracenote extends Gracenote {
   }
   notes() {
     return noteList([]);
-  }
-  name() {
-    return 'none';
   }
 }
