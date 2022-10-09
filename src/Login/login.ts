@@ -42,8 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const emailEl = loginForm.querySelector('input[type="email"]');
       const passwdEl = loginForm.querySelector('input[type="password"]');
       if (
-        emailEl &&
-        passwdEl &&
         emailEl instanceof HTMLInputElement &&
         passwdEl instanceof HTMLInputElement
       ) {
@@ -66,9 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const passwdEl = signUpForm.querySelector('#first-pwd');
       const passwdRepeatEl = signUpForm.querySelector('#second-pwd');
       if (
-        emailEl &&
-        passwdEl &&
-        passwdRepeatEl &&
         emailEl instanceof HTMLInputElement &&
         passwdEl instanceof HTMLInputElement &&
         passwdRepeatEl instanceof HTMLInputElement
