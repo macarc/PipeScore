@@ -39,6 +39,9 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
       const notes = state.selection.notes(state.score);
       notes.forEach((note) => note.setGracenote(newGracenote.copy()));
       return Update.ShouldSave;
+    } else if (state.selection instanceof GracenoteSelection) {
+      state.selection.changeGracenote(newGracenote, state.score);
+      return Update.ShouldSave;
     } else {
       stopInputtingNotes(state);
       state.preview =

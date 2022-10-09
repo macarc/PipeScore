@@ -712,9 +712,8 @@ export class Triplet extends BaseNote {
     const height = 40;
     const midy = staveY - height;
     const gap = 15;
-    const path = `M ${x1},${y1 - gap} Q ${midx},${midy},${x2},${y2 - gap}`;
+    const path = `M ${x1},${y1 - gap} Q ${midx},${midy}, ${x2},${y2 - gap}`;
     const colour = selected ? 'orange' : 'black';
-    const events = { onmousedown: () => dispatch(clickTripletLine(this)) };
     return m('g[class=triplet]', [
       m(
         'text',
@@ -724,26 +723,31 @@ export class Triplet extends BaseNote {
           'text-anchor': 'center',
           fill: colour,
           style: 'font-size: 10px;',
-          ...events,
+          onmousedown: () => dispatch(clickTripletLine(this)),
         },
         '3'
       ),
-      m('path', { d: path, stroke: colour, fill: 'none', ...events }),
+      m('path', {
+        d: path,
+        stroke: colour,
+        fill: 'none',
+        onmousedown: () => dispatch(clickTripletLine(this)),
+      }),
     ]);
   }
   public render(props: NoteProps) {
     Note.makeSameLength(this._notes);
 
-    const renderedNotes = Note.renderGroup(this._notes, props);
-    const line = this.tripletLine(
-      props.y,
-      getXY(this.firstSingle().id)?.afterX || 0,
-      getXY(this.lastSingle().id)?.beforeX || 0,
-      this.firstSingle().y(props.y),
-      this.lastSingle().y(props.y),
-      props.state.selectedTripletLine === this
-    );
-
-    return m('g', [renderedNotes, line]);
+    return m('g', [
+      Note.renderGroup(this._notes, props),
+      this.tripletLine(
+        props.y,
+        getXY(this.firstSingle().id)?.afterX || 0,
+        getXY(this.lastSingle().id)?.beforeX || 0,
+        this.firstSingle().y(props.y),
+        this.lastSingle().y(props.y),
+        props.state.selectedTripletLine === this
+      ),
+    ]);
   }
 }

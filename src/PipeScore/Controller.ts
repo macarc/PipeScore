@@ -120,7 +120,8 @@ function redraw() {
             ? state.selection.notes(state.score)
             : [],
         selectedGracenote:
-          // TODO should this do something for GracenoteSelection too
+          (state.selection instanceof GracenoteSelection &&
+            state.selection.gracenote()) ||
           (state.selection instanceof ScoreSelection &&
             state.selection.gracenote(state.score)) ||
           null,

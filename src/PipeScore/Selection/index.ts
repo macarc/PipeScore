@@ -77,7 +77,7 @@ export class TripletLineSelection extends Drags {
     super();
     this.selected = triplet;
   }
-  delete(score: Score) {
+  public delete(score: Score) {
     const location = score.location(this.selected.id);
     if (location) location.bar.unmakeTriplet(this.selected);
   }
@@ -92,12 +92,13 @@ export class GracenoteSelection extends Drags {
     this.selected = gracenote;
     this.note = note;
   }
-  changeGracenote(newGracenote: Gracenote, score: Score) {
+  public changeGracenote(newGracenote: Gracenote, score: Score) {
     for (const note of score.notes()) {
       note.replaceGracenote(this.selected, newGracenote);
     }
+    this.selected = newGracenote;
   }
-  delete(score: Score) {
+  public delete(score: Score) {
     this.changeGracenote(
       this.note === 'all'
         ? Gracenote.fromName('none')
@@ -105,17 +106,16 @@ export class GracenoteSelection extends Drags {
       score
     );
   }
-  dragOverPitch(pitch: Pitch, score: Score) {
+  public dragOverPitch(pitch: Pitch, score: Score) {
     if (this.note !== 'all') {
       const dragged = this.selected.drag(pitch, this.note);
       this.changeGracenote(dragged, score);
-      this.selected = dragged;
     }
   }
-  moveUp() {
+  public moveUp() {
     this.single()?.moveUp();
   }
-  moveDown() {
+  public moveDown() {
     this.single()?.moveDown();
   }
   private single(): SingleGracenote | null {
@@ -123,7 +123,10 @@ export class GracenoteSelection extends Drags {
 
     return null;
   }
-  state(): GracenoteState {
+  public gracenote() {
+    return this.selected;
+  }
+  public state(): GracenoteState {
     return {
       dragged:
         this.dragging && this.note !== 'all'
