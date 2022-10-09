@@ -37,8 +37,10 @@ export function editTimingText(
   cb: (text: string) => void
 ): ScoreEvent {
   return async () => {
-    const form = await dialogueBox([
-      m('label', ['Text:', m('input', { type: 'text', value })]),
+    const form = await dialogueBox('Edit Timing', [
+      m('section', [
+        m('label', ['Text:', m('input', { type: 'text', value })]),
+      ]),
     ]);
     if (form) {
       cb((form.querySelector('input[type="text"]') as HTMLInputElement).value);
@@ -182,18 +184,21 @@ export function print(): ScoreEvent {
     const contents = blankEl.querySelector('div')?.innerHTML;
 
     await dialogueBox(
+      'Printing',
       [
-        m('p', [
-          'When printing, please ensure you set ',
-          m('span', { style: 'font-family: monospace;' }, 'Margins'),
-          'to',
-          m('span', { style: 'font-family: monospace;' }, 'None'),
-          '.',
+        m('section', [
+          m('p', [
+            'When printing, please ensure you set ',
+            m('span', { style: 'font-family: monospace;' }, 'Margins'),
+            ' to ',
+            m('span', { style: 'font-family: monospace;' }, 'None'),
+            '.',
+          ]),
+          m(
+            'p',
+            'This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.'
+          ),
         ]),
-        m(
-          'p',
-          'This means your browser will use the PipeScore margins, rather than its own automatic margins, which will be off-centre.'
-        ),
       ],
       false
     );

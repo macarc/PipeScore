@@ -89,16 +89,18 @@ export class TextBox {
   }
 
   private async edit() {
-    const form = await dialogueBox([
-      m('label', ['Text:', m('input', { type: 'text', value: this._text })]),
-      m('label', [
-        'Font size:',
-        m('input', {
-          type: 'number',
-          min: 5,
-          max: 50,
-          value: this.size,
-        }),
+    const form = await dialogueBox('Edit Text Box', [
+      m('section', [
+        m('label', ['Text:', m('input', { type: 'text', value: this._text })]),
+        m('label', [
+          'Font size:',
+          m('input', {
+            type: 'number',
+            min: 5,
+            max: 50,
+            value: this.size,
+          }),
+        ]),
       ]),
     ]);
     if (form) {

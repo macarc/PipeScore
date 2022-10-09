@@ -21,6 +21,33 @@ import dialogueBox from '../global/dialogueBox';
 import m from 'mithril';
 
 function textDialogue(ts: TimeSignature) {
+  return [
+    m('section', [
+      timeSignatureEditor(ts),
+      m('label', [
+        m('input', { type: 'checkbox', checked: ts.cutTime() }),
+        'Cut time ',
+      ]),
+      m('details', [
+        m('summary', 'Advanced'),
+        m('label', [
+          'Custom grouping (See ',
+          m('a[href=/help#time-signatures]', 'help page'),
+          ')',
+          m('input', {
+            type: 'text',
+            name: 'breaks',
+            // Need to do \. for the pattern regex
+            pattern: '^([1-9][0-9]*(,\\s*[1-9][0-9]*)*|())$',
+            value: ts.breaksString(),
+          }),
+        ]),
+      ]),
+    ]),
+  ];
+}
+
+export function timeSignatureEditor(ts: TimeSignature): m.Children {
   const denominatorOption = (i: Denominator) =>
     m(
       'option',
@@ -28,42 +55,24 @@ function textDialogue(ts: TimeSignature) {
       i.toString()
     );
 
-  return [
-    m('input', {
+  return m('div.time-signature-editor', [
+    m('input#num', {
       type: 'number',
       name: 'num',
       min: 1,
       value: ts.top(),
     }),
-    m('br'),
-    m('select', { name: 'denominator' }, [
+    m('select#denom', { name: 'denominator' }, [
       denominatorOption(2),
       denominatorOption(4),
       denominatorOption(8),
     ]),
-    m('label', [
-      'Cut time ',
-      m('input', { type: 'checkbox', checked: ts.cutTime() }),
-    ]),
-    m('details', [
-      m('summary', 'Advanced'),
-      m('label', [
-        'Custom grouping (the number of quavers in each group, separated by `,`)',
-        m('input', {
-          type: 'text',
-          name: 'breaks',
-          // Need to do \. for the pattern regex
-          pattern: '^([1-9][0-9]*(,\\s*[1-9][0-9]*)*|())$',
-          value: ts.breaksString(),
-        }),
-      ]),
-    ]),
-  ];
+  ]);
 }
 
 // Makes a dialogue box for the user to edit the text, then updates the text
 export async function edit(ts: TimeSignature): Promise<TimeSignature> {
-  const form = await dialogueBox(textDialogue(ts));
+  const form = await dialogueBox('Edit Time Signature', textDialogue(ts));
   let newTimeSignature: TimeSignature = ts;
 
   if (form) {

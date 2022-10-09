@@ -19,6 +19,7 @@
 
 import m from 'mithril';
 import dialogueBox from './global/dialogueBox';
+import { timeSignatureEditor } from './TimeSignature/edit';
 import { Score } from './Score';
 
 import { TimeSignature } from './TimeSignature';
@@ -45,86 +46,57 @@ class ScoreOptions {
 
 export default async function blankForm(): Promise<ScoreOptions> {
   const form = await dialogueBox(
+    'Quick Start',
     [
-      m('h1', { style: 'font-size: 2rem' }, 'Quick Start'),
-      m('p', 'These values may all be changed later if necessary'),
-      m('div[class=invisible-div]', [
-        m('p', 'About:'),
-        m('div', { class: 'quickstart-section quickstart-flex' }, [
-          m('label', [
-            'Title:',
-            m('input[id=name]', {
-              type: 'text',
-              value: 'My Tune',
-            }),
-          ]),
-          m('label', [
-            'Composer:',
-            m('input[id=composer]', {
-              type: 'text',
-              value: 'My name',
-            }),
-          ]),
-          m('label', [
-            'Tune type:',
-            m('input[id=tune-type]', {
-              type: 'text',
-              value: 'March',
-            }),
-          ]),
+      m('section', [
+        m('h2', 'About:'),
+        m('label', [
+          'Title:',
+          m('input#name', {
+            type: 'text',
+            value: 'My Tune',
+          }),
+        ]),
+        m('label', [
+          'Composer:',
+          m('input#composer', {
+            type: 'text',
+            value: 'My name',
+          }),
+        ]),
+        m('label', [
+          'Tune type:',
+          m('input#tune-type', {
+            type: 'text',
+            value: 'March',
+          }),
         ]),
       ]),
-      m('div[class=invisible-div]', [
-        m('p', 'Parts:'),
-        m('div[class=quickstart-section]', [
-          m('label', [
-            'Number:',
-            m('input[id=stave-number]', {
-              type: 'number',
-              min: 0,
-              max: 16,
-              value: 2,
-              required: true,
-            }),
-          ]),
-          m('label', [
-            m('input[id=repeat-parts]', { type: 'checkbox', checked: '' }),
-            'Repeat parts?',
-          ]),
+      m('section', [
+        m('h2', 'Parts:'),
+        m('label', [
+          'Number:',
+          m('input#stave-number', {
+            type: 'number',
+            min: 0,
+            max: 16,
+            value: 2,
+            required: true,
+          }),
+        ]),
+        m('label', [
+          m('input#repeat-parts', { type: 'checkbox', checked: '' }),
+          'Repeat Parts',
         ]),
       ]),
-      m('div[class=invisible-div]', [
-        m('p', 'Time Signature:'),
-        m('div', { class: 'quickstart-section quickstart-flex' }, [
-          m('label', [
-            'Time Signature:',
-            m('div', { class: 'quickstart-time-signature' }, [
-              m('input[id=num]', {
-                type: 'number',
-                min: 0,
-                value: 2,
-                style: 'display: block',
-                required: true,
-              }),
-              m(
-                'select[id=denom]',
-                { style: 'display: block', name: 'denom' },
-                [
-                  m('option', { value: '4', name: 'denom' }, '4'),
-                  m('option', { value: '2', name: 'denom' }, '2'),
-                  m('option', { value: '8', name: 'denom' }, '8'),
-                ]
-              ),
-            ]),
-          ]),
-          m('label', [
-            m('input[id=cut-time]', { type: 'checkbox' }),
-            'Cut time?',
-          ]),
-        ]),
+      m('section', [
+        m('h2', 'Time Signature:'),
+        m('label', [timeSignatureEditor(new TimeSignature([2, 4]))]),
+        m('label', [m('input#cut-time', { type: 'checkbox' }), 'Cut time']),
       ]),
     ],
-    false
+    false,
+    'These options can be changed later.'
   );
   const options = new ScoreOptions();
   if (form) {

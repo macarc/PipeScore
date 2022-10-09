@@ -15,14 +15,17 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //  A simple pop-up form.
+//  To use, pass a list of section elements, which will be put into the form
 
 import m from 'mithril';
 
 export let dialogueBoxIsOpen = false;
 
 export default function dialogueBox(
+  title: string,
   inner: m.Children[],
-  cancelable = true
+  cancelable = true,
+  subtitle = ''
 ): Promise<HTMLFormElement | null> {
   dialogueBoxIsOpen = true;
   const parent = document.createElement('div');
@@ -33,7 +36,7 @@ export default function dialogueBox(
       parent,
       m('div#dialogue-box', [
         m(
-          'form[id=dialogue-form]',
+          'form#dialogue-form',
           {
             onsubmit: (e: Event) => {
               dialogueBoxIsOpen = false;
@@ -47,9 +50,11 @@ export default function dialogueBox(
             },
           },
           [
-            ...inner,
+            m('h1', title),
+            subtitle.length > 0 ? m('p', subtitle) : null,
+            m('div.sections', inner),
             cancelable
-              ? m('input[id=cancel-btn]', {
+              ? m('input.cancel', {
                   type: 'button',
                   value: 'Cancel',
                   onclick: () => {
@@ -59,7 +64,7 @@ export default function dialogueBox(
                   },
                 })
               : null,
-            m('input[class=continue]', {
+            m('input.continue', {
               type: 'submit',
               value: 'Ok',
             }),

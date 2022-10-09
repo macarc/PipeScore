@@ -26,9 +26,10 @@ button {
   outline: none;
   margin: 0.2rem;
   cursor: pointer;
-}
-button:active {
-  border: 1px solid grey;
+  
+  &:active {
+    border: 1px solid grey;
+  }
 }
 input[type='range'] {
   display: block;
@@ -40,6 +41,7 @@ input[type='range'] {
   left: 0;
   width: 100vw;
 }
+
 #menu,
 #topbar {
   display: flex;
@@ -55,62 +57,60 @@ input[type='range'] {
   background: white;
   height: 2rem;
   padding: 0;
+  button {
+    height: 2rem;
+    margin: 0;
+
+    &:active {
+      border-bottom: none;
+    }
+  }
+  .selected {
+    background: lightblue;
+  }
 }
 #topbar {
   background: lightblue;
   padding: 1rem;
+  padding-left: 0;
   top: 2rem;
   width: calc(100vw - 1rem);
+
+  div {
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+  section {
+    display: inline-flex;
+    flex-direction: column;
+    margin: 0 0.5rem;
+  }
+  button:not(.textual),
+  .fit-nicely {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-clip: padding-box;
+    background-color: white;
+    vertical-align: middle;
+    width: 3rem;
+    height: 3rem;
+    font-size: 0.8rem;
+  }
+  .fit-nicely {
+    width: auto;
+  }
+  label, input {
+    display: inline;
+  }
 }
 
-#menu button {
-  height: 2rem;
-  margin: 0;
-}
-#menu button:active {
-  border-bottom: none;
-}
 
-#menu .selected {
-  background: lightblue;
-}
-
-#topbar div {
-  display: inline;
-  margin: 0;
-  padding: 0;
-}
-#topbar section {
-  display: inline-flex;
-  flex-direction: column;
-  margin: 0 0.5rem;
-}
-#topbar button:not(.textual),
-.fit-nicely {
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-clip: padding-box;
-  background-color: white;
-  vertical-align: middle;
-  width: 3rem;
-  height: 3rem;
-  font-size: 0.8rem;
-}
-.fit-nicely {
-  width: auto;
-}
 button.textual {
   vertical-align: top;
 }
 
-#topbar label,
-#topbar input {
-  display: inline;
-}
-#topbar {
-  padding-left: 0;
-}
 
 #topbar-main {
   flex: 1;
@@ -133,7 +133,6 @@ div .flex {
 }
 #triplet {
   background-image: url('../images/triplet.png');
-  /* background-position: 0rem 2rem !important; */
 }
 
 .delete {
@@ -249,27 +248,66 @@ text {
 
 #dialogue-box {
   position: absolute;
-  top: 2vh;
+  top: 50vh;
   left: 50vw;
-  transform: translate(-50%, 0%);
+  transform: translate(-50%, max(-60%, -50vh));
   padding: 2rem;
   background: white;
   width: 75vw;
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .sections {
+    margin: 1rem 0;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+
+    section {
+      display: inline;
+      flex-grow: 1;
+      background: lightgrey;
+      padding: 1.5rem;
+  
+      input:not([type=checkbox]) {
+        display: block;
+      }
+      label {
+        display: block;
+        margin: 1rem 0;
+      }
+      summary {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  * {
+    font-size: 1.1rem;
+  }
+  input {
+    display: block;
+
+    &.cancel {
+      margin-right: 1rem;
+      display: inline;
+    }
+    &.continue {
+      display: inline;
+    }
+    &[type=checkbox] {
+      display: inline;
+      margin-right: 1rem;
+    }
+  }
 }
-#dialogue-box label {
-  display: block;
-}
-#dialogue-box * {
-  font-size: 1.1rem;
-  margin: 1rem;
-}
+
 input[type='number'] {
   width: 3rem !important;
 }
 
-#dialogue-box select {
-  width: 3.5rem;
-}
 
 #doc {
   background: white;
@@ -284,28 +322,37 @@ input[type='number'] {
   min-height: 4rem;
   white-space: pre-line;
 }
-/* Invisible as in no effect on layout */
-.invisible-div {
-  margin: 0 !important;
-  padding: 0;
+
+.quickstart {
+  .sections {
+    margin: 1rem 0;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+
+    section {
+      display: inline-block;
+      flex: 1;
+      background: lightgrey;
+      input {
+        display: block;
+        margin: 0rem;
+        
+      }
+      label {
+        display: block;
+      }
+    }
+  }
 }
-.quickstart-section {
-  display: block;
-  background: lightgrey;
+
+.time-signature-editor {
+  select, input {
+    margin: 0;
+    width: 3.5rem;
+  }
 }
-.quickstart-section label {
-  display: inline !important;
-}
-.quickstart-time-signature {
-  display: inline;
-}
-.quickstart-flex {
-  display: flex;
-  flex-wrap: wrap;
-}
-.quickstart-flex label {
-  display: block;
-}
+
 @media only screen and (max-width: 800px) {
   html {
     background: white;
