@@ -390,12 +390,11 @@ export class Bar extends Item implements Previews<Note> {
 
     // There are a few special cases to deal with single notes being further
     // forward than they should be.
-    // TODO BUG this is incorrect if the first note is a triplet
     const previewX = this.previewNote
-      ? this.notes.length === 1
+      ? this.realNotes().length === 1
         ? xAfterBarline - barWidth / 5
-        : this.notes.length === 2
-        ? this.notes[0] === this.previewNote
+        : this.realNotes().length === 2
+        ? this.realNotes()[0] === this.previewNote
           ? xAfterBarline
           : xOf(this.notes.indexOf(this.previewNote)) + beatWidth / 2
         : xOf(this.notes.indexOf(this.previewNote)) - 2 * Note.noteHeadRadius

@@ -450,7 +450,8 @@ export class Note
   private renderNatural(x: number, y: number): m.Children {
     const verticalLineLength = 15;
     const width = 8;
-    // The vertical distance from the centre to the start of the horizontal line
+    // The vertical distance from the centre to the start of
+    // the horizontal line
     const boxGapHeight = 3.5;
     const slantHeight = 4;
     const yShift = 1.5;
@@ -559,15 +560,19 @@ export class Note
 
         const previousNote = notes[index - 1] || props.previousNote;
 
-        const noteBoxX =
-          index === 0 ? props.x + noteHeadWidth : x(index - 1) + noteHeadWidth;
+        const pitchBoxX =
+          index === 0
+            ? props.boxToLast === 'lastnote'
+              ? props.x + noteHeadWidth
+              : props.boxToLast
+            : x(index - 1) + noteHeadWidth;
 
         return m('g', { class: `grouped-note ${note.pitch()}` }, [
           props.state.inputtingNotes && !note.isPreview()
             ? pitchBoxes(
-                noteBoxX,
+                pitchBoxX,
                 props.y,
-                x(index) + noteHeadRadius - noteBoxX,
+                x(index) + noteHeadWidth - pitchBoxX,
                 (pitch) => dispatch(mouseOverPitch(pitch, note)),
                 (pitch) => dispatch(addNoteBefore(pitch, note)),
                 props.justAddedNote
