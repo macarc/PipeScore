@@ -28,7 +28,8 @@ The lifecycle goes like this:
 - The event is called with the current state, which updates the state. It returns the status, which could mean:
   - `Update.NoChange` : Nothing happens
   - `Update.ViewChanged` : A new call to `redraw()` is triggered
-  - `Update.ShouldSave` : A new call to `redraw()` is triggered, and the current state snapshot is added to the undo/redo history (if it is different from the last snapshot)
+  - `Update.ShouldSave` : A new call to `redraw()` is triggered, and the score is saved, and the current state snapshot is added to the undo/redo history (if it is different from the last snapshot)
+  - `Update.MovedThroughHistory` : A new call to `redraw()` is triggered, and the score is saved
 
 To keep track of all the x/y coordinates, there is a global map containing `afterX`/`beforeX`/`y` coordinates of each item. Using a global mutable variable like this means that code duplication is less - for example, when tieing to a previous note, looking up the x value in the map is simple, whereas trying to recalculate where the note was placed introduces more code, and dependency between that code and the code that actually calculated where it was in the first place.
 
