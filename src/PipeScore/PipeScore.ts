@@ -22,6 +22,7 @@ import quickStart from './QuickStart';
 import { Score } from './Score';
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
+import { onUserChange } from '../auth-helper';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 
@@ -64,7 +65,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   let alreadyStarted = false;
 
-  auth.listen(async (user) => {
+  onUserChange(auth, async (user) => {
     if (alreadyStarted) return;
     alreadyStarted = true;
 

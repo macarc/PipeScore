@@ -17,12 +17,13 @@
 //  The JS necessary for the login page
 
 import Auth from 'firebase-auth-lite';
+import { onUserChange } from '../auth-helper';
 
 // This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 const auth = new Auth({ apiKey: apiToken });
 
-auth.listen((user) => {
+onUserChange(auth, (user) => {
   if (user) window.location.assign('/scores');
 });
 

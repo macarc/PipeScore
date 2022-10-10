@@ -25,21 +25,16 @@ To learn more about how it works, have a look at the README in `src/PipeScore`.
 
 ## Features
 
-Piping features:
-
-- Reactive embellishments
-- Undo / redo
-- Ties
-- Triplets
-- Repeats and Second timings
-- Time signatures
-- Text boxes
-- Automatic note grouping
-- Bars/Staves/e.t.c.
-
-Programming features:
-
-- ~7000 source lines of TypeScript
+- Reactive embellishments - a faster way to input gracenotes
+- Built-in documentation
+- Undo / Redo
+- Automatic note grouping and spacing
+- Automatic saving
+- Sharing using URLs
+- Playback
+- Parts, repeats, second timings
+- Ties, triplets, time signatures, text boxes
+- 8000 lines of code
 
 ## Running locally
 

@@ -18,6 +18,7 @@
 
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
+import { onUserChange } from '../auth-helper';
 import m from 'mithril';
 
 let userId = '';
@@ -36,7 +37,7 @@ class ScoresList {
   scores: ScoreRef[] = [];
 
   oninit() {
-    auth.listen(async (user) => {
+    onUserChange(auth, (user) => {
       if (user) {
         userId = user.localId;
         this.refreshScores();
@@ -145,10 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const newScoreBtn = document.getElementById('new-score');
   if (newScoreBtn)
     newScoreBtn.addEventListener('click', async () => {
-      const collection = db.ref(`scores/${userId}/scores`);
-      const newScore = await collection.add({});
-      if (newScore) {
-        window.location.assign(`/pipescore/${userId}/${newScore.id}`);
+      if (userId) {
+        const collection = db.ref(`scores/${userId}/scores`);
+        const newScore = await collection.add({});
+        if (newScore) {
+          window.location.assign(`/pipescore/${userId}/${newScore.id}`);
+        }
       }
     });
 });
