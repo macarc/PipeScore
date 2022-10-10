@@ -239,4 +239,68 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse a single bar with gracenotes", () => {
+        expect(
+            parser.parse(`
+            & sharpf sharpc 4_4 I! gg LA_4 gg B_4 gg C_4 gg D_4 !I
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: {
+                            top: "4",
+                            bottom: "4",
+                        },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {
+                                        type: "single",
+                                        value: { note: "g" },
+                                    },
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {
+                                        type: "single",
+                                        value: { note: "g" },
+                                    },
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {
+                                        type: "single",
+                                        value: { note: "g" },
+                                    },
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    gracenote: {
+                                        type: "single",
+                                        value: { note: "g" },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

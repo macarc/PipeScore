@@ -1,3 +1,4 @@
+import { sign } from "crypto";
 import { Token, TokenType } from "../types/main";
 import Tokenizer from "./Tokenizer";
 
@@ -109,7 +110,10 @@ export default class Parser {
     Bar() {
         const notes = [];
 
-        while (this.lookahead?.type === TokenType.MELODY_NOTE) {
+        while (
+            this.lookahead?.type === TokenType.MELODY_NOTE ||
+            this.lookahead?.type === TokenType.GRACENOTE
+        ) {
             notes.push(this.Note());
         }
 
@@ -119,13 +123,24 @@ export default class Parser {
     }
 
     Note() {
-        const token = this.eat(TokenType.MELODY_NOTE);
+        let gracenote = {};
+        let token;
+        if (this.lookahead?.type === TokenType.GRACENOTE) {
+            token = this.eat(TokenType.GRACENOTE);
+            gracenote = {
+                type: "single",
+                value: {
+                    note: token.value[1],
+                },
+            };
+        }
+        token = this.eat(TokenType.MELODY_NOTE);
 
         return {
             length: token.value[3],
             pitch: token.value[1],
             tied: false,
-            gracenote: {},
+            gracenote: gracenote,
         };
     }
 

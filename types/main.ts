@@ -27,4 +27,5 @@ export enum TokenType {
     MELODY_NOTE = "MELODY_NOTE",
     REST = "REST",
     DOTTED_NOTE = "DOTTED_NOTE",
+    GRACENOTE = "GRACENOTE",
 }

@@ -73,6 +73,10 @@ const Spec: SpecType[] = [
         regex: /^'{1,2}((?:lg)|(?:la)|[bcdef]|(?:hg)|(?:ha))/,
         type: TokenType.DOTTED_NOTE,
     },
+    {
+        regex: /^([abcdefgt])g/,
+        type: TokenType.GRACENOTE,
+    },
 ];
 
 export default Spec;
