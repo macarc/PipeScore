@@ -59,6 +59,8 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
       const asJSON = JSON.stringify(state.score.toJSON());
       if (state.history.past[state.history.past.length - 1] !== asJSON) {
         state.history.past.push(asJSON);
+        if (state.history.past.length > 30) state.history.past.shift();
+        state.history.future = [];
         save(state.score);
       }
     }

@@ -121,7 +121,6 @@ export function portrait(): ScoreEvent {
 
 export function undo(): ScoreEvent {
   return async (state: State) => {
-    // TODO is this check necessary?
     if (state.history.past.length > 1) {
       const last = state.history.past.pop();
       const beforeLast = state.history.past.pop();
