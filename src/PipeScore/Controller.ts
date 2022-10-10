@@ -84,27 +84,31 @@ function redraw() {
   if (state.view.score)
     m.render(
       state.view.score,
-      state.score.render({
-        justAddedNote: state.preview?.justAdded() || false,
-        noteState: {
-          dragged:
-            (state.selection instanceof ScoreSelection &&
-              state.selection.dragging &&
-              state.selection.note(state.score)) ||
-            null,
-          selectedTripletLine:
-            (state.selection instanceof TripletLineSelection &&
-              state.selection.selected) ||
-            null,
-          inputtingNotes: state.preview !== null,
-        },
-        gracenoteState:
-          state.selection instanceof GracenoteSelection
-            ? state.selection.state()
-            : emptyGracenoteState,
-        selection: state.selection,
-        preview: state.preview,
-      })
+      m(
+        'div',
+        { class: state.canEdit ? 'big-top-margin' : '' },
+        state.score.render({
+          justAddedNote: state.preview?.justAdded() || false,
+          noteState: {
+            dragged:
+              (state.selection instanceof ScoreSelection &&
+                state.selection.dragging &&
+                state.selection.note(state.score)) ||
+              null,
+            selectedTripletLine:
+              (state.selection instanceof TripletLineSelection &&
+                state.selection.selected) ||
+              null,
+            inputtingNotes: state.preview !== null,
+          },
+          gracenoteState:
+            state.selection instanceof GracenoteSelection
+              ? state.selection.state()
+              : emptyGracenoteState,
+          selection: state.selection,
+          preview: state.preview,
+        })
+      )
     );
 
   if (state.view.ui && state.canEdit)
