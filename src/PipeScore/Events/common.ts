@@ -27,6 +27,7 @@ export const enum Update {
   NoChange,
   ViewChanged,
   ShouldSave,
+  MovedThroughHistory,
 }
 
 export function stopInputtingNotes(state: State) {

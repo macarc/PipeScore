@@ -21,6 +21,7 @@ import m from 'mithril';
 
 import dialogueBox from '../global/dialogueBox';
 import { settings, Settings } from '../global/settings';
+import { last } from '../global/utils';
 import { Score } from '../Score';
 import { setupAudio } from '../Playback';
 
@@ -121,19 +122,14 @@ export function portrait(): ScoreEvent {
 
 export function undo(): ScoreEvent {
   return async (state: State) => {
-    if (state.history.past.length > 1) {
-      const last = state.history.past.pop();
-      const beforeLast = state.history.past.pop();
-      if (beforeLast) {
-        state.selection = null;
-        stopInputtingNotes(state);
-        state.score = Score.fromJSON(JSON.parse(beforeLast));
-        state.history = {
-          ...state.history,
-          future: last ? [...state.history.future, last] : state.history.future,
-        };
-        return Update.ShouldSave;
-      }
+    const current = state.history.past.pop();
+    const previous = last(state.history.past);
+    if (current && previous) {
+      state.selection = null;
+      stopInputtingNotes(state);
+      state.score = Score.fromJSON(JSON.parse(previous));
+      state.history.future.push(current);
+      return Update.MovedThroughHistory;
     }
     return Update.NoChange;
   };
@@ -141,12 +137,13 @@ export function undo(): ScoreEvent {
 
 export function redo(): ScoreEvent {
   return async (state: State) => {
-    const last = state.history.future.pop();
-    if (last) {
+    const next = state.history.future.pop();
+    if (next) {
       state.selection = null;
       stopInputtingNotes(state);
-      state.score = Score.fromJSON(JSON.parse(last));
-      return Update.ShouldSave;
+      state.score = Score.fromJSON(JSON.parse(next));
+      state.history.past.push(next);
+      return Update.MovedThroughHistory;
     }
     return Update.NoChange;
   };

@@ -53,14 +53,16 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
   if (!state.canEdit) return;
 
   const res = await event(state);
-  if (res === Update.ViewChanged || res === Update.ShouldSave) {
-    if (res === Update.ShouldSave) {
+  if (res !== Update.NoChange) {
+    if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
       state.score.updateName();
-      const asJSON = JSON.stringify(state.score.toJSON());
-      if (state.history.past[state.history.past.length - 1] !== asJSON) {
-        state.history.past.push(asJSON);
-        if (state.history.past.length > 30) state.history.past.shift();
-        state.history.future = [];
+      if (res === Update.ShouldSave) {
+        const asJSON = JSON.stringify(state.score.toJSON());
+        if (state.history.past[state.history.past.length - 1] !== asJSON) {
+          state.history.past.push(asJSON);
+          if (state.history.past.length > 30) state.history.past.shift();
+          state.history.future = [];
+        }
         save(state.score);
       }
     }
