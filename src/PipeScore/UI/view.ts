@@ -156,7 +156,7 @@ export default function render(state: UIState): m.Children {
 
   const noteMenu = [
     m('section', [
-      m('h2', 'Add Notes'),
+      m('h2', 'Add Note'),
       m('div.section-content', [
         noteInputButton(NoteLength.Semibreve),
         noteInputButton(NoteLength.Minim),
@@ -168,7 +168,7 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Modify Notes'),
+      m('h2', 'Modify Note'),
       m('div.section-content', [
         help(
           'dot',
@@ -213,7 +213,7 @@ export default function render(state: UIState): m.Children {
 
   const gracenoteMenu = [
     m('section', [
-      m('h2', 'Add Gracenotes'),
+      m('h2', 'Add Gracenote'),
       m('div.section-content', [
         help(
           'single',
@@ -285,11 +285,36 @@ export default function render(state: UIState): m.Children {
 
   const barMenu = [
     m('section', [
-      m('h2', 'Add Bars'),
+      m('h2', 'Add Bar'),
       m('div.section-content', addBarOrAnacrusis('bar')),
     ]),
     m('section', [
-      m('h2', { style: 'display: inline' }, 'Bar lines'),
+      m('h2', 'Add Lead In'),
+      m('div.section-content', addBarOrAnacrusis('anacrusis')),
+    ]),
+    m('section', [
+      m('h2', 'Modify Bar'),
+      m('div.section-content.vertical', [
+        help(
+          'edit bar time signature',
+          m(
+            'button.textual',
+            { onclick: () => dispatch(editBarTimeSignature()) },
+            'Edit Time Signature'
+          )
+        ),
+        help(
+          'reset bar length',
+          m(
+            'button.textual',
+            { onclick: () => dispatch(resetBarLength()) },
+            'Reset Bar Length'
+          )
+        ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', { style: 'display: inline' }, 'Modify Bar Lines'),
       m('div.section-content.vertical', [
         m('div.horizontal', [
           m('label', 'Start:'),
@@ -367,36 +392,11 @@ export default function render(state: UIState): m.Children {
         ]),
       ]),
     ]),
-    m('section', [
-      m('h2', 'Add Lead In'),
-      m('div.section-content', addBarOrAnacrusis('anacrusis')),
-    ]),
-    m('section', [
-      m('h2', 'Other options'),
-      m('div.section-content.vertical', [
-        help(
-          'edit bar time signature',
-          m(
-            'button.textual',
-            { onclick: () => dispatch(editBarTimeSignature()) },
-            'Edit Time Signature'
-          )
-        ),
-        help(
-          'reset bar length',
-          m(
-            'button.textual',
-            { onclick: () => dispatch(resetBarLength()) },
-            'Reset Bar Length'
-          )
-        ),
-      ]),
-    ]),
   ];
 
   const secondTimingMenu = [
     m('section', [
-      m('h2', 'Add Second Timings'),
+      m('h2', 'Add Second Timing'),
       m('div.section-content', [
         help(
           'second timing',
@@ -416,7 +416,7 @@ export default function render(state: UIState): m.Children {
 
   const staveMenu = [
     m('section', [
-      m('h2', 'Add Staves'),
+      m('h2', 'Add Stave'),
       m('div.section-content', [
         help(
           'add stave before',
@@ -440,7 +440,7 @@ export default function render(state: UIState): m.Children {
 
   const textMenu = [
     m('section', [
-      m('h2', 'Add Text Boxes'),
+      m('h2', 'Add Text Box'),
       m('div.section-content', [
         help(
           'add text',
@@ -449,7 +449,7 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Modify Text Boxes'),
+      m('h2', 'Modify Text Box'),
       m('div.section-content', [
         help(
           'centre text',
@@ -516,7 +516,7 @@ export default function render(state: UIState): m.Children {
     ]);
   const documentMenu = [
     m('section', [
-      m('h2', 'Pages'),
+      m('h2', 'Page'),
       m('div.section-content', [
         help(
           'add-page',
@@ -558,7 +558,7 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Options'),
+      m('h2', 'Page Numbers'),
       m('div.section-content', [
         help(
           'page numbers',
