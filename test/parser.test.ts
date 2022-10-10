@@ -212,25 +212,101 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {},
+                                    embellishment: {},
                                 },
                                 {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {},
+                                    embellishment: {},
                                 },
                                 {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {},
+                                    embellishment: {},
                                 },
                                 {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {},
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse a bar with left and right beam directions", () => {
+        expect(
+            parser.parse(`
+            & sharpf sharpc 4_4 I! LAr_8 Bl_8 Cr_8 Dl_8 Er_8 Fl_8 HGr_8 HAl_8 !I
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: {
+                            top: "4",
+                            bottom: "4",
+                        },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "E",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "F",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "HG",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "HA",
+                                    length: "8",
+                                    tied: false,
+                                    embellishment: {},
                                 },
                             ],
                         },
@@ -264,8 +340,8 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {
-                                        type: "single",
+                                    embellishment: {
+                                        type: "gracenote",
                                         value: { note: "g" },
                                     },
                                 },
@@ -273,8 +349,8 @@ describe("correctly parses score body", () => {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {
-                                        type: "single",
+                                    embellishment: {
+                                        type: "gracenote",
                                         value: { note: "g" },
                                     },
                                 },
@@ -282,8 +358,8 @@ describe("correctly parses score body", () => {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {
-                                        type: "single",
+                                    embellishment: {
+                                        type: "gracenote",
                                         value: { note: "g" },
                                     },
                                 },
@@ -291,9 +367,73 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
-                                    gracenote: {
-                                        type: "single",
+                                    embellishment: {
+                                        type: "gracenote",
                                         value: { note: "g" },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse a single bar with doublings", () => {
+        expect(
+            parser.parse(`
+            & sharpf sharpc 4_4 I! dbla LA_4 hdbb B_4 tdbc C_4 dbd D_4 !I
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: {
+                            top: "4",
+                            bottom: "4",
+                        },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "doubling",
+                                        value: { note: "la" },
+                                    },
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "half-doubling",
+                                        value: { note: "b" },
+                                    },
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "thumb-doubling",
+                                        value: { note: "c" },
+                                    },
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "doubling",
+                                        value: { note: "d" },
                                     },
                                 },
                             ],

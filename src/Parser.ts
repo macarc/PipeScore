@@ -1,5 +1,5 @@
-import { sign } from "crypto";
 import { Token, TokenType } from "../types/main";
+import embellishmentMap from "./Embellishments";
 import Tokenizer from "./Tokenizer";
 
 export default class Parser {
@@ -112,6 +112,7 @@ export default class Parser {
 
         while (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
+            this.lookahead?.type === TokenType.DOUBLING ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
             notes.push(this.Note());
@@ -123,24 +124,45 @@ export default class Parser {
     }
 
     Note() {
-        let gracenote = {};
-        let token;
-        if (this.lookahead?.type === TokenType.GRACENOTE) {
-            token = this.eat(TokenType.GRACENOTE);
-            gracenote = {
-                type: "single",
-                value: {
-                    note: token.value[1],
-                },
-            };
-        }
-        token = this.eat(TokenType.MELODY_NOTE);
+        let embellishment = this.Embellishment();
+        let token = this.eat(TokenType.MELODY_NOTE);
 
         return {
             length: token.value[3],
             pitch: token.value[1],
             tied: false,
-            gracenote: gracenote,
+            embellishment: embellishment,
+        };
+    }
+
+    Embellishment() {
+        switch (this.lookahead?.type) {
+            case TokenType.GRACENOTE:
+                return this.GraceNote();
+            case TokenType.DOUBLING:
+                return this.Doubling();
+            default:
+                return {};
+        }
+    }
+
+    Doubling() {
+        let token = this.eat(TokenType.DOUBLING);
+        return {
+            type: embellishmentMap.get(token.value[1]),
+            value: {
+                note: token.value[2],
+            },
+        };
+    }
+
+    GraceNote() {
+        let token = this.eat(TokenType.GRACENOTE);
+        return {
+            type: "gracenote",
+            value: {
+                note: token.value[1],
+            },
         };
     }
 

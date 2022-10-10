@@ -28,4 +28,5 @@ export enum TokenType {
     REST = "REST",
     DOTTED_NOTE = "DOTTED_NOTE",
     GRACENOTE = "GRACENOTE",
+    DOUBLING = "DOUBLING",
 }

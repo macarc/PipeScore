@@ -77,6 +77,10 @@ const Spec: SpecType[] = [
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },
+    {
+        regex: /^([th]?db)((?:[lh][ga])|([bcdef]))/,
+        type: TokenType.DOUBLING,
+    },
 ];
 
 export default Spec;
