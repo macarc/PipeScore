@@ -1,22 +1,21 @@
+@import './spinner.scss';
+
 button {
   font-size: 1rem;
 }
 
 #buttons {
-  position: relative;
   padding: 1rem;
   border-bottom: 1px solid black;
 }
 
+#scores {
+  padding: 1rem;
+}
+
 #horizontal-buttons {
-  display: block;
-  overflow: auto;
-}
-#new-score {
-  float: left;
-}
-#sign-out {
-  float: right;
+  display: flex;
+  justify-content: space-between;
 }
 
 #help-page {
@@ -24,8 +23,22 @@ button {
   margin: 1rem 0;
 }
 table {
-  border-spacing: 1rem 1rem;
+  padding: 0;
+  border-spacing: 0;
+  button {
+    margin-left: 1rem;
+    margin-bottom: 0.5rem;
+  }
 }
 .td-name {
   width: 50vw;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

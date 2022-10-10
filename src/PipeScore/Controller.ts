@@ -152,14 +152,13 @@ function mouseMove(event: MouseEvent) {
   }
 }
 
+// Initial render, hooks event listeners
 export default function startController(
   score: Score,
   saveFn: (score: Score) => void,
   isLoggedIn: boolean,
   canEdit = true
 ): void {
-  // Initial render, hooks event listeners
-
   save = saveFn;
   state.isLoggedIn = isLoggedIn;
   state.canEdit = canEdit;

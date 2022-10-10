@@ -65,7 +65,7 @@ class ScoresList {
         score.textBoxes[0] &&
         score.textBoxes[0].texts[0]
       ) {
-        score.textBoxes[0].texts[0].text = newName;
+        score.textBoxes[0].texts[0]._text = newName;
       }
       await db.ref(`scores${scoreRef.path}`).set(score);
       this.refreshScores();
@@ -83,7 +83,7 @@ class ScoresList {
   }
 
   view() {
-    if (this.loading) return m('p', 'Loading');
+    if (this.loading) return [m('div.loading', m('div.spinner'))];
 
     return [
       m('p', 'Scores:'),
@@ -92,7 +92,7 @@ class ScoresList {
         ...this.scores.map((score) =>
           m('tr', [
             m(
-              'td[class=td-name]',
+              'td.td-name',
               m(
                 'a',
                 { href: '/pipescore' + score.path.replace('/scores/', '/') },
@@ -102,7 +102,7 @@ class ScoresList {
             m(
               'td',
               m(
-                'button[class=rename]',
+                'button.rename',
                 { onclick: () => this.rename(score) },
                 'Rename'
               )
@@ -110,7 +110,7 @@ class ScoresList {
             m(
               'td',
               m(
-                'button[class=edit]',
+                'button.edit',
                 {
                   onclick: () =>
                     window.location.assign(
@@ -123,10 +123,8 @@ class ScoresList {
             m(
               'td',
               m(
-                'button[class=delete]',
-                {
-                  onclick: () => this.delete(score),
-                },
+                'button.delete',
+                { onclick: () => this.delete(score) },
                 'Delete'
               )
             ),
