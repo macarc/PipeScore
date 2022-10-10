@@ -54,6 +54,7 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
 
   const res = await event(state);
   if (res !== Update.NoChange) {
+    updateView();
     if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
       state.score.updateName();
       if (res === Update.ShouldSave) {
@@ -66,7 +67,6 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
         save(state.score);
       }
     }
-    updateView();
   }
 }
 let needsRedrawn = false;
