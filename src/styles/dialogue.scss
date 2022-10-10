@@ -33,7 +33,8 @@
       background: lightgrey;
       padding: 1.5rem;
 
-      input:not([type='checkbox']) {
+      input:not([type='checkbox']),
+      select {
         display: block;
       }
       label {

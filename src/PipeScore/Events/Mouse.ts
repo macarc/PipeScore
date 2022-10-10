@@ -16,6 +16,7 @@
 
 import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
+import { dialogueBoxIsOpen } from '../global/dialogueBox';
 
 export function mouseUp(): ScoreEvent {
   return async (state: State) => {
@@ -34,6 +35,7 @@ export function mouseDrag(x: number, y: number, page: number): ScoreEvent {
 
 export function clickBackground(): ScoreEvent {
   return async (state: State) => {
+    if (dialogueBoxIsOpen) return Update.NoChange;
     state.selection = null;
     stopInputtingNotes(state);
     return Update.ViewChanged;

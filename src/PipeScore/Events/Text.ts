@@ -27,14 +27,6 @@ export function addText(): ScoreEvent {
   };
 }
 
-export function changeText(
-  newText: string,
-  newSize: number,
-  text: TextBox
-): ScoreEvent {
-  return async () => text.set(newText, newSize);
-}
-
 export function clickText(text: TextBox): ScoreEvent {
   return async (state: State) => {
     stopInputtingNotes(state);
@@ -48,6 +40,17 @@ export function centreText(): ScoreEvent {
     if (state.selection instanceof TextSelection) {
       state.selection.text.toggleCentre();
       return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
+
+export function editText(tx: TextBox | null = null): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof TextSelection && tx === null)
+      tx = state.selection.text;
+    if (tx) {
+      return await tx.edit();
     }
     return Update.NoChange;
   };

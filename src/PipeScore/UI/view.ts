@@ -54,7 +54,7 @@ import {
   stopPlayback,
   setPlaybackBpm,
 } from '../Events/Playback';
-import { centreText, addText } from '../Events/Text';
+import { centreText, addText, editText } from '../Events/Text';
 import { addStave } from '../Events/Stave';
 import { help } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
@@ -446,12 +446,25 @@ export default function render(state: UIState): m.Children {
           'add text',
           m('button.add', { onclick: () => dispatch(addText()) })
         ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Modify Text Boxes'),
+      m('div.section-content', [
         help(
           'centre text',
           m(
             'button.double-width.text',
             { onclick: () => dispatch(centreText()) },
             'Centre text'
+          )
+        ),
+        help(
+          'edit text',
+          m(
+            'button.double-width.text',
+            { onclick: () => dispatch(editText()) },
+            'Edit text'
           )
         ),
       ]),

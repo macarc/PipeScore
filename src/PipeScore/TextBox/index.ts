@@ -17,7 +17,7 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { Update } from '../Events/common';
-import { changeText, clickText } from '../Events/Text';
+import { editText, clickText } from '../Events/Text';
 import dialogueBox from '../global/dialogueBox';
 import { Obj, svgCoords } from '../global/utils';
 import { Selection, TextSelection } from '../Selection';
@@ -26,6 +26,9 @@ interface TextBoxProps {
   scoreWidth: number;
   selection: Selection | null;
 }
+
+type Font = 'serif' | 'sans-serif';
+
 export class TextBox {
   private centred: boolean;
   private x: number;
@@ -34,6 +37,7 @@ export class TextBox {
   private mouseYOffset = 0;
   private size: number;
   private _text: string;
+  private font: Font;
 
   constructor(text = '', centred = true, x = 0, y = 0, size = 20) {
     this.centred = centred;
@@ -41,6 +45,7 @@ export class TextBox {
     this.y = y ? y : Math.random() * 150;
     this.size = size;
     this._text = text;
+    this.font = 'sans-serif';
   }
   static fromJSON(o: Obj) {
     const tx = new TextBox(o.name);
@@ -49,6 +54,7 @@ export class TextBox {
     tx.size = o.size;
     tx._text = o._text;
     tx.centred = o.centred;
+    tx.font = o.font || 'sans-serif';
     return tx;
   }
   toJSON() {
@@ -57,6 +63,7 @@ export class TextBox {
       y: this.y,
       size: this.size,
       _text: this._text,
+      font: this.font,
       centred: this.centred,
     };
   }
@@ -67,10 +74,11 @@ export class TextBox {
     this.mouseXOffset = this.x - mouseX;
     this.mouseYOffset = this.y - mouseY;
   }
-  set(text: string, size: number) {
-    if (text !== this._text || size !== this.size) {
+  set(text: string, size: number, font: Font) {
+    if (text !== this._text || size !== this.size || font !== this.font) {
       this._text = text;
       this.size = size;
+      this.font = font;
       return Update.ShouldSave;
     }
     return Update.NoChange;
@@ -88,7 +96,7 @@ export class TextBox {
     this.centred = false;
   }
 
-  private async edit() {
+  public async edit() {
     const form = await dialogueBox('Edit Text Box', [
       m('section', [
         m('label', ['Text:', m('input', { type: 'text', value: this._text })]),
@@ -101,6 +109,29 @@ export class TextBox {
             value: this.size,
           }),
         ]),
+        m('label', [
+          'Font:',
+          m('select', [
+            m(
+              'option',
+              {
+                value: 'serif',
+                style: 'font-family: serif;',
+                selected: this.font === 'serif',
+              },
+              'Serif'
+            ),
+            m(
+              'option',
+              {
+                value: 'sans-serif',
+                style: 'font-family: sans-serif;',
+                selected: this.font === 'sans-serif',
+              },
+              'Sans Serif'
+            ),
+          ]),
+        ]),
       ]),
     ]);
     if (form) {
@@ -110,8 +141,12 @@ export class TextBox {
       const text = (
         form.querySelector('input[type="text"]') as HTMLInputElement
       ).value;
-      dispatch(changeText(text, size, this));
+
+      const font = (form.querySelector('select') as HTMLSelectElement)
+        .value as Font;
+      return this.set(text, size, font);
     }
+    return Update.NoChange;
   }
 
   render(props: TextBoxProps): m.Children {
@@ -123,10 +158,10 @@ export class TextBox {
       {
         x: this.x,
         y: this.y,
-        style: `font-size: ${this.size}px; cursor: pointer;`,
+        style: `font-size: ${this.size}px; cursor: pointer; font-family: ${this.font};`,
         'text-anchor': 'middle',
         fill: selected ? 'orange' : '',
-        ondblclick: () => this.edit(),
+        ondblclick: () => dispatch(editText(this)),
         onmousedown: (e: Event) => {
           const pt = svgCoords(e as MouseEvent);
           if (pt) this.setCursorDragOffset(pt.x, pt.y);
