@@ -23,3 +23,11 @@
 - [ ] Triple Strikes
 - [ ] Double Gracenotes
 
+## Other Non-Embellishments to add
+- [x] Dotted Notes
+- [x] Flat/Natural/Sharp Sign
+- [x] Rests
+- [ ] Clefs
+- [ ] Part End
+- [ ] Repeats 
+- [ ] Fermatas

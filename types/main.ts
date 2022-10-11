@@ -29,4 +29,5 @@ export enum TokenType {
     DOTTED_NOTE = "DOTTED_NOTE",
     GRACENOTE = "GRACENOTE",
     DOUBLING = "DOUBLING",
+    STRIKE = "STRIKE",
 }

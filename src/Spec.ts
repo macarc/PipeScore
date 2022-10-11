@@ -81,6 +81,10 @@ const Spec: SpecType[] = [
         regex: /^([th]?db)((?:[lh][ga])|([bcdef]))/,
         type: TokenType.DOUBLING,
     },
+    {
+        regex: /^((?:(?:lh)|(?:lt)|(?:lg)|[gth]?)str?)((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+        type: TokenType.STRIKE,
+    },
 ];
 
 export default Spec;
