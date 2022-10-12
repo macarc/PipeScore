@@ -240,7 +240,7 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("it can parse a bar with left and right beam directions", () => {
+    test("it can parse left and right beam directions", () => {
         expect(
             parser.parse(`
             & sharpf sharpc 4_4 I! LAr_8 Bl_8 Cr_8 Dl_8 Er_8 Fl_8 HGr_8 HAl_8 !I
@@ -316,10 +316,109 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("it can parse a single bar with gracenotes", () => {
+    test("it can parse gracenotes", () => {
         expect(
             parser.parse(`
-            & sharpf sharpc 4_4 I! gg LA_4 gg B_4 gg C_4 gg D_4 !I
+            & sharpf sharpc 4_4 I! LA_4 strlg LA_4 gstb B_4 tstc C_4 hstd D_4 lhstd D_4 ltstd D_4 lgstd D_4 !I
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: {
+                            top: "4",
+                            bottom: "4",
+                        },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "strike",
+                                        value: {
+                                            note: "lg",
+                                        },
+                                    },
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "g-gracenote-strike",
+                                        value: { note: "b" },
+                                    },
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "thumb-strike",
+                                        value: { note: "c" },
+                                    },
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "half-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "heavy-half-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "heavy-thumb-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "heavy-g-gracenote-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse doublings", () => {
+        expect(
+            parser.parse(`
+            & sharpf sharpc 4_4 I! dbla LA_4 hdbb B_4 tdbc C_4 dbd D_4 !I
             `)
         ).toStrictEqual({
             name: "",
@@ -341,8 +440,8 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     tied: false,
                                     embellishment: {
-                                        type: "gracenote",
-                                        value: { note: "g" },
+                                        type: "doubling",
+                                        value: { note: "la" },
                                     },
                                 },
                                 {
@@ -350,8 +449,8 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     tied: false,
                                     embellishment: {
-                                        type: "gracenote",
-                                        value: { note: "g" },
+                                        type: "half-doubling",
+                                        value: { note: "b" },
                                     },
                                 },
                                 {
@@ -359,8 +458,8 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     tied: false,
                                     embellishment: {
-                                        type: "gracenote",
-                                        value: { note: "g" },
+                                        type: "thumb-doubling",
+                                        value: { note: "c" },
                                     },
                                 },
                                 {
@@ -368,8 +467,8 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     tied: false,
                                     embellishment: {
-                                        type: "gracenote",
-                                        value: { note: "g" },
+                                        type: "doubling",
+                                        value: { note: "d" },
                                     },
                                 },
                             ],
@@ -380,7 +479,7 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("it can parse a single bar with doublings", () => {
+    test("it can parse strikes", () => {
         expect(
             parser.parse(`
             & sharpf sharpc 4_4 I! dbla LA_4 hdbb B_4 tdbc C_4 dbd D_4 !I

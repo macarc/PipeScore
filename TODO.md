@@ -12,7 +12,7 @@
 
 - [x] Gracenotes
 - [x] Doublings
-- [ ] Strikes
+- [x] Strikes
 - [ ] Grips
 - [ ] Taorluaths
 - [ ] Bubbly Note

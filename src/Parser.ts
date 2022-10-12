@@ -113,6 +113,7 @@ export default class Parser {
         while (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.DOUBLING ||
+            this.lookahead?.type === TokenType.STRIKE ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
             notes.push(this.Note());
@@ -141,9 +142,21 @@ export default class Parser {
                 return this.GraceNote();
             case TokenType.DOUBLING:
                 return this.Doubling();
+            case TokenType.STRIKE:
+                return this.Strike();
             default:
                 return {};
         }
+    }
+
+    Strike() {
+        let token = this.eat(TokenType.STRIKE);
+        return {
+            type: embellishmentMap.get(token.value[1]),
+            value: {
+                note: token.value[2],
+            },
+        };
     }
 
     Doubling() {
