@@ -90,6 +90,10 @@ const Spec: SpecType[] = [
         regex: /^((?:(?:lh)|(?:lt)|(?:lg)|[gth]?)str?)((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
         type: TokenType.STRIKE,
     },
+    {
+        regex: /^^((?:[hgt])?grpb?)((?:la)|(?:db)|(?:hg)|(?:ha)|[bcdef])?/,
+        type: TokenType.GRIP,
+    },
 ];
 
 export default Spec;
