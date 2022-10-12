@@ -70,37 +70,33 @@ export default class Parser {
     Staves() {
         let staves = [];
 
-        const token = this.eat(TokenType.CLEF);
-        const key = this.KeySignature();
-        const time = this.TimeSignature();
-
-        if (this.lookahead?.type !== TokenType.PART_BEGINNING) {
-            staves.push({
-                clef: {
-                    key: key,
-                    time: time,
-                },
-                bars: [],
-            });
-
-            return staves;
+        while (this.lookahead?.type === TokenType.CLEF) {
+            let token = this.eat(TokenType.CLEF);
+            staves.push(this.Stave(this.KeySignature(), this.TimeSignature()));
         }
 
-        this.eat(TokenType.PART_BEGINNING);
-        const bars = this.Bars();
-        staves.push({
+        return staves;
+    }
+
+    Stave(key: any, time: any) {
+        let bars: object[] = [];
+
+        if (this.lookahead?.type === TokenType.PART_BEGINNING) {
+            this.eat(TokenType.PART_BEGINNING);
+            bars = this.Bars();
+            this.eat(TokenType.PART_END);
+        }
+
+        return {
             clef: {
                 key: key,
                 time: time,
             },
             bars: bars,
-        });
-        this.eat(TokenType.PART_END);
-
-        return staves;
+        };
     }
 
-    Bars() {
+    Bars(): object[] {
         const bars = [];
 
         bars.push(this.Bar());

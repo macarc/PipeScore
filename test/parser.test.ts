@@ -354,6 +354,7 @@ describe("correctly parses score body", () => {
                 {
                     clef: {
                         key: ["sharpf", "sharpc"],
+                        time: {},
                     },
                     bars: [
                         {
