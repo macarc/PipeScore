@@ -1,7 +1,7 @@
 # To Do Items
 
 - [x] Look into ignoring file header
-- [ ] Parse multiple lines 
+- [x] Parse multiple lines 
 - [x] Parse multiple bars 
 - [ ] Add ESLint to project
 - [ ] Add in proper return types 
@@ -26,7 +26,7 @@
 - [x] Flat/Natural/Sharp Sign
 - [x] Rests
 - [x] Clefs
-- [ ] Part End
+- [x] Part End
 - [ ] Repeats 
 - [ ] Fermatas
 - [ ] Ties
