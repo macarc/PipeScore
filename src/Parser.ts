@@ -95,14 +95,20 @@ export default class Parser {
             },
             bars: bars,
         });
-        // this.eat(TokenType.PART_BEGINNING);
+        this.eat(TokenType.PART_END);
 
         return staves;
     }
 
     Bars() {
         const bars = [];
+
         bars.push(this.Bar());
+
+        while (this.lookahead?.type === TokenType.BAR_LINE) {
+            this.eat(TokenType.BAR_LINE);
+            bars.push(this.Bar());
+        }
 
         return bars;
     }

@@ -54,6 +54,11 @@ const Spec: SpecType[] = [
         type: TokenType.PART_END,
     },
     {
+        regex: /^!/,
+        type: TokenType.BAR_LINE,
+    },
+
+    {
         regex: /^((?:sharp|flat)(?:lg|la|b|c|d|e|f|g|a))/,
         type: TokenType.KEY_SIGNATURE,
     },

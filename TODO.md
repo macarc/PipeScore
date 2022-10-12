@@ -2,9 +2,7 @@
 
 - [x] Look into ignoring file header
 - [ ] Parse multiple lines 
-- [ ] Parse multiple bars 
-- [ ] Ties
-- [ ] Irregular Groupings
+- [x] Parse multiple bars 
 - [ ] Add ESLint to project
 - [ ] Add in proper return types 
 
@@ -27,7 +25,9 @@
 - [x] Dotted Notes
 - [x] Flat/Natural/Sharp Sign
 - [x] Rests
-- [ ] Clefs
+- [x] Clefs
 - [ ] Part End
 - [ ] Repeats 
 - [ ] Fermatas
+- [ ] Ties
+- [ ] Irregular Groupings

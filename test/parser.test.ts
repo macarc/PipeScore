@@ -240,6 +240,138 @@ describe("correctly parses score body", () => {
         });
     });
 
+    test("it can parse a multiple bars", () => {
+        expect(
+            parser.parse(`
+            & sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 ! LA_4 B_4 C_4 D_4 !I
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: {
+                            top: "4",
+                            bottom: "4",
+                        },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "B",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "C",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    pitch: "D",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse a multiple lines", () => {
+        expect(
+            parser.parse(`
+            & sharpf sharpc 4_4 I! LA_4 !I
+            & sharpf sharpc  I! LA_4 !I
+            `)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: {
+                            top: "4",
+                            bottom: "4",
+                        },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    pitch: "LA",
+                                    length: "4",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
     test("it can parse left and right beam directions", () => {
         expect(
             parser.parse(`
