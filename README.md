@@ -1,1 +1,1 @@
-# BWW File Converter
+# BWW File Parser
