@@ -11,7 +11,7 @@
 - [x] Gracenotes
 - [x] Doublings
 - [x] Strikes
-- [ ] Grips
+- [x] Grips
 - [ ] Taorluaths
 - [ ] Bubbly Note
 - [ ] Birls
