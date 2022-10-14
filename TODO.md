@@ -14,8 +14,8 @@
 - [x] Grips
 - [x] Taorluaths
 - [x] Bubbly Note
-- [ ] Birls
-- [ ] D-Throws
+- [x] Birls
+- [x] D-Throws
 - [ ] Peles
 - [ ] Double Strikes
 - [ ] Triple Strikes
