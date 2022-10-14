@@ -33,4 +33,6 @@ export enum TokenType {
     STRIKE = "STRIKE",
     REGULAR_GRIP = "REGULAR_GRIP",
     COMPLEX_GRIP = "COMPLEX_GRIP",
+    TAORLUATH = "TAORLUATH",
+    BUBBLY = "BUBBLY",
 }

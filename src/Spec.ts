@@ -87,6 +87,14 @@ const Spec: SpecType[] = [
         type: TokenType.STRIKE,
     },
     {
+        regex: /^((?:htar)|(?:tarb?))/,
+        type: TokenType.TAORLUATH,
+    },
+    {
+        regex: /^(h?bubly)/,
+        type: TokenType.BUBBLY,
+    },
+    {
         regex: /^((?:hgrp)|(?:grpb)|(?:grp))[^\w]/,
         type: TokenType.REGULAR_GRIP,
     },

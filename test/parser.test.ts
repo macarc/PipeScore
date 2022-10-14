@@ -807,4 +807,100 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse taorluaths", () => {
+        expect(
+            parser.parse(`& sharpf sharpc 4_4 I! C_4 tar LA_4 D_4 tarb LA_4 !I`)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "C",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "taorluath" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "b-taorluath" },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse bubbly notes", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! C_4 bubly B_4 LG_4 hbubly B_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "C",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    embellishment: { type: "bubbly-note" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LG",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    embellishment: { type: "half-bubbly-note" },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });
