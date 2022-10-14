@@ -79,10 +79,6 @@ const Spec: SpecType[] = [
         type: TokenType.DOTTED_NOTE,
     },
     {
-        regex: /^([abcdefgt])g/,
-        type: TokenType.GRACENOTE,
-    },
-    {
         regex: /^([th]?db)((?:[lh][ga])|([bcdef]))/,
         type: TokenType.DOUBLING,
     },
@@ -91,8 +87,16 @@ const Spec: SpecType[] = [
         type: TokenType.STRIKE,
     },
     {
-        regex: /^^((?:[hgt])?grpb?)((?:la)|(?:db)|(?:hg)|(?:ha)|[bcdef])?/,
-        type: TokenType.GRIP,
+        regex: /^((?:hgrp)|(?:grpb)|(?:grp))[^\w]/,
+        type: TokenType.REGULAR_GRIP,
+    },
+    {
+        regex: /^((?:[hgt])?grp?(?:db)*)((?:la)|(?:hg)|(?:ha)|[bcdef])*/,
+        type: TokenType.COMPLEX_GRIP,
+    },
+    {
+        regex: /^([abcdefgt])g/,
+        type: TokenType.GRACENOTE,
     },
 ];
 

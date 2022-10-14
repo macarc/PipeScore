@@ -43,7 +43,9 @@ export default class Parser {
         }
 
         if (token.type !== tokenType) {
-            throw new SyntaxError(`Unexpected token: "${token.type}"`);
+            throw new SyntaxError(
+                `Unexpected token: "${token.type}", expected: "${tokenType}"`
+            );
         }
 
         this.lookahead = this.tokenizer.getNextToken();
@@ -71,7 +73,7 @@ export default class Parser {
         let staves = [];
 
         while (this.lookahead?.type === TokenType.CLEF) {
-            let token = this.eat(TokenType.CLEF);
+            this.eat(TokenType.CLEF);
             staves.push(this.Stave(this.KeySignature(), this.TimeSignature()));
         }
 
@@ -116,6 +118,8 @@ export default class Parser {
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.DOUBLING ||
             this.lookahead?.type === TokenType.STRIKE ||
+            this.lookahead?.type === TokenType.REGULAR_GRIP ||
+            this.lookahead?.type === TokenType.COMPLEX_GRIP ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
             notes.push(this.Note());
@@ -146,9 +150,35 @@ export default class Parser {
                 return this.Doubling();
             case TokenType.STRIKE:
                 return this.Strike();
+            case TokenType.REGULAR_GRIP:
+                return this.Grip();
+            case TokenType.COMPLEX_GRIP:
+                return this.ComplexGrip();
             default:
                 return {};
         }
+    }
+
+    Grip() {
+        let token = this.eat(TokenType.REGULAR_GRIP);
+        return {
+            type: embellishmentMap.get(token.value[1]),
+        };
+    }
+
+    ComplexGrip() {
+        let token = this.eat(TokenType.COMPLEX_GRIP);
+        if (token.value[2]) {
+            return {
+                type: embellishmentMap.get(token.value[1]),
+                value: {
+                    note: token.value[2],
+                },
+            };
+        }
+        return {
+            type: embellishmentMap.get(token.value[1]),
+        };
     }
 
     Strike() {

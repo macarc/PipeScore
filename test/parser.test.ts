@@ -675,4 +675,136 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse grips", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! LA_4 grp E_4 LG_4 hgrp E_4 D_4 grpb E_4 D_4 grpb LA_4 E_4 ggrpb B_4 D_4 ggrpdb E_4 tgrpd D_4 tgrpdb D_4 hgrpdb D_4 hgrpb B_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: { type: "grip" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LG",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: { type: "half-grip" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: { type: "b-grip" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "b-grip" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "g-gracenote-grip",
+                                        value: { note: "b" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "g-gracenote-b-grip",
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "thumb-grip",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: { type: "thumb-b-grip" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: { type: "half-b-grip" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "half-grip",
+                                        value: { note: "b" },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

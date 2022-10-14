@@ -31,5 +31,6 @@ export enum TokenType {
     GRACENOTE = "GRACENOTE",
     DOUBLING = "DOUBLING",
     STRIKE = "STRIKE",
-    GRIP = "GRIP",
+    REGULAR_GRIP = "REGULAR_GRIP",
+    COMPLEX_GRIP = "COMPLEX_GRIP",
 }

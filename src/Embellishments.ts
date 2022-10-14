@@ -10,9 +10,13 @@ let embellishmentMap = new Map<string, string>([
     ["hst", "half-strike"],
     ["lhst", "heavy-half-strike"],
     ["grp", "grip"],
-    ["ggrp", "g-gracenote-grip"],
-    ["tgrp", "thumb-grip"],
     ["hgrp", "half-grip"],
+    ["grpb", "b-grip"],
+    ["ggrp", "g-gracenote-grip"],
+    ["ggrpdb", "g-gracenote-b-grip"],
+    ["tgrp", "thumb-grip"],
+    ["tgrpdb", "thumb-b-grip"],
+    ["hgrpdb", "half-b-grip"],
 ]);
 
 export default embellishmentMap;
