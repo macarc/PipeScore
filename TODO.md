@@ -12,8 +12,8 @@
 - [x] Doublings
 - [x] Strikes
 - [x] Grips
-- [ ] Taorluaths
-- [ ] Bubbly Note
+- [x] Taorluaths
+- [x] Bubbly Note
 - [ ] Birls
 - [ ] D-Throws
 - [ ] Peles
@@ -31,3 +31,5 @@
 - [ ] Fermatas
 - [ ] Ties
 - [ ] Irregular Groupings
+
+> Maybe sometime down the road it would be nice to add Piob movements
