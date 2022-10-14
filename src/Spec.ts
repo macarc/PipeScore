@@ -103,6 +103,14 @@ const Spec: SpecType[] = [
         type: TokenType.COMPLEX_GRIP,
     },
     {
+        regex: /^^((?:brl)|(?:[agt]br))/,
+        type: TokenType.BIRL,
+    },
+    {
+        regex: /^((?:thrd)|(?:hvthrd)|(?:hthrd)|(?:hhvthrd))/,
+        type: TokenType.THROW,
+    },
+    {
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },

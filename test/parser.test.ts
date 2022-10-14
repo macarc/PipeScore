@@ -903,4 +903,150 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse birls", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! LA_4 brl LA_4 HA_4 abr LA_4 E_4 gbr LA_4 HG_4 tbr LA_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "birl" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "HA",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "a-birl" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "g-gracenote-birl" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "HG",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: { type: "thumb-birl" },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse throws", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! LA_4 thrd D_4 LA_4 hvthrd D_4 LG_4 hthrd D_4 LG_4 hhvthrd D_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: { type: "throw" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: { type: "heavy-throw" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LG",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: { type: "half-throw" },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LG",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: { type: "half-heavy-throw" },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

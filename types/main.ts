@@ -35,4 +35,6 @@ export enum TokenType {
     COMPLEX_GRIP = "COMPLEX_GRIP",
     TAORLUATH = "TAORLUATH",
     BUBBLY = "BUBBLY",
+    BIRL = "BIRL",
+    THROW = "THROW",
 }

@@ -21,6 +21,14 @@ let embellishmentMap = new Map<string, string>([
     ["tarb", "b-taorluath"],
     ["bubly", "bubbly-note"],
     ["hbubly", "half-bubbly-note"],
+    ["brl", "birl"],
+    ["abr", "a-birl"],
+    ["gbr", "g-gracenote-birl"],
+    ["tbr", "thumb-birl"],
+    ["thrd", "throw"],
+    ["hvthrd", "heavy-throw"],
+    ["hthrd", "half-throw"],
+    ["hhvthrd", "half-heavy-throw"],
 ]);
 
 export default embellishmentMap;

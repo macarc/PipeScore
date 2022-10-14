@@ -122,6 +122,8 @@ export default class Parser {
             this.lookahead?.type === TokenType.COMPLEX_GRIP ||
             this.lookahead?.type === TokenType.TAORLUATH ||
             this.lookahead?.type === TokenType.BUBBLY ||
+            this.lookahead?.type === TokenType.BIRL ||
+            this.lookahead?.type === TokenType.THROW ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
             notes.push(this.Note());
@@ -160,9 +162,27 @@ export default class Parser {
                 return this.Taorluath();
             case TokenType.BUBBLY:
                 return this.Bubbly();
+            case TokenType.BIRL:
+                return this.Birl();
+            case TokenType.THROW:
+                return this.Throw();
             default:
                 return {};
         }
+    }
+
+    Birl() {
+        let token = this.eat(TokenType.BIRL);
+        return {
+            type: embellishmentMap.get(token.value[1]),
+        };
+    }
+
+    Throw() {
+        let token = this.eat(TokenType.THROW);
+        return {
+            type: embellishmentMap.get(token.value[1]),
+        };
     }
 
     Taorluath() {
