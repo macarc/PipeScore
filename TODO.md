@@ -16,8 +16,8 @@
 - [x] Bubbly Note
 - [x] Birls
 - [x] D-Throws
-- [ ] Peles
-- [ ] Double Strikes
+- [x] Peles
+- [x] Double Strikes
 - [ ] Triple Strikes
 - [ ] Double Gracenotes
 
