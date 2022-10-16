@@ -18,7 +18,7 @@
 - [x] D-Throws
 - [x] Peles
 - [x] Double Strikes
-- [ ] Triple Strikes
+- [x] Triple Strikes
 - [ ] Double Gracenotes
 
 ## Other Non-Embellishments to add

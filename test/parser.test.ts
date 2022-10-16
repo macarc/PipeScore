@@ -1237,4 +1237,107 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse triple strikes", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! LA_4 st3la LA_4 lst3d D_4 gst3d D_4 lgst3d D_4 tst3d D_4 ltst3d D_4 hst3d D_4 lhst3d D_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "triple-strike",
+                                        value: { note: "la" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "g-gracenote-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-g-gracenote-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "thumb-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-thumb-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "half-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-half-triple-strike",
+                                        value: { note: "d" },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

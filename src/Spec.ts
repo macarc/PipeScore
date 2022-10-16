@@ -143,6 +143,26 @@ const Spec: SpecType[] = [
         type: TokenType.DOUBLE_STRIKE,
     },
     {
+        regex: /^(st3)((?:ha)|(?:hg)|(?:la)|[bcdef])/,
+        type: TokenType.TRIPLE_STRIKE,
+    },
+    {
+        regex: /^(gst3)((?:la)|[bcdef])/,
+        type: TokenType.TRIPLE_STRIKE,
+    },
+    {
+        regex: /^(tst3)((?:la)|(?:hg)|[bcdef])/,
+        type: TokenType.TRIPLE_STRIKE,
+    },
+    {
+        regex: /^(hst3)((?:la)|(?:hg)|(?:ha)|[bcdef])/,
+        type: TokenType.TRIPLE_STRIKE,
+    },
+    {
+        regex: /^(l[hgt]*st3)(d)/,
+        type: TokenType.TRIPLE_STRIKE,
+    },
+    {
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },
