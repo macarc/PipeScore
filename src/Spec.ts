@@ -123,6 +123,26 @@ const Spec: SpecType[] = [
         type: TokenType.PELE,
     },
     {
+        regex: /^(st2)((?:ha)|(?:hg)|(?:la)|[bcdef])/,
+        type: TokenType.DOUBLE_STRIKE,
+    },
+    {
+        regex: /^(gst2)((?:la)|[bcdef])/,
+        type: TokenType.DOUBLE_STRIKE,
+    },
+    {
+        regex: /^(tst2)((?:la)|(?:hg)|[bcdef])/,
+        type: TokenType.DOUBLE_STRIKE,
+    },
+    {
+        regex: /^(hst2)((?:la)|(?:hg)|(?:ha)|[bcdef])/,
+        type: TokenType.DOUBLE_STRIKE,
+    },
+    {
+        regex: /^(l[hgt]*st2)(d)/,
+        type: TokenType.DOUBLE_STRIKE,
+    },
+    {
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },

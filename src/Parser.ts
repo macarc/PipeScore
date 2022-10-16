@@ -125,6 +125,7 @@ export default class Parser {
             this.lookahead?.type === TokenType.BIRL ||
             this.lookahead?.type === TokenType.THROW ||
             this.lookahead?.type === TokenType.PELE ||
+            this.lookahead?.type === TokenType.DOUBLE_STRIKE ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
             notes.push(this.Note());
@@ -169,9 +170,19 @@ export default class Parser {
                 return this.Throw();
             case TokenType.PELE:
                 return this.Pele();
+            case TokenType.DOUBLE_STRIKE:
+                return this.DoubleStrike();
             default:
                 return {};
         }
+    }
+
+    DoubleStrike() {
+        let token = this.eat(TokenType.DOUBLE_STRIKE);
+        return {
+            type: embellishmentMap.get(token.value[1]),
+            value: { note: token.value[2] },
+        };
     }
 
     Pele() {
