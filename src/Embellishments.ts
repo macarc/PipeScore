@@ -29,6 +29,12 @@ let embellishmentMap = new Map<string, string>([
     ["hvthrd", "heavy-throw"],
     ["hthrd", "half-throw"],
     ["hhvthrd", "half-heavy-throw"],
+    ["pel", "pele"],
+    ["lpel", "closed-pele"],
+    ["tpel", "thumb-pele"],
+    ["ltpel", "closed-thumb-pele"],
+    ["hpel", "half-pele"],
+    ["lhpel", "closed-half-pele"],
 ]);
 
 export default embellishmentMap;

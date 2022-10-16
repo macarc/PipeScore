@@ -1049,4 +1049,89 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse peles", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! E_4 pella LA_4 lpeld D_4 tpeld D_4 ltpeld D_4 hpeld D_4 lhpeld D_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "E",
+                                    tied: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "pele",
+                                        value: { note: "la" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-pele",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "thumb-pele",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-thumb-pele",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "half-pele",
+                                        value: { note: "d" },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "closed-half-pele",
+                                        value: { note: "d" },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

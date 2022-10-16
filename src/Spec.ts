@@ -111,6 +111,18 @@ const Spec: SpecType[] = [
         type: TokenType.THROW,
     },
     {
+        regex: /^(pel)((?:la)|[bcdef])/,
+        type: TokenType.PELE,
+    },
+    {
+        regex: /^([th]pel)((?:la)|(?:hg)|[bcdef])/,
+        type: TokenType.PELE,
+    },
+    {
+        regex: /^(l[th]*pel)(d)/,
+        type: TokenType.PELE,
+    },
+    {
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },

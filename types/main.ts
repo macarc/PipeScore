@@ -37,4 +37,8 @@ export enum TokenType {
     BUBBLY = "BUBBLY",
     BIRL = "BIRL",
     THROW = "THROW",
+    PELE = "PELE",
+    DOUBLE_STRIKE = "DOUBLE_STRIKE",
+    TRIPLE_STRIKE = "TRIPLE_STRIKE",
+    DOUBLE_GRACENOTES = "DOUBLE_GRACENOTES",
 }
