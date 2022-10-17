@@ -163,6 +163,10 @@ const Spec: SpecType[] = [
         type: TokenType.TRIPLE_STRIKE,
     },
     {
+        regex: /^([defgt])((?:la)|(?:lg)|(?:hg)|[bcdef])/,
+        type: TokenType.DOUBLE_GRACENOTE,
+    },
+    {
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },

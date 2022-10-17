@@ -1340,4 +1340,65 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse triple double gracenotes", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! dlg LA_4 gla B_4 tb C_4 thg HA_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "gracenotes",
+                                        value: { notes: ["d", "lg"] },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "gracenotes",
+                                        value: { notes: ["g", "la"] },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "C",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "gracenotes",
+                                        value: { notes: ["a", "b"] },
+                                    },
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "HA",
+                                    tied: false,
+                                    embellishment: {
+                                        type: "gracenotes",
+                                        value: { notes: ["a", "hg"] },
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

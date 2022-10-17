@@ -1,3 +1,4 @@
+import nodeTest from "node:test";
 import { Token, TokenType } from "../types/main";
 import embellishmentMap from "./Embellishments";
 import Tokenizer from "./Tokenizer";
@@ -127,6 +128,7 @@ export default class Parser {
             this.lookahead?.type === TokenType.PELE ||
             this.lookahead?.type === TokenType.DOUBLE_STRIKE ||
             this.lookahead?.type === TokenType.TRIPLE_STRIKE ||
+            this.lookahead?.type === TokenType.DOUBLE_GRACENOTE ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
             notes.push(this.Note());
@@ -175,9 +177,31 @@ export default class Parser {
                 return this.DoubleStrike();
             case TokenType.TRIPLE_STRIKE:
                 return this.TripleStrike();
+            case TokenType.DOUBLE_GRACENOTE:
+                return this.DoubleGracenote();
             default:
                 return {};
         }
+    }
+
+    DoubleGracenote() {
+        let token = this.eat(TokenType.DOUBLE_GRACENOTE);
+        let notes = [];
+
+        if (token.value[1] === "t") {
+            notes.push("a");
+        } else {
+            notes.push(token.value[1]);
+        }
+
+        notes.push(token.value[2]);
+
+        return {
+            type: "gracenotes",
+            value: {
+                notes: notes,
+            },
+        };
     }
 
     TripleStrike() {

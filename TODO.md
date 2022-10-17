@@ -19,7 +19,7 @@
 - [x] Peles
 - [x] Double Strikes
 - [x] Triple Strikes
-- [ ] Double Gracenotes
+- [x] Double Gracenotes
 
 ## Other Non-Embellishments to add
 - [x] Flat/Natural/Sharp Sign
