@@ -3,7 +3,7 @@
 - [x] Look into ignoring file header
 - [x] Parse multiple lines 
 - [x] Parse multiple bars 
-- [ ] Add ESLint to project
+- [x] Add ESLint to project
 - [ ] Add in proper return types 
 
 ## Embellishments to add
