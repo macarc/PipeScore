@@ -19,8 +19,6 @@ import Auth, { User } from 'firebase-auth-lite';
 // A small wrapper over auth.listen(). The auth.listen() isn't used directly
 // is that by default it won't alert when the user isn't logged in
 export function onUserChange(auth: Auth, cb: (user: User | null) => void) {
-  auth.listen((user: User) => {
-    cb(user);
-  });
+  auth.listen((user: User) => cb(user));
   auth.fetchProfile().catch(() => cb(null));
 }

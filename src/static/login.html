@@ -1,6 +1,7 @@
 {Log in to PipeScore} $login$ %Login/login% [
 <h1>Log in</h1>
 <form id="login">
+  <div id="login-error" class="error"></div>
   <label>Email: <input type="email" placeholder="someone@example.com" /></label>
   <label>Password: <input type="password" /></label>
   <input type="submit" value="Log In" />
@@ -12,6 +13,7 @@
 <h1>or Sign up</h1>
 <p>Signing up is completely free.</p>
 <form id="signup">
+  <div id="signup-error" class="error"></div>
   <label>Email: <input type="email" placeholder="someone@example.com" /></label>
   <label>Password: <input type="password" id="first-pwd" /></label>
   <label>Password (again): <input type="password" id="second-pwd" /></label>

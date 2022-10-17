@@ -28,13 +28,34 @@ onUserChange(auth, (user) => {
 });
 
 function prettifyError(e: { message: string }) {
-  let s = '';
-  for (const word of e.message.split('_')) {
-    s += ' ';
-    s += word[0] + word.slice(1).toLowerCase();
+  const words = e.message.split('_');
+  if (words.length > 0) {
+    let s = words[0][0] + words[0].slice(1).toLowerCase();
+    for (const word of words.slice(1)) {
+      s += ' ';
+      s += word.toLowerCase();
+    }
+    return s;
   }
-  return s.slice(1);
+  return 'Unknown error';
 }
+
+function error(text: string, type: 'login' | 'signup') {
+  const el = document.getElementById(type + '-error');
+  if (el) {
+    el.innerText = text;
+    el.style.display = 'block';
+  }
+}
+
+function loginError(text: string) {
+  error(text, 'login');
+}
+
+function signupError(text: string) {
+  error(text, 'signup');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login');
   if (loginForm && loginForm instanceof HTMLFormElement)
@@ -49,11 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = emailEl.value;
         const passwd = passwdEl.value;
         if (!email || !passwd) {
-          alert('Please enter email and password');
+          loginError('Please enter email and password');
         } else {
-          auth
-            .signIn(email, passwd)
-            .catch((e) => alert('An error occurred: ' + prettifyError(e)));
+          auth.signIn(email, passwd).catch((e) => loginError(prettifyError(e)));
         }
       }
     });
@@ -73,13 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const passwd = passwdEl.value;
         const passwd2 = passwdRepeatEl.value;
         if (passwd !== passwd2) {
-          alert('Passwords do not match!');
+          signupError('Passwords do not match!');
         } else if (!email || !passwd) {
-          alert('Please enter email and password');
+          signupError('Please enter email and password');
         } else {
           auth
             .signUp(email, passwd)
-            .catch(() => alert('Invalid username or password'));
+            .catch((e) => signupError(prettifyError(e)));
         }
       }
     });
