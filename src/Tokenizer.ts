@@ -31,7 +31,7 @@ export default class Tokenizer {
         const slice = this.stream.slice(this.cursor);
 
         for (const item of Spec) {
-            let token = item.regex.exec(slice);
+            const token = item.regex.exec(slice);
 
             // Couldn't match this rule, continue.
             if (token == null) {

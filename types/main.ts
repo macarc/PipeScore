@@ -5,7 +5,7 @@ export interface SpecType {
 
 export interface Token {
     type: TokenType;
-    value: any;
+    value: RegExpExecArray;
 }
 
 export enum TokenType {

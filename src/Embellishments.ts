@@ -1,4 +1,4 @@
-let embellishmentMap = new Map<string, string>([
+const embellishmentMap = new Map<string, string>([
     ["db", "doubling"],
     ["tdb", "thumb-doubling"],
     ["hdb", "half-doubling"],

@@ -1,7 +1,7 @@
 import Parser from "../src/Parser";
 
 describe("correctly parses file header", () => {
-    let parser = new Parser();
+    const parser = new Parser();
 
     test("it handles a two captures", () => {
         expect(parser.parse(`Bagpipe Music Writer Gold:1.0\r\n`)).toStrictEqual(
@@ -135,7 +135,7 @@ describe("correctly parses file header", () => {
 });
 
 describe("correctly parses score body", () => {
-    let parser = new Parser();
+    const parser = new Parser();
 
     test("it works without any headers", () => {
         expect(parser.parse(`& sharpf sharpc 3_4`)).toStrictEqual({

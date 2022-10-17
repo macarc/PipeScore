@@ -1,4 +1,3 @@
-import nodeTest from "node:test";
 import { Token, TokenType } from "../types/main";
 import embellishmentMap from "./Embellishments";
 import Tokenizer from "./Tokenizer";
@@ -71,7 +70,7 @@ export default class Parser {
     }
 
     Staves() {
-        let staves = [];
+        const staves = [];
 
         while (this.lookahead?.type === TokenType.CLEF) {
             this.eat(TokenType.CLEF);
@@ -81,7 +80,7 @@ export default class Parser {
         return staves;
     }
 
-    Stave(key: any, time: any) {
+    Stave(key: string[], time: string | object) {
         let bars: object[] = [];
 
         if (this.lookahead?.type === TokenType.PART_BEGINNING) {
@@ -140,8 +139,8 @@ export default class Parser {
     }
 
     Note() {
-        let embellishment = this.Embellishment();
-        let token = this.eat(TokenType.MELODY_NOTE);
+        const embellishment = this.Embellishment();
+        const token = this.eat(TokenType.MELODY_NOTE);
 
         return {
             length: token.value[3],
@@ -185,8 +184,8 @@ export default class Parser {
     }
 
     DoubleGracenote() {
-        let token = this.eat(TokenType.DOUBLE_GRACENOTE);
-        let notes = [];
+        const token = this.eat(TokenType.DOUBLE_GRACENOTE);
+        const notes = [];
 
         if (token.value[1] === "t") {
             notes.push("a");
@@ -205,7 +204,7 @@ export default class Parser {
     }
 
     TripleStrike() {
-        let token = this.eat(TokenType.TRIPLE_STRIKE);
+        const token = this.eat(TokenType.TRIPLE_STRIKE);
         return {
             type: embellishmentMap.get(token.value[1]),
             value: { note: token.value[2] },
@@ -213,7 +212,7 @@ export default class Parser {
     }
 
     DoubleStrike() {
-        let token = this.eat(TokenType.DOUBLE_STRIKE);
+        const token = this.eat(TokenType.DOUBLE_STRIKE);
         return {
             type: embellishmentMap.get(token.value[1]),
             value: { note: token.value[2] },
@@ -221,7 +220,7 @@ export default class Parser {
     }
 
     Pele() {
-        let token = this.eat(TokenType.PELE);
+        const token = this.eat(TokenType.PELE);
         return {
             type: embellishmentMap.get(token.value[1]),
             value: { note: token.value[2] },
@@ -229,42 +228,42 @@ export default class Parser {
     }
 
     Birl() {
-        let token = this.eat(TokenType.BIRL);
+        const token = this.eat(TokenType.BIRL);
         return {
             type: embellishmentMap.get(token.value[1]),
         };
     }
 
     Throw() {
-        let token = this.eat(TokenType.THROW);
+        const token = this.eat(TokenType.THROW);
         return {
             type: embellishmentMap.get(token.value[1]),
         };
     }
 
     Taorluath() {
-        let token = this.eat(TokenType.TAORLUATH);
+        const token = this.eat(TokenType.TAORLUATH);
         return {
             type: embellishmentMap.get(token.value[1]),
         };
     }
 
     Bubbly() {
-        let token = this.eat(TokenType.BUBBLY);
+        const token = this.eat(TokenType.BUBBLY);
         return {
             type: embellishmentMap.get(token.value[1]),
         };
     }
 
     Grip() {
-        let token = this.eat(TokenType.REGULAR_GRIP);
+        const token = this.eat(TokenType.REGULAR_GRIP);
         return {
             type: embellishmentMap.get(token.value[1]),
         };
     }
 
     ComplexGrip() {
-        let token = this.eat(TokenType.COMPLEX_GRIP);
+        const token = this.eat(TokenType.COMPLEX_GRIP);
         if (token.value[2]) {
             return {
                 type: embellishmentMap.get(token.value[1]),
@@ -279,7 +278,7 @@ export default class Parser {
     }
 
     Strike() {
-        let token = this.eat(TokenType.STRIKE);
+        const token = this.eat(TokenType.STRIKE);
         return {
             type: embellishmentMap.get(token.value[1]),
             value: {
@@ -289,7 +288,7 @@ export default class Parser {
     }
 
     Doubling() {
-        let token = this.eat(TokenType.DOUBLING);
+        const token = this.eat(TokenType.DOUBLING);
         return {
             type: embellishmentMap.get(token.value[1]),
             value: {
@@ -299,7 +298,7 @@ export default class Parser {
     }
 
     GraceNote() {
-        let token = this.eat(TokenType.GRACENOTE);
+        const token = this.eat(TokenType.GRACENOTE);
         return {
             type: "gracenote",
             value: {
@@ -309,7 +308,7 @@ export default class Parser {
     }
 
     KeySignature() {
-        let keys = [];
+        const keys = [];
 
         while (this.lookahead?.type === TokenType.KEY_SIGNATURE) {
             keys.push(this.eat(TokenType.KEY_SIGNATURE).value[1]);
@@ -320,7 +319,7 @@ export default class Parser {
 
     TimeSignature() {
         if (this.lookahead?.type === TokenType.TIME_SIGNATURE) {
-            let token = this.eat(TokenType.TIME_SIGNATURE);
+            const token = this.eat(TokenType.TIME_SIGNATURE);
             if (token.value[1]) {
                 return {
                     top: token.value[1],
@@ -337,7 +336,7 @@ export default class Parser {
     }
 
     Headers() {
-        let headers = [];
+        const headers = [];
         let matching = true;
 
         while (this.lookahead && matching) {
