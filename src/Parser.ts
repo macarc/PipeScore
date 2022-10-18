@@ -146,8 +146,18 @@ export default class Parser {
             length: token.value[3],
             pitch: token.value[1],
             tied: false,
+            dotted: this.Dot(),
             embellishment: embellishment,
         };
+    }
+
+    Dot() {
+        if (this.lookahead?.type === TokenType.DOTTED_NOTE) {
+            this.eat(TokenType.DOTTED_NOTE);
+            return true;
+        }
+
+        return false;
     }
 
     Embellishment() {

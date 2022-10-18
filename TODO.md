@@ -26,10 +26,14 @@
 - [x] Rests
 - [x] Clefs
 - [x] Part End
-- [ ] Dotted Notes
+- [x] Dotted Notes
+- [ ] Double Dotted Notes?
 - [ ] Repeats 
 - [ ] Fermatas
 - [ ] Ties
 - [ ] Irregular Groupings
+
+## Fixups
+- [ ] Clef and time signatures should be listed within a bar
 
 > Maybe sometime down the road it would be nice to add Piob movements

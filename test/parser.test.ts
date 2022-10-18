@@ -212,24 +212,28 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                             ],
@@ -264,24 +268,28 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                             ],
@@ -292,24 +300,28 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                             ],
@@ -345,6 +357,7 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                             ],
@@ -363,6 +376,7 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                             ],
@@ -397,48 +411,56 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "B",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "C",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "D",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "E",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "F",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "HG",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "HA",
                                     length: "8",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                             ],
@@ -473,12 +495,14 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "strike",
                                         value: {
@@ -490,6 +514,7 @@ describe("correctly parses score body", () => {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "g-gracenote-strike",
                                         value: { note: "b" },
@@ -499,6 +524,7 @@ describe("correctly parses score body", () => {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-strike",
                                         value: { note: "c" },
@@ -508,6 +534,7 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-strike",
                                         value: { note: "d" },
@@ -517,6 +544,7 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "heavy-half-strike",
                                         value: { note: "d" },
@@ -526,6 +554,7 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "heavy-thumb-strike",
                                         value: { note: "d" },
@@ -535,6 +564,7 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "heavy-g-gracenote-strike",
                                         value: { note: "d" },
@@ -572,6 +602,7 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "doubling",
                                         value: { note: "la" },
@@ -581,6 +612,7 @@ describe("correctly parses score body", () => {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-doubling",
                                         value: { note: "b" },
@@ -590,6 +622,7 @@ describe("correctly parses score body", () => {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-doubling",
                                         value: { note: "c" },
@@ -599,6 +632,7 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "doubling",
                                         value: { note: "d" },
@@ -636,6 +670,7 @@ describe("correctly parses score body", () => {
                                     pitch: "LA",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "doubling",
                                         value: { note: "la" },
@@ -645,6 +680,7 @@ describe("correctly parses score body", () => {
                                     pitch: "B",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-doubling",
                                         value: { note: "b" },
@@ -654,6 +690,7 @@ describe("correctly parses score body", () => {
                                     pitch: "C",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-doubling",
                                         value: { note: "c" },
@@ -663,6 +700,7 @@ describe("correctly parses score body", () => {
                                     pitch: "D",
                                     length: "4",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "doubling",
                                         value: { note: "d" },
@@ -697,60 +735,70 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "grip" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "LG",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "half-grip" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "b-grip" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "b-grip" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "B",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "g-gracenote-grip",
                                         value: { note: "b" },
@@ -760,12 +808,14 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "g-gracenote-b-grip",
                                     },
@@ -774,6 +824,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-grip",
                                         value: { note: "d" },
@@ -783,18 +834,21 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "thumb-b-grip" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "half-b-grip" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "B",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-grip",
                                         value: { note: "b" },
@@ -827,24 +881,28 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "C",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "taorluath" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "b-taorluath" },
                                 },
                             ],
@@ -876,24 +934,28 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "C",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "B",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "bubbly-note" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "LG",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "B",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "half-bubbly-note" },
                                 },
                             ],
@@ -925,48 +987,56 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "birl" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "HA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "a-birl" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "g-gracenote-birl" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "HG",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "thumb-birl" },
                                 },
                             ],
@@ -998,48 +1068,56 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "throw" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "heavy-throw" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "LG",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "half-throw" },
                                 },
                                 {
                                     length: "4",
                                     pitch: "LG",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: { type: "half-heavy-throw" },
                                 },
                             ],
@@ -1071,12 +1149,14 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "E",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "pele",
                                         value: { note: "la" },
@@ -1086,6 +1166,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-pele",
                                         value: { note: "d" },
@@ -1095,6 +1176,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-pele",
                                         value: { note: "d" },
@@ -1104,6 +1186,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-thumb-pele",
                                         value: { note: "d" },
@@ -1113,6 +1196,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-pele",
                                         value: { note: "d" },
@@ -1122,6 +1206,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-half-pele",
                                         value: { note: "d" },
@@ -1156,12 +1241,14 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "double-strike",
                                         value: { note: "la" },
@@ -1171,6 +1258,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-double-strike",
                                         value: { note: "d" },
@@ -1180,6 +1268,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "g-gracenote-double-strike",
                                         value: { note: "d" },
@@ -1189,6 +1278,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-g-gracenote-double-strike",
                                         value: { note: "d" },
@@ -1198,6 +1288,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-double-strike",
                                         value: { note: "d" },
@@ -1207,6 +1298,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-thumb-double-strike",
                                         value: { note: "d" },
@@ -1216,6 +1308,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-double-strike",
                                         value: { note: "d" },
@@ -1225,6 +1318,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-half-double-strike",
                                         value: { note: "d" },
@@ -1259,12 +1353,14 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {},
                                 },
                                 {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "triple-strike",
                                         value: { note: "la" },
@@ -1274,6 +1370,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-triple-strike",
                                         value: { note: "d" },
@@ -1283,6 +1380,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "g-gracenote-triple-strike",
                                         value: { note: "d" },
@@ -1292,6 +1390,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-g-gracenote-triple-strike",
                                         value: { note: "d" },
@@ -1301,6 +1400,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "thumb-triple-strike",
                                         value: { note: "d" },
@@ -1310,6 +1410,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-thumb-triple-strike",
                                         value: { note: "d" },
@@ -1319,6 +1420,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "half-triple-strike",
                                         value: { note: "d" },
@@ -1328,6 +1430,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "D",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "closed-half-triple-strike",
                                         value: { note: "d" },
@@ -1341,7 +1444,7 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("it can parse triple double gracenotes", () => {
+    test("it can parse double gracenotes", () => {
         expect(
             parser.parse(
                 `& sharpf sharpc 4_4 I! dlg LA_4 gla B_4 tb C_4 thg HA_4 !I`
@@ -1362,6 +1465,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "LA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "gracenotes",
                                         value: { notes: ["d", "lg"] },
@@ -1371,6 +1475,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "B",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "gracenotes",
                                         value: { notes: ["g", "la"] },
@@ -1380,6 +1485,7 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "C",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "gracenotes",
                                         value: { notes: ["a", "b"] },
@@ -1389,10 +1495,60 @@ describe("correctly parses score body", () => {
                                     length: "4",
                                     pitch: "HA",
                                     tied: false,
+                                    dotted: false,
                                     embellishment: {
                                         type: "gracenotes",
                                         value: { notes: ["a", "hg"] },
                                     },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse singly dotted notes", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! gg LA_4 tar LAr_8 'la Bl_16 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {
+                                        type: "gracenote",
+                                        value: { note: "g" },
+                                    },
+                                },
+                                {
+                                    length: "8",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dotted: true,
+                                    embellishment: { type: "taorluath" },
+                                },
+                                {
+                                    length: "16",
+                                    pitch: "B",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
                                 },
                             ],
                         },
