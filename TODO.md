@@ -27,7 +27,7 @@
 - [x] Clefs
 - [x] Part End
 - [x] Dotted Notes
-- [ ] Double Dotted Notes?
+- [ ] Doubly Dotted Notes?
 - [ ] Repeats 
 - [ ] Fermatas
 - [ ] Ties
