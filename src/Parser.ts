@@ -86,12 +86,12 @@ export default class Parser {
         if (this.lookahead?.type === TokenType.PART_BEGINNING) {
             this.eat(TokenType.PART_BEGINNING);
             bars = this.Bars();
-            this.eat(TokenType.PART_END);
+            this.EndStave();
         }
 
-        if (this.lookahead?.type === TokenType.MELODY_NOTE) {
+        if (this.HasNote()) {
             bars = this.Bars();
-            this.eat(TokenType.PART_END);
+            this.EndStave();
         }
 
         return {
@@ -101,6 +101,17 @@ export default class Parser {
             },
             bars: bars,
         };
+    }
+
+    EndStave() {
+        switch (this.lookahead?.type) {
+            case TokenType.PART_END:
+                this.eat(TokenType.PART_END);
+                break;
+            case TokenType.TERMINATING_BAR_LINE:
+                this.eat(TokenType.TERMINATING_BAR_LINE);
+                break;
+        }
     }
 
     Bars(): object[] {
@@ -116,10 +127,8 @@ export default class Parser {
         return bars;
     }
 
-    Bar() {
-        const notes = [];
-
-        while (
+    HasNote(): boolean {
+        if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.DOUBLING ||
             this.lookahead?.type === TokenType.STRIKE ||
@@ -135,6 +144,16 @@ export default class Parser {
             this.lookahead?.type === TokenType.DOUBLE_GRACENOTE ||
             this.lookahead?.type === TokenType.GRACENOTE
         ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    Bar() {
+        const notes = [];
+
+        while (this.HasNote()) {
             notes.push(this.Note());
         }
 

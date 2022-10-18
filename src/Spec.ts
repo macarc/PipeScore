@@ -54,6 +54,10 @@ const Spec: SpecType[] = [
         type: TokenType.PART_END,
     },
     {
+        regex: /^!t/,
+        type: TokenType.TERMINATING_BAR_LINE,
+    },
+    {
         regex: /^!/,
         type: TokenType.BAR_LINE,
     },

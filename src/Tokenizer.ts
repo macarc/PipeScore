@@ -50,6 +50,7 @@ export default class Tokenizer {
             };
         }
 
-        throw new SyntaxError(`Unexpected token: "${slice[0]}"`);
+        const match = /^([^\s]*)/.exec(slice);
+        throw new SyntaxError(`Unexpected token: "${match ? match[1] : ""}"`);
     }
 }
