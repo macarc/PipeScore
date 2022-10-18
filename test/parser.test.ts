@@ -1557,4 +1557,101 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse an anacrusis", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 E_8 ! gg LA_4 tar LAr_8 'la Bl_16 dbc Cr_8 eg LAl_8 dbc Cr_8 El_8 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "8",
+                                    pitch: "E",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {
+                                        type: "gracenote",
+                                        value: { note: "g" },
+                                    },
+                                },
+                                {
+                                    length: "8",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dotted: true,
+                                    embellishment: { type: "taorluath" },
+                                },
+                                {
+                                    length: "16",
+                                    pitch: "B",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "8",
+                                    pitch: "C",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {
+                                        type: "doubling",
+                                        value: { note: "c" },
+                                    },
+                                },
+                                {
+                                    length: "8",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {
+                                        type: "gracenote",
+                                        value: { note: "e" },
+                                    },
+                                },
+                                {
+                                    length: "8",
+                                    pitch: "C",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {
+                                        type: "doubling",
+                                        value: { note: "c" },
+                                    },
+                                },
+                                {
+                                    length: "8",
+                                    pitch: "E",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

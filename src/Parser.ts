@@ -89,6 +89,11 @@ export default class Parser {
             this.eat(TokenType.PART_END);
         }
 
+        if (this.lookahead?.type === TokenType.MELODY_NOTE) {
+            bars = this.Bars();
+            this.eat(TokenType.PART_END);
+        }
+
         return {
             clef: {
                 key: key,
