@@ -58,6 +58,7 @@ def cp_file(filename):
 build('index')
 build('login')
 build('scores')
+build('support')
 build('404')
 build('contact')
 build('forgotpassword')

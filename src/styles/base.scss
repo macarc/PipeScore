@@ -29,17 +29,25 @@ main {
 
 header ul {
   position: static;
+  overflow-x: scroll;
   padding: 0;
   margin: 0;
   width: 100%;
   background: lightblue;
   display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+header ul::-webkit-scrollbar {
+  display: none;
 }
 
 header ul li {
   list-style: none;
   padding: 0.5rem;
-  margin-right: 0.8rem;
   font-size: 1.1rem;
   text-align: center;
 }
