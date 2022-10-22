@@ -19,7 +19,10 @@ import { Pitch } from '../global/pitch';
 
 export class Selection {
   dragging = false;
-  delete(score: Score) {}
+  // Return true if the selection should be deleted
+  delete(score: Score): boolean {
+    return true;
+  }
   mouseDrag(x: number, y: number, score: Score, page: number) {}
   dragOverPitch(pitch: Pitch, score: Score) {}
   mouseUp() {}

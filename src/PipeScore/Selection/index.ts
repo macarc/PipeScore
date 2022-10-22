@@ -35,6 +35,7 @@ export class TextSelection extends Drags {
   }
   public delete(score: Score) {
     score.deleteTextBox(this.text);
+    return true;
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
     score.dragTextBox(this.text, x, y, page);
@@ -64,6 +65,7 @@ export class TimingSelection extends Drags {
   }
   public delete(score: Score) {
     score.deleteTiming(this.timing);
+    return true;
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
     score.dragTiming(this.timing, this.part, x, y, page);
@@ -80,6 +82,7 @@ export class TripletLineSelection extends Drags {
   public delete(score: Score) {
     const location = score.location(this.selected.id);
     if (location) location.bar.unmakeTriplet(this.selected);
+    return true;
   }
 }
 
@@ -99,12 +102,18 @@ export class GracenoteSelection extends Drags {
     this.selected = newGracenote;
   }
   public delete(score: Score) {
-    this.changeGracenote(
-      this.note === 'all'
-        ? Gracenote.fromName('none')
-        : this.selected.removeSingle(this.note),
-      score
-    );
+    if (this.note === 'all') {
+      this.changeGracenote(Gracenote.fromName('none'), score);
+      return true;
+    } else {
+      const updated = this.selected.removeSingle(this.note);
+      this.changeGracenote(updated, score);
+      if (this.note > 0) {
+        this.note--;
+      }
+      if (updated.numberOfNotes() === 0) return true;
+    }
+    return false;
   }
   public dragOverPitch(pitch: Pitch, score: Score) {
     if (this.note !== 'all') {

@@ -20,6 +20,7 @@ import m from 'mithril';
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { settings } from '../global/settings';
+import { ID } from '../global/id';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
@@ -79,6 +80,12 @@ export class Stave {
   }
   public bars() {
     return this._bars;
+  }
+  public previousNote(id: ID) {
+    return Bar.previousNote(id, this.bars());
+  }
+  public previousBar(bar: Bar) {
+    return this._bars[this._bars.indexOf(bar) - 1] || null;
   }
 
   public partFirst() {

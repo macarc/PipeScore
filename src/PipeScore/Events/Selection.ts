@@ -106,8 +106,7 @@ export function moveRightBarwise(): ScoreEvent {
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.selection) {
-      state.selection.delete(state.score);
-      state.selection = null;
+      if (state.selection.delete(state.score)) state.selection = null;
       return Update.ShouldSave;
     }
     return Update.NoChange;

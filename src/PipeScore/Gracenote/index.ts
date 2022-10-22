@@ -98,8 +98,8 @@ export abstract class Gracenote {
     if (pitch) return this.drag(pitchDown(pitch), index);
     return null;
   }
-  numberOfNotes(g: Gracenote, thisNote: Pitch, previous: Pitch) {
-    const notes = g.notes(thisNote, previous).length;
+  numberOfNotes() {
+    const notes = this.notes().length;
     if (notes === 0) return 0;
     // We need extra space before the note, so add one note
     return notes + 1;

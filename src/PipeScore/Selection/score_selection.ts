@@ -55,9 +55,28 @@ export class ScoreSelection extends Drags {
       note.makeCorrectTie(score.notes());
     }
   }
+  // If selection is:
+  // - A single note, find the previous note
+  // - A single bar, find the previous bar
+  private selectedPrevious(score: Score): ID | null {
+    const n = this.note(score);
+    const b = this.bars(score)[0] || null;
+    let newSelection: ID | null = null;
+    if (this.start === this.end) {
+      if (n) {
+        const previousNote = score.location(n.id).stave.previousNote(n.id);
+        newSelection = previousNote && previousNote.id;
+      } else if (b) {
+        const previousBar = score.location(b.id).stave.previousBar(b);
+        newSelection = previousBar && previousBar.id;
+      }
+    }
+    return newSelection;
+  }
   public delete(score: Score) {
     let started = false;
     let deleteBars = false;
+    const newSelection = this.selectedPrevious(score);
     const notesToDelete: [Note, Bar][] = [];
     const barsToDelete: [Bar, Stave][] = [];
 
@@ -89,6 +108,13 @@ export class ScoreSelection extends Drags {
       [...notesToDelete.map(car), ...barsToDelete.map(car)],
       score
     );
+
+    if (newSelection) {
+      this.start = newSelection;
+      this.end = newSelection;
+      return false;
+    }
+    return true;
   }
   public lastNoteAndBar(score: Score): { note: Note | null; bar: Bar } {
     const notes = this.notes(score);
