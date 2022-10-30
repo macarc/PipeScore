@@ -27,9 +27,11 @@ export interface Note {
     length: string;
     pitch: string;
     tied: boolean;
-    dot: "none" | "single" | "double";
+    dot: Dot;
     embellishment: Embellishment | DoubleGracenote;
 }
+
+export type Dot = "none" | "single" | "double";
 
 export interface DoubleGracenote {
     type: string;

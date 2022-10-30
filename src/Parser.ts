@@ -1,5 +1,6 @@
 import {
     Bar,
+    Dot,
     DoubleGracenote,
     Embellishment,
     Header,
@@ -198,7 +199,7 @@ export default class Parser {
         };
     }
 
-    Dot(): "none" | "single" | "double" {
+    Dot(): Dot {
         if (this.lookahead?.type === TokenType.DOTTED_NOTE) {
             const token: Token = this.eat(TokenType.DOTTED_NOTE);
 
