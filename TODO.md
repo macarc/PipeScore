@@ -30,7 +30,7 @@
 - [x] Doubly Dotted Notes?
 - [x] Rests
 - [x] Note Accidentals
-- [ ] Fermatas
+- [x] Fermatas
 - [ ] Ties
 - [ ] Irregular Groupings
 

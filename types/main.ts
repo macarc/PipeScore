@@ -35,6 +35,7 @@ export interface Note {
     pitch: string;
     accidental: NoteAccidental;
     tied: boolean;
+    fermata: boolean;
     dot: Dot;
     embellishment: Embellishment | DoubleGracenote;
 }
@@ -106,6 +107,7 @@ export enum TokenType {
     BAR_LINE = "BAR_LINE",
     TERMINATING_BAR_LINE = "TERMINATING_BAR_LINE",
     ACCIDENTAL = "ACCIDENTAL",
+    FERMATA = "FERMATA",
     TIME_SIGNATURE = "TIME_SIGNATURE",
     PART_BEGINNING = "PART_BEGINNING",
     PART_END = "PART_END",

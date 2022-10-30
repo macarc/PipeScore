@@ -157,6 +157,7 @@ export default class Parser {
         if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.REST ||
+            this.lookahead?.type === TokenType.FERMATA ||
             this.lookahead?.type === TokenType.ACCIDENTAL ||
             this.lookahead?.type === TokenType.DOUBLING ||
             this.lookahead?.type === TokenType.STRIKE ||
@@ -204,16 +205,27 @@ export default class Parser {
                 rest: true,
             };
         } else {
+            const fermata = this.Fermata();
             const token = this.eat(TokenType.MELODY_NOTE);
             return {
                 length: token.value[3],
                 pitch: token.value[1],
                 accidental: accidental,
                 tied: false,
+                fermata: fermata,
                 dot: this.Dot(),
                 embellishment: embellishment,
             };
         }
+    }
+
+    Fermata(): boolean {
+        if (this.lookahead?.type === TokenType.FERMATA) {
+            this.eat(TokenType.FERMATA);
+            return true;
+        }
+
+        return false;
     }
 
     Dot(): Dot {

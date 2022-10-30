@@ -66,6 +66,10 @@ const Spec: SpecType[] = [
         type: TokenType.ACCIDENTAL,
     },
     {
+        regex: /^(?:fermat)(lg|la|b|c|d|e|f|hg|ha)/,
+        type: TokenType.FERMATA,
+    },
+    {
         regex: /^((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})/,
         type: TokenType.MELODY_NOTE,
     },
