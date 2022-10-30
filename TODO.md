@@ -29,7 +29,7 @@
 - [x] Repeats 
 - [x] Doubly Dotted Notes?
 - [x] Rests
-- [ ] Note Accidentals
+- [x] Note Accidentals
 - [ ] Fermatas
 - [ ] Ties
 - [ ] Irregular Groupings

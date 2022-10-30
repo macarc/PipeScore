@@ -63,8 +63,8 @@ const Spec: SpecType[] = [
     },
 
     {
-        regex: /^((?:sharp|natural|flat)(?:lg|la|b|c|d|e|f|g|a))/,
-        type: TokenType.KEY_SIGNATURE,
+        regex: /^(?:(sharp|natural|flat)(lg|la|b|c|d|e|f|g|a))/,
+        type: TokenType.ACCIDENTAL,
     },
     {
         regex: /^((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})/,

@@ -1,4 +1,5 @@
 import {
+    Accidental,
     Bar,
     Dot,
     DoubleGracenote,
@@ -95,7 +96,7 @@ export default class Parser {
         return staves;
     }
 
-    Stave(key: string[], time: TimeSignature): Stave {
+    Stave(key: Accidental[], time: TimeSignature): Stave {
         let bars: Bar[] = [];
 
         const repeat: boolean = this.BeginStave();
@@ -156,6 +157,7 @@ export default class Parser {
         if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.REST ||
+            this.lookahead?.type === TokenType.ACCIDENTAL ||
             this.lookahead?.type === TokenType.DOUBLING ||
             this.lookahead?.type === TokenType.STRIKE ||
             this.lookahead?.type === TokenType.REGULAR_GRIP ||
@@ -190,6 +192,11 @@ export default class Parser {
 
     Note(): Note | Rest {
         const embellishment = this.Embellishment();
+        const accidental =
+            this.lookahead?.type === TokenType.ACCIDENTAL
+                ? this.Accidental().type
+                : "none";
+
         if (this.lookahead?.type === TokenType.REST) {
             const token = this.eat(TokenType.REST);
             return {
@@ -201,6 +208,7 @@ export default class Parser {
             return {
                 length: token.value[3],
                 pitch: token.value[1],
+                accidental: accidental,
                 tied: false,
                 dot: this.Dot(),
                 embellishment: embellishment,
@@ -385,14 +393,36 @@ export default class Parser {
         };
     }
 
-    KeySignature(): string[] {
-        const keys = [];
+    KeySignature(): Accidental[] {
+        const accidentals: Accidental[] = [];
 
-        while (this.lookahead?.type === TokenType.KEY_SIGNATURE) {
-            keys.push(this.eat(TokenType.KEY_SIGNATURE).value[1]);
+        while (this.lookahead?.type === TokenType.ACCIDENTAL) {
+            accidentals.push(this.Accidental());
         }
 
-        return keys;
+        return accidentals;
+    }
+
+    Accidental(): Accidental {
+        const token: Token = this.eat(TokenType.ACCIDENTAL);
+
+        return {
+            type: this.AccidentalType(token.value[1]),
+            note: token.value[2],
+        };
+    }
+
+    AccidentalType(type: string): "sharp" | "flat" | "natural" {
+        switch (type) {
+            case "sharp":
+                return "sharp";
+            case "flat":
+                return "flat";
+            case "natural":
+                return "natural";
+            default:
+                throw new Error(`Unable to match accidental type: ${type}`);
+        }
     }
 
     TimeSignature(): TimeSignature {

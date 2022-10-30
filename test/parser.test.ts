@@ -145,7 +145,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "3",
                             bottom: "4",
@@ -165,7 +168,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { type: "common" },
                     },
                     bars: [],
@@ -182,7 +188,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { type: "cut" },
                     },
                     bars: [],
@@ -203,7 +212,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -215,6 +227,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -222,6 +235,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -229,6 +243,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -236,6 +251,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -260,7 +276,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -272,6 +291,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -279,6 +299,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -286,6 +307,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -293,6 +315,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -304,6 +327,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -311,6 +335,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -318,6 +343,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -325,6 +351,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -350,7 +377,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -362,6 +392,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -373,7 +404,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {},
                     },
                     bars: [
@@ -382,6 +416,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -406,7 +441,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -418,6 +456,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -425,6 +464,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -432,6 +472,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -439,6 +480,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -446,6 +488,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "E",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -453,6 +496,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "F",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -460,6 +504,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "HG",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -467,6 +512,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "HA",
                                     length: "8",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -491,7 +537,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -503,6 +552,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -510,6 +560,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -522,6 +573,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -532,6 +584,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -542,6 +595,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -552,6 +606,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -562,6 +617,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -572,6 +628,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -599,7 +656,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -611,6 +671,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -621,6 +682,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -631,6 +693,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -641,6 +704,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -668,7 +732,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: {
                             top: "4",
                             bottom: "4",
@@ -680,6 +747,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "LA",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -690,6 +758,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "B",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -700,6 +769,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "C",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -710,6 +780,7 @@ describe("correctly parses score body", () => {
                                 {
                                     pitch: "D",
                                     length: "4",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -737,7 +808,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -746,6 +820,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -753,6 +828,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "grip" },
@@ -760,6 +836,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LG",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -767,6 +844,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "half-grip" },
@@ -774,6 +852,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -781,6 +860,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "b-grip" },
@@ -788,6 +868,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -795,6 +876,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "b-grip" },
@@ -802,6 +884,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -809,6 +892,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -819,6 +903,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -826,6 +911,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -835,6 +921,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -845,6 +932,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "thumb-b-grip" },
@@ -852,6 +940,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "half-b-grip" },
@@ -859,6 +948,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -884,7 +974,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -893,6 +986,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "C",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -900,6 +994,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "taorluath" },
@@ -907,6 +1002,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -914,6 +1010,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "b-taorluath" },
@@ -938,7 +1035,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -947,6 +1047,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "C",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -954,6 +1055,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "bubbly-note" },
@@ -961,6 +1063,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LG",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -968,6 +1071,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "half-bubbly-note" },
@@ -992,7 +1096,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1001,6 +1108,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1008,6 +1116,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "birl" },
@@ -1015,6 +1124,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "HA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1022,6 +1132,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "a-birl" },
@@ -1029,6 +1140,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1036,6 +1148,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "g-gracenote-birl" },
@@ -1043,6 +1156,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "HG",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1050,6 +1164,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "thumb-birl" },
@@ -1074,7 +1189,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1083,6 +1201,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1090,6 +1209,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "throw" },
@@ -1097,6 +1217,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1104,6 +1225,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "heavy-throw" },
@@ -1111,6 +1233,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LG",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1118,6 +1241,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "half-throw" },
@@ -1125,6 +1249,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LG",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1132,6 +1257,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: { type: "half-heavy-throw" },
@@ -1156,7 +1282,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1165,6 +1294,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1172,6 +1302,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1182,6 +1313,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1192,6 +1324,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1202,6 +1335,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1212,6 +1346,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1222,6 +1357,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1249,7 +1385,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1258,6 +1397,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1265,6 +1405,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1275,6 +1416,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1285,6 +1427,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1295,6 +1438,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1305,6 +1449,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1315,6 +1460,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1325,6 +1471,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1335,6 +1482,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1362,7 +1510,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1371,6 +1522,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1378,6 +1530,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1388,6 +1541,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1398,6 +1552,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1408,6 +1563,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1418,6 +1574,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1428,6 +1585,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1438,6 +1596,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1448,6 +1607,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1475,7 +1635,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1484,6 +1647,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1494,6 +1658,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1504,6 +1669,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "C",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1514,6 +1680,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "HA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1541,7 +1708,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1550,6 +1720,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1560,6 +1731,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "single",
                                     embellishment: { type: "taorluath" },
@@ -1567,6 +1739,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "16",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1591,7 +1764,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1600,6 +1776,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1610,6 +1787,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "double",
                                     embellishment: { type: "taorluath" },
@@ -1617,6 +1795,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "16",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1642,7 +1821,10 @@ describe("correctly parses score body", () => {
                     repeat: false,
 
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1651,6 +1833,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1662,6 +1845,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1672,6 +1856,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "single",
                                     embellishment: { type: "taorluath" },
@@ -1679,6 +1864,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "16",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1686,6 +1872,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "C",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1696,6 +1883,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1706,6 +1894,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "C",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {
@@ -1716,6 +1905,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "E",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1738,7 +1928,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: true,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1747,6 +1940,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1754,6 +1948,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1761,6 +1956,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "C",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1768,6 +1964,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1790,7 +1987,10 @@ describe("correctly parses score body", () => {
                 {
                     repeat: false,
                     clef: {
-                        key: ["sharpf", "sharpc"],
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
                         time: { top: "4", bottom: "4" },
                     },
                     bars: [
@@ -1799,6 +1999,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "LA",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1806,6 +2007,7 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "B",
+                                    accidental: "none",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},
@@ -1814,6 +2016,68 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "4",
                                     pitch: "D",
+                                    accidental: "none",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse accidentals before notes", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! LA_4 sharpb B_4 flatc C_4 naturald D_4 !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: false,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    accidental: "none",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    accidental: "sharp",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "C",
+                                    accidental: "flat",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    accidental: "natural",
                                     tied: false,
                                     dot: "none",
                                     embellishment: {},

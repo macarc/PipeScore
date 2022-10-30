@@ -7,10 +7,17 @@ export interface Score {
 export interface Stave {
     repeat: boolean;
     clef: {
-        key: string[];
+        key: Accidental[];
         time: TimeSignature;
     };
     bars: Bar[];
+}
+
+export type NoteAccidental = "sharp" | "natural" | "flat" | "none";
+
+export interface Accidental {
+    type: "sharp" | "natural" | "flat";
+    note: string;
 }
 
 export interface TimeSignature {
@@ -26,6 +33,7 @@ export interface Bar {
 export interface Note {
     length: string;
     pitch: string;
+    accidental: NoteAccidental;
     tied: boolean;
     dot: Dot;
     embellishment: Embellishment | DoubleGracenote;
@@ -97,7 +105,7 @@ export enum TokenType {
     CLEF = "CLEF",
     BAR_LINE = "BAR_LINE",
     TERMINATING_BAR_LINE = "TERMINATING_BAR_LINE",
-    KEY_SIGNATURE = "KEY_SIGNATURE",
+    ACCIDENTAL = "ACCIDENTAL",
     TIME_SIGNATURE = "TIME_SIGNATURE",
     PART_BEGINNING = "PART_BEGINNING",
     PART_END = "PART_END",
