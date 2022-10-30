@@ -23,11 +23,12 @@
 
 ## Other Non-Embellishments to add
 - [x] Clefs
+- [x] Flat/Natural/Sharp Sign
 - [x] Part End
 - [x] Dotted Notes
 - [x] Repeats 
-- [ ] Doubly Dotted Notes?
-- [ ] Flat/Natural/Sharp Sign
+- [x] Doubly Dotted Notes?
+- [ ] Note Accidentals
 - [ ] Rests
 - [ ] Fermatas
 - [ ] Ties

@@ -193,18 +193,19 @@ export default class Parser {
             length: token.value[3],
             pitch: token.value[1],
             tied: false,
-            dotted: this.Dot(),
+            dot: this.Dot(),
             embellishment: embellishment,
         };
     }
 
-    Dot(): boolean {
+    Dot(): "none" | "single" | "double" {
         if (this.lookahead?.type === TokenType.DOTTED_NOTE) {
-            this.eat(TokenType.DOTTED_NOTE);
-            return true;
+            const token: Token = this.eat(TokenType.DOTTED_NOTE);
+
+            return token.value[1].length === 1 ? "single" : "double";
         }
 
-        return false;
+        return "none";
     }
 
     Embellishment(): Embellishment | DoubleGracenote {

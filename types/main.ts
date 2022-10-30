@@ -27,7 +27,7 @@ export interface Note {
     length: string;
     pitch: string;
     tied: boolean;
-    dotted: boolean;
+    dot: "none" | "single" | "double";
     embellishment: Embellishment | DoubleGracenote;
 }
 

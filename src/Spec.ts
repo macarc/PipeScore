@@ -63,7 +63,7 @@ const Spec: SpecType[] = [
     },
 
     {
-        regex: /^((?:sharp|flat)(?:lg|la|b|c|d|e|f|g|a))/,
+        regex: /^((?:sharp|natural|flat)(?:lg|la|b|c|d|e|f|g|a))/,
         type: TokenType.KEY_SIGNATURE,
     },
     {
@@ -79,7 +79,7 @@ const Spec: SpecType[] = [
         type: TokenType.REST,
     },
     {
-        regex: /^'{1,2}((?:lg)|(?:la)|[bcdef]|(?:hg)|(?:ha))/,
+        regex: /^('{1,2})((?:lg)|(?:la)|[bcdef]|(?:hg)|(?:ha))/,
         type: TokenType.DOTTED_NOTE,
     },
     {
