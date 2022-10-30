@@ -46,11 +46,11 @@ const Spec: SpecType[] = [
         type: TokenType.CLEF,
     },
     {
-        regex: /^I!/,
+        regex: /^I!('')?/,
         type: TokenType.PART_BEGINNING,
     },
     {
-        regex: /^!I/,
+        regex: /^('')?!I/,
         type: TokenType.PART_END,
     },
     {

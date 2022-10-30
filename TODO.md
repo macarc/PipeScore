@@ -22,13 +22,13 @@
 - [x] Double Gracenotes
 
 ## Other Non-Embellishments to add
-- [x] Flat/Natural/Sharp Sign
-- [x] Rests
 - [x] Clefs
 - [x] Part End
 - [x] Dotted Notes
+- [x] Repeats 
 - [ ] Doubly Dotted Notes?
-- [ ] Repeats 
+- [ ] Flat/Natural/Sharp Sign
+- [ ] Rests
 - [ ] Fermatas
 - [ ] Ties
 - [ ] Irregular Groupings

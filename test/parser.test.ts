@@ -143,6 +143,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -162,6 +163,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { type: "common" },
@@ -178,6 +180,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { type: "cut" },
@@ -198,6 +201,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -254,6 +258,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -343,6 +348,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -365,6 +371,7 @@ describe("correctly parses score body", () => {
                     ],
                 },
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {},
@@ -397,6 +404,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -481,6 +489,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -588,6 +597,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -656,6 +666,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: {
@@ -724,6 +735,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -870,6 +882,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -923,6 +936,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -976,6 +990,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1057,6 +1072,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1138,6 +1154,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1230,6 +1247,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1342,6 +1360,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1454,6 +1473,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1519,6 +1539,7 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1568,6 +1589,8 @@ describe("correctly parses score body", () => {
             headers: [],
             staves: [
                 {
+                    repeat: false,
+
                     clef: {
                         key: ["sharpf", "sharpc"],
                         time: { top: "4", bottom: "4" },
@@ -1643,6 +1666,58 @@ describe("correctly parses score body", () => {
                                 {
                                     length: "8",
                                     pitch: "E",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
+    test("it can parse a repeated part", () => {
+        expect(
+            parser.parse(`& sharpf sharpc 4_4 I!'' LA_4 B_4 C_4 D_4 ''!I`)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: true,
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "C",
+                                    tied: false,
+                                    dotted: false,
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "D",
                                     tied: false,
                                     dotted: false,
                                     embellishment: {},

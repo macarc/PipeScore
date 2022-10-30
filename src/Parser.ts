@@ -96,24 +96,34 @@ export default class Parser {
     Stave(key: string[], time: TimeSignature): Stave {
         let bars: Bar[] = [];
 
-        if (this.lookahead?.type === TokenType.PART_BEGINNING) {
-            this.eat(TokenType.PART_BEGINNING);
-            bars = this.Bars();
-            this.EndStave();
-        }
+        const repeat: boolean = this.BeginStave();
 
         if (this.HasNote()) {
             bars = this.Bars();
-            this.EndStave();
         }
 
+        this.EndStave();
+
         return {
+            repeat: repeat,
             clef: {
                 key: key,
                 time: time,
             },
             bars: bars,
         };
+    }
+
+    BeginStave(): boolean {
+        if (this.lookahead?.type === TokenType.PART_BEGINNING) {
+            const token: Token = this.eat(TokenType.PART_BEGINNING);
+
+            if (token.value[1]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     EndStave(): void {

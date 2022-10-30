@@ -5,6 +5,7 @@ export interface Score {
 }
 
 export interface Stave {
+    repeat: boolean;
     clef: {
         key: string[];
         time: TimeSignature;
