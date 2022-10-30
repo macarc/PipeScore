@@ -1,4 +1,17 @@
-import { Token, TokenType } from "../types/main";
+import {
+    Bar,
+    DoubleGracenote,
+    Embellishment,
+    Header,
+    Note,
+    Score,
+    SoftwareHeader,
+    Stave,
+    TextTagHeader,
+    TimeSignature,
+    Token,
+    TokenType,
+} from "../types/main";
 import embellishmentMap from "./Embellishments";
 import Tokenizer from "./Tokenizer";
 
@@ -33,7 +46,7 @@ export default class Parser {
         return this.Score();
     }
 
-    private eat(tokenType: TokenType) {
+    private eat(tokenType: TokenType): Token {
         const token = this.lookahead;
 
         if (token == null) {
@@ -53,7 +66,7 @@ export default class Parser {
         return token;
     }
 
-    Score() {
+    Score(): Score {
         if (!this.lookahead) {
             return {
                 name: "",
@@ -69,7 +82,7 @@ export default class Parser {
         };
     }
 
-    Staves() {
+    Staves(): Stave[] {
         const staves = [];
 
         while (this.lookahead?.type === TokenType.CLEF) {
@@ -80,8 +93,8 @@ export default class Parser {
         return staves;
     }
 
-    Stave(key: string[], time: string | object) {
-        let bars: object[] = [];
+    Stave(key: string[], time: TimeSignature): Stave {
+        let bars: Bar[] = [];
 
         if (this.lookahead?.type === TokenType.PART_BEGINNING) {
             this.eat(TokenType.PART_BEGINNING);
@@ -103,7 +116,7 @@ export default class Parser {
         };
     }
 
-    EndStave() {
+    EndStave(): void {
         switch (this.lookahead?.type) {
             case TokenType.PART_END:
                 this.eat(TokenType.PART_END);
@@ -114,7 +127,7 @@ export default class Parser {
         }
     }
 
-    Bars(): object[] {
+    Bars(): Bar[] {
         const bars = [];
 
         bars.push(this.Bar());
@@ -150,8 +163,8 @@ export default class Parser {
         return false;
     }
 
-    Bar() {
-        const notes = [];
+    Bar(): Bar {
+        const notes: Note[] = [];
 
         while (this.HasNote()) {
             notes.push(this.Note());
@@ -162,7 +175,7 @@ export default class Parser {
         };
     }
 
-    Note() {
+    Note(): Note {
         const embellishment = this.Embellishment();
         const token = this.eat(TokenType.MELODY_NOTE);
 
@@ -175,7 +188,7 @@ export default class Parser {
         };
     }
 
-    Dot() {
+    Dot(): boolean {
         if (this.lookahead?.type === TokenType.DOTTED_NOTE) {
             this.eat(TokenType.DOTTED_NOTE);
             return true;
@@ -184,7 +197,7 @@ export default class Parser {
         return false;
     }
 
-    Embellishment() {
+    Embellishment(): Embellishment | DoubleGracenote {
         switch (this.lookahead?.type) {
             case TokenType.GRACENOTE:
                 return this.GraceNote();
@@ -217,7 +230,7 @@ export default class Parser {
         }
     }
 
-    DoubleGracenote() {
+    DoubleGracenote(): DoubleGracenote {
         const token = this.eat(TokenType.DOUBLE_GRACENOTE);
         const notes = [];
 
@@ -237,101 +250,111 @@ export default class Parser {
         };
     }
 
-    TripleStrike() {
+    GetEmbellishment(lookup: string): string {
+        if (embellishmentMap.has(lookup)) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return embellishmentMap.get(lookup)!;
+        }
+
+        throw new Error(`Unable to find ${lookup} in embellishment map`);
+    }
+
+    TripleStrike(): Embellishment {
         const token = this.eat(TokenType.TRIPLE_STRIKE);
+
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
             value: { note: token.value[2] },
         };
     }
 
-    DoubleStrike() {
+    DoubleStrike(): Embellishment {
         const token = this.eat(TokenType.DOUBLE_STRIKE);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
             value: { note: token.value[2] },
         };
     }
 
-    Pele() {
+    Pele(): Embellishment {
         const token = this.eat(TokenType.PELE);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
             value: { note: token.value[2] },
         };
     }
 
-    Birl() {
+    Birl(): Embellishment {
         const token = this.eat(TokenType.BIRL);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
         };
     }
 
-    Throw() {
+    Throw(): Embellishment {
         const token = this.eat(TokenType.THROW);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
         };
     }
 
-    Taorluath() {
+    Taorluath(): Embellishment {
         const token = this.eat(TokenType.TAORLUATH);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
         };
     }
 
-    Bubbly() {
+    Bubbly(): Embellishment {
         const token = this.eat(TokenType.BUBBLY);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
         };
     }
 
-    Grip() {
+    Grip(): Embellishment {
         const token = this.eat(TokenType.REGULAR_GRIP);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
         };
     }
 
-    ComplexGrip() {
+    ComplexGrip(): Embellishment {
         const token = this.eat(TokenType.COMPLEX_GRIP);
         if (token.value[2]) {
             return {
-                type: embellishmentMap.get(token.value[1]),
+                type: this.GetEmbellishment(token.value[1]),
                 value: {
                     note: token.value[2],
                 },
             };
         }
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
         };
     }
 
-    Strike() {
+    Strike(): Embellishment {
         const token = this.eat(TokenType.STRIKE);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
             value: {
                 note: token.value[2],
             },
         };
     }
 
-    Doubling() {
+    Doubling(): Embellishment {
         const token = this.eat(TokenType.DOUBLING);
         return {
-            type: embellishmentMap.get(token.value[1]),
+            type: this.GetEmbellishment(token.value[1]),
             value: {
                 note: token.value[2],
             },
         };
     }
 
-    GraceNote() {
+    GraceNote(): Embellishment {
         const token = this.eat(TokenType.GRACENOTE);
         return {
             type: "gracenote",
@@ -341,7 +364,7 @@ export default class Parser {
         };
     }
 
-    KeySignature() {
+    KeySignature(): string[] {
         const keys = [];
 
         while (this.lookahead?.type === TokenType.KEY_SIGNATURE) {
@@ -351,7 +374,7 @@ export default class Parser {
         return keys;
     }
 
-    TimeSignature() {
+    TimeSignature(): TimeSignature {
         if (this.lookahead?.type === TokenType.TIME_SIGNATURE) {
             const token = this.eat(TokenType.TIME_SIGNATURE);
             if (token.value[1]) {
@@ -360,16 +383,20 @@ export default class Parser {
                     bottom: token.value[2],
                 };
             } else if (token.value[3]) {
-                return "cut";
+                return {
+                    type: "cut",
+                };
             } else {
-                return "common";
+                return {
+                    type: "common",
+                };
             }
         }
 
         return {};
     }
 
-    Headers() {
+    Headers(): (Header | TextTagHeader | SoftwareHeader)[] {
         const headers = [];
         let matching = true;
 
@@ -410,7 +437,7 @@ export default class Parser {
         return headers;
     }
 
-    SoftwareHeader() {
+    SoftwareHeader(): SoftwareHeader {
         const token = this.eat(TokenType.SOFTWARE_HEADER);
 
         return {
@@ -422,7 +449,7 @@ export default class Parser {
         };
     }
 
-    TuneTempoHeader() {
+    TuneTempoHeader(): Header {
         const token = this.eat(TokenType.TUNE_TEMPO_HEADER);
 
         return {
@@ -431,7 +458,7 @@ export default class Parser {
         };
     }
 
-    TextTagHeader() {
+    TextTagHeader(): TextTagHeader {
         const token = this.eat(TokenType.TEXT_TAG);
 
         return {
@@ -443,7 +470,7 @@ export default class Parser {
         };
     }
 
-    Header(tokenType: TokenType) {
+    Header(tokenType: TokenType): Header {
         const token = this.eat(tokenType);
 
         return {

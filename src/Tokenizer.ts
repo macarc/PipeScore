@@ -10,7 +10,7 @@ export default class Tokenizer {
         this.cursor = 0;
     }
 
-    init(stream: string) {
+    init(stream: string): void {
         this.stream = stream;
         this.cursor = 0;
     }

@@ -2,7 +2,8 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc --watch",
-        "test": "jest"
+        "test": "jest",
+        "lint": "eslint --ext .ts src/"
     },
     "devDependencies": {
         "@types/jest": "^29.1.2",

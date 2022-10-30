@@ -4,7 +4,7 @@
 - [x] Parse multiple lines 
 - [x] Parse multiple bars 
 - [x] Add ESLint to project
-- [ ] Add in proper return types 
+- [x] Add in proper return types 
 
 ## Embellishments to add
 

@@ -164,7 +164,7 @@ describe("correctly parses score body", () => {
                 {
                     clef: {
                         key: ["sharpf", "sharpc"],
-                        time: "common",
+                        time: { type: "common" },
                     },
                     bars: [],
                 },
@@ -180,7 +180,7 @@ describe("correctly parses score body", () => {
                 {
                     clef: {
                         key: ["sharpf", "sharpc"],
-                        time: "cut",
+                        time: { type: "cut" },
                     },
                     bars: [],
                 },

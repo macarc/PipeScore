@@ -1,3 +1,70 @@
+export interface Score {
+    name: string;
+    headers: (Header | TextTagHeader | SoftwareHeader)[];
+    staves: Stave[];
+}
+
+export interface Stave {
+    clef: {
+        key: string[];
+        time: TimeSignature;
+    };
+    bars: Bar[];
+}
+
+export interface TimeSignature {
+    type?: "cut" | "common";
+    top?: string;
+    bottom?: string;
+}
+
+export interface Bar {
+    notes: Note[];
+}
+
+export interface Note {
+    length: string;
+    pitch: string;
+    tied: boolean;
+    dotted: boolean;
+    embellishment: Embellishment | DoubleGracenote;
+}
+
+export interface DoubleGracenote {
+    type: string;
+    value?: {
+        notes: string[];
+    };
+}
+
+export interface Embellishment {
+    type?: string;
+    value?: {
+        note: string;
+    };
+}
+
+export interface Header {
+    type: TokenType;
+    value: string;
+}
+
+export interface TextTagHeader {
+    type: TokenType;
+    value: {
+        text: string;
+        textType: string;
+    };
+}
+
+export interface SoftwareHeader {
+    type: TokenType;
+    value: {
+        program: string;
+        version: string;
+    };
+}
+
 export interface SpecType {
     regex: RegExp;
     type: TokenType;
