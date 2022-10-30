@@ -20,7 +20,7 @@ export interface TimeSignature {
 }
 
 export interface Bar {
-    notes: Note[];
+    notes: (Note | Rest)[];
 }
 
 export interface Note {
@@ -29,6 +29,11 @@ export interface Note {
     tied: boolean;
     dot: Dot;
     embellishment: Embellishment | DoubleGracenote;
+}
+
+export interface Rest {
+    length: string;
+    rest: true;
 }
 
 export type Dot = "none" | "single" | "double";

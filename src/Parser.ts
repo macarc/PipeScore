@@ -5,6 +5,7 @@ import {
     Embellishment,
     Header,
     Note,
+    Rest,
     Score,
     SoftwareHeader,
     Stave,
@@ -154,6 +155,7 @@ export default class Parser {
     HasNote(): boolean {
         if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
+            this.lookahead?.type === TokenType.REST ||
             this.lookahead?.type === TokenType.DOUBLING ||
             this.lookahead?.type === TokenType.STRIKE ||
             this.lookahead?.type === TokenType.REGULAR_GRIP ||
@@ -175,7 +177,7 @@ export default class Parser {
     }
 
     Bar(): Bar {
-        const notes: Note[] = [];
+        const notes: (Note | Rest)[] = [];
 
         while (this.HasNote()) {
             notes.push(this.Note());
@@ -186,17 +188,24 @@ export default class Parser {
         };
     }
 
-    Note(): Note {
+    Note(): Note | Rest {
         const embellishment = this.Embellishment();
-        const token = this.eat(TokenType.MELODY_NOTE);
-
-        return {
-            length: token.value[3],
-            pitch: token.value[1],
-            tied: false,
-            dot: this.Dot(),
-            embellishment: embellishment,
-        };
+        if (this.lookahead?.type === TokenType.REST) {
+            const token = this.eat(TokenType.REST);
+            return {
+                length: token.value[1],
+                rest: true,
+            };
+        } else {
+            const token = this.eat(TokenType.MELODY_NOTE);
+            return {
+                length: token.value[3],
+                pitch: token.value[1],
+                tied: false,
+                dot: this.Dot(),
+                embellishment: embellishment,
+            };
+        }
     }
 
     Dot(): Dot {

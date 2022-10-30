@@ -28,8 +28,8 @@
 - [x] Dotted Notes
 - [x] Repeats 
 - [x] Doubly Dotted Notes?
+- [x] Rests
 - [ ] Note Accidentals
-- [ ] Rests
 - [ ] Fermatas
 - [ ] Ties
 - [ ] Irregular Groupings

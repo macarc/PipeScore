@@ -1779,4 +1779,50 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse a rest", () => {
+        expect(
+            parser.parse(`& sharpf sharpc 4_4 I! LA_4 B_4 REST_4 D_4 !I`)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: false,
+                    clef: {
+                        key: ["sharpf", "sharpc"],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    length: "4",
+                                    pitch: "LA",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                                {
+                                    length: "4",
+                                    pitch: "B",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                                { length: "4", rest: true },
+                                {
+                                    length: "4",
+                                    pitch: "D",
+                                    tied: false,
+                                    dot: "none",
+                                    embellishment: {},
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });
