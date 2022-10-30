@@ -61,7 +61,6 @@ const Spec: SpecType[] = [
         regex: /^!/,
         type: TokenType.BAR_LINE,
     },
-
     {
         regex: /^(?:(sharp|natural|flat)(lg|la|b|c|d|e|f|g|a))/,
         type: TokenType.ACCIDENTAL,
