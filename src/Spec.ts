@@ -6,6 +6,10 @@ const Spec: SpecType[] = [
         type: TokenType.SKIP,
     },
     {
+        regex: /^space/,
+        type: TokenType.SKIP,
+    },
+    {
         regex: /^(Bagpipe Music Writer Gold):(\d\.\d)/,
         type: TokenType.SOFTWARE_HEADER,
     },
