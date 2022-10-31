@@ -33,6 +33,7 @@
 - [x] Fermatas
 - [x] Ties
 - [ ] Irregular Groupings
+- [ ] Time Lines
 
 ## Fixups
 - [ ] Clef and time signatures should be listed within a bar
