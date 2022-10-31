@@ -3007,4 +3007,10 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse the old triplet format", () => {
+        expect(
+            parser.parse(`& sharpf sharpc 2_4 I! LA_4 E_8 C_8 LA_8 ^3e !I`)
+        ).toStrictEqual({});
+    });
 });

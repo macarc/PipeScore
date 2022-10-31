@@ -160,6 +160,7 @@ export default class Parser {
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.TIE_START ||
             this.lookahead?.type === TokenType.IRREGULAR_GROUP_START ||
+            this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT ||
             this.lookahead?.type === TokenType.REST ||
             this.lookahead?.type === TokenType.FERMATA ||
             this.lookahead?.type === TokenType.ACCIDENTAL ||
@@ -188,15 +189,17 @@ export default class Parser {
 
         while (this.HasNote()) {
             let note: Note;
+            console.log(notes);
 
             if (this.lookahead?.type === TokenType.TIE_START) {
                 notes = notes.concat(this.Tie());
                 continue;
+            } else if (this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT) {
+                notes = this.TripletOldFormat(notes);
             } else if (
                 this.lookahead?.type === TokenType.IRREGULAR_GROUP_START
             ) {
                 notes = notes.concat(this.IrregularGroup());
-                console.log("Handle irregular group");
             } else {
                 note = this.Note();
                 this.BarLineTie(note);
@@ -209,6 +212,29 @@ export default class Parser {
         };
     }
 
+    TripletOldFormat(notes: Note[]): Note[] {
+        const groupNotes: Note[] = [];
+        this.eat(TokenType.TRIPLET_OLD_FORMAT);
+        for (let i = 0; i < 3; i++) {
+            const note = notes.pop();
+
+            if (note) {
+                groupNotes.push(note);
+            } else {
+                throw new Error("Missing note in triplet");
+            }
+        }
+
+        notes.push({
+            type: "triplet",
+            value: {
+                notes: groupNotes.reverse(),
+            },
+        });
+
+        return notes;
+    }
+
     IrregularGroup(): Note {
         const token = this.eat(TokenType.IRREGULAR_GROUP_START);
         let notes: Note[] = [];
@@ -216,6 +242,8 @@ export default class Parser {
         for (let i = 0; i < Number(token.value[1]); i++) {
             notes = notes.concat(this.Note());
         }
+
+        this.EatIrregularGroupEnd();
 
         return {
             type: this.GetGroupType(token.value[1]),
