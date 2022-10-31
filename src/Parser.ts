@@ -180,7 +180,7 @@ export default class Parser {
     }
 
     Bar(): Bar {
-        const notes: (Note | Rest)[] = [];
+        const notes: Note[] = [];
 
         while (this.HasNote()) {
             notes.push(this.Note());
@@ -191,7 +191,7 @@ export default class Parser {
         };
     }
 
-    Note(): Note | Rest {
+    Note(): Note {
         const embellishment = this.Embellishment();
         const accidental =
             this.lookahead?.type === TokenType.ACCIDENTAL
@@ -201,20 +201,25 @@ export default class Parser {
         if (this.lookahead?.type === TokenType.REST) {
             const token = this.eat(TokenType.REST);
             return {
-                length: token.value[1],
-                rest: true,
+                type: "rest",
+                value: {
+                    length: token.value[1],
+                },
             };
         } else {
             const fermata = this.Fermata();
             const token = this.eat(TokenType.MELODY_NOTE);
             return {
-                length: token.value[3],
-                pitch: token.value[1],
-                accidental: accidental,
-                tied: false,
-                fermata: fermata,
-                dot: this.Dot(),
-                embellishment: embellishment,
+                type: "single",
+                value: {
+                    length: token.value[3],
+                    pitch: token.value[1],
+                    accidental: accidental,
+                    tied: false,
+                    fermata: fermata,
+                    dot: this.Dot(),
+                    embellishment: embellishment,
+                },
             };
         }
     }

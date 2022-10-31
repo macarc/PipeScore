@@ -13,8 +13,6 @@ export interface Stave {
     bars: Bar[];
 }
 
-export type NoteAccidental = "sharp" | "natural" | "flat" | "none";
-
 export interface Accidental {
     type: "sharp" | "natural" | "flat";
     note: string;
@@ -27,10 +25,15 @@ export interface TimeSignature {
 }
 
 export interface Bar {
-    notes: (Note | Rest)[];
+    notes: Note[];
 }
 
 export interface Note {
+    type: NoteType;
+    value: NoteValue | NoteGroup | Rest;
+}
+
+export interface NoteValue {
     length: string;
     pitch: string;
     accidental: NoteAccidental;
@@ -40,12 +43,26 @@ export interface Note {
     embellishment: Embellishment | DoubleGracenote;
 }
 
+export interface NoteGroup {
+    notes: Note[];
+}
+
 export interface Rest {
     length: string;
-    rest: true;
 }
 
 export type Dot = "none" | "single" | "double";
+export type NoteAccidental = "sharp" | "natural" | "flat" | "none";
+export type NoteType =
+    | "rest"
+    | "single"
+    | "duplet"
+    | "triplet"
+    | "quadruplet"
+    | "quintuplet"
+    | "sextuplet"
+    | "septuplet"
+    | "octuplet";
 
 export interface DoubleGracenote {
     type: string;
