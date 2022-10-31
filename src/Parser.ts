@@ -1,4 +1,3 @@
-import { timeStamp } from "console";
 import {
     Accidental,
     Bar,
@@ -22,7 +21,8 @@ export default class Parser {
     private data: string;
     private tokenizer: Tokenizer;
     private lookahead!: Token | null;
-    private barlineTie = false;
+    private oldFormatBarlineTie = false;
+    private newFormatBarlineTie = false;
 
     constructor() {
         this.data = "";
@@ -157,6 +157,7 @@ export default class Parser {
     HasNote(): boolean {
         if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
+            this.lookahead?.type === TokenType.TIE_START ||
             this.lookahead?.type === TokenType.REST ||
             this.lookahead?.type === TokenType.FERMATA ||
             this.lookahead?.type === TokenType.ACCIDENTAL ||
@@ -184,14 +185,35 @@ export default class Parser {
         const notes: Note[] = [];
 
         while (this.HasNote()) {
-            const note = this.Note();
+            let nextNote;
+            let note: Note;
+            let tieStartedInBar = false;
 
-            if (this.barlineTie && "tied" in note.value) {
-                note.value.tied = true;
-                this.barlineTie = false;
+            if (this.lookahead?.type === TokenType.TIE_START) {
+                this.eat(TokenType.TIE_START);
+                tieStartedInBar = true;
+                note = this.Note();
+
+                if ("tied" in note.value) {
+                    note.value.tied = true;
+                }
+
+                nextNote = this.NewFormatTieNextNote();
+            } else {
+                note = this.Note();
             }
 
-            let nextNote;
+            if (this.oldFormatBarlineTie && "tied" in note.value) {
+                note.value.tied = true;
+                this.oldFormatBarlineTie = false;
+            } else if (this.newFormatBarlineTie && !tieStartedInBar) {
+                if ("tied" in note.value) {
+                    note.value.tied = true;
+                }
+
+                this.eat(TokenType.TIE_OLD_FORMAT);
+            }
+
             if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
                 this.eat(TokenType.TIE_OLD_FORMAT);
 
@@ -199,7 +221,7 @@ export default class Parser {
                     note.value.tied = true;
                 }
 
-                nextNote = this.TieNextNote();
+                nextNote = this.OldFormatTieNextNote();
             }
 
             notes.push(note);
@@ -214,11 +236,30 @@ export default class Parser {
         };
     }
 
-    TieNextNote(): Note | null {
+    NewFormatTieNextNote(): Note | null {
         let nextNote;
 
         if (this.lookahead?.type === TokenType.BAR_LINE) {
-            this.barlineTie = true;
+            this.newFormatBarlineTie = true;
+        } else {
+            nextNote = this.Note();
+            this.eat(TokenType.TIE_OLD_FORMAT);
+
+            if ("tied" in nextNote.value) {
+                nextNote.value.tied = true;
+            }
+
+            return nextNote;
+        }
+
+        return null;
+    }
+
+    OldFormatTieNextNote(): Note | null {
+        let nextNote;
+
+        if (this.lookahead?.type === TokenType.BAR_LINE) {
+            this.oldFormatBarlineTie = true;
         } else {
             nextNote = this.Note();
 

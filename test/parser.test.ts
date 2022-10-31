@@ -2820,4 +2820,121 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse the new tie format", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 4_4 I! ^ts LA_4 LA_4 ^te B_4 ^ts C_4 ! C_4 ^te ^ts D_2 D_4 ^te !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: false,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "4", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "LA",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "LA",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "B",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "C",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "C",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "2",
+                                        pitch: "D",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "D",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

@@ -2,7 +2,7 @@ import Parser from "../src/Parser";
 import util from "util";
 
 const parser: Parser = new Parser();
-const score = `& sharpf sharpc 4_4 I! LA_4 ^tla LA_4 B_4 C_4 ^tc ! C_4 D_2 ^td D_4 !I`;
+const score = `& sharpf sharpc 4_4 I! ^ts LA_4 LA_4 ^te B_4 ^ts C_4 ! C_4 ^te ^ts D_2 D_4 ^te !I`;
 const ast: object = parser.parse(score);
 
 console.log(

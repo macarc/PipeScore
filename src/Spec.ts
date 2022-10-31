@@ -185,6 +185,10 @@ const Spec: SpecType[] = [
         regex: /^\^t((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
         type: TokenType.TIE_OLD_FORMAT,
     },
+    {
+        regex: /^\^ts/,
+        type: TokenType.TIE_START,
+    },
 ];
 
 export default Spec;
