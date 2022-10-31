@@ -14,7 +14,7 @@ import {
     Token,
     TokenType,
 } from "../types/main";
-import embellishmentMap from "./Embellishments";
+import EmbellishmentMap from "./Embellishments";
 import Tokenizer from "./Tokenizer";
 
 export default class Parser {
@@ -182,58 +182,74 @@ export default class Parser {
     }
 
     Bar(): Bar {
-        const notes: Note[] = [];
+        let notes: Note[] = [];
 
         while (this.HasNote()) {
-            let nextNote;
             let note: Note;
-            let tieStartedInBar = false;
 
             if (this.lookahead?.type === TokenType.TIE_START) {
-                this.eat(TokenType.TIE_START);
-                tieStartedInBar = true;
-                note = this.Note();
-
-                if ("tied" in note.value) {
-                    note.value.tied = true;
-                }
-
-                nextNote = this.NewFormatTieNextNote();
+                notes = notes.concat(this.Tie());
+                continue;
             } else {
                 note = this.Note();
-            }
-
-            if (this.oldFormatBarlineTie && "tied" in note.value) {
-                note.value.tied = true;
-                this.oldFormatBarlineTie = false;
-            } else if (this.newFormatBarlineTie && !tieStartedInBar) {
-                if ("tied" in note.value) {
-                    note.value.tied = true;
-                }
-
-                this.eat(TokenType.TIE_OLD_FORMAT);
-            }
-
-            if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
-                this.eat(TokenType.TIE_OLD_FORMAT);
-
-                if ("tied" in note.value) {
-                    note.value.tied = true;
-                }
-
-                nextNote = this.OldFormatTieNextNote();
-            }
-
-            notes.push(note);
-
-            if (nextNote) {
-                notes.push(nextNote);
+                this.BarLineTie(note);
+                notes = notes.concat(this.OldTie(note));
             }
         }
 
         return {
             notes: notes,
         };
+    }
+
+    Tie(): Note[] {
+        const notes: Note[] = [];
+
+        this.eat(TokenType.TIE_START);
+        const note = this.Note();
+        this.AddTieToNote(note);
+        notes.push(note);
+
+        const nextNote = this.NewFormatTieNextNote();
+        if (nextNote) {
+            notes.push(nextNote);
+        }
+
+        return notes;
+    }
+
+    OldTie(note: Note): Note[] {
+        const notes: Note[] = [];
+
+        notes.push(note);
+
+        if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
+            this.eat(TokenType.TIE_OLD_FORMAT);
+            this.AddTieToNote(note);
+
+            const nextNote = this.OldFormatTieNextNote();
+            if (nextNote) {
+                notes.push(nextNote);
+            }
+        }
+
+        return notes;
+    }
+
+    BarLineTie(note: Note): void {
+        if (this.oldFormatBarlineTie) {
+            this.AddTieToNote(note);
+            this.oldFormatBarlineTie = false;
+        } else if (this.newFormatBarlineTie) {
+            this.AddTieToNote(note);
+            this.eat(TokenType.TIE_OLD_FORMAT);
+        }
+    }
+
+    AddTieToNote(note: Note): void {
+        if ("tied" in note.value) {
+            note.value.tied = true;
+        }
     }
 
     NewFormatTieNextNote(): Note | null {
@@ -244,10 +260,7 @@ export default class Parser {
         } else {
             nextNote = this.Note();
             this.eat(TokenType.TIE_OLD_FORMAT);
-
-            if ("tied" in nextNote.value) {
-                nextNote.value.tied = true;
-            }
+            this.AddTieToNote(nextNote);
 
             return nextNote;
         }
@@ -379,9 +392,9 @@ export default class Parser {
     }
 
     GetEmbellishment(lookup: string): string {
-        if (embellishmentMap.has(lookup)) {
+        if (EmbellishmentMap.has(lookup)) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return embellishmentMap.get(lookup)!;
+            return EmbellishmentMap.get(lookup)!;
         }
 
         throw new Error(`Unable to find ${lookup} in embellishment map`);

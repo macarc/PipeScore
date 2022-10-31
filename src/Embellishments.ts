@@ -1,4 +1,4 @@
-const embellishmentMap = new Map<string, string>([
+const EmbellishmentMap = new Map<string, string>([
     ["db", "doubling"],
     ["tdb", "thumb-doubling"],
     ["hdb", "half-doubling"],
@@ -53,4 +53,4 @@ const embellishmentMap = new Map<string, string>([
     ["lhst3", "closed-half-triple-strike"],
 ]);
 
-export default embellishmentMap;
+export default EmbellishmentMap;

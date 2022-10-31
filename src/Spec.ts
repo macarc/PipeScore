@@ -189,6 +189,18 @@ const Spec: SpecType[] = [
         regex: /^\^ts/,
         type: TokenType.TIE_START,
     },
+    {
+        regex: /^\^3((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+        type: TokenType.TRIPLET_OLD_FORMAT,
+    },
+    {
+        regex: /^\^((?:[23])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))s/,
+        type: TokenType.IRREGULAR_GROUP_START,
+    },
+    {
+        regex: /^\^((?:[23])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))e/,
+        type: TokenType.IRREGULAR_GROUP_END,
+    },
 ];
 
 export default Spec;
