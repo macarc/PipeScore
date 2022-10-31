@@ -1,9 +1,16 @@
 #!/usr/bin/python3
 
 # Build HTML pages and icons
-# You will need to install svgwrite via `pip3 install svgwrite` before running
 
 import os
+import sys
+
+try:
+    import svgwrite
+except ModuleNotFoundError:
+    print('You must install svgwrite to build the SVG icons. Try `python -m pip install svgwrite`')
+    sys.exit(1)
+
 
 os.makedirs("public/images/icons", exist_ok=True)
 
