@@ -8,7 +8,9 @@ import sys
 try:
     import svgwrite
 except ModuleNotFoundError:
-    print('You must install svgwrite to build the SVG icons. Try `python -m pip install svgwrite`')
+    print(
+        "You must install svgwrite to build the SVG icons. Try `python -m pip install svgwrite`"
+    )
     sys.exit(1)
 
 
