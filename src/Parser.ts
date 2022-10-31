@@ -6,6 +6,7 @@ import {
     Embellishment,
     Header,
     Note,
+    NoteType,
     Score,
     SoftwareHeader,
     Stave,
@@ -158,6 +159,7 @@ export default class Parser {
         if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.TIE_START ||
+            this.lookahead?.type === TokenType.IRREGULAR_GROUP_START ||
             this.lookahead?.type === TokenType.REST ||
             this.lookahead?.type === TokenType.FERMATA ||
             this.lookahead?.type === TokenType.ACCIDENTAL ||
@@ -190,6 +192,11 @@ export default class Parser {
             if (this.lookahead?.type === TokenType.TIE_START) {
                 notes = notes.concat(this.Tie());
                 continue;
+            } else if (
+                this.lookahead?.type === TokenType.IRREGULAR_GROUP_START
+            ) {
+                notes = notes.concat(this.IrregularGroup());
+                console.log("Handle irregular group");
             } else {
                 note = this.Note();
                 this.BarLineTie(note);
@@ -200,6 +207,34 @@ export default class Parser {
         return {
             notes: notes,
         };
+    }
+
+    IrregularGroup(): Note {
+        const token = this.eat(TokenType.IRREGULAR_GROUP_START);
+        let notes: Note[] = [];
+
+        for (let i = 0; i < Number(token.value[1]); i++) {
+            notes = notes.concat(this.Note());
+        }
+
+        return {
+            type: this.GetGroupType(token.value[1]),
+            value: {
+                notes: notes,
+            },
+        };
+    }
+
+    EatIrregularGroupEnd(): void {
+        if (this.lookahead?.type === TokenType.IRREGULAR_GROUP_END) {
+            this.eat(TokenType.IRREGULAR_GROUP_END);
+        } else {
+            this.eat(TokenType.TRIPLET_OLD_FORMAT);
+        }
+    }
+
+    GetGroupType(size: string): NoteType {
+        return "triplet";
     }
 
     Tie(): Note[] {
