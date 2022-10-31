@@ -1,17 +1,22 @@
 # To-do list
 
+## Code stuff
+
+- [ ] Tests? Most of it is not very testable, but having general tests for the event handlers ought to be doable and could be useful.
+
 ## Bugs to fix
 
 - [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
 
+## Small features
+
 - [ ] Allow choosing fonts
 - [ ] Contenteditable to allow editing text / e.t.c. without popup ?
+- [ ] BWW Example: https://bagpipetunes.intertechnics.com/files/Bagpipe_Player/S/Scotland_the_Brave.bww
 
-- BWW Example: https://bagpipetunes.intertechnics.com/files/Bagpipe_Player/S/Scotland_the_Brave.bww
-
-## General features
+## Big features
 
 - [x] Single notes
 - [x] Note groups
@@ -29,7 +34,6 @@
 - [ ] Harmony Stave
 - [x] Resizable interface
 - [x] Copy/paste/undo/redo
-- [ ] A easy way to input all of the above
 - [x] Documentation
 - [x] Saving / Loading
 - [x] Printing
