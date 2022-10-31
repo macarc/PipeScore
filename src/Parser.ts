@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import {
     Accidental,
     Bar,
@@ -6,7 +7,6 @@ import {
     Embellishment,
     Header,
     Note,
-    Rest,
     Score,
     SoftwareHeader,
     Stave,
@@ -22,6 +22,7 @@ export default class Parser {
     private data: string;
     private tokenizer: Tokenizer;
     private lookahead!: Token | null;
+    private barlineTie = false;
 
     constructor() {
         this.data = "";
@@ -183,12 +184,52 @@ export default class Parser {
         const notes: Note[] = [];
 
         while (this.HasNote()) {
-            notes.push(this.Note());
+            const note = this.Note();
+
+            if (this.barlineTie && "tied" in note.value) {
+                note.value.tied = true;
+                this.barlineTie = false;
+            }
+
+            let nextNote;
+            if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
+                this.eat(TokenType.TIE_OLD_FORMAT);
+
+                if ("tied" in note.value) {
+                    note.value.tied = true;
+                }
+
+                nextNote = this.TieNextNote();
+            }
+
+            notes.push(note);
+
+            if (nextNote) {
+                notes.push(nextNote);
+            }
         }
 
         return {
             notes: notes,
         };
+    }
+
+    TieNextNote(): Note | null {
+        let nextNote;
+
+        if (this.lookahead?.type === TokenType.BAR_LINE) {
+            this.barlineTie = true;
+        } else {
+            nextNote = this.Note();
+
+            if ("tied" in nextNote.value) {
+                nextNote.value.tied = true;
+            }
+
+            return nextNote;
+        }
+
+        return null;
     }
 
     Note(): Note {

@@ -181,6 +181,10 @@ const Spec: SpecType[] = [
         regex: /^([abcdefgt])g/,
         type: TokenType.GRACENOTE,
     },
+    {
+        regex: /^\^t((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+        type: TokenType.TIE_OLD_FORMAT,
+    },
 ];
 
 export default Spec;
