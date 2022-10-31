@@ -31,7 +31,7 @@
 - [x] Rests
 - [x] Note Accidentals
 - [x] Fermatas
-- [ ] Ties
+- [x] Ties
 - [ ] Irregular Groupings
 
 ## Fixups
