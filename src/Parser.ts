@@ -741,7 +741,7 @@ export default class Parser {
             type: token.type,
             value: {
                 program: token.value[1],
-                version: token.value[2],
+                version: token.value[3],
             },
         };
     }

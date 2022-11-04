@@ -21,6 +21,10 @@
 - [x] Triple Strikes
 - [x] Double Gracenotes
 
+
+## Piob Embellishments to add
+- [ ] Fill this in
+
 ## Other Non-Embellishments to add
 - [x] Clefs
 - [x] Flat/Natural/Sharp Sign
@@ -37,5 +41,3 @@
 
 ## Fixups
 - [ ] Clef and time signatures should be listed within a bar
-
-> Maybe sometime down the road it would be nice to add Piob movements

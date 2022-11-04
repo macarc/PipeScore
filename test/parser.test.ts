@@ -1,4 +1,5 @@
 import Parser from "../src/Parser";
+import { Score } from "../types/main";
 
 describe("correctly parses file header", () => {
     const parser = new Parser();
@@ -19,6 +20,38 @@ describe("correctly parses file header", () => {
                 staves: [],
             }
         );
+    });
+
+    test("it can parse a bagpipe reader software header", () => {
+        expect(parser.parse(`Bagpipe Reader:1.0\r\n`)).toStrictEqual({
+            name: "",
+            headers: [
+                {
+                    type: "SOFTWARE_HEADER",
+                    value: {
+                        program: "Bagpipe Reader",
+                        version: "1.0",
+                    },
+                },
+            ],
+            staves: [],
+        });
+    });
+
+    test("it can parse a bagpipe musicworks software header", () => {
+        expect(parser.parse(`Bagpipe Musicworks Gold:1.0\r\n`)).toStrictEqual({
+            name: "",
+            headers: [
+                {
+                    type: "SOFTWARE_HEADER",
+                    value: {
+                        program: "Bagpipe Musicworks Gold",
+                        version: "1.0",
+                    },
+                },
+            ],
+            staves: [],
+        });
     });
 
     test("it handles multiple headers", () => {

@@ -10,7 +10,7 @@ const Spec: SpecType[] = [
         type: TokenType.SKIP,
     },
     {
-        regex: /^(Bagpipe Music Writer Gold):(\d\.\d)/,
+        regex: /^(Bagpipe ((?:Reader)|(?:Music Writer Gold)|(?:Musicworks Gold))):(\d\.\d)/,
         type: TokenType.SOFTWARE_HEADER,
     },
     {
@@ -44,6 +44,10 @@ const Spec: SpecType[] = [
     {
         regex: /^"([^"]*)",\((\w),(\w),\d{1,2},\d{1,2},[^,]*,\d{1,2},\d{1,3},\d{1,3},\d,\d{1,2},\d,\d,\d\)/,
         type: TokenType.TEXT_TAG,
+    },
+    {
+        regex: /^".*?"/,
+        type: TokenType.SKIP,
     },
     {
         regex: /^&/,
