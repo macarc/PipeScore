@@ -3011,6 +3011,82 @@ describe("correctly parses score body", () => {
     test("it can parse the old triplet format", () => {
         expect(
             parser.parse(`& sharpf sharpc 2_4 I! LA_4 E_8 C_8 LA_8 ^3e !I`)
-        ).toStrictEqual({});
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: false,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "2", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "LA",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "triplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
     });
 });

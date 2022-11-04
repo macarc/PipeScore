@@ -33,9 +33,13 @@ export default class Parser {
     /**
      * Returns an AST of the BWW file
      */
-    parse(data: string): object {
+    parse(data: string): Score {
         this.data = data;
         this.tokenizer.init(this.data);
+
+        // Reset barline tie values
+        this.oldFormatBarlineTie = false;
+        this.newFormatBarlineTie = false;
 
         /**
          * Prime the tokenizer to obtain the first
@@ -189,7 +193,6 @@ export default class Parser {
 
         while (this.HasNote()) {
             let note: Note;
-            console.log(notes);
 
             if (this.lookahead?.type === TokenType.TIE_START) {
                 notes = notes.concat(this.Tie());
