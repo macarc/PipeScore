@@ -194,11 +194,15 @@ const Spec: SpecType[] = [
         type: TokenType.TRIPLET_OLD_FORMAT,
     },
     {
-        regex: /^\^((?:[23])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))s/,
+        regex: /^\^(3)s/,
+        type: TokenType.TRIPLET_NEW_FORMAT,
+    },
+    {
+        regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))s/,
         type: TokenType.IRREGULAR_GROUP_START,
     },
     {
-        regex: /^\^((?:[23])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))e/,
+        regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))e/,
         type: TokenType.IRREGULAR_GROUP_END,
     },
 ];

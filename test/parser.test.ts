@@ -3089,4 +3089,582 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse an irregular note group", () => {
+        expect(
+            parser.parse(`  & sharpf sharpc 6_8
+                            I!
+                            ^2s E_8 C_8 ^2e
+                            ^43s LA_8 B_8 C_8 D_8 ^43e
+                            ^46s LA_8 B_8 C_8 D_8 ^46e
+                            ^53s LA_8 B_8 C_8 D_8 E_8 ^53e
+                            ^54s LA_8 B_8 C_8 D_8 E_8 ^54e
+                            !
+                            ^64s LA_8 B_8 C_8 D_8 E_8 F_8 ^64e
+                            ^74s LA_8 B_8 C_8 D_8 E_8 F_8 HG_8 ^74e
+                            ^74s LA_8 B_8 C_8 D_8 E_8 F_8 HG_8 ^74e
+                            !I`)
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: false,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "6", bottom: "8" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "duplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    type: "quadruplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    type: "quadruplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    type: "quintuplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    type: "quintuplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    type: "sextuplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "F",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    type: "septuplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "F",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "HG",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                                {
+                                    type: "septuplet",
+                                    value: {
+                                        notes: [
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "LA",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "B",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "C",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "D",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "E",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "F",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                            {
+                                                type: "single",
+                                                value: {
+                                                    length: "8",
+                                                    pitch: "HG",
+                                                    accidental: "none",
+                                                    tied: false,
+                                                    fermata: false,
+                                                    dot: "none",
+                                                    embellishment: {},
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

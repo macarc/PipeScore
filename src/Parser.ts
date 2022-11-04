@@ -164,6 +164,7 @@ export default class Parser {
             this.lookahead?.type === TokenType.MELODY_NOTE ||
             this.lookahead?.type === TokenType.TIE_START ||
             this.lookahead?.type === TokenType.IRREGULAR_GROUP_START ||
+            this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT ||
             this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT ||
             this.lookahead?.type === TokenType.REST ||
             this.lookahead?.type === TokenType.FERMATA ||
@@ -202,7 +203,13 @@ export default class Parser {
             } else if (
                 this.lookahead?.type === TokenType.IRREGULAR_GROUP_START
             ) {
-                notes = notes.concat(this.IrregularGroup());
+                notes = notes.concat(
+                    this.IrregularGroup(TokenType.IRREGULAR_GROUP_START)
+                );
+            } else if (this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT) {
+                notes = notes.concat(
+                    this.IrregularGroup(TokenType.TRIPLET_NEW_FORMAT)
+                );
             } else {
                 note = this.Note();
                 this.BarLineTie(note);
@@ -238,18 +245,19 @@ export default class Parser {
         return notes;
     }
 
-    IrregularGroup(): Note {
-        const token = this.eat(TokenType.IRREGULAR_GROUP_START);
+    IrregularGroup(startingToken: TokenType): Note {
+        const token = this.eat(startingToken);
+        const size = this.TransformIrregularGroupToSize(token.value[1]);
         let notes: Note[] = [];
 
-        for (let i = 0; i < Number(token.value[1]); i++) {
+        for (let i = 0; i < size; i++) {
             notes = notes.concat(this.Note());
         }
 
         this.EatIrregularGroupEnd();
 
         return {
-            type: this.GetGroupType(token.value[1]),
+            type: this.GetGroupType(size),
             value: {
                 notes: notes,
             },
@@ -264,8 +272,50 @@ export default class Parser {
         }
     }
 
-    GetGroupType(size: string): NoteType {
-        return "triplet";
+    TransformIrregularGroupToSize(group: string): number {
+        switch (group) {
+            case "2":
+                return 2;
+            case "3":
+                return 3;
+            case "43":
+                return 4;
+            case "46":
+                return 4;
+            case "53":
+                return 5;
+            case "54":
+                return 5;
+            case "64":
+                return 6;
+            case "74":
+                return 7;
+            case "76":
+                return 7;
+        }
+
+        throw Error(`Unable transform group to size: ${group}`);
+    }
+
+    GetGroupType(size: number): NoteType {
+        switch (size) {
+            case 1:
+                return "single";
+            case 2:
+                return "duplet";
+            case 3:
+                return "triplet";
+            case 4:
+                return "quadruplet";
+            case 5:
+                return "quintuplet";
+            case 6:
+                return "sextuplet";
+            case 7:
+                return "septuplet";
+        }
+
+        throw Error(`Unable to match group size: ${size}`);
     }
 
     Tie(): Note[] {
@@ -309,6 +359,7 @@ export default class Parser {
         } else if (this.newFormatBarlineTie) {
             this.AddTieToNote(note);
             this.eat(TokenType.TIE_OLD_FORMAT);
+            this.newFormatBarlineTie = false;
         }
     }
 

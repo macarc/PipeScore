@@ -61,8 +61,7 @@ export type NoteType =
     | "quadruplet"
     | "quintuplet"
     | "sextuplet"
-    | "septuplet"
-    | "octuplet";
+    | "septuplet";
 
 export interface DoubleGracenote {
     type: string;
@@ -149,4 +148,5 @@ export enum TokenType {
     IRREGULAR_GROUP_START = "IRREGULAR_GROUP_START",
     IRREGULAR_GROUP_END = "IRREGULAR_GROUP_END",
     TRIPLET_OLD_FORMAT = "TRIPLET_OLD_FORMAT",
+    TRIPLET_NEW_FORMAT = "TRIPLET_NEW_FORMAT",
 }

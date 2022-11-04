@@ -32,7 +32,7 @@
 - [x] Note Accidentals
 - [x] Fermatas
 - [x] Ties
-- [ ] Irregular Groupings
+- [x] Irregular Groupings
 - [ ] Time Lines
 
 ## Fixups
