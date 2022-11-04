@@ -3667,4 +3667,141 @@ describe("correctly parses score body", () => {
             ],
         });
     });
+
+    test("it can parse time lines", () => {
+        expect(
+            parser.parse(
+                `& sharpf sharpc 2_4 I! LA_4 B_4 ! '1 C_4 B_4 _' ! '2 C_4 D_4 _' ! 'intro HA_4 E_4 _' !I`
+            )
+        ).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: false,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "2", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "LA",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "B",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "C",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "B",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "C",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "D",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "HA",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "4",
+                                        pitch: "E",
+                                        accidental: "none",
+                                        tied: false,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
 });

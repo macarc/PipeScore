@@ -162,6 +162,7 @@ export default class Parser {
     HasNote(): boolean {
         if (
             this.lookahead?.type === TokenType.MELODY_NOTE ||
+            this.lookahead?.type === TokenType.TIME_LINE_START ||
             this.lookahead?.type === TokenType.TIE_START ||
             this.lookahead?.type === TokenType.IRREGULAR_GROUP_START ||
             this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT ||
@@ -192,6 +193,8 @@ export default class Parser {
     Bar(): Bar {
         let notes: Note[] = [];
 
+        this.ParseTimeLineStart();
+
         while (this.HasNote()) {
             let note: Note;
 
@@ -217,9 +220,23 @@ export default class Parser {
             }
         }
 
+        this.ParseTimeLineEnd();
+
         return {
             notes: notes,
         };
+    }
+
+    ParseTimeLineStart(): void {
+        if (this.lookahead?.type === TokenType.TIME_LINE_START) {
+            this.eat(TokenType.TIME_LINE_START);
+        }
+    }
+
+    ParseTimeLineEnd(): void {
+        if (this.lookahead?.type === TokenType.TIME_LINE_END) {
+            this.eat(TokenType.TIME_LINE_END);
+        }
     }
 
     TripletOldFormat(notes: Note[]): Note[] {

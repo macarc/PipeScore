@@ -205,6 +205,14 @@ const Spec: SpecType[] = [
         regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))e/,
         type: TokenType.IRREGULAR_GROUP_END,
     },
+    {
+        regex: /^'(?:([12])(\d*)|(intro))/,
+        type: TokenType.TIME_LINE_START,
+    },
+    {
+        regex: /^_'/,
+        type: TokenType.TIME_LINE_END,
+    },
 ];
 
 export default Spec;
