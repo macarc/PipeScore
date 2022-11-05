@@ -2,6 +2,8 @@ import Parser from "../src/Parser";
 import { readFile, readdir } from "fs/promises";
 import { argv } from "process";
 import { lstatSync } from "fs";
+import { Score } from "../types/main";
+import util from "util";
 
 const parser: Parser = new Parser();
 
@@ -45,10 +47,11 @@ async function parseFileWithDetails(path: string): Promise<void> {
     });
 
     try {
-        parser.parse(file);
+        const ast: Score = parser.parse(file);
         console.log("\x1b[32m", `Successfully parsed: ${path}!`);
+        console.log(util.inspect(ast, false, null, true));
     } catch (e) {
-        console.log(`Error parsing: ${path}`);
+        console.log("\x1b[31m", `Error parsing: ${path}`);
         console.log("\x1b[31m", e);
     }
 }
