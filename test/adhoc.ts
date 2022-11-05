@@ -1,5 +1,5 @@
 import Parser from "../src/Parser";
-import { opendir, readFile, readdir } from "fs/promises";
+import { readFile, readdir } from "fs/promises";
 import { argv } from "process";
 import { lstatSync } from "fs";
 

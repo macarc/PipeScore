@@ -217,6 +217,10 @@ const Spec: SpecType[] = [
         regex: /^_'/,
         type: TokenType.TIME_LINE_END,
     },
+    {
+        regex: /^(.+)\n|^(.+)$/,
+        type: TokenType.SKIP,
+    },
 ];
 
 export default Spec;
