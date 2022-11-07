@@ -3860,11 +3860,10 @@ describe("correctly parses score body", () => {
     });
 
     test("a tune can have a gracenote before a tied note", async function () {
-        expect(
-            parser.parse(
-                `& sharpf sharpc 4_4 I!'' gg LGr_16 LAl_16 Br_16 gg ^ts Dl_16		Dr_16 ^te Bl_16 gg Er_16 Dl_16 ''!I`
-            )
-        ).toStrictEqual({});
+        const tune = `& sharpf sharpc 4_4 I!'' gg LGr_16 LAl_16 Br_16 gg ^ts Dl_16		Dr_16 ^te Bl_16 gg Er_16 Dl_16 ''!I`;
+        const ast: Score = parser.parse(tune);
+
+        expect(ast).toBeTruthy();
     });
 
     test("ad hoc test", async function () {

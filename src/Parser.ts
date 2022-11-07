@@ -24,6 +24,7 @@ export default class Parser {
     private lookahead!: Token | null;
     private oldFormatBarlineTie = false;
     private newFormatBarlineTie = false;
+    private tieNextNote = false;
 
     constructor() {
         this.data = "";
@@ -40,6 +41,7 @@ export default class Parser {
         // Reset barline tie values
         this.oldFormatBarlineTie = false;
         this.newFormatBarlineTie = false;
+        this.tieNextNote = false;
 
         /**
          * Prime the tokenizer to obtain the first
@@ -198,10 +200,7 @@ export default class Parser {
         while (this.HasNote()) {
             let note: Note;
 
-            if (this.lookahead?.type === TokenType.TIE_START) {
-                notes = notes.concat(this.Tie());
-                continue;
-            } else if (this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT) {
+            if (this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT) {
                 notes = this.TripletOldFormat(notes);
             } else if (
                 this.lookahead?.type === TokenType.IRREGULAR_GROUP_START
@@ -335,20 +334,24 @@ export default class Parser {
         throw Error(`Unable to match group size: ${size}`);
     }
 
-    Tie(): Note[] {
-        const notes: Note[] = [];
-
-        this.eat(TokenType.TIE_START);
-        const note = this.Note();
-        this.AddTieToNote(note);
-        notes.push(note);
-
-        const nextNote = this.NewFormatTieNextNote();
-        if (nextNote) {
-            notes.push(nextNote);
+    Tie(): boolean {
+        if (this.lookahead?.type === TokenType.TIE_START) {
+            this.eat(TokenType.TIE_START);
+            this.tieNextNote = true;
+            return true;
         }
 
-        return notes;
+        return false;
+    }
+
+    HandleTieEnd(): boolean {
+        if (this.tieNextNote) {
+            this.eat(TokenType.TIE_OLD_FORMAT);
+            this.tieNextNote = false;
+            return true;
+        }
+
+        return false;
     }
 
     OldTie(note: Note): Note[] {
@@ -437,14 +440,19 @@ export default class Parser {
             };
         } else {
             const fermata = this.Fermata();
+            let tied = this.Tie();
             const token = this.eat(TokenType.MELODY_NOTE);
+
+            if (!tied) {
+                tied = this.HandleTieEnd();
+            }
             return {
                 type: "single",
                 value: {
                     length: token.value[3],
                     pitch: token.value[1],
                     accidental: accidental,
-                    tied: false,
+                    tied: tied,
                     fermata: fermata,
                     dot: this.Dot(),
                     embellishment: embellishment,

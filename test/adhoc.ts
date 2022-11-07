@@ -29,7 +29,7 @@ async function parseFile(path: string): Promise<void> {
         total++;
         parser.parse(file);
         success++;
-        console.log("\x1b[32m", `Successfully parsed: ${path}!`);
+        console.log("\x1b[32m", `Successfully parsed: ${path}`);
     } catch (e) {
         fail++;
         console.log("\x1b[31m", `Error parsing: ${path}`);
@@ -48,7 +48,7 @@ async function parseFileWithDetails(path: string): Promise<void> {
 
     try {
         const ast: Score = parser.parse(file);
-        console.log("\x1b[32m", `Successfully parsed: ${path}!`);
+        console.log("\x1b[32m", `Successfully parsed: ${path}`);
         console.log(util.inspect(ast, false, null, true));
     } catch (e) {
         console.log("\x1b[31m", `Error parsing: ${path}`);
@@ -56,8 +56,22 @@ async function parseFileWithDetails(path: string): Promise<void> {
     }
 }
 
+async function parseStringWithDetails(tune: string): Promise<void> {
+    try {
+        const ast: Score = parser.parse(tune);
+        console.log("\x1b[32m", `Successfully parsed tune.`);
+        console.log("\x1b[37m", util.inspect(ast, false, null, true));
+    } catch (e) {
+        console.log("\x1b[31m", `Error parsing tune`);
+        console.log("\x1b[31m", e);
+    }
+}
+
 if (argv.length < 3) {
     console.log("Please specify the directory or path you would like to parse");
+} else if (argv[2] === "-s") {
+    console.log("Parse string");
+    parseStringWithDetails(argv[3]);
 } else if (lstatSync(argv[2]).isFile()) {
     console.log("Check specific file");
     parseFileWithDetails(argv[2]).catch(console.error);
