@@ -38,6 +38,7 @@
 - [x] Ties
 - [x] Irregular Groupings
 - [x] Time Lines
+- [ ] Multiple time signatures within a line
 
 ## Fixups
 - [ ] Clef and time signatures should be listed within a bar

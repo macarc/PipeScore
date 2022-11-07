@@ -415,6 +415,7 @@ export default class Parser {
     }
 
     Note(): Note {
+        let tied = this.Tie();
         const embellishment = this.Embellishment();
         const accidental =
             this.lookahead?.type === TokenType.ACCIDENTAL
@@ -430,7 +431,7 @@ export default class Parser {
                 },
             };
         } else {
-            let tied = this.Tie();
+            tied = this.Tie();
             const token = this.eat(TokenType.MELODY_NOTE);
             const fermata = this.Fermata();
 

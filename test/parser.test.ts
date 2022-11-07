@@ -2972,6 +2972,17 @@ describe("correctly parses score body", () => {
         });
     });
 
+    test("ties can begin before a note's embellishment", () => {
+        const tune = `& sharpf sharpc 4_4 gg Br_8 LAl_8 dblg LG_4 'lg gg LG_8 ^ts dbhg HG_4
+                        ! HGr_8 ^te Fl_8 	eg Fr_8 ^ts El_8 E_2
+                        ! Er_8 ^te gg El_8 thrd D_4 'd dbb B_8 ag B_4
+                        ! dblg LG_4 gg LA_2 'la
+                        !I`;
+        const ast: Score = parser.parse(tune);
+
+        expect(ast).toBeTruthy();
+    });
+
     test("it can parse the new triplet format", () => {
         expect(
             parser.parse(`& sharpf sharpc 2_4 I! gg ^3s C_8 E_8 LA_8 ^3e !I`)
