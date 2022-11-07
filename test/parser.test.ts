@@ -2974,7 +2974,7 @@ describe("correctly parses score body", () => {
 
     test("it can parse the new triplet format", () => {
         expect(
-            parser.parse(`& sharpf sharpc 2_4 I! ^3s C_8 E_8 LA_8 ^3e !I`)
+            parser.parse(`& sharpf sharpc 2_4 I! gg ^3s C_8 E_8 LA_8 ^3e !I`)
         ).toStrictEqual({
             name: "",
             headers: [],
@@ -3004,7 +3004,12 @@ describe("correctly parses score body", () => {
                                                     tied: false,
                                                     fermata: false,
                                                     dot: "none",
-                                                    embellishment: {},
+                                                    embellishment: {
+                                                        type: "gracenote",
+                                                        value: {
+                                                            note: "g",
+                                                        },
+                                                    },
                                                 },
                                             },
                                             {
