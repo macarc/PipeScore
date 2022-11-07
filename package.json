@@ -28,8 +28,5 @@
     "prettier": "^2.7.1",
     "sass": "^1.55.0",
     "typescript": "^4.8.4"
-  },
-  "dependencies": {
-    "vscode-css-languageservice": "^6.1.1"
   }
 }
