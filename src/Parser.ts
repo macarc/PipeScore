@@ -430,9 +430,9 @@ export default class Parser {
                 },
             };
         } else {
-            const fermata = this.Fermata();
             let tied = this.Tie();
             const token = this.eat(TokenType.MELODY_NOTE);
+            const fermata = this.Fermata();
 
             if (!tied) {
                 tied = this.HandleTieEnd();

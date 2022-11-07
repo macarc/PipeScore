@@ -2663,9 +2663,9 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("it can parse accidentals before notes", () => {
+    test("it can parse fermatas", () => {
         expect(
-            parser.parse(`& sharpf sharpc 4_4 I! LA_4 B_4 C_4 fermatd D_4 !I`)
+            parser.parse(`& sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 fermatd !I`)
         ).toStrictEqual({
             name: "",
             headers: [],
@@ -3936,7 +3936,7 @@ describe("correctly parses score body", () => {
     });
 
     test("ad hoc test", async function () {
-        const path = "test/fixtures/Andy_Renwicks_Ferret.bww";
+        const path = "test/fixtures/double_dot_test.bww";
         const file = await readFile(path, {
             encoding: "utf-8",
         });
