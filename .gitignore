@@ -4,14 +4,11 @@ package-lock.json
 *~
 .cache
 firebase-debug.log
+firestore-debug.log
 .firebase
 
 public/*.html
 public/styles
-
-plus.svg
-minus.svg
-natural.svg
 
 *.wav
 dist
