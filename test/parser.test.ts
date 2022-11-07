@@ -3867,7 +3867,7 @@ describe("correctly parses score body", () => {
     });
 
     test("ad hoc test", async function () {
-        const path = "test/fixtures/Acid_Piper_v3.bww";
+        const path = "test/fixtures/10_Minute_Man_The.bww";
         const file = await readFile(path, {
             encoding: "utf-8",
         });

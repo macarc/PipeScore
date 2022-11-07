@@ -60,7 +60,7 @@ async function parseStringWithDetails(tune: string): Promise<void> {
     try {
         const ast: Score = parser.parse(tune);
         console.log("\x1b[32m", `Successfully parsed tune.`);
-        console.log("\x1b[37m", util.inspect(ast, false, null, true));
+        console.log(util.inspect(ast, false, null, false));
     } catch (e) {
         console.log("\x1b[31m", `Error parsing tune`);
         console.log("\x1b[31m", e);

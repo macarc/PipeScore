@@ -218,7 +218,7 @@ const Spec: SpecType[] = [
         type: TokenType.TIME_LINE_END,
     },
     {
-        regex: /^(.+)\t*\n*|^(.+)$/,
+        regex: /^([^\s]+)/,
         type: TokenType.SKIP,
     },
 ];
