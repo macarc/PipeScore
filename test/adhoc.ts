@@ -5,6 +5,9 @@ import { lstatSync } from "fs";
 import { Score } from "../types/main";
 import util from "util";
 
+let total = 0;
+let success = 0;
+let fail = 0;
 const parser: Parser = new Parser();
 
 async function ls(path: string): Promise<void> {
@@ -12,13 +15,13 @@ async function ls(path: string): Promise<void> {
     for await (const file of directory) {
         const fullPath = path + file;
 
-        parseFile(fullPath);
+        try {
+            parseFile(fullPath);
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
-
-let total = 0;
-let success = 0;
-let fail = 0;
 
 async function parseFile(path: string): Promise<void> {
     const file = await readFile(path, {
@@ -28,16 +31,13 @@ async function parseFile(path: string): Promise<void> {
     try {
         total++;
         parser.parse(file);
+        console.log(`Successfully parsed: ${path}`);
         success++;
-        console.log("\x1b[32m", `Successfully parsed: ${path}`);
     } catch (e) {
         fail++;
-        console.log("\x1b[31m", `Error parsing: ${path}`);
+        console.log(`Error parsing: ${path}`);
     } finally {
-        console.log(
-            "\x1b[37m",
-            `Total: ${total}, Success: ${success}, Failed: ${fail}`
-        );
+        console.log(`Total: ${total}, Success: ${success}, Failed: ${fail}`);
     }
 }
 
