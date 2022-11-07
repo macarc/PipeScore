@@ -3866,8 +3866,77 @@ describe("correctly parses score body", () => {
         expect(ast).toBeTruthy();
     });
 
+    test("ties can have more that 2 notes in them", async function () {
+        const tune = `& sharpf sharpc 2_4 I!'' gg ^ts Br_16 Cr_16 Dl_16 ^te ''!I`;
+        const ast: Score = parser.parse(tune);
+
+        expect(ast).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: true,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "2", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "16",
+                                        pitch: "B",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {
+                                            type: "gracenote",
+                                            value: {
+                                                note: "g",
+                                            },
+                                        },
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "16",
+                                        pitch: "C",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "16",
+                                        pitch: "D",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishment: {},
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
     test("ad hoc test", async function () {
-        const path = "test/fixtures/10_Minute_Man_The.bww";
+        const path = "test/fixtures/Andy_Renwicks_Ferret.bww";
         const file = await readFile(path, {
             encoding: "utf-8",
         });

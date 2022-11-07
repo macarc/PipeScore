@@ -23,8 +23,9 @@ export default class Parser {
     private tokenizer: Tokenizer;
     private lookahead!: Token | null;
     private oldFormatBarlineTie = false;
-    private newFormatBarlineTie = false;
     private tieNextNote = false;
+    private currentLine = 0;
+    private currentBar = 0;
 
     constructor() {
         this.data = "";
@@ -40,7 +41,6 @@ export default class Parser {
 
         // Reset barline tie values
         this.oldFormatBarlineTie = false;
-        this.newFormatBarlineTie = false;
         this.tieNextNote = false;
 
         /**
@@ -62,13 +62,13 @@ export default class Parser {
 
         if (token == null) {
             throw new SyntaxError(
-                `Unexpected end of input, expected: "${tokenType}"`
+                `Unexpected end of input, expected: "${tokenType}" near Line #${this.currentLine} and Bar #${this.currentBar}`
             );
         }
 
         if (token.type !== tokenType) {
             throw new SyntaxError(
-                `Unexpected token: "${token.type}", expected: "${tokenType}"`
+                `Unexpected token: "${token.type}", expected: "${tokenType}" near Line #${this.currentLine} and Bar #${this.currentBar}`
             );
         }
 
@@ -106,6 +106,8 @@ export default class Parser {
 
     Stave(key: Accidental[], time: TimeSignature): Stave {
         let bars: Bar[] = [];
+        this.currentLine++;
+        this.currentBar = 0;
 
         const repeat: boolean = this.BeginStave();
 
@@ -151,9 +153,12 @@ export default class Parser {
     Bars(): Bar[] {
         const bars = [];
 
+        this.ParseTimeLineStart();
+
         bars.push(this.Bar());
 
         while (this.lookahead?.type === TokenType.BAR_LINE) {
+            this.currentBar++;
             this.eat(TokenType.BAR_LINE);
             bars.push(this.Bar());
         }
@@ -195,10 +200,10 @@ export default class Parser {
     Bar(): Bar {
         let notes: Note[] = [];
 
-        this.ParseTimeLineStart();
-
         while (this.HasNote()) {
             let note: Note;
+
+            this.ParseTimeLineStart();
 
             if (this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT) {
                 notes = this.TripletOldFormat(notes);
@@ -346,12 +351,18 @@ export default class Parser {
 
     HandleTieEnd(): boolean {
         if (this.tieNextNote) {
-            this.eat(TokenType.TIE_OLD_FORMAT);
-            this.tieNextNote = false;
+            this.CheckForTieEnd();
             return true;
         }
 
         return false;
+    }
+
+    CheckForTieEnd(): void {
+        if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
+            this.eat(TokenType.TIE_OLD_FORMAT);
+            this.tieNextNote = false;
+        }
     }
 
     OldTie(note: Note): Note[] {
@@ -376,10 +387,6 @@ export default class Parser {
         if (this.oldFormatBarlineTie) {
             this.AddTieToNote(note);
             this.oldFormatBarlineTie = false;
-        } else if (this.newFormatBarlineTie) {
-            this.AddTieToNote(note);
-            this.eat(TokenType.TIE_OLD_FORMAT);
-            this.newFormatBarlineTie = false;
         }
     }
 
@@ -387,22 +394,6 @@ export default class Parser {
         if ("tied" in note.value) {
             note.value.tied = true;
         }
-    }
-
-    NewFormatTieNextNote(): Note | null {
-        let nextNote;
-
-        if (this.lookahead?.type === TokenType.BAR_LINE) {
-            this.newFormatBarlineTie = true;
-        } else {
-            nextNote = this.Note();
-            this.eat(TokenType.TIE_OLD_FORMAT);
-            this.AddTieToNote(nextNote);
-
-            return nextNote;
-        }
-
-        return null;
     }
 
     OldFormatTieNextNote(): Note | null {
