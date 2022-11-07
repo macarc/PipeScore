@@ -3882,6 +3882,17 @@ describe("correctly parses score body", () => {
         expect(ast).toBeTruthy();
     });
 
+    test("there can be multiple time lines on the same line", async function () {
+        const tune = `& sharpf sharpc 9_8
+                        Fr_16 gg Dl_8 'd HAl_8 			hdbf F_4 'f 					thrd D_4 C_8 
+                    !	gg Br_16 dg LGl_8 'lg dg Bl_8 	dbhg HG_4 'hg 				hdbe E_4 'e 
+                    !	gg LAr_8 'la Bl_16 grp Cl_8 		dbe E_4 'e 					dbha HA_4 LA_8 
+                    !	gg LAr_8 'la Fl_16 gg El_8 		thrd D_4 'd 					lgstd '1 D_4 _' '2 D_4 'd _' ''!I`;
+        const ast: Score = parser.parse(tune);
+
+        expect(ast).toBeTruthy();
+    });
+
     test("ties can have more that 2 notes in them", async function () {
         const tune = `& sharpf sharpc 2_4 I!'' gg ^ts Br_16 Cr_16 Dl_16 ^te ''!I`;
         const ast: Score = parser.parse(tune);
@@ -3951,13 +3962,56 @@ describe("correctly parses score body", () => {
         });
     });
 
-    test("ad hoc test", async function () {
-        const path = "test/fixtures/double_dot_test.bww";
-        const file = await readFile(path, {
-            encoding: "utf-8",
-        });
-        const ast: Score = parser.parse(file);
+    test("notes can have multiple embellishments", async function () {
+        const tune = `& sharpf sharpc 2_4 I!'' eg strla E_4 ''!I`;
+        const ast: Score = parser.parse(tune);
 
-        expect(ast).toBeTruthy();
+        expect(ast).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: true,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "2", bottom: "4" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "single",
+                                    value: {
+                                        length: "16",
+                                        pitch: "B",
+                                        accidental: "none",
+                                        tied: true,
+                                        fermata: false,
+                                        dot: "none",
+                                        embellishments: [
+                                            {
+                                                type: "gracenote",
+                                                value: {
+                                                    note: "e",
+                                                },
+                                            },
+                                            {
+                                                type: "strike",
+                                                value: {
+                                                    note: "la",
+                                                },
+                                            },
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
     });
 });

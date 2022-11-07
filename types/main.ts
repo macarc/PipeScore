@@ -40,7 +40,8 @@ export interface NoteValue {
     tied: boolean;
     fermata: boolean;
     dot: Dot;
-    embellishment: Embellishment | DoubleGracenote;
+    embellishment?: Embellishment | DoubleGracenote;
+    embellishments?: (Embellishment | DoubleGracenote)[];
 }
 
 export interface NoteGroup {

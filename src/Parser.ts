@@ -42,6 +42,8 @@ export default class Parser {
         // Reset barline tie values
         this.oldFormatBarlineTie = false;
         this.tieNextNote = false;
+        this.currentBar = 0;
+        this.currentLine = 0;
 
         /**
          * Prime the tokenizer to obtain the first
@@ -201,8 +203,6 @@ export default class Parser {
         let notes: Note[] = [];
 
         while (this.HasNote()) {
-            let note: Note;
-
             this.ParseTimeLineStart();
 
             if (this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT) {
@@ -218,9 +218,7 @@ export default class Parser {
                     this.IrregularGroup(TokenType.TRIPLET_NEW_FORMAT)
                 );
             } else {
-                note = this.Note();
-                this.BarLineTie(note);
-                notes = notes.concat(this.OldTie(note));
+                notes = notes.concat(this.GetBarNote());
             }
         }
 
@@ -229,6 +227,39 @@ export default class Parser {
         return {
             notes: notes,
         };
+    }
+
+    GetBarNote(): Note[] {
+        let note: Note;
+        let notes: Note[] = [];
+
+        this.ParseTimeLineStart();
+        const tied = this.Tie();
+        const embellishment = this.Embellishment();
+        this.ParseTimeLineStart();
+        if (this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT) {
+            notes = notes.concat(
+                this.IrregularGroup(TokenType.TRIPLET_NEW_FORMAT)
+            );
+            if (
+                notes &&
+                embellishment &&
+                "notes" in notes[0].value &&
+                "embellishment" in notes[0].value.notes[0].value
+            ) {
+                notes[0].value.notes[0].value.embellishment = embellishment;
+            }
+
+            return notes;
+        } else {
+            note = this.Note(tied, embellishment);
+            this.BarLineTie(note);
+            notes = notes.concat(this.OldTie(note));
+
+            this.ParseTimeLineEnd();
+
+            return notes;
+        }
     }
 
     ParseTimeLineStart(): void {
@@ -272,7 +303,7 @@ export default class Parser {
         let notes: Note[] = [];
 
         for (let i = 0; i < size; i++) {
-            notes = notes.concat(this.Note());
+            notes = notes.concat(this.Note(this.Tie(), this.Embellishment()));
         }
 
         this.EatIrregularGroupEnd();
@@ -402,7 +433,7 @@ export default class Parser {
         if (this.lookahead?.type === TokenType.BAR_LINE) {
             this.oldFormatBarlineTie = true;
         } else {
-            nextNote = this.Note();
+            nextNote = this.Note(true, this.Embellishment());
 
             if ("tied" in nextNote.value) {
                 nextNote.value.tied = true;
@@ -414,9 +445,7 @@ export default class Parser {
         return null;
     }
 
-    Note(): Note {
-        let tied = this.Tie();
-        const embellishment = this.Embellishment();
+    Note(tied: boolean, embellishment: Embellishment | DoubleGracenote): Note {
         const accidental =
             this.lookahead?.type === TokenType.ACCIDENTAL
                 ? this.Accidental().type
