@@ -3962,6 +3962,40 @@ describe("correctly parses score body", () => {
         });
     });
 
+    test("it can parse a gracenote without a note attached to it", async function () {
+        const tune = `& sharpf sharpc  6_8 I! gg !I`;
+        const ast: Score = parser.parse(tune);
+
+        expect(ast).toStrictEqual({
+            name: "",
+            headers: [],
+            staves: [
+                {
+                    repeat: true,
+                    clef: {
+                        key: [
+                            { type: "sharp", note: "f" },
+                            { type: "sharp", note: "c" },
+                        ],
+                        time: { top: "6", bottom: "8" },
+                    },
+                    bars: [
+                        {
+                            notes: [
+                                {
+                                    type: "gracenote",
+                                    value: {
+                                        note: "HG",
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+    });
+
     test("notes can have multiple embellishments", async function () {
         const tune = `& sharpf sharpc 2_4 I!'' eg strla E_4 ''!I`;
         const ast: Score = parser.parse(tune);

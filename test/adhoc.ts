@@ -31,13 +31,16 @@ async function parseFile(path: string): Promise<void> {
     try {
         total++;
         parser.parse(file);
-        console.log(`Successfully parsed: ${path}`);
+        console.log("\x1b[32m", `Successfully parsed: ${path}`);
         success++;
     } catch (e) {
         fail++;
-        console.log(`Error parsing: ${path}`);
+        console.log("\x1b[31m", `Error parsing: ${path}`);
     } finally {
-        console.log(`Total: ${total}, Success: ${success}, Failed: ${fail}`);
+        console.log(
+            "\x1b[37m",
+            `Total: ${total}, Success: ${success}, Failed: ${fail}`
+        );
     }
 }
 
