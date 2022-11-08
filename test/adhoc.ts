@@ -2,7 +2,7 @@ import Parser from "../src/Parser";
 import { readFile, readdir } from "fs/promises";
 import { argv } from "process";
 import { lstatSync } from "fs";
-import { Score } from "../types";
+import { Score } from "../types/main";
 import util from "util";
 
 let total = 0;

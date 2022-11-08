@@ -1,4 +1,4 @@
-import { Token, TokenType } from "../types";
+import { Token, TokenType } from "../types/main";
 import Spec from "./Spec";
 
 export default class Tokenizer {
