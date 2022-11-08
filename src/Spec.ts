@@ -1,4 +1,4 @@
-import { SpecType, TokenType } from "../types/main";
+import { SpecType, TokenType } from "../types";
 
 const Spec: SpecType[] = [
     {

@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises";
 import Parser from "../src/Parser";
-import { Score } from "../types/main";
+import { Score } from "../types";
 
 describe("correctly parses file header", () => {
     const parser = new Parser();

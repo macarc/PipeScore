@@ -14,7 +14,7 @@ import {
     TimeSignature,
     Token,
     TokenType,
-} from "../types/main";
+} from "../types";
 import EmbellishmentMap from "./Embellishments";
 import Tokenizer from "./Tokenizer";
 
