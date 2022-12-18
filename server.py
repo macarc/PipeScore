@@ -20,16 +20,17 @@ class RequestHandler(SimpleHTTPRequestHandler):
             self.path = "/pipescore.html"
         elif self.path == "/":
             self.path = "/index.html"
-        elif "." not in re.search("([^/]*)$", self.path).group(0):
+        elif "." not in re.search("(/.*?)$", self.path).group(0):
             self.path += ".html"
+
         return super().do_GET()
 
 
 def run():
     addr = ("", 5000)
-    httpd = HTTPServer(addr, RequestHandler)
+    server = HTTPServer(addr, RequestHandler)
     print("Serving on localhost:5000")
-    httpd.serve_forever()
+    server.serve_forever()
 
 
 if __name__ == "__main__":

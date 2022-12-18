@@ -621,18 +621,22 @@ export class Note
               )
             : null,
 
-          notes.length === 1 && note.renderTails(x(index), y(index)),
+          note.hasStem()
+            ? [
+                notes.length === 1 && note.renderTails(x(index), y(index)),
 
-          m('line', {
-            x1: x(index),
-            x2: x(index),
-            y1: y(index),
-            y2:
-              note.hasBeam() && notes.length > 1
-                ? stemY
-                : y(index) + normalStemHeight,
-            stroke: note.colour(),
-          }),
+                m('line', {
+                  x1: x(index),
+                  x2: x(index),
+                  y1: y(index),
+                  y2:
+                    note.hasBeam() && notes.length > 1
+                      ? stemY
+                      : y(index) + normalStemHeight,
+                  stroke: note.colour(),
+                }),
+              ]
+            : null,
         ]);
       })
     );
