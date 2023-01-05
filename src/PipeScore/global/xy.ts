@@ -38,8 +38,8 @@ let currentPage = 0;
 // This MUST be called before every render
 // so that dragging second timings doesn't snap to previous things :)
 export const clearXY = () => {
-  itemCoords.clear()
-}
+  itemCoords.clear();
+};
 
 export const setXYPage = (page: number) => {
   currentPage = page;
@@ -65,19 +65,19 @@ export const deleteXY = (item: ID): void => {
 export const inOrder = (first: XY, second: XY, third: XY) =>
   before(first, second) && before(second, third);
 
-export const before = (a: XY, b: XY, canBeTheSame = false) => {
+export const before = (a: XY, b: XY, checkAfterX = false) => {
   if (b.page > a.page) return true;
   if (b.y > a.y) return true;
   if (a.y > b.y) return false;
-  return canBeTheSame ? a.beforeX <= b.beforeX : a.afterX <= b.beforeX;
+  return checkAfterX ? a.afterX <= b.afterX : a.afterX <= b.beforeX;
 };
 
-export const itemBefore = (a: ID, b: ID, canBeTheSame = false) => {
+export const itemBefore = (a: ID, b: ID, checkAfterX = false) => {
   const f = getXY(a);
   const g = getXY(b);
 
   if (f && g) {
-    return before(f, g, canBeTheSame);
+    return before(f, g, checkAfterX);
   } else {
     return false;
   }
