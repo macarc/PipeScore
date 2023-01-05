@@ -19,6 +19,7 @@
 import m from 'mithril';
 import { ScoreEvent, Update } from './Events/common';
 import { mouseUp, mouseDrag } from './Events/Mouse';
+import { clearXY } from './global/xy'
 import { State } from './State';
 import { Score } from './Score';
 import {
@@ -85,7 +86,8 @@ function redraw() {
   const uiRoot = document.getElementById('interface');
   if (!scoreRoot || !uiRoot) return;
 
-  if (state.view.score)
+  if (state.view.score) {
+    clearXY();
     m.render(
       state.view.score,
       m(
@@ -114,7 +116,7 @@ function redraw() {
         })
       )
     );
-
+  }
   if (state.view.ui && state.canEdit)
     m.render(
       state.view.ui,

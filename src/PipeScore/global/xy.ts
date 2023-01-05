@@ -35,6 +35,12 @@ const itemCoords: Map<ID, XY> = new Map();
 // I know
 let currentPage = 0;
 
+// This MUST be called before every render
+// so that dragging second timings doesn't snap to previous things :)
+export const clearXY = () => {
+  itemCoords.clear()
+}
+
 export const setXYPage = (page: number) => {
   currentPage = page;
 };
