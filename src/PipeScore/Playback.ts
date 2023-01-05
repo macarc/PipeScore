@@ -69,6 +69,25 @@ export class PlaybackRepeat implements Playback {
   }
 }
 
+export class PlaybackSecondTiming {
+  start: number;
+  middle: number;
+  end: number;
+
+  constructor(start: number, middle: number, end: number) {
+    this.start = start;
+    this.middle = middle;
+    this.end = end;
+  }
+  shouldDeleteElement(index: number, repeating: boolean) {
+    if (repeating) {
+      return this.start <= index && index <= this.middle;
+    } else {
+      return this.middle <= index && index <= this.end;
+    }
+  }
+}
+
 function sleep(length: number): Promise<void> {
   return new Promise((res) => setTimeout(res, length));
 }
@@ -265,26 +284,81 @@ class SoundedPitch {
   }
 
   async play(bpm: number) {
-    console.log(this.duration, bpm)
-    const duration = 1000 * this.duration * 60 / bpm;
-    console.log('playing note', this.pitch, 'with duration', duration)
-    this.sample.start(0)
-    await sleep(duration)
-    this.sample.stop()
+    const duration = (1000 * this.duration * 60) / bpm;
+    this.sample.start(0);
+    await sleep(duration);
+    this.sample.stop();
   }
 }
 
-function getSoundedPitches(elements: Playback[]): SoundedPitch[] {
-  let pitches: SoundedPitch[] = [];
+function shouldDeleteBecauseOfSecondTimings(
+  index: number,
+  timings: PlaybackSecondTiming[],
+  repeating: boolean
+) {
+  for (const timing of timings) {
+    if (timing.shouldDeleteElement(index, repeating)) return true;
+  }
+  return false;
+}
+
+function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
+  for (const timing of timings) {
+    if (timing.end === index) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Removes all PlaybackRepeats and PlaybackObjects from `elements'
+// and duplicates notes where necessary for repeats / second timings
+function expandRepeats(elements: Playback[], timings: PlaybackSecondTiming[]) {
   let repeatStartIndex = 0;
+  let repeatEndIndex = 0;
+  let i = 0;
+  let repeating = false;
+  let output: Playback[] = [];
+
+  while (i < elements.length) {
+    const e = elements[i];
+    if (e instanceof PlaybackRepeat) {
+      if (e.type === 'repeat-end' && i != repeatEndIndex) {
+        repeatEndIndex = i;
+        i = repeatStartIndex + 1;
+        repeating = true;
+      } else {
+        if (e.type === 'repeat-start') repeatStartIndex = i;
+        ++i;
+      }
+    } else {
+      if (
+        !(e instanceof PlaybackObject) &&
+        !shouldDeleteBecauseOfSecondTimings(i, timings, repeating)
+      ) {
+        output.push(e);
+      }
+      if (e instanceof PlaybackObject && e.type === 'object-end') {
+        if (repeating && isAtEndOfTiming(i, timings)) {
+          repeating = false;
+        }
+      }
+      ++i;
+    }
+  }
+  return output;
+}
+
+function getSoundedPitches(
+  elements: Playback[],
+  timings: PlaybackSecondTiming[]
+): SoundedPitch[] {
+  elements = expandRepeats(elements, timings);
+
+  let pitches: SoundedPitch[] = [];
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
-    if (e instanceof PlaybackObject) {
-      // TODO: deal with second timings
-      if (e.type === 'object-start') {
-      } else if (e.type == 'object-end') {
-      }
-    } else if (e instanceof PlaybackGracenote) {
+    if (e instanceof PlaybackGracenote) {
       pitches.push(new SoundedPitch(e.pitch, gracenoteDuration));
     } else if (e instanceof PlaybackNote) {
       let duration = e.duration;
@@ -309,17 +383,8 @@ function getSoundedPitches(elements: Playback[]): SoundedPitch[] {
       }
       duration = Math.max(duration, 0);
       pitches.push(new SoundedPitch(e.pitch, duration));
-    } else if (e instanceof PlaybackRepeat) {
-      if (e.type === 'repeat-start') {
-        repeatStartIndex = pitches.length;
-      } else {
-        pitches = [
-          ...pitches,
-          ...pitches.slice(repeatStartIndex).map((p) => p.duplicate()),
-        ];
-      }
     } else {
-      throw new Error('Unknown playback element ' + e);
+      throw new Error('Unexpected playback element ' + e);
     }
   }
   return pitches;
@@ -327,19 +392,17 @@ function getSoundedPitches(elements: Playback[]): SoundedPitch[] {
 
 export async function playback(
   state: PlaybackState,
-  elements: Playback[]
+  elements: Playback[],
+  timings: PlaybackSecondTiming[]
 ): Promise<void> {
   if (playing) return;
   playing = true;
 
   document.body.classList.add('loading');
-
   initialiseContext();
-
   await setup;
 
-  const soundedPitches = getSoundedPitches(elements);
-
+  const soundedPitches = getSoundedPitches(elements, timings);
   const drone = new Drones(dronesInitial, drones, context);
 
   drone.loop();
@@ -347,8 +410,7 @@ export async function playback(
   document.body.classList.remove('loading');
 
   for (const note of soundedPitches) {
-    if (audioStopped)
-      break;
+    if (audioStopped) break;
 
     await note.play(state.bpm);
   }

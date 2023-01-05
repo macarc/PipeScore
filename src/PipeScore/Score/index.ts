@@ -19,7 +19,7 @@
 
 import { Stave, trebleClefWidth } from '../Stave';
 import { TextBox } from '../TextBox';
-import { Timing, TimingPart } from '../Timing';
+import { Timing, TimingPart, SecondTiming } from '../Timing';
 import { TimeSignature } from '../TimeSignature';
 import { settings } from '../global/settings';
 import m from 'mithril';
@@ -28,6 +28,7 @@ import { mouseOffPitch } from '../Events/PitchBoxes';
 import { Preview } from '../Preview';
 import { NoteState } from '../Note/state';
 import { Update } from '../Events/common';
+import { Playback } from '../Playback';
 import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { first, foreach, last, nlast, Obj } from '../global/utils';
@@ -372,6 +373,11 @@ export class Score {
     return this._staves.flatMap((st, i) =>
       st.play(i === 0 ? null : this._staves[i - 1])
     );
+  }
+  public playbackTimings(elements: Playback[]) {
+    return this.timings
+      .filter((st) => st instanceof SecondTiming)
+      .map((st) => (st as SecondTiming).playbackTiming(elements));
   }
   public render(props: ScoreProps): m.Children {
     const width = this.width();

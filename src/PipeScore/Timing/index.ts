@@ -27,6 +27,7 @@ import { foreach, Obj, nmap } from '../global/utils';
 import { inOrder, closestItem, getXY, itemBefore, XY } from '../global/xy';
 import { Score } from '../Score';
 import { TimingSelection } from '../Selection';
+import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
 import { Selection } from '../Selection';
 
 interface TimingProps {
@@ -282,6 +283,25 @@ export class SecondTiming extends Timing {
         this[drag] = closest;
       }
     }
+  }
+  public playbackTiming(elements: Playback[]): PlaybackSecondTiming {
+    let start_index = -1;
+    let middle_index = -1;
+    let end_index = -1;
+    for (let i = 0; i < elements.length; i++) {
+      const n = elements[i];
+      if (n instanceof PlaybackObject) {
+        if (n.type === 'object-start' && n.id === this.start) {
+          start_index = i;
+        } else if (n.type === 'object-start' && n.id === this.middle) {
+          middle_index = i;
+        } else if (n.type === 'object-end' && n.id === this.end) {
+          end_index = i;
+          break;
+        }
+      }
+    }
+    return new PlaybackSecondTiming(start_index, middle_index, end_index);
   }
   public render(props: TimingProps): m.Children {
     const start = getXY(this.start);

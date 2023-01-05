@@ -351,10 +351,9 @@ export class Bar extends Item implements Previews<Note> {
       ? [new PlaybackRepeat('start')]
       : [];
     const end = this.backBarline.isRepeat() ? [new PlaybackRepeat('end')] : [];
-    // TODO should object-start/end go before or after repeat-start/end
     return [
-      new PlaybackObject('start', this.id),
       ...start,
+      new PlaybackObject('start', this.id),
       ...this._notes.flatMap((note, i) =>
         note.play(
           i === 0
@@ -362,8 +361,8 @@ export class Bar extends Item implements Previews<Note> {
             : Triplet.lastNote(this._notes[i - 1]).pitch()
         )
       ),
-      ...end,
       new PlaybackObject('end', this.id),
+      ...end,
     ];
   }
 

@@ -21,7 +21,12 @@ import { playback, stopAudio } from '../Playback';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
-    await playback(state.playback, state.score.play());
+    const playbackElements = state.score.play();
+    await playback(
+      state.playback,
+      playbackElements,
+      state.score.playbackTimings(playbackElements)
+    );
     return Update.NoChange;
   };
 }

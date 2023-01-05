@@ -19,7 +19,7 @@
 import m from 'mithril';
 import { ScoreEvent, Update } from './Events/common';
 import { mouseUp, mouseDrag } from './Events/Mouse';
-import { clearXY } from './global/xy'
+import { clearXY } from './global/xy';
 import { State } from './State';
 import { Score } from './Score';
 import {
