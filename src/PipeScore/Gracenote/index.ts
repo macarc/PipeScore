@@ -30,6 +30,7 @@ import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { Obj } from '../global/utils';
 import { GracenoteNoteList, noteList, gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
+import { PlaybackGracenote } from '../Playback';
 import { dispatch } from '../Controller';
 
 export interface GracenoteProps {
@@ -108,7 +109,7 @@ export abstract class Gracenote {
     const notes = this.notes(thisNote, previousNote);
     return notes.invalid
       ? []
-      : notes.map((pitch) => ({ pitch, tied: false, duration: 0 }));
+      : notes.map((pitch) => new PlaybackGracenote(pitch));
   }
   width(thisNote: Pitch, previousNote: Pitch | null) {
     const notes = this.notes(thisNote, previousNote);

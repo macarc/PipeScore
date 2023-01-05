@@ -28,6 +28,7 @@ import { mouseOffPitch, mouseOverPitch } from '../Events/PitchBoxes';
 import { getXY, setXY } from '../global/xy';
 import { addNoteBefore, clickNote } from '../Events/Note';
 import { pitchBoxes } from '../PitchBoxes';
+import { Playback, PlaybackNote, PlaybackObject } from '../Playback';
 import { settings } from '../global/settings';
 import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
@@ -225,14 +226,12 @@ export class Note
   public y(staveY: number) {
     return noteY(staveY, this.pitch());
   }
-  public play(pitchBefore: Pitch | null) {
+  public play(pitchBefore: Pitch | null): Playback[] {
     return [
       ...this._gracenote.play(this.pitch(), pitchBefore),
-      {
-        pitch: this.pitch(),
-        tied: this.tied,
-        duration: this.lengthInBeats(),
-      },
+      new PlaybackObject('start', this.id),
+      new PlaybackNote(this.pitch(), this.tied, this.lengthInBeats()),
+      new PlaybackObject('end', this.id),
     ];
   }
   private static naturalWidth = 14;
@@ -692,12 +691,19 @@ export class Triplet extends BaseNote {
   public lastSingle() {
     return nlast(this._notes);
   }
-  public play(previous: Pitch | null) {
-    return this._notes
-      .flatMap((n, i) =>
-        n.play(i === 0 ? previous : this._notes[i - 1].pitch() || previous)
-      )
-      .map((n) => ({ ...n, duration: (2 / 3) * n.duration }));
+  public play(previous: Pitch | null): Playback[] {
+    return [
+      new PlaybackObject('start', this.id),
+      ...this._notes.flatMap((n, i) => [
+        ...n
+          .gracenote()
+          .play(n.pitch(), i === 0 ? previous : this._notes[i - 1].pitch()),
+        new PlaybackObject('start', n.id),
+        new PlaybackNote(n.pitch(), n.isTied(), (2 / 3) * n.lengthInBeats()),
+        new PlaybackObject('end', n.id),
+      ]),
+      new PlaybackObject('end', this.id),
+    ];
   }
   public static flatten(notes: (Note | Triplet)[]): Note[] {
     return notes.flatMap((note) =>

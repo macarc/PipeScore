@@ -21,15 +21,52 @@
 //  (especially on Safari).
 
 import { Pitch } from './global/pitch';
+import { ID } from './global/id';
 
 export interface PlaybackState {
   bpm: number;
 }
 
-export interface PlaybackElement {
+export interface Playback {
+  type: string;
+}
+export class PlaybackObject implements Playback {
+  type: 'object-start' | 'object-end';
+  id: ID;
+
+  constructor(position: 'start' | 'end', id: ID) {
+    this.type = position === 'start' ? 'object-start' : 'object-end';
+    this.id = id;
+  }
+}
+export class PlaybackNote implements Playback {
+  type: 'note' = 'note';
   pitch: Pitch;
   tied: boolean;
   duration: number;
+
+  constructor(pitch: Pitch, tied: boolean, duration: number) {
+    this.pitch = pitch;
+    this.tied = tied;
+    this.duration = duration;
+  }
+}
+
+export class PlaybackGracenote implements Playback {
+  type: 'gracenote' = 'gracenote';
+  pitch: Pitch;
+
+  constructor(pitch: Pitch) {
+    this.pitch = pitch;
+  }
+}
+
+export class PlaybackRepeat implements Playback {
+  type: 'repeat-start' | 'repeat-end';
+
+  constructor(position: 'start' | 'end') {
+    this.type = position === 'start' ? 'repeat-start' : 'repeat-end';
+  }
 }
 
 function sleep(length: number): Promise<void> {
@@ -209,9 +246,88 @@ function pitchToSample(pitch: Pitch): Sample {
   }
 }
 
+const gracenoteDuration = 0.044;
+
+class SoundedPitch {
+  sample: AudioBufferSourceNode;
+  pitch: Pitch;
+  duration: number;
+
+  constructor(pitch: Pitch, duration: number) {
+    this.sample = pitchToSample(pitch).getSource(context);
+    this.sample.connect(context.destination);
+    this.pitch = pitch;
+    this.duration = duration;
+  }
+
+  duplicate() {
+    return new SoundedPitch(this.pitch, this.duration);
+  }
+
+  async play(bpm: number) {
+    console.log(this.duration, bpm)
+    const duration = 1000 * this.duration * 60 / bpm;
+    console.log('playing note', this.pitch, 'with duration', duration)
+    this.sample.start(0)
+    await sleep(duration)
+    this.sample.stop()
+  }
+}
+
+function getSoundedPitches(elements: Playback[]): SoundedPitch[] {
+  let pitches: SoundedPitch[] = [];
+  let repeatStartIndex = 0;
+  for (let i = 0; i < elements.length; i++) {
+    const e = elements[i];
+    if (e instanceof PlaybackObject) {
+      // TODO: deal with second timings
+      if (e.type === 'object-start') {
+      } else if (e.type == 'object-end') {
+      }
+    } else if (e instanceof PlaybackGracenote) {
+      pitches.push(new SoundedPitch(e.pitch, gracenoteDuration));
+    } else if (e instanceof PlaybackNote) {
+      let duration = e.duration;
+      // If subsequent notes are tied, increase this note's duration
+      // and skip the next notes
+      for (
+        let nextNote = elements[i + 1];
+        i < elements.length &&
+        nextNote instanceof PlaybackNote &&
+        nextNote.tied;
+        nextNote = elements[++i + 1]
+      ) {
+        duration += nextNote.duration;
+      }
+      // If there are gracenotes next, remove their length from the note
+      for (
+        let j = i, nextNote = elements[j + 1];
+        j < elements.length && nextNote instanceof PlaybackNote;
+        nextNote = elements[++j + 1]
+      ) {
+        duration -= gracenoteDuration;
+      }
+      duration = Math.max(duration, 0);
+      pitches.push(new SoundedPitch(e.pitch, duration));
+    } else if (e instanceof PlaybackRepeat) {
+      if (e.type === 'repeat-start') {
+        repeatStartIndex = pitches.length;
+      } else {
+        pitches = [
+          ...pitches,
+          ...pitches.slice(repeatStartIndex).map((p) => p.duplicate()),
+        ];
+      }
+    } else {
+      throw new Error('Unknown playback element ' + e);
+    }
+  }
+  return pitches;
+}
+
 export async function playback(
   state: PlaybackState,
-  elements: PlaybackElement[]
+  elements: Playback[]
 ): Promise<void> {
   if (playing) return;
   playing = true;
@@ -222,46 +338,19 @@ export async function playback(
 
   await setup;
 
+  const soundedPitches = getSoundedPitches(elements);
+
   const drone = new Drones(dronesInitial, drones, context);
 
-  // Need to create an array of different buffers since each buffer can only be played once
-  const audioBuffers: AudioBufferSourceNode[] = new Array(elements.length);
-  for (const el in elements) {
-    audioBuffers[el] = pitchToSample(elements[el].pitch).getSource(context);
-    audioBuffers[el].connect(context.destination);
-  }
   drone.loop();
-
   await sleep(1000);
-
-  const gracenoteLength = 44;
   document.body.classList.remove('loading');
-  for (let i = 0; i < audioBuffers.length; i++) {
-    if (elements[i].tied) continue;
-    const audio = audioBuffers[i];
-    const duration = elements[i].duration;
-    if (audioStopped) {
+
+  for (const note of soundedPitches) {
+    if (audioStopped)
       break;
-    }
-    audio.start(0);
-    if (duration === 0) {
-      await sleep(gracenoteLength);
-    } else {
-      // Subtract the length of the next gracenote (so that each note lands on the beat
-      // while the gracenote is before the beat)
-      let j = 0;
-      while (elements[i + j + 1] && elements[i + j + 1].duration === 0) {
-        j++;
-      }
-      let duration = elements[i].duration;
-      for (let k = 1; elements[i + k] && elements[i + k].tied; k++) {
-        duration += elements[i + k].duration;
-      }
-      await sleep(
-        Math.max((1000 * duration * 60) / state.bpm - gracenoteLength * j, 0)
-      );
-    }
-    audio.stop();
+
+    await note.play(state.bpm);
   }
 
   drone.stop();

@@ -30,6 +30,7 @@ import { clickBar } from '../Events/Bar';
 import { pitchBoxes } from '../PitchBoxes';
 import { mouseOverPitch } from '../Events/PitchBoxes';
 import { Barline } from './barline';
+import { Playback, PlaybackObject, PlaybackRepeat } from '../Playback';
 import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 
@@ -345,14 +346,25 @@ export class Bar extends Item implements Previews<Note> {
   private nonPreviewNotes() {
     return this.notesAndTriplets().filter((note) => note !== this.previewNote);
   }
-  public play(previous: Bar | null) {
-    return this._notes.flatMap((note, i) =>
-      note.play(
-        i === 0
-          ? previous && previous.lastPitch()
-          : Triplet.lastNote(this._notes[i - 1]).pitch()
-      )
-    );
+  public play(previous: Bar | null): Playback[] {
+    const start = this.frontBarline.isRepeat()
+      ? [new PlaybackRepeat('start')]
+      : [];
+    const end = this.backBarline.isRepeat() ? [new PlaybackRepeat('end')] : [];
+    // TODO should object-start/end go before or after repeat-start/end
+    return [
+      new PlaybackObject('start', this.id),
+      ...start,
+      ...this._notes.flatMap((note, i) =>
+        note.play(
+          i === 0
+            ? previous && previous.lastPitch()
+            : Triplet.lastNote(this._notes[i - 1]).pitch()
+        )
+      ),
+      ...end,
+      new PlaybackObject('end', this.id),
+    ];
   }
 
   public render(props: BarProps): m.Children {

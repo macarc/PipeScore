@@ -161,7 +161,7 @@ export abstract class BaseNote extends Item {
         return 4;
     }
   }
-  protected lengthInBeats(): number {
+  public lengthInBeats(): number {
     return lengthInBeats(this.length);
   }
   protected hasDot() {

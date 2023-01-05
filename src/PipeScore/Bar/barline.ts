@@ -60,6 +60,9 @@ export class Barline {
   mustDraw() {
     return this.type === 'repeat' || this.type === 'end';
   }
+  isRepeat() {
+    return this.type == 'repeat';
+  }
   width() {
     if (this.type === 'normal') {
       return 1;
