@@ -109,26 +109,14 @@ export function loadSamples() {
 // Some programming horror to try to massage the WebAudio API to do what I want
 // We have to:
 // * get the sources of the audio samples
-// * play some blank audio so that Safari behaves slightly better
 // * not create an AudioContext without being triggered by a user action
 // * trigger AudioContext creation as soon as possible after being triggered by action (for Safari)
 let context: AudioContext = new AudioContext(); // Won't work initially
 let initialisedContext = false;
 
-function playSilence() {
-  // This makes Safari happy
-  const buf = context.createBuffer(1, 1, 48000);
-  const source = context.createBufferSource();
-  source.buffer = buf;
-  source.connect(context.destination);
-  source.start();
-  source.stop();
-}
-
 function initialiseContext() {
   if (initialisedContext) return;
   context = new AudioContext();
-  playSilence();
   initialisedContext = true;
 }
 
