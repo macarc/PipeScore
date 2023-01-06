@@ -17,7 +17,7 @@
 import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 
-import { playback, stopAudio } from '../Playback';
+import { playback } from '../Playback';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
@@ -32,8 +32,8 @@ export function startPlayback(): ScoreEvent {
 }
 
 export function stopPlayback(): ScoreEvent {
-  return async () => {
-    stopAudio();
+  return async (state: State) => {
+    state.playback.userPressedStop = true;
     return Update.NoChange;
   };
 }

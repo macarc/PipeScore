@@ -17,7 +17,7 @@
 //  The type of the global state
 
 import { Preview } from './Preview';
-import { PlaybackState } from './Playback';
+import { PlaybackState } from './Playback/state';
 import { Menu } from './UI/model';
 import { Score } from './Score';
 import { Selection } from './Selection';
