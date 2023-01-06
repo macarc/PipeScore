@@ -318,14 +318,18 @@ function expandRepeats(elements: Playback[], timings: PlaybackSecondTiming[]) {
   let repeatEndIndex = 0;
   let i = 0;
   let repeating = false;
-  let output: Playback[] = [];
+  const output: Playback[] = [];
 
   while (i < elements.length) {
     const e = elements[i];
     if (e instanceof PlaybackRepeat) {
-      if (e.type === 'repeat-end' && i != repeatEndIndex) {
+      if (e.type === 'repeat-end' && i > repeatEndIndex) {
         repeatEndIndex = i;
+        // Go back to repeat
         i = repeatStartIndex + 1;
+        // Sometimes people don't put a repeat start, in which
+        // case we just repeat from the last repeat end
+        repeatStartIndex = repeatEndIndex;
         repeating = true;
       } else {
         if (e.type === 'repeat-start') repeatStartIndex = i;
@@ -355,7 +359,7 @@ function getSoundedPitches(
 ): SoundedPitch[] {
   elements = expandRepeats(elements, timings);
 
-  let pitches: SoundedPitch[] = [];
+  const pitches: SoundedPitch[] = [];
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
     if (e instanceof PlaybackGracenote) {
