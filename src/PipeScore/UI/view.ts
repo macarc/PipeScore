@@ -414,9 +414,9 @@ export default function render(state: UIState): m.Children {
     ]),
     m('section', [
       m('h2', 'Modify Lead Ins'),
-      m('p.align-top', 'See Bar section for more options')
-    ])
-  ]
+      m('p.align-top', 'See Bar section for more options'),
+    ]),
+  ];
 
   const secondTimingMenu = [
     m('section', [
@@ -660,7 +660,8 @@ export default function render(state: UIState): m.Children {
   const menuClass = (s: Menu): string =>
     s === state.currentMenu ? 'selected' : '';
 
-  const pretty = (name: Menu): string => name.split('_').map(capitalise).join(' ')
+  const pretty = (name: Menu): string =>
+    name.split('_').map(capitalise).join(' ');
 
   const menuHead = (name: Menu) =>
     m(
