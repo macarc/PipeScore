@@ -56,7 +56,7 @@ export function addAnacrusis(before: boolean): ScoreEvent {
 
     if (bar) {
       const { stave } = state.score.location(bar.id);
-      stave.insertBar(new Bar(bar.timeSignature(), true), bar, before);
+      stave.replaceBar(new Bar(bar.timeSignature(), true), bar, before);
       return Update.ShouldSave;
     }
     return Update.NoChange;

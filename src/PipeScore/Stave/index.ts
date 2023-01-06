@@ -102,7 +102,7 @@ export class Stave {
     this.lastBar()?.setBarline('end', Barline.repeat);
   }
 
-  public insertBar(newBar: Bar, oldBar: Bar, before: boolean) {
+  public replaceBar(newBar: Bar, oldBar: Bar, before: boolean) {
     const barInd = this._bars.indexOf(oldBar);
     const ind = before ? barInd : barInd + 1;
     this._bars.splice(ind, 0, newBar);

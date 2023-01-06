@@ -165,11 +165,11 @@ export class ScoreSelection extends Drags {
   }
   public addAnacrusis(before: boolean, score: Score) {
     const { bar, stave } = score.location(this.start);
-    stave.insertBar(new Bar(bar.timeSignature(), true), bar, before);
+    stave.replaceBar(new Bar(bar.timeSignature(), true), bar, before);
   }
   public addBar(before: boolean, score: Score) {
     const { bar, stave } = score.location(this.start);
-    stave.insertBar(new Bar(bar.timeSignature()), bar, before);
+    stave.replaceBar(new Bar(bar.timeSignature()), bar, before);
   }
   // Deletes all references to the items in the array
   private purgeItems(items: Item[], score: Score) {
