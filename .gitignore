@@ -10,7 +10,6 @@ firestore-debug.log
 public/*.html
 public/styles
 
-*.wav
 dist
 icons
 
