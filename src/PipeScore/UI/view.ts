@@ -244,32 +244,26 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
-  const addBarOrAnacrusis = (which: 'bar' | 'anacrusis') => {
+  const addBarOrAnacrusis = (which: 'bar' | 'lead in') => {
     const event = which === 'bar' ? addBar : addAnacrusis;
-    return [
+    return m('div.section-content.vertical', [
       help(
-        which === 'bar' ? 'add bar' : 'add anacrusis',
-        m('button.add', {
-          onclick: () =>
-            dispatch(
-              event(
-                (() => {
-                  const el = document.getElementById(`${which}-add-where`);
-                  if (el && el instanceof HTMLSelectElement) {
-                    return el.value === 'before';
-                  } else {
-                    return true;
-                  }
-                })()
+        `add ${which} before`,
+        m(
+          'button.textual',
+          { onclick: () => dispatch(event(true)) },
+          `Add ${which} before`
               )
             ),
-        })
+      help(
+        `add ${which} after`,
+        m(
+          'button.textual',
+          { onclick: () => dispatch(event(false)) },
+          `Add ${which} after`
+        )
       ),
-      m('select.full-width', { id: `${which}-add-where` }, [
-        m('option', { name: `add-${which}`, value: 'before' }, 'before'),
-        m('option', { name: `add-${which}`, value: 'after' }, 'after'),
-      ]),
-    ];
+    ]);
   };
 
   const startBarClass = (type: Barline) =>
@@ -300,7 +294,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             { onclick: () => dispatch(editBarTimeSignature()) },
-            'Edit Time Signature'
+            'Edit time signature'
           )
         ),
         help(
@@ -308,7 +302,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             { onclick: () => dispatch(resetBarLength()) },
-            'Reset Bar Length'
+            'Reset bar length'
           )
         ),
       ]),

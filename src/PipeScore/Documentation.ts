@@ -62,8 +62,8 @@ export default new Map(
     toarluath: gracenoteDoc('toarluath'),
     crunluath: gracenoteDoc('crunluath'),
     edre: gracenoteDoc('edre'),
-    'add bar':
-      'Add a new bar. Choose whether to add it before or after the currently selected bar.',
+    'add bar before': 'Add a new bar before the currently selected bar.',
+    'add bar after': 'Add a new bar after the currently selected bar.',
     'edit bar time signature':
       'Edit the time signature of the bar.\n\nIf the time signature is displayed at the start of the bar, you can also edit it by clicking it',
     'reset bar length':
@@ -74,8 +74,8 @@ export default new Map(
       'Set the barline of the currently selected bar to a repeat sign',
     'part barline':
       'Set the barline of the currently selected bar to a non-repeating start/end of part (two thick lines)',
-    'add anacrusis':
-      'Add a new lead in. Choose whether to add it before or after the currently selected bar.',
+    'add lead in before': 'Add a new lead in before the currently selected bar',
+    'add lead in after': 'Add a new lead in after the currently selected bar',
     'add stave before':
       'Add a new blank stave on the next line after the currently currently selected bar',
     'add stave after':
