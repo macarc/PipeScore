@@ -38,7 +38,7 @@ const state: State = {
   isLoggedIn: false,
   justClickedNote: false,
   preview: null,
-  playback: { bpm: 80 },
+  playback: { bpm: 80, userPressedStop: false, playing: false },
   menu: 'note',
   doc: { show: true, current: null },
   clipboard: null,
