@@ -66,6 +66,14 @@ export class Stave {
   public numberOfBars() {
     return this._bars.length;
   }
+  public insertBar(bar: Bar) {
+    this._bars.unshift(bar);
+    bar.fixedWidth = 'auto';
+  }
+  public appendBar(bar: Bar) {
+    this._bars.push(bar);
+    bar.fixedWidth = 'auto';
+  }
   public deleteBar(bar: Bar) {
     const index = this._bars.indexOf(bar);
     this._bars.splice(index, 1);

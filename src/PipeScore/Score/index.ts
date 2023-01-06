@@ -247,6 +247,21 @@ export class Score {
   public previousNote(id: ID) {
     return Bar.previousNote(id, this.bars());
   }
+  public nextStave(stave: Stave) {
+    const stave_index = this._staves.indexOf(stave);
+    const index = stave_index + 1;
+    if (stave_index != -1 && index < this._staves.length) {
+      return this._staves[index];
+    }
+    return null;
+  }
+  public previousStave(stave: Stave) {
+    const index = this._staves.indexOf(stave) - 1;
+    if (index < 0) {
+      return null;
+    }
+    return this._staves[index];
+  }
   public hasStuffOnLastPage() {
     return nlast(this.stavesSplitByPage()).length > 0;
   }

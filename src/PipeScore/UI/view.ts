@@ -32,6 +32,8 @@ import {
   setBarline,
   editBarTimeSignature,
   resetBarLength,
+  moveBarToNextLine,
+  moveBarToPreviousLine,
 } from '../Events/Bar';
 import {
   setMenu,
@@ -384,6 +386,27 @@ export default function render(state: UIState): m.Children {
             )
           ),
         ]),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Move Bar'),
+      m('div.section-content.vertical', [
+        help(
+          'move bar to previous line',
+          m(
+            'button.textual',
+            { onclick: () => dispatch(moveBarToPreviousLine()) },
+            'Move to previous stave'
+          )
+        ),
+        help(
+          'move bar to next line',
+          m(
+            'button.textual',
+            { onclick: () => dispatch(moveBarToNextLine()) },
+            'Move to next stave'
+          )
+        ),
       ]),
     ]),
   ];

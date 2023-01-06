@@ -95,5 +95,9 @@ export default new Map(
     'remove-page': 'Delete the last page and everything on it.',
     zoom: 'Zoom: Control how large the score appears on your screen.\n\nDrag to the right to zoom in, the left to zoom out',
     'number of pages': 'Add or remove pages',
+    'move bar to previous line':
+      'Move the currently selected bar to the end of the previous stave.\n\nThis only applies if you are currently selecting the first bar of a stave',
+    'move bar to next line':
+      'Move the currently selected bar to the start of the next stave.\n\nThis only applies if you are currently selecting the last bar of a stave',
   })
 );

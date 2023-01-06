@@ -134,3 +134,33 @@ export function editBarTimeSignature(): ScoreEvent {
     return Update.NoChange;
   };
 }
+
+export function moveBarToNextLine(): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const { bar, stave } = state.score.location(state.selection.start);
+      const next = state.score.nextStave(stave);
+      if (bar === stave.lastBar() && next) {
+        stave.deleteBar(bar);
+        next.insertBar(bar);
+        return Update.ShouldSave;
+      }
+    }
+    return Update.NoChange;
+  };
+}
+
+export function moveBarToPreviousLine(): ScoreEvent {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      const { bar, stave } = state.score.location(state.selection.start);
+      const previous = state.score.previousStave(stave);
+      if (bar === stave.firstBar() && previous) {
+        stave.deleteBar(bar);
+        previous.appendBar(bar);
+        return Update.ShouldSave;
+      }
+    }
+    return Update.NoChange;
+  };
+}

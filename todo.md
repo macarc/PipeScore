@@ -9,6 +9,7 @@
 - [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
+- [ ] Move multiple bars to next/previous line easily
 
 ## Small features
 
