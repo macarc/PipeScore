@@ -27,10 +27,7 @@ export interface PlaybackState {
   bpm: number;
 }
 
-export interface Playback {
-  type: string;
-}
-export class PlaybackObject implements Playback {
+export class PlaybackObject {
   type: 'object-start' | 'object-end';
   id: ID;
 
@@ -39,7 +36,7 @@ export class PlaybackObject implements Playback {
     this.id = id;
   }
 }
-export class PlaybackNote implements Playback {
+export class PlaybackNote {
   type: 'note' = 'note';
   pitch: Pitch;
   tied: boolean;
@@ -52,7 +49,7 @@ export class PlaybackNote implements Playback {
   }
 }
 
-export class PlaybackGracenote implements Playback {
+export class PlaybackGracenote {
   type: 'gracenote' = 'gracenote';
   pitch: Pitch;
 
@@ -61,13 +58,19 @@ export class PlaybackGracenote implements Playback {
   }
 }
 
-export class PlaybackRepeat implements Playback {
+export class PlaybackRepeat {
   type: 'repeat-start' | 'repeat-end';
 
   constructor(position: 'start' | 'end') {
     this.type = position === 'start' ? 'repeat-start' : 'repeat-end';
   }
 }
+
+export type Playback =
+  | PlaybackObject
+  | PlaybackRepeat
+  | PlaybackNote
+  | PlaybackGracenote;
 
 export class PlaybackSecondTiming {
   start: number;
@@ -265,8 +268,6 @@ function pitchToSample(pitch: Pitch): Sample {
   }
 }
 
-const gracenoteDuration = 0.044;
-
 class SoundedPitch {
   sample: AudioBufferSourceNode;
   pitch: Pitch;
@@ -277,10 +278,6 @@ class SoundedPitch {
     this.sample.connect(context.destination);
     this.pitch = pitch;
     this.duration = duration;
-  }
-
-  duplicate() {
-    return new SoundedPitch(this.pitch, this.duration);
   }
 
   async play(bpm: number) {
@@ -313,41 +310,39 @@ function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
 
 // Removes all PlaybackRepeats and PlaybackObjects from `elements'
 // and duplicates notes where necessary for repeats / second timings
-function expandRepeats(elements: Playback[], timings: PlaybackSecondTiming[]) {
+function expandRepeats(
+  elements: Playback[],
+  timings: PlaybackSecondTiming[]
+): (PlaybackNote | PlaybackGracenote)[] {
   let repeatStartIndex = 0;
   let repeatEndIndex = 0;
-  let i = 0;
   let repeating = false;
-  const output: Playback[] = [];
+  const output: (PlaybackNote | PlaybackGracenote)[] = [];
 
-  while (i < elements.length) {
+  for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
     if (e instanceof PlaybackRepeat) {
       if (e.type === 'repeat-end' && i > repeatEndIndex) {
         repeatEndIndex = i;
         // Go back to repeat
-        i = repeatStartIndex + 1;
-        // Sometimes people don't put a repeat start, in which
-        // case we just repeat from the last repeat end
+        i = repeatStartIndex;
+        // Need to do this to avoid an infinite loop
+        // if two end repeats are next to each other
         repeatStartIndex = repeatEndIndex;
         repeating = true;
       } else {
         if (e.type === 'repeat-start') repeatStartIndex = i;
-        ++i;
       }
-    } else {
-      if (
-        !(e instanceof PlaybackObject) &&
-        !shouldDeleteBecauseOfSecondTimings(i, timings, repeating)
-      ) {
-        output.push(e);
-      }
-      if (e instanceof PlaybackObject && e.type === 'object-end') {
+    } else if (e instanceof PlaybackObject) {
+      if (e.type === 'object-end') {
         if (repeating && isAtEndOfTiming(i, timings)) {
           repeating = false;
         }
       }
-      ++i;
+    } else {
+      if (!shouldDeleteBecauseOfSecondTimings(i, timings, repeating)) {
+        output.push(e);
+      }
     }
   }
   return output;
@@ -358,6 +353,8 @@ function getSoundedPitches(
   timings: PlaybackSecondTiming[]
 ): SoundedPitch[] {
   elements = expandRepeats(elements, timings);
+
+  const gracenoteDuration = 0.044;
 
   const pitches: SoundedPitch[] = [];
   for (let i = 0; i < elements.length; i++) {
@@ -377,15 +374,6 @@ function getSoundedPitches(
       ) {
         duration += nextNote.duration;
       }
-      // If there are gracenotes next, remove their length from the note
-      for (
-        let j = i, nextNote = elements[j + 1];
-        j < elements.length && nextNote instanceof PlaybackNote;
-        nextNote = elements[++j + 1]
-      ) {
-        duration -= gracenoteDuration;
-      }
-      duration = Math.max(duration, 0);
       pitches.push(new SoundedPitch(e.pitch, duration));
     } else {
       throw new Error('Unexpected playback element ' + e);
