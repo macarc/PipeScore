@@ -140,6 +140,10 @@ input[type='range'] {
       justify-content: space-between;
       gap: 0.5rem;
 
+      p.align-top {
+        margin-block-end: auto;
+      }
+
       .section-content {
         flex: 1;
         display: flex;

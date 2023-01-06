@@ -255,8 +255,8 @@ export default function render(state: UIState): m.Children {
           'button.textual',
           { onclick: () => dispatch(event(true)) },
           `Add ${which} before`
-              )
-            ),
+        )
+      ),
       help(
         `add ${which} after`,
         m(
@@ -283,10 +283,6 @@ export default function render(state: UIState): m.Children {
     m('section', [
       m('h2', 'Add Bar'),
       m('div.section-content', addBarOrAnacrusis('bar')),
-    ]),
-    m('section', [
-      m('h2', 'Add Lead In'),
-      m('div.section-content', addBarOrAnacrusis('anacrusis')),
     ]),
     m('section', [
       m('h2', 'Modify Bar'),
@@ -410,6 +406,17 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
   ];
+
+  const leadInMenu = [
+    m('section', [
+      m('h2', 'Add Lead In'),
+      m('div.section-content', addBarOrAnacrusis('lead in')),
+    ]),
+    m('section', [
+      m('h2', 'Modify Lead Ins'),
+      m('p.align-top', 'See Bar section for more options')
+    ])
+  ]
 
   const secondTimingMenu = [
     m('section', [
@@ -641,6 +648,7 @@ export default function render(state: UIState): m.Children {
     note: noteMenu,
     gracenote: gracenoteMenu,
     bar: barMenu,
+    lead_in: leadInMenu,
     second_timing: secondTimingMenu,
     stave: staveMenu,
     text: textMenu,
@@ -652,12 +660,7 @@ export default function render(state: UIState): m.Children {
   const menuClass = (s: Menu): string =>
     s === state.currentMenu ? 'selected' : '';
 
-  const prettify = (name: Menu): string => {
-    if (name === 'second_timing') {
-      return 'Second Timing';
-    }
-    return capitalise(name);
-  };
+  const pretty = (name: Menu): string => name.split('_').map(capitalise).join(' ')
 
   const menuHead = (name: Menu) =>
     m(
@@ -666,7 +669,7 @@ export default function render(state: UIState): m.Children {
         class: menuClass(name),
         onmousedown: () => dispatch(setMenu(name)),
       },
-      [prettify(name)]
+      [pretty(name)]
     );
   return m('div', [
     m('div#ui', [
@@ -675,6 +678,7 @@ export default function render(state: UIState): m.Children {
         menuHead('note'),
         menuHead('gracenote'),
         menuHead('bar'),
+        menuHead('lead_in'),
         menuHead('second_timing'),
         menuHead('stave'),
         menuHead('text'),
