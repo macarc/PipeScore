@@ -77,7 +77,7 @@ export function addBar(before: boolean): ScoreEvent {
 export function clickBarline(drag: (x: number) => void): ScoreEvent {
   return async (state: State) => {
     stopInputtingNotes(state);
-    state.selection = new BarlineSelection(drag);
+    state.selection = new BarlineSelection(drag, true);
     return Update.ViewChanged;
   };
 }
@@ -103,7 +103,7 @@ export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
       addToSelection(bar.id, state.selection);
       return Update.ViewChanged;
     }
-    state.selection = new ScoreSelection(bar.id, bar.id);
+    state.selection = new ScoreSelection(bar.id, bar.id, true);
     return Update.ViewChanged;
   };
 }

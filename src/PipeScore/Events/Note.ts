@@ -62,7 +62,8 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
       if (length) {
         const note = new Note(pitch, length);
         last.bar.insertNote(last.note, note);
-        state.selection = new ScoreSelection(note.id, note.id);
+        // createdByMouseDown is false since this is triggered by keyboard shortcut
+        state.selection = new ScoreSelection(note.id, note.id, false);
         return Update.ShouldSave;
       }
     }
@@ -205,7 +206,7 @@ export function stopInput(): ScoreEvent {
 export function clickTripletLine(triplet: Triplet): ScoreEvent {
   return async (state: State) => {
     stopInputtingNotes(state);
-    state.selection = new TripletLineSelection(triplet);
+    state.selection = new TripletLineSelection(triplet, true);
     return Update.ViewChanged;
   };
 }
@@ -237,7 +238,7 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
       return Update.ViewChanged;
     }
     state.justClickedNote = true;
-    state.selection = new ScoreSelection(note.id, note.id);
+    state.selection = new ScoreSelection(note.id, note.id, true);
     return Update.ViewChanged;
   };
 }

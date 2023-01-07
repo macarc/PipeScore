@@ -27,7 +27,7 @@ export function clickGracenote(
   return async (state: State) => {
     state.justClickedNote = true;
     stopInputtingNotes(state);
-    state.selection = new GracenoteSelection(gracenote, index);
+    state.selection = new GracenoteSelection(gracenote, index, true);
     return Update.ViewChanged;
   };
 }

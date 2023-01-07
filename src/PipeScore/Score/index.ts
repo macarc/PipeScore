@@ -277,7 +277,7 @@ export class Score {
       const first = stavesToDelete[0]?.firstBar() || null;
       const last = nlast(stavesToDelete)?.lastBar() || null;
       if (first && last) {
-        const selection = new ScoreSelection(first.id, last.id);
+        const selection = new ScoreSelection(first.id, last.id, false);
         selection.delete(this);
       }
     }

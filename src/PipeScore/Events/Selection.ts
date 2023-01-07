@@ -25,7 +25,7 @@ export function moveLeft(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const prev = state.score.previousNote(state.selection.start);
       if (prev) {
-        state.selection = new ScoreSelection(prev.id, prev.id);
+        state.selection = new ScoreSelection(prev.id, prev.id, false);
         return Update.ViewChanged;
       }
     } else if (state.selection instanceof GracenoteSelection) {
@@ -41,7 +41,7 @@ export function moveRight(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const next = state.score.nextNote(state.selection.end);
       if (next) {
-        state.selection = new ScoreSelection(next.id, next.id);
+        state.selection = new ScoreSelection(next.id, next.id, false);
         return Update.ViewChanged;
       }
     } else if (state.selection instanceof GracenoteSelection) {
@@ -85,7 +85,7 @@ export function moveLeftBarwise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const prev = state.score.previousBar(state.selection.end);
-      if (prev) state.selection = new ScoreSelection(prev.id, prev.id);
+      if (prev) state.selection = new ScoreSelection(prev.id, prev.id, false);
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -96,7 +96,7 @@ export function moveRightBarwise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const next = state.score.nextBar(state.selection.end);
-      if (next) state.selection = new ScoreSelection(next.id, next.id);
+      if (next) state.selection = new ScoreSelection(next.id, next.id, false);
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -106,7 +106,7 @@ export function moveRightBarwise(): ScoreEvent {
 export function deleteSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.selection) {
-      if (state.selection.delete(state.score)) state.selection = null;
+      state.selection = state.selection.delete(state.score);
       return Update.ShouldSave;
     }
     return Update.NoChange;

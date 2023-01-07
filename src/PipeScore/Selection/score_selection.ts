@@ -44,8 +44,8 @@ export class ScoreSelection extends Drags {
   public start: ID;
   public end: ID;
 
-  constructor(start: ID, end: ID) {
-    super();
+  constructor(start: ID, end: ID, createdByMouseDown: boolean) {
+    super(createdByMouseDown);
     this.start = start;
     this.end = end;
   }
@@ -110,11 +110,9 @@ export class ScoreSelection extends Drags {
     );
 
     if (newSelection) {
-      this.start = newSelection;
-      this.end = newSelection;
-      return false;
+      return new ScoreSelection(newSelection, newSelection, false);
     }
-    return true;
+    return null;
   }
   public lastNoteAndBar(score: Score): { note: Note | null; bar: Bar } {
     const notes = this.notes(score);
@@ -224,15 +222,17 @@ export class ScoreSelection extends Drags {
     if (end.page !== start.page) {
       if (start.page === props.page) {
         const last = props.score.lastOnPage(props.page);
-        if (last) return new ScoreSelection(this.start, last.id).render(props);
+        if (last)
+          return new ScoreSelection(this.start, last.id, false).render(props);
       } else if (end.page === props.page) {
         const first = props.score.firstOnPage(props.page);
-        if (first) return new ScoreSelection(first.id, this.end).render(props);
+        if (first)
+          return new ScoreSelection(first.id, this.end, false).render(props);
       } else {
         const first = props.score.firstOnPage(props.page);
         const last = props.score.lastOnPage(props.page);
         if (first && last)
-          return new ScoreSelection(first.id, last.id).render(props);
+          return new ScoreSelection(first.id, last.id, false).render(props);
       }
       return m('g');
     } else if (end.y !== start.y) {

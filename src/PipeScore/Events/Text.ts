@@ -30,7 +30,7 @@ export function addText(): ScoreEvent {
 export function clickText(text: TextBox): ScoreEvent {
   return async (state: State) => {
     stopInputtingNotes(state);
-    state.selection = new TextSelection(text);
+    state.selection = new TextSelection(text, true);
     return Update.ViewChanged;
   };
 }

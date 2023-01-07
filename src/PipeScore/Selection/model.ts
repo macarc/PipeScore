@@ -19,9 +19,9 @@ import { Pitch } from '../global/pitch';
 
 export class Selection {
   dragging = false;
-  // Return true if the selection should be deleted
-  delete(score: Score): boolean {
-    return true;
+  // Returns the new selection if there is one
+  delete(score: Score): Selection | null {
+    return null;
   }
   mouseDrag(x: number, y: number, score: Score, page: number) {}
   dragOverPitch(pitch: Pitch, score: Score) {}
@@ -29,7 +29,13 @@ export class Selection {
 }
 
 export class Drags extends Selection {
-  public dragging = true;
+  // Selections created by the user clicking should
+  // have createdByMouseDown on, otherwise (e.g. from keyboard)
+  // createdByMouseDown should be off
+  constructor(createdByMouseDown: boolean) {
+    super();
+    this.dragging = createdByMouseDown;
+  }
   public mouseUp() {
     this.dragging = false;
   }

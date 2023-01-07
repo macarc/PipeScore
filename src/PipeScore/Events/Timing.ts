@@ -51,7 +51,7 @@ export function addSecondTiming(): ScoreEvent {
 
 export function clickTiming(timing: Timing, part: TimingPart): ScoreEvent {
   return async (state: State) => {
-    state.selection = new TimingSelection(timing, part);
+    state.selection = new TimingSelection(timing, part, true);
     return Update.ViewChanged;
   };
 }

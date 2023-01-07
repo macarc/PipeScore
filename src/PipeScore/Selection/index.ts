@@ -29,13 +29,13 @@ export { ScoreSelection } from './score_selection';
 export class TextSelection extends Drags {
   public text: TextBox;
 
-  constructor(text: TextBox) {
-    super();
+  constructor(text: TextBox, createdByMouseDown: boolean) {
+    super(createdByMouseDown);
     this.text = text;
   }
   public delete(score: Score) {
     score.deleteTextBox(this.text);
-    return true;
+    return null;
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
     score.dragTextBox(this.text, x, y, page);
@@ -45,8 +45,8 @@ export class TextSelection extends Drags {
 export class BarlineSelection extends Drags {
   public drag_cb: (x: number) => void;
 
-  constructor(drag: (x: number) => void) {
-    super();
+  constructor(drag: (x: number) => void, createdByMouseDown: boolean) {
+    super(createdByMouseDown);
     this.drag_cb = drag;
   }
   public mouseDrag(x: number) {
@@ -58,14 +58,18 @@ export class TimingSelection extends Drags {
   timing: Timing;
   private part: TimingPart;
 
-  constructor(timing: Timing, clickedPart: TimingPart) {
-    super();
+  constructor(
+    timing: Timing,
+    clickedPart: TimingPart,
+    createdByMouseDown: boolean
+  ) {
+    super(createdByMouseDown);
     this.timing = timing;
     this.part = clickedPart;
   }
   public delete(score: Score) {
     score.deleteTiming(this.timing);
-    return true;
+    return null;
   }
   public mouseDrag(x: number, y: number, score: Score, page: number) {
     score.dragTiming(this.timing, this.part, x, y, page);
@@ -75,14 +79,14 @@ export class TimingSelection extends Drags {
 export class TripletLineSelection extends Drags {
   public selected: Triplet;
 
-  constructor(triplet: Triplet) {
-    super();
+  constructor(triplet: Triplet, createdByMouseDown: boolean) {
+    super(createdByMouseDown);
     this.selected = triplet;
   }
   public delete(score: Score) {
     const location = score.location(this.selected.id);
     if (location) location.bar.unmakeTriplet(this.selected);
-    return true;
+    return null;
   }
 }
 
@@ -90,8 +94,12 @@ export class GracenoteSelection extends Drags {
   private selected: Gracenote;
   private note: number | 'all';
 
-  constructor(gracenote: Gracenote, note: number | 'all') {
-    super();
+  constructor(
+    gracenote: Gracenote,
+    note: number | 'all',
+    createdByMouseDown: boolean
+  ) {
+    super(createdByMouseDown);
     this.selected = gracenote;
     this.note = note;
   }
@@ -104,16 +112,16 @@ export class GracenoteSelection extends Drags {
   public delete(score: Score) {
     if (this.note === 'all') {
       this.changeGracenote(Gracenote.fromName('none'), score);
-      return true;
+      return null;
     } else {
       const updated = this.selected.removeSingle(this.note);
       this.changeGracenote(updated, score);
       if (this.note > 0) {
         this.note--;
       }
-      if (updated.numberOfNotes() === 0) return true;
+      if (updated.numberOfNotes() === 0) return null;
+      return this;
     }
-    return false;
   }
   public dragOverPitch(pitch: Pitch, score: Score) {
     if (this.note !== 'all') {
