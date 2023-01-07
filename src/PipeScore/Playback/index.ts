@@ -59,9 +59,9 @@ class SoundedPitch {
   pitch: Pitch;
   duration: number;
 
-  constructor(pitch: Pitch, duration: number) {
-    this.sample = pitchToSample(pitch).getSource(context);
-    this.sample.connect(context.destination);
+  constructor(pitch: Pitch, duration: number, ctx: AudioContext) {
+    this.sample = pitchToSample(pitch).getSource(ctx);
+    this.sample.connect(ctx.destination);
     this.pitch = pitch;
     this.duration = duration;
   }
@@ -85,14 +85,11 @@ const highg = new Sample('highg');
 const higha = new Sample('higha');
 const drones = new Sample('drones');
 
-let loading: Promise<((context: AudioContext) => void)[]> = new Promise(
-  () => null
-);
-
 // This is in a function so that sample loading can be delayed, so that images
 // are loaded first. Hackity hackity.
-export function startLoadingSamples() {
-  loading = Promise.all([
+export async function startLoadingSamples(onload: () => void) {
+  const context = new AudioContext();
+  const samples = await Promise.all([
     lowg.load(),
     lowa.load(),
     b.load(),
@@ -104,16 +101,7 @@ export function startLoadingSamples() {
     higha.load(),
     drones.load(),
   ]);
-}
-
-// This won't work initially, but will be reassigned in setupAudio()
-let context: AudioContext = new AudioContext();
-
-// This has to be triggered by a user action (i.e. by clicking the Playback menu)
-// in order to create an AudioContext
-export async function setupAudio(onload: () => void) {
-  context = new AudioContext();
-  (await loading).forEach((fn) => fn(context));
+  samples.forEach((fn) => fn(context));
   onload();
 }
 
@@ -202,7 +190,8 @@ function expandRepeats(
 
 function getSoundedPitches(
   elements: Playback[],
-  timings: PlaybackSecondTiming[]
+  timings: PlaybackSecondTiming[],
+  ctx: AudioContext
 ): SoundedPitch[] {
   elements = expandRepeats(elements, timings);
 
@@ -212,7 +201,7 @@ function getSoundedPitches(
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
     if (e instanceof PlaybackGracenote) {
-      pitches.push(new SoundedPitch(e.pitch, gracenoteDuration));
+      pitches.push(new SoundedPitch(e.pitch, gracenoteDuration, ctx));
     } else if (e instanceof PlaybackNote) {
       let duration = e.duration;
       // If subsequent notes are tied, increase this note's duration
@@ -226,7 +215,7 @@ function getSoundedPitches(
       ) {
         duration += nextNote.duration;
       }
-      pitches.push(new SoundedPitch(e.pitch, duration));
+      pitches.push(new SoundedPitch(e.pitch, duration, ctx));
     } else {
       throw new Error('Unexpected playback element ' + e);
     }
@@ -241,6 +230,8 @@ export async function playback(
 ): Promise<void> {
   if (state.playing || state.loading) return;
 
+  const context = new AudioContext();
+
   state.playing = true;
 
   // Due to browser restrictions, await may not be used
@@ -248,7 +239,7 @@ export async function playback(
 
   document.body.classList.add('loading');
 
-  const soundedPitches = getSoundedPitches(elements, timings);
+  const soundedPitches = getSoundedPitches(elements, timings, context);
   const drone = new Drones(drones, context);
 
   drone.play();

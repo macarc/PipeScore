@@ -32,6 +32,7 @@ import renderUI from './UI/view';
 import Documentation from './Documentation';
 import { svgCoords } from './global/utils';
 import { startLoadingSamples } from './Playback';
+import { loadedAudio } from './Events/Misc';
 
 const state: State = {
   canEdit: true,
@@ -174,7 +175,7 @@ export default function startController(
   state.isLoggedIn = isLoggedIn;
   state.canEdit = canEdit;
   state.score = score;
-  startLoadingSamples();
+  startLoadingSamples(() => dispatch(loadedAudio()));
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
