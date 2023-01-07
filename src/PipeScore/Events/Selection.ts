@@ -139,7 +139,7 @@ export function copy(): ScoreEvent {
 export function paste(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection && state.clipboard) {
-      const id = state.selection.end;
+      const id = state.selection.start;
       const { bar } = state.score.location(id);
       Bar.pasteNotes(
         state.clipboard

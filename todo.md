@@ -10,7 +10,6 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
 - [ ] Move multiple bars to next/previous line easily
-- [ ] Selecting multiple bars as the paste target
 
 ## Small features
 
@@ -215,3 +214,4 @@
 - [x] Shift-left
 - [x] Make it possible to input natural notes immediately
 - [x] Deleting a note then moving the mouse moves the currently selected note
+- [x] Selecting multiple bars as the paste target
