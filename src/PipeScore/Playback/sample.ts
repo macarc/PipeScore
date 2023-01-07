@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-export function sleep(length: number): Promise<void> {
-  return new Promise((res) => setTimeout(res, length));
+export function sleep(length_in_ms: number): Promise<void> {
+  return new Promise((res) => setTimeout(res, length_in_ms));
 }
 
 export class Sample {

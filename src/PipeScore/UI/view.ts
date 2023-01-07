@@ -76,6 +76,7 @@ import { dispatch } from '../Controller';
 
 export interface UIState {
   loggedIn: boolean;
+  loadingAudio: boolean;
   selectedGracenote: Gracenote | null;
   selectedBar: Bar | null;
   selectedNotes: Note[];
@@ -663,6 +664,23 @@ export default function render(state: UIState): m.Children {
   const pretty = (name: Menu): string =>
     name.split('_').map(capitalise).join(' ');
 
+  const loginWarning = [
+    'You are currently not logged in. Any changes you make will not be saved. ',
+    m('a[href=/login]', 'Create a free account here!'),
+  ];
+  const loadingAudioWarning = [
+    'Loading audio samples... this may take a minute or so if this is your first time.',
+  ];
+  const showLoginWarning = !state.loggedIn;
+  const showAudioWarning =
+    state.loadingAudio && state.currentMenu === 'playback';
+  const warning = [
+    ...(showLoginWarning ? loginWarning : []),
+    showAudioWarning && showLoginWarning ? m('hr') : null,
+    ...(showAudioWarning ? loadingAudioWarning : []),
+  ];
+  const shouldShowWarning = showLoginWarning || showAudioWarning;
+
   const menuHead = (name: Menu) =>
     m(
       'button',
@@ -723,12 +741,7 @@ export default function render(state: UIState): m.Children {
           ]),
         ]),
       ]),
-      state.loggedIn
-        ? null
-        : m('div#login-warning', [
-            'You are currently not logged in. Any changes you make will not be saved. ',
-            m('a[href=/login]', 'Create a free account here!'),
-          ]),
+      shouldShowWarning ? m('div#login-warning', warning) : null,
     ]),
     m('div#doc', [
       state.docs ? state.docs : null,

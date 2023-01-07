@@ -91,7 +91,7 @@ let loading: Promise<((context: AudioContext) => void)[]> = new Promise(
 
 // This is in a function so that sample loading can be delayed, so that images
 // are loaded first. Hackity hackity.
-export function loadSamples() {
+export function startLoadingSamples() {
   loading = Promise.all([
     lowg.load(),
     lowa.load(),
@@ -106,26 +106,15 @@ export function loadSamples() {
   ]);
 }
 
-// Some programming horror to try to massage the WebAudio API to do what I want
-// We have to:
-// * get the sources of the audio samples
-// * not create an AudioContext without being triggered by a user action
-// * trigger AudioContext creation as soon as possible after being triggered by action (for Safari)
-let context: AudioContext = new AudioContext(); // Won't work initially
-let initialisedContext = false;
+// This won't work initially, but will be reassigned in setupAudio()
+let context: AudioContext = new AudioContext();
 
-function initialiseContext() {
-  if (initialisedContext) return;
+// This has to be triggered by a user action (i.e. by clicking the Playback menu)
+// in order to create an AudioContext
+export async function setupAudio(onload: () => void) {
   context = new AudioContext();
-  initialisedContext = true;
-}
-
-// This has to be triggered by a user action (in order to create an AudioContext)
-export async function setupAudio() {
-  // This won't work in the main body of the 'playback' function
-  // I'm not really sure why, but let's appease the browser gods.
   (await loading).forEach((fn) => fn(context));
-  initialiseContext();
+  onload();
 }
 
 function pitchToSample(pitch: Pitch): Sample {
@@ -250,11 +239,14 @@ export async function playback(
   elements: Playback[],
   timings: PlaybackSecondTiming[]
 ): Promise<void> {
-  if (state.playing) return;
+  if (state.playing || state.loading) return;
+
   state.playing = true;
 
+  // Due to browser restrictions, await may not be used
+  // until after sound has already been played
+
   document.body.classList.add('loading');
-  initialiseContext();
 
   const soundedPitches = getSoundedPitches(elements, timings);
   const drone = new Drones(drones, context);

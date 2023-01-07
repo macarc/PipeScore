@@ -31,14 +31,14 @@ import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
 import Documentation from './Documentation';
 import { svgCoords } from './global/utils';
-import { loadSamples } from './Playback';
+import { startLoadingSamples } from './Playback';
 
 const state: State = {
   canEdit: true,
   isLoggedIn: false,
   justClickedNote: false,
   preview: null,
-  playback: { bpm: 80, userPressedStop: false, playing: false },
+  playback: { bpm: 80, userPressedStop: false, playing: false, loading: true },
   menu: 'note',
   doc: { show: true, current: null },
   clipboard: null,
@@ -122,6 +122,7 @@ function redraw() {
       state.view.ui,
       renderUI({
         loggedIn: state.isLoggedIn,
+        loadingAudio: state.playback.loading,
         zoomLevel: state.score.zoom,
         preview: state.preview,
         showingPageNumbers: state.score.showNumberOfPages,
@@ -173,7 +174,7 @@ export default function startController(
   state.isLoggedIn = isLoggedIn;
   state.canEdit = canEdit;
   state.score = score;
-  loadSamples();
+  startLoadingSamples();
   state.history.past = [JSON.stringify(score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));

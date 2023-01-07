@@ -24,6 +24,7 @@ import { settings, Settings } from '../global/settings';
 import { last } from '../global/utils';
 import { Score } from '../Score';
 import { setupAudio } from '../Playback';
+import { dispatch } from '../Controller';
 
 export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   return async (state: State) => {
@@ -99,11 +100,21 @@ export function changeZoomLevel(zoom: number): ScoreEvent {
   };
 }
 
+
+function loadedAudio(): ScoreEvent {
+  return async (state: State) => {
+    state.playback.loading = false;
+    return Update.ViewChanged;
+  };
+}
+
 export function setMenu(menu: Menu): ScoreEvent {
   return async (state: State) => {
     state.menu = menu;
     stopInputtingNotes(state);
-    if (state.menu === 'playback') setupAudio();
+    if (state.menu === 'playback') {
+      setupAudio(() => dispatch(loadedAudio()));
+    }
     return Update.ViewChanged;
   };
 }

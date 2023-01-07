@@ -18,4 +18,5 @@ export interface PlaybackState {
   bpm: number;
   userPressedStop: boolean;
   playing: boolean;
+  loading: boolean;
 }

@@ -33,7 +33,7 @@ export function startPlayback(): ScoreEvent {
 
 export function stopPlayback(): ScoreEvent {
   return async (state: State) => {
-    state.playback.userPressedStop = true;
+    if (state.playback.playing) state.playback.userPressedStop = true;
     return Update.NoChange;
   };
 }
