@@ -100,7 +100,6 @@ export function changeZoomLevel(zoom: number): ScoreEvent {
   };
 }
 
-
 function loadedAudio(): ScoreEvent {
   return async (state: State) => {
     state.playback.loading = false;
