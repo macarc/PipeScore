@@ -77,9 +77,9 @@ export default new Map(
       'Add a new lead in before the currently selected bar.',
     'add lead in after': 'Add a new lead in after the currently selected bar.',
     'add stave before':
-      'Add a new blank stave on the next line after the currently currently selected bar.',
-    'add stave after':
       'Add a new blank stave on the line before the currently selected bar.',
+    'add stave after':
+      'Add a new blank stave on the next line after the currently currently selected bar.',
     'add text': 'Add a new text box.',
     'centre text': 'Horizontally centre the currently selected text box.',
     'edit text': 'Edit the currently selected text box.',
