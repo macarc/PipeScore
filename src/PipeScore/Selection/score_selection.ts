@@ -18,7 +18,7 @@
 //  It has considerably more functionality than the other selections
 //  so it goes in its own file
 
-import { Drags } from './model';
+import { Selection } from './model';
 import { ID } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { car, last, foreach } from '../global/utils';
@@ -40,7 +40,7 @@ interface ScoreSelectionProps {
   staveGap: number;
 }
 
-export class ScoreSelection extends Drags {
+export class ScoreSelection extends Selection {
   public start: ID;
   public end: ID;
 

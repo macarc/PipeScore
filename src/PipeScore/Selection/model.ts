@@ -18,25 +18,21 @@ import { Score } from '../Score';
 import { Pitch } from '../global/pitch';
 
 export class Selection {
-  dragging = false;
-  // Returns the new selection if there is one
-  delete(score: Score): Selection | null {
-    return null;
-  }
-  mouseDrag(x: number, y: number, score: Score, page: number) {}
-  dragOverPitch(pitch: Pitch, score: Score) {}
-  mouseUp() {}
-}
-
-export class Drags extends Selection {
+  dragging: boolean;
   // Selections created by the user clicking should
   // have createdByMouseDown on, otherwise (e.g. from keyboard)
   // createdByMouseDown should be off
   constructor(createdByMouseDown: boolean) {
-    super();
     this.dragging = createdByMouseDown;
   }
-  public mouseUp() {
+
+  // Returns the new selection if there is one
+  delete(score: Score): Selection | null {
+    return null;
+  }
+  dragOverPitch(pitch: Pitch, score: Score) {}
+  mouseDrag(x: number, y: number, score: Score, page: number) {}
+  mouseUp() {
     this.dragging = false;
   }
 }

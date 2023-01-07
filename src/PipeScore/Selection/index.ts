@@ -21,12 +21,12 @@ import { Score } from '../Score';
 import { Pitch } from '../global/pitch';
 import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
-import { Drags } from './model';
+import { Selection } from './model';
 
 export { Selection } from './model';
 export { ScoreSelection } from './score_selection';
 
-export class TextSelection extends Drags {
+export class TextSelection extends Selection {
   public text: TextBox;
 
   constructor(text: TextBox, createdByMouseDown: boolean) {
@@ -42,7 +42,7 @@ export class TextSelection extends Drags {
   }
 }
 
-export class BarlineSelection extends Drags {
+export class BarlineSelection extends Selection {
   public drag_cb: (x: number) => void;
 
   constructor(drag: (x: number) => void, createdByMouseDown: boolean) {
@@ -54,7 +54,7 @@ export class BarlineSelection extends Drags {
   }
 }
 
-export class TimingSelection extends Drags {
+export class TimingSelection extends Selection {
   timing: Timing;
   private part: TimingPart;
 
@@ -76,7 +76,7 @@ export class TimingSelection extends Drags {
   }
 }
 
-export class TripletLineSelection extends Drags {
+export class TripletLineSelection extends Selection {
   public selected: Triplet;
 
   constructor(triplet: Triplet, createdByMouseDown: boolean) {
@@ -90,7 +90,7 @@ export class TripletLineSelection extends Drags {
   }
 }
 
-export class GracenoteSelection extends Drags {
+export class GracenoteSelection extends Selection {
   private selected: Gracenote;
   private note: number | 'all';
 
