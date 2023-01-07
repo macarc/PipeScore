@@ -74,10 +74,14 @@ class ScoresList {
 
   async refreshScores() {
     const collection = await db.ref(`scores/${userId}/scores`).list();
-    this.scores = collection.documents.map((doc) => ({
-      name: doc.name,
-      path: doc.__meta__.path.replace('/scores', ''),
-    }));
+    this.scores = collection.documents
+      .map((doc) => ({
+        name: doc.name,
+        path: doc.__meta__.path.replace('/scores', ''),
+      }))
+      .sort(({ name: name1 }, { name: name2 }) =>
+        name1 === name2 ? 0 : name1.toLowerCase() < name2.toLowerCase() ? -1 : 1
+      );
     this.loading = false;
     m.redraw();
   }
