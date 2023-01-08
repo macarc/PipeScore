@@ -55,6 +55,7 @@ import {
   startPlayback,
   stopPlayback,
   setPlaybackBpm,
+  startPlaybackAtSelection,
 } from '../Events/Playback';
 import { centreText, addText, editText } from '../Events/Text';
 import { addStave } from '../Events/Stave';
@@ -502,7 +503,19 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', [
         help(
           'play',
-          m('button', { onclick: () => dispatch(startPlayback()) }, 'Play')
+          m(
+            'button.double-width.text',
+            { onclick: () => dispatch(startPlayback()) },
+            'Play from Beginning'
+          )
+        ),
+        help(
+          'play from selection',
+          m(
+            'button.double-width.text',
+            { onclick: () => dispatch(startPlaybackAtSelection()) },
+            'Play from Selection'
+          )
         ),
         help(
           'stop',

@@ -84,6 +84,8 @@ export default new Map(
     'centre text': 'Horizontally centre the currently selected text box.',
     'edit text': 'Edit the currently selected text box.',
     play: 'Play a preview of the score back from the start.\n\nThis will only work once the samples are downloaded (if the samples need to download, you will see a notice).',
+    'play from selection':
+      'Play a preview of the score, starting at the currently selected note/bar.\n\nThis will only work once the samples are downloaded (if the samples need to download, you will see a notice).',
     stop: 'Stop the playback.',
     'playback speed': 'Control the playback speed (further right is faster).',
     print: 'Print the score to a physical printer or PDF file.',

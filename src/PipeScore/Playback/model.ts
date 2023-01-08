@@ -26,6 +26,7 @@ export class PlaybackObject {
     this.id = id;
   }
 }
+
 export class PlaybackNote {
   type: 'note' = 'note';
   pitch: Pitch;

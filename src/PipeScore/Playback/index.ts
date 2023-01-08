@@ -17,8 +17,6 @@
 //  Playback - given a list of pitches and lengths, play them using the
 //  Web Audio API:
 //  <https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API>
-//  There's some pretty horrible stuff here, to try and make the API work
-//  (especially on Safari).
 
 import { Pitch } from '../global/pitch';
 import { Sample, Player, sleep } from './sample';
@@ -31,6 +29,7 @@ import {
   PlaybackGracenote,
   PlaybackSecondTiming,
 } from './model';
+import { ID } from '../global/id';
 
 export * from './model';
 
@@ -152,12 +151,13 @@ function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
 // and duplicates notes where necessary for repeats / second timings
 function expandRepeats(
   elements: Playback[],
-  timings: PlaybackSecondTiming[]
+  timings: PlaybackSecondTiming[],
+  start: ID | null
 ): (PlaybackNote | PlaybackGracenote)[] {
   let repeatStartIndex = 0;
   let repeatEndIndex = 0;
   let repeating = false;
-  const output: (PlaybackNote | PlaybackGracenote)[] = [];
+  let output: (PlaybackNote | PlaybackGracenote)[] = [];
 
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
@@ -174,6 +174,9 @@ function expandRepeats(
         if (e.type === 'repeat-start') repeatStartIndex = i;
       }
     } else if (e instanceof PlaybackObject) {
+      if (e.type === 'object-start' && e.id === start) {
+        output = [];
+      }
       if (e.type === 'object-end') {
         if (repeating && isAtEndOfTiming(i, timings)) {
           repeating = false;
@@ -191,9 +194,10 @@ function expandRepeats(
 function getSoundedPitches(
   elements: Playback[],
   timings: PlaybackSecondTiming[],
-  ctx: AudioContext
+  ctx: AudioContext,
+  start: ID | null = null
 ): SoundedPitch[] {
-  elements = expandRepeats(elements, timings);
+  elements = expandRepeats(elements, timings, start);
 
   const gracenoteDuration = 0.044;
 
@@ -226,7 +230,8 @@ function getSoundedPitches(
 export async function playback(
   state: PlaybackState,
   elements: Playback[],
-  timings: PlaybackSecondTiming[]
+  timings: PlaybackSecondTiming[],
+  start: ID | null = null
 ): Promise<void> {
   if (state.playing || state.loading) return;
 
@@ -239,7 +244,7 @@ export async function playback(
 
   document.body.classList.add('loading');
 
-  const soundedPitches = getSoundedPitches(elements, timings, context);
+  const soundedPitches = getSoundedPitches(elements, timings, context, start);
   const drone = new Drones(drones, context);
 
   drone.play();

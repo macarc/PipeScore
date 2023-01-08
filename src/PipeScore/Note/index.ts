@@ -228,8 +228,8 @@ export class Note
   }
   public play(pitchBefore: Pitch | null): Playback[] {
     return [
-      ...this._gracenote.play(this.pitch(), pitchBefore),
       new PlaybackObject('start', this.id),
+      ...this._gracenote.play(this.pitch(), pitchBefore),
       new PlaybackNote(this.pitch(), this.tied, this.lengthInBeats()),
       new PlaybackObject('end', this.id),
     ];

@@ -18,6 +18,7 @@ import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 
 import { playback } from '../Playback';
+import { ScoreSelection } from '../Selection';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
@@ -27,6 +28,21 @@ export function startPlayback(): ScoreEvent {
       playbackElements,
       state.score.playbackTimings(playbackElements)
     );
+    return Update.NoChange;
+  };
+}
+
+export function startPlaybackAtSelection(): ScoreEvent {
+  return async (state: State) => {
+    const playbackElements = state.score.play();
+    if (state.selection instanceof ScoreSelection) {
+      await playback(
+        state.playback,
+        playbackElements,
+        state.score.playbackTimings(playbackElements),
+        state.selection.start
+      );
+    }
     return Update.NoChange;
   };
 }
