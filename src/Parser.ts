@@ -19,8 +19,8 @@ import EmbellishmentMap from "./Embellishments";
 import { tokenise, TokenStream } from "./Tokenizer";
 
 export default class Parser {
-    private tokenstream: TokenStream = () => null;
-    private lookahead!: Token | null;
+    private nextToken: TokenStream = () => null;
+    private current!: Token | null;
     private oldFormatBarlineTie = false;
     private tieNextNote = false;
     private currentLine = 0;
@@ -30,7 +30,7 @@ export default class Parser {
      * Returns an AST of the BWW file
      */
     parse(data: string): Score {
-        this.tokenstream = tokenise(data);
+        this.nextToken = tokenise(data);
 
         // Reset barline tie values
         this.oldFormatBarlineTie = false;
@@ -43,7 +43,7 @@ export default class Parser {
          * token which is our lookahead. The lookahead
          * is used for predictive parsing.
          */
-        this.lookahead = this.tokenstream();
+        this.current = this.nextToken();
 
         /**
          * Parse recursively starting from the main
@@ -53,7 +53,7 @@ export default class Parser {
     }
 
     private eat(tokenType: TokenType): Token {
-        const token = this.lookahead;
+        const token = this.current;
 
         if (token == null) {
             throw new SyntaxError(
@@ -67,13 +67,39 @@ export default class Parser {
             );
         }
 
-        this.lookahead = this.tokenstream();
+        this.current = this.nextToken();
 
         return token;
     }
 
+    private matchToken(tokenType: TokenType): Token | null {
+        if (this.current?.type === tokenType) {
+            const token = this.current;
+            this.eat(tokenType);
+            return token;
+        }
+        return null;
+    }
+
+    private match(tokenType: TokenType): boolean {
+        return this.matchToken(tokenType) !== null;
+    }
+
+    private matchAny(...tokenTypes: TokenType[]): boolean {
+        for (const token of tokenTypes) {
+            if (this.match(token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private peekAny(...tokenTypes: TokenType[]): boolean {
+        return tokenTypes.some(tokenType => this.current?.type === tokenType);
+    }
+
     Score(): Score {
-        if (!this.lookahead) {
+        if (!this.current) {
             return {
                 name: "",
                 headers: [],
@@ -91,8 +117,7 @@ export default class Parser {
     Staves(): Stave[] {
         const staves = [];
 
-        while (this.lookahead?.type === TokenType.CLEF) {
-            this.eat(TokenType.CLEF);
+        while (this.match(TokenType.CLEF)) {
             staves.push(this.Stave(this.KeySignature(), this.TimeSignature()));
         }
 
@@ -104,7 +129,7 @@ export default class Parser {
         this.currentLine++;
         this.currentBar = 0;
 
-        const repeat: boolean = this.BeginStave();
+        const doesRepeat = this.BeginStave();
 
         if (this.HasNote()) {
             bars = this.Bars();
@@ -113,7 +138,7 @@ export default class Parser {
         this.EndStave();
 
         return {
-            repeat: repeat,
+            repeat: doesRepeat,
             clef: {
                 key: key,
                 time: time,
@@ -123,26 +148,12 @@ export default class Parser {
     }
 
     BeginStave(): boolean {
-        if (this.lookahead?.type === TokenType.PART_BEGINNING) {
-            const token: Token = this.eat(TokenType.PART_BEGINNING);
-
-            if (token.value[1]) {
-                return true;
-            }
-        }
-
-        return false;
+        const token = this.matchToken(TokenType.PART_BEGINNING);
+        return token !== null && token.value[1] !== undefined;
     }
 
     EndStave(): void {
-        switch (this.lookahead?.type) {
-            case TokenType.PART_END:
-                this.eat(TokenType.PART_END);
-                break;
-            case TokenType.TERMINATING_BAR_LINE:
-                this.eat(TokenType.TERMINATING_BAR_LINE);
-                break;
-        }
+        this.matchAny(TokenType.PART_END, TokenType.TERMINATING_BAR_LINE)
     }
 
     Bars(): Bar[] {
@@ -152,9 +163,8 @@ export default class Parser {
 
         bars.push(this.Bar());
 
-        while (this.lookahead?.type === TokenType.BAR_LINE) {
+        while (this.match(TokenType.BAR_LINE)) {
             this.currentBar++;
-            this.eat(TokenType.BAR_LINE);
             bars.push(this.Bar());
         }
 
@@ -162,34 +172,30 @@ export default class Parser {
     }
 
     HasNote(): boolean {
-        if (
-            this.lookahead?.type === TokenType.MELODY_NOTE ||
-            this.lookahead?.type === TokenType.TIME_LINE_START ||
-            this.lookahead?.type === TokenType.TIE_START ||
-            this.lookahead?.type === TokenType.IRREGULAR_GROUP_START ||
-            this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT ||
-            this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT ||
-            this.lookahead?.type === TokenType.REST ||
-            this.lookahead?.type === TokenType.FERMATA ||
-            this.lookahead?.type === TokenType.ACCIDENTAL ||
-            this.lookahead?.type === TokenType.DOUBLING ||
-            this.lookahead?.type === TokenType.STRIKE ||
-            this.lookahead?.type === TokenType.REGULAR_GRIP ||
-            this.lookahead?.type === TokenType.COMPLEX_GRIP ||
-            this.lookahead?.type === TokenType.TAORLUATH ||
-            this.lookahead?.type === TokenType.BUBBLY ||
-            this.lookahead?.type === TokenType.BIRL ||
-            this.lookahead?.type === TokenType.THROW ||
-            this.lookahead?.type === TokenType.PELE ||
-            this.lookahead?.type === TokenType.DOUBLE_STRIKE ||
-            this.lookahead?.type === TokenType.TRIPLE_STRIKE ||
-            this.lookahead?.type === TokenType.DOUBLE_GRACENOTE ||
-            this.lookahead?.type === TokenType.GRACENOTE
-        ) {
-            return true;
-        }
-
-        return false;
+        return this.peekAny(
+            TokenType.MELODY_NOTE,
+            TokenType.TIME_LINE_START,
+            TokenType.TIE_START,
+            TokenType.IRREGULAR_GROUP_START,
+            TokenType.TRIPLET_NEW_FORMAT,
+            TokenType.TRIPLET_OLD_FORMAT,
+            TokenType.REST,
+            TokenType.FERMATA,
+            TokenType.ACCIDENTAL,
+            TokenType.DOUBLING,
+            TokenType.STRIKE,
+            TokenType.REGULAR_GRIP,
+            TokenType.COMPLEX_GRIP,
+            TokenType.TAORLUATH,
+            TokenType.BUBBLY,
+            TokenType.BIRL,
+            TokenType.THROW,
+            TokenType.PELE,
+            TokenType.DOUBLE_STRIKE,
+            TokenType.TRIPLE_STRIKE,
+            TokenType.DOUBLE_GRACENOTE,
+            TokenType.GRACENOTE
+        )
     }
 
     Bar(): Bar {
@@ -198,15 +204,15 @@ export default class Parser {
         while (this.HasNote()) {
             this.ParseTimeLineStart();
 
-            if (this.lookahead?.type === TokenType.TRIPLET_OLD_FORMAT) {
+            if (this.current?.type === TokenType.TRIPLET_OLD_FORMAT) {
                 notes = this.TripletOldFormat(notes);
             } else if (
-                this.lookahead?.type === TokenType.IRREGULAR_GROUP_START
+                this.current?.type === TokenType.IRREGULAR_GROUP_START
             ) {
                 notes = notes.concat(
                     this.IrregularGroup(TokenType.IRREGULAR_GROUP_START)
                 );
-            } else if (this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT) {
+            } else if (this.current?.type === TokenType.TRIPLET_NEW_FORMAT) {
                 notes = notes.concat(
                     this.IrregularGroup(TokenType.TRIPLET_NEW_FORMAT)
                 );
@@ -230,7 +236,7 @@ export default class Parser {
         const tied = this.Tie();
         const embellishment = this.Embellishment();
         this.ParseTimeLineStart();
-        if (this.lookahead?.type === TokenType.TRIPLET_NEW_FORMAT) {
+        if (this.current?.type === TokenType.TRIPLET_NEW_FORMAT) {
             notes = notes.concat(
                 this.IrregularGroup(TokenType.TRIPLET_NEW_FORMAT)
             );
@@ -256,15 +262,11 @@ export default class Parser {
     }
 
     ParseTimeLineStart(): void {
-        if (this.lookahead?.type === TokenType.TIME_LINE_START) {
-            this.eat(TokenType.TIME_LINE_START);
-        }
+        this.match(TokenType.TIME_LINE_START);
     }
 
     ParseTimeLineEnd(): void {
-        if (this.lookahead?.type === TokenType.TIME_LINE_END) {
-            this.eat(TokenType.TIME_LINE_END);
-        }
+        this.match(TokenType.TIME_LINE_END);
     }
 
     TripletOldFormat(notes: Note[]): Note[] {
@@ -310,10 +312,8 @@ export default class Parser {
     }
 
     EatIrregularGroupEnd(): void {
-        if (this.lookahead?.type === TokenType.IRREGULAR_GROUP_END) {
-            this.eat(TokenType.IRREGULAR_GROUP_END);
-        } else {
-            this.eat(TokenType.TRIPLET_OLD_FORMAT);
+        if (!this.matchAny(TokenType.IRREGULAR_GROUP_END, TokenType.TRIPLET_OLD_FORMAT)) {
+            throw new SyntaxError(`Expected irregular group end or triplet old format, got ${this.current?.type}`)
         }
     }
 
@@ -364,8 +364,7 @@ export default class Parser {
     }
 
     Tie(): boolean {
-        if (this.lookahead?.type === TokenType.TIE_START) {
-            this.eat(TokenType.TIE_START);
+        if (this.match(TokenType.TIE_START)) {
             this.tieNextNote = true;
             return true;
         }
@@ -383,8 +382,7 @@ export default class Parser {
     }
 
     CheckForTieEnd(): void {
-        if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
-            this.eat(TokenType.TIE_OLD_FORMAT);
+        if (this.match(TokenType.TIE_OLD_FORMAT)) {
             this.tieNextNote = false;
         }
     }
@@ -394,8 +392,7 @@ export default class Parser {
 
         notes.push(note);
 
-        if (this.lookahead?.type === TokenType.TIE_OLD_FORMAT) {
-            this.eat(TokenType.TIE_OLD_FORMAT);
+        if (this.match(TokenType.TIE_OLD_FORMAT)) {
             this.AddTieToNote(note);
 
             const nextNote = this.OldFormatTieNextNote();
@@ -423,7 +420,7 @@ export default class Parser {
     OldFormatTieNextNote(): Note | null {
         let nextNote;
 
-        if (this.lookahead?.type === TokenType.BAR_LINE) {
+        if (this.current?.type === TokenType.BAR_LINE) {
             this.oldFormatBarlineTie = true;
         } else {
             nextNote = this.Note(true, this.Embellishment());
@@ -440,16 +437,16 @@ export default class Parser {
 
     Note(tied: boolean, embellishment: Embellishment | DoubleGracenote): Note {
         const accidental =
-            this.lookahead?.type === TokenType.ACCIDENTAL
+            this.current?.type === TokenType.ACCIDENTAL
                 ? this.Accidental().type
                 : "none";
 
-        if (this.lookahead?.type === TokenType.REST) {
-            const token = this.eat(TokenType.REST);
+        const restToken = this.matchToken(TokenType.REST);
+        if (restToken) {
             return {
                 type: "rest",
                 value: {
-                    length: token.value[1],
+                    length: restToken.value[1],
                 },
             };
         } else {
@@ -476,7 +473,7 @@ export default class Parser {
     }
 
     Fermata(): boolean {
-        if (this.lookahead?.type === TokenType.FERMATA) {
+        if (this.current?.type === TokenType.FERMATA) {
             this.eat(TokenType.FERMATA);
             return true;
         }
@@ -485,9 +482,8 @@ export default class Parser {
     }
 
     Dot(): Dot {
-        if (this.lookahead?.type === TokenType.DOTTED_NOTE) {
-            const token: Token = this.eat(TokenType.DOTTED_NOTE);
-
+        const token = this.matchToken(TokenType.DOTTED_NOTE);
+        if (token) {
             return token.value[1].length === 1 ? "single" : "double";
         }
 
@@ -495,7 +491,7 @@ export default class Parser {
     }
 
     Embellishment(): Embellishment | DoubleGracenote {
-        switch (this.lookahead?.type) {
+        switch (this.current?.type) {
             case TokenType.GRACENOTE:
                 return this.GraceNote();
             case TokenType.DOUBLING:
@@ -548,9 +544,9 @@ export default class Parser {
     }
 
     GetEmbellishment(lookup: string): string {
-        if (EmbellishmentMap.has(lookup)) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return EmbellishmentMap.get(lookup)!;
+        const embellishment = EmbellishmentMap.get(lookup);
+        if (embellishment) {
+            return embellishment;
         }
 
         throw new Error(`Unable to find ${lookup} in embellishment map`);
@@ -664,7 +660,7 @@ export default class Parser {
     KeySignature(): Accidental[] {
         const accidentals: Accidental[] = [];
 
-        while (this.lookahead?.type === TokenType.ACCIDENTAL) {
+        while (this.current?.type === TokenType.ACCIDENTAL) {
             accidentals.push(this.Accidental());
         }
 
@@ -694,8 +690,8 @@ export default class Parser {
     }
 
     TimeSignature(): TimeSignature {
-        if (this.lookahead?.type === TokenType.TIME_SIGNATURE) {
-            const token = this.eat(TokenType.TIME_SIGNATURE);
+        const token = this.matchToken(TokenType.TIME_SIGNATURE);
+        if (token) {
             if (token.value[1]) {
                 return {
                     top: token.value[1],
@@ -719,28 +715,28 @@ export default class Parser {
         const headers = [];
         let matching = true;
 
-        while (this.lookahead && matching) {
-            switch (this.lookahead.type) {
+        while (this.current && matching) {
+            switch (this.current.type) {
                 case TokenType.SOFTWARE_HEADER:
                     headers.push(this.SoftwareHeader());
                     break;
                 case TokenType.MIDI_NOTE_MAPPINGS_HEADER:
-                    headers.push(this.Header(this.lookahead.type));
+                    headers.push(this.Header(this.current.type));
                     break;
                 case TokenType.FREQUENCY_MAPPINGS_HEADER:
-                    headers.push(this.Header(this.lookahead.type));
+                    headers.push(this.Header(this.current.type));
                     break;
                 case TokenType.INSTRUMENT_MAPPINGS_HEADER:
-                    headers.push(this.Header(this.lookahead.type));
+                    headers.push(this.Header(this.current.type));
                     break;
                 case TokenType.GRACENOTE_DURATIONS_HEADER:
-                    headers.push(this.Header(this.lookahead.type));
+                    headers.push(this.Header(this.current.type));
                     break;
                 case TokenType.FONT_SIZES_HEADER:
-                    headers.push(this.Header(this.lookahead.type));
+                    headers.push(this.Header(this.current.type));
                     break;
                 case TokenType.TUNE_FORMAT_HEADER:
-                    headers.push(this.Header(this.lookahead.type));
+                    headers.push(this.Header(this.current.type));
                     break;
                 case TokenType.TUNE_TEMPO_HEADER:
                     headers.push(this.TuneTempoHeader());
