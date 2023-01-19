@@ -208,7 +208,7 @@ export class Stave {
       shouldRenderLastBarline: this._bars[index + 1]
         ? this._bars[index + 1].timeSignature().equals(bar.timeSignature())
         : true,
-      shouldRenderFirstBarline: false,
+      mustNotRenderFirstBarline: index === 0 && bar.isAnacrusis,
       endOfLastStave: props.x + props.width, // width should always be the same
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,

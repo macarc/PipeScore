@@ -41,7 +41,7 @@ interface BarProps {
   justAddedNote: boolean;
   previousBar: Bar | null;
   shouldRenderLastBarline: boolean;
-  shouldRenderFirstBarline: boolean;
+  mustNotRenderFirstBarline: boolean;
   endOfLastStave: number;
   resize: (x: number) => boolean;
   noteState: NoteState;
@@ -461,8 +461,7 @@ export class Bar extends Item implements Previews<Note> {
         : null,
 
       this.frontBarline.mustDraw() ||
-      props.shouldRenderFirstBarline ||
-      hasTimeSignature
+      (hasTimeSignature && !props.mustNotRenderFirstBarline)
         ? this.frontBarline.render({
             x: xAfterTimeSignature,
             y: props.y,
