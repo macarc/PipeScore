@@ -682,7 +682,7 @@ export default function render(state: UIState): m.Children {
     m('a[href=/login]', 'Create a free account here!'),
   ];
   const loadingAudioWarning = [
-    'Loading audio samples... this may take a minute or so if this is your first time.',
+    'Loading audio samples... this may take a minute or so.',
   ];
   const showLoginWarning = !state.loggedIn;
   const showAudioWarning =
