@@ -23,7 +23,7 @@ import m from 'mithril';
 import { dispatch } from '../Controller';
 import { clickBarline } from '../Events/Bar';
 import { settings } from '../global/settings';
-import { Obj } from '../global/utils';
+import { SavedBarline } from '../SavedModel';
 
 interface BarlineProps {
   x: number;
@@ -45,13 +45,13 @@ export class Barline {
   private constructor(type: BarlineType) {
     this.type = type;
   }
-  static fromJSON(o: Obj): Barline {
+  static fromJSON(o: SavedBarline): Barline {
     if (o.type === 'normal') return Barline.normal;
     else if (o.type === 'repeat') return Barline.repeat;
     else if (o.type === 'end') return Barline.part;
     else throw new Error(`Unrecognised barline type ${o.type}`);
   }
-  toJSON(): Obj {
+  toJSON(): SavedBarline {
     return { type: this.type };
   }
   // Repeat and end barlines must be drawn. Normal barlines may

@@ -21,10 +21,11 @@ import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { settings } from '../global/settings';
 import { ID } from '../global/id';
-import { first, foreach, last, nlast, Obj } from '../global/utils';
+import { first, foreach, last, nlast } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
 import { TimeSignature } from '../TimeSignature';
+import { SavedStave } from '../SavedModel';
 
 interface StaveProps {
   x: number;
@@ -49,12 +50,12 @@ export class Stave {
       new Bar(timeSignature),
     ];
   }
-  public static fromJSON(o: Obj) {
+  public static fromJSON(o: SavedStave) {
     const st = new Stave();
     st._bars = o.bars.map(Bar.fromJSON);
     return st;
   }
-  public toJSON() {
+  public toJSON(): SavedStave {
     return {
       bars: this._bars.map((bar) => bar.toJSON()),
     };

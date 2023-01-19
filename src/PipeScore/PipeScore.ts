@@ -23,6 +23,7 @@ import { Score } from './Score';
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
+import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 
@@ -36,7 +37,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     user: string,
     score: string,
     value: Score
-  ): Promise<Score | null> {
+  ): Promise<SavedData | null> {
     await db
       .ref(`/scores/${user}/scores/${score}`)
       .set(value.toJSON())
@@ -45,13 +46,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     return get(user, score);
   }
 
-  function get(user: string, score: string): Promise<Score | null> {
+  function get(user: string, score: string): Promise<SavedData | null> {
     return db
       .ref(`scores/${user}/scores/${score}`)
       .get()
-      .then(Score.fromJSON)
+      .then((data) => data as unknown as SavedData)
       .catch((e) => {
-        console.log('error when getting / parsing score: ', e);
+        console.log('error when getting score: ', e);
         return null;
       });
   }
@@ -85,21 +86,22 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (user && user.localId === userid) {
         const saveScore = (score: Score) => save(userid, scoreid, score);
 
-        const score = await get(userid, scoreid);
+        const data = await get(userid, scoreid);
         // If it is a new score, then it won't have staves
-        if (!score || !score.staves) {
+        if (!data || !scoreIsPresent(data)) {
           saveScore(new Score());
           const opts = await quickStart();
           const score = await save(userid, scoreid, opts.toScore());
-          if (!score) throw new Error("Couldn't save score.");
-          startController(score, saveScore, true);
+          if (!score || !scoreIsPresent(score))
+            throw new Error("Couldn't save score.");
+          startController(Score.fromJSON(score), saveScore, true);
         } else {
-          startController(score, saveScore, true);
+          startController(Score.fromJSON(data), saveScore, true);
         }
       } else {
         const score = await get(userid, scoreid);
-        if (score && (score.staves as any | null)) {
-          startController(score, () => null, false, false);
+        if (score && scoreIsPresent(score)) {
+          startController(Score.fromJSON(score), () => null, false, false);
         }
       }
     }

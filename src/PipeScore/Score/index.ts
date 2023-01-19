@@ -31,13 +31,14 @@ import { Update } from '../Events/common';
 import { Playback } from '../Playback';
 import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
-import { first, foreach, last, nlast, Obj } from '../global/utils';
+import { first, foreach, last, nlast } from '../global/utils';
 
 import { Triplet } from '../Note';
 import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
 import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
+import { SavedScore } from '../SavedModel';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -107,18 +108,18 @@ export class Score {
     this.timings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
-  public static fromJSON(o: Obj) {
+  public static fromJSON(o: SavedScore) {
     const s = new Score(o.name);
     s.landscape = o.landscape;
     s._staves = o._staves.map(Stave.fromJSON);
-    s.textBoxes = o.textBoxes.map((p: Obj) => p.texts.map(TextBox.fromJSON));
+    s.textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
     s.timings = o.secondTimings.map(Timing.fromJSON);
     s.numberOfPages = o.numberOfPages;
     s.showNumberOfPages = o.showNumberOfPages;
     settings.fromJSON(o.settings);
     return s;
   }
-  public toJSON() {
+  public toJSON(): SavedScore {
     return {
       name: this.name,
       landscape: this.landscape,

@@ -150,7 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
     newScoreBtn.addEventListener('click', async () => {
       if (userId) {
         const collection = db.ref(`scores/${userId}/scores`);
-        const newScore = await collection.add({});
+        const newScore = await collection.add({
+          name: 'Empty Score',
+          justCreated: true,
+        });
         if (newScore) {
           window.location.assign(`/pipescore/${userId}/${newScore.id}`);
         }

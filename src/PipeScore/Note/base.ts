@@ -22,10 +22,10 @@ import {
   dotted,
 } from './notelength';
 import { Item, genId } from '../global/id';
-import { Obj } from '../global/utils';
 import { Note, Triplet, NoteOrTriplet } from './index';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
+import { SavedNoteOrTriplet } from '../SavedModel';
 
 export interface NoteProps {
   x: number;
@@ -42,13 +42,11 @@ export interface NoteProps {
 export abstract class BaseNote extends Item {
   protected length: NoteLength;
 
-  abstract toObject(): Obj;
-
   constructor(length: NoteLength) {
     super(genId());
     this.length = length;
   }
-  public static fromJSON(o: Obj) {
+  public static fromJSON(o: SavedNoteOrTriplet) {
     let s: Note | Triplet | null = null;
     switch (o.notetype) {
       case 'single':
@@ -64,12 +62,21 @@ export abstract class BaseNote extends Item {
     }
     throw new Error(`Unrecognised note type ${o.notetype}`);
   }
-  public toJSON() {
-    return {
-      notetype: this instanceof Note ? 'single' : 'triplet',
-      id: this.id,
-      value: this.toObject(),
-    };
+  public toJSON(): SavedNoteOrTriplet {
+    if (this instanceof Note) {
+      return {
+        notetype: 'single',
+        id: this.id,
+        value: this.toObject(),
+      };
+    } else if (this instanceof Triplet) {
+      return {
+        notetype: 'triplet',
+        id: this.id,
+        value: this.toObject(),
+      };
+    }
+    throw new Error('Unknown note type (not a single or triplet)');
   }
   public isLength(length: NoteLength) {
     return sameNoteLengthName(this.length, length);

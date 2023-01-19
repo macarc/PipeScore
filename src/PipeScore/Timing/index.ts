@@ -23,12 +23,17 @@ import { dispatch } from '../Controller';
 import { editTimingText } from '../Events/Misc';
 import { clickTiming } from '../Events/Timing';
 import { ID } from '../global/id';
-import { foreach, Obj, nmap } from '../global/utils';
+import { foreach, nmap } from '../global/utils';
 import { inOrder, closestItem, getXY, itemBefore, XY } from '../global/xy';
 import { Score } from '../Score';
 import { TimingSelection } from '../Selection';
 import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
 import { Selection } from '../Selection';
+import {
+  SavedSecondTiming,
+  SavedSingleTiming,
+  SavedTiming,
+} from '../SavedModel';
 
 interface TimingProps {
   score: Score;
@@ -52,22 +57,22 @@ export abstract class Timing {
   ): void;
   abstract render(props: TimingProps): m.Children;
 
-  protected abstract toObject(): Obj;
   protected abstract front(): XY;
   protected abstract back(): XY;
   protected abstract noSelfOverlap(): boolean;
 
-  public static fromJSON(o: Obj) {
+  public static fromJSON(o: SavedTiming) {
     switch (o.type) {
       case 'second timing':
         return SecondTiming.fromObject(o.value);
       case 'single timing':
         return SingleTiming.fromObject(o.value);
       default:
-        throw new Error(`Unrecognised second timing type: ${o.type}`);
+        console.error('Unrecognised timing type', o);
+        throw new Error('Invalid timing');
     }
   }
-  public toJSON() {
+  public toJSON(): SavedTiming {
     if (this instanceof SecondTiming) {
       return {
         type: 'second timing',
@@ -234,13 +239,13 @@ export class SecondTiming extends Timing {
     this.middle = middle;
     this.end = end;
   }
-  public static fromObject(o: Obj) {
+  public static fromObject(o: SavedSecondTiming) {
     const st = new SecondTiming(o.start, o.middle, o.end);
     st.firstText = o.firstText;
     st.secondText = o.secondText;
     return st;
   }
-  public toObject() {
+  public toObject(): SavedSecondTiming {
     return {
       start: this.start,
       middle: this.middle,
@@ -352,12 +357,12 @@ export class SingleTiming extends Timing {
     this.start = start;
     this.end = end;
   }
-  public static fromObject(o: Obj) {
+  public static fromObject(o: SavedSingleTiming) {
     const st = new SingleTiming(o.start, o.end);
     st.text = o.text;
     return st;
   }
-  public toObject() {
+  public toObject(): SavedSingleTiming {
     return {
       start: this.start,
       end: this.end,

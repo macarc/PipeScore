@@ -18,7 +18,7 @@ import { TimeSignature } from '../TimeSignature';
 import { NoteProps, Note, Triplet } from '../Note';
 import { BaseNote } from '../Note/base';
 import { genId, ID, Item } from '../global/id';
-import { last, nlast, Obj } from '../global/utils';
+import { last, nlast } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
@@ -33,6 +33,7 @@ import { Barline } from './barline';
 import { Playback, PlaybackObject, PlaybackRepeat } from '../Playback';
 import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
+import { SavedBar } from '../SavedModel';
 
 interface BarProps {
   x: number;
@@ -67,7 +68,7 @@ export class Bar extends Item implements Previews<Note> {
     this.frontBarline = Barline.normal;
     this.backBarline = Barline.normal;
   }
-  public static fromJSON(o: Obj) {
+  public static fromJSON(o: SavedBar) {
     const b = new Bar(TimeSignature.fromJSON(o.timeSignature), o.isAnacrusis);
     b._notes = o.notes.map(BaseNote.fromJSON);
     b.id = o.id;
@@ -76,7 +77,7 @@ export class Bar extends Item implements Previews<Note> {
     b.frontBarline = Barline.fromJSON(o.frontBarline);
     return b;
   }
-  public toJSON() {
+  public toJSON(): SavedBar {
     return {
       id: this.id,
       isAnacrusis: this.isAnacrusis,

@@ -16,7 +16,7 @@
 
 //  Document settings singleton.
 
-import { Obj } from './utils';
+import { SavedSettings } from '../SavedModel';
 
 export class Settings {
   staveGap = 100;
@@ -24,13 +24,13 @@ export class Settings {
   margin = 80;
   topOffset = 200;
 
-  fromJSON(o: Obj) {
+  fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;
     this.lineGap = o.lineGap;
     this.margin = o.margin;
     this.topOffset = o.topOffset;
   }
-  toJSON() {
+  toJSON(): SavedSettings {
     return {
       staveGap: this.staveGap,
       lineGap: this.lineGap,

@@ -19,7 +19,7 @@ import { dispatch } from '../Controller';
 import { editTimeSignature } from '../Events/Bar';
 import { settings } from '../global/settings';
 import { edit } from './edit';
-import { Obj } from '../global/utils';
+import { SavedTimeSignature } from '../SavedModel';
 
 export type Denominator = 2 | 4 | 8;
 
@@ -37,10 +37,10 @@ export class TimeSignature {
     if (ts) this.ts = ts;
     this.breaks = breaks;
   }
-  public static fromJSON(o: Obj) {
+  public static fromJSON(o: SavedTimeSignature) {
     return new TimeSignature(o.ts, o.breaks);
   }
-  public toJSON() {
+  public toJSON(): SavedTimeSignature {
     return { ts: this.ts, breaks: this.breaks };
   }
   public copy() {

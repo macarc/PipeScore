@@ -20,7 +20,7 @@ import { noteY, Pitch, pitchUp, pitchDown, pitchOnLine } from '../global/pitch';
 import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
 import { ID, genId } from '../global/id';
 import { clickTripletLine } from '../Events/Note';
-import { nfirst, nlast, foreach, Obj } from '../global/utils';
+import { nfirst, nlast, foreach } from '../global/utils';
 import { NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import m from 'mithril';
@@ -34,6 +34,7 @@ import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 
 import { BaseNote, NoteProps } from './base';
+import { SavedNote, SavedTriplet } from '../SavedModel';
 export type { NoteProps } from './base';
 
 export type NoteOrTriplet = Note | Triplet;
@@ -98,7 +99,7 @@ export class Note
       .map((n, i) => n.width(i === 0 ? prevNote : notes[i - 1]._pitch))
       .reduce(width.add, width.zero());
   }
-  public static fromObject(o: Obj) {
+  public static fromObject(o: SavedNote) {
     return new Note(
       o.pitch,
       o.length,
@@ -129,7 +130,7 @@ export class Note
       }
     }
   }
-  public toObject() {
+  public toObject(): SavedNote {
     return {
       pitch: this._pitch,
       length: this.length,
@@ -655,22 +656,16 @@ export class Triplet extends BaseNote {
     n._notes.forEach((note) => (note.id = genId()));
     return n;
   }
-  public static fromObject(o: Obj) {
+  public static fromObject(o: SavedTriplet) {
     return new Triplet(
       o.length,
-      ...(o.notes.map((note: Obj) => Note.fromObject(note)) as [
-        Note,
-        Note,
-        Note
-      ])
+      ...(o.notes.map((note) => Note.fromObject(note)) as [Note, Note, Note])
     );
   }
-  public toObject() {
+  public toObject(): SavedTriplet {
     return {
-      id: this.id,
       notes: this._notes.map((n) => n.toObject()),
       length: this.length,
-      tied: this.firstSingle().isTied(), // previously: this.tied,
     };
   }
   public hasID(id: ID) {

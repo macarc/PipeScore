@@ -27,11 +27,15 @@ import m from 'mithril';
 import { clickGracenote } from '../Events/Gracenote';
 import { settings } from '../global/settings';
 import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
-import { Obj } from '../global/utils';
 import { GracenoteNoteList, noteList, gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 import { PlaybackGracenote } from '../Playback';
 import { dispatch } from '../Controller';
+import {
+  SavedCustomGracenote,
+  SavedGracenote,
+  SavedReactiveGracenote,
+} from '../SavedModel';
 
 export interface GracenoteProps {
   thisNote: Pitch;
@@ -54,19 +58,19 @@ const stemXOf = (x: number) => x + 3;
 const colourOf = (selected: boolean) => (selected ? 'orange' : 'black');
 
 export abstract class Gracenote {
-  protected abstract toObject(): Obj;
+  protected abstract toObject(): object;
   protected abstract type: string;
   abstract drag(pitch: Pitch, index: number): Gracenote;
   abstract notes(thisNote?: Pitch, previous?: Pitch | null): GracenoteNoteList;
   abstract equals(other: Gracenote): boolean;
 
-  toJSON() {
+  toJSON(): SavedGracenote {
     return {
       type: this.type,
       value: this.toObject(),
-    };
+    } as SavedGracenote;
   }
-  static fromJSON(o: Obj): Gracenote {
+  static fromJSON(o: SavedGracenote): Gracenote {
     switch (o.type) {
       case 'reactive':
         return ReactiveGracenote.fromObject(o.value);
@@ -77,7 +81,8 @@ export abstract class Gracenote {
       case 'none':
         return NoGracenote.fromObject();
       default:
-        throw new Error(`Unrecognised Gracenote type ${o.type}`);
+        console.error('Unrecognised gracenote', o);
+        throw new Error('Unrecognised Gracenote type');
     }
   }
   static fromName(name: string | null) {
@@ -303,10 +308,10 @@ export class ReactiveGracenote extends Gracenote {
       throw new Error(`${grace} is not a valid gracenote.`);
     }
   }
-  static fromObject(o: Obj) {
+  static fromObject(o: SavedReactiveGracenote) {
     return new ReactiveGracenote(o.grace);
   }
-  toObject() {
+  toObject(): SavedReactiveGracenote {
     return {
       grace: this.grace,
     };
@@ -358,12 +363,12 @@ export class CustomGracenote extends Gracenote {
     super();
     this.pitches = pitches;
   }
-  toObject() {
+  toObject(): SavedCustomGracenote {
     return {
       pitches: this.pitches,
     };
   }
-  static fromObject(o: Obj) {
+  static fromObject(o: SavedCustomGracenote) {
     return new CustomGracenote(...o.pitches);
   }
 

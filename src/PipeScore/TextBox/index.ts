@@ -19,7 +19,8 @@ import { dispatch } from '../Controller';
 import { Update } from '../Events/common';
 import { editText, clickText } from '../Events/Text';
 import dialogueBox from '../global/dialogueBox';
-import { Obj, svgCoords } from '../global/utils';
+import { svgCoords } from '../global/utils';
+import { SavedTextBox } from '../SavedModel';
 import { Selection, TextSelection } from '../Selection';
 
 interface TextBoxProps {
@@ -47,17 +48,12 @@ export class TextBox {
     this._text = text;
     this.font = 'sans-serif';
   }
-  static fromJSON(o: Obj) {
-    const tx = new TextBox(o.name);
-    tx.x = o.x;
-    tx.y = o.y;
-    tx.size = o.size;
-    tx._text = o._text;
-    tx.centred = o.centred;
+  static fromJSON(o: SavedTextBox) {
+    const tx = new TextBox(o._text, o.centred, o.x, o.y, o.size);
     tx.font = o.font || 'sans-serif';
     return tx;
   }
-  toJSON() {
+  toJSON(): SavedTextBox {
     return {
       x: this.x,
       y: this.y,

@@ -16,8 +16,6 @@
 
 //  General helper functions.
 
-// eslint-disable-next-line
-export type Obj = Record<string, any>;
 
 export function foreach<A>(times: number, action: (i: number) => A): A[] {
   return [...new Array(times).keys()].map((i: number) => action(i));
