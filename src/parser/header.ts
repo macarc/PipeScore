@@ -1,4 +1,4 @@
-import { TokenStream } from '../Tokenizer';
+import { TokenStream } from '../Tokeniser';
 import {
   Header,
   TextTagHeader,

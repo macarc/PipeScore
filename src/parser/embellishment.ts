@@ -1,5 +1,5 @@
 import { TokenType, Embellishment, DoubleGracenote } from '../../types/main';
-import { TokenStream } from '../Tokenizer';
+import { TokenStream } from '../Tokeniser';
 import { embellishmentName } from '../Embellishments';
 
 export function embellishment(

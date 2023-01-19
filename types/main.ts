@@ -33,29 +33,29 @@ export type Note = NoteValue | NoteGroup | Rest;
 export interface NoteValue {
   type: 'note';
   value: {
-  length: string;
-  pitch: string;
-  accidental: NoteAccidental;
-  tied: boolean;
-  fermata: boolean;
-  dot: Dot;
-  embellishment?: Embellishment | DoubleGracenote;
-  embellishments?: (Embellishment | DoubleGracenote)[];
-  }
+    length: string;
+    pitch: string;
+    accidental: NoteAccidental;
+    tied: boolean;
+    fermata: boolean;
+    dot: Dot;
+    embellishment?: Embellishment | DoubleGracenote;
+    embellishments?: (Embellishment | DoubleGracenote)[];
+  };
 }
 
 export interface NoteGroup {
   type: NoteGroupType;
   value: {
     notes: Note[];
-  }
+  };
 }
 
 export interface Rest {
   type: 'rest';
   value: {
     length: string;
-  }
+  };
 }
 
 export type Dot = 'none' | 'single' | 'double';

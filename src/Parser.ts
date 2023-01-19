@@ -16,13 +16,13 @@ import {
 } from '../types/main';
 import { embellishment } from './parser/embellishment';
 import { headers } from './parser/header';
-import { TokenStream } from './Tokenizer';
+import { TokenStream } from './Tokeniser';
 
 enum TieingState {
-    NotTieing,
-    OldTieFormat,
-    NewTieFormat
-};
+  NotTieing,
+  OldTieFormat,
+  NewTieFormat,
+}
 
 let tieing = TieingState.NotTieing;
 
@@ -172,7 +172,7 @@ function note(ts: TokenStream): Note {
     note_ = melodyNote(ts, startedToTie, embellishment_);
   }
   timeLineEnd(ts);
-  return note_
+  return note_;
 }
 
 // A note or rest, without any embellishments
@@ -320,7 +320,7 @@ function tieBeforeNote(ts: TokenStream) {
 
 function tieAfterNote(ts: TokenStream, tieBeforeNote: boolean) {
   if (tieBeforeNote) {
-    tieing = TieingState.NewTieFormat
+    tieing = TieingState.NewTieFormat;
   }
   const token = ts.matchToken(TokenType.TIE_END_OR_TIE_OLD_FORMAT);
   if (token) {
@@ -393,5 +393,5 @@ function timeSignature(ts: TokenStream): TimeSignature {
 }
 
 function blankNote(): Note {
-    return { type: "rest", value: { length: 'default blank note' } }
+  return { type: 'rest', value: { length: 'default blank note' } };
 }
