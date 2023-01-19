@@ -1,0 +1,78 @@
+Bagpipe Reader:1.0
+
+MIDINoteMappings,(54,56,58,59,61,63,64,66,68,56,58,60,61,63,65,66,68,70,55,57,59,60,62,64,65,67,69)
+
+FrequencyMappings,(370,415,466,494,554,622,659,740,831,415,466,523,554,622,699,740,831,932,392,440,494,523,587,659,699,784,880)
+
+InstrumentMappings,(71,71,45,33,1000,60,70)
+
+GracenoteDurations,(20,40,30,50,100,200,800,1200,250,250,250,500,200)
+
+FontSizes,(90,100,100,80,250)
+
+TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)
+
+"Converted from  Abc file format to Bagpipe Reader 1.0 format using BMWFC32."
+
+TuneTempo,80
+
+"The Grey Bob",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
+
+"",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+"Arr. Hamish Moore",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+"Reel",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
+
+& C gg Cr_8 LAr_8 gg HGr_32 Er_8 LAl_8 	gg Cr_8 LAr_8 dg Dr_32 LAr_8 Cl_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& abr LA_4 	gg Er_8 LAl_8 	gg Cr_8 LAr_8 dg Dr_32 LAr_8 Cl_8 	!t
+
+& HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	dbha HA_4 	HGr_8 HAl_8 	abr LA_4 	gg Er_8 LAl_8 	gg Cr_8 LAr_8 dg Dr_32 LAr_8 Cl_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& Cr_8 strlg LGr_32 Cr_8 gg HGr_32 Cr_8 LAl_8 	gg Br_8 LGr_8 dg Dr_32 LGr_8 Bl_8 	!t
+
+& gbr LA_4 	HAr_8 HGl_8 	dbha HA_4 	Er_8 Fl_8 	 !I
+& HA_4 	Er_8 gg HGr_32 Cl_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& gg HA_4 	Er_8 gg HGr_32 Cl_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	!t
+
+& gbr LA_4 	HAr_8 HGl_8 	dbha HA_4 	Er_8 HAl_8 	gg Cr_8 strlg LGr_32 Cr_8 HAr_8 HGl_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& Cr_8 strlg LGr_32 Cr_8 gg HGr_32 Cr_8 LAl_8 	gg Br_8 LGr_8 dg Dr_32 LGr_8 Bl_8 	!t
+
+& gbr LA_4 	HAr_8 HGl_8 	dbha HA_4 	Er_8 HAl_8 	 !I
+& hdbc Cr_8 Er_8 LAr_8 El_8 	dbc Cr_8 Er_8 LAr_8 Cl_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& hdbc Cr_8 Er_8 LAr_8 El_8 	dbc Cr_8 Er_8 LAr_8 Cl_8 	!t
+
+& HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	dbha HA_4 	HGr_8 HAl_8 	hdbc Cr_8 Er_8 LAr_8 El_8 	dbc Cr_8 Er_8 LAr_8 Cl_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& Cr_8 strlg LGr_32 Cr_8 gg HGr_32 Cr_8 LAl_8 	gg Br_8 LGr_8 dg Dr_32 LGr_8 Bl_8 	!t
+
+& gbr LA_4 	HAr_8 HGl_8 	dbha HA_4 	Er_8 Fl_8 	 !I
+& HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HGl_8 	!t
+
+& HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	!t
+
+& gbr LA_4 	HAr_8 HGl_8 	dbha HA_4 	Er_8 HAl_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	HAr_8 Er_8 gg HGr_32 Cr_8 El_8 	!t
+
+& dbhg HG_4 	tg Dr_8 Bl_8 	dbhg HG_4 	tg Er_8 HAl_8 	!t
+
+& Cr_8 strlg LGr_32 Cr_8 gg HGr_32 Cr_8 LAl_8 	gg Br_8 LGr_8 dg Dr_32 LGr_8 Bl_8 	!t
+
+& gbr LA_4 	HAr_8 HGl_8 	dbha HA_4 	gg Er_8 HAl_8 	 !I

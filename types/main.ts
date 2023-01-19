@@ -1,10 +1,10 @@
-export interface Score {
+export type Score = {
   name: string;
   headers: (Header | TextTagHeader | SoftwareHeader)[];
   staves: Stave[];
 }
 
-export interface Stave {
+export type Stave = {
   repeat: boolean;
   clef: {
     key: Accidental[];
@@ -13,24 +13,24 @@ export interface Stave {
   bars: Bar[];
 }
 
-export interface Accidental {
+export type Accidental = {
   type: 'sharp' | 'natural' | 'flat';
   note: string;
 }
 
-export interface TimeSignature {
+export type TimeSignature = {
   type?: 'cut' | 'common';
   top?: string;
   bottom?: string;
 }
 
-export interface Bar {
+export type Bar = {
   notes: Note[];
 }
 
 export type Note = NoteValue | NoteGroup | Rest;
 
-export interface NoteValue {
+export type NoteValue = {
   type: 'note';
   value: {
     length: string;
@@ -44,14 +44,14 @@ export interface NoteValue {
   };
 }
 
-export interface NoteGroup {
+export type NoteGroup = {
   type: NoteGroupType;
   value: {
     notes: Note[];
   };
 }
 
-export interface Rest {
+export type Rest = {
   type: 'rest';
   value: {
     length: string;
@@ -69,26 +69,26 @@ export type NoteGroupType =
   | 'sextuplet'
   | 'septuplet';
 
-export interface DoubleGracenote {
+export type DoubleGracenote = {
   type: string;
   value?: {
     notes: string[];
   };
 }
 
-export interface Embellishment {
+export type Embellishment = {
   type?: string;
   value?: {
     note: string;
   };
 }
 
-export interface Header {
+export type Header = {
   type: TokenType;
   value: string;
 }
 
-export interface TextTagHeader {
+export type TextTagHeader = {
   type: TokenType;
   value: {
     text: string;
@@ -96,7 +96,7 @@ export interface TextTagHeader {
   };
 }
 
-export interface SoftwareHeader {
+export type SoftwareHeader = {
   type: TokenType;
   value: {
     program: string;
@@ -104,12 +104,12 @@ export interface SoftwareHeader {
   };
 }
 
-export interface SpecType {
+export type SpecType = {
   regex: RegExp;
   type: TokenType;
 }
 
-export interface Token {
+export type Token = {
   type: TokenType;
   value: RegExpExecArray;
 }
