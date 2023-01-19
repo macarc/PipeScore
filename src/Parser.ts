@@ -16,28 +16,21 @@ import {
     TokenType,
 } from "../types/main";
 import EmbellishmentMap from "./Embellishments";
-import Tokenizer from "./Tokenizer";
+import { tokenise, TokenStream } from "./Tokenizer";
 
 export default class Parser {
-    private data: string;
-    private tokenizer: Tokenizer;
+    private tokenstream: TokenStream = () => null;
     private lookahead!: Token | null;
     private oldFormatBarlineTie = false;
     private tieNextNote = false;
     private currentLine = 0;
     private currentBar = 0;
 
-    constructor() {
-        this.data = "";
-        this.tokenizer = new Tokenizer();
-    }
-
     /**
      * Returns an AST of the BWW file
      */
     parse(data: string): Score {
-        this.data = data;
-        this.tokenizer.init(this.data);
+        this.tokenstream = tokenise(data);
 
         // Reset barline tie values
         this.oldFormatBarlineTie = false;
@@ -50,7 +43,7 @@ export default class Parser {
          * token which is our lookahead. The lookahead
          * is used for predictive parsing.
          */
-        this.lookahead = this.tokenizer.getNextToken();
+        this.lookahead = this.tokenstream();
 
         /**
          * Parse recursively starting from the main
@@ -74,7 +67,7 @@ export default class Parser {
             );
         }
 
-        this.lookahead = this.tokenizer.getNextToken();
+        this.lookahead = this.tokenstream();
 
         return token;
     }
@@ -91,7 +84,7 @@ export default class Parser {
         return {
             name: "",
             headers: this.Headers(),
-            staves: this.tokenizer.hasMoreTokens() ? this.Staves() : [],
+            staves: this.Staves(),
         };
     }
 

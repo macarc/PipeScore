@@ -1,34 +1,16 @@
 import { Token, TokenType } from "../types/main";
 import Spec from "./Spec";
 
-export default class Tokenizer {
-    private stream: string;
-    private cursor: number;
+export type TokenStream = () => Token | null;
 
-    constructor() {
-        this.stream = "";
-        this.cursor = 0;
-    }
-
-    init(stream: string): void {
-        this.stream = stream;
-        this.cursor = 0;
-    }
-
-    isEOF(): boolean {
-        return this.cursor === this.stream.length;
-    }
-
-    hasMoreTokens(): boolean {
-        return this.cursor < this.stream.length;
-    }
-
-    getNextToken(): Token | null {
-        if (!this.hasMoreTokens()) {
+export function tokenise(stream: string): TokenStream {
+    let cursor = 0;
+    const nextToken: TokenStream = () => {
+        if (cursor >= stream.length) {
             return null;
         }
 
-        const slice = this.stream.slice(this.cursor);
+        const slice = stream.slice(cursor);
 
         for (const item of Spec) {
             const token = item.regex.exec(slice);
@@ -38,10 +20,10 @@ export default class Tokenizer {
                 continue;
             }
 
-            this.cursor += token[0].length;
+            cursor += token[0].length;
 
             if (item.type === TokenType.SKIP) {
-                return this.getNextToken();
+                return nextToken();
             }
 
             return {
@@ -53,4 +35,6 @@ export default class Tokenizer {
         const match = /^([^\s]*)/.exec(slice);
         throw new SyntaxError(`Unexpected token: "${match ? match[1] : ""}"`);
     }
+    
+    return nextToken;
 }
