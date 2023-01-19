@@ -404,7 +404,9 @@ export class Bar extends Item implements Previews<Note> {
         ? xAfterBarline - barWidth / 5
         : this.notes().length === 2
         ? this.notes()[0] === this.previewNote
-          ? xAfterBarline
+          ? this.isAnacrusis
+            ? xAfterBarline - 10
+            : xAfterBarline
           : xOf(this._notes.indexOf(this.previewNote)) + beatWidth / 2
         : xOf(this._notes.indexOf(this.previewNote)) - 2 * Note.noteHeadRadius
       : 0;
