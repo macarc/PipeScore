@@ -1,0 +1,69 @@
+Bagpipe Reader:1.0
+
+MIDINoteMappings,(55,57,59,60,62,64,65,67,69,57,59,61,62,64,66,67,69,71,56,58,60,61,63,65,66,68,70)
+
+FrequencyMappings,(392,440,494,523,587,659,699,784,880,440,494,554,587,659,740,784,880,988,415,466,523,554,622,699,740,831,932)
+
+InstrumentMappings,(71,71,46,34,1000,60,70)
+
+GracenoteDurations,(20,40,30,50,100,200,800,1200,250,250,250,500,200)
+
+FontSizes,(90,100,75,80,0)
+
+TuneFormat,(1,0,F,C,500,500,500,500,P,0,0)
+
+TuneTempo,90
+
+"Maxwell's Bonnet",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
+
+"Hornpipe",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+"Ian McCrimmon",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+" ",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
+
+& sharpf sharpc
+I!'' 2_4 gg Dr_16 El_16   ! gg Fr_16 LAr_16 gg Dr_16 LAl_16	gg Fr_16 LAr_16 gg Dr_16 Bl_16
+					! gg LGr_16 Bl_16 pelb Bl_8 			gg Br_16 Er_16 gg Dr_16 Bl_16
+					! gg Er_16 LAr_16 gg Cr_16 LAl_16	gg Er_16 LAr_16 gg Cr_16 El_16
+					! gg Fr_16 Dr_16 gg LAr_16 Fl_16		gg Er_16 Br_16 gg Cr_16 dg LAl_16 !t
+& sharpf sharpc
+					 gg Fr_16 LAr_16 gg Dr_16 LAl_16	gg Fr_16 LAr_16 gg Dr_16 Bl_16
+					! gg LGr_16 Bl_16 pelb Bl_8 			gg Br_16 Er_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 ag Cr_16 LAl_16	gg Er_16 LAr_16 gg Cr_16 dg LAl_16
+					! gg LAr_16 Er_16 ag Er_16 Cl_16		gg D_8	''!I
+& sharpf sharpc
+I!''  gg Dr_16 El_16		! gg Fr_16 LAr_16 HAr_16 Dl_16		gg Fr_16 Dr_16 gg Er_16 Dl_16
+					! gg LGr_16 Bl_16 pelb Bl_8 			Fr_16 LGr_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 strlg Cr_16 LAl_16 	gg Cr_16 strlg Cr_16 gg Er_16 LAl_16
+					! gg LAr_16 Dr_16 strc Dr_16 LAl_16	gg Dr_16 strc Dr_16 gg Fr_16 LAl_16  !t
+& sharpf sharpc
+					 gg Fr_16 LAr_16 HAr_16 Dl_16		gg Fr_16 Dr_16 gg Er_16 Dl_16
+					! gg LGr_16 Bl_16 pelb Bl_8 			Fr_16 LGr_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 ag Cr_16 LAl_16	gg Er_16 LAr_16 gg Cr_16 dg LAl_16
+					! gg LAr_16 Er_16 ag Er_16 Cl_16		gg D_8	''!I
+& sharpf sharpc
+I!''   F_8				! gg LAr_16 Dr_16 gg LAr_16 Fl_16	gg Fr_16 Dr_16 gg Er_16 Dl_16
+					! gg LGr_16 Br_16 strlg Br_16 El_16	gg Er_16 LGr_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 ag Cr_16 El_16		gg Er_16 LAr_16 gg Cr_16 dg LAl_16
+					! gg LAr_16 Dr_16 gg LAr_16 HAl_16	gg HAr_16 LAr_16 gg Fr_16 Dl_16	!t
+& sharpf sharpc
+					 gg LAr_16 Dr_16 gg LAr_16 Fl_16	gg Fr_16 Dr_16 gg Er_16 Dl_16
+					! gg LGr_16 Br_16 strlg Br_16 ^ts gg Bl_16  		Br_16 ^te LGr_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 ag Cr_16 LAl_16	gg Er_16 LAr_16 gg Cr_16 dg LAl_16
+					! gg LAr_16 Er_16 ag Er_16 Cl_16		gg D_8	''!I
+& sharpf sharpc
+I!'' 	gg Fr_16 HGl_16	! HAr_16 LAr_16 gg Fr_16 ^ts HAl_16	HAr_16 ^te Fr_16 gg Dr_16 LAl_16
+					! HGr_16 LGr_16 gg Br_16 ^ts HGl_16	HGr_16 ^te LGr_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 ag Cr_16 HAl_16	Cr_16 ag Cr_16 HAr_16 Cl_16
+					! gg LAr_16 Dr_16 ag Dr_16 HAl_16	Dr_16 ag Dr_16 HAr_16 Dl_16		!t
+& sharpf sharpc	'1 	
+					 HAr_16 LAr_16 gg Fr_16 ^ts HAl_16	HAr_16 ^te Fr_16 gg Dr_16 LAl_16
+					! HGr_16 LGr_16 gg Br_16 ^ts HGl_16	HGr_16 ^te LGr_16 gg Dr_16 Bl_16
+					! gg LAr_16 Cr_16 ag Cr_16 LAl_16	gg Er_16 LAr_16 gg Cr_16 dg LAl_16
+					! gg LAr_16 Er_16 ag Er_16 Cl_16		gg D_8	''!I
+				
+& sharpf sharpc	'2 	 gg LAr_16 Fr_16 gg Fr_16 LAl_16		HAr_16 LAr_16 gg Fr_16 Dl_16
+					! gg LGr_16 Br_16 strlg Br_16 LGl_16	HGr_16 LGr_16 gg Dr_16 Br_16
+					! gg LAr_16 Cr_16 ag Cr_16 LAl_16	gg Er_16 LAr_16 gg Cr_16 dg LAl_16
+					! gg LAr_16 Er_16 ag Er_16 Cl_16		gg D_8 !I

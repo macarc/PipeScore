@@ -1,0 +1,168 @@
+Bagpipe Reader:1.0
+
+MIDINoteMappings,(54,56,58,59,61,63,64,66,68,56,58,60,61,63,65,66,68,70,55,57,59,60,62,64,65,67,69)
+
+FrequencyMappings,(370,415,466,494,554,622,659,740,831,415,466,523,554,622,699,740,831,932,392,440,494,523,587,659,699,784,880)
+
+InstrumentMappings,(71,71,45,33,1000,60,70)
+
+GracenoteDurations,(20,40,30,50,100,200,800,1200,250,250,250,500,200)
+
+FontSizes,(90,100,75,80,0)
+
+TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)
+
+TuneTempo,90
+
+"March for a Beginner",(T,C,0,0,arial,16,700,0,0,18,0,0,0)
+
+"Piobaireachd",(Y,L,0,0,arial,12,400,0,0,18,0,0,0)
+
+"",(M,R,0,0,arial,12,400,0,0,18,0,0,0)
+
+"Kilberry Book",(F,L,0,0,arial,12,400,0,0,18,0,0,0)
+
+"I. Ground",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc C
+I!''	gg E_4 space space	phiharin LA_4			gg Cr_8 'c Bl_16			pgrp C_4 space space
+!	gg Er_16 strla El_8 'e	echola E_8 			gg E_4 'e space space		gg C_4 space space
+!	gg Fr_16 stre Fl_8 'f	echoe F_8			HA_4 E_8					gg F_4 space space
+! '1	gg Er_16 strla El_8 'e	echola Er_8 'e Dl_16 	gg C_4					echolg LA_4 space space _'
+! '2	gg Er_8 'e HAl_16		Fr_16 HAl_8 'ha		E_4						gg C_4 space space _' ''!I
+
+& sharpf sharpc 
+I!	cadged Br_16 strlg Bl_8 'b	echolg B_4			cadge LAr_8 'la Bl_16		pgrp C_4 space space
+!	gg Fr_16 stre Fl_8 'f		echoe F_8			gg F_4 'f					gg E_4 space space
+!	gg Fr_16 stre Fl_8 'f		echoe F_8			HA_4 E_8					gg Fr_8 'f Cl_16
+!	gg Fr_16 stre Fl_8 'f		echoe F_8			gg F_4 'f					gg E_4 space space !t
+
+& sharpf sharpc
+!	gg Fr_16 stre Fl_8 'f		echoe F_8			HA_4 E_8					gg Fr_16 HAl_8 'ha
+!	space Er_16 strla El_8 'e 	echola E_8			gg E_4 'e					gg C_4 space space
+!	gg Fr_8 'f El_16			gg F_4				gg Er_8 'e Cl_16			gg E_4 space space
+!	cadge LAr_8 'la Bl_16		grp Cr_8 echolg LAl_8	cadged B_4				echolg LA_4 space space !I
+
+
+"II. VAR. 1",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc 
+I!''	gg LAr_8 'la dg Cl_16	gg LAr_8 'la dg Bl_16 space
+!	gg LAr_8 'la El_16		gg Er_8 'e fermate Cl_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la HAl_16	 space
+!	space LAr_8 'la El_16	gg Er_8 'e fermate Cl_16 space ''!I
+
+& sharpf sharpc 
+I!	gg LAr_8 'la dg Cl_16	gg LAr_8 'la dg Bl_16 space
+!	gg LAr_8 'la Fl_16		gg Fr_8 'f fermatf El_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la HAl_16	 space
+!	space LAr_8 'la Fl_16	gg Fr_8 'f fermatf El_16 space !t
+
+& sharpf sharpc 
+	gg LAr_8 'la HAl_16		gg LAr_8 'la Fl_16 space
+!	gg LAr_8 'la El_16		gg Er_8 'e fermate Cl_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la El_16 space
+!	gg LAr_8 dg Cl_8		cadged Br_8 echolg LAl_8 space !I
+
+"III. VAR. 1 DOUBLING",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc 
+I!''	gg LAr_8 'la dg Cl_16	gg LAr_8 'la dg Bl_16 space
+!	gg LAr_8 'la El_16		gg LAr_8 'la El_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la HAl_16	 space
+!	space LAr_8 'la El_16	gg LAr_8 'la El_16 space ''!I
+
+& sharpf sharpc 
+I!	gg LAr_8 'la dg Cl_16	gg LAr_8 'la dg Bl_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la Fl_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la HAl_16	 space
+!	space LAr_8 'la Fl_16	gg LAr_8 'la Fl_16 space !t
+
+& sharpf sharpc 
+	gg LAr_8 'la HAl_16		gg LAr_8 'la Fl_16 space
+!	gg LAr_8 'la El_16		gg LAr_8 'la El_16 space
+!	gg LAr_8 'la Fl_16		gg LAr_8 'la El_16 space
+!	gg LAr_8 dg Cl_8		gg LAr_8 'la Bl_16 space !I
+
+"IV. VAR. 2",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc 
+I!''	ptripla LAr_16 dg Cl_8 'c		ptripla LAr_16 dg Bl_8 'b space
+!	ptripla LAr_16 El_8 'e		gg Er_8 'e fermate Cl_16 space
+!	ptripla LAr_16 Fl_8 'f		ptripla LAr_16 HAl_8 'ha space
+!	ptripla LAr_16 El_8 'e		gg Er_8 'e fermate Cl_16 space ''!I
+
+& sharpf sharpc 
+I!	ptripla LAr_16 dg Cl_8 'c		ptripla LAr_16 dg Bl_8 'b space
+!	ptripla LAr_16 Fl_8 'f		gg Fr_8 'f fermatf El_16 space
+!	ptripla LAr_16 Fl_8 'f		ptripla LAr_16 HAl_8 'ha space
+!	ptripla LAr_16 Fl_8 'f		gg Fr_8 'f fermatf El_16 space !t
+
+& sharpf sharpc 
+	ptripla LAr_16 HAl_8 'ha		ptripla LAr_16 Fl_8 'f space
+!	ptripla LAr_16 El_8 'e		gg Er_8 'e fermate Cl_16 space
+!	ptripla LAr_16 Fl_8 'f		ptripla LAr_16 El_8 'e space
+!	ptripla LAr_16 dg Cl_8 'c		cadged Br_8 echolg LAl_8 space !I
+
+
+"V. VAR. 2 DOUBLING",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc 
+I!''	ptripla LAr_16 dg Cl_16		ptripla LAr_16 dg Bl_16 space
+!	ptripla LAr_16 El_16		ptripla LAr_16 El_16 space
+!	ptripla LAr_16 Fl_16		ptripla LAr_16 HAl_16	 space
+!	ptripla LAr_16 El_16		ptripla LAr_16 El_16 space ''!I
+
+& sharpf sharpc 
+I!	ptripla LAr_16 dg Cl_16		ptripla LAr_16 dg Bl_16 space
+!	ptripla LAr_16 Fl_16		ptripla LAr_16 Fl_16 space
+!	ptripla LAr_16 Fl_16		ptripla LAr_16 HAl_16 space
+!	ptripla LAr_16 Fl_16		ptripla LAr_16 Fl_16 space !t
+
+& sharpf sharpc 
+	ptripla LAr_16 HAl_16		ptripla LAr_16 Fl_16 space
+!	ptripla LAr_16 El_16		ptripla LAr_16 El_16 space
+!	ptripla LAr_16 Fl_16		ptripla LAr_16 El_16 space
+!	ptripla LAr_16 dg Cl_8		ptripla LAr_16 dg Bl_16 space !I
+
+
+"VI. TAORLUATH.   VIII. CRUNLUATH",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc 
+I!''	C_4 pt pc			B_4 pt pc	space
+!	E_4 pt pc 		gg Er_8 fermate Cl_8 space
+!	F_4 pt pc			HA_4 pt pc space
+!	E_4 pt pc 		gg Er_8 fermate Cl_8 space ''!I
+
+& sharpf sharpc 
+I!	C_4 pt pc			B_4 pt pc	space
+!	F_4 pt pc 			gg Fr_8 fermatf El_8 space
+!	F_4 pt pc			HA_4 pt pc space
+!	F_4 pt pc 			gg Fr_8 fermatf El_8 space !t
+
+& sharpf sharpc 
+	HA_4 pt pc		F_4 pt pc	space
+!	E_4 pt pc 		gg Er_8 fermate Cl_8 space
+!	F_4 pt pc			E_4 pt pc space
+!	C_4 pt pc 		cadged Br_8 fermatb echolg LAl_8 fermatla space !I
+
+
+"VII. TAORLUATH DOUBLING.   IX. CRUNLUATH DOUBLING",(I,L,0,0,Arial,11,400,0,0,34,0,0,0) 
+
+& sharpf sharpc 
+I!''	C_4 pt pc			B_4 pt pc	space
+!	E_4 pt pc 		E_4 pt pc space
+!	F_4 pt pc			HA_4 pt pc space
+!	E_4 pt pc 		E_4 pt pc space ''!I
+
+& sharpf sharpc 
+I!	C_4 pt pc			B_4 pt pc	space
+!	F_4 pt pc 			F_4 pt pc space
+!	F_4 pt pc			HA_4 pt pc space
+!	F_4 pt pc 			F_4 pt pc space !t
+
+& sharpf sharpc 
+	HA_4 pt pc		F_4 pt pc	space
+!	E_4 pt pc 		E_4 pt pc space
+!	F_4 pt pc			E_4 pt pc space
+!	C_4 pt pc 		B_4 pt pc space !I

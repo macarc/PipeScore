@@ -1,0 +1,80 @@
+Bagpipe Reader:1.0
+
+MIDINoteMappings,(54,56,58,59,61,63,64,66,68,56,58,60,61,63,65,66,68,70,55,57,59,60,62,64,65,67,69)
+
+FrequencyMappings,(370,415,466,494,554,622,659,740,831,415,466,523,554,622,699,740,831,932,392,440,494,523,587,659,699,784,880)
+
+InstrumentMappings,(71,71,45,33,1000,60,70)
+
+GracenoteDurations,(20,40,30,50,100,200,800,1200,250,250,250,500,200)
+
+FontSizes,(90,100,100,80,250)
+
+TuneFormat,(1,0,M,L,500,500,500,500,P,0,0)
+
+"Converted from  BMW Dos file format to Bagpipe Reader 1.0 format using BMWFC32."
+
+"Monymusk",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
+
+"Strathspey",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+"Traditional",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+
+"1998.3",(F,R,0,0,Times New Roman,10,400,0,0,18,0,0,0)
+
+TuneTempo,130
+
+
+& sharpf sharpc C I!''
+dbe Er_8 'e LAl_16		
+dbc Cr_16 eg LAl_8 'la		
+dg Cr_16 El_16 gg LAl_8		
+thrd Dr_8 'd Fl_16		!
+dbe Er_8 'e Dl_16		
+dbc Cr_16 HAl_8 'ha		
+Br_16 dg Bl_16 eg Bl_8		
+thrd Dr_8 'd Fl_16		!
+dbe Er_8 'e LAl_16		
+dbc Cr_16 eg LAl_8 'la		
+gg Cr_16 El_8 'e		
+strla Er_8 'e HAl_16		!
+Fr_16 HGl_16 HAl_8		
+Br_16 Cl_16 Dl_8		
+dbc Cr_16 eg LAl_8 'la		
+brl LA_4			''!I
+& sharpf sharpc
+I! E_16	!				
+dbha HAr_8 'ha El_16		
+dbc Cr_8 'c HAl_16		
+Er_16 HAl_8 'ha			
+hdbc Cr_8 'c El_16		!
+dbha HAr_8 'ha El_16		
+thrd Dr_8 'd HAl_16		
+hdbc Cr_16 HAl_8 'ha		
+hstb Br_8 'b El_16		!
+dbha HAr_8 'ha El_16		
+dbc Cr_8 'c HAl_16		
+Er_16 HAl_8 'ha			
+hdbc Cr_16 HAl_8 'ha		!
+Fr_16 HGl_16 HAl_8		
+Br_16 Cl_16 Dl_8		
+dbc Cr_16 eg LAl_8 'la		
+brl LAr_8 'la El_16		!t
+& sharpf sharpc
+dbha HAr_8 'ha El_16		
+dbc Cr_8 'c HAl_16		
+Er_16 HAl_8 'ha			
+hdbc Cr_8 'c El_16		!
+dbha HAr_8 'ha El_16		
+thrd Dr_8 'd HAl_16		
+hdbc Cr_16 HAl_8 'ha		
+hstb Br_8 'b El_16		!
+dbha HAr_8 'ha El_16		
+gg Fr_16 HGl_16 HAl_8		
+hdbe Er_8 'e HAl_16		
+hdbc Cr_16 HAl_8 'ha		!
+Fr_16 HGl_16 HAl_8		
+Br_16 Cl_16 Dl_8		
+dbc Cr_16 eg LAl_8 'la		
+brl LA_4			!I
+
