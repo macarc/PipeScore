@@ -49,7 +49,7 @@ async function parseFileWithDetails(path: string): Promise<void> {
   });
 
   try {
-    const ast: Score = parse(file);
+    const ast = parse(file);
     console.log('\x1b[32m', `Successfully parsed: ${path}`);
     console.log(util.inspect(ast, false, null, true));
   } catch (e) {
@@ -60,7 +60,7 @@ async function parseFileWithDetails(path: string): Promise<void> {
 
 async function parseStringWithDetails(tune: string): Promise<void> {
   try {
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
     console.log('\x1b[32m', `Successfully parsed tune.`);
     console.log(util.inspect(ast, false, null, false));
   } catch (e) {

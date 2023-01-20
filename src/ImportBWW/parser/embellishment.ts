@@ -1,19 +1,27 @@
-import { Embellishment, DoubleGracenote } from '../model';
 import { TokenType } from '../token';
 import { TokenStream } from '../Tokeniser';
 import { embellishmentName } from '../Embellishments';
+import { SavedGracenote } from '../../PipeScore/SavedModel';
+
 
 export function embellishment(
   ts: TokenStream
-): Embellishment | DoubleGracenote {
+): SavedGracenote {
   switch (ts.currentType()) {
     case TokenType.DOUBLING:
+      return reactive(ts, 'doubling')
     case TokenType.STRIKE:
+      break;
     case TokenType.REGULAR_GRIP:
+      break;
     case TokenType.TAORLUATH:
+      return reactive(ts, 'toarluath')
     case TokenType.BUBBLY:
+      break;
     case TokenType.BIRL:
+      break;
     case TokenType.THROW:
+      return reactive(ts, 'throw');
     case TokenType.PELE:
     case TokenType.DOUBLE_STRIKE:
     case TokenType.TRIPLE_STRIKE:
@@ -25,23 +33,15 @@ export function embellishment(
     case TokenType.COMPLEX_GRIP:
       return complexGrip(ts);
     default:
-      return {};
+      return { type: 'none' };
   }
 }
 
-function simpleEmbellishment(ts: TokenStream) {
+function reactive(ts: TokenStream, name: string): SavedGracenote {
   const token = ts.eatAny();
-
   if (token === null) throw new Error('Expected gracenote');
 
-  const type = embellishmentName(token.value[1]);
-  const note = token.value[2];
-
-  if (note) {
-    return { type, value: { note } };
-  } else {
-    return { type };
-  }
+  return { type: 'reactive', value: { grace: name } };
 }
 
 function gracenote(ts: TokenStream) {
@@ -52,7 +52,7 @@ function gracenote(ts: TokenStream) {
   };
 }
 
-function doubleGracenote(ts: TokenStream): DoubleGracenote {
+function doubleGracenote(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.DOUBLE_GRACENOTE);
   const notes = [];
 
@@ -72,7 +72,7 @@ function doubleGracenote(ts: TokenStream): DoubleGracenote {
   };
 }
 
-function complexGrip(ts: TokenStream): Embellishment {
+function complexGrip(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.COMPLEX_GRIP);
   if (token.value[2]) {
     return {

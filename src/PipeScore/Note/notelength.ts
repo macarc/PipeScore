@@ -45,7 +45,7 @@ export function dotted(note: NoteLength): boolean {
 }
 
 export const sameNoteLengthName = (a: NoteLength, b: NoteLength) =>
-  a === b || a === dot(b);
+  a === b || a === dotLength(b);
 
 export function lengthInBeats(length: NoteLength): number {
   switch (length) {
@@ -78,7 +78,7 @@ export function lengthInBeats(length: NoteLength): number {
   }
 }
 
-export function dot(length: NoteLength): NoteLength {
+export function dotLength(length: NoteLength): NoteLength {
   switch (length) {
     case NoteLength.Semibreve:
       return NoteLength.Semibreve;

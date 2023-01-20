@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import { parse } from '../Parser';
 import { Score } from '../model';
+import { SavedScore } from '../../PipeScore/SavedModel';
 
 describe('correctly parses score body', () => {
   test('it works without any headers', () => {
@@ -2800,7 +2801,7 @@ describe('correctly parses score body', () => {
                         ! Er_8 ^te gg El_8 thrd D_4 'd dbb B_8 ag B_4
                         ! dblg LG_4 gg LA_2 'la
                         !I`;
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
 
     expect(ast).toBeTruthy();
   });
@@ -3682,7 +3683,7 @@ describe('correctly parses score body', () => {
     const file = await readFile(path, {
       encoding: 'utf-8',
     });
-    const ast: Score = parse(file);
+    const ast = parse(file);
 
     expect(ast).toBeTruthy();
   });
@@ -3692,14 +3693,14 @@ describe('correctly parses score body', () => {
     const file = await readFile(path, {
       encoding: 'utf-8',
     });
-    const ast: Score = parse(file);
+    const ast = parse(file);
 
     expect(ast).toBeTruthy();
   });
 
   test('a tune can have a gracenote before a tied note', async function () {
     const tune = `& sharpf sharpc 4_4 I!'' gg LGr_16 LAl_16 Br_16 gg ^ts Dl_16		Dr_16 ^te Bl_16 gg Er_16 Dl_16 ''!I`;
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
 
     expect(ast).toBeTruthy();
   });
@@ -3710,14 +3711,14 @@ describe('correctly parses score body', () => {
                     !	gg Br_16 dg LGl_8 'lg dg Bl_8 	dbhg HG_4 'hg 				hdbe E_4 'e 
                     !	gg LAr_8 'la Bl_16 grp Cl_8 		dbe E_4 'e 					dbha HA_4 LA_8 
                     !	gg LAr_8 'la Fl_16 gg El_8 		thrd D_4 'd 					lgstd '1 D_4 _' '2 D_4 'd _' ''!I`;
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
 
     expect(ast).toBeTruthy();
   });
 
   test('ties can have more that 2 notes in them', async function () {
     const tune = `& sharpf sharpc 2_4 I!'' gg ^ts Br_16 Cr_16 Dl_16 ^te ''!I`;
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
 
     expect(ast).toStrictEqual({
       name: '',
@@ -3786,7 +3787,7 @@ describe('correctly parses score body', () => {
 
   test('it can parse a gracenote without a note attached to it', async function () {
     const tune = `& sharpf sharpc  6_8 I! gg !I`;
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
 
     expect(ast).toStrictEqual({
       name: '',
@@ -3820,7 +3821,7 @@ describe('correctly parses score body', () => {
 
   test('notes can have multiple embellishments', async function () {
     const tune = `& sharpf sharpc 2_4 I!'' eg strla E_4 ''!I`;
-    const ast: Score = parse(tune);
+    const ast = parse(tune);
 
     expect(ast).toStrictEqual({
       name: '',

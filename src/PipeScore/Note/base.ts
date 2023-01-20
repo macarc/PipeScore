@@ -17,7 +17,7 @@
 import {
   NoteLength,
   sameNoteLengthName,
-  dot,
+  dotLength,
   lengthInBeats,
   dotted,
 } from './notelength';
@@ -88,7 +88,7 @@ export abstract class BaseNote extends Item {
     return this.length;
   }
   public toggleDot() {
-    return (this.length = dot(this.length));
+    return (this.length = dotLength(this.length));
   }
   public copy() {
     const n = BaseNote.fromJSON(this.toJSON());
