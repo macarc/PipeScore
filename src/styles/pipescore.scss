@@ -18,6 +18,7 @@ noscript {
 
 .big-top-margin {
   margin-top: 12rem;
+  margin-bottom: 10rem;
 }
 
 label {
@@ -89,8 +90,7 @@ input[type='range'] {
     #topbar-main {
       flex: 1;
     }
-    #topbar-main,
-    #general-commands {
+    #topbar-main {
       display: flex;
       align-items: stretch;
       gap: 1rem;
@@ -192,15 +192,27 @@ input[type='number'] {
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 10vw;
+  width: 15rem;
   border-top: 1px solid black;
   border-left: 1px solid black;
   padding: 1rem;
-  min-height: 4rem;
+  min-height: 6rem;
   white-space: pre-line;
 
   input[type='range'] {
-    margin-top: 1rem;
+    margin: 1rem 0;
+    width: 100%;
+  }
+
+  button {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-clip: padding-box;
+    vertical-align: middle;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid black;
   }
 }
 

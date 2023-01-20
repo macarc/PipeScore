@@ -287,6 +287,10 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', addBarOrAnacrusis('bar')),
     ]),
     m('section', [
+      m('h2', 'Add Lead In'),
+      m('div.section-content', addBarOrAnacrusis('lead in')),
+    ]),
+    m('section', [
       m('h2', 'Modify Bar'),
       m('div.section-content.vertical', [
         help(
@@ -406,17 +410,6 @@ export default function render(state: UIState): m.Children {
           )
         ),
       ]),
-    ]),
-  ];
-
-  const leadInMenu = [
-    m('section', [
-      m('h2', 'Add Lead In'),
-      m('div.section-content', addBarOrAnacrusis('lead in')),
-    ]),
-    m('section', [
-      m('h2', 'Modify Lead Ins'),
-      m('p.align-top', 'See Bar section for more options'),
     ]),
   ];
 
@@ -662,7 +655,6 @@ export default function render(state: UIState): m.Children {
     note: noteMenu,
     gracenote: gracenoteMenu,
     bar: barMenu,
-    lead_in: leadInMenu,
     second_timing: secondTimingMenu,
     stave: staveMenu,
     text: textMenu,
@@ -710,7 +702,6 @@ export default function render(state: UIState): m.Children {
         menuHead('note'),
         menuHead('gracenote'),
         menuHead('bar'),
-        menuHead('lead_in'),
         menuHead('second_timing'),
         menuHead('stave'),
         menuHead('text'),
@@ -724,35 +715,7 @@ export default function render(state: UIState): m.Children {
       ]),
       m('div#topbar', [
         m('div#topbar-main', menuMap[state.currentMenu]),
-        m('div#general-commands', [
-          m('section', [
-            m('h2', 'General Commands'),
-            m('div.section-content', [
-              help(
-                'delete',
-                m('button.delete', {
-                  onclick: () => dispatch(deleteSelection()),
-                })
-              ),
-              help(
-                'copy',
-                m('button#copy', { onclick: () => dispatch(copy()) })
-              ),
-              help(
-                'paste',
-                m('button#paste', { onclick: () => dispatch(paste()) })
-              ),
-              help(
-                'undo',
-                m('button#undo', { onclick: () => dispatch(undo()) })
-              ),
-              help(
-                'redo',
-                m('button#redo', { onclick: () => dispatch(redo()) })
-              ),
-            ]),
-          ]),
-        ]),
+        
       ]),
       shouldShowWarning ? m('div#login-warning', warning) : null,
     ]),
@@ -769,6 +732,30 @@ export default function render(state: UIState): m.Children {
           oninput: inputZoomLevel,
         })
       ),
+        m('section', [
+          help(
+            'delete',
+            m('button.delete', {
+              onclick: () => dispatch(deleteSelection()),
+            })
+          ),
+          help(
+            'copy',
+            m('button#copy', { onclick: () => dispatch(copy()) })
+          ),
+          help(
+            'paste',
+            m('button#paste', { onclick: () => dispatch(paste()) })
+          ),
+          help(
+            'undo',
+            m('button#undo', { onclick: () => dispatch(undo()) })
+          ),
+          help(
+            'redo',
+            m('button#redo', { onclick: () => dispatch(redo()) })
+          ),
+      ]),
     ]),
   ]);
 }
