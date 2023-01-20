@@ -1,4 +1,4 @@
-import { Token, TokenType } from '../types/main';
+import { Token, TokenType } from './token';
 import Spec from './Spec';
 
 export class TokenStream {

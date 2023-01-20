@@ -1,10 +1,6 @@
 import { TokenStream } from '../Tokeniser';
-import {
-  Header,
-  TextTagHeader,
-  SoftwareHeader,
-  TokenType,
-} from '../../types/main';
+import { Header, TextTagHeader, SoftwareHeader } from '../model';
+import { TokenType } from '../token';
 
 export function headers(
   ts: TokenStream

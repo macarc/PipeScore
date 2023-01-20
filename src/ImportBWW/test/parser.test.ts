@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
-import { parse } from '../src/Parser';
-import { Score } from '../types/main';
+import { parse } from '../Parser';
+import { Score } from '../model';
 
 describe('correctly parses score body', () => {
   test('it works without any headers', () => {

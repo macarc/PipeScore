@@ -11,9 +11,8 @@ import {
   Score,
   Stave,
   TimeSignature,
-  Token,
-  TokenType,
-} from '../types/main';
+} from './model';
+import { Token, TokenType } from './token';
 import { embellishment } from './parser/embellishment';
 import { headers } from './parser/header';
 import { TokenStream } from './Tokeniser';

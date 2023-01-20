@@ -16,7 +16,6 @@
 
 //  General helper functions.
 
-
 export function foreach<A>(times: number, action: (i: number) => A): A[] {
   return [...new Array(times).keys()].map((i: number) => action(i));
 }
