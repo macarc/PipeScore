@@ -3678,7 +3678,7 @@ describe('correctly parses score body', () => {
   });
 
   test('it can parse scotland the brave', async function () {
-    const path = 'test/fixtures/Scotland_the_Brave.bww';
+    const path = 'src/ImportBWW/test/fixtures/Scotland_the_Brave.bww';
     const file = await readFile(path, {
       encoding: 'utf-8',
     });
@@ -3688,7 +3688,7 @@ describe('correctly parses score body', () => {
   });
 
   test('it can skip unknown tokens', async function () {
-    const path = 'test/fixtures/skip_unknown_tokens.bww';
+    const path = 'src/ImportBWW/test/fixtures/skip_unknown_tokens.bww';
     const file = await readFile(path, {
       encoding: 'utf-8',
     });
