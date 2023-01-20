@@ -251,3 +251,11 @@ gracenotes.set('g-gracenote-birl', (note, prev) => {
     ]);
   }
 });
+
+gracenotes.set('bubbly', (note, prev) => {
+  const notes =
+    prev === Pitch.G
+      ? [Pitch.D, Pitch.G, Pitch.C, Pitch.G]
+      : [Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G];
+  return invalidateIf(note !== Pitch.B, notes);
+});

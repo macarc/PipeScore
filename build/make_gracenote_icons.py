@@ -91,6 +91,7 @@ embellishments = {
     "toarluath": ["g", "d", "g", "e"],
     "crunluath": ["g", "d", "g", "e", "a", "f", "a"],
     "edre": ["e", "a", "f", "a"],
+    "bubbly": ["g", "d", "g", "c", "g"],
 }
 
 

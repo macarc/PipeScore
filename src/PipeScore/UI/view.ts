@@ -242,6 +242,7 @@ export default function render(state: UIState): m.Children {
         gracenoteInput('shake'),
         gracenoteInput('c-shake'),
         gracenoteInput('edre'),
+        gracenoteInput('bubbly'),
         gracenoteInput('toarluath'),
         gracenoteInput('crunluath'),
       ]),
@@ -713,10 +714,7 @@ export default function render(state: UIState): m.Children {
           m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
         ),
       ]),
-      m('div#topbar', [
-        m('div#topbar-main', menuMap[state.currentMenu]),
-        
-      ]),
+      m('div#topbar', [m('div#topbar-main', menuMap[state.currentMenu])]),
       shouldShowWarning ? m('div#login-warning', warning) : null,
     ]),
     m('div#doc', [
@@ -732,29 +730,17 @@ export default function render(state: UIState): m.Children {
           oninput: inputZoomLevel,
         })
       ),
-        m('section', [
-          help(
-            'delete',
-            m('button.delete', {
-              onclick: () => dispatch(deleteSelection()),
-            })
-          ),
-          help(
-            'copy',
-            m('button#copy', { onclick: () => dispatch(copy()) })
-          ),
-          help(
-            'paste',
-            m('button#paste', { onclick: () => dispatch(paste()) })
-          ),
-          help(
-            'undo',
-            m('button#undo', { onclick: () => dispatch(undo()) })
-          ),
-          help(
-            'redo',
-            m('button#redo', { onclick: () => dispatch(redo()) })
-          ),
+      m('section', [
+        help(
+          'delete',
+          m('button.delete', {
+            onclick: () => dispatch(deleteSelection()),
+          })
+        ),
+        help('copy', m('button#copy', { onclick: () => dispatch(copy()) })),
+        help('paste', m('button#paste', { onclick: () => dispatch(paste()) })),
+        help('undo', m('button#undo', { onclick: () => dispatch(undo()) })),
+        help('redo', m('button#redo', { onclick: () => dispatch(redo()) })),
       ]),
     ]),
   ]);
