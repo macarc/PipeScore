@@ -1,5 +1,5 @@
 import { Token, TokenType } from './token';
-import { HeaderSpec, Spec } from './Spec';
+import { Spec } from './Spec';
 
 export class TokenStream {
   private stream: string;
@@ -8,7 +8,10 @@ export class TokenStream {
   public warnings: string[] = [];
 
   constructor(stream: string) {
-    this.stream = stream;
+    // Add some whitespace on the end since many
+    // tokens check for whitespace after to ensure
+    // that they match an entire word
+    this.stream = stream + ' ';
     this.current = this.nextToken();
   }
 
@@ -80,18 +83,25 @@ export class TokenStream {
     return token;
   }
 
+  private skipWhitespace() {
+    const firstNonWhitespace = /[^\s]/.exec(this.stream.slice(this.cursor));
+    if (!firstNonWhitespace) {
+      this.cursor = this.stream.length;
+    } else {
+      this.cursor += firstNonWhitespace.index;
+    }
+  }
+
   private nextToken(): Token | null {
+    this.skipWhitespace();
+
     if (this.cursor >= this.stream.length) {
       return null;
     }
 
-    const sliceMatch = /[^\s].*/.exec(this.stream.slice(this.cursor));
-    if (!sliceMatch) return null;
+    const slice = this.stream.slice(this.cursor);
 
-    this.cursor += sliceMatch.index;
-    const slice = sliceMatch[0];
-
-    for (const spec of HeaderSpec) {
+    for (const spec of Spec) {
       const token = spec.regex.exec(slice);
       if (token) {
         this.cursor += token[0].length;
@@ -102,23 +112,7 @@ export class TokenStream {
       }
     }
 
-    const wordMatch = /^[^\s]+/.exec(slice);
-    if (!wordMatch) return null;
-
-    const word = wordMatch[0];
-    this.cursor += word.length;
-
-    for (const item of Spec) {
-      const token = item.regex.exec(word);
-      if (token) {
-        console.log(token[0]);
-        return {
-          type: item.type,
-          value: token,
-        };
-      }
-    }
-
-    throw new Error(`Unexpected token: "${word}"`);
+    const word = /[^\s]*/.exec(slice);
+    throw new Error(`Unexpected token: "${word ? word[0] : '[nothing]'}"`);
   }
 }
