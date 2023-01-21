@@ -1,12 +1,21 @@
-import { SavedBar, SavedGracenote, SavedNote, SavedNoteOrTriplet, SavedScore, SavedStave, SavedTimeSignature, SavedTriplet } from '../PipeScore/SavedModel';
+import {
+  SavedBar,
+  SavedGracenote,
+  SavedNote,
+  SavedNoteOrTriplet,
+  SavedScore,
+  SavedStave,
+  SavedTimeSignature,
+  SavedTriplet,
+} from '../PipeScore/SavedModel';
 import { Token, TokenType } from './token';
 import { embellishment } from './parser/embellishment';
 import { headers } from './parser/header';
 import { TokenStream } from './Tokeniser';
 import { Settings } from '../PipeScore/global/settings';
 import { genId } from '../PipeScore/global/id';
-import { dotLength, dotted, NoteLength } from '../PipeScore/Note/notelength';
-import { Pitch, pitchToHeight } from '../PipeScore/global/pitch';
+import { dotLength, NoteLength } from '../PipeScore/Note/notelength';
+import { toPitch } from './parser/pitch';
 
 enum TieingState {
   NotTieing,
@@ -33,7 +42,7 @@ function score(ts: TokenStream): SavedScore {
     numberOfPages: 1,
     showNumberOfPages: true,
     secondTimings: [],
-    settings: new Settings().toJSON()
+    settings: new Settings().toJSON(),
   };
 }
 
@@ -61,7 +70,7 @@ function stave(ts: TokenStream): SavedStave {
 
   if (bars_.length > 0) {
     if (doesRepeat) {
-      bars_[0].frontBarline.type = "repeat";
+      bars_[0].frontBarline.type = 'repeat';
     }
   }
 
@@ -129,11 +138,23 @@ function bar(ts: TokenStream): SavedBar {
     timeLineStart(ts);
 
     if (ts.is(TokenType.TRIPLET_OLD_FORMAT)) {
-      notes.push({ notetype: 'triplet', id: genId(), value: tripletOldFormat(ts, notes.splice(note.length - 3)) });
+      notes.push({
+        notetype: 'triplet',
+        id: genId(),
+        value: tripletOldFormat(ts, notes.splice(note.length - 3)),
+      });
     } else if (ts.is(TokenType.IRREGULAR_GROUP_START)) {
-      notes.push({ notetype: 'triplet', id: genId(), value: irregularGroup(ts, TokenType.IRREGULAR_GROUP_START) });
+      notes.push({
+        notetype: 'triplet',
+        id: genId(),
+        value: irregularGroup(ts, TokenType.IRREGULAR_GROUP_START),
+      });
     } else if (ts.is(TokenType.TRIPLET_NEW_FORMAT)) {
-      notes.push({ notetype: 'triplet', id: genId(), value: irregularGroup(ts, TokenType.TRIPLET_NEW_FORMAT) });
+      notes.push({
+        notetype: 'triplet',
+        id: genId(),
+        value: irregularGroup(ts, TokenType.TRIPLET_NEW_FORMAT),
+      });
     } else {
       notes.push(note(ts));
     }
@@ -173,15 +194,19 @@ function note(ts: TokenStream): SavedNoteOrTriplet {
   if (ts.is(TokenType.TRIPLET_NEW_FORMAT)) {
     const triplet = irregularGroup(ts, TokenType.TRIPLET_NEW_FORMAT);
     triplet.notes[0].gracenote = embellishment_;
-    note_ = {notetype: 'triplet', id: genId(), value: triplet};
+    note_ = { notetype: 'triplet', id: genId(), value: triplet };
   } else {
-    note_ = {notetype: 'single', id: genId(), value: melodyNote(ts, startedToTie, embellishment_) };
+    note_ = {
+      notetype: 'single',
+      id: genId(),
+      value: melodyNote(ts, startedToTie, embellishment_),
+    };
   }
   timeLineEnd(ts);
   if (note_) {
     return note_;
   } else {
-    throw new Error("Expected note")
+    throw new Error('Expected note');
   }
 }
 
@@ -191,9 +216,7 @@ function melodyNote(
   tiedBefore: boolean,
   embellishment: SavedGracenote
 ): SavedNote {
-  const accidental_ = ts.is(TokenType.ACCIDENTAL)
-    ? accidental(ts)
-    : false;
+  const accidental_ = ts.is(TokenType.ACCIDENTAL) ? accidental(ts) : false;
   const startedToTie = tieBeforeNote(ts);
   let token: Token | null = null;
   let note_: SavedNote | null = null;
@@ -203,9 +226,9 @@ function melodyNote(
   } else if ((token = ts.eat(TokenType.MELODY_NOTE))) {
     const hasFermata = fermata(ts);
     if (hasFermata) {
-      throw new Error("Can't deal with fermata");
+      ts.warn("Ignoring fermata");
     }
-    const noteLength = toNoteLength(token.value[3])
+    const noteLength = toNoteLength(token.value[3]);
     const hasDot = dot(ts);
     note_ = {
       length: hasDot ? dotLength(noteLength) : noteLength,
@@ -225,50 +248,45 @@ function melodyNote(
   if (note_) {
     return note_;
   } else {
-    throw new Error("Missing melody note");
+    throw new Error('Missing melody note');
   }
 }
 
 function toNoteLength(length: string): NoteLength {
   switch (length) {
-    case '1': return NoteLength.Semibreve;
-    case '2': return NoteLength.Minim;
-    case '4': return NoteLength.Crotchet;
-    case '8': return NoteLength.Quaver;
-    case '16': return NoteLength.SemiQuaver;
-    case '32': return NoteLength.DemiSemiQuaver;
+    case '1':
+      return NoteLength.Semibreve;
+    case '2':
+      return NoteLength.Minim;
+    case '4':
+      return NoteLength.Crotchet;
+    case '8':
+      return NoteLength.Quaver;
+    case '16':
+      return NoteLength.SemiQuaver;
+    case '32':
+      return NoteLength.DemiSemiQuaver;
     default:
       throw new Error('Unrecognised note length');
   }
 }
-function toPitch(pitch: string): Pitch {
-  switch (pitch.toLowerCase()) {
-    case 'lg': return Pitch.G;
-    case 'la': return Pitch.A;
-    case 'b': return Pitch.B;
-    case 'c': return Pitch.C;
-    case 'd': return Pitch.D;
-    case 'e': return Pitch.E;
-    case 'f': return Pitch.F;
-    case 'hg': return Pitch.HG;
-    case 'ha': return Pitch.HA;
-    default: throw new Error("Unrecognised pitch")
-  }
-}
 
 function makeTriplet(notes: SavedNoteOrTriplet[]): SavedTriplet {
-  if (notes.every(note => note.notetype === 'single')) {
+  if (notes.every((note) => note.notetype === 'single')) {
     const length = notes[0].value.length;
     return {
       length,
-      notes: notes as unknown as SavedNote[]
-    }
+      notes: notes as unknown as SavedNote[],
+    };
   } else {
-    throw new Error("Can't nest triplets")
+    throw new Error("Can't nest triplets");
   }
 }
 
-function tripletOldFormat(ts: TokenStream, notes: SavedNoteOrTriplet[]): SavedTriplet {
+function tripletOldFormat(
+  ts: TokenStream,
+  notes: SavedNoteOrTriplet[]
+): SavedTriplet {
   ts.eat(TokenType.TRIPLET_OLD_FORMAT);
 
   if (notes.length !== 3) {
@@ -278,7 +296,10 @@ function tripletOldFormat(ts: TokenStream, notes: SavedNoteOrTriplet[]): SavedTr
   return makeTriplet(notes);
 }
 
-function irregularGroup(ts: TokenStream, startingToken: TokenType): SavedTriplet {
+function irregularGroup(
+  ts: TokenStream,
+  startingToken: TokenType
+): SavedTriplet {
   const token = ts.eat(startingToken);
   const size = transformIrregularGroupToSize(token.value[1]);
   if (size !== 3)
@@ -353,7 +374,7 @@ function dot(ts: TokenStream): boolean {
   const token = ts.matchToken(TokenType.DOTTED_NOTE);
   if (token) {
     if (token.value[1].length === 2) {
-      throw new Error("Can't deal with doubled dots")
+      ts.warn("Ignoring doubled dot: replacing with a single dot")
     }
     return true;
   }
@@ -362,7 +383,7 @@ function dot(ts: TokenStream): boolean {
 
 function keySignature(ts: TokenStream) {
   while (ts.match(TokenType.ACCIDENTAL)) {
-    throw new Error("Can't deal with custom key signatures");
+    ts.warn("Ignoring custom key signature");
   }
 }
 
@@ -375,9 +396,9 @@ function accidental(ts: TokenStream): boolean {
   if (type === 'natural') {
     return true;
   }
-  
+
   if (type === 'sharp' || type === 'flat') {
-    throw new Error("Can't deal with sharp/flats");
+    ts.warn(`Ignoring ${type}`)
   }
 
   throw new Error(`Unable to match accidental type: ${type}`);
@@ -391,24 +412,21 @@ function timeSignature(ts: TokenStream): SavedTimeSignature {
       const bottom = parseInt(token.value[2]);
       if (top && (bottom === 2 || bottom === 4 || bottom === 8)) {
         return {
-          ts: [
-            top,
-            bottom,
-          ],
-          breaks: []
+          ts: [top, bottom],
+          breaks: [],
         };
       }
-      throw new Error("Can't deal with time signature")
+      throw new Error("Cannot parse time signature");
     } else if (token.value[3]) {
       return {
         ts: 'cut time',
-        breaks: []
+        breaks: [],
       };
     } else {
       // FIXME: common time
       return {
         ts: 'cut time',
-        breaks: []
+        breaks: [],
       };
     }
   }

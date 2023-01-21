@@ -1,37 +1,36 @@
 import { TokenType } from '../token';
 import { TokenStream } from '../Tokeniser';
-import { embellishmentName } from '../Embellishments';
 import { SavedGracenote } from '../../PipeScore/SavedModel';
+import { toPitch } from './pitch';
 
-
-export function embellishment(
-  ts: TokenStream
-): SavedGracenote {
+export function embellishment(ts: TokenStream): SavedGracenote {
   switch (ts.currentType()) {
     case TokenType.DOUBLING:
-      return reactive(ts, 'doubling')
-    case TokenType.STRIKE:
-      break;
+      return reactive(ts, 'doubling');
     case TokenType.REGULAR_GRIP:
-      break;
+      return reactive(ts, 'grip');
+    case TokenType.COMPLEX_GRIP:
+      return complexGrip(ts);
     case TokenType.TAORLUATH:
-      return reactive(ts, 'toarluath')
+      return reactive(ts, 'toarluath');
     case TokenType.BUBBLY:
-      break;
+      return reactive(ts, 'bubbly');
     case TokenType.BIRL:
-      break;
+      return birl(ts);
     case TokenType.THROW:
       return reactive(ts, 'throw');
     case TokenType.PELE:
+      return reactive(ts, 'shake');
+    case TokenType.STRIKE:
+      return strike(ts);
     case TokenType.DOUBLE_STRIKE:
+      throw new Error("Can't deal with double strike")
     case TokenType.TRIPLE_STRIKE:
-      return simpleEmbellishment(ts);
+      throw new Error("Can't deal with double strike")
     case TokenType.GRACENOTE:
       return gracenote(ts);
     case TokenType.DOUBLE_GRACENOTE:
       return doubleGracenote(ts);
-    case TokenType.COMPLEX_GRIP:
-      return complexGrip(ts);
     default:
       return { type: 'none' };
   }
@@ -44,11 +43,11 @@ function reactive(ts: TokenStream, name: string): SavedGracenote {
   return { type: 'reactive', value: { grace: name } };
 }
 
-function gracenote(ts: TokenStream) {
+function gracenote(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.GRACENOTE);
   return {
-    type: 'gracenote',
-    value: { note: token.value[1] },
+    type: 'single',
+    value: { note: toPitch(token.value[1]) },
   };
 }
 
@@ -64,25 +63,51 @@ function doubleGracenote(ts: TokenStream): SavedGracenote {
 
   notes.push(token.value[2]);
 
+  // FIXME: notes isn't an array of pitches: this will crash
   return {
-    type: 'gracenotes',
-    value: {
-      notes: notes,
-    },
+    type: 'custom',
+    value: { pitches: notes.map(toPitch) },
   };
 }
 
-function complexGrip(ts: TokenStream): SavedGracenote {
-  const token = ts.eat(TokenType.COMPLEX_GRIP);
-  if (token.value[2]) {
+function strike(ts: TokenStream): SavedGracenote {
+  // FIXME: deal with 'light' strikes, prefixed with 'l'
+  const token = ts.eat(TokenType.STRIKE);
+  const partBeforeStrike = token.value[1];
+  if (partBeforeStrike) {
     return {
-      type: embellishmentName(token.value[1]),
-      value: {
-        note: token.value[2],
-      },
+      type: 'reactive',
+      value: { grace: 'g-strike' }
+    }
+  }
+
+  return {
+    type: 'single',
+    value: { note: toPitch(token.value[2]) }
+  }
+}
+
+
+function birl(ts: TokenStream): SavedGracenote {
+  const token = ts.eat(TokenType.BIRL);
+  if (token.value[0] === 'brl' || token.value[0] === 'abr') {
+    return {
+      type: 'reactive',
+      value: { grace: 'birl' },
+    };
+  } else if (token.value[0] === 'gbr' || token.value[0] === 'tbr') {
+    return {
+      type: 'reactive',
+      value: { grace: 'g-gracenote-birl' },
     };
   }
+  throw new Error('Unrecognised birl ' + token.value[0]);
+}
+
+function complexGrip(ts: TokenStream): SavedGracenote {
+  ts.warn("Can't deal with grips with gracenotes on them. Replacing with standard grip.");
   return {
-    type: embellishmentName(token.value[1]),
-  };
+    type: 'reactive',
+    value: { grace: 'grip' }
+  }
 }

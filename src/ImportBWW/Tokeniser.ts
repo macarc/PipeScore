@@ -5,10 +5,15 @@ export class TokenStream {
   private stream: string;
   private cursor = 0;
   private current: Token | null;
+  public warnings: string[] = [];
 
   constructor(stream: string) {
     this.stream = stream;
     this.current = this.nextToken();
+  }
+
+  public warn(msg: string) {
+    this.warnings.push(msg);
   }
 
   public eat(tokenType: TokenType) {
