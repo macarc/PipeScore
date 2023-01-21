@@ -1,7 +1,7 @@
 import { TokenType } from '../token';
 import { TokenStream } from '../Tokeniser';
 import { SavedGracenote } from '../../PipeScore/SavedModel';
-import { toPitch } from './pitch';
+import { toGracenotePitch, toPitch } from './pitch';
 
 export function embellishment(ts: TokenStream): SavedGracenote {
   switch (ts.currentType()) {
@@ -18,7 +18,7 @@ export function embellishment(ts: TokenStream): SavedGracenote {
     case TokenType.BIRL:
       return birl(ts);
     case TokenType.THROW:
-      return reactive(ts, 'throw');
+      return reactive(ts, 'throw-d');
     case TokenType.PELE:
       return reactive(ts, 'shake');
     case TokenType.STRIKE:
@@ -47,7 +47,7 @@ function gracenote(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.GRACENOTE);
   return {
     type: 'single',
-    value: { note: toPitch(token.value[1]) },
+    value: { note: toGracenotePitch(token.value[1]) },
   };
 }
 
