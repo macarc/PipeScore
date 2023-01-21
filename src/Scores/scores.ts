@@ -1,3 +1,4 @@
+
 //  PipeScore - online bagpipe notation
 //  Copyright (C) macarc
 //
@@ -142,12 +143,9 @@ class ScoresList {
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('scores');
   if (root) m.mount(root, ScoresList);
-  const signOutBtn = document.getElementById('sign-out');
-  if (signOutBtn) signOutBtn.addEventListener('click', () => auth.signOut());
-
-  const newScoreBtn = document.getElementById('new-score');
-  if (newScoreBtn)
-    newScoreBtn.addEventListener('click', async () => {
+  document.getElementById('sign-out')?.addEventListener('click', () => auth.signOut());
+  document.getElementById('import-bww')?.addEventListener('click', () => window.location.replace('/importbww'))
+  document.getElementById('new-score')?.addEventListener('click', async () => {
       if (userId) {
         const collection = db.ref(`scores/${userId}/scores`);
         const newScore = await collection.add({

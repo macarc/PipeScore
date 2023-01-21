@@ -26,9 +26,9 @@ enum TieingState {
 let tieing = TieingState.NotTieing;
 let currentTimeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
 
-export function parse(data: string): SavedScore {
+export function parse(data: string): [SavedScore, string[]] {
   const ts = new TokenStream(data);
-  return score(ts);
+  return [score(ts), ts.warnings];
 }
 
 function score(ts: TokenStream): SavedScore {
