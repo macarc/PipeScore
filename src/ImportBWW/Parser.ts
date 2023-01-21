@@ -14,7 +14,7 @@ import { headers } from './parser/header';
 import { TokenStream } from './Tokeniser';
 import { Settings } from '../PipeScore/global/settings';
 import { genId } from '../PipeScore/global/id';
-import { dotLength, NoteLength } from '../PipeScore/Note/notelength';
+import { dotLength, lengthInBeats, NoteLength } from '../PipeScore/Note/notelength';
 import { toPitch } from './parser/pitch';
 
 enum TieingState {
@@ -34,9 +34,10 @@ export function parse(data: string): [SavedScore, string[]] {
 function score(ts: TokenStream): SavedScore {
   headers(ts);
   return {
-    name: '',
+    name: '[Imported from BWW]',
     _staves: staves(ts),
     landscape: true,
+    // FIXME: text boxes
     textBoxes: [],
     // FIXME: how to find the number of pages?
     numberOfPages: 1,
@@ -162,10 +163,14 @@ function bar(ts: TokenStream): SavedBar {
 
   timeLineEnd(ts);
 
+  const barNoteLength = notes.reduce((prev, note) => prev += lengthInBeats(note.value.length), 0)
+  const barLength = currentTimeSignature.ts === 'cut time' ? 4 : currentTimeSignature.ts[0] * 4 / currentTimeSignature.ts[1];
+
   return {
     id: genId(),
-    // FIXME
-    isAnacrusis: false,
+    // This is a bit crude, but BWW has no concept of lead-ins
+    // and I can't really think of a better metric
+    isAnacrusis: barNoteLength < (barLength / 2),
     width: 'auto',
     // FIXME
     frontBarline: { type: 'normal' },
