@@ -15,8 +15,19 @@ import { headers } from './parser/header';
 import { TokenStream } from './Tokeniser';
 import { Settings } from '../PipeScore/global/settings';
 import { genId } from '../PipeScore/global/id';
-import { dotLength, lengthInBeats, NoteLength } from '../PipeScore/Note/notelength';
+import {
+  dotLength,
+  lengthInBeats,
+  NoteLength,
+} from '../PipeScore/Note/notelength';
 import { toPitch } from './parser/pitch';
+
+/*
+TODO:
+- Text boxes
+- Timings
+- Pages
+*/
 
 enum TieingState {
   NotTieing,
@@ -39,7 +50,7 @@ function score(ts: TokenStream): SavedScore {
     _staves: staves(ts),
     landscape: true,
     // FIXME: text boxes
-    textBoxes: [],
+    textBoxes: [{ texts: [] }],
     // FIXME: how to find the number of pages?
     numberOfPages: 1,
     showNumberOfPages: true,
@@ -86,7 +97,10 @@ function bars(ts: TokenStream): SavedBar[] {
     // a terminating barline, or an ending double barlines (!I)
     // or an ending double barlines with repeats (''!I)
     // must appear at the end of a line of music to show the music on the screen
-    if (b.backBarline.type !== 'normal' || ts.match(TokenType.TERMINATING_BAR_LINE))
+    if (
+      b.backBarline.type !== 'normal' ||
+      ts.match(TokenType.TERMINATING_BAR_LINE)
+    )
       break;
   }
 
@@ -114,6 +128,7 @@ function hasNote(ts: TokenStream): boolean {
     TokenType.BIRL,
     TokenType.THROW,
     TokenType.PELE,
+    TokenType.EDRE,
     TokenType.DOUBLE_STRIKE,
     TokenType.TRIPLE_STRIKE,
     TokenType.DOUBLE_GRACENOTE,
@@ -128,9 +143,11 @@ function bar(ts: TokenStream): SavedBar {
   let backBarline: SavedBarline = { type: 'normal' };
 
   let token: Token | null;
-  if (token = ts.matchToken(TokenType.PART_BEGINNING)) {
-    frontBarline.type = token.value[1] ? 'repeat' : 'end'
+  if ((token = ts.matchToken(TokenType.PART_BEGINNING))) {
+    frontBarline.type = token.value[1] ? 'repeat' : 'end';
   }
+
+  const time = timeSignature(ts);
 
   while (hasNote(ts)) {
     timeLineStart(ts);
@@ -160,22 +177,28 @@ function bar(ts: TokenStream): SavedBar {
 
   timeLineEnd(ts);
 
-  if (token = ts.matchToken(TokenType.PART_END)) {
-    backBarline.type = (token.value[1]) ? 'repeat' : 'end';
+  if ((token = ts.matchToken(TokenType.PART_END))) {
+    backBarline.type = token.value[1] ? 'repeat' : 'end';
   }
 
-  const barNoteLength = notes.reduce((prev, note) => prev += lengthInBeats(note.value.length), 0)
-  const barLength = currentTimeSignature.ts === 'cut time' ? 4 : currentTimeSignature.ts[0] * 4 / currentTimeSignature.ts[1];
+  const barNoteLength = notes.reduce(
+    (prev, note) => (prev += lengthInBeats(note.value.length)),
+    0
+  );
+  const barLength =
+    currentTimeSignature.ts === 'cut time'
+      ? 4
+      : (currentTimeSignature.ts[0] * 4) / currentTimeSignature.ts[1];
 
   return {
     id: genId(),
     // This is a bit crude, but BWW has no concept of lead-ins
     // and I can't really think of a better metric
-    isAnacrusis: barNoteLength < (barLength / 2),
+    isAnacrusis: barNoteLength < barLength / 2,
     width: 'auto',
     frontBarline,
     backBarline,
-    timeSignature: currentTimeSignature,
+    timeSignature: time,
     notes: notes,
   };
 }
@@ -227,11 +250,12 @@ function melodyNote(
   let note_: SavedNote | null = null;
 
   if ((token = ts.matchToken(TokenType.REST))) {
-    throw new Error("Can't deal with rests");
-  } else if ((token = ts.eat(TokenType.MELODY_NOTE))) {
+    ts.warn('Skipping rest');
+  } else {
+    token = ts.eat(TokenType.MELODY_NOTE);
     const hasFermata = fermata(ts);
     if (hasFermata) {
-      ts.warn("Ignoring fermata");
+      ts.warn('Ignoring fermata');
     }
     const noteLength = toNoteLength(token.value[3]);
     const hasDot = dot(ts);
@@ -379,7 +403,7 @@ function dot(ts: TokenStream): boolean {
   const token = ts.matchToken(TokenType.DOTTED_NOTE);
   if (token) {
     if (token.value[1].length === 2) {
-      ts.warn("Ignoring doubled dot: replacing with a single dot")
+      ts.warn('Ignoring doubled dot: replacing with a single dot');
     }
     return true;
   }
@@ -388,7 +412,7 @@ function dot(ts: TokenStream): boolean {
 
 function keySignature(ts: TokenStream) {
   while (ts.match(TokenType.ACCIDENTAL)) {
-    ts.warn("Ignoring custom key signature");
+    ts.warn('Ignoring custom key signature');
   }
 }
 
@@ -403,7 +427,7 @@ function accidental(ts: TokenStream): boolean {
   }
 
   if (type === 'sharp' || type === 'flat') {
-    ts.warn(`Ignoring ${type}`)
+    ts.warn(`Ignoring ${type}`);
     return false;
   }
 
@@ -422,14 +446,14 @@ function timeSignature(ts: TokenStream): SavedTimeSignature {
           breaks: [],
         };
       }
-      throw new Error("Cannot parse time signature");
+      throw new Error('Cannot parse time signature');
     } else if (token.value[3]) {
       return {
         ts: 'cut time',
         breaks: [],
       };
     } else {
-      ts.warn("Can't deal with common time, using cut time instead")
+      ts.warn("Can't deal with common time, using cut time instead");
       return {
         ts: 'cut time',
         breaks: [],

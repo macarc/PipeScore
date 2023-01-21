@@ -1,5 +1,5 @@
 import { Token, TokenType } from './token';
-import Spec from './Spec';
+import { HeaderSpec, Spec } from './Spec';
 
 export class TokenStream {
   private stream: string;
@@ -85,29 +85,40 @@ export class TokenStream {
       return null;
     }
 
-    const slice = this.stream.slice(this.cursor);
+    const sliceMatch = /[^\s].*/.exec(this.stream.slice(this.cursor));
+    if (!sliceMatch) return null;
 
-    for (const item of Spec) {
-      const token = item.regex.exec(slice);
+    this.cursor += sliceMatch.index;
+    const slice = sliceMatch[0];
 
-      // Couldn't match this rule, continue.
-      if (token == null) {
-        continue;
+    for (const spec of HeaderSpec) {
+      const token = spec.regex.exec(slice);
+      if (token) {
+        this.cursor += token[0].length;
+        return {
+          type: spec.type,
+          value: token,
+        };
       }
-
-      this.cursor += token[0].length;
-
-      if (item.type === TokenType.SKIP) {
-        return this.nextToken();
-      }
-
-      return {
-        type: item.type,
-        value: token,
-      };
     }
 
-    const match = /^([^\s]*)/.exec(slice);
-    throw new SyntaxError(`Unexpected token: "${match ? match[1] : ''}"`);
+    const wordMatch = /^[^\s]+/.exec(slice);
+    if (!wordMatch) return null;
+
+    const word = wordMatch[0];
+    this.cursor += word.length;
+
+    for (const item of Spec) {
+      const token = item.regex.exec(word);
+      if (token) {
+        console.log(token[0]);
+        return {
+          type: item.type,
+          value: token,
+        };
+      }
+    }
+
+    throw new Error(`Unexpected token: "${word}"`);
   }
 }

@@ -17,6 +17,8 @@ export function embellishment(ts: TokenStream): SavedGracenote {
       return reactive(ts, 'bubbly');
     case TokenType.BIRL:
       return birl(ts);
+    case TokenType.EDRE:
+      return reactive(ts, 'edre');
     case TokenType.THROW:
       return reactive(ts, 'throw-d');
     case TokenType.PELE:
@@ -24,9 +26,9 @@ export function embellishment(ts: TokenStream): SavedGracenote {
     case TokenType.STRIKE:
       return strike(ts);
     case TokenType.DOUBLE_STRIKE:
-      throw new Error("Can't deal with double strike")
+      throw new Error("Can't deal with double strike");
     case TokenType.TRIPLE_STRIKE:
-      throw new Error("Can't deal with double strike")
+      throw new Error("Can't deal with double strike");
     case TokenType.GRACENOTE:
       return gracenote(ts);
     case TokenType.DOUBLE_GRACENOTE:
@@ -77,16 +79,15 @@ function strike(ts: TokenStream): SavedGracenote {
   if (partBeforeStrike) {
     return {
       type: 'reactive',
-      value: { grace: 'g-strike' }
-    }
+      value: { grace: 'g-strike' },
+    };
   }
 
   return {
     type: 'single',
-    value: { note: toPitch(token.value[2]) }
-  }
+    value: { note: toPitch(token.value[2]) },
+  };
 }
-
 
 function birl(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.BIRL);
@@ -105,9 +106,11 @@ function birl(ts: TokenStream): SavedGracenote {
 }
 
 function complexGrip(ts: TokenStream): SavedGracenote {
-  ts.warn("Can't deal with grips with gracenotes on them. Replacing with standard grip.");
+  ts.warn(
+    "Can't deal with grips with gracenotes on them. Replacing with standard grip."
+  );
   return {
     type: 'reactive',
-    value: { grace: 'grip' }
-  }
+    value: { grace: 'grip' },
+  };
 }

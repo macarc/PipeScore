@@ -5,15 +5,7 @@ type SpecType = {
   type: TokenType;
 };
 
-const Spec: SpecType[] = [
-  {
-    regex: /^\s+/,
-    type: TokenType.SKIP,
-  },
-  {
-    regex: /^space/,
-    type: TokenType.SKIP,
-  },
+export const HeaderSpec: SpecType[] = [
   {
     regex:
       /^(Bagpipe ((?:Reader)|(?:Music Writer Gold)|(?:Musicworks Gold))):(\d\.\d)/,
@@ -54,182 +46,183 @@ const Spec: SpecType[] = [
     type: TokenType.TEXT_TAG,
   },
   {
-    regex: /^".*?"/,
-    type: TokenType.SKIP,
+    regex: /^"(.*?)"/,
+    type: TokenType.TEXT_TAG,
   },
+];
+
+export const Spec: SpecType[] = [
   {
-    regex: /^&/,
+    regex: /^&$/,
     type: TokenType.CLEF,
   },
   {
-    regex: /^I!('')?/,
+    regex: /^I!('')?$/,
     type: TokenType.PART_BEGINNING,
   },
   {
-    regex: /^('')?!I/,
+    regex: /^('')?!I$/,
     type: TokenType.PART_END,
   },
   {
-    regex: /^!t/,
+    regex: /^!t$/,
     type: TokenType.TERMINATING_BAR_LINE,
   },
   {
-    regex: /^!/,
+    regex: /^!$/,
     type: TokenType.BAR_LINE,
   },
   {
-    regex: /^(?:(sharp|natural|flat)(lg|la|b|c|d|e|f|g|a))/,
+    regex: /^(?:(sharp|natural|flat)(lg|la|b|c|d|e|f|g|a))$/,
     type: TokenType.ACCIDENTAL,
   },
   {
-    regex: /^(?:fermat)(lg|la|b|c|d|e|f|hg|ha)/,
+    regex: /^(?:fermat)(lg|la|b|c|d|e|f|hg|ha)$/,
     type: TokenType.FERMATA,
   },
   {
-    regex: /^((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})/,
+    regex: /^((?:LG)|(?:LA)|(?:[BCDEF])|(?:HG)|(?:HA))([lr])?_(\d{1,2})$/,
     type: TokenType.MELODY_NOTE,
   },
   {
-    regex: /^(?:(\d)_(\d))|^(C_)|^(C)/,
+    regex: /^(?:(\d)_(\d))|^(C_)|^(C)$/,
     type: TokenType.TIME_SIGNATURE,
   },
   {
-    regex: /^REST_(\d{1,2})/,
+    regex: /^REST_(\d{1,2})$/,
     type: TokenType.REST,
   },
   {
-    regex: /^('{1,2})((?:lg)|(?:la)|[bcdef]|(?:hg)|(?:ha))/,
+    regex: /^('{1,2})((?:lg)|(?:la)|[bcdef]|(?:hg)|(?:ha))$/,
     type: TokenType.DOTTED_NOTE,
   },
   {
-    regex: /^([th]?db)((?:[lh][ga])|([bcdef]))/,
+    regex: /^([th]?db)((?:[lh][ga])|([bcdef]))$/,
     type: TokenType.DOUBLING,
   },
   {
     regex:
-      /^(?:((?:lh)|(?:lt)|(?:lg)|[gth]?)str?)((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+      /^(?:((?:lh)|(?:lt)|(?:lg)|[gth]?)str?)((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])$/,
     type: TokenType.STRIKE,
   },
   {
-    regex: /^((?:htar)|(?:tarb?))/,
+    regex: /^((?:htar)|(?:tarb?))$/,
     type: TokenType.TAORLUATH,
   },
   {
-    regex: /^(h?bubly)/,
+    regex: /^(h?bubly)$/,
     type: TokenType.BUBBLY,
   },
   {
-    regex: /^((?:hgrp)|(?:grpb)|(?:grp))[^\w]/,
+    regex: /^((?:hgrp)|(?:grpb)|(?:grp))$/,
     type: TokenType.REGULAR_GRIP,
   },
   {
-    regex: /^((?:[hgt])?grp?(?:db)*)((?:la)|(?:hg)|(?:ha)|[bcdef])*/,
+    regex: /^((?:[hgt])?grp?(?:db)*)((?:la)|(?:hg)|(?:ha)|[bcdef])*$/,
     type: TokenType.COMPLEX_GRIP,
   },
   {
-    regex: /^^((?:brl)|(?:[agt]br))/,
+    regex: /^[gtp]?edre(?:(?:lg)|(?:la)|[bcdef])?/,
+    type: TokenType.EDRE,
+  },
+  {
+    regex: /^^((?:brl)|(?:[agt]br))$/,
     type: TokenType.BIRL,
   },
   {
-    regex: /^((?:thrd)|(?:hvthrd)|(?:hthrd)|(?:hhvthrd))/,
+    regex: /^((?:thrd)|(?:hvthrd)|(?:hthrd)|(?:hhvthrd))$/,
     type: TokenType.THROW,
   },
   {
-    regex: /^(pel)((?:la)|[bcdef])/,
+    regex: /^(pel)((?:la)|[bcdef])$/,
     type: TokenType.PELE,
   },
   {
-    regex: /^([th]pel)((?:la)|(?:hg)|[bcdef])/,
+    regex: /^([th]pel)((?:la)|(?:hg)|[bcdef])$/,
     type: TokenType.PELE,
   },
   {
-    regex: /^(l[th]*pel)(d)/,
+    regex: /^(l[th]*pel)(d)$/,
     type: TokenType.PELE,
   },
   {
-    regex: /^(st2)((?:ha)|(?:hg)|(?:la)|[bcdef])/,
+    regex: /^(st2)((?:ha)|(?:hg)|(?:la)|[bcdef])$/,
     type: TokenType.DOUBLE_STRIKE,
   },
   {
-    regex: /^(gst2)((?:la)|[bcdef])/,
+    regex: /^(gst2)((?:la)|[bcdef])$/,
     type: TokenType.DOUBLE_STRIKE,
   },
   {
-    regex: /^(tst2)((?:la)|(?:hg)|[bcdef])/,
+    regex: /^(tst2)((?:la)|(?:hg)|[bcdef])$/,
     type: TokenType.DOUBLE_STRIKE,
   },
   {
-    regex: /^(hst2)((?:la)|(?:hg)|(?:ha)|[bcdef])/,
+    regex: /^(hst2)((?:la)|(?:hg)|(?:ha)|[bcdef])$/,
     type: TokenType.DOUBLE_STRIKE,
   },
   {
-    regex: /^(l[hgt]*st2)(d)/,
+    regex: /^(l[hgt]*st2)(d)$/,
     type: TokenType.DOUBLE_STRIKE,
   },
   {
-    regex: /^(st3)((?:ha)|(?:hg)|(?:la)|[bcdef])/,
+    regex: /^(st3)((?:ha)|(?:hg)|(?:la)|[bcdef])$/,
     type: TokenType.TRIPLE_STRIKE,
   },
   {
-    regex: /^(gst3)((?:la)|[bcdef])/,
+    regex: /^(gst3)((?:la)|[bcdef])$/,
     type: TokenType.TRIPLE_STRIKE,
   },
   {
-    regex: /^(tst3)((?:la)|(?:hg)|[bcdef])/,
+    regex: /^(tst3)((?:la)|(?:hg)|[bcdef])$/,
     type: TokenType.TRIPLE_STRIKE,
   },
   {
-    regex: /^(hst3)((?:la)|(?:hg)|(?:ha)|[bcdef])/,
+    regex: /^(hst3)((?:la)|(?:hg)|(?:ha)|[bcdef])$/,
     type: TokenType.TRIPLE_STRIKE,
   },
   {
-    regex: /^(l[hgt]*st3)(d)/,
+    regex: /^(l[hgt]*st3)(d)$/,
     type: TokenType.TRIPLE_STRIKE,
   },
   {
-    regex: /^([defgt])((?:la)|(?:lg)|(?:hg)|[bcdef])/,
+    regex: /^([defgt])((?:la)|(?:lg)|(?:hg)|[bcdef])$/,
     type: TokenType.DOUBLE_GRACENOTE,
   },
   {
-    regex: /^([abcdefgt])g/,
+    regex: /^([abcdefgt])g$/,
     type: TokenType.GRACENOTE,
   },
   {
-    regex: /^\^t((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+    regex: /^\^t((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])$/,
     type: TokenType.TIE_END_OR_TIE_OLD_FORMAT,
   },
   {
-    regex: /^\^ts/,
+    regex: /^\^ts$/,
     type: TokenType.TIE_START,
   },
   {
-    regex: /^\^3((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+    regex: /^\^3((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])$/,
     type: TokenType.TRIPLET_OLD_FORMAT,
   },
   {
-    regex: /^\^(3)s/,
+    regex: /^\^(3)s$/,
     type: TokenType.TRIPLET_NEW_FORMAT,
   },
   {
-    regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))s/,
+    regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))s$/,
     type: TokenType.IRREGULAR_GROUP_START,
   },
   {
-    regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))e/,
+    regex: /^\^((?:[2])|(?:43)|(?:46)|(?:53)|(?:54)|(?:64)|(?:74)|(?:76))e$/,
     type: TokenType.IRREGULAR_GROUP_END,
   },
   {
-    regex: /^'(?:([12])(\d*)|(intro))/,
+    regex: /^'(?:([12])(\d*)|(intro))$/,
     type: TokenType.TIME_LINE_START,
   },
   {
-    regex: /^_'/,
+    regex: /^_'$/,
     type: TokenType.TIME_LINE_END,
   },
-  {
-    regex: /^([^\s]+)/,
-    type: TokenType.SKIP,
-  },
 ];
-
-export default Spec;
