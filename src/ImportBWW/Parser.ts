@@ -68,15 +68,9 @@ function stave(ts: TokenStream): SavedStave {
     bars_ = bars(ts);
   }
 
-  endStave(ts);
-
   return {
     bars: bars_,
   };
-}
-
-function endStave(ts: TokenStream) {
-  ts.matchAny(TokenType.PART_END, TokenType.TERMINATING_BAR_LINE);
 }
 
 function bars(ts: TokenStream): SavedBar[] {
@@ -86,7 +80,14 @@ function bars(ts: TokenStream): SavedBar[] {
 
   bars.push(bar(ts));
   while (ts.match(TokenType.BAR_LINE)) {
-    bars.push(bar(ts));
+    const b = bar(ts);
+    bars.push(b);
+
+    // a terminating barline, or an ending double barlines (!I)
+    // or an ending double barlines with repeats (''!I)
+    // must appear at the end of a line of music to show the music on the screen
+    if (b.backBarline.type !== 'normal' || ts.match(TokenType.TERMINATING_BAR_LINE))
+      break;
   }
 
   return bars;
@@ -403,6 +404,7 @@ function accidental(ts: TokenStream): boolean {
 
   if (type === 'sharp' || type === 'flat') {
     ts.warn(`Ignoring ${type}`)
+    return false;
   }
 
   throw new Error(`Unable to match accidental type: ${type}`);
@@ -427,7 +429,7 @@ function timeSignature(ts: TokenStream): SavedTimeSignature {
         breaks: [],
       };
     } else {
-      // FIXME: common time
+      ts.warn("Can't deal with common time, using cut time instead")
       return {
         ts: 'cut time',
         breaks: [],

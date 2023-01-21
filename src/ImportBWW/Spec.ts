@@ -107,7 +107,7 @@ const Spec: SpecType[] = [
   },
   {
     regex:
-      /^((?:(?:lh)|(?:lt)|(?:lg)|[gth]?)str?)((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
+      /^(?:((?:lh)|(?:lt)|(?:lg)|[gth]?)str?)((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])/,
     type: TokenType.STRIKE,
   },
   {
