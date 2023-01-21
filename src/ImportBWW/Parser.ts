@@ -1,5 +1,6 @@
 import {
   SavedBar,
+  SavedBarline,
   SavedGracenote,
   SavedNote,
   SavedNoteOrTriplet,
@@ -63,16 +64,8 @@ function stave(ts: TokenStream): SavedStave {
 
   let bars_: SavedBar[] = [];
 
-  const doesRepeat = beginStave(ts);
-
   if (hasNote(ts)) {
     bars_ = bars(ts);
-  }
-
-  if (bars_.length > 0) {
-    if (doesRepeat) {
-      bars_[0].frontBarline.type = 'repeat';
-    }
   }
 
   endStave(ts);
@@ -80,12 +73,6 @@ function stave(ts: TokenStream): SavedStave {
   return {
     bars: bars_,
   };
-}
-
-// Returns true if stave starts with a repeat
-function beginStave(ts: TokenStream): boolean {
-  const token = ts.matchToken(TokenType.PART_BEGINNING);
-  return token !== null && token.value[1] !== undefined;
 }
 
 function endStave(ts: TokenStream) {
@@ -109,6 +96,7 @@ function hasNote(ts: TokenStream): boolean {
   return ts.peekAny(
     TokenType.MELODY_NOTE,
     TokenType.TIME_LINE_START,
+    TokenType.PART_BEGINNING,
     TokenType.TIE_START,
     TokenType.IRREGULAR_GROUP_START,
     TokenType.TRIPLET_NEW_FORMAT,
@@ -134,6 +122,14 @@ function hasNote(ts: TokenStream): boolean {
 
 function bar(ts: TokenStream): SavedBar {
   let notes: SavedNoteOrTriplet[] = [];
+
+  let frontBarline: SavedBarline = { type: 'normal' };
+  let backBarline: SavedBarline = { type: 'normal' };
+
+  let token: Token | null;
+  if (token = ts.matchToken(TokenType.PART_BEGINNING)) {
+    frontBarline.type = token.value[1] ? 'repeat' : 'end'
+  }
 
   while (hasNote(ts)) {
     timeLineStart(ts);
@@ -163,6 +159,10 @@ function bar(ts: TokenStream): SavedBar {
 
   timeLineEnd(ts);
 
+  if (token = ts.matchToken(TokenType.PART_END)) {
+    backBarline.type = (token.value[1]) ? 'repeat' : 'end';
+  }
+
   const barNoteLength = notes.reduce((prev, note) => prev += lengthInBeats(note.value.length), 0)
   const barLength = currentTimeSignature.ts === 'cut time' ? 4 : currentTimeSignature.ts[0] * 4 / currentTimeSignature.ts[1];
 
@@ -172,9 +172,8 @@ function bar(ts: TokenStream): SavedBar {
     // and I can't really think of a better metric
     isAnacrusis: barNoteLength < (barLength / 2),
     width: 'auto',
-    // FIXME
-    frontBarline: { type: 'normal' },
-    backBarline: { type: 'normal' },
+    frontBarline,
+    backBarline,
     timeSignature: currentTimeSignature,
     notes: notes,
   };
