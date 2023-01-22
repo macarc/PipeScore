@@ -2,6 +2,7 @@ import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
 import { parse } from './Parser';
+import m from 'mithril';
 
 // This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
@@ -19,64 +20,119 @@ onUserChange(auth, (newUser) => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('form')?.addEventListener('submit', (e) => {
+const Form = {
+  submit(e: SubmitEvent) {
     e.preventDefault();
-    const file = document.querySelector('input[type="file"]');
-    if (
-      file instanceof HTMLInputElement &&
-      file.files &&
-      file.files.length > 0
-    ) {
-      if (file.files.length > 1) {
-        // FIXME
-        alert("You can't import more than one file at once");
-        throw new Error();
-      }
-      const bwwFile = file.files[0];
-      const reader = new FileReader();
-      reader.readAsText(bwwFile, 'UTF-8');
-      reader.addEventListener('error', () => {
-        alert('Could not read file');
-      });
-      reader.addEventListener('load', async (e) => {
-        const data = e.target?.result;
-        if (data) {
-          const text = data.toString();
-          try {
-            const [score, warnings] = parse(text);
-            if (warnings.length > 0) {
-              alert(
-                'Imported with the following warnings:\n' + warnings.join('\n')
-              );
-            }
+    const fileInput = (e.target as HTMLFormElement | null)?.querySelector(
+      'input[type="file"]'
+    );
+    const files = fileInput && (fileInput as HTMLInputElement).files;
+    if (files) ImportBWW.import(files);
+  },
+  view() {
+    return m('form', { onsubmit: Form.submit }, [
+      m('input', { name: 'bww-file', type: 'file', multiple: true }),
+      m('input', {
+        type: 'submit',
+        value: 'Import',
+        accept: '.bww,.bmw',
+        required: 'required',
+      }),
+    ]);
+  },
+};
 
-            if (user !== null) {
-              const collection = await db.ref(`scores/${user}/scores`);
-              const newScore = await collection.add(score);
-              if (newScore) {
-                if (confirm('Do you want to view the new score now?')) {
-                  window.location.assign(`/pipescore/${user}/${newScore.id}`);
-                }
-              }
-            } else {
-              alert('You must be logged in to import BWW.');
-            }
-          } catch (err) {
-            alert(
-              'An error occurred while trying to import:\n' +
-                (err as Error).message
-            );
-            throw err;
-          }
-        } else {
-          alert(
-            'Nothing could be read from the file (is it empty? does it exist?)'
-          );
-        }
-      });
-    } else {
-      alert('You must add a file to import.');
-    }
+async function readFile(file: File): Promise<string> {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.readAsText(file, 'UTF-8');
+    reader.addEventListener('error', rej);
+    reader.addEventListener('load', (e) => {
+      const data = e.target?.result;
+      if (data) res(data.toString());
+    });
   });
+}
+
+class ImportBWW {
+  static warnings: string[] = [];
+  static errors: string[] = [];
+  //             [ name ,  URL  ]
+  static scores: [string, string][] = [];
+  static importedScores = false;
+
+  static async import(files: FileList) {
+    ImportBWW.warnings = [];
+    ImportBWW.errors = [];
+    try {
+      if (user === null) throw new Error('Must be logged in to import scores');
+      const fileContents = await Promise.all([...files].map(readFile));
+      const scores = fileContents.map((text) => {
+        const [score, warnings] = parse(text);
+        ImportBWW.warnings = ImportBWW.warnings.concat(warnings);
+        return score;
+      });
+      const collection = await db.ref(`scores/${user}/scores`);
+      ImportBWW.scores = await Promise.all(
+        scores.map(async (score) => {
+          const newScore = await collection.add(score);
+          if (newScore) {
+            return [
+              'Successful BWW import',
+              `/pipescore/${user}/${newScore.id}`,
+            ];
+          }
+          return ['Failed import', ''];
+        })
+      );
+    } catch (e) {
+      ImportBWW.errors.push((e as Error).message);
+    }
+    ImportBWW.importedScores = true;
+    m.redraw();
+  }
+  static view() {
+    if (!ImportBWW.importedScores) {
+      return Form.view();
+    } else if (ImportBWW.errors.length > 0) {
+      return m('section', [
+        m('h2', 'Failed to import'),
+        m('details', [
+          m('summary', 'Error details'),
+          m(
+            'ul',
+            ImportBWW.errors.map((error) => m('li', error))
+          ),
+        ]),
+      ]);
+    }
+    return m('section', [
+      ImportBWW.warnings.length > 0
+        ? m('section', [
+            m('h2', 'Imported with warnings:'),
+            m(
+              'ul',
+              ImportBWW.warnings.map((warning) => m('li', warning))
+            ),
+          ])
+        : m('h2', 'Imported Successfully'),
+      ImportBWW.scores.length === 1
+        ? m(
+            'button',
+            { onclick: () => window.location.assign(ImportBWW.scores[0][1]) },
+            'Open Score'
+          )
+        : m('section', [
+            m('h2', 'Open the score'),
+            ImportBWW.scores.map(([name, url]) =>
+              m('button', { onclick: () => window.open(url, '_blank') }, name)
+            ),
+          ]),
+    ]);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.querySelector('#root');
+  if (root) m.mount(root, ImportBWW);
 });
