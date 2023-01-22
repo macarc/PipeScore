@@ -102,7 +102,7 @@ function birl(ts: TokenStream): SavedGracenote {
       value: { grace: 'g-gracenote-birl' },
     };
   }
-  throw new Error('Unrecognised birl ' + token.value[0]);
+  throw new Error(`Unrecognised birl '${token.value[0]}'`);
 }
 
 function complexGrip(ts: TokenStream): SavedGracenote {

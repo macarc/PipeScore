@@ -90,6 +90,10 @@ export class TokenStream {
     } else {
       this.cursor += firstNonWhitespace.index;
     }
+    if (this.stream.slice(this.cursor).match('space')) {
+      this.cursor += 5;
+      this.skipWhitespace();
+    }
   }
 
   private nextToken(): Token | null {

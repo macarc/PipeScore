@@ -40,7 +40,11 @@ let currentTimeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
 
 export function parse(data: string): [SavedScore, string[]] {
   const ts = new TokenStream(data);
-  return [score(ts), ts.warnings];
+  const parsed = score(ts);
+  const nextToken = ts.eatAny();
+  if (nextToken)
+    ts.warn(`Didn't parse full score: next token is ${nextToken.type}`)
+  return [parsed, ts.warnings];
 }
 
 function score(ts: TokenStream): SavedScore {
@@ -96,13 +100,14 @@ function bars(ts: TokenStream): SavedBar[] {
 
     // a terminating barline, or an ending double barlines (!I)
     // or an ending double barlines with repeats (''!I)
-    // must appear at the end of a line of music to show the music on the screen
+    // must appear at the end of a line of music
     if (
-      b.backBarline.type !== 'normal' ||
-      ts.match(TokenType.TERMINATING_BAR_LINE)
+      b.backBarline.type !== 'normal'
     )
       break;
   }
+
+  ts.match(TokenType.TERMINATING_BAR_LINE);
 
   return bars;
 }
