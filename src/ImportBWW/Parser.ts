@@ -26,7 +26,6 @@ import { toPitch } from './parser/pitch';
 TODO:
 - Text boxes
 - Timings
-- Pages
 */
 
 enum TieingState {

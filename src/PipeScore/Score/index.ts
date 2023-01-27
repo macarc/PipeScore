@@ -117,6 +117,7 @@ export class Score {
     s.numberOfPages = o.numberOfPages;
     s.showNumberOfPages = o.showNumberOfPages;
     settings.fromJSON(o.settings);
+    s.addMorePagesIfNecessary();
     return s;
   }
   public toJSON(): SavedScore {
@@ -155,9 +156,7 @@ export class Score {
     return Update.ShouldSave;
   }
   private adjustAfterOrientationChange() {
-    while (this.notEnoughSpace(this.numberOfPages - 1)) {
-      this.numberOfPages += 1;
-    }
+    this.addMorePagesIfNecessary();
     this.textBoxes.forEach((p) =>
       p.forEach((text) =>
         text.adjustAfterOrientation(this.width(), this.height())
@@ -165,6 +164,11 @@ export class Score {
     );
     this.bars().forEach((b) => b.adjustWidth(this.width() / this.height()));
     this.zoom = (this.zoom * this.height()) / this.width();
+  }
+  private addMorePagesIfNecessary() {
+    while (this.notEnoughSpace()) {
+      this.numberOfPages += 1;
+    }
   }
   public updateName() {
     this.textBoxes[0][0] && (this.name = this.textBoxes[0][0].text());
@@ -189,22 +193,27 @@ export class Score {
   }
   private stavesSplitByPage() {
     const splitStaves: Stave[][] = foreach(this.numberOfPages, () => []);
-    let i = 0;
+    let page = 0;
     for (const stave of this._staves) {
-      i = Math.floor(
-        (settings.topOffset + settings.staveGap * this._staves.indexOf(stave)) /
-          (this.height() - settings.margin)
-      );
-      splitStaves[Math.min(i, this.numberOfPages - 1)].push(stave);
+      const pageHeight =
+        this.topGap(page) +
+        settings.staveGap * splitStaves[page].length +
+        settings.margin;
+
+      if (pageHeight > this.height() && page < this.numberOfPages - 1) {
+        page += 1;
+      }
+      splitStaves[page].push(stave);
     }
     return splitStaves;
   }
-  private notEnoughSpace(page: number) {
-    return (
-      this.topGap(page) +
-        settings.staveGap * this.stavesSplitByPage()[page].length >
-      this.height() - settings.margin
-    );
+  private notEnoughSpace() {
+    const pageHeight =
+      this.topGap(this.numberOfPages - 1) +
+      settings.staveGap *
+        (this.stavesSplitByPage()[this.numberOfPages - 1].length - 1) +
+      settings.margin;
+    return pageHeight > this.height();
   }
   public addStave(nearStave: Stave | null, before: boolean) {
     const usefulHeightPerPage = this.height() - 2 * settings.margin;
