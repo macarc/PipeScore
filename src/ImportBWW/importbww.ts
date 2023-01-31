@@ -110,24 +110,24 @@ async function importfile(e: SubmitEvent) {
 
     render(
       m('section', [
-        warnings.length > 0
-          ? m('h2', 'Imported successfully with warnings')
-          : m('h2', 'Imported successfully'),
-        warnings.length > 0
-          ? m(
-              'ul',
-              warnings.map((warning) => m('li', warning))
-            )
-          : null,
-        m('h2', 'Add score information'),
+        m('h2', 'Set score information'),
         m('form', { onsubmit: goToScore }, [
+          warnings.length > 0
+            ? m('details', [
+                m('summary', 'Warnings'),
+                m(
+                  'ul',
+                  warnings.map((warning) => m('li', warning))
+                ),
+              ])
+            : null,
           m('label.score-info', 'Score name: '),
           m('input#score-name', { value: textboxes[0] }),
           m('label.score-info', 'Composer: '),
           m('input#composer', { value: textboxes[2] }),
           m('label.score-info', 'Tune type: '),
           m('input#tune-type', { value: textboxes[1] }),
-          m('input.score-info', { type: 'submit', value: 'Create Score' }),
+          m('input.score-info', { type: 'submit', value: 'Import Score' }),
         ]),
       ])
     );
