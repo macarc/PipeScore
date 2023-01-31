@@ -23,6 +23,8 @@ export class Settings {
   lineGap = 7;
   margin = 80;
   topOffset = 200;
+  pageLongSideLength = 297 * 5;
+  pageShortSideLength = 210 * 5;
 
   fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;

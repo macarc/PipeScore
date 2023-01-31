@@ -135,10 +135,14 @@ export class Score {
     };
   }
   public width() {
-    return this.landscape ? 297 * 5 : 210 * 5;
+    return this.landscape
+      ? settings.pageLongSideLength
+      : settings.pageShortSideLength;
   }
   public height() {
-    return this.landscape ? 210 * 5 : 297 * 5;
+    return this.landscape
+      ? settings.pageShortSideLength
+      : settings.pageLongSideLength;
   }
   public orientation() {
     return this.landscape ? 'landscape' : 'portrait';

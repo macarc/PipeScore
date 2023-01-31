@@ -24,7 +24,6 @@ import { toPitch } from './parser/pitch';
 
 /*
 TODO:
-- Text boxes
 - Timings
 */
 
@@ -37,24 +36,33 @@ enum TieingState {
 let tieing = TieingState.NotTieing;
 let currentTimeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
 
-export function parse(data: string): [SavedScore, string[]] {
+type ParsedScore = {
+  score: SavedScore;
+  warnings: string[];
+  textboxes: string[];
+};
+
+export function parse(data: string): ParsedScore {
   const ts = new TokenStream(data);
+  const textboxes = headers(ts);
   const parsed = score(ts);
   const nextToken = ts.eatAny();
   if (nextToken)
     ts.warn(`Didn't parse full score: next token is ${nextToken.type}`);
-  return [parsed, ts.warnings];
+  return {
+    score: parsed,
+    warnings: ts.warnings,
+    textboxes,
+  };
 }
 
 function score(ts: TokenStream): SavedScore {
-  headers(ts);
   return {
     name: '[Imported from BWW]',
     _staves: staves(ts),
     landscape: true,
     // FIXME: text boxes
     textBoxes: [{ texts: [] }],
-    // FIXME: how to find the number of pages?
     numberOfPages: 1,
     showNumberOfPages: true,
     secondTimings: [],
@@ -205,7 +213,9 @@ function bar(ts: TokenStream): SavedBar {
 }
 
 function timeLineStart(ts: TokenStream) {
-  ts.match(TokenType.TIME_LINE_START);
+  if (ts.match(TokenType.TIME_LINE_START)) {
+    ts.warn('Ignoring timing');
+  }
 }
 
 function timeLineEnd(ts: TokenStream) {
