@@ -61,7 +61,6 @@ function score(ts: TokenStream): SavedScore {
     name: '[Imported from BWW]',
     _staves: staves(ts),
     landscape: true,
-    // FIXME: text boxes
     textBoxes: [{ texts: [] }],
     numberOfPages: 1,
     showNumberOfPages: true,

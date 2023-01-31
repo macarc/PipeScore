@@ -173,6 +173,9 @@ export class Score {
     while (this.notEnoughSpace()) {
       this.numberOfPages += 1;
     }
+    while (this.textBoxes.length < this.numberOfPages) {
+      this.textBoxes.push([]);
+    }
   }
   public updateName() {
     this.textBoxes[0][0] && (this.name = this.textBoxes[0][0].text());
