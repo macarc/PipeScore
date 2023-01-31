@@ -1,7 +1,5 @@
 import { readFile } from 'fs/promises';
 import { parse } from '../Parser';
-import { Score } from '../model';
-import { SavedScore } from '../../PipeScore/SavedModel';
 
 describe('correctly parses score body', () => {
   test('it works without any headers', () => {

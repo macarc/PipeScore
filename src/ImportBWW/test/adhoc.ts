@@ -2,7 +2,6 @@ import { parse } from '../Parser';
 import { readFile, readdir } from 'fs/promises';
 import { argv } from 'process';
 import { lstatSync } from 'fs';
-import { Score } from '../model';
 import util from 'util';
 
 let total = 0;

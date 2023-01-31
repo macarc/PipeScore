@@ -23,7 +23,7 @@ import { Score } from './Score';
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
-import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
+import { SavedData, scoreIsPresent } from './SavedModel';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 

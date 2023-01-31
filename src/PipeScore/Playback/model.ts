@@ -28,7 +28,7 @@ export class PlaybackObject {
 }
 
 export class PlaybackNote {
-  type: 'note' = 'note';
+  type = 'note' as const;
   pitch: Pitch;
   tied: boolean;
   duration: number;
@@ -41,7 +41,7 @@ export class PlaybackNote {
 }
 
 export class PlaybackGracenote {
-  type: 'gracenote' = 'gracenote';
+  type = 'gracenote' as const;
   pitch: Pitch;
 
   constructor(pitch: Pitch) {
