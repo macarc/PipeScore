@@ -114,7 +114,7 @@ export abstract class Timing {
   }
   protected lineFrom(
     a: XY,
-    b: XY,
+    b: XY | null,
     text: string,
     click: (first: boolean) => void,
     clickText: () => void,
@@ -123,11 +123,15 @@ export abstract class Timing {
     drawLast: boolean,
     props: TimingProps
   ): m.Children {
+    const barIsOnALaterPage = !b || props.page < b.page;
     const willDrawOnThisPage =
       a.page === props.page ||
-      b.page === props.page ||
-      (a.page < props.page && props.page < b.page);
+      (b && b.page === props.page) ||
+      (a.page < props.page && barIsOnALaterPage);
+
     if (!willDrawOnThisPage) return m('g');
+
+    drawLast ||= barIsOnALaterPage;
 
     let start = a;
     if (a.page !== props.page) {
@@ -135,12 +139,17 @@ export abstract class Timing {
       const xy = nmap(firstBar, (bar) => getXY(bar.id));
       if (xy) start = xy;
     }
-    let end = b;
-    if (b.page !== props.page) {
-      const lastBar = props.score.lastOnPage(props.page);
-      const xy = nmap(lastBar, (bar) => getXY(bar.id));
-      if (xy) end = xy;
-    }
+    const end = b
+      ? b
+      : (function () {
+          const lastBar = props.score.lastOnPage(props.page);
+          const xy = nmap(lastBar, (bar) => getXY(bar.id));
+          if (xy === null) {
+            console.error('No last bar on page');
+            return { beforeX: 0, afterX: 0, y: 0 };
+          }
+          return xy;
+        })();
 
     text = a === start ? text : '';
 
@@ -195,7 +204,7 @@ export abstract class Timing {
       0
     );
     return m('g', [
-      ...(start.y === end.y
+      ...(end && start.y === end.y
         ? [horizontal(start.beforeX, lastx, start.y), ...verticalLines]
         : [
             horizontal(start.beforeX, props.staveEndX, start.y),
@@ -313,36 +322,36 @@ export class SecondTiming extends Timing {
     const middle = getXY(this.middle);
     const end = getXY(this.end);
 
-    if (!(start && middle && end)) {
-      console.error('invalid second timing!');
-      return m('g');
-    }
-
     return m('g[class=second-timing]', [
-      this.lineFrom(
-        start,
-        middle,
-        this.firstText,
-        (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
-        () =>
-          dispatch(
-            editTimingText(this.firstText, (text) => (this.firstText = text))
-          ),
-        false,
-        props
-      ),
-      this.lineFrom(
-        middle,
-        end,
-        this.secondText,
-        (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
-        () =>
-          dispatch(
-            editTimingText(this.secondText, (text) => (this.secondText = text))
-          ),
-        true,
-        props
-      ),
+      start &&
+        this.lineFrom(
+          start,
+          middle,
+          this.firstText,
+          (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
+          () =>
+            dispatch(
+              editTimingText(this.firstText, (text) => (this.firstText = text))
+            ),
+          false,
+          props
+        ),
+      middle &&
+        this.lineFrom(
+          middle,
+          end,
+          this.secondText,
+          (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
+          () =>
+            dispatch(
+              editTimingText(
+                this.secondText,
+                (text) => (this.secondText = text)
+              )
+            ),
+          true,
+          props
+        ),
     ]);
   }
 }
@@ -406,21 +415,18 @@ export class SingleTiming extends Timing {
     const start = getXY(this.start);
     const end = getXY(this.end);
 
-    if (!(start && end)) {
-      console.error('invalid second timing!');
-      return m('g');
-    }
-
     return m('g[class=second-timing]', [
-      this.lineFrom(
-        start,
-        end,
-        this.text,
-        (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
-        () => dispatch(editTimingText(this.text, (text) => (this.text = text))),
-        true,
-        props
-      ),
+      start &&
+        this.lineFrom(
+          start,
+          end,
+          this.text,
+          (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
+          () =>
+            dispatch(editTimingText(this.text, (text) => (this.text = text))),
+          true,
+          props
+        ),
     ]);
   }
 }

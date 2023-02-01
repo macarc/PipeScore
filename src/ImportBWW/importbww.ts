@@ -27,6 +27,12 @@ function errorImporting(message: string) {
     m('section', [
       m('h2', 'Failed to import'),
       m('details', [m('summary', 'Error details'), m('p', message)]),
+      m(
+        'p',
+        'If this is a file that works in other software, please ',
+        m('a', { href: '/contact' }, 'send me the file'),
+        " and I'll see what I can do to sort it."
+      ),
     ])
   );
 }

@@ -221,6 +221,35 @@ class Parser {
     };
   }
 
+  private addTiming(currentId: ID) {
+    if (
+      this.currentTimelineText === '2.' &&
+      this.timings.length > 0 &&
+      this.currentTimeline
+    ) {
+      const previous = this.timings.pop() as SavedTiming;
+      this.timings.push({
+        type: 'second timing',
+        value: {
+          start: previous.value.start,
+          middle: this.currentTimeline,
+          end: currentId,
+          firstText: '1.',
+          secondText: '2.',
+        },
+      });
+    } else if (this.currentTimeline) {
+      this.timings.push({
+        type: 'single timing',
+        value: {
+          start: this.currentTimeline,
+          end: currentId,
+          text: this.currentTimelineText,
+        },
+      });
+    }
+  }
+
   private timeLineStart(currentId: ID) {
     let token: Token | null;
     if ((token = this.ts.matchToken(TokenType.TIME_LINE_START))) {
@@ -233,29 +262,8 @@ class Parser {
   }
 
   private timeLineEnd(currentId: ID) {
-    if (this.ts.match(TokenType.TIME_LINE_END) && this.currentTimeline) {
-      if (this.currentTimelineText === '2.' && this.timings.length > 0) {
-        const previous = this.timings.pop() as SavedTiming;
-        this.timings.push({
-          type: 'second timing',
-          value: {
-            start: previous.value.start,
-            middle: this.currentTimeline,
-            end: currentId,
-            firstText: '1.',
-            secondText: '2.',
-          },
-        });
-      } else {
-        this.timings.push({
-          type: 'single timing',
-          value: {
-            start: this.currentTimeline,
-            end: currentId,
-            text: this.currentTimelineText,
-          },
-        });
-      }
+    if (this.ts.match(TokenType.TIME_LINE_END)) {
+      this.addTiming(currentId);
     }
   }
 
