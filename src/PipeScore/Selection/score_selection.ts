@@ -203,7 +203,9 @@ export class ScoreSelection extends Selection {
     const a = getXY(this.start);
     const b = getXY(this.end);
     if (!a || !b) {
-      console.error('Invalid note in selection');
+      // This probably has occurred because we're selecting
+      // something on a later page
+      console.log("Couldn't find selected objects.");
       return m('g');
     }
     const start = before(a, b) ? a : b;
