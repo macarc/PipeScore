@@ -34,6 +34,7 @@ import {
   SavedSingleTiming,
   SavedTiming,
 } from '../SavedModel';
+import { Bar } from '../Bar';
 
 interface TimingProps {
   score: Score;
@@ -45,6 +46,15 @@ interface TimingProps {
 }
 
 export type TimingPart = 'start' | 'middle' | 'end';
+
+function barXY(bar: Bar | null) {
+  const xy = nmap(bar, (bar) => getXY(bar.id));
+  if (xy === null) {
+    console.error('Tried to get XY of a non-existent bar.');
+    return { beforeX: 0, afterX: 0, y: 0 };
+  }
+  return xy;
+}
 
 export abstract class Timing {
   abstract pointsTo(id: ID): boolean;
@@ -133,23 +143,9 @@ export abstract class Timing {
 
     drawLast ||= barIsOnALaterPage;
 
-    let start = a;
-    if (a.page !== props.page) {
-      const firstBar = props.score.firstOnPage(props.page);
-      const xy = nmap(firstBar, (bar) => getXY(bar.id));
-      if (xy) start = xy;
-    }
-    const end = b
-      ? b
-      : (function () {
-          const lastBar = props.score.lastOnPage(props.page);
-          const xy = nmap(lastBar, (bar) => getXY(bar.id));
-          if (xy === null) {
-            console.error('No last bar on page');
-            return { beforeX: 0, afterX: 0, y: 0 };
-          }
-          return xy;
-        })();
+    const start =
+      a.page === props.page ? a : barXY(props.score.firstOnPage(props.page));
+    const end = b || barXY(props.score.lastOnPage(props.page));
 
     text = a === start ? text : '';
 
