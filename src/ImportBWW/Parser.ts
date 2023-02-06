@@ -51,10 +51,13 @@ class Parser {
 
   parse(): ParsedScore {
     const textboxes = headers(this.ts);
+    this.ts.setSkipHeaderTokens();
     const parsed = this.score();
     const nextToken = this.ts.eatAny();
-    if (nextToken)
+    if (nextToken) {
       this.ts.warn(`Didn't parse full score: next token is ${nextToken.type}`);
+      console.log('Next token: ', nextToken);
+    }
     return {
       score: parsed,
       warnings: this.ts.warnings,
@@ -90,9 +93,7 @@ class Parser {
 
     let bars_: SavedBar[] = [];
 
-    if (this.hasNote()) {
-      bars_ = this.bars();
-    }
+    bars_ = this.bars();
 
     return {
       bars: bars_,
@@ -100,7 +101,13 @@ class Parser {
   }
 
   private bars(): SavedBar[] {
-    const bars = [];
+    const bars: SavedBar[] = [];
+
+    this.ts.match(TokenType.BAR_LINE);
+
+    if (!this.hasNote()) {
+      return bars;
+    }
 
     bars.push(this.bar());
     while (this.ts.match(TokenType.BAR_LINE)) {

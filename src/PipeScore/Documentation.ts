@@ -61,6 +61,7 @@ export default new Map(
     toarluath: gracenoteDoc('toarluath'),
     crunluath: gracenoteDoc('crunluath'),
     edre: gracenoteDoc('edre'),
+    bubbly: gracenoteDoc('bubbly'),
     'add bar before': 'Add a new bar before the currently selected bar.',
     'add bar after': 'Add a new bar after the currently selected bar.',
     'edit bar time signature':

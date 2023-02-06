@@ -4,7 +4,8 @@ import { Spec } from './Spec';
 export class TokenStream {
   private stream: string;
   private cursor = 0;
-  private current: Token | null;
+  private current: Token | null = null;
+  private skipHeaderTokens: boolean = false;
   public warnings: string[] = [];
 
   constructor(stream: string) {
@@ -12,7 +13,7 @@ export class TokenStream {
     // tokens check for whitespace after to ensure
     // that they match an entire word
     this.stream = stream + ' ';
-    this.current = this.nextToken();
+    this.nextToken();
   }
 
   public warn(msg: string) {
@@ -34,9 +35,13 @@ export class TokenStream {
       );
     }
 
-    this.current = this.nextToken();
+    this.nextToken();
 
     return token;
+  }
+
+  public setSkipHeaderTokens() {
+    this.skipHeaderTokens = true;
   }
 
   public is(tokenType: TokenType): boolean {
@@ -79,7 +84,7 @@ export class TokenStream {
 
   public eatAny() {
     const token = this.current;
-    this.current = this.nextToken();
+    this.nextToken();
     return token;
   }
 
@@ -109,10 +114,16 @@ export class TokenStream {
       const token = spec.regex.exec(slice);
       if (token) {
         this.cursor += token[0].length;
-        return {
+        this.current = {
           type: spec.type,
           value: token,
         };
+
+        if (this.skipHeaderTokens && spec.type === TokenType.TEXT_TAG) {
+          return this.nextToken();
+        }
+
+        return this.current;
       }
     }
 
