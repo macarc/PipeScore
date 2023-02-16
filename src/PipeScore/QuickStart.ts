@@ -52,22 +52,25 @@ export default async function blankForm(): Promise<ScoreOptions> {
         m('h2', 'About:'),
         m('label', [
           'Title:',
-          m('input#name', {
+          m('input', {
             type: 'text',
+            name: 'tune-name',
             value: 'My Tune',
           }),
         ]),
         m('label', [
           'Composer:',
-          m('input#composer', {
+          m('input', {
             type: 'text',
+            name: 'composer',
             value: 'My name',
           }),
         ]),
         m('label', [
           'Tune type:',
-          m('input#tune-type', {
+          m('input', {
             type: 'text',
+            name: 'tune-type',
             value: 'March',
           }),
         ]),
@@ -76,8 +79,9 @@ export default async function blankForm(): Promise<ScoreOptions> {
         m('h2', 'Parts:'),
         m('label', [
           'Number:',
-          m('input#stave-number', {
+          m('input', {
             type: 'number',
+            name: 'stave-number',
             min: 0,
             max: 16,
             value: 2,
@@ -85,14 +89,13 @@ export default async function blankForm(): Promise<ScoreOptions> {
           }),
         ]),
         m('label', [
-          m('input#repeat-parts', { type: 'checkbox', checked: '' }),
+          m('input', { type: 'checkbox', name: 'repeat-parts', checked: '' }),
           'Repeat Parts',
         ]),
       ]),
       m('section', [
         m('h2', 'Time Signature:'),
-        m('label', [timeSignatureEditor(new TimeSignature([2, 4]))]),
-        m('label', [m('input#cut-time', { type: 'checkbox' }), 'Cut time']),
+        timeSignatureEditor(new TimeSignature([2, 4])),
       ]),
     ],
     false,
@@ -101,42 +104,27 @@ export default async function blankForm(): Promise<ScoreOptions> {
   );
   const options = new ScoreOptions();
   if (form) {
-    const nameElement = form.querySelector('#name');
-    if (nameElement instanceof HTMLInputElement)
-      options.name = nameElement.value;
+    const data = Object.fromEntries(new FormData(form));
+    if (data['tune-name']) options.name = data['tune-name'].toString();
 
-    const composerElement = form.querySelector('#composer');
-    if (composerElement instanceof HTMLInputElement)
-      options.composer = composerElement.value;
+    if (data.composer) options.composer = data.composer.toString();
 
-    const tuneTypeElement = form.querySelector('#tune-type');
-    if (tuneTypeElement instanceof HTMLInputElement)
-      options.tuneType = tuneTypeElement.value;
+    if (data['tune-type']) options.tuneType = data['tune-type'].toString();
 
-    const partsElement = form.querySelector('#stave-number');
-    if (partsElement instanceof HTMLInputElement)
-      options.numberOfParts = parseInt(partsElement.value);
+    if (data['stave-number'])
+      options.numberOfParts = parseInt(data['stave-number'].toString());
 
-    const repeatElement = form.querySelector('#repeat-parts');
-    if (repeatElement instanceof HTMLInputElement)
-      options.repeatParts = repeatElement.checked;
+    if (data['repeat-parts'])
+      options.repeatParts = data['repeat-parts'] === 'on';
 
-    const numElement = form.querySelector('#num');
-    const denomElement = form.querySelector('#denom');
-    const cutTimeElement = form.querySelector('#cut-time');
-    if (
-      numElement instanceof HTMLInputElement &&
-      denomElement instanceof HTMLSelectElement &&
-      cutTimeElement instanceof HTMLInputElement
-    )
-      options.timeSignature = new TimeSignature(
-        cutTimeElement.checked
-          ? 'cut time'
-          : [
-              parseInt(numElement.value),
-              TimeSignature.parseDenominator(denomElement.value) || 4,
-            ]
-      );
+    if (data.ts === 'common time' || data.ts === 'cut time') {
+      options.timeSignature = new TimeSignature(data.ts);
+    } else {
+      options.timeSignature = new TimeSignature([
+        parseInt(data.numerator.toString()),
+        TimeSignature.parseDenominator(data.denominator.toString()) || 4,
+      ]);
+    }
   }
   return options;
 }

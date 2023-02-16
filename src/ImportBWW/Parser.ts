@@ -210,7 +210,8 @@ class Parser {
       0
     );
     const barLength =
-      this.currentTimeSignature.ts === 'cut time'
+      this.currentTimeSignature.ts === 'cut time' ||
+      this.currentTimeSignature.ts === 'common time'
         ? 4
         : (this.currentTimeSignature.ts[0] * 4) /
           this.currentTimeSignature.ts[1];
@@ -516,9 +517,8 @@ class Parser {
           breaks: [],
         };
       } else {
-        this.ts.warn("Can't deal with common time, using cut time instead");
         return {
-          ts: 'cut time',
+          ts: 'common time',
           breaks: [],
         };
       }

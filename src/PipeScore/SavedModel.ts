@@ -56,7 +56,7 @@ export type SavedBarline = {
 };
 
 export type SavedTimeSignature = {
-  ts: [number, 2 | 4 | 8] | 'cut time';
+  ts: [number, 2 | 4 | 8] | 'cut time' | 'common time';
   breaks: number[];
 };
 

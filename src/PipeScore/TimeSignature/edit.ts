@@ -24,10 +24,6 @@ function textDialogue(ts: TimeSignature) {
   return [
     m('section', [
       timeSignatureEditor(ts),
-      m('label', [
-        m('input', { type: 'checkbox', checked: ts.cutTime() }),
-        'Cut time ',
-      ]),
       m('details', [
         m('summary', 'Advanced'),
         m('label', [
@@ -58,7 +54,7 @@ export function timeSignatureEditor(ts: TimeSignature): m.Children {
   return m('div.time-signature-editor', [
     m('input#num', {
       type: 'number',
-      name: 'num',
+      name: 'numerator',
       min: 1,
       value: ts.top(),
     }),
@@ -67,42 +63,60 @@ export function timeSignatureEditor(ts: TimeSignature): m.Children {
       denominatorOption(4),
       denominatorOption(8),
     ]),
+    m('div.ts-type', [
+      m('label', [
+        m('input', {
+          type: 'radio',
+          name: 'ts',
+          value: 'normal',
+          checked: !ts.commonTime() && !ts.cutTime(),
+        }),
+        'Normal',
+      ]),
+      m('label', [
+        m('input', {
+          type: 'radio',
+          name: 'ts',
+          value: 'common time',
+          checked: ts.commonTime(),
+        }),
+        'Common time',
+      ]),
+      m('label', [
+        m('input', {
+          type: 'radio',
+          name: 'ts',
+          value: 'cut time',
+          checked: ts.cutTime(),
+        }),
+        'Cut time',
+      ]),
+    ]),
   ]);
 }
 
 // Makes a dialogue box for the user to edit the text, then updates the text
 export async function edit(ts: TimeSignature): Promise<TimeSignature> {
   const form = await dialogueBox('Edit Time Signature', textDialogue(ts));
-  let newTimeSignature: TimeSignature = ts;
 
   if (form) {
-    const numInput = form.querySelector('input[name = "num"]');
-    const denomInput = form.querySelector('select');
-    const cutTimeInput = form.querySelector('input[type="checkbox"]');
-    const breaksInput = form.querySelector('input[name="breaks"]');
+    const data = Object.fromEntries(new FormData(form));
 
-    if (
-      numInput instanceof HTMLInputElement &&
-      denomInput instanceof HTMLSelectElement &&
-      cutTimeInput instanceof HTMLInputElement &&
-      breaksInput instanceof HTMLInputElement
-    ) {
-      const num = Math.max(parseInt(numInput.value), 1);
-      const denom = TimeSignature.parseDenominator(denomInput.value);
-      const isCutTime = cutTimeInput.checked;
-      const breaks = breaksInput.value
-        .split(/,\s*/)
-        .filter((l) => l.length > 0)
-        // map(parseInt) passes in the index as a radix :)
-        // glad I knew that already and didn't have to debug...
-        .map((i) => parseInt(i));
+    const breaks = data.breaks
+      .toString()
+      .split(/,\s*/)
+      .filter((l) => l.length > 0)
+      // map(parseInt) passes in the index as a radix :)
+      // glad I knew that already and didn't have to debug...
+      .map((i) => parseInt(i));
 
-      if (denom)
-        newTimeSignature = new TimeSignature(
-          isCutTime ? 'cut time' : [num, denom],
-          breaks
-        );
+    if (data.ts === 'normal') {
+      const num = Math.max(parseInt(data.numerator.toString()), 1);
+      const denom = TimeSignature.parseDenominator(data.denominator.toString());
+      if (num && denom) return new TimeSignature([num, denom], breaks);
+    } else if (data.ts === 'cut time' || data.ts === 'common time') {
+      return new TimeSignature(data.ts, breaks);
     }
   }
-  return newTimeSignature;
+  return ts;
 }

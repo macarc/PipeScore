@@ -5,7 +5,7 @@ export class TokenStream {
   private stream: string;
   private cursor = 0;
   private current: Token | null = null;
-  private skipHeaderTokens: boolean = false;
+  private skipHeaderTokens = false;
   public warnings: string[] = [];
 
   constructor(stream: string) {

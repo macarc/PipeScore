@@ -28,11 +28,16 @@ interface TimeSignatureProps {
   y: number;
 }
 
+export type TimeSignatureType =
+  | [number, Denominator]
+  | 'cut time'
+  | 'common time';
+
 export class TimeSignature {
-  private ts: [number, Denominator] | 'cut time';
+  private ts: TimeSignatureType;
   private breaks: number[];
 
-  constructor(ts?: [number, Denominator] | 'cut time', breaks: number[] = []) {
+  constructor(ts?: TimeSignatureType, breaks: number[] = []) {
     this.ts = [2, 4];
     if (ts) this.ts = ts;
     this.breaks = breaks;
@@ -61,18 +66,13 @@ export class TimeSignature {
 
   public numberOfBeats(): number {
     // The number of beats per bar
-    switch (this.ts) {
-      case 'cut time':
+    switch (this.bottom()) {
+      case 2:
         return 2;
-      default:
-        switch (this.bottom()) {
-          case 2:
-            return 2;
-          case 4:
-            return this.top();
-          case 8:
-            return Math.ceil(this.top() / 3);
-        }
+      case 4:
+        return this.top();
+      case 8:
+        return Math.ceil(this.top() / 3);
     }
   }
 
@@ -83,18 +83,13 @@ export class TimeSignature {
       if (i < this.breaks.length) {
         return this.breaks[i] / 2.0;
       }
-      switch (this.ts) {
-        case 'cut time':
+      switch (this.bottom()) {
+        case 2:
           return 2;
-        default:
-          switch (this.bottom()) {
-            case 2:
-              return 2;
-            case 4:
-              return 1;
-            case 8:
-              return 1.5;
-          }
+        case 4:
+          return 1;
+        case 8:
+          return 1.5;
       }
     };
   }
@@ -123,26 +118,37 @@ export class TimeSignature {
   public cutTime() {
     return this.ts === 'cut time';
   }
+  public commonTime() {
+    return this.ts === 'common time';
+  }
   public top() {
-    return this.ts === 'cut time' ? 2 : this.ts[0];
+    if (this.ts === 'cut time') {
+      return 2;
+    } else if (this.ts === 'common time') {
+      return 4;
+    }
+    return this.ts[0];
   }
   public bottom() {
-    return this.ts === 'cut time' ? 2 : this.ts[1];
+    if (this.ts === 'cut time') {
+      return 2;
+    } else if (this.ts === 'common time') {
+      return 4;
+    }
+    return this.ts[1];
   }
   public edit() {
     return edit(this);
   }
   public render(props: TimeSignatureProps): m.Children {
-    const y =
-      props.y +
-      (this.cutTime() ? settings.lineHeightOf(4) : settings.lineHeightOf(2));
-
     const edit = () =>
       this.edit().then((newTimeSignature) =>
         dispatch(editTimeSignature(this, newTimeSignature))
       );
 
-    if (this.cutTime()) {
+    if (this.cutTime() || this.commonTime()) {
+      const y = props.y + settings.lineHeightOf(4);
+      const cutLineX = props.x;
       return m('g[class=time-signature]', [
         m(
           'text',
@@ -156,8 +162,20 @@ export class TimeSignature {
           },
           'C'
         ),
+        this.cutTime()
+          ? m('line', {
+              x1: cutLineX,
+              x2: cutLineX,
+              y1: props.y - settings.lineHeightOf(0.7),
+              y2: props.y + settings.lineHeightOf(4.5),
+              stroke: 'black',
+              'stroke-width': 4,
+              'shape-rendering': 'crispEdges',
+            })
+          : null,
       ]);
     } else {
+      const y = props.y + settings.lineHeightOf(2);
       return m('g[class=time-signature]', [
         m(
           'text',
