@@ -6,6 +6,13 @@ import { toGracenotePitch, toPitch } from './pitch';
 export function embellishment(ts: TokenStream): SavedGracenote {
   switch (ts.currentType()) {
     case TokenType.DOUBLING:
+      if (ts.peek()?.value[0] === 'dbhg') {
+        ts.eatAny();
+        return {
+          type: 'reactive',
+          value: { grace: 'half-doubling' },
+        };
+      }
       return reactive(ts, 'doubling');
     case TokenType.REGULAR_GRIP:
       return reactive(ts, 'grip');
@@ -55,7 +62,7 @@ function gracenote(ts: TokenStream): SavedGracenote {
 
 function doubleGracenote(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.DOUBLE_GRACENOTE);
-  const notes = [];
+  const notes: string[] = [];
 
   if (token.value[1] === 't') {
     notes.push('a');

@@ -77,6 +77,9 @@ export class TokenStream {
   public peekAny(...tokenTypes: TokenType[]): boolean {
     return tokenTypes.some((tokenType) => this.current?.type === tokenType);
   }
+  public peek(): Token | null {
+    return this.current;
+  }
 
   public currentType() {
     return this.current?.type;
