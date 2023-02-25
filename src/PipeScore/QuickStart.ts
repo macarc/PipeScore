@@ -114,8 +114,7 @@ export default async function blankForm(): Promise<ScoreOptions> {
     if (data['stave-number'])
       options.numberOfParts = parseInt(data['stave-number'].toString());
 
-    if (data['repeat-parts'])
-      options.repeatParts = data['repeat-parts'] === 'on';
+    options.repeatParts = data['repeat-parts'] === 'on';
 
     if (data.ts === 'common time' || data.ts === 'cut time') {
       options.timeSignature = new TimeSignature(data.ts);
