@@ -493,7 +493,7 @@ export default function render(state: UIState): m.Children {
 
   const playBackMenu = [
     m('section', [
-      m('h2', 'Playback'),
+      m('h2', 'Controls'),
       m('div.section-content', [
         help(
           'play',
@@ -515,14 +515,18 @@ export default function render(state: UIState): m.Children {
           'stop',
           m('button', { onclick: () => dispatch(stopPlayback()) }, 'Stop')
         ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Speed'),
+      m('div.section-content', [
         help(
           'playback speed',
-          m('label', [
-            'Playback speed:',
+          m('label#playback-speed-label', [
             m('input', {
               type: 'range',
               min: '30',
-              max: '200',
+              max: '150',
               step: '1',
               value: state.playbackBpm,
               oninput: (e: InputEvent) =>
@@ -530,6 +534,15 @@ export default function render(state: UIState): m.Children {
                   setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
                 ),
             }),
+            m('input#playback-bpm', {
+              type: 'number',
+              value: state.playbackBpm,
+              oninput: (e: InputEvent) =>
+                dispatch(
+                  setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                ),
+            }),
+            'beats per minute'
           ])
         ),
       ]),
@@ -728,7 +741,7 @@ export default function render(state: UIState): m.Children {
           step: '2',
           value: state.zoomLevel,
           oninput: inputZoomLevel,
-        })
+        }),
       ),
       m('section', [
         help(

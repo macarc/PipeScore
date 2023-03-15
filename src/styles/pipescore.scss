@@ -224,6 +224,13 @@ input[type='number'] {
   }
 }
 
+#playback-speed-label {
+  margin: 0;
+}
+input#playback-bpm {
+  margin-right: 0.2rem;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
