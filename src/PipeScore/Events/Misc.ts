@@ -132,7 +132,9 @@ export function undo(): ScoreEvent {
     if (current && previous) {
       state.selection = null;
       stopInputtingNotes(state);
+      const zoom = state.score.zoom;
       state.score = Score.fromJSON(JSON.parse(previous));
+      state.score.zoom = zoom;
       state.history.future.push(current);
       return Update.MovedThroughHistory;
     }
@@ -146,7 +148,9 @@ export function redo(): ScoreEvent {
     if (next) {
       state.selection = null;
       stopInputtingNotes(state);
+      const zoom = state.score.zoom;
       state.score = Score.fromJSON(JSON.parse(next));
+      state.score.zoom = zoom;
       state.history.past.push(next);
       return Update.MovedThroughHistory;
     }
