@@ -22,6 +22,7 @@ import {
   NoteLength,
 } from '../PipeScore/Note/notelength';
 import { toPitch } from './parser/pitch';
+import { Pitch } from '../PipeScore/global/pitch';
 
 export const parse = (data: string) => new Parser(data).parse();
 
@@ -39,6 +40,7 @@ type ParsedScore = {
 
 class Parser {
   tieing = TieingState.NotTieing;
+  tiedNotePitch = Pitch.A;
   currentTimeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
   currentTimeline: ID | null = null;
   currentTimelineText = '';
@@ -324,11 +326,12 @@ class Parser {
       }
       const noteLength = this.toNoteLength(token.value[3]);
       const hasDot = this.dot();
+      const pitch = toPitch(token.value[1])
       note_ = {
         length: hasDot ? dotLength(noteLength) : noteLength,
-        pitch: toPitch(token.value[1]),
+        pitch,
         hasNatural: accidental_,
-        tied: this.tieing !== TieingState.NotTieing,
+        tied: this.tieing !== TieingState.NotTieing && this.tiedNotePitch === pitch,
         gracenote: embellishment,
       };
     }
@@ -337,7 +340,7 @@ class Parser {
       this.tieing = TieingState.NotTieing;
     }
 
-    this.tieAfterNote(tiedBefore || startedToTie);
+    this.tieAfterNote(tiedBefore || startedToTie, note_?.pitch);
 
     if (note_) {
       return note_;
@@ -445,9 +448,11 @@ class Parser {
     return this.ts.match(TokenType.TIE_START);
   }
 
-  private tieAfterNote(tieBeforeNote: boolean) {
+  private tieAfterNote(tieBeforeNote: boolean, currentNotePitch: Pitch | undefined) {
     if (tieBeforeNote) {
       this.tieing = TieingState.NewTieFormat;
+      if (currentNotePitch)
+      this.tiedNotePitch = currentNotePitch;
     }
     const token = this.ts.matchToken(TokenType.TIE_END_OR_TIE_OLD_FORMAT);
     if (token) {
