@@ -76,6 +76,17 @@ export class TimeSignature {
     }
   }
 
+  public crotchetsPerBeat() {
+    switch (this.bottom()) {
+      case 2:
+        return 2;
+      case 4:
+        return 1;
+      case 8:
+        return 1.5;
+    }
+  }
+
   // The number of beats in a group
   // Where n means the nth group in the bar
   public beatDivision(): (n: number) => number {

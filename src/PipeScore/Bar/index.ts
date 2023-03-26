@@ -30,7 +30,12 @@ import { clickBar } from '../Events/Bar';
 import { pitchBoxes } from '../PitchBoxes';
 import { mouseOverPitch } from '../Events/PitchBoxes';
 import { Barline } from './barline';
-import { Playback, PlaybackObject, PlaybackRepeat } from '../Playback';
+import {
+  Playback,
+  PlaybackNote,
+  PlaybackObject,
+  PlaybackRepeat,
+} from '../Playback';
 import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 import { SavedBar } from '../SavedModel';
@@ -352,15 +357,22 @@ export class Bar extends Item implements Previews<Note> {
       ? [new PlaybackRepeat('start')]
       : [];
     const end = this.backBarline.isRepeat() ? [new PlaybackRepeat('end')] : [];
+    const beatRatio = 1 / this.timeSignature().crotchetsPerBeat();
     return [
       ...start,
       new PlaybackObject('start', this.id),
       ...this._notes.flatMap((note, i) =>
-        note.play(
-          i === 0
-            ? previous && previous.lastPitch()
-            : Triplet.lastNote(this._notes[i - 1]).pitch()
-        )
+        note
+          .play(
+            i === 0
+              ? previous && previous.lastPitch()
+              : Triplet.lastNote(this._notes[i - 1]).pitch()
+          )
+          .map((p) =>
+            p.type === 'note'
+              ? new PlaybackNote(p.pitch, p.tied, p.duration * beatRatio)
+              : p
+          )
       ),
       new PlaybackObject('end', this.id),
       ...end,
