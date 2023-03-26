@@ -542,7 +542,7 @@ export default function render(state: UIState): m.Children {
                   setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
                 ),
             }),
-            'beats per minute'
+            'beats per minute',
           ])
         ),
       ]),
@@ -741,7 +741,7 @@ export default function render(state: UIState): m.Children {
           step: '2',
           value: state.zoomLevel,
           oninput: inputZoomLevel,
-        }),
+        })
       ),
       m('section', [
         help(

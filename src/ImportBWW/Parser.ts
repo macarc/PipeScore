@@ -326,12 +326,13 @@ class Parser {
       }
       const noteLength = this.toNoteLength(token.value[3]);
       const hasDot = this.dot();
-      const pitch = toPitch(token.value[1])
+      const pitch = toPitch(token.value[1]);
       note_ = {
         length: hasDot ? dotLength(noteLength) : noteLength,
         pitch,
         hasNatural: accidental_,
-        tied: this.tieing !== TieingState.NotTieing && this.tiedNotePitch === pitch,
+        tied:
+          this.tieing !== TieingState.NotTieing && this.tiedNotePitch === pitch,
         gracenote: embellishment,
       };
     }
@@ -448,11 +449,13 @@ class Parser {
     return this.ts.match(TokenType.TIE_START);
   }
 
-  private tieAfterNote(tieBeforeNote: boolean, currentNotePitch: Pitch | undefined) {
+  private tieAfterNote(
+    tieBeforeNote: boolean,
+    currentNotePitch: Pitch | undefined
+  ) {
     if (tieBeforeNote) {
       this.tieing = TieingState.NewTieFormat;
-      if (currentNotePitch)
-      this.tiedNotePitch = currentNotePitch;
+      if (currentNotePitch) this.tiedNotePitch = currentNotePitch;
     }
     const token = this.ts.matchToken(TokenType.TIE_END_OR_TIE_OLD_FORMAT);
     if (token) {
