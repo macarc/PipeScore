@@ -57,14 +57,18 @@ export function editText(tx: TextBox | null = null): ScoreEvent {
   };
 }
 
+function clampPercent(value: number) {
+  return Math.max(0, Math.min(value, 100));
+}
+
 export function setTextX(xPercent: number): ScoreEvent {
   return async (state: State) => {
     const x =
-      (xPercent / 100) *
+      (clampPercent(xPercent) / 100) *
       (state.score.landscape
         ? settings.pageLongSideLength
         : settings.pageShortSideLength);
-    if (state.selection instanceof TextSelection) {
+    if (state.selection instanceof TextSelection && !isNaN(x)) {
       state.selection.text.setX(x);
       return Update.ViewChanged;
     }
@@ -75,12 +79,11 @@ export function setTextX(xPercent: number): ScoreEvent {
 export function setTextY(yPercent: number): ScoreEvent {
   return async (state: State) => {
     const y =
-      (yPercent / 100) *
+      (clampPercent(yPercent) / 100) *
       (state.score.landscape
         ? settings.pageShortSideLength
         : settings.pageLongSideLength);
-    console.log(y, yPercent);
-    if (state.selection instanceof TextSelection) {
+    if (state.selection instanceof TextSelection && !isNaN(y)) {
       state.selection.text.setY(y);
       return Update.ViewChanged;
     }

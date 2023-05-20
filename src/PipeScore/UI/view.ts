@@ -476,6 +476,25 @@ export default function render(state: UIState): m.Children {
   const percentage = (value: number, total: number) =>
     Math.round((10000 * value) / total) / 100;
 
+  // The problem: we want to allow the user to input
+  // e.g. 50.01, but if the user types 50.0 then that
+  // gets rounded to 50 so they can't continue. Always
+  // rounding to 2 decimal places is even worse since they
+  // can't delete the last decimal place to input. The solution -
+  // only replace the text if it has a different numerical value.
+  // userText checks the element specified by id and returns the old
+  // text if it has the same numerical value, or the new text if not
+  const userText = (id: string, value: number) => {
+    const element = document.getElementById(id);
+    if (element instanceof HTMLInputElement) {
+      const previousValue = parseFloat(element.value);
+      if (previousValue === value) {
+        return element.value;
+      }
+    }
+    return value.toString();
+  };
+
   const textMenu = [
     m('section', [
       m('h2', 'Add Text Box'),
@@ -514,13 +533,16 @@ export default function render(state: UIState): m.Children {
         m('div.section-content.vertical', [
           m('label.text-coord', [
             'X: ',
-            m('input', {
+            m('input#text-x-coord', {
+              disabled: noSelectedText,
               type: 'number',
               min: 0,
               max: 100,
-              step: 0.1,
-              style: 'width: 5rem',
-              value: percentage(state.selectedText?.x() || 0, pageWidth),
+              step: 0.01,
+              value: userText(
+                'text-x-coord',
+                percentage(state.selectedText?.x() || 0, pageWidth)
+              ),
               oninput: (e: InputEvent) =>
                 dispatch(
                   setTextX(parseFloat((e.target as HTMLInputElement).value))
@@ -531,13 +553,16 @@ export default function render(state: UIState): m.Children {
           ]),
           m('label.text-coord', [
             'Y: ',
-            m('input', {
+            m('input#text-y-coord', {
+              disabled: noSelectedText,
               type: 'number',
               min: 0,
               max: 100,
-              step: 0.1,
-              style: 'width: 5rem',
-              value: percentage(state.selectedText?.y() || 0, pageHeight),
+              step: 0.01,
+              value: userText(
+                'text-y-coord',
+                percentage(state.selectedText?.y() || 0, pageHeight)
+              ),
               oninput: (e: InputEvent) =>
                 dispatch(
                   setTextY(parseFloat((e.target as HTMLInputElement).value))

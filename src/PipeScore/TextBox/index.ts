@@ -96,13 +96,13 @@ export class TextBox {
   }
   setX(x: number) {
     this.centred = false;
-    return (this._x = x);
+    this._x = x;
   }
   y() {
     return this._y;
   }
   setY(y: number) {
-    return (this._y = y);
+    this._y = y;
   }
 
   public async edit() {
