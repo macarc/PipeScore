@@ -65,14 +65,13 @@ function doubleGracenote(ts: TokenStream): SavedGracenote {
   const notes: string[] = [];
 
   if (token.value[1] === 't') {
-    notes.push('a');
+    notes.push('ha');
   } else {
     notes.push(token.value[1]);
   }
 
   notes.push(token.value[2]);
 
-  // FIXME: notes isn't an array of pitches: this will crash
   return {
     type: 'custom',
     value: { pitches: notes.map(toPitch) },

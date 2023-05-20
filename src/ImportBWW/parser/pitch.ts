@@ -24,7 +24,7 @@ export function toGracenotePitch(pitch: string): Pitch {
     case 't':
       return Pitch.HA;
     default:
-      throw new Error('Unrecognised gracenote pitch');
+      throw new Error(`Unrecognised gracenote pitch: got "${pitch}"`);
   }
 }
 
@@ -49,6 +49,6 @@ export function toPitch(pitch: string): Pitch {
     case 'ha':
       return Pitch.HA;
     default:
-      throw new Error('Unrecognised pitch');
+      throw new Error(`Unrecognised pitch: got "${pitch}"`);
   }
 }
