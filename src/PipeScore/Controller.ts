@@ -126,9 +126,11 @@ function redraw() {
       renderUI({
         loggedIn: state.isLoggedIn,
         loadingAudio: state.playback.loading,
+        isPlaying: state.playback.playing,
         zoomLevel: state.score.zoom,
         preview: state.preview,
         showingPageNumbers: state.score.showNumberOfPages,
+        canDeletePages: state.score.numberOfPages > 1,
         selectedNotes:
           state.selection instanceof ScoreSelection
             ? state.selection.notes(state.score)

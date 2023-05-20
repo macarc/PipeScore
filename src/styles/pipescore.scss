@@ -8,6 +8,15 @@ html {
   font-family: sans-serif;
 }
 
+/* There are quite a few images on buttons that need to be disabled
+ * so just doing this is easier than trying to make the buttons greyscale
+ * to match the text
+ */
+*:disabled {
+  opacity: 0.5;
+  color: black;
+}
+
 noscript {
   position: static;
   top: 0;
