@@ -124,6 +124,8 @@ function redraw() {
     m.render(
       state.view.ui,
       renderUI({
+        canUndo: state.history.past.length > 1,
+        canRedo: state.history.future.length > 0,
         loggedIn: state.isLoggedIn,
         loadingAudio: state.playback.loading,
         isPlaying: state.playback.playing,

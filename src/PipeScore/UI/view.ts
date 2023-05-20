@@ -84,6 +84,8 @@ import { dispatch } from '../Controller';
 import { TextBox } from '../TextBox';
 
 export interface UIState {
+  canUndo: boolean;
+  canRedo: boolean;
   loggedIn: boolean;
   loadingAudio: boolean;
   isPlaying: boolean;
@@ -157,6 +159,15 @@ export default function render(state: UIState): m.Children {
     }
   };
 
+  const noNotesSelected = state.selectedNotes.length === 0;
+  const noBarSelected = state.selectedBar === null;
+  const noGracenoteSelected = state.selectedGracenote === null;
+  const noTextSelected = state.selectedText === null;
+  const nothingSelected =
+    noBarSelected && noNotesSelected && noTextSelected && noGracenoteSelected;
+  // NOTE : can't copy and paste gracenotes or text, so disable even if noGracenoteSelected is false
+  const cantCopyPaste = noBarSelected && noNotesSelected;
+
   const tied =
     state.selectedNotes.length === 0
       ? false
@@ -169,7 +180,6 @@ export default function render(state: UIState): m.Children {
       ? false
       : allNotes((note) => note.natural());
 
-  const noSelectedNotes = state.selectedNotes.length === 0;
   const notInputtingNotes = state.preview === null;
 
   const noteMenu = [
@@ -193,7 +203,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              disabled: notInputtingNotes && noSelectedNotes,
+              disabled: notInputtingNotes && noNotesSelected,
               class:
                 (state.preview instanceof NotePreview &&
                   dotted(state.preview.length())) ||
@@ -208,7 +218,7 @@ export default function render(state: UIState): m.Children {
         help(
           'tie',
           m('button#tie', {
-            disabled: noSelectedNotes,
+            disabled: noNotesSelected,
             class: tied ? 'highlighted' : 'not-highlighted',
             onclick: () => dispatch(tieSelectedNotes()),
           })
@@ -216,14 +226,14 @@ export default function render(state: UIState): m.Children {
         help(
           'triplet',
           m('button#triplet', {
-            disabled: noSelectedNotes,
+            disabled: noNotesSelected,
             onclick: () => dispatch(addTriplet()),
           })
         ),
         help(
           'natural',
           m('button#natural', {
-            disabled: noSelectedNotes && notInputtingNotes,
+            disabled: noNotesSelected && notInputtingNotes,
             class:
               inputtingNatural || (!state.preview && naturalAlready)
                 ? 'highlighted'
@@ -302,8 +312,6 @@ export default function render(state: UIState): m.Children {
       ? ' highlighted'
       : '');
 
-  const noSelectedBar = state.selectedBar === null;
-
   const barMenu = [
     m('section', [
       m('h2', 'Add Bar'),
@@ -329,7 +337,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: noSelectedBar,
+              disabled: noBarSelected,
               onclick: () => dispatch(resetBarLength()),
             },
             'Reset bar length'
@@ -347,7 +355,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noSelectedBar,
+                disabled: noBarSelected,
                 class: startBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
                 onclick: () => dispatch(setBarline('start', Barline.normal)),
@@ -360,7 +368,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noSelectedBar,
+                disabled: noBarSelected,
                 class: startBarClass(Barline.repeat),
                 onclick: () => dispatch(setBarline('start', Barline.repeat)),
               },
@@ -372,7 +380,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noSelectedBar,
+                disabled: noBarSelected,
                 class: startBarClass(Barline.part),
                 onclick: () => dispatch(setBarline('start', Barline.part)),
               },
@@ -387,7 +395,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noSelectedBar,
+                disabled: noBarSelected,
                 class: endBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
                 onclick: () => dispatch(setBarline('end', Barline.normal)),
@@ -400,7 +408,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noSelectedBar,
+                disabled: noBarSelected,
                 class: endBarClass(Barline.repeat),
                 onclick: () => dispatch(setBarline('end', Barline.repeat)),
               },
@@ -412,7 +420,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noSelectedBar,
+                disabled: noBarSelected,
                 class: endBarClass(Barline.part),
                 onclick: () => dispatch(setBarline('end', Barline.part)),
               },
@@ -430,7 +438,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: noSelectedBar,
+              disabled: noBarSelected,
               onclick: () => dispatch(moveBarToPreviousLine()),
             },
             'Move to previous stave'
@@ -441,7 +449,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: noSelectedBar,
+              disabled: noBarSelected,
               onclick: () => dispatch(moveBarToNextLine()),
             },
             'Move to next stave'
@@ -504,8 +512,6 @@ export default function render(state: UIState): m.Children {
   const percentage = (value: number, total: number) =>
     Math.round((10000 * value) / total) / 100;
 
-  const noSelectedText = state.selectedText === null;
-
   // The problem: we want to allow the user to input
   // e.g. 50.01, but if the user types 50.0 then that
   // gets rounded to 50 so they can't continue. Always
@@ -542,7 +548,7 @@ export default function render(state: UIState): m.Children {
           'centre text',
           m(
             'button.double-width.text',
-            { disabled: noSelectedText, onclick: () => dispatch(centreText()) },
+            { disabled: noTextSelected, onclick: () => dispatch(centreText()) },
             'Centre text'
           )
         ),
@@ -550,7 +556,7 @@ export default function render(state: UIState): m.Children {
           'edit text',
           m(
             'button.double-width.text',
-            { disabled: noSelectedText, onclick: () => dispatch(editText()) },
+            { disabled: noTextSelected, onclick: () => dispatch(editText()) },
             'Edit text'
           )
         ),
@@ -564,7 +570,7 @@ export default function render(state: UIState): m.Children {
           m('label.text-coord', [
             'X: ',
             m('input#text-x-coord', {
-              disabled: noSelectedText,
+              disabled: noTextSelected,
               type: 'number',
               min: 0,
               max: 100,
@@ -584,7 +590,7 @@ export default function render(state: UIState): m.Children {
           m('label.text-coord', [
             'Y: ',
             m('input#text-y-coord', {
-              disabled: noSelectedText,
+              disabled: noTextSelected,
               type: 'number',
               min: 0,
               max: 100,
@@ -878,13 +884,38 @@ export default function render(state: UIState): m.Children {
         help(
           'delete',
           m('button.delete', {
+            disabled: nothingSelected,
             onclick: () => dispatch(deleteSelection()),
           })
         ),
-        help('copy', m('button#copy', { onclick: () => dispatch(copy()) })),
-        help('paste', m('button#paste', { onclick: () => dispatch(paste()) })),
-        help('undo', m('button#undo', { onclick: () => dispatch(undo()) })),
-        help('redo', m('button#redo', { onclick: () => dispatch(redo()) })),
+        help(
+          'copy',
+          m('button#copy', {
+            disabled: cantCopyPaste,
+            onclick: () => dispatch(copy()),
+          })
+        ),
+        help(
+          'paste',
+          m('button#paste', {
+            disabled: cantCopyPaste,
+            onclick: () => dispatch(paste()),
+          })
+        ),
+        help(
+          'undo',
+          m('button#undo', {
+            disabled: !state.canUndo,
+            onclick: () => dispatch(undo()),
+          })
+        ),
+        help(
+          'redo',
+          m('button#redo', {
+            disabled: !state.canRedo,
+            onclick: () => dispatch(redo()),
+          })
+        ),
       ]),
     ]),
   ]);
