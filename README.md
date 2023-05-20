@@ -21,8 +21,6 @@ PipeScore is powered by:
 - [eslint](https://eslint.org/) for linting
 - [prettier](https://prettier.io) for code formatting
 
-To learn more about how it works, have a look at the README in `src/PipeScore`.
-
 ## Features
 
 - Reactive embellishments - a faster way to input gracenotes
@@ -35,6 +33,12 @@ To learn more about how it works, have a look at the README in `src/PipeScore`.
 - Parts, repeats, second timings
 - Ties, triplets, time signatures, text boxes
 - 8000 lines of code
+
+## Documentation
+
+See `src/PipeScore/README.md` for documentation.
+
+[This manual](http://bagpipe.ddg-hansa.com/Bagpipe_Reader.pdf) is a helpful guide to BWW files.
 
 ## Running locally
 

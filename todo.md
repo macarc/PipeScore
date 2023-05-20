@@ -15,7 +15,6 @@
 
 - [ ] Allow choosing fonts
 - [ ] Contenteditable to allow editing text / e.t.c. without popup ?
-- [ ] BWW Example: https://bagpipetunes.intertechnics.com/files/Bagpipe_Player/S/Scotland_the_Brave.bww
 
 ## Big features
 
