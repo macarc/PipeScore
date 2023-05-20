@@ -47,6 +47,7 @@ import {
   landscape,
   portrait,
   setPageNumberVisibility,
+  commit,
 } from '../Events/Misc';
 import { addSecondTiming, addSingleTiming } from '../Events/Timing';
 import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
@@ -57,7 +58,13 @@ import {
   setPlaybackBpm,
   startPlaybackAtSelection,
 } from '../Events/Playback';
-import { centreText, addText, editText } from '../Events/Text';
+import {
+  centreText,
+  addText,
+  editText,
+  setTextY,
+  setTextX,
+} from '../Events/Text';
 import { addStave } from '../Events/Stave';
 import { help } from '../global/docs';
 import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
@@ -74,6 +81,7 @@ import { Bar } from '../Bar';
 import { Gracenote, ReactiveGracenote, CustomGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { dispatch } from '../Controller';
+import { TextBox } from '../TextBox';
 
 export interface UIState {
   loggedIn: boolean;
@@ -81,6 +89,7 @@ export interface UIState {
   selectedGracenote: Gracenote | null;
   selectedBar: Bar | null;
   selectedNotes: Note[];
+  selectedText: TextBox | null;
   showingPageNumbers: boolean;
   preview: Preview | null;
   isLandscape: boolean;
@@ -458,6 +467,15 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
+  const pageWidth = state.isLandscape
+    ? settings.pageLongSideLength
+    : settings.pageShortSideLength;
+  const pageHeight = state.isLandscape
+    ? settings.pageShortSideLength
+    : settings.pageLongSideLength;
+  const percentage = (value: number, total: number) =>
+    Math.round((10000 * value) / total) / 100;
+
   const textMenu = [
     m('section', [
       m('h2', 'Add Text Box'),
@@ -488,6 +506,48 @@ export default function render(state: UIState): m.Children {
           )
         ),
       ]),
+    ]),
+    m('section', [
+      m('h2', 'Set Text Box Position'),
+      help(
+        'set text coords',
+        m('div.section-content.vertical', [
+          m('label.text-coord', [
+            'X: ',
+            m('input', {
+              type: 'number',
+              min: 0,
+              max: 100,
+              step: 0.1,
+              style: 'width: 5rem',
+              value: percentage(state.selectedText?.x() || 0, pageWidth),
+              oninput: (e: InputEvent) =>
+                dispatch(
+                  setTextX(parseFloat((e.target as HTMLInputElement).value))
+                ),
+              onchange: () => dispatch(commit()),
+            }),
+            '%',
+          ]),
+          m('label.text-coord', [
+            'Y: ',
+            m('input', {
+              type: 'number',
+              min: 0,
+              max: 100,
+              step: 0.1,
+              style: 'width: 5rem',
+              value: percentage(state.selectedText?.y() || 0, pageHeight),
+              oninput: (e: InputEvent) =>
+                dispatch(
+                  setTextY(parseFloat((e.target as HTMLInputElement).value))
+                ),
+              onchange: () => dispatch(commit()),
+            }),
+            '%',
+          ]),
+        ])
+      ),
     ]),
   ];
 

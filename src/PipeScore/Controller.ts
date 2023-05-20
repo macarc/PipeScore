@@ -25,6 +25,7 @@ import { Score } from './Score';
 import {
   GracenoteSelection,
   ScoreSelection,
+  TextSelection,
   TripletLineSelection,
 } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
@@ -71,6 +72,7 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
     }
   }
 }
+
 let needsRedrawn = false;
 
 const updateView = () => {
@@ -137,6 +139,10 @@ function redraw() {
           (state.selection instanceof ScoreSelection &&
             state.selection.gracenote(state.score)) ||
           null,
+        selectedText:
+          state.selection instanceof TextSelection
+            ? state.selection.text
+            : null,
         isLandscape: state.score.landscape,
         selectedBar:
           (state.selection instanceof ScoreSelection &&

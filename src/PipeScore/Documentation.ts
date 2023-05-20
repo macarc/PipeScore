@@ -84,6 +84,8 @@ export default new Map(
     'add text': 'Add a new text box.',
     'centre text': 'Horizontally centre the currently selected text box.',
     'edit text': 'Edit the currently selected text box.',
+    'set text coords':
+      'Set the coordinates of the text box.\n\nThis may be used for precise control. Most of the time, you can just drag the text box.\n\nPositions the text box X% from the left and Y% from the top of the page.',
     play: 'Play a preview of the score back from the start.\n\nThis will only work once the samples are downloaded (if the samples need to download, you will see a notice).',
     'play from selection':
       'Play a preview of the score, starting at the currently selected note/bar.\n\nThis will only work once the samples are downloaded (if the samples need to download, you will see a notice).',

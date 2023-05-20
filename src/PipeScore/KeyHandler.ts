@@ -64,7 +64,7 @@ export function keyHandler(e: KeyboardEvent): void {
         dispatch(print());
         break;
     }
-  } else {
+  } else if (!(document.activeElement instanceof HTMLInputElement)) {
     switch (e.key) {
       case 'Escape':
         dispatch(stopInput());

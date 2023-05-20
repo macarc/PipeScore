@@ -231,6 +231,14 @@ input#playback-bpm {
   margin-right: 0.2rem;
 }
 
+label.text-coord {
+  margin: 0;
+
+  input {
+    width: 4rem !important;
+  }
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

@@ -19,6 +19,7 @@ import { State } from '../State';
 
 import { TextBox } from '../TextBox';
 import { TextSelection } from '../Selection';
+import { settings } from '../global/settings';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
@@ -51,6 +52,37 @@ export function editText(tx: TextBox | null = null): ScoreEvent {
       tx = state.selection.text;
     if (tx) {
       return await tx.edit();
+    }
+    return Update.NoChange;
+  };
+}
+
+export function setTextX(xPercent: number): ScoreEvent {
+  return async (state: State) => {
+    const x =
+      (xPercent / 100) *
+      (state.score.landscape
+        ? settings.pageLongSideLength
+        : settings.pageShortSideLength);
+    if (state.selection instanceof TextSelection) {
+      state.selection.text.setX(x);
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  };
+}
+
+export function setTextY(yPercent: number): ScoreEvent {
+  return async (state: State) => {
+    const y =
+      (yPercent / 100) *
+      (state.score.landscape
+        ? settings.pageShortSideLength
+        : settings.pageLongSideLength);
+    console.log(y, yPercent);
+    if (state.selection instanceof TextSelection) {
+      state.selection.text.setY(y);
+      return Update.ViewChanged;
     }
     return Update.NoChange;
   };

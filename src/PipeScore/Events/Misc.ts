@@ -225,3 +225,7 @@ export function print(): ScoreEvent {
     return Update.NoChange;
   };
 }
+
+export function commit(): ScoreEvent {
+  return async () => Update.ShouldSave;
+}

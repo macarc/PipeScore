@@ -32,8 +32,8 @@ type Font = 'serif' | 'sans-serif';
 
 export class TextBox {
   private centred: boolean;
-  private x: number;
-  private y: number;
+  private _x: number;
+  private _y: number;
   private mouseXOffset = 0;
   private mouseYOffset = 0;
   private size: number;
@@ -42,8 +42,8 @@ export class TextBox {
 
   constructor(text = '', centred = true, x = 0, y = 0, size = 20) {
     this.centred = centred;
-    this.x = x ? x : Math.random() * 100;
-    this.y = y ? y : Math.random() * 150;
+    this._x = x ? x : Math.random() * 100;
+    this._y = y ? y : Math.random() * 150;
     this.size = size;
     this._text = text;
     this.font = 'sans-serif';
@@ -55,8 +55,8 @@ export class TextBox {
   }
   toJSON(): SavedTextBox {
     return {
-      x: this.x,
-      y: this.y,
+      x: this._x,
+      y: this._y,
       size: this.size,
       _text: this._text,
       font: this.font,
@@ -67,8 +67,8 @@ export class TextBox {
     return this._text;
   }
   setCursorDragOffset(mouseX: number, mouseY: number) {
-    this.mouseXOffset = this.x - mouseX;
-    this.mouseYOffset = this.y - mouseY;
+    this.mouseXOffset = this._x - mouseX;
+    this.mouseYOffset = this._y - mouseY;
   }
   set(text: string, size: number, font: Font) {
     if (text !== this._text || size !== this.size || font !== this.font) {
@@ -83,13 +83,26 @@ export class TextBox {
     this.centred = !this.centred;
   }
   adjustAfterOrientation(newWidth: number, newHeight: number) {
-    this.x = (this.x / newHeight) * newWidth;
-    this.y = (this.y / newHeight) * newWidth;
+    this._x = (this._x / newHeight) * newWidth;
+    this._y = (this._y / newHeight) * newWidth;
   }
   setCoords(x: number, y: number) {
-    this.x = x + this.mouseXOffset;
-    this.y = y + this.mouseYOffset;
+    this._x = x + this.mouseXOffset;
+    this._y = y + this.mouseYOffset;
     this.centred = false;
+  }
+  x() {
+    return this._x;
+  }
+  setX(x: number) {
+    this.centred = false;
+    return (this._x = x);
+  }
+  y() {
+    return this._y;
+  }
+  setY(y: number) {
+    return (this._y = y);
   }
 
   public async edit() {
@@ -146,14 +159,14 @@ export class TextBox {
   }
 
   render(props: TextBoxProps): m.Children {
-    if (this.centred) this.x = props.scoreWidth / 2;
+    if (this.centred) this._x = props.scoreWidth / 2;
     const selected =
       props.selection instanceof TextSelection && props.selection.text === this;
     return m(
       'text',
       {
-        x: this.x,
-        y: this.y,
+        x: this._x,
+        y: this._y,
         style: `font-size: ${this.size}px; cursor: pointer; font-family: ${this.font};`,
         'text-anchor': 'middle',
         fill: selected ? 'orange' : '',
