@@ -62,19 +62,10 @@ function gracenote(ts: TokenStream): SavedGracenote {
 
 function doubleGracenote(ts: TokenStream): SavedGracenote {
   const token = ts.eat(TokenType.DOUBLE_GRACENOTE);
-  const notes: string[] = [];
-
-  if (token.value[1] === 't') {
-    notes.push('ha');
-  } else {
-    notes.push(token.value[1]);
-  }
-
-  notes.push(token.value[2]);
 
   return {
     type: 'custom',
-    value: { pitches: notes.map(toPitch) },
+    value: { pitches: [toGracenotePitch(token.value[1]), toPitch(token.value[2])] },
   };
 }
 
