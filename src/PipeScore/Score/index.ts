@@ -368,15 +368,15 @@ export class Score {
   }
   public dragTextBox(text: TextBox, x: number, y: number, page: number) {
     if (page >= this.numberOfPages) return;
-    // TODO can I remove this first check?
-    if (this.textBoxes[page] || !this.textBoxes[page].includes(text)) {
-      for (const page of this.textBoxes) {
-        if (page.includes(text)) {
-          page.splice(page.indexOf(text), 1);
+    for (let pageIndex = 0; pageIndex < this.numberOfPages; pageIndex++) {
+      for (let i = 0; i < this.textBoxes[pageIndex].length; i++) {
+        if (this.textBoxes[pageIndex][i].text() === text.text()) {
+          if (pageIndex !== page) {
+            this.textBoxes[pageIndex].splice(i, 1);
+            this.textBoxes[page].push(text);
+          }
         }
       }
-      if (!this.textBoxes[page]) this.textBoxes[page] = [];
-      this.textBoxes[page].push(text);
     }
     if (x < this.width() && x > 0 && y < this.height() && y > 0) {
       text.setCoords(x, y);
