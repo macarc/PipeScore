@@ -76,16 +76,17 @@ export class Score {
     this._staves.forEach((stave, index) =>
       index % 2 === 0 ? stave[first]() : stave[last]()
     );
-    this.textBoxes = [
-      [new TextBox(name, true, this.width() / 2, settings.topOffset / 2)],
-    ];
+    this.textBoxes = [[]];
+    this.addText(
+      new TextBox(name, true, this.width() / 2, settings.topOffset / 2)
+    );
 
     // Detailed text - composer / tuneType
     const detailTextSize = 15;
     const detailY = Math.max(settings.topOffset - 45, 10);
     const detailX = 8;
     if (composer.length > 0)
-      this.textBoxes[0].push(
+      this.addText(
         new TextBox(
           composer,
           false,
@@ -95,7 +96,7 @@ export class Score {
         )
       );
     if (tuneType.length > 0)
-      this.textBoxes[0].push(
+      this.addText(
         new TextBox(
           tuneType,
           false,

@@ -65,7 +65,9 @@ function doubleGracenote(ts: TokenStream): SavedGracenote {
 
   return {
     type: 'custom',
-    value: { pitches: [toGracenotePitch(token.value[1]), toPitch(token.value[2])] },
+    value: {
+      pitches: [toGracenotePitch(token.value[1]), toPitch(token.value[2])],
+    },
   };
 }
 
