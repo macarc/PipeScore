@@ -44,7 +44,9 @@ import { NoteLength } from './Note/notelength';
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;
 
-  if (e.ctrlKey) {
+  const isMacCmd = e.metaKey && navigator.platform.startsWith('Mac');
+
+  if (isMacCmd || e.ctrlKey) {
     switch (e.key) {
       case 'c':
         dispatch(copy());
