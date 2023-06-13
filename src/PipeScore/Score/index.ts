@@ -408,6 +408,7 @@ export class Score {
     );
   }
   public playbackTimings(elements: Playback[]) {
+    // TODO : support single timings ... ?
     return this.timings
       .filter((st) => st instanceof SecondTiming)
       .map((st) => (st as SecondTiming).playbackTiming(elements));

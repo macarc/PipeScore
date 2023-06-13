@@ -132,19 +132,15 @@ function shouldDeleteBecauseOfSecondTimings(
   timings: PlaybackSecondTiming[],
   repeating: boolean
 ) {
-  for (const timing of timings) {
-    if (timing.shouldDeleteElement(index, repeating)) return true;
-  }
-  return false;
+  return timings.some(t => t.shouldDeleteElement(index, repeating));
+}
+
+function inSecondTiming(index: number, timings: PlaybackSecondTiming[]) {
+  return timings.some(t => t.in(index));
 }
 
 function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
-  for (const timing of timings) {
-    if (timing.end === index) {
-      return true;
-    }
-  }
-  return false;
+  return timings.some(t => t.end === index);
 }
 
 // Removes all PlaybackRepeats and PlaybackObjects from `elements'
@@ -162,20 +158,24 @@ function expandRepeats(
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
     if (e instanceof PlaybackRepeat) {
-      if (e.type === 'repeat-end' && i > repeatEndIndex) {
+      if (e.type === 'repeat-end' && repeating && !inSecondTiming(i, timings)) {
+        repeating = false;
+        repeatStartIndex = i;
+      } else if (e.type === 'repeat-end' && i > repeatEndIndex) {
         repeatEndIndex = i;
         // Go back to repeat
         i = repeatStartIndex;
         // Need to do this to avoid an infinite loop
         // if two end repeats are next to each other
-        repeatStartIndex = repeatEndIndex;
+        repeatStartIndex = i;
         repeating = true;
-      } else {
-        if (e.type === 'repeat-start') repeatStartIndex = i;
+      } else if (e.type === 'repeat-start') {
+        repeatStartIndex = i;
       }
     } else if (e instanceof PlaybackObject) {
       if (e.type === 'object-start' && e.id === start) {
         output = [];
+        start = -1;
       }
       if (e.type === 'object-end') {
         if (repeating && isAtEndOfTiming(i, timings)) {

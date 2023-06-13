@@ -73,6 +73,9 @@ export class PlaybackSecondTiming {
     this.middle = middle;
     this.end = end;
   }
+  in(index: number) {
+    return this.start <= index && index <= this.end;
+  }
   shouldDeleteElement(index: number, repeating: boolean) {
     if (repeating) {
       return this.start <= index && index <= this.middle;
