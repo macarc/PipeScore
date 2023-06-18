@@ -84,6 +84,7 @@ import { dispatch } from '../Controller';
 import { TextBox } from '../TextBox';
 
 export interface UIState {
+  canEdit: boolean;
   canUndo: boolean;
   canRedo: boolean;
   loggedIn: boolean;
@@ -826,15 +827,21 @@ export default function render(state: UIState): m.Children {
   const loadingAudioWarning = [
     'Loading audio samples... this may take a minute or so.',
   ];
-  const showLoginWarning = !state.loggedIn;
+  const otherUsersScoreWarning = [
+    "You are currently viewing someone else's score. Any edits you make will not be saved.",
+  ];
+  const showLoginWarning = state.canEdit && !state.loggedIn;
+  const showOtherUsersScoreWarning = !state.canEdit;
   const showAudioWarning =
     state.loadingAudio && state.currentMenu === 'playback';
   const warning = [
     ...(showLoginWarning ? loginWarning : []),
+    ...(showOtherUsersScoreWarning ? otherUsersScoreWarning : []),
     showAudioWarning && showLoginWarning ? m('hr') : null,
     ...(showAudioWarning ? loadingAudioWarning : []),
   ];
-  const shouldShowWarning = showLoginWarning || showAudioWarning;
+  const shouldShowWarning =
+    showLoginWarning || showAudioWarning || showOtherUsersScoreWarning;
 
   const menuHead = (name: Menu) =>
     m(
@@ -845,10 +852,9 @@ export default function render(state: UIState): m.Children {
       },
       [pretty(name)]
     );
-  return m('div', [
-    m('div#ui', [
-      m('div#headings', [
-        help('home', m('button', m('a[href=/scores]', 'Home'))),
+
+  const headings = state.canEdit
+    ? [
         menuHead('note'),
         menuHead('gracenote'),
         menuHead('bar'),
@@ -862,6 +868,20 @@ export default function render(state: UIState): m.Children {
           'help',
           m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
         ),
+      ]
+    : [
+        menuHead('playback'),
+        help(
+          'help',
+          m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
+        ),
+      ];
+
+  return m('div', [
+    m('div#ui', [
+      m('div#headings', [
+        help('home', m('button', m('a[href=/scores]', 'Home'))),
+        ...headings,
       ]),
       m('div#topbar', [m('div#topbar-main', menuMap[state.currentMenu])]),
       shouldShowWarning ? m('div#login-warning', warning) : null,

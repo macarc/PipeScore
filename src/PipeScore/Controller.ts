@@ -53,14 +53,12 @@ const state: State = {
 let save: (score: Score) => void = () => null;
 
 export async function dispatch(event: ScoreEvent): Promise<void> {
-  if (!state.canEdit) return;
-
   const res = await event(state);
   if (res !== Update.NoChange) {
     updateView();
     if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
       state.score.updateName();
-      if (res === Update.ShouldSave) {
+      if (res === Update.ShouldSave && state.canEdit) {
         const asJSON = JSON.stringify(state.score.toJSON());
         if (state.history.past[state.history.past.length - 1] !== asJSON) {
           state.history.past.push(asJSON);
@@ -95,7 +93,7 @@ function redraw() {
       state.view.score,
       m(
         'div',
-        { class: state.canEdit ? 'big-top-margin' : '' },
+        { class: 'ui-topbar' },
         state.score.render({
           justAddedNote: state.preview?.justAdded() || false,
           noteState: {
@@ -120,10 +118,11 @@ function redraw() {
       )
     );
   }
-  if (state.view.ui && state.canEdit)
+  if (state.view.ui)
     m.render(
       state.view.ui,
       renderUI({
+        canEdit: state.canEdit,
         canUndo: state.history.past.length > 1,
         canRedo: state.history.future.length > 0,
         loggedIn: state.isLoggedIn,
@@ -183,6 +182,9 @@ export default function startController(
   save = saveFn;
   state.isLoggedIn = isLoggedIn;
   state.canEdit = canEdit;
+  if (!state.canEdit) {
+    state.menu = 'playback';
+  }
   state.score = score;
   startLoadingSamples(() => dispatch(loadedAudio()));
   state.history.past = [JSON.stringify(score.toJSON())];
