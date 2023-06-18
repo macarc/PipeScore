@@ -18,4 +18,4 @@ export type PlaybackState = {
   userPressedStop: boolean;
   playing: boolean;
   loading: boolean;
-}
+};

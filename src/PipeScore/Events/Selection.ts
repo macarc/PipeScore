@@ -17,7 +17,7 @@
 import { ScoreEvent, Update } from './common';
 import { State } from '../State';
 import { ScoreSelection } from '../Selection/score_selection';
-import { GracenoteSelection, TextSelection } from '../Selection';
+import { GracenoteSelection } from '../Selection';
 import { Bar } from '../Bar';
 
 export function moveLeft(): ScoreEvent {

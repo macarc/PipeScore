@@ -40,7 +40,7 @@ export class Settings {
       lineGap: this.lineGap,
       margin: this.margin,
       topOffset: this.topOffset,
-      bpm: this.bpm
+      bpm: this.bpm,
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {

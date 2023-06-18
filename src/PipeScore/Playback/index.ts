@@ -133,15 +133,15 @@ function shouldDeleteBecauseOfSecondTimings(
   timings: PlaybackSecondTiming[],
   repeating: boolean
 ) {
-  return timings.some(t => t.shouldDeleteElement(index, repeating));
+  return timings.some((t) => t.shouldDeleteElement(index, repeating));
 }
 
 function inSecondTiming(index: number, timings: PlaybackSecondTiming[]) {
-  return timings.some(t => t.in(index));
+  return timings.some((t) => t.in(index));
 }
 
 function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
-  return timings.some(t => t.end === index);
+  return timings.some((t) => t.end === index);
 }
 
 // Removes all PlaybackRepeats and PlaybackObjects from `elements'
