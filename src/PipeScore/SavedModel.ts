@@ -152,6 +152,7 @@ export type SavedTiming =
     };
 
 export type SavedSettings = {
+  bpm: number;
   staveGap: number;
   lineGap: number;
   margin: number;

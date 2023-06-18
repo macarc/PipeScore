@@ -19,6 +19,7 @@ import { State } from '../State';
 
 import { playback } from '../Playback';
 import { ScoreSelection } from '../Selection';
+import { settings } from '../global/settings';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
@@ -55,8 +56,8 @@ export function stopPlayback(): ScoreEvent {
 }
 
 export function setPlaybackBpm(bpm: number): ScoreEvent {
-  return async (state: State) => {
-    state.playback.bpm = bpm;
+  return async () => {
+    settings.bpm = bpm;
     return Update.NoChange;
   };
 }

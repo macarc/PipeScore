@@ -25,12 +25,14 @@ export class Settings {
   topOffset = 200;
   pageLongSideLength = 297 * 5;
   pageShortSideLength = 210 * 5;
+  bpm = 80;
 
   fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;
     this.lineGap = o.lineGap;
     this.margin = o.margin;
     this.topOffset = o.topOffset;
+    this.bpm = o.bpm || 80;
   }
   toJSON(): SavedSettings {
     return {
@@ -38,6 +40,7 @@ export class Settings {
       lineGap: this.lineGap,
       margin: this.margin,
       topOffset: this.topOffset,
+      bpm: this.bpm
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {

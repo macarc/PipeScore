@@ -40,7 +40,7 @@ const state: State = {
   isLoggedIn: false,
   justClickedNote: false,
   preview: null,
-  playback: { bpm: 80, userPressedStop: false, playing: false, loading: true },
+  playback: { userPressedStop: false, playing: false, loading: true },
   menu: 'note',
   doc: { show: true, current: null },
   clipboard: null,
@@ -157,7 +157,6 @@ function redraw() {
             'Hover over different icons to view Help here.'
           : null,
         currentMenu: state.menu,
-        playbackBpm: state.playback.bpm,
       })
     );
 }

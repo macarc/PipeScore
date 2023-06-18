@@ -99,7 +99,6 @@ export interface UIState {
   isLandscape: boolean;
   currentMenu: Menu;
   docs: string | null;
-  playbackBpm: number;
   zoomLevel: number;
 }
 
@@ -662,7 +661,7 @@ export default function render(state: UIState): m.Children {
               min: '30',
               max: '150',
               step: '1',
-              value: state.playbackBpm,
+              value: settings.bpm,
               oninput: (e: InputEvent) =>
                 dispatch(
                   setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
@@ -670,7 +669,7 @@ export default function render(state: UIState): m.Children {
             }),
             m('input#playback-bpm', {
               type: 'number',
-              value: state.playbackBpm,
+              value: settings.bpm,
               oninput: (e: InputEvent) =>
                 dispatch(
                   setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))

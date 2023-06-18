@@ -30,6 +30,7 @@ import {
   PlaybackSecondTiming,
 } from './model';
 import { ID } from '../global/id';
+import { settings } from '../global/settings';
 
 export * from './model';
 
@@ -254,7 +255,7 @@ export async function playback(
   for (const note of soundedPitches) {
     if (state.userPressedStop) break;
 
-    await note.play(state.bpm);
+    await note.play(settings.bpm);
   }
 
   drone.stop();
