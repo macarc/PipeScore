@@ -555,16 +555,41 @@ class Parser implements Record<TokenType, (t: Token) => void> {
     this.score.newGracenote(reactive('pele'));
   }
   [TokenType.STRIKE](t: Token) {
-    // FIXME: deal with 'light' strikes, prefixed with 'l'
     const partBeforeStrike = t.value[1];
-    if (partBeforeStrike) {
-      this.score.newGracenote(reactive('g-strike'));
-    }
 
-    this.score.newGracenote({
-      type: 'single',
-      value: { note: toPitch(t.value[2]) },
-    });
+    if (partBeforeStrike === 'g' || partBeforeStrike === 't' || partBeforeStrike === 'h') {
+      this.score.newGracenote(reactive('g-strike'));
+    } else if (partBeforeStrike && partBeforeStrike.startsWith('l')) {
+      // 'Light' strikes on D go to C instead of G. These are not implemented
+      // as reactive gracenotes in PipeScore, so we use custom gracenotes instead.
+      if (partBeforeStrike[1] === 'g') {
+        this.score.newGracenote({
+          type: 'custom',
+          value: {
+            pitches: [Pitch.HG, Pitch.D, Pitch.C]
+          }
+        })
+      } else if (partBeforeStrike[1] === 't') {
+        this.score.newGracenote({
+          type: 'custom',
+          value: {
+            pitches: [Pitch.HA, Pitch.D, Pitch.C]
+          }
+        })
+      } else if (partBeforeStrike[1] === 'h') {
+        this.score.newGracenote({
+          type: 'custom',
+          value: {
+            pitches: [Pitch.D, Pitch.C]
+          }
+        })
+      }
+    } else {
+      this.score.newGracenote({
+        type: 'single',
+        value: { note: toPitch(t.value[2]) },
+      });
+    }
   }
   [TokenType.DOUBLE_STRIKE]() {
     this.ts.warn("Don't support double strike, ignoring");
