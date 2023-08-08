@@ -513,7 +513,11 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   [TokenType.DOUBLING](t: Token) {
     // dbhg is really a half doubling on HG
     this.score.newGracenote(
-      reactive(t.value[0] === 'dbhg' ? 'half-doubling' : 'doubling')
+      reactive(
+        t.value[0] === 'dbhg' || t.value[0].startsWith('h')
+          ? 'half-doubling'
+          : 'doubling'
+      )
     );
   }
   [TokenType.REGULAR_GRIP]() {
@@ -555,7 +559,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   }
   [TokenType.PELE](t: Token) {
     if (t.value[0].startsWith('l')) {
-      this.score.newGracenote(reactive('c-shake'))
+      this.score.newGracenote(reactive('c-shake'));
     } else {
       this.score.newGracenote(reactive('shake'));
     }
@@ -563,7 +567,11 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   [TokenType.STRIKE](t: Token) {
     const partBeforeStrike = t.value[1];
 
-    if (partBeforeStrike === 'g' || partBeforeStrike === 't' || partBeforeStrike === 'h') {
+    if (
+      partBeforeStrike === 'g' ||
+      partBeforeStrike === 't' ||
+      partBeforeStrike === 'h'
+    ) {
       this.score.newGracenote(reactive('g-strike'));
     } else if (partBeforeStrike && partBeforeStrike.startsWith('l')) {
       // 'Light' strikes on D go to C instead of G. These are not implemented
@@ -572,23 +580,23 @@ class Parser implements Record<TokenType, (t: Token) => void> {
         this.score.newGracenote({
           type: 'custom',
           value: {
-            pitches: [Pitch.HG, Pitch.D, Pitch.C]
-          }
-        })
+            pitches: [Pitch.HG, Pitch.D, Pitch.C],
+          },
+        });
       } else if (partBeforeStrike[1] === 't') {
         this.score.newGracenote({
           type: 'custom',
           value: {
-            pitches: [Pitch.HA, Pitch.D, Pitch.C]
-          }
-        })
+            pitches: [Pitch.HA, Pitch.D, Pitch.C],
+          },
+        });
       } else if (partBeforeStrike[1] === 'h') {
         this.score.newGracenote({
           type: 'custom',
           value: {
-            pitches: [Pitch.D, Pitch.C]
-          }
-        })
+            pitches: [Pitch.D, Pitch.C],
+          },
+        });
       }
     } else {
       this.score.newGracenote({
