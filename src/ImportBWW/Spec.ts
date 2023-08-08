@@ -4,40 +4,41 @@ type SpecType = {
   regex: RegExp;
   type: TokenType;
 };
+
 export const Spec: SpecType[] = [
   {
     regex:
-      /^(Bagpipe ((?:Reader)|(?:Music Writer Gold)|(?:Musicworks Gold))):(\d\.\d)/,
-    type: TokenType.SOFTWARE_HEADER,
+      /^(Bagpipe Reader|Bagpipe Music Writer Gold|Bagpipe Musicworks Gold):(\d\.\d)/,
+    type: TokenType.SOFTWARE_NAME_AND_VERSION,
   },
   {
     regex: /^MIDINoteMappings,\((\d{0,2},?){27}\)/,
-    type: TokenType.MIDI_NOTE_MAPPINGS_HEADER,
+    type: TokenType.MIDI_NOTE_MAPPINGS,
   },
   {
     regex: /^FrequencyMappings,\((\d{3},?){27}\)/,
-    type: TokenType.FREQUENCY_MAPPINGS_HEADER,
+    type: TokenType.FREQUENCY_MAPPINGS,
   },
   {
     regex: /^InstrumentMappings,\((\d{1,4},?){7}\)/,
-    type: TokenType.INSTRUMENT_MAPPINGS_HEADER,
+    type: TokenType.INSTRUMENT_MAPPINGS,
   },
   {
     regex: /^GracenoteDurations,\((\d{1,3},?){14}\)/,
-    type: TokenType.GRACENOTE_DURATIONS_HEADER,
+    type: TokenType.GRACENOTE_DURATIONS,
   },
   {
     regex: /^FontSizes,\((\d{1,3},?){5}\)/,
-    type: TokenType.FONT_SIZES_HEADER,
+    type: TokenType.FONT_SIZES,
   },
   {
     regex:
       /^TuneFormat,\(\d,\d,([a-zA-Z]*),([a-zA-Z]*),\d{2,4},\d{3,4},\d{3,4},\d{3,4},([a-zA-Z]*),\d,\d\)/,
-    type: TokenType.TUNE_FORMAT_HEADER,
+    type: TokenType.TUNE_FORMAT,
   },
   {
     regex: /^TuneTempo,(\d*)/,
-    type: TokenType.TUNE_TEMPO_HEADER,
+    type: TokenType.TUNE_TEMPO,
   },
   {
     regex:
@@ -189,6 +190,8 @@ export const Spec: SpecType[] = [
     regex: /^([abcdefgt])g(?=\s)/,
     type: TokenType.GRACENOTE,
   },
+  // These have to be the same token since ^te could either be
+  // the end of the new tie format, or a tie on E on the old tie format
   {
     regex: /^\^t((?:lg)|(?:la)|(?:hg)|(?:ha)|[bcdef])(?=\s)/,
     type: TokenType.TIE_END_OR_TIE_OLD_FORMAT,
@@ -216,11 +219,15 @@ export const Spec: SpecType[] = [
     type: TokenType.IRREGULAR_GROUP_END,
   },
   {
-    regex: /^'(?:([12])(\d*)|(intro))(?=\s)/,
+    regex: /^'(?:([12])(\d*)|(intro|si|do|bis))(?=\s)/,
     type: TokenType.TIME_LINE_START,
   },
   {
     regex: /^_'(?=\s)/,
     type: TokenType.TIME_LINE_END,
+  },
+  {
+    regex: /^space/,
+    type: TokenType.SPACE,
   },
 ];

@@ -5,7 +5,6 @@ export class TokenStream {
   private stream: string;
   private cursor = 0;
   private current: Token | null = null;
-  private skipHeaderTokens = false;
   public warnings: string[] = [];
 
   constructor(stream: string) {
@@ -23,7 +22,7 @@ export class TokenStream {
   public eat(tokenType: TokenType) {
     const token = this.current;
 
-    if (token == null) {
+    if (token === null) {
       throw new SyntaxError(
         `Unexpected end of input, expected: "${tokenType}"`
       );
@@ -38,10 +37,6 @@ export class TokenStream {
     this.nextToken();
 
     return token;
-  }
-
-  public setSkipHeaderTokens() {
-    this.skipHeaderTokens = true;
   }
 
   public is(tokenType: TokenType): boolean {
@@ -98,16 +93,13 @@ export class TokenStream {
     } else {
       this.cursor += firstNonWhitespace.index;
     }
-    if (this.stream.slice(this.cursor).match('space')) {
-      this.cursor += 5;
-      this.skipWhitespace();
-    }
   }
 
   private nextToken(): Token | null {
     this.skipWhitespace();
 
     if (this.cursor >= this.stream.length) {
+      this.current = null;
       return null;
     }
 
@@ -121,10 +113,6 @@ export class TokenStream {
           type: spec.type,
           value: token,
         };
-
-        if (this.skipHeaderTokens && spec.type === TokenType.TEXT_TAG) {
-          return this.nextToken();
-        }
 
         return this.current;
       }

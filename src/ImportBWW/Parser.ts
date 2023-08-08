@@ -1,18 +1,12 @@
 import {
   SavedBar,
-  SavedBarline,
   SavedGracenote,
   SavedNote,
-  SavedNoteOrTriplet,
   SavedScore,
-  SavedStave,
   SavedTimeSignature,
   SavedTiming,
-  SavedTriplet,
 } from '../PipeScore/SavedModel';
 import { Token, TokenType } from './token';
-import { embellishment } from './parser/embellishment';
-import { headers } from './parser/header';
 import { TokenStream } from './Tokeniser';
 import { Settings } from '../PipeScore/global/settings';
 import { genId, ID } from '../PipeScore/global/id';
@@ -21,7 +15,7 @@ import {
   lengthInBeats,
   NoteLength,
 } from '../PipeScore/Note/notelength';
-import { toPitch } from './parser/pitch';
+import { toGracenotePitch, toPitch } from './parser/pitch';
 import { Pitch } from '../PipeScore/global/pitch';
 
 export const parse = (data: string) => new Parser(data).parse();
@@ -38,38 +32,102 @@ type ParsedScore = {
   textboxes: string[];
 };
 
-class Parser {
-  tieing = TieingState.NotTieing;
-  tiedNotePitch = Pitch.A;
-  currentTimeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
-  currentTimeline: ID | null = null;
-  currentTimelineText = '';
-  timings: SavedTiming[] = [];
-  ts: TokenStream;
+function toNoteLength(length: string): NoteLength {
+  switch (length) {
+    case '1':
+      return NoteLength.Semibreve;
+    case '2':
+      return NoteLength.Minim;
+    case '4':
+      return NoteLength.Crotchet;
+    case '8':
+      return NoteLength.Quaver;
+    case '16':
+      return NoteLength.SemiQuaver;
+    case '32':
+      return NoteLength.DemiSemiQuaver;
+    default:
+      throw new Error('Unrecognised note length');
+  }
+}
 
-  constructor(data: string) {
-    this.ts = new TokenStream(data);
+function transformIrregularGroupToSize(group: string): number {
+  switch (group) {
+    case '2':
+      return 2;
+    case '3':
+      return 3;
+    case '43':
+      return 4;
+    case '46':
+      return 4;
+    case '53':
+      return 5;
+    case '54':
+      return 5;
+    case '64':
+      return 6;
+    case '74':
+      return 7;
+    case '76':
+      return 7;
   }
 
-  parse(): ParsedScore {
-    const textboxes = headers(this.ts);
-    this.ts.setSkipHeaderTokens();
-    const parsed = this.score();
-    const nextToken = this.ts.eatAny();
-    if (nextToken) {
-      this.ts.warn(`Didn't parse full score: next token is ${nextToken.type}`);
-      console.log('Next token: ', nextToken);
-    }
-    return {
-      score: parsed,
-      warnings: this.ts.warnings,
-      textboxes,
-    };
-  }
-  private score(): SavedScore {
-    return {
+  throw Error(`Unable transform group to size: ${group}`);
+}
+
+function reactive(name: string): SavedGracenote {
+  return { type: 'reactive', value: { grace: name } };
+}
+
+const emptyBar = (timeSignature: SavedTimeSignature): SavedBar => ({
+  id: genId(),
+  isAnacrusis: false,
+  timeSignature,
+  notes: [],
+  width: 'auto',
+  frontBarline: { type: 'normal' },
+  backBarline: { type: 'normal' },
+});
+
+const emptyNote = (
+  pitch: Pitch,
+  length: NoteLength,
+  tied: boolean,
+  hasNatural: boolean,
+  gracenote: SavedGracenote
+): SavedNote => ({
+  pitch,
+  length,
+  tied,
+  // TODO!
+  hasNatural,
+  gracenote,
+});
+
+type BarlineType = 'normal' | 'repeat' | 'end';
+class PartialScore {
+  private tieing = TieingState.NotTieing;
+  private tiedFirstNote = false;
+  private gracenote: SavedGracenote = { type: 'none' };
+  private timeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
+  private timings: SavedTiming[] = [];
+  private textboxes: string[] = [];
+  // The pitch of the natural
+  private accidental: Pitch | null = null;
+  private previousID: ID = -1;
+
+  private currentTiming: SavedTiming | null = null;
+  private currentStave: SavedBar[] = [emptyBar(this.timeSignature)];
+
+  private score: SavedScore;
+
+  public currentLineIsEmpty: boolean = true;
+
+  constructor() {
+    this.score = {
       name: '[Imported from BWW]',
-      _staves: this.staves(),
+      _staves: [],
       landscape: true,
       textBoxes: [{ texts: [] }],
       numberOfPages: 1,
@@ -79,459 +137,451 @@ class Parser {
     };
   }
 
-  private staves(): SavedStave[] {
-    const staves: SavedStave[] = [];
+  newStave() {
+    this.endItem(this.currentBar().id);
 
-    while (this.ts.match(TokenType.CLEF)) {
-      staves.push(this.stave());
-    }
-
-    return staves;
+    this.score._staves.push({ bars: this.currentStave });
+    this.currentStave = [emptyBar(this.timeSignature)];
+    this.currentLineIsEmpty = true;
   }
 
-  private stave(): SavedStave {
-    this.keySignature();
-    this.currentTimeSignature = this.timeSignature();
+  newNote(pitch: Pitch, length: NoteLength) {
+    this.currentLineIsEmpty = false;
 
-    let bars_: SavedBar[] = [];
-
-    bars_ = this.bars();
-
-    return {
-      bars: bars_,
-    };
-  }
-
-  private bars(): SavedBar[] {
-    const bars: SavedBar[] = [];
-
-    this.ts.match(TokenType.BAR_LINE);
-
-    if (!this.hasNote()) {
-      return bars;
-    }
-
-    bars.push(this.bar());
-    while (this.ts.match(TokenType.BAR_LINE)) {
-      const b = this.bar();
-      bars.push(b);
-
-      // a terminating barline, or an ending double barlines (!I)
-      // or an ending double barlines with repeats (''!I)
-      // must appear at the end of a line of music
-      if (b.backBarline.type !== 'normal') break;
-    }
-
-    this.ts.match(TokenType.TERMINATING_BAR_LINE);
-
-    return bars;
-  }
-
-  private hasNote(): boolean {
-    return this.ts.peekAny(
-      TokenType.MELODY_NOTE,
-      TokenType.TIME_LINE_START,
-      TokenType.PART_BEGINNING,
-      TokenType.TIE_START,
-      TokenType.IRREGULAR_GROUP_START,
-      TokenType.TRIPLET_NEW_FORMAT,
-      TokenType.TRIPLET_OLD_FORMAT,
-      TokenType.REST,
-      TokenType.FERMATA,
-      TokenType.ACCIDENTAL,
-      TokenType.DOUBLING,
-      TokenType.STRIKE,
-      TokenType.REGULAR_GRIP,
-      TokenType.COMPLEX_GRIP,
-      TokenType.TAORLUATH,
-      TokenType.BUBBLY,
-      TokenType.BIRL,
-      TokenType.THROW,
-      TokenType.PELE,
-      TokenType.EDRE,
-      TokenType.DOUBLE_STRIKE,
-      TokenType.TRIPLE_STRIKE,
-      TokenType.DOUBLE_GRACENOTE,
-      TokenType.GRACENOTE
+    const tieing =
+      this.tieing === TieingState.OldTieFormat ||
+      (this.tieing === TieingState.NewTieFormat && this.tiedFirstNote);
+    const note = emptyNote(
+      pitch,
+      length,
+      tieing,
+      this.accidental === pitch,
+      this.gracenote
     );
-  }
+    const id = genId();
 
-  private bar(): SavedBar {
-    const notes: SavedNoteOrTriplet[] = [];
+    this.currentBar().notes.push({
+      id,
+      notetype: 'single',
+      value: note,
+    });
 
-    const frontBarline: SavedBarline = { type: 'normal' };
-    const backBarline: SavedBarline = { type: 'normal' };
+    this.startItem(id);
+    this.endItem(id);
 
-    const barId = genId();
-
-    this.timeLineStart(barId);
-
-    let token: Token | null;
-    if ((token = this.ts.matchToken(TokenType.PART_BEGINNING))) {
-      frontBarline.type = token.value[1] ? 'repeat' : 'end';
-    }
-
-    this.timeLineStart(barId);
-    const time = this.timeSignature();
-
-    while (this.hasNote()) {
-      const noteId = genId();
-      this.timeLineStart(noteId);
-
-      if (this.ts.is(TokenType.TRIPLET_OLD_FORMAT)) {
-        notes.push({
-          notetype: 'triplet',
-          id: noteId,
-          value: this.tripletOldFormat(notes.splice(this.note.length - 3)),
-        });
-      } else if (this.ts.is(TokenType.IRREGULAR_GROUP_START)) {
-        notes.push({
-          notetype: 'triplet',
-          id: noteId,
-          value: this.irregularGroup(TokenType.IRREGULAR_GROUP_START),
-        });
-      } else if (this.ts.is(TokenType.TRIPLET_NEW_FORMAT)) {
-        notes.push({
-          notetype: 'triplet',
-          id: noteId,
-          value: this.irregularGroup(TokenType.TRIPLET_NEW_FORMAT),
-        });
-      } else {
-        notes.push(this.note(noteId));
-      }
-    }
-
-    this.timeLineEnd(barId);
-
-    if ((token = this.ts.matchToken(TokenType.PART_END))) {
-      backBarline.type = token.value[1] ? 'repeat' : 'end';
-    }
-
-    const barNoteLength = notes.reduce(
-      (prev, note) => (prev += lengthInBeats(note.value.length)),
-      0
-    );
-    const barLength =
-      this.currentTimeSignature.ts === 'cut time' ||
-      this.currentTimeSignature.ts === 'common time'
-        ? 4
-        : (this.currentTimeSignature.ts[0] * 4) /
-          this.currentTimeSignature.ts[1];
-
-    return {
-      id: barId,
-      // This is a bit crude, but BWW has no concept of lead-ins
-      // and I can't really think of a better metric
-      isAnacrusis: barNoteLength < barLength / 2,
-      width: 'auto',
-      frontBarline,
-      backBarline,
-      timeSignature: time,
-      notes: notes,
-    };
-  }
-
-  private addTiming(currentId: ID) {
-    if (
-      this.currentTimelineText === '2.' &&
-      this.timings.length > 0 &&
-      this.currentTimeline
-    ) {
-      const previous = this.timings.pop() as SavedTiming;
-      this.timings.push({
-        type: 'second timing',
-        value: {
-          start: previous.value.start,
-          middle: this.currentTimeline,
-          end: currentId,
-          firstText: '1.',
-          secondText: '2.',
-        },
-      });
-    } else if (this.currentTimeline) {
-      this.timings.push({
-        type: 'single timing',
-        value: {
-          start: this.currentTimeline,
-          end: currentId,
-          text: this.currentTimelineText,
-        },
-      });
-    }
-  }
-
-  private timeLineStart(currentId: ID) {
-    let token: Token | null;
-    if ((token = this.ts.matchToken(TokenType.TIME_LINE_START))) {
-      this.currentTimeline = currentId;
-      this.currentTimelineText =
-        token.value[1] === '1' || token.value[1] === '2'
-          ? token.value[1] + '.'
-          : token.value[1] || '2nd.';
-    }
-  }
-
-  private timeLineEnd(currentId: ID) {
-    if (this.ts.match(TokenType.TIME_LINE_END)) {
-      this.addTiming(currentId);
-    }
-  }
-
-  // A note or triplet, possibly with an embellishment
-  private note(id: ID): SavedNoteOrTriplet {
-    this.timeLineStart(id);
-    const startedToTie = this.tieBeforeNote();
-    const embellishment_ = embellishment(this.ts);
-    this.timeLineStart(id);
-    let note_: SavedNoteOrTriplet | null = null;
-
-    if (this.ts.is(TokenType.TRIPLET_NEW_FORMAT)) {
-      const triplet = this.irregularGroup(TokenType.TRIPLET_NEW_FORMAT);
-      triplet.notes[0].gracenote = embellishment_;
-      note_ = { notetype: 'triplet', id: genId(), value: triplet };
-    } else {
-      note_ = {
-        notetype: 'single',
-        id,
-        value: this.melodyNote(startedToTie, embellishment_),
-      };
-    }
-    this.timeLineEnd(id);
-    if (note_) {
-      return note_;
-    } else {
-      throw new Error('Expected note');
-    }
-  }
-
-  // A note or rest, without any embellishments
-  private melodyNote(
-    tiedBefore: boolean,
-    embellishment: SavedGracenote
-  ): SavedNote {
-    const accidental_ = this.ts.is(TokenType.ACCIDENTAL)
-      ? this.accidental()
-      : false;
-    const startedToTie = this.tieBeforeNote();
-    let token: Token | null = null;
-    let note_: SavedNote | null = null;
-
-    if ((token = this.ts.matchToken(TokenType.REST))) {
-      this.ts.warn('Skipping rest');
-    } else {
-      token = this.ts.eat(TokenType.MELODY_NOTE);
-      const hasFermata = this.fermata();
-      if (hasFermata) {
-        this.ts.warn('Ignoring fermata');
-      }
-      const noteLength = this.toNoteLength(token.value[3]);
-      const hasDot = this.dot();
-      const pitch = toPitch(token.value[1]);
-      note_ = {
-        length: hasDot ? dotLength(noteLength) : noteLength,
-        pitch,
-        hasNatural: accidental_,
-        tied:
-          this.tieing !== TieingState.NotTieing && this.tiedNotePitch === pitch,
-        gracenote: embellishment,
-      };
-    }
-
+    this.gracenote = { type: 'none' };
+    this.accidental = null;
+    // The new tie format lasts until ^te, but the old
+    // one only lasts until the next note.
     if (this.tieing === TieingState.OldTieFormat) {
       this.tieing = TieingState.NotTieing;
-    }
-
-    this.tieAfterNote(tiedBefore || startedToTie, note_?.pitch);
-
-    if (note_) {
-      return note_;
     } else {
-      throw new Error('Missing melody note');
+      this.tiedFirstNote = true;
     }
   }
 
-  private toNoteLength(length: string): NoteLength {
-    switch (length) {
-      case '1':
-        return NoteLength.Semibreve;
-      case '2':
-        return NoteLength.Minim;
-      case '4':
-        return NoteLength.Crotchet;
-      case '8':
-        return NoteLength.Quaver;
-      case '16':
-        return NoteLength.SemiQuaver;
-      case '32':
-        return NoteLength.DemiSemiQuaver;
-      default:
-        throw new Error('Unrecognised note length');
+  makeTriplet() {
+    const bar = this.currentBar();
+    const notesOrTriplets = bar.notes.slice(bar.notes.length - 3);
+    if (notesOrTriplets.length !== 3) {
+      throw new Error(
+        "Tried to make a triplet, but there weren't enough notes in the bar!"
+      );
     }
+    const notes = notesOrTriplets.map((note) => {
+      if (note.notetype === 'triplet') {
+        throw new Error(
+          'Tried to make a triplet, but one of the notes in the triplet is itself a triplet!'
+        );
+      } else {
+        return note.value;
+      }
+    });
+    const notelength = notes[0].length;
+    bar.notes.splice(bar.notes.length - 3, 3, {
+      id: notesOrTriplets[0].id,
+      notetype: 'triplet',
+      value: {
+        length: notelength,
+        notes: notes,
+      },
+    });
   }
 
-  private makeTriplet(notes: SavedNoteOrTriplet[]): SavedTriplet {
-    if (notes.every((note) => note.notetype === 'single')) {
-      const length = notes[0].value.length;
-      return {
-        length,
-        notes: notes as unknown as SavedNote[],
-      };
+  newBar() {
+    this.currentLineIsEmpty = false;
+
+    {
+      // We can now determine if the previous bar was an anacrusis.
+      // This is a bit crude, but BWW has no concept of lead-ins
+      // and I can't really think of a better metric
+      const barNoteLength = this.currentBar().notes.reduce(
+        (prev, note) => (prev += lengthInBeats(note.value.length)),
+        0
+      );
+      const ts = this.currentBar().timeSignature.ts;
+      const barLength =
+        ts === 'cut time' || ts === 'common time' ? 4 : (ts[0] * 4) / ts[1];
+
+      if (barNoteLength < barLength / 2) {
+        this.currentBar().isAnacrusis = true;
+      }
+    }
+
+    this.endItem(this.currentBar().id);
+
+    const bar = emptyBar(this.timeSignature);
+    this.startItem(bar.id);
+    this.currentStave.push(bar);
+  }
+
+  startTimeline(text: string) {
+    this.currentTiming = {
+      type: 'single timing',
+      value: { start: -1, end: -1, text },
+    };
+  }
+
+  endTimeline() {
+    if (this.currentTiming) {
+      this.currentTiming.value.end = this.previousID;
+      this.score.secondTimings.push(this.currentTiming);
+      this.currentTiming = null;
     } else {
-      throw new Error("Can't nest triplets");
+      console.warn("Ending timeline, but a timeline wasn't started");
     }
   }
 
-  private tripletOldFormat(notes: SavedNoteOrTriplet[]): SavedTriplet {
-    this.ts.eat(TokenType.TRIPLET_OLD_FORMAT);
-
-    if (notes.length !== 3) {
-      throw new Error('Triplet without 3 notes in it.');
+  setBarline(barline: BarlineType, place: 'start' | 'end') {
+    if (place === 'start') {
+      this.currentBar().frontBarline.type = barline;
+    } else {
+      this.currentBar().backBarline.type = barline;
     }
-
-    return this.makeTriplet(notes);
   }
 
-  private irregularGroup(startingToken: TokenType): SavedTriplet {
-    const token = this.ts.eat(startingToken);
-    const size = this.transformIrregularGroupToSize(token.value[1]);
+  setTimeSignature(ts: SavedTimeSignature) {
+    this.timeSignature = ts;
+    if (this.currentLineIsEmpty) {
+      this.currentBar().timeSignature = ts;
+    }
+  }
+
+  newText(text: string) {
+    this.textboxes.push(text);
+  }
+
+  newGracenote(gracenote: SavedGracenote) {
+    this.gracenote = gracenote;
+  }
+
+  setAccidental(pitch: Pitch) {
+    this.accidental = pitch;
+  }
+
+  dotLastNote() {
+    // All this is likely unnecessary since dots will almost always
+    // come straight after a melody note
+    const dotLast = (stave: SavedBar[]) => {
+      for (let i = this.currentStave.length - 1; i >= 0; i--) {
+        const bar = this.currentStave[i];
+        if (bar.notes.length > 0) {
+          const note = bar.notes[bar.notes.length - 1];
+          note.value.length = dotLength(note.value.length);
+          return true;
+        }
+      }
+      return false;
+    };
+    if (!dotLast(this.currentStave)) {
+      for (let i = this.score._staves.length - 1; i >= 0; i--) {
+        if (dotLast(this.score._staves[i].bars)) {
+          break;
+        }
+      }
+    }
+  }
+
+  startTie() {
+    this.tieing = TieingState.NewTieFormat;
+    this.tiedFirstNote = false;
+  }
+  endTie() {
+    this.tieing = TieingState.NotTieing;
+  }
+  oldTieFormat() {
+    this.tieing = TieingState.OldTieFormat;
+  }
+
+  tieingWithNewFormat() {
+    return this.tieing === TieingState.NewTieFormat;
+  }
+
+  private currentBar() {
+    return this.currentStave[this.currentStave.length - 1];
+  }
+  private startItem(id: ID) {
+    if (this.currentTiming && this.currentTiming.value.start === -1) {
+      this.currentTiming.value.start = id;
+    }
+  }
+  private endItem(id: ID) {
+    this.previousID = id;
+  }
+
+  toScore(warnings: string[]): ParsedScore {
+    this.newStave();
+
+    return {
+      score: this.score,
+      textboxes: this.textboxes,
+      warnings,
+    };
+  }
+}
+class Parser implements Record<TokenType, (t: Token) => void> {
+  score: PartialScore = new PartialScore();
+  ts: TokenStream;
+
+  constructor(data: string) {
+    this.ts = new TokenStream(data);
+  }
+
+  parse() {
+    while (!this.ts.isAtEnd()) {
+      const token = this.ts.eatAny();
+      if (!token) break;
+
+      console.log(token.type);
+      this[token.type](token);
+    }
+
+    return this.score.toScore(this.ts.warnings);
+  }
+
+  [TokenType.SPACE]() {}
+
+  [TokenType.SOFTWARE_NAME_AND_VERSION]() {}
+  [TokenType.MIDI_NOTE_MAPPINGS]() {}
+  [TokenType.FREQUENCY_MAPPINGS]() {}
+  [TokenType.INSTRUMENT_MAPPINGS]() {}
+  [TokenType.GRACENOTE_DURATIONS]() {}
+  [TokenType.FONT_SIZES]() {}
+  [TokenType.TUNE_FORMAT]() {}
+  [TokenType.TUNE_TEMPO]() {}
+  [TokenType.TEXT_TAG](t: Token) {
+    this.score.newText(t.value[1]);
+  }
+
+  [TokenType.CLEF]() {
+    if (!this.score.currentLineIsEmpty) {
+      this.score.newStave();
+    }
+
+    // Skipping these allows us to treat all accidentals
+    // as accidentals, not part of the key signature
+    while (this.ts.match(TokenType.ACCIDENTAL)) {}
+
+    // Ignore the first barline of a line if present.
+    this.ts.match(TokenType.BAR_LINE);
+  }
+
+  [TokenType.TIME_SIGNATURE](t: Token) {
+    if (t.value[1]) {
+      const top = parseInt(t.value[1]);
+      const bottom = parseInt(t.value[2]);
+      if (top && (bottom === 2 || bottom === 4 || bottom === 8)) {
+        this.score.setTimeSignature({
+          ts: [top, bottom],
+          breaks: [],
+        });
+      } else {
+        throw new Error('Cannot parse time signature');
+      }
+    } else if (t.value[3]) {
+      this.score.setTimeSignature({
+        ts: 'cut time',
+        breaks: [],
+      });
+    } else {
+      this.score.setTimeSignature({
+        ts: 'common time',
+        breaks: [],
+      });
+    }
+  }
+
+  [TokenType.PART_BEGINNING](t: Token) {
+    // Only make a new bar if we aren't at the start of the line
+    if (!this.score.currentLineIsEmpty) {
+      this.score.newBar();
+    }
+    const barline = t.value[1] ? 'repeat' : 'end';
+    this.score.setBarline(barline, 'start');
+  }
+  [TokenType.PART_END](t: Token) {
+    const barline = t.value[1] ? 'repeat' : 'end';
+    this.score.setBarline(barline, 'end');
+  }
+
+  [TokenType.TERMINATING_BAR_LINE]() {
+    this.score.newStave();
+  }
+
+  [TokenType.BAR_LINE]() {
+    this.score.newBar();
+  }
+
+  [TokenType.FERMATA]() {
+    this.ts.warn('Ignoring fermata.');
+  }
+
+  [TokenType.REST]() {
+    this.ts.warn('Ignoring rest.');
+  }
+
+  [TokenType.IRREGULAR_GROUP_START](t: Token) {
+    const size = transformIrregularGroupToSize(t.value[1]);
     if (size !== 3)
       throw new Error("Can't deal with non-triplet irregular groups");
-    const notes: SavedNoteOrTriplet[] = [];
-
-    for (let i = 0; i < size; i++) {
-      notes.push(this.note(genId()));
-    }
-
-    this.eatIrregularGroupEnd();
-
-    return this.makeTriplet(notes);
+  }
+  [TokenType.IRREGULAR_GROUP_END]() {
+    this.score.makeTriplet();
   }
 
-  private eatIrregularGroupEnd(): void {
-    if (
-      !this.ts.matchAny(
-        TokenType.IRREGULAR_GROUP_END,
-        TokenType.TRIPLET_OLD_FORMAT
-      )
-    ) {
-      throw new SyntaxError(
-        `Expected irregular group end or triplet old format`
-      ); //, got ${ts.current?.type}`)
+  [TokenType.TRIPLET_OLD_FORMAT]() {
+    this.score.makeTriplet();
+  }
+  [TokenType.TRIPLET_NEW_FORMAT]() {
+    this.score.makeTriplet();
+  }
+
+  [TokenType.TIME_LINE_START](t: Token) {
+    const text =
+      t.value[1] === '1' || t.value[1] === '2'
+        ? t.value[1] + '.'
+        : t.value[1] || '2nd.';
+
+    this.score.startTimeline(text);
+  }
+  [TokenType.TIME_LINE_END]() {
+    this.score.endTimeline();
+  }
+
+  [TokenType.TIE_START]() {
+    this.score.startTie();
+  }
+  [TokenType.TIE_END_OR_TIE_OLD_FORMAT](t: Token) {
+    if (this.score.tieingWithNewFormat() && t.value[1] === 'e') {
+      this.score.endTie();
+    } else {
+      this.score.oldTieFormat();
     }
   }
 
-  private transformIrregularGroupToSize(group: string): number {
-    switch (group) {
-      case '2':
-        return 2;
-      case '3':
-        return 3;
-      case '43':
-        return 4;
-      case '46':
-        return 4;
-      case '53':
-        return 5;
-      case '54':
-        return 5;
-      case '64':
-        return 6;
-      case '74':
-        return 7;
-      case '76':
-        return 7;
-    }
-
-    throw Error(`Unable transform group to size: ${group}`);
-  }
-
-  private tieBeforeNote() {
-    return this.ts.match(TokenType.TIE_START);
-  }
-
-  private tieAfterNote(
-    tieBeforeNote: boolean,
-    currentNotePitch: Pitch | undefined
-  ) {
-    if (tieBeforeNote) {
-      this.tieing = TieingState.NewTieFormat;
-      if (currentNotePitch) this.tiedNotePitch = currentNotePitch;
-    }
-    const token = this.ts.matchToken(TokenType.TIE_END_OR_TIE_OLD_FORMAT);
-    if (token) {
-      if (this.tieing === TieingState.NewTieFormat && token.value[1] === 'e') {
-        this.tieing = TieingState.NotTieing;
+  [TokenType.ACCIDENTAL](t: Token) {
+    if (t.value[1] === 'natural') {
+      const pitch = toPitch(t.value[2]);
+      if (pitch === Pitch.C || pitch === Pitch.F) {
+        this.score.setAccidental(pitch);
       } else {
-        this.tieing = TieingState.OldTieFormat;
+        this.ts.warn(`Can't have an accidental on a ${pitch}, ignoring.`);
       }
+    } else {
+      this.ts.warn(`Can't handlee ${t.value[1]}s, ignoring.`);
     }
   }
 
-  private fermata(): boolean {
-    return this.ts.match(TokenType.FERMATA);
+  [TokenType.MELODY_NOTE](t: Token) {
+    const pitch = toPitch(t.value[1]);
+    const length = toNoteLength(t.value[3]);
+    this.score.newNote(pitch, length);
   }
 
-  private dot(): boolean {
-    const token = this.ts.matchToken(TokenType.DOTTED_NOTE);
-    if (token) {
-      if (token.value[1].length === 2) {
-        this.ts.warn('Ignoring doubled dot: replacing with a single dot');
-      }
-      return true;
+  [TokenType.DOTTED_NOTE](t: Token) {
+    if (t.value[1].length === 2) {
+      this.ts.warn('Ignoring double-dotted note, using a single dot instead.');
     }
-    return false;
+    this.score.dotLastNote();
   }
 
-  private keySignature() {
-    while (this.ts.match(TokenType.ACCIDENTAL)) {
-      this.ts.warn('Ignoring custom key signature');
-    }
+  // Embellishments
+
+  [TokenType.DOUBLING](t: Token) {
+    // TODO : check
+    this.score.newGracenote(
+      reactive(t.value[0] === 'dbhg' ? 'half-doubling' : 'doubling')
+    );
   }
-
-  // Returns true if it is a natural
-  private accidental(): boolean {
-    const token = this.ts.eat(TokenType.ACCIDENTAL);
-
-    const type = token.value[1];
-
-    if (type === 'natural') {
-      return true;
-    }
-
-    if (type === 'sharp' || type === 'flat') {
-      this.ts.warn(`Ignoring ${type}`);
-      return false;
-    }
-
-    throw new Error(`Unable to match accidental type: ${type}`);
+  [TokenType.REGULAR_GRIP]() {
+    this.score.newGracenote(reactive('grip'));
   }
-
-  private timeSignature(): SavedTimeSignature {
-    const token = this.ts.matchToken(TokenType.TIME_SIGNATURE);
-    if (token) {
-      if (token.value[1]) {
-        const top = parseInt(token.value[1]);
-        const bottom = parseInt(token.value[2]);
-        if (top && (bottom === 2 || bottom === 4 || bottom === 8)) {
-          return {
-            ts: [top, bottom],
-            breaks: [],
-          };
-        }
-        throw new Error('Cannot parse time signature');
-      } else if (token.value[3]) {
-        return {
-          ts: 'cut time',
-          breaks: [],
-        };
-      } else {
-        return {
-          ts: 'common time',
-          breaks: [],
-        };
-      }
+  [TokenType.COMPLEX_GRIP]() {
+    this.ts.warn(
+      "Can't deal with grips with gracenotes on them. Replacing with standard grip."
+    );
+    this.score.newGracenote(reactive('grip'));
+  }
+  [TokenType.TAORLUATH]() {
+    // typo intentional
+    this.score.newGracenote(reactive('toarluath'));
+  }
+  [TokenType.BUBBLY]() {
+    this.score.newGracenote(reactive('bubbly'));
+  }
+  [TokenType.BIRL](t: Token) {
+    if (t.value[0] === 'brl' || t.value[0] === 'abr') {
+      this.score.newGracenote({
+        type: 'reactive',
+        value: { grace: 'birl' },
+      });
+    } else if (t.value[0] === 'gbr' || t.value[0] === 'tbr') {
+      this.score.newGracenote({
+        type: 'reactive',
+        value: { grace: 'g-gracenote-birl' },
+      });
+    }
+    this.ts.warn(`Unrecognised birl '${t.value[0]}'`);
+  }
+  [TokenType.EDRE]() {
+    this.score.newGracenote(reactive('edre'));
+  }
+  [TokenType.THROW]() {
+    this.score.newGracenote(reactive('throw-d'));
+  }
+  [TokenType.PELE]() {
+    this.score.newGracenote(reactive('pele'));
+  }
+  [TokenType.STRIKE](t: Token) {
+    // FIXME: deal with 'light' strikes, prefixed with 'l'
+    const partBeforeStrike = t.value[1];
+    if (partBeforeStrike) {
+      this.score.newGracenote(reactive('g-strike'));
     }
 
-    return this.currentTimeSignature;
+    this.score.newGracenote({
+      type: 'single',
+      value: { note: toPitch(t.value[2]) },
+    });
+  }
+  [TokenType.DOUBLE_STRIKE]() {
+    this.ts.warn("Don't support double strike, ignoring");
+  }
+  [TokenType.TRIPLE_STRIKE]() {
+    this.ts.warn("Don't support triple strike, ignoring.");
+  }
+  [TokenType.GRACENOTE](t: Token) {
+    this.score.newGracenote({
+      type: 'single',
+      value: { note: toGracenotePitch(t.value[1]) },
+    });
+  }
+  [TokenType.DOUBLE_GRACENOTE](t: Token) {
+    this.score.newGracenote({
+      type: 'custom',
+      value: {
+        pitches: [toGracenotePitch(t.value[1]), toPitch(t.value[2])],
+      },
+    });
   }
 }
