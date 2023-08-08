@@ -61,9 +61,11 @@ async function importfile(e: SubmitEvent) {
 
   try {
     if (user === null) throw new Error('Must be logged in to import scores');
+    document.body.style.cursor = 'wait';
     const fileContents = await readFile(files[0]);
     const { score, warnings, textboxes } = parse(fileContents);
     const dbEntry = await savefile(score);
+    document.body.style.cursor = 'auto';
     const goToScore = async (e: SubmitEvent) => {
       e.preventDefault();
       const scoreName =
