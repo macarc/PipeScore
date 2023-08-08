@@ -4,6 +4,7 @@ import { Spec } from './Spec';
 export class TokenStream {
   private stream: string;
   private cursor = 0;
+  private last: Token | null = null;
   private current: Token | null = null;
   public warnings: string[] = [];
 
@@ -16,7 +17,7 @@ export class TokenStream {
   }
 
   public warn(msg: string) {
-    this.warnings.push(`Warning at ${this.current?.type}: ${msg}`);
+    this.warnings.push(`Warning at ${this.last?.type}: ${msg}`);
   }
 
   public eat(tokenType: TokenType) {
@@ -68,6 +69,8 @@ export class TokenStream {
 
   private nextToken(): Token | null {
     this.skipWhitespace();
+
+    this.last = this.current;
 
     if (this.cursor >= this.stream.length) {
       this.current = null;
