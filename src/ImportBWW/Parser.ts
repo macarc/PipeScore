@@ -100,7 +100,6 @@ const emptyNote = (
   pitch,
   length,
   tied,
-  // TODO!
   hasNatural,
   gracenote,
 });
@@ -508,9 +507,8 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   // Embellishments
 
   [TokenType.DOUBLING](t: Token) {
-    // TODO : check
     this.score.newGracenote(
-      reactive(t.value[0] === 'dbhg' ? 'half-doubling' : 'doubling')
+      reactive(t.value[0] === 'hdb' ? 'half-doubling' : 'doubling')
     );
   }
   [TokenType.REGULAR_GRIP]() {

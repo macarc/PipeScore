@@ -16,7 +16,7 @@ export class TokenStream {
   }
 
   public warn(msg: string) {
-    this.warnings.push(msg);
+    this.warnings.push(`Warning at ${this.current?.type}: ${msg}`);
   }
 
   public eat(tokenType: TokenType) {
@@ -39,45 +39,16 @@ export class TokenStream {
     return token;
   }
 
-  public is(tokenType: TokenType): boolean {
-    return this.current?.type === tokenType;
-  }
-
   public isAtEnd() {
     return this.current === null;
   }
 
-  public matchToken(tokenType: TokenType): Token | null {
-    if (this.current?.type === tokenType) {
-      const token = this.current;
-      this.eat(tokenType);
-      return token;
-    }
-    return null;
-  }
-
   public match(tokenType: TokenType): boolean {
-    return this.matchToken(tokenType) !== null;
-  }
-
-  public matchAny(...tokenTypes: TokenType[]): boolean {
-    for (const token of tokenTypes) {
-      if (this.match(token)) {
-        return true;
-      }
+    if (this.current?.type === tokenType) {
+      this.eat(tokenType);
+      return true;
     }
     return false;
-  }
-
-  public peekAny(...tokenTypes: TokenType[]): boolean {
-    return tokenTypes.some((tokenType) => this.current?.type === tokenType);
-  }
-  public peek(): Token | null {
-    return this.current;
-  }
-
-  public currentType() {
-    return this.current?.type;
   }
 
   public eatAny() {
