@@ -82,7 +82,7 @@ export const Spec: SpecType[] = [
     type: TokenType.MELODY_NOTE,
   },
   {
-    regex: /^(?:(\d)_(\d))|^(C_)|^(C)(?=\s)/,
+    regex: /^(?:(\d{1,2})_(\d{1,2}))|^(C_)|^(C)(?=\s)/,
     type: TokenType.TIME_SIGNATURE,
   },
   {
