@@ -553,8 +553,12 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   [TokenType.THROW]() {
     this.score.newGracenote(reactive('throw-d'));
   }
-  [TokenType.PELE]() {
-    this.score.newGracenote(reactive('pele'));
+  [TokenType.PELE](t: Token) {
+    if (t.value[0].startsWith('l')) {
+      this.score.newGracenote(reactive('c-shake'))
+    } else {
+      this.score.newGracenote(reactive('shake'));
+    }
   }
   [TokenType.STRIKE](t: Token) {
     const partBeforeStrike = t.value[1];
