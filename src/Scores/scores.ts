@@ -73,7 +73,9 @@ class ScoresList {
   }
 
   async refreshScores() {
-    const collection = await db.ref(`scores/${userId}/scores`).list();
+    const collection = await db.ref(`scores/${userId}/scores`).list({
+      pageSize: 1000,
+    });
     this.scores = collection.documents
       .map((doc) => ({
         name: doc.name,

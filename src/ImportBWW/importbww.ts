@@ -48,7 +48,12 @@ async function savefile(score: SavedScore) {
 
 async function updatefile(dbEntry: Reference, score: SavedScore) {
   const e = await db.ref(`scores/${user}/scores/${dbEntry.id}`);
-  await e.set(score);
+
+  if (e) {
+    await e.set(score);
+  } else {
+    throw new Error('Could not update score.');
+  }
 }
 
 async function importfile(e: SubmitEvent) {
