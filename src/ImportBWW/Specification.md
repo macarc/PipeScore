@@ -6,7 +6,7 @@ This is largely translated from [this manual](http://bagpipe.ddg-hansa.com/Bagpi
 
 ## Notation
 
-I'm using a weird BNF-type grammar. Literal text is surrounded by `'` or `"`. `a <> b` means match `a` then immediately after it match `b`. `a b` means match `a <> (%any unicode whitespace character% | 'space')* <> b`.`[p1 p2 p3]` means match `p1`, `p2`, `p3` in any order (really, that the order was left unspecified in the manual). `(pattern ^ e1 e2)` means match `pattern` but not `e1` or `e1`.
+I'm using a weird BNF-type grammar. Literal text is surrounded by `'` or `"`. `a <> b` means match `a` then immediately after it match `b`. `a b` means match `a <> (%any unicode whitespace character% | 'space')* <> b`. In the body of the file (not the header), this extends to `a <> (%any unicode whitespace character% | space | header-line | time-signature)* <> b`. `[p1 p2 p3]` means match `p1`, `p2`, `p3` in any order (really, that the order was left unspecified in the manual). `(pattern ^ e1 e2)` means match `pattern` but not `e1` or `e1`.
 
 ## Header
 
@@ -15,8 +15,8 @@ Every BWW file starts with a header.
 ```
 header := header-line* tune-start
 
-header-line := version | midi-note-mappings | frequency-mappings | instrument-mappings | gracenote-durations | font-sizes | tune-format | tune-tempo | text
-version := software-name ':' software-version
+header-line := software-name-and-version | midi-note-mappings | frequency-mappings | instrument-mappings | gracenote-durations | font-sizes | tune-format | tune-tempo | text
+software-name-and-version := software-name ':' software-version
 midi-note-mappings := 'MIDINoteMappings' comma bracketed-integer-list
 frequency-mappings := 'FrequencyMappings' comma bracketed-integer-list
 instrument-mappings := 'InstrumentMappings' comma bracketed-integer-list
@@ -37,9 +37,9 @@ tune-start := clef
 any := any character
 comma := ','
 
-bracketed-identifier-list := '(' identifier-list ')'
-identifier-list := (identifier ',')* identifier
-identifier := ('a'..'z' | 'A'..'Z' | '0'..'9')+
+bracketed-identifier-list := '(' identifier-list? ')'
+identifier-list := ((identifier | integer) ',')* (identifier | integer)
+identifier := ('a'..'z' | 'A'..'Z' | '0'..'9' | %any unicode whitespace character%)+
 
 bracketed-integer-list := '(' integer-list ')'
 integer-list := (integer ',')* integer
@@ -48,17 +48,18 @@ integer := ('0'..'9')+
 
 ## Body
 
+s
 This contains the tune.
 
 ```
 score := score-line*
-score-line := clef timeline-start? (bar '!')* bar timeline-end? line-ending-barline
+score-line := clef timeline-start? barline-part-start? (bar '!')* bar timeline-end? line-ending-barline
 bar := timeline-end? note-and-gracenote* timeline-start?
 
 note-and-gracenote := rest | melody-note
 rest := [timeline-start? irregular-group-start?] 'REST_' <> note-length [timeline-end? irregular-group-end? old-triplet?]
 # if no note flag direction is specified, the note is alone (no beams)
-melody-note := [tie-start? gracenote? piob-gracenote? irregular-group-start? timeline-start?] ['fermata'? note-dot?] <> pitch <> note-flag-direction? <> '_' <> note-length [tie-end? tie-old? irregular-group-end? old-triplet? timeline-end?]
+melody-note := [tie-start? gracenote? piob-gracenote? irregular-group-start? timeline-start?] 'fermata'? <> pitch <> note-flag-direction? <> '_' <> note-length [note-dot? tie-end? tie-old? irregular-group-end? old-triplet? timeline-end?]
 
 # start and end of a group should match (have the same length)
 irregular-group-start := '^' <> irregular-group-length <> 's'
@@ -79,15 +80,14 @@ double-note-dot := "''"
 note-flag-direction := 'l' | 'r'
 note-length := '1' | '2' | '4' | '8' | '16' | '32'
 
-barline := '!'
 barline-part-start := double-barline-start | repeat-barline-start
 barline-part-end := double-barline-end | repeat-barline-end
 line-ending-barline := line-ending-normal-barline | barline-part-end
+line-ending-normal-barline := '!t'
 double-barline-start := 'I!'
 repeat-barline-start := "I!''"
 double-barline-end := '!I'
 repeat-barline-end := "''!I"
-line-ending-normal-barline := '!t'
 
 clef := '&' accidental*
 accidental := accidental-type <> lowercase-pitch
@@ -137,7 +137,7 @@ complex-grip := g-gracenote-grip | thumb-gracenote-grip | half-grip
 # the exceptions are B grips on D
 g-gracenote-grip := 'ggrp' <> (lowercase-pitch ^ 'lg' 'ha' 'hg')  | 'ggrpdb'
 thumb-gracenote-grip := 'tgrp' <> (lowercase-pitch ^ 'lg' 'ha')  | 'tgrpdb'
-half-grip := 'hgrp' <> (lowercase-pitch <> 'lg')  | 'hgrpdb'
+half-grip := 'hgrp' <> (lowercase-pitch ^ 'lg')  | 'hgrpdb'
 
 taorluath := 'tar' | 'tarb' | 'htar'
 
@@ -177,6 +177,7 @@ thumb-double-gracenote := 't' <> (lowercase-pitch ^ 'lg')
 ```
 
 ### Piobaireachd
+
 ```
 piob-gracenote := cadence | piob-throw | piob-complex-throw | piob-grip
 
