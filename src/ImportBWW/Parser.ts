@@ -491,7 +491,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
         this.ts.warn(`Can't have an accidental on a ${pitch}, ignoring.`);
       }
     } else {
-      this.ts.warn(`Can't handlee ${t.value[1]}s, ignoring.`);
+      this.ts.warn(`Can't handle ${t.value[1]}s, ignoring.`);
     }
   }
 
@@ -543,8 +543,9 @@ class Parser implements Record<TokenType, (t: Token) => void> {
         type: 'reactive',
         value: { grace: 'g-gracenote-birl' },
       });
+    } else {
+      this.ts.warn(`Unrecognised birl '${t.value[0]}'`);
     }
-    this.ts.warn(`Unrecognised birl '${t.value[0]}'`);
   }
   [TokenType.EDRE]() {
     this.score.newGracenote(reactive('edre'));
