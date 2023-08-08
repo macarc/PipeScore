@@ -108,6 +108,7 @@ type BarlineType = 'normal' | 'repeat' | 'end';
 class PartialScore {
   private tieing = TieingState.NotTieing;
   private tiedFirstNote = false;
+  private tieingPitch: Pitch = Pitch.A;
   private gracenote: SavedGracenote = { type: 'none' };
   private timeSignature: SavedTimeSignature = { ts: [2, 4], breaks: [] };
   private timings: SavedTiming[] = [];
@@ -150,10 +151,11 @@ class PartialScore {
     const tieing =
       this.tieing === TieingState.OldTieFormat ||
       (this.tieing === TieingState.NewTieFormat && this.tiedFirstNote);
+
     const note = emptyNote(
       pitch,
       length,
-      tieing,
+      tieing && pitch === this.tieingPitch,
       this.accidental === pitch,
       this.gracenote
     );
@@ -175,6 +177,7 @@ class PartialScore {
     if (this.tieing === TieingState.OldTieFormat) {
       this.tieing = TieingState.NotTieing;
     } else {
+      this.tieingPitch = pitch;
       this.tiedFirstNote = true;
     }
   }
@@ -308,11 +311,12 @@ class PartialScore {
   endTie() {
     this.tieing = TieingState.NotTieing;
   }
-  oldTieFormat() {
+  oldTieFormat(pitch: Pitch) {
+    this.tieingPitch = pitch;
     this.tieing = TieingState.OldTieFormat;
   }
 
-  tieingWithNewFormat() {
+  isTieingWithNewFormat() {
     return this.tieing === TieingState.NewTieFormat;
   }
 
@@ -471,10 +475,10 @@ class Parser implements Record<TokenType, (t: Token) => void> {
     this.score.startTie();
   }
   [TokenType.TIE_END_OR_TIE_OLD_FORMAT](t: Token) {
-    if (this.score.tieingWithNewFormat() && t.value[1] === 'e') {
+    if (this.score.isTieingWithNewFormat() && t.value[1] === 'e') {
       this.score.endTie();
     } else {
-      this.score.oldTieFormat();
+      this.score.oldTieFormat(toPitch(t.value[1]));
     }
   }
 
