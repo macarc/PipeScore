@@ -511,8 +511,9 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   // Embellishments
 
   [TokenType.DOUBLING](t: Token) {
+    // dbhg is really a half doubling on HG
     this.score.newGracenote(
-      reactive(t.value[0] === 'hdb' ? 'half-doubling' : 'doubling')
+      reactive(t.value[0] === 'dbhg' ? 'half-doubling' : 'doubling')
     );
   }
   [TokenType.REGULAR_GRIP]() {
