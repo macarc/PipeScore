@@ -211,7 +211,11 @@ class PartialScore {
   }
 
   newBar() {
-    this.currentLineIsEmpty = false;
+    // Sometimes a barline is placed at the start of a line
+    // in which case we should ignore it
+    if (this.currentLineIsEmpty) {
+      return;
+    }
 
     {
       // We can now determine if the previous bar was an anacrusis.
@@ -384,9 +388,6 @@ class Parser implements Record<TokenType, (t: Token) => void> {
     // Skipping these allows us to treat all accidentals
     // as accidentals, not part of the key signature
     while (this.ts.match(TokenType.ACCIDENTAL)) {}
-
-    // Ignore the first barline of a line if present.
-    this.ts.match(TokenType.BAR_LINE);
   }
 
   [TokenType.TIME_SIGNATURE](t: Token) {
