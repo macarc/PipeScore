@@ -871,6 +871,7 @@ export default function render(state: UIState): m.Children {
       ]
     : [
         menuHead('playback'),
+        menuHead('document'),
         help(
           'help',
           m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
