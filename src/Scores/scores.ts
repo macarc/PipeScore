@@ -20,6 +20,7 @@ import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
 import m from 'mithril';
+import { SavedScore } from '../PipeScore/SavedModel';
 
 let userId = '';
 
@@ -45,6 +46,28 @@ class ScoresList {
         window.location.assign('/login');
       }
     });
+  }
+
+  async duplicate(score: ScoreRef) {
+    try {
+      const scoreContents = (await db
+        .ref(`scores${score.path}`)
+        .get()) as unknown as SavedScore;
+
+      const newTitle = scoreContents.name + ' (copy)';
+      const titleTextbox = scoreContents.textBoxes
+        .flatMap((t) => t.texts)
+        .find((text) => text._text === scoreContents.name);
+      scoreContents.name = newTitle;
+      if (titleTextbox) titleTextbox._text = newTitle;
+
+      await db.ref(`scores/${userId}/scores`).add(scoreContents);
+
+      this.refreshScores();
+    } catch (e) {
+      console.log(e);
+      alert(`Error duplicating score: ${(e as Error).name}`);
+    }
   }
 
   async delete(score: ScoreRef) {
@@ -108,14 +131,6 @@ class ScoresList {
             m(
               'td',
               m(
-                'button.rename',
-                { onclick: () => this.rename(score) },
-                'Rename'
-              )
-            ),
-            m(
-              'td',
-              m(
                 'button.edit',
                 {
                   onclick: () =>
@@ -124,6 +139,22 @@ class ScoresList {
                     ),
                 },
                 'Edit'
+              )
+            ),
+            m(
+              'td',
+              m(
+                'button.rename',
+                { onclick: () => this.rename(score) },
+                'Rename'
+              )
+            ),
+            m(
+              'td',
+              m(
+                'button.duplicate',
+                { onclick: () => this.duplicate(score) },
+                'Duplicate'
               )
             ),
             m(
