@@ -28,7 +28,7 @@ def transform(head_coords):
 
 def add_embellishment(doc, embellishment):
     bar_y = 10
-    total_width = min(50, len(embellishment) * 15)
+    total_width = len(embellishment) * 10
     x = (width - total_width) / 2
     note_width = total_width / (len(embellishment) - 1)
     stem_x_offset = rx * math.cos(math.radians(30))
