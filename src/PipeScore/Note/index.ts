@@ -34,7 +34,7 @@ import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 
 import { BaseNote, NoteProps } from './base';
-import { SavedNote, SavedTriplet } from '../SavedModel';
+import { SavedNote, SavedTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
 export type { NoteProps } from './base';
 
 export type NoteOrTriplet = Note | Triplet;
@@ -100,13 +100,22 @@ export class Note
       .reduce(width.add, width.zero());
   }
   public static fromObject(o: SavedNote) {
-    return new Note(
+    const n = new Note(
       o.pitch,
       o.length,
       o.tied,
       o.hasNatural || false,
       Gracenote.fromJSON(o.gracenote)
     );
+    if (o.id) {
+      n.id = o.id;
+    }
+    return n;
+  }
+  public copy() {
+    const n = Note.fromObject(this.toObject());
+    n.id = genId();
+    return n;
   }
   public toggleTie(notes: Note[]) {
     this.tied = !this.tied;
@@ -132,6 +141,7 @@ export class Note
   }
   public toObject(): SavedNote {
     return {
+      id: this.id,
       pitch: this._pitch,
       length: this.length,
       tied: this.tied,
@@ -657,13 +667,24 @@ export class Triplet extends BaseNote {
     return n;
   }
   public static fromObject(o: SavedTriplet) {
-    return new Triplet(
+    const t = new Triplet(
       o.length,
       ...(o.notes.map((note) => Note.fromObject(note)) as [Note, Note, Note])
     );
+    if (o.id) {
+      t.id = o.id;
+    }
+    for (const note in o.notes) {
+      const id = o.notes[note].id
+      if (id) {
+        t._notes[note].id = id;
+      }
+    }
+    return t;
   }
   public toObject(): SavedTriplet {
     return {
+      id: this.id,
       notes: this._notes.map((n) => n.toObject()),
       length: this.length,
     };

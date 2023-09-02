@@ -25,7 +25,7 @@ import { Item, genId } from '../global/id';
 import { Note, Triplet, NoteOrTriplet } from './index';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
-import { SavedNoteOrTriplet } from '../SavedModel';
+import { SavedNoteOrTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
 
 export interface NoteProps {
   x: number;
@@ -57,7 +57,9 @@ export abstract class BaseNote extends Item {
         break;
     }
     if (s) {
-      s.id = o.id;
+      if (isDeprecatedSavedNoteOrTriplet(o)) {
+        s.id = o.id;
+      }
       return s;
     }
     throw new Error(`Unrecognised note type ${o.notetype}`);
@@ -66,13 +68,11 @@ export abstract class BaseNote extends Item {
     if (this instanceof Note) {
       return {
         notetype: 'single',
-        id: this.id,
         value: this.toObject(),
       };
     } else if (this instanceof Triplet) {
       return {
         notetype: 'triplet',
-        id: this.id,
         value: this.toObject(),
       };
     }
@@ -89,11 +89,6 @@ export abstract class BaseNote extends Item {
   }
   public toggleDot() {
     return (this.length = dotLength(this.length));
-  }
-  public copy() {
-    const n = BaseNote.fromJSON(this.toJSON());
-    n.id = genId();
-    return n;
   }
   public static makeSameLength(notes: Note[]) {
     notes.forEach((note) => (note.length = notes[0].length));

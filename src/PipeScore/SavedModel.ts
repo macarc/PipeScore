@@ -61,6 +61,7 @@ export type SavedTimeSignature = {
 };
 
 export type SavedNote = {
+  id: ID | undefined;
   pitch: Pitch;
   length: NoteLength;
   tied: boolean;
@@ -69,6 +70,7 @@ export type SavedNote = {
 };
 
 export type SavedTriplet = {
+  id: ID | undefined;
   length: NoteLength;
   notes: SavedNote[];
 };
@@ -76,14 +78,13 @@ export type SavedTriplet = {
 export type SavedNoteOrTriplet =
   | {
       notetype: 'single';
-      id: ID;
       value: SavedNote;
     }
   | {
       notetype: 'triplet';
-      id: ID;
       value: SavedTriplet;
-    };
+    }
+    | DeprecatedSavedNoteOrTriplet;
 
 export type SavedReactiveGracenote = {
   grace: string;
@@ -158,3 +159,21 @@ export type SavedSettings = {
   margin: number;
   topOffset: number;
 };
+
+export type DeprecatedSavedNoteOrTriplet =
+  | {
+      notetype: 'single';
+      // deprecated : use id in SavedNote instead
+      id: ID;
+      value: SavedNote;
+    }
+  | {
+      notetype: 'triplet';
+      // deprecated : use id in SavedTriplet instead
+      id: ID;
+      value: SavedTriplet;
+    };
+
+export function isDeprecatedSavedNoteOrTriplet(noteOrTriplet: SavedNoteOrTriplet): noteOrTriplet is DeprecatedSavedNoteOrTriplet {
+  return (noteOrTriplet as any).id !== undefined;
+}
