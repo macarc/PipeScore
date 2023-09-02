@@ -457,7 +457,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
     this.score.makeTriplet();
   }
   [TokenType.TRIPLET_NEW_FORMAT]() {
-    this.score.makeTriplet();
+    /* Nothing here - handled at the end by TRIPLET_OLD_FORMAT */
   }
 
   [TokenType.TIME_LINE_START](t: Token) {
