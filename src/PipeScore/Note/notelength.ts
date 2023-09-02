@@ -33,7 +33,7 @@ export const enum NoteLength {
   HemiDemiSemiQuaver = 'hdsq',
 }
 
-export function dotted(note: NoteLength): boolean {
+export function isDotted(note: NoteLength): boolean {
   return [
     NoteLength.DottedMinim,
     NoteLength.DottedCrotchet,

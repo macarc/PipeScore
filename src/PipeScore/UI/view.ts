@@ -67,7 +67,7 @@ import {
 } from '../Events/Text';
 import { addStave } from '../Events/Stave';
 import { help } from '../global/docs';
-import { dotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
+import { isDotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
 import {
   Preview,
@@ -206,8 +206,8 @@ export default function render(state: UIState): m.Children {
               disabled: notInputtingNotes && noNotesSelected,
               class:
                 (state.preview instanceof NotePreview &&
-                  dotted(state.preview.length())) ||
-                allNotes((note) => dotted(note.lengthForInput()))
+                  isDotted(state.preview.length())) ||
+                allNotes((note) => isDotted(note.lengthForInput()))
                   ? 'highlighted'
                   : 'not-highlighted',
               onclick: () => dispatch(toggleDot()),

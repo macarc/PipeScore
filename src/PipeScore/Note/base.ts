@@ -19,7 +19,7 @@ import {
   sameNoteLengthName,
   dotLength,
   lengthInBeats,
-  dotted,
+  isDotted,
 } from './notelength';
 import { Item, genId } from '../global/id';
 import { Note, Triplet, NoteOrTriplet } from './index';
@@ -172,7 +172,7 @@ export abstract class BaseNote extends Item {
     return lengthInBeats(this.length);
   }
   protected hasDot() {
-    return dotted(this.length);
+    return isDotted(this.length);
   }
   protected hasBeam() {
     return this.lengthInBeats() < 1;
