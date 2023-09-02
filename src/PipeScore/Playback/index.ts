@@ -154,6 +154,7 @@ function expandRepeats(
   let repeatStartIndex = 0;
   let repeatEndIndex = 0;
   let repeating = false;
+  let timingOverRepeat: PlaybackSecondTiming | null = null;
   let output: (PlaybackNote | PlaybackGracenote)[] = [];
 
   for (let i = 0; i < elements.length; i++) {
@@ -163,6 +164,7 @@ function expandRepeats(
         repeating = false;
         repeatStartIndex = i;
       } else if (e.type === 'repeat-end' && i > repeatEndIndex) {
+        timingOverRepeat = timings.find(t => t.in(i)) || null;
         repeatEndIndex = i;
         // Go back to repeat
         i = repeatStartIndex;
@@ -179,8 +181,17 @@ function expandRepeats(
         start = -1;
       }
       if (e.type === 'object-end') {
-        if (repeating && isAtEndOfTiming(i, timings)) {
-          repeating = false;
+        if (repeating) {
+          if (timingOverRepeat) {
+            // Only stop repeating when the timing that went over the repeat
+            // mark is done (allowing other second timings to be present earlier
+            // in a part)
+            if (i === timingOverRepeat.end) {
+              repeating = false;
+            }
+          } else {
+            repeating = false;
+          }
         }
       }
     } else {
