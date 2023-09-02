@@ -119,7 +119,7 @@ export const Spec: SpecType[] = [
     type: TokenType.COMPLEX_GRIP,
   },
   {
-    regex: /^[gtp]?edre(?:(?:lg)|(?:la)|[bcdef])?/,
+    regex: /^[gtp]?(edre|dare|chechere|dale)(?:(?:lg)|(?:la)|[bcdef])?/,
     type: TokenType.EDRE,
   },
   {
