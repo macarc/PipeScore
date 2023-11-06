@@ -261,7 +261,7 @@ export class Note
     return this.pitch() === Pitch.C || this.pitch() === Pitch.F;
   }
   private shouldTie(previous: Note | null) {
-    return this.tied && !this.isPreview() && !previous?.isPreview();
+    return this.tied && previous !== null && !this.isPreview() && !previous?.isPreview();
   }
   public setGracenote(gracenote: Gracenote) {
     this._gracenote = gracenote;
