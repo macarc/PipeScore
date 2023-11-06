@@ -22,6 +22,7 @@ import { Menu } from './UI/model';
 import { Score } from './Score';
 import { Selection } from './Selection';
 import { Note, Triplet } from './Note';
+import Documentation from './Documentation';
 
 export type State = {
   canEdit: boolean;
@@ -29,7 +30,7 @@ export type State = {
   justClickedNote: boolean;
   preview: Preview | null;
   menu: Menu;
-  doc: { current: string | null; show: boolean };
+  doc: { current: keyof typeof Documentation | null; show: boolean };
   clipboard: (Note | Triplet | 'bar-break')[] | null;
   selection: Selection | null;
   history: { past: string[]; future: string[] };

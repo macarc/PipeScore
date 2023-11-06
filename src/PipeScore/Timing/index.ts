@@ -20,8 +20,7 @@
 
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { editTimingText } from '../Events/Misc';
-import { clickTiming } from '../Events/Timing';
+import { clickTiming, editTimingText } from '../Events/Timing';
 import { ID } from '../global/id';
 import { foreach, nmap } from '../global/utils';
 import { inOrder, closestItem, getXY, itemBefore, XY } from '../global/xy';
@@ -35,6 +34,7 @@ import {
   SavedTiming,
 } from '../SavedModel';
 import { Bar } from '../Bar';
+import dialogueBox from '../global/dialogueBox';
 
 interface TimingProps {
   score: Score;
@@ -65,6 +65,7 @@ export abstract class Timing {
     page: number,
     others: Timing[]
   ): void;
+  abstract editText(): Promise<void>;
   abstract render(props: TimingProps): m.Children;
 
   protected abstract front(): XY;
@@ -278,6 +279,28 @@ export class SecondTiming extends Timing {
       itemBefore(this.middle, this.end, true)
     );
   }
+  public async editText() {
+    const form = await dialogueBox('Edit 1st/2nd Timing', [
+      m('section', [
+        m('label', [
+          '1st text:',
+          m('input', { type: 'text', name: '1st', value: this.firstText }),
+        ]),
+        m('label', [
+          '2nd text:',
+          m('input', { type: 'text', name: '2nd', value: this.secondText }),
+        ]),
+      ]),
+    ]);
+    if (form) {
+      this.firstText = (
+        form.querySelector('input[name="1st"]') as HTMLInputElement
+      ).value;
+      this.secondText = (
+        form.querySelector('input[name="2nd"]') as HTMLInputElement
+      ).value;
+    }
+  }
   public drag(
     drag: TimingPart,
     x: number,
@@ -325,10 +348,7 @@ export class SecondTiming extends Timing {
           middle,
           this.firstText,
           (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
-          () =>
-            dispatch(
-              editTimingText(this.firstText, (text) => (this.firstText = text))
-            ),
+          () => dispatch(editTimingText(this)),
           false,
           props
         ),
@@ -338,13 +358,7 @@ export class SecondTiming extends Timing {
           end,
           this.secondText,
           (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
-          () =>
-            dispatch(
-              editTimingText(
-                this.secondText,
-                (text) => (this.secondText = text)
-              )
-            ),
+          () => dispatch(editTimingText(this)),
           true,
           props
         ),
@@ -390,6 +404,18 @@ export class SingleTiming extends Timing {
   protected noSelfOverlap() {
     return itemBefore(this.start, this.end, true);
   }
+  public async editText() {
+    const form = await dialogueBox('Edit 2nd Timing', [
+      m('section', [
+        m('label', ['Text:', m('input', { type: 'text', value: this.text })]),
+      ]),
+    ]);
+    if (form) {
+      this.text = (
+        form.querySelector('input[type="text"]') as HTMLInputElement
+      ).value;
+    }
+  }
   public drag(
     drag: TimingPart,
     x: number,
@@ -418,8 +444,7 @@ export class SingleTiming extends Timing {
           end,
           this.text,
           (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
-          () =>
-            dispatch(editTimingText(this.text, (text) => (this.text = text))),
+          () => dispatch(editTimingText(this)),
           true,
           props
         ),

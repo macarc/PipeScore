@@ -26,6 +26,7 @@ import {
   GracenoteSelection,
   ScoreSelection,
   TextSelection,
+  TimingSelection,
   TripletLineSelection,
 } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
@@ -146,14 +147,19 @@ function redraw() {
           state.selection instanceof TextSelection
             ? state.selection.text
             : null,
+        selectedTiming:
+          state.selection instanceof TimingSelection
+            ? state.selection.timing
+            : null,
         isLandscape: state.score.landscape,
         selectedBar:
           (state.selection instanceof ScoreSelection &&
             state.selection.bar(state.score)) ||
           null,
         docs: state.doc.show
-          ? Documentation.get(state.doc.current || '') ||
-            'Hover over different icons to view Help here.'
+          ? state.doc.current
+            ? Documentation[state.doc.current]
+            : 'Hover over different icons to view Help here.'
           : null,
         currentMenu: state.menu,
       })

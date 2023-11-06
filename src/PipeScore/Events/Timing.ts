@@ -55,3 +55,10 @@ export function clickTiming(timing: Timing, part: TimingPart): ScoreEvent {
     return Update.ViewChanged;
   };
 }
+
+export function editTimingText(timing: Timing): ScoreEvent {
+  return async () => {
+    await timing.editText();
+    return Update.ShouldSave;
+  };
+}

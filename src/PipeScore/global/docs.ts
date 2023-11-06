@@ -20,8 +20,12 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { hoverDoc } from '../Events/Doc';
+import documentationStrings from '../Documentation';
 
-export function help(docName: string, element: m.Vnode): m.Vnode {
+export function help(
+  docName: keyof typeof documentationStrings,
+  element: m.Vnode
+): m.Vnode {
   const attrs = element.attrs as {
     onmouseover: (e: MouseEvent) => void;
     onmouseout: (e: MouseEvent) => void;
@@ -33,7 +37,7 @@ export function help(docName: string, element: m.Vnode): m.Vnode {
     if (initialMouseOver) initialMouseOver(e);
   };
   attrs.onmouseout = (e: MouseEvent) => {
-    dispatch(hoverDoc(''));
+    dispatch(hoverDoc(null));
     if (initialMouseOut) initialMouseOut(e);
   };
   return element;

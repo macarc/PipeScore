@@ -16,8 +16,11 @@
 
 import { ScoreEvent, Update } from './common';
 import { State } from '../State';
+import Documentation from '../Documentation';
 
-export function hoverDoc(element: string): ScoreEvent {
+export function hoverDoc(
+  element: keyof typeof Documentation | null
+): ScoreEvent {
   return async (state: State) => {
     state.doc.current = element;
     return Update.ViewChanged;

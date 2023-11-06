@@ -49,7 +49,11 @@ import {
   setPageNumberVisibility,
   commit,
 } from '../Events/Misc';
-import { addSecondTiming, addSingleTiming } from '../Events/Timing';
+import {
+  addSecondTiming,
+  addSingleTiming,
+  editTimingText,
+} from '../Events/Timing';
 import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
 import { toggleDoc } from '../Events/Doc';
 import {
@@ -82,6 +86,8 @@ import { Gracenote, ReactiveGracenote, CustomGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { dispatch } from '../Controller';
 import { TextBox } from '../TextBox';
+import { Timing } from '../Timing';
+import Documentation from '../Documentation';
 
 export interface UIState {
   canEdit: boolean;
@@ -94,6 +100,7 @@ export interface UIState {
   selectedBar: Bar | null;
   selectedNotes: Note[];
   selectedText: TextBox | null;
+  selectedTiming: Timing | null;
   showingPageNumbers: boolean;
   canDeletePages: boolean;
   preview: Preview | null;
@@ -116,7 +123,7 @@ export default function render(state: UIState): m.Children {
 
   const noteInputButton = (length: NoteLength) =>
     help(
-      length,
+      length as keyof typeof Documentation,
       m('button', {
         class:
           isCurrentNoteInput(length) ||
@@ -136,7 +143,7 @@ export default function render(state: UIState): m.Children {
     state.selectedGracenote instanceof ReactiveGracenote &&
     state.selectedGracenote.name() === name;
 
-  const gracenoteInput = (name: string) =>
+  const gracenoteInput = (name: keyof typeof Documentation) =>
     help(
       name,
       m('button', {
@@ -163,6 +170,7 @@ export default function render(state: UIState): m.Children {
   const noBarSelected = state.selectedBar === null;
   const noGracenoteSelected = state.selectedGracenote === null;
   const noTextSelected = state.selectedText === null;
+  const noTimingSelected = state.selectedTiming === null;
   const nothingSelected =
     noBarSelected && noNotesSelected && noTextSelected && noGracenoteSelected;
   // NOTE : can't copy and paste gracenotes or text, so disable even if noGracenoteSelected is false
@@ -461,7 +469,7 @@ export default function render(state: UIState): m.Children {
 
   const secondTimingMenu = [
     m('section', [
-      m('h2', 'Add Second Timing'),
+      m('h2', 'Add Timing'),
       m('div.section-content', [
         help(
           'second timing',
@@ -474,6 +482,24 @@ export default function render(state: UIState): m.Children {
         help(
           'single timing',
           m('button', { onclick: () => dispatch(addSingleTiming()) }, '2nd')
+        ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Edit Timing'),
+      m('div.section-content', [
+        help(
+          'edit second timing',
+          m(
+            'button.double-width.text',
+            {
+              disabled: noTimingSelected,
+              onclick: () =>
+                state.selectedTiming &&
+                dispatch(editTimingText(state.selectedTiming)),
+            },
+            'Edit timing text'
+          )
         ),
       ]),
     ]),

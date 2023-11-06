@@ -32,24 +32,6 @@ export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   };
 }
 
-export function editTimingText(
-  value: string,
-  cb: (text: string) => void
-): ScoreEvent {
-  return async () => {
-    const form = await dialogueBox('Edit Timing', [
-      m('section', [
-        m('label', ['Text:', m('input', { type: 'text', value })]),
-      ]),
-    ]);
-    if (form) {
-      cb((form.querySelector('input[type="text"]') as HTMLInputElement).value);
-    }
-
-    return Update.ShouldSave;
-  };
-}
-
 export function addPage(): ScoreEvent {
   return async (state: State) => {
     state.score.numberOfPages += 1;
