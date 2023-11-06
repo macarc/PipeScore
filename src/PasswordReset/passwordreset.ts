@@ -25,21 +25,21 @@ const auth = new Auth({
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('form')?.addEventListener('submit', (e) => {
+  document.querySelector('form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = (
       document.querySelector('input[type="email"]') as HTMLInputElement
     )?.value;
     if (email) {
-      auth
-        .sendOobCode('PASSWORD_RESET', email)
-        .then(() => window.location.replace('/sentemail'))
-        .catch((e) => {
-          alert(
-            'An error occured while sending the email. Contact me (see the contact page).'
-          );
-          console.log(e);
-        });
+      try {
+        await auth.sendOobCode('PASSWORD_RESET', email);
+        alert('Email sent! Check your inbox (or junk folder).');
+      } catch (e) {
+        alert(
+          'An error occured while sending the email. Contact me (see the contact page).'
+        );
+        console.log(e);
+      }
     }
   });
 });
