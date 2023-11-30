@@ -285,8 +285,7 @@ async function play(
   end: ID | null,
   loop: boolean
 ) {
-  outer:
-  while (true) {
+  outer: while (true) {
     const pitches = getSoundedPitches(elements, timings, context, start, end);
     for (const note of pitches) {
       if (state.userPressedStop) break outer;
