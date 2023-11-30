@@ -810,10 +810,16 @@ export default function render(state: UIState): m.Children {
   ];
   const settingsMenu = [
     m('section', [
-      m('h2', 'Layout'),
+      m('h2', 'Stave layout'),
       m('div.section-content.vertical', [
         setting('lineGap', 'Gap between lines'),
         setting('staveGap', 'Gap between staves'),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Gracenote layout'),
+      m('div.section-content.vertical', [
+        setting('gapAfterGracenote', 'Gap after gracenote'),
       ]),
     ]),
     m('section', [

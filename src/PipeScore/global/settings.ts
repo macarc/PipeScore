@@ -25,6 +25,7 @@ export class Settings {
   topOffset = 200;
   pageLongSideLength = 297 * 5;
   pageShortSideLength = 210 * 5;
+  gapAfterGracenote = 6;
   bpm = 80;
 
   fromJSON(o: SavedSettings) {
@@ -33,6 +34,7 @@ export class Settings {
     this.margin = o.margin;
     this.topOffset = o.topOffset;
     this.bpm = o.bpm || 80;
+    this.gapAfterGracenote = o.gapAfterGracenote || 6;
   }
   toJSON(): SavedSettings {
     return {
@@ -41,6 +43,7 @@ export class Settings {
       margin: this.margin,
       topOffset: this.topOffset,
       bpm: this.bpm,
+      gapAfterGracenote: this.gapAfterGracenote,
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {

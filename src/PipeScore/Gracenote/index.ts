@@ -51,7 +51,6 @@ const gracenoteHeadRadius = 3;
 const gracenoteHeadHeight = 2;
 const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
 const gracenoteHeadGap = 1.5 * gracenoteHeadWidth;
-const gapAfterGracenote = 6;
 
 // Offsets from the centre of the gracenote head to the point where the stem touches it
 const stemXOf = (x: number) => x + 3;
@@ -119,7 +118,7 @@ export abstract class Gracenote {
   width(thisNote: Pitch, previousNote: Pitch | null) {
     const notes = this.notes(thisNote, previousNote);
     const length = notes.length;
-    return gracenoteHeadGap * length + gapAfterGracenote;
+    return gracenoteHeadGap * length + settings.gapAfterGracenote;
   }
   // Add a single to an existing gracenote
   // Used for creating custom embellisments
@@ -240,7 +239,7 @@ export abstract class Gracenote {
     const pitches = this.notes(props.thisNote, props.previousNote);
 
     const x = (i: number) =>
-      props.x + gapAfterGracenote / 2 + i * gracenoteHeadGap;
+      props.x + settings.gapAfterGracenote / 2 + i * gracenoteHeadGap;
     const y = (p: Pitch) => noteY(props.y, p);
 
     if (pitches.length === 0) {

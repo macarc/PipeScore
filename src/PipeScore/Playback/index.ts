@@ -165,7 +165,7 @@ function expandRepeats(
         repeating = false;
         repeatStartIndex = i;
       } else if (e.type === 'repeat-end' && i > repeatEndIndex) {
-        timingOverRepeat = timings.find(t => t.in(i)) || null;
+        timingOverRepeat = timings.find((t) => t.in(i)) || null;
         repeatEndIndex = i;
         // Go back to repeat
         i = repeatStartIndex;

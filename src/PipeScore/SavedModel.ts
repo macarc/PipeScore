@@ -158,6 +158,7 @@ export type SavedSettings = {
   lineGap: number;
   margin: number;
   topOffset: number;
+  gapAfterGracenote: number;
 };
 
 export type DeprecatedSavedNoteOrTriplet =
