@@ -1,4 +1,6 @@
+import { parse } from '../Parser';
 import { parsesWithoutWarnings } from './test_common';
+import { readFileSync } from 'fs';
 
 describe('correctly parses score body', () => {
   test('it works without any headers', () =>
@@ -221,27 +223,13 @@ describe('correctly parses score body', () => {
       )
     ).toBe(true));
 
-  /*
   test('it can parse scotland the brave', async function () {
     const path = 'src/ImportBWW/test/fixtures/Scotland_the_Brave.bww';
-    const file = await readFile(path, {
-      encoding: 'utf-8',
-    });
-    const ast = parse(file);
+    const file = await readFileSync(path, {}).toString('utf-8');
+    const { warnings } = parse(file);
 
-    expect(ast).toBeTruthy();
+    expect(warnings.length).toBe(0);
   });
-
-  test('it can skip unknown tokens', async function () {
-    const path = 'src/ImportBWW/test/fixtures/skip_unknown_tokens.bww';
-    const file = await readFile(path, {
-      encoding: 'utf-8',
-    });
-    const ast = parse(file);
-
-    expect(ast).toBeTruthy();
-  });
-  */
 
   test('a tune can have a gracenote before a tied note', () =>
     expect(
