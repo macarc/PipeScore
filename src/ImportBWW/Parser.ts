@@ -359,7 +359,6 @@ class Parser implements Record<TokenType, (t: Token) => void> {
       const token = this.ts.eatAny();
       if (!token) break;
 
-      console.log(token.type);
       this[token.type](token);
     }
 
