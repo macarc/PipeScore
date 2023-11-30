@@ -5,6 +5,7 @@ import { parse } from './Parser';
 import m from 'mithril';
 import { SavedScore } from '../PipeScore/SavedModel';
 import { settings } from '../PipeScore/global/settings';
+import { readFile } from '../common/file';
 
 // This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
@@ -147,18 +148,6 @@ async function importfile(e: SubmitEvent) {
   } catch (e) {
     errorImporting((e as Error).message);
   }
-}
-
-async function readFile(file: File): Promise<string> {
-  return new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.readAsText(file, 'UTF-8');
-    reader.addEventListener('error', rej);
-    reader.addEventListener('load', (e) => {
-      const data = e.target?.result;
-      if (data) res(data.toString());
-    });
-  });
 }
 
 function chooseFile() {

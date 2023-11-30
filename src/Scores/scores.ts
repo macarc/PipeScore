@@ -21,6 +21,7 @@ import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
 import m from 'mithril';
 import { SavedScore } from '../PipeScore/SavedModel';
+import { readFile } from '../common/file';
 
 let userId = '';
 
@@ -32,6 +33,8 @@ const auth = new Auth({ apiKey: apiToken });
 const db = new Database({ projectId: 'pipe-score', auth });
 
 type ScoreRef = { name: string; path: string };
+
+type FileInput = HTMLInputElement & { files: FileList };
 
 class ScoresList {
   loading = true;
@@ -45,6 +48,38 @@ class ScoresList {
       } else {
         window.location.assign('/login');
       }
+    });
+
+    // Need to do this here so we have access to refreshScores()
+    document.getElementById('upload')?.addEventListener('click', () => {
+      // Create a temporary file input element, and use that to
+      // prompt the user to select a file
+      const f = document.createElement('input') as FileInput;
+      f.setAttribute('type', 'file');
+      f.setAttribute('multiple', 'multiple');
+      f.setAttribute('accept', '.pipescore,.json,text/json');
+
+      f.addEventListener('change', async () => {
+        // For each file selected, read it and add it to the scores collection
+        const collection = db.ref(`scores/${userId}/scores`);
+        for (let i = 0; i < f.files.length; i++) {
+          const file = f.files.item(i);
+          if (file) {
+            const contents = await readFile(file);
+            const json = JSON.parse(contents);
+            const score = await collection.add(json);
+
+            // If only one file was selected, open it up in PipeScore
+            if (score && f.files.length === 1) {
+              window.location.assign(`/pipescore/${userId}/${score.id}`);
+            }
+          }
+        }
+        this.refreshScores();
+      });
+
+      // Trigger the file dialogue
+      f.click();
     });
   }
 

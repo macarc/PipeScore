@@ -93,7 +93,8 @@ export default {
   stop: 'Stop the playback.',
   'playback speed': 'Control the playback speed (further right is faster).',
   print: 'Print the score to a physical printer or PDF file.',
-  download: 'Download the score as a .pipescore file.\n\nThis allows you to save your scores on your computer, and to upload them again to another account.\n\nThe downloaded file cannot be opened in anything other than PipeScore.',
+  download:
+    'Download the score as a .pipescore file.\n\nThis allows you to save your scores on your computer, and to upload them again to another account.\n\nThe downloaded file cannot be opened in anything other than PipeScore.',
   landscape: 'Make the page(s) landscape.',
   portrait: 'Make the page(s) portrait.',
   'page numbers':

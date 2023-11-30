@@ -813,7 +813,7 @@ export default function render(state: UIState): m.Children {
             { onclick: () => dispatch(download()) },
             'Download PipeScore file'
           )
-        )
+        ),
       ]),
     ]),
   ];
