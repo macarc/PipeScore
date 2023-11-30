@@ -48,6 +48,23 @@ export function startPlaybackAtSelection(): ScoreEvent {
   };
 }
 
+export function playbackLoopingSelection(): ScoreEvent {
+  return async (state: State) => {
+    const playbackElements = state.score.play();
+    if (state.selection instanceof ScoreSelection) {
+      await playback(
+        state.playback,
+        playbackElements,
+        state.score.playbackTimings(playbackElements),
+        state.selection.start,
+        state.selection.end,
+        true
+      );
+    }
+    return Update.NoChange;
+  };
+}
+
 export function stopPlayback(): ScoreEvent {
   return async (state: State) => {
     if (state.playback.playing) state.playback.userPressedStop = true;

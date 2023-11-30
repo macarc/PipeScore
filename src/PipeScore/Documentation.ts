@@ -88,6 +88,8 @@ export default {
   play: 'Play a preview of the score back from the start.\n\nThis will only work once the samples are downloaded (if the samples need to download, you will see a notice).',
   'play from selection':
     'Play a preview of the score, starting at the currently selected note/bar.\n\nThis will only work once the samples are downloaded (if the samples need to download, you will see a notice).',
+  'play looping selection':
+    'Play the currently selected part of the score, repeating forever.',
   stop: 'Stop the playback.',
   'playback speed': 'Control the playback speed (further right is faster).',
   print: 'Print the score to a physical printer or PDF file.',

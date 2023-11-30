@@ -149,7 +149,8 @@ function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
 function expandRepeats(
   elements: Playback[],
   timings: PlaybackSecondTiming[],
-  start: ID | null
+  start: ID | null,
+  end: ID | null
 ): (PlaybackNote | PlaybackGracenote)[] {
   let repeatStartIndex = 0;
   let repeatEndIndex = 0;
@@ -181,6 +182,9 @@ function expandRepeats(
         start = -1;
       }
       if (e.type === 'object-end') {
+        if (e.id === end) {
+          return output;
+        }
         if (repeating) {
           if (timingOverRepeat) {
             // Only stop repeating when the timing that went over the repeat
@@ -207,9 +211,10 @@ function getSoundedPitches(
   elements: Playback[],
   timings: PlaybackSecondTiming[],
   ctx: AudioContext,
-  start: ID | null = null
+  start: ID | null,
+  end: ID | null
 ): SoundedPitch[] {
-  elements = expandRepeats(elements, timings, start);
+  elements = expandRepeats(elements, timings, start, end);
 
   const gracenoteDuration = 0.044;
 
@@ -243,7 +248,9 @@ export async function playback(
   state: PlaybackState,
   elements: Playback[],
   timings: PlaybackSecondTiming[],
-  start: ID | null = null
+  start: ID | null = null,
+  end: ID | null = null,
+  loop = false
 ): Promise<void> {
   if (state.playing || state.loading) return;
 
@@ -256,21 +263,41 @@ export async function playback(
 
   document.body.classList.add('loading');
 
-  const soundedPitches = getSoundedPitches(elements, timings, context, start);
   const drone = new Drones(drones, context);
 
   drone.play();
   await sleep(1000);
   document.body.classList.remove('loading');
 
-  for (const note of soundedPitches) {
-    if (state.userPressedStop) break;
-
-    await note.play(settings.bpm);
-  }
+  await play(state, elements, timings, context, start, end, loop);
 
   drone.stop();
 
-  state.userPressedStop = false;
   state.playing = false;
+}
+
+async function play(
+  state: PlaybackState,
+  elements: Playback[],
+  timings: PlaybackSecondTiming[],
+  context: AudioContext,
+  start: ID | null,
+  end: ID | null,
+  loop: boolean
+) {
+  outer:
+  while (true) {
+    const pitches = getSoundedPitches(elements, timings, context, start, end);
+    for (const note of pitches) {
+      if (state.userPressedStop) break outer;
+
+      await note.play(settings.bpm);
+    }
+
+    if (!loop) {
+      break outer;
+    }
+  }
+
+  state.userPressedStop = false;
 }

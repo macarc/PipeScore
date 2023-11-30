@@ -61,6 +61,7 @@ import {
   stopPlayback,
   setPlaybackBpm,
   startPlaybackAtSelection,
+  playbackLoopingSelection,
 } from '../Events/Playback';
 import {
   centreText,
@@ -662,6 +663,17 @@ export default function render(state: UIState): m.Children {
               onclick: () => dispatch(startPlaybackAtSelection()),
             },
             'Play from Selection'
+          )
+        ),
+        help(
+          'play looping selection',
+          m(
+            'button.double-width.text',
+            {
+              disabled: state.isPlaying || state.selectedNotes.length === 0,
+              onclick: () => dispatch(playbackLoopingSelection()),
+            },
+            'Play looped Selection'
           )
         ),
         help(
