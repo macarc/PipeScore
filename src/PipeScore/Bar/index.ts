@@ -18,7 +18,7 @@ import { TimeSignature } from '../TimeSignature';
 import { NoteProps, Note, Triplet, lastNote } from '../Note';
 import { BaseNote } from '../Note/base';
 import { genId, ID, Item } from '../global/id';
-import { last, nlast } from '../global/utils';
+import { clamp, last, nlast } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
@@ -307,19 +307,20 @@ export class Bar extends Item implements Previews<Note> {
     }
   }
   public anacrusisWidth(previousBar: Bar | null) {
-    if (this.isAnacrusis) {
-      if (this.fixedWidth !== 'auto') return this.fixedWidth;
-      const previousPitch = previousBar && previousBar.lastPitch();
-      const { total } = this.noteOffsets(previousPitch, this.nonPreviewNotes());
-      const previousTimeSignature = previousBar && previousBar.timeSignature();
-      const drawTimeSignature =
-        previousTimeSignature && !this.ts.equals(previousTimeSignature);
-      return Math.max(
-        width.reify(total, 5) + (drawTimeSignature ? 0 : this.ts.width()),
-        60
-      );
-    }
-    return 0;
+    if (this.fixedWidth !== 'auto') return this.fixedWidth;
+    return this.minWidth(previousBar);
+  }
+  public minWidth(previousBar: Bar | null) {
+    const previousPitch = previousBar && previousBar.lastPitch();
+    const { total } = this.noteOffsets(previousPitch, this.nonPreviewNotes());
+    const previousTimeSignature = previousBar && previousBar.timeSignature();
+    const drawTimeSignature =
+      previousTimeSignature && !this.ts.equals(previousTimeSignature);
+    return clamp(
+      width.reify(total, 5) + (drawTimeSignature ? 0 : this.ts.width()),
+      15,
+      60
+    );
   }
   // Returns an array where the nth item is the offset of the nth note
   // from the start of the bar.

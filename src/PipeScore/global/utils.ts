@@ -37,6 +37,10 @@ export const last = <T>(array: T[]): T | null =>
 export const nfirst = <T>(array: T[]): T => array[0];
 export const nlast = <T>(array: T[]): T => array[array.length - 1];
 
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 // Monad :)
 export const nmap = <T, U>(a: T | null, fn: (b: T) => U): U | null => {
   if (a) return fn(a);

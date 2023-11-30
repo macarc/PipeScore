@@ -142,26 +142,26 @@ export class Stave {
       (width, bar, i) => width + bar.anacrusisWidth(previousBar(i)),
       0
     );
+    const widthAvailable = staveWidth - trebleClefWidth - totalAnacrusisWidth;
     const averageBarWidth =
-      (staveWidth - trebleClefWidth - totalAnacrusisWidth) /
-      (this._bars.length - anacruses.length);
-
-    const widths: number[] = [];
+      widthAvailable / (this._bars.length - anacruses.length);
     let extraWidth = 0;
 
-    this._bars.forEach((bar, i) => {
+    return this._bars.map((bar, i) => {
       if (bar.isAnacrusis) {
-        widths.push(bar.anacrusisWidth(previousBar(i)));
+        return bar.anacrusisWidth(previousBar(i));
       } else if (bar.fixedWidth !== 'auto') {
-        widths.push(bar.fixedWidth);
         extraWidth += bar.fixedWidth - averageBarWidth;
+        return bar.fixedWidth;
       } else {
-        widths.push(averageBarWidth - extraWidth);
+        const width = averageBarWidth - extraWidth;
+        if (width <= 0) {
+          console.error(`Bar has width ${width}!`);
+        }
         extraWidth = 0;
+        return width;
       }
     });
-
-    return widths;
   }
   public renderTrebleClef(x: number, y: number) {
     const scale = 0.00034 * settings.lineHeightOf(5);
