@@ -20,6 +20,7 @@ import {
   dotLength,
   lengthInBeats,
   isDotted,
+  numTails,
 } from './notelength';
 import { Item, genId } from '../global/id';
 import { Note, Triplet, NoteOrTriplet } from './index';
@@ -148,26 +149,7 @@ export abstract class BaseNote extends Item {
   }
 
   protected numTails() {
-    switch (this.length) {
-      case NoteLength.Semibreve:
-      case NoteLength.DottedMinim:
-      case NoteLength.Minim:
-      case NoteLength.DottedCrotchet:
-      case NoteLength.Crotchet:
-        return 0;
-      case NoteLength.DottedQuaver:
-      case NoteLength.Quaver:
-        return 1;
-      case NoteLength.DottedSemiQuaver:
-      case NoteLength.SemiQuaver:
-        return 2;
-      case NoteLength.DottedDemiSemiQuaver:
-      case NoteLength.DemiSemiQuaver:
-        return 3;
-      case NoteLength.DottedHemiDemiSemiQuaver:
-      case NoteLength.HemiDemiSemiQuaver:
-        return 4;
-    }
+    return numTails(this.length);
   }
   public lengthInBeats(): number {
     return lengthInBeats(this.length);

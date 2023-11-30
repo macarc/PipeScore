@@ -108,3 +108,26 @@ export function dotLength(length: NoteLength): NoteLength {
       return NoteLength.DottedHemiDemiSemiQuaver;
   }
 }
+
+export function numTails(length: NoteLength) {
+  switch (length) {
+    case NoteLength.Semibreve:
+    case NoteLength.DottedMinim:
+    case NoteLength.Minim:
+    case NoteLength.DottedCrotchet:
+    case NoteLength.Crotchet:
+      return 0;
+    case NoteLength.DottedQuaver:
+    case NoteLength.Quaver:
+      return 1;
+    case NoteLength.DottedSemiQuaver:
+    case NoteLength.SemiQuaver:
+      return 2;
+    case NoteLength.DottedDemiSemiQuaver:
+    case NoteLength.DemiSemiQuaver:
+      return 3;
+    case NoteLength.DottedHemiDemiSemiQuaver:
+    case NoteLength.HemiDemiSemiQuaver:
+      return 4;
+  }
+}

@@ -20,7 +20,7 @@ import { noteY, Pitch, pitchUp, pitchDown, pitchOnLine } from '../global/pitch';
 import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
 import { ID, genId } from '../global/id';
 import { clickTripletLine } from '../Events/Note';
-import { nfirst, nlast, foreach } from '../global/utils';
+import { nfirst, nlast, foreach, isRoughlyZero } from '../global/utils';
 import { NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import m from 'mithril';
@@ -55,6 +55,11 @@ type NoteLayout = {
   x: number;
   y: number;
 }[];
+
+const enum ShortBeamDirection {
+  Left,
+  Right,
+}
 
 const tailGap = 3;
 const shortTailLength = 10;
@@ -297,14 +302,18 @@ export class Note
     rightTails: number,
     tailsBefore: number | null,
     tailsAfter: number | null,
-    // whether or not the first note is the 2nd, 4th, e.t.c. note in the group
-    even: boolean
+    leftShortBeamDirection: ShortBeamDirection,
+    rightShortBeamDirection: ShortBeamDirection
   ): m.Children {
     const moreTailsOnLeft = leftTails > rightTails;
 
     const drawExtraTails = moreTailsOnLeft
-      ? tailsBefore === null || (even && leftTails > tailsBefore)
-      : tailsAfter === null || (even && rightTails > tailsAfter);
+      ? tailsBefore === null ||
+        (leftShortBeamDirection === ShortBeamDirection.Right &&
+          leftTails > tailsBefore)
+      : tailsAfter === null ||
+        (rightShortBeamDirection === ShortBeamDirection.Left &&
+          rightTails > tailsAfter);
 
     // tails shared by both notes
     const sharedTails = Math.min(leftTails, rightTails);
@@ -572,6 +581,28 @@ export class Note
 
     const stemY = props.y + settings.lineHeightOf(6);
 
+    const lengthOfNotes = (notes: Note[]) =>
+      notes.reduce((acc, n) => acc + n.lengthInBeats(), 0);
+
+    const shortBeamDirection = (note: Note, index: number) => {
+      // If we're on the outside of the group, point inwards
+      if (index === 0) {
+        return ShortBeamDirection.Right;
+      }
+      if (index === notes.length - 1) {
+        return ShortBeamDirection.Left;
+      }
+      // Otherwise:
+      // The short beam should point to the left if we are part way
+      // through a "beat" ("beat" = 2 * length of note) - i.e. if it "completes the beat"
+      // Otherwise, we're at the start of a new "beat" so point to the right
+      const lengthUpToNote = lengthOfNotes(notes.slice(0, index));
+      if (isRoughlyZero(lengthUpToNote % (note.lengthInBeats() * 2))) {
+        return ShortBeamDirection.Right;
+      }
+      return ShortBeamDirection.Left;
+    };
+
     return m(
       'g[class=grouped-notes]',
       notes.map((note, index) => {
@@ -636,7 +667,8 @@ export class Note
                 note.numTails(),
                 (notes[index - 2] && notes[index - 2].numTails()) || null,
                 (notes[index + 1] && notes[index + 1].numTails()) || null,
-                index % 2 === 1
+                shortBeamDirection(previousNote, index - 1),
+                shortBeamDirection(note, index)
               )
             : null,
 

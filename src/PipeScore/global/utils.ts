@@ -23,6 +23,11 @@ export function capitalise(st: string) {
   return st[0].toUpperCase() + st.slice(1);
 }
 
+export function isRoughlyZero(i: number) {
+  // Beautiful code to deal with floating point errors
+  return i < 0.000001;
+}
+
 export const car = <U, V>(pair: [U, V]): U => pair[0];
 export const first = <T>(array: T[]): T | null => array[0] || null;
 // Find the last value of an array in fewer characters
