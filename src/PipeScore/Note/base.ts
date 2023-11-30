@@ -25,7 +25,10 @@ import { Item, genId } from '../global/id';
 import { Note, Triplet, NoteOrTriplet } from './index';
 import { NoteState } from './state';
 import { GracenoteState } from '../Gracenote/state';
-import { SavedNoteOrTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
+import {
+  SavedNoteOrTriplet,
+  isDeprecatedSavedNoteOrTriplet,
+} from '../SavedModel';
 
 export interface NoteProps {
   x: number;

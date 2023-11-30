@@ -84,7 +84,7 @@ export type SavedNoteOrTriplet =
       notetype: 'triplet';
       value: SavedTriplet;
     }
-    | DeprecatedSavedNoteOrTriplet;
+  | DeprecatedSavedNoteOrTriplet;
 
 export type SavedReactiveGracenote = {
   grace: string;
@@ -174,6 +174,8 @@ export type DeprecatedSavedNoteOrTriplet =
       value: SavedTriplet;
     };
 
-export function isDeprecatedSavedNoteOrTriplet(noteOrTriplet: SavedNoteOrTriplet): noteOrTriplet is DeprecatedSavedNoteOrTriplet {
+export function isDeprecatedSavedNoteOrTriplet(
+  noteOrTriplet: SavedNoteOrTriplet
+): noteOrTriplet is DeprecatedSavedNoteOrTriplet {
   return (noteOrTriplet as any).id !== undefined;
 }

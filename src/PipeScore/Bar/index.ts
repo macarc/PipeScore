@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { TimeSignature } from '../TimeSignature';
-import { NoteProps, Note, Triplet } from '../Note';
+import { NoteProps, Note, Triplet, lastNote } from '../Note';
 import { BaseNote } from '../Note/base';
 import { genId, ID, Item } from '../global/id';
 import { last, nlast } from '../global/utils';
@@ -330,9 +330,7 @@ export class Bar extends Item implements Previews<Note> {
         width.add(
           nlast(soFar),
           n.width(
-            index === 0
-              ? previousPitch
-              : Triplet.lastNote(notes[index - 1]).pitch()
+            index === 0 ? previousPitch : lastNote(notes[index - 1]).pitch()
           )
         ),
       ],
@@ -366,7 +364,7 @@ export class Bar extends Item implements Previews<Note> {
           .play(
             i === 0
               ? previous && previous.lastPitch()
-              : Triplet.lastNote(this._notes[i - 1]).pitch()
+              : lastNote(this._notes[i - 1]).pitch()
           )
           .map((p) =>
             p.type === 'note'
@@ -434,7 +432,7 @@ export class Bar extends Item implements Previews<Note> {
         boxToLast: index === 0 ? xAfterBarline : 'lastnote',
         noteWidth: beatWidth,
         previousNote:
-          index === 0 ? previousNote : Triplet.lastNote(actualNotes[index - 1]),
+          index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
         endOfLastStave: props.endOfLastStave,
         state: props.noteState,
         gracenoteState: props.gracenoteState,

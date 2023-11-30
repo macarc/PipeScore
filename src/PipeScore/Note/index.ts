@@ -34,7 +34,11 @@ import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 
 import { BaseNote, NoteProps } from './base';
-import { SavedNote, SavedTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
+import {
+  SavedNote,
+  SavedTriplet,
+  isDeprecatedSavedNoteOrTriplet,
+} from '../SavedModel';
 export type { NoteProps } from './base';
 
 export type NoteOrTriplet = Note | Triplet;
@@ -261,7 +265,12 @@ export class Note
     return this.pitch() === Pitch.C || this.pitch() === Pitch.F;
   }
   private shouldTie(previous: Note | null) {
-    return this.tied && previous !== null && !this.isPreview() && !previous?.isPreview();
+    return (
+      this.tied &&
+      previous !== null &&
+      !this.isPreview() &&
+      !previous?.isPreview()
+    );
   }
   public setGracenote(gracenote: Gracenote) {
     this._gracenote = gracenote;
@@ -675,7 +684,7 @@ export class Triplet extends BaseNote {
       t.id = o.id;
     }
     for (const note in o.notes) {
-      const id = o.notes[note].id
+      const id = o.notes[note].id;
       if (id) {
         t._notes[note].id = id;
       }
@@ -725,10 +734,6 @@ export class Triplet extends BaseNote {
     return notes.flatMap((note) =>
       note instanceof Triplet ? note.tripletSingleNotes() : note
     );
-  }
-  public static lastNote(note: Note | Triplet): Note {
-    if (note instanceof Triplet) return note.lastSingle();
-    return note;
   }
   // Draws a triplet marking from x1,y1 to x2,y2
   private tripletLine(
@@ -781,4 +786,9 @@ export class Triplet extends BaseNote {
       ),
     ]);
   }
+}
+
+export function lastNote(note: Note | Triplet): Note {
+  if (note instanceof Triplet) return note.lastSingle();
+  return note;
 }

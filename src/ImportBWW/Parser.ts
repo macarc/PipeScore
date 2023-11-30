@@ -96,7 +96,8 @@ const emptyNote = (
   tied: boolean,
   hasNatural: boolean,
   gracenote: SavedGracenote
-): SavedNote => ({
+) => ({
+  id: genId(),
   pitch,
   length,
   tied,
@@ -159,10 +160,9 @@ class PartialScore {
       this.accidental === pitch,
       this.gracenote
     );
-    const id = genId();
+    const id = note.id;
 
     this.currentBar().notes.push({
-      id,
       notetype: 'single',
       value: note,
     });
@@ -201,9 +201,9 @@ class PartialScore {
     });
     const notelength = notes[0].length;
     bar.notes.splice(bar.notes.length - 3, 3, {
-      id: notesOrTriplets[0].id,
       notetype: 'triplet',
       value: {
+        id: genId(),
         length: notelength,
         notes: notes,
       },
