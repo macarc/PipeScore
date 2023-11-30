@@ -48,6 +48,7 @@ import {
   portrait,
   setPageNumberVisibility,
   commit,
+  download,
 } from '../Events/Misc';
 import {
   addSecondTiming,
@@ -805,6 +806,14 @@ export default function render(state: UIState): m.Children {
             'Print (to PDF, or printer)'
           )
         ),
+        help(
+          'download',
+          m(
+            'button.text.double-width',
+            { onclick: () => dispatch(download()) },
+            'Download PipeScore file'
+          )
+        )
       ]),
     ]),
   ];

@@ -208,6 +208,20 @@ export function print(): ScoreEvent {
   };
 }
 
+export function download(): ScoreEvent {
+  return async (state: State) => {
+    const json = state.score.toJSON();
+    const blob = new Blob([JSON.stringify(json)], { type: 'text/json' });
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = json.name + '.pipescore';
+    a.click();
+
+    return Update.NoChange;
+  };
+}
+
 export function commit(): ScoreEvent {
   return async () => Update.ShouldSave;
 }
