@@ -1,5 +1,11 @@
 # BWW File Specification
 
+## Update
+
+I've realised that the BWW file format is resistant to this kind of top-down specification, and re-written the parser as a bottom-up parser. This makes it a lot easier to parse. I'm keeping this around since it's handy to have a reference; however, it is not correct in many ways (since it is top-down, it cares far more about ordering than the bottom-up approach does).
+
+## This document
+
 This is **not** an official specification. This is just something I've made to help myself better understand BWW files, and to help with the implementation. If you have come across files that do not conform to this, they are not necessarily wrong. Let me know and I can see if I can incorporate them into the spec.
 
 This is largely translated from [this manual](http://bagpipe.ddg-hansa.com/Bagpipe_Reader.pdf).
