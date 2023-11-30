@@ -212,13 +212,36 @@ export class Stave {
       endOfLastStave: props.x + props.width, // width should always be the same
       noteState: props.noteState,
       gracenoteState: props.gracenoteState,
-      resize: (widthChange: number) => {
+      canResize: (newWidth: number) => {
+        // If the new width is smaller than the minimum, can't resize
+        // Only enforce if we aren't making the bar larger (in case everything's really cramped)
+        if (newWidth < bar.minWidth(previousBar(index)) && newWidth < widths[index]) {
+          return false;
+        }
+
         const next = this._bars[index + 1];
         if (next) {
-          if (next.fixedWidth !== 'auto') next.fixedWidth -= widthChange;
-          return true;
+          const barRHS = getX(index) + newWidth;
+          const furthestRightPossibleNextLHS =
+            getX(index + 1) + width(index + 1) - next.minWidth(bar);
+
+          // If the end of the bar would overlap with the next bar, can't resize
+          if (barRHS > furthestRightPossibleNextLHS) {
+            return false;
+          } else {
+            return true;
+          }
         }
+
+        // If there's no next bar, we're at the end of the stave, so can't resize
         return false;
+      },
+      resize: (widthChange: number) => {
+        // Subtract width change from the next bar, to make space for this bar
+        const next = this._bars[index + 1];
+        if (next && next.fixedWidth !== 'auto') {
+          next.fixedWidth -= widthChange;
+        }
       },
     });
 

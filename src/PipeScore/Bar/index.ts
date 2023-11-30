@@ -49,7 +49,8 @@ interface BarProps {
   shouldRenderLastBarline: boolean;
   mustNotRenderFirstBarline: boolean;
   endOfLastStave: number;
-  resize: (x: number) => boolean;
+  canResize: (newWidth: number) => boolean;
+  resize: (widthChange: number) => void;
   noteState: NoteState;
   gracenoteState: GracenoteState;
 }
@@ -494,7 +495,10 @@ export class Bar extends Item implements Previews<Note> {
               // this is called in the future, props.width may be out of date
               const oldWidth =
                 this.fixedWidth === 'auto' ? props.width : this.fixedWidth;
-              if (props.resize(newWidth - oldWidth)) this.fixedWidth = newWidth;
+              if (props.canResize(newWidth)) {
+                props.resize(newWidth - oldWidth);
+                this.fixedWidth = newWidth;
+              }
             },
           })
         : null,
