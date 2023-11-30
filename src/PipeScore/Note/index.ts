@@ -61,7 +61,9 @@ const enum ShortBeamDirection {
   Right,
 }
 
-const tailGap = 3;
+const tailGap = 4;
+const beamThickness = 3;
+const stemThickness = 1;
 const shortTailLength = 10;
 // note that this is half the width of the note, not the actual radius
 // (the actual radius will actually be slightly larger since the note head is slanted slightly)
@@ -70,6 +72,9 @@ const noteHeadWidth = 2 * noteHeadRadius;
 const dotXOffset = 10;
 const dotRadius = 1.5;
 const normalStemHeight = 30;
+
+// Offset (downwards) from centre of note that stem should start
+const stemYOffset = 2;
 
 export class Note
   extends BaseNote
@@ -323,22 +328,22 @@ export class Note
     return m('g[class=tails]', [
       ...foreach(sharedTails, (i) =>
         m('line', {
-          x1: xL,
-          x2: xR,
+          x1: xL - stemThickness / 2,
+          x2: xR + stemThickness / 2,
           y1: y - i * tailGap,
           y2: y - i * tailGap,
           stroke: 'black',
-          'stroke-width': 2,
+          'stroke-width': beamThickness,
         })
       ),
       ...foreach(extraTails, (i) => i + sharedTails).map((i) =>
         m('line', {
-          x1: moreTailsOnLeft ? xL : xR,
+          x1: moreTailsOnLeft ? xL - stemThickness / 2 : xR + stemThickness / 2,
           x2: moreTailsOnLeft ? xL + shortTailLength : xR - shortTailLength,
           y1: y - i * tailGap,
           y2: y - i * tailGap,
           stroke: 'black',
-          'stroke-width': 2,
+          'stroke-width': beamThickness,
         })
       ),
     ]);
@@ -679,12 +684,13 @@ export class Note
                 m('line', {
                   x1: x(index),
                   x2: x(index),
-                  y1: y(index),
+                  y1: y(index) + stemYOffset,
                   y2:
                     note.hasBeam() && notes.length > 1
                       ? stemY
                       : y(index) + normalStemHeight,
                   stroke: note.colour(),
+                  'stroke-width': stemThickness,
                 }),
               ]
             : null,

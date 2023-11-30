@@ -52,13 +52,10 @@ export class TimeSignature {
     return new TimeSignature(this.ts, [...this.breaks]);
   }
   public width() {
-    return 30;
-  }
-  public cutTimeFontSize() {
-    return settings.lineHeightOf(6);
+    return 20;
   }
   public fontSize() {
-    return settings.lineHeightOf(5) / 1.6;
+    return settings.lineHeightOf(2.7);
   }
   public breaksString() {
     return this.breaks.toString();
@@ -151,6 +148,25 @@ export class TimeSignature {
   public edit() {
     return edit(this);
   }
+  private renderCommonTime(x: number, y: number, onclick: () => void) {
+    // https://upload.wikimedia.org/wikipedia/commons/a/ab/Music-commontime.svg
+    const scale = 0.0083 * settings.lineHeightOf(5);
+    const baseline = 100 * scale;
+    return m(
+      'g',
+      {
+        transform: `translate(${x - 29} ${
+          y - baseline + settings.lineHeightOf(2)
+        }) scale(${scale})`,
+      },
+      m('path', {
+        fill: '#000',
+        'stroke-width': 0,
+        onclick,
+        d: 'm 118.5,90.4 c 0,-5.5 -5.2,-14.3 -19.1,-14.3 -10.3,0 -20.5,12.4 -20.5,23.2 0,13.816478 7.8,25.8 21,25.8 14.9,0 18.7,-12.4 18.7,-18.5 -0.5,0 -1.2,0 -1.7,0 -0.8,5.2 -5.8,15.5 -14.4,15.5 -9.3,0 -11.7,-8.3 -11.7,-21.7 0,-16.9 5.5,-21.3 12.2,-21.3 5.3,0 8.1,2.8 8.6,3.5 0.2,0.4 0.3,0.9 -0.1,1.3 -4,0 -8.7,2.8 -8.7,8.4 0,3.4 2.4,7.2 7.5,7.2 3.9,0 8.1,-3 8.1,-9 z',
+      })
+    );
+  }
   public render(props: TimeSignatureProps): m.Children {
     const edit = () =>
       this.edit().then((newTimeSignature) =>
@@ -158,29 +174,18 @@ export class TimeSignature {
       );
 
     if (this.cutTime() || this.commonTime()) {
-      const y = props.y + settings.lineHeightOf(4);
+      const y = props.y + settings.lineHeightOf(3);
       const cutLineX = props.x;
       return m('g[class=time-signature]', [
-        m(
-          'text',
-          {
-            style: 'font-family: serif; font-weight: bold;',
-            'text-anchor': 'middle',
-            x: props.x,
-            y: y,
-            'font-size': this.cutTimeFontSize(),
-            onclick: edit,
-          },
-          'C'
-        ),
+        this.renderCommonTime(props.x, props.y, edit),
         this.cutTime()
           ? m('line', {
               x1: cutLineX,
               x2: cutLineX,
-              y1: props.y - settings.lineHeightOf(0.7),
-              y2: props.y + settings.lineHeightOf(4.5),
+              y1: props.y + settings.lineHeightOf(0.7),
+              y2: props.y + settings.lineHeightOf(3.3),
               stroke: 'black',
-              'stroke-width': 4,
+              'stroke-width': 1,
               'shape-rendering': 'crispEdges',
             })
           : null,
@@ -205,7 +210,7 @@ export class TimeSignature {
           {
             'text-anchor': 'middle',
             x: props.x,
-            y: y + settings.lineHeightOf(2.1),
+            y: y + settings.lineHeightOf(2),
             style: 'font-family: serif; font-weight: bold; cursor: pointer;',
             'font-size': this.fontSize(),
             onclick: edit,

@@ -24,6 +24,7 @@ import { dispatch } from '../Controller';
 import { clickBarline } from '../Events/Bar';
 import { settings } from '../global/settings';
 import { SavedBarline } from '../SavedModel';
+import { stavelineThickness } from '../Stave';
 
 interface BarlineProps {
   x: number;
@@ -82,7 +83,7 @@ export class Barline {
 }
 
 const lineOffset = 6;
-const thickLineWidth = 2.5;
+const thickLineWidth = 3;
 const dragWidth = 2;
 
 function height() {
@@ -94,15 +95,15 @@ function renderNormal({ x, y, drag }: BarlineProps) {
     m('line', {
       x1: x,
       x2: x,
-      y1: y,
-      y2: y + height(),
+      y1: y - stavelineThickness / 2,
+      y2: y + height() + stavelineThickness / 2,
       stroke: 'black',
     }),
     m('rect', {
       x: x - dragWidth,
-      y: y,
+      y: y - stavelineThickness / 2,
       width: 2 * dragWidth,
-      height: height(),
+      height: height() + stavelineThickness,
       opacity: 0,
       style: 'cursor: ew-resize',
       onmousedown: () => dispatch(clickBarline(drag)),
@@ -112,8 +113,8 @@ function renderNormal({ x, y, drag }: BarlineProps) {
 function renderRepeat(props: BarlineProps) {
   const { x, y, atStart } = props;
   const circleXOffset = 10;
-  const topCircleY = y + settings.lineHeightOf(1.3);
-  const bottomCircleY = y + settings.lineHeightOf(2.7);
+  const topCircleY = y + settings.lineHeightOf(1.5);
+  const bottomCircleY = y + settings.lineHeightOf(2.5);
   const circleRadius = 2;
   const cx = atStart ? x + circleXOffset : x - circleXOffset;
   return m('g[class=barline-repeat]', [
@@ -133,14 +134,14 @@ function renderRepeat(props: BarlineProps) {
   ]);
 }
 function renderPart({ x, y, atStart, drag }: BarlineProps) {
-  const thickX = atStart ? x : x - thickLineWidth;
+  const thickX = atStart ? x : x - thickLineWidth / 2;
   const thinX = atStart ? x + lineOffset : x - lineOffset;
   return m('g[class=barline-end]', [
     m('rect', {
       x: thickX,
-      y,
+      y: y - stavelineThickness / 2,
       width: thickLineWidth,
-      height: height(),
+      height: height() + stavelineThickness,
       fill: 'black',
       style: 'cursor: ew-resize',
       onmousedown: () => dispatch(clickBarline(drag)),
@@ -148,8 +149,8 @@ function renderPart({ x, y, atStart, drag }: BarlineProps) {
     m('line', {
       x1: thinX,
       x2: thinX,
-      y1: y,
-      y2: y + height(),
+      y1: y - stavelineThickness / 2,
+      y2: y + height() + stavelineThickness / 2,
       stroke: 'black',
     }),
   ]);

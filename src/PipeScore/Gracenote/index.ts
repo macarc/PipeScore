@@ -46,14 +46,14 @@ export interface GracenoteProps {
   state: GracenoteState;
 }
 
-const tailXOffset = 2.6;
+const tailXOffset = 2.5;
 const gracenoteHeadRadius = 3;
 const gracenoteHeadHeight = 2;
 const gracenoteHeadWidth = 2 * gracenoteHeadRadius;
 const gracenoteHeadGap = 1.5 * gracenoteHeadWidth;
 
 // Offsets from the centre of the gracenote head to the point where the stem touches it
-const stemXOf = (x: number) => x + 3;
+const stemXOf = (x: number) => x + 2.5;
 const colourOf = (selected: boolean) => (selected ? 'orange' : 'black');
 
 export abstract class Gracenote {
