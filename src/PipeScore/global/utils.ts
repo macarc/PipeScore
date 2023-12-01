@@ -37,6 +37,14 @@ export const last = <T>(array: T[]): T | null =>
 export const nfirst = <T>(array: T[]): T => array[0];
 export const nlast = <T>(array: T[]): T => array[array.length - 1];
 
+export function oneBefore<A>(item: A, array: A[]) {
+  return array[array.indexOf(item) - 1] || null;
+}
+
+export function sum(array: number[]) {
+  return array.reduce((acc, n) => acc + n, 0);
+}
+
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }

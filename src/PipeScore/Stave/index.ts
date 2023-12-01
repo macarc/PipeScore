@@ -58,12 +58,16 @@ export class Stave {
   }
   public toJSON(): SavedStave {
     return {
+      type: 'stave',
       bars: this._bars.map((bar) => bar.toJSON()),
     };
   }
   public static minHeight() {
     // Almost exactly the height of the treble clef
     return settings.lineHeightOf(10);
+  }
+  public height() {
+    return settings.staveGap;
   }
   public numberOfBars() {
     return this._bars.length;
@@ -215,7 +219,10 @@ export class Stave {
       canResize: (newWidth: number) => {
         // If the new width is smaller than the minimum, can't resize
         // Only enforce if we aren't making the bar larger (in case everything's really cramped)
-        if (newWidth < bar.minWidth(previousBar(index)) && newWidth < widths[index]) {
+        if (
+          newWidth < bar.minWidth(previousBar(index)) &&
+          newWidth < widths[index]
+        ) {
           return false;
         }
 

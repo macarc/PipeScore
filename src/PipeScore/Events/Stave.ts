@@ -14,9 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update } from './common';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
-import { ScoreSelection } from '../Selection';
+import { ScoreSelection, TuneBreakSelection } from '../Selection';
+import { TuneBreak } from '../Score';
 
 export function addStave(before: boolean): ScoreEvent {
   return async (state: State) => {
@@ -27,5 +28,25 @@ export function addStave(before: boolean): ScoreEvent {
 
     state.score.addStave(stave, before);
     return Update.ShouldSave;
+  };
+}
+
+export function addTuneBreak(before: boolean): ScoreEvent {
+  return async (state: State) => {
+    const stave =
+      state.selection instanceof ScoreSelection
+        ? state.score.location(state.selection.start).stave
+        : state.score.lastStave();
+
+    state.score.addTuneBreak(stave, before);
+    return Update.ShouldSave;
+  };
+}
+
+export function clickTuneBreak(tuneBreak: TuneBreak) {
+  return async (state: State) => {
+    stopInputtingNotes(state);
+    state.selection = new TuneBreakSelection(tuneBreak, true);
+    return Update.ViewChanged;
   };
 }

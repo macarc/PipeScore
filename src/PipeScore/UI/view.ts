@@ -71,7 +71,7 @@ import {
   setTextY,
   setTextX,
 } from '../Events/Text';
-import { addStave } from '../Events/Stave';
+import { addStave, addTuneBreak } from '../Events/Stave';
 import { help } from '../global/docs';
 import { isDotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
@@ -524,6 +524,27 @@ export default function render(state: UIState): m.Children {
           m(
             'button.add.text',
             { onclick: () => dispatch(addStave(false)) },
+            'after'
+          )
+        ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Add Tune Break'),
+      m('div.section-content', [
+        help(
+          'add tune break before',
+          m(
+            'button.add.text',
+            { onclick: () => dispatch(addTuneBreak(true)) },
+            'before'
+          )
+        ),
+        help(
+          'add tune break after',
+          m(
+            'button.add.text',
+            { onclick: () => dispatch(addTuneBreak(false)) },
             'after'
           )
         ),

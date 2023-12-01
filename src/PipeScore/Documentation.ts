@@ -80,6 +80,10 @@ export default {
     'Add a new blank stave on the line before the currently selected bar.',
   'add stave after':
     'Add a new blank stave on the next line after the currently currently selected bar.',
+  'add tune break before':
+    'Add a new tune break on the line before the currently selected bar.\n\nThis creates an adjustable gap between staves.',
+  'add tune break after':
+    'Add a new tune break on the line after the currently selected bar.\n\nThis creates an adjustable gap between staves.',
   'add text': 'Add a new text box.',
   'centre text': 'Horizontally centre the currently selected text box.',
   'edit text': 'Edit the currently selected text box.',

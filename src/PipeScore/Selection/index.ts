@@ -17,7 +17,7 @@
 import { Triplet } from '../Note';
 import { Timing, TimingPart } from '../Timing';
 import { TextBox } from '../TextBox';
-import { Score } from '../Score';
+import { Score, TuneBreak } from '../Score';
 import { Pitch } from '../global/pitch';
 import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
@@ -51,6 +51,20 @@ export class BarlineSelection extends Selection {
   }
   public mouseDrag(x: number) {
     this.drag_cb(x);
+  }
+}
+
+export class TuneBreakSelection extends Selection {
+  tuneBreak: TuneBreak;
+
+  constructor(tuneBreak: TuneBreak, createdByMouseDown: boolean) {
+    super(createdByMouseDown);
+    this.tuneBreak = tuneBreak;
+  }
+
+  public delete(score: Score) {
+    score.deleteStaveOrTuneBreak(this.tuneBreak);
+    return null;
   }
 }
 
