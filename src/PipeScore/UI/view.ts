@@ -71,7 +71,11 @@ import {
   setTextY,
   setTextX,
 } from '../Events/Text';
-import { addStave, addTuneBreak, setTuneBreakHeight } from '../Events/Stave';
+import {
+  addStave,
+  addStaveSpacer,
+  setStaveSpacerHeight,
+} from '../Events/Stave';
 import { help } from '../global/docs';
 import { isDotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
@@ -91,7 +95,7 @@ import { TextBox } from '../TextBox';
 import { Timing } from '../Timing';
 import Documentation from '../Documentation';
 import { Relative } from '../global/relativeLocation';
-import { TuneBreak } from '../Score';
+import { StaveSpacer } from '../Score';
 
 export interface UIState {
   canEdit: boolean;
@@ -105,7 +109,7 @@ export interface UIState {
   selectedNotes: Note[];
   selectedText: TextBox | null;
   selectedTiming: Timing | null;
-  selectedTuneBreak: TuneBreak | null;
+  selectedStaveSpacer: StaveSpacer | null;
   showingPageNumbers: boolean;
   canDeletePages: boolean;
   preview: Preview | null;
@@ -176,13 +180,13 @@ export default function render(state: UIState): m.Children {
   const noGracenoteSelected = state.selectedGracenote === null;
   const noTextSelected = state.selectedText === null;
   const noTimingSelected = state.selectedTiming === null;
-  const noTuneBreakSelected = state.selectedTuneBreak === null;
+  const noStaveSpacerSelected = state.selectedStaveSpacer === null;
   const nothingSelected =
     noBarSelected &&
     noNotesSelected &&
     noTextSelected &&
     noGracenoteSelected &&
-    noTuneBreakSelected;
+    noStaveSpacerSelected;
   // NOTE : can't copy and paste gracenotes or text, so disable even if noGracenoteSelected is false
   const cantCopyPaste = noBarSelected && noNotesSelected;
 
@@ -538,42 +542,42 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Add Tune Break'),
+      m('h2', 'Add Stave Spacer'),
       m('div.section-content', [
         help(
-          'add tune break before',
+          'add stave spacer before',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addTuneBreak(Relative.before)) },
+            { onclick: () => dispatch(addStaveSpacer(Relative.before)) },
             'before'
           )
         ),
         help(
-          'add tune break after',
+          'add stave spacer after',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addTuneBreak(Relative.after)) },
+            { onclick: () => dispatch(addStaveSpacer(Relative.after)) },
             'after'
           )
         ),
       ]),
     ]),
     m('section', [
-      m('h2', 'Modify Tune Break'),
-      m('div.section-content', [
+      m('h2', 'Modify Stave Spacer'),
+      m('div.section-content.vertical', [
         help(
-          'add tune break after',
-          m('label.horizontal', [
-            'Height:',
+          'add stave spacer after',
+          m('label', [
+            'Height: ',
             m('input', {
               type: 'number',
-              min: TuneBreak.minHeight,
-              max: TuneBreak.maxHeight,
-              value: state.selectedTuneBreak?.height() || 0,
-              disabled: noTuneBreakSelected,
+              min: StaveSpacer.minHeight,
+              max: StaveSpacer.maxHeight,
+              value: state.selectedStaveSpacer?.height() || 0,
+              disabled: noStaveSpacerSelected,
               oninput: (e: InputEvent) =>
                 dispatch(
-                  setTuneBreakHeight(
+                  setStaveSpacerHeight(
                     parseFloat((e.target as HTMLInputElement).value)
                   )
                 ),

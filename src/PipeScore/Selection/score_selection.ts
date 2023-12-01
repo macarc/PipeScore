@@ -101,7 +101,7 @@ export class ScoreSelection extends Selection {
     if (deleteBars) {
       barsToDelete.forEach(([bar, stave]) => {
         stave.deleteBar(bar);
-        if (stave.numberOfBars() === 0) score.deleteStaveOrTuneBreak(stave);
+        if (stave.numberOfBars() === 0) score.deleteStaveOrSpacer(stave);
       });
     }
 

@@ -29,7 +29,7 @@ export type SavedData = SavedScore | { name: string; justCreated: true };
 export type SavedScore = {
   name: string;
   landscape: boolean;
-  _staves: (SavedStave | SavedTuneBreak)[];
+  _staves: (SavedStave | SavedStaveSpacer)[];
   textBoxes: SavedTextBoxPage[];
   secondTimings: SavedTiming[];
   numberOfPages: number;
@@ -37,8 +37,8 @@ export type SavedScore = {
   settings: SavedSettings;
 };
 
-export type SavedTuneBreak = {
-  type: 'tune-break';
+export type SavedStaveSpacer = {
+  type: 'spacer';
   height: number;
 };
 

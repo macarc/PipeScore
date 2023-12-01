@@ -17,7 +17,7 @@
 import { Triplet } from '../Note';
 import { Timing, TimingPart } from '../Timing';
 import { TextBox } from '../TextBox';
-import { Score, TuneBreak } from '../Score';
+import { Score, StaveSpacer } from '../Score';
 import { Pitch } from '../global/pitch';
 import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
@@ -54,16 +54,16 @@ export class BarlineSelection extends Selection {
   }
 }
 
-export class TuneBreakSelection extends Selection {
-  tuneBreak: TuneBreak;
+export class StaveSpacerSelection extends Selection {
+  spacer: StaveSpacer;
 
-  constructor(tuneBreak: TuneBreak, createdByMouseDown: boolean) {
+  constructor(spacer: StaveSpacer, createdByMouseDown: boolean) {
     super(createdByMouseDown);
-    this.tuneBreak = tuneBreak;
+    this.spacer = spacer;
   }
 
   public delete(score: Score) {
-    score.deleteStaveOrTuneBreak(this.tuneBreak);
+    score.deleteStaveOrSpacer(this.spacer);
     return null;
   }
 }

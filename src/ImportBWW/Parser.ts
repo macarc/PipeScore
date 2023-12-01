@@ -336,7 +336,7 @@ class PartialScore {
     this.accidental = pitch;
   }
 
-  // Get the stave, or return null if the item at index is a tune break
+  // Get the stave, or return null if the item at index is a spacer
   getStave(index: number) {
     const stave = this.score._staves[index];
     if (stave.type === 'stave') {

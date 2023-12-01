@@ -29,7 +29,7 @@ import { Preview } from '../Preview';
 import { NoteState } from '../Note/state';
 import { Update } from '../Events/common';
 import { Playback } from '../Playback';
-import { ScoreSelection, Selection, TuneBreakSelection } from '../Selection';
+import { ScoreSelection, Selection, StaveSpacerSelection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { first, foreach, last, nlast, oneBefore, sum } from '../global/utils';
 
@@ -38,9 +38,9 @@ import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
 import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
-import { SavedScore, SavedTuneBreak } from '../SavedModel';
-import { clickTuneBreak } from '../Events/Stave';
+import { SavedScore, SavedStaveSpacer } from '../SavedModel';
 import { Relative } from '../global/relativeLocation';
+import { clickStaveSpacer } from '../Events/Stave';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -50,13 +50,13 @@ interface ScoreProps {
   gracenoteState: GracenoteState;
 }
 
-interface TuneBreakProps {
+interface StaveSpacerProps {
   x: number;
   y: number;
   width: number;
   isSelected: boolean;
 }
-export class TuneBreak {
+export class StaveSpacer {
   _height: number;
 
   static minHeight = 1;
@@ -74,21 +74,21 @@ export class TuneBreak {
     this._height = height;
   }
 
-  toJSON(): SavedTuneBreak {
+  toJSON(): SavedStaveSpacer {
     return {
-      type: 'tune-break',
+      type: 'spacer',
       height: this._height,
     };
   }
 
-  static fromJSON(o: SavedTuneBreak) {
-    return new TuneBreak(o.height);
+  static fromJSON(o: SavedStaveSpacer) {
+    return new StaveSpacer(o.height);
   }
 
-  render(props: TuneBreakProps) {
+  render(props: StaveSpacerProps) {
     const visualUpwardsAdjustment =
       (settings.staveGap - settings.lineHeightOf(4)) / 2;
-    return m('g.tune-break', [
+    return m('g.spacer', [
       m('rect', {
         x: props.x,
         y: props.y - visualUpwardsAdjustment,
@@ -98,20 +98,20 @@ export class TuneBreak {
         'stroke-width': 10,
         fill: '#fff',
         opacity: props.isSelected ? 0.5 : 0,
-        onmousedown: () => dispatch(clickTuneBreak(this)),
+        onmousedown: () => dispatch(clickStaveSpacer(this)),
       }),
     ]);
   }
 }
 
-function isStave(staveOrBreak: Stave | TuneBreak): staveOrBreak is Stave {
+function isStave(staveOrBreak: Stave | StaveSpacer): staveOrBreak is Stave {
   return (staveOrBreak as Stave).bars !== undefined;
 }
 
 export class Score {
   private name: string;
   public landscape: boolean;
-  private _staves: (Stave | TuneBreak)[];
+  private _staves: (Stave | StaveSpacer)[];
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[][];
   private timings: Timing[];
@@ -135,7 +135,7 @@ export class Score {
     const initialTopOffset = 180;
 
     this._staves = foreach(2 * numberOfParts, () => new Stave(timeSignature));
-    this._staves.unshift(new TuneBreak(initialTopOffset));
+    this._staves.unshift(new StaveSpacer(initialTopOffset));
     const first = repeatParts ? 'repeatFirst' : 'partFirst';
     const last = repeatParts ? 'repeatLast' : 'partLast';
     this.staves().forEach((stave, index) =>
@@ -178,7 +178,7 @@ export class Score {
     const s = new Score(o.name);
     s.landscape = o.landscape;
     s._staves = o._staves.map((s) =>
-      s.type === 'tune-break' ? TuneBreak.fromJSON(s) : Stave.fromJSON(s)
+      s.type === 'spacer' ? StaveSpacer.fromJSON(s) : Stave.fromJSON(s)
     );
     s.textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
     s.timings = o.secondTimings.map(Timing.fromJSON);
@@ -188,7 +188,7 @@ export class Score {
 
     const deprecatedTopOffset = (o.settings as any).topOffset;
     if (typeof deprecatedTopOffset === 'number') {
-      s._staves.unshift(new TuneBreak(deprecatedTopOffset - 20));
+      s._staves.unshift(new StaveSpacer(deprecatedTopOffset - 20));
     }
     s.addMorePagesIfNecessary();
     return s;
@@ -263,8 +263,8 @@ export class Score {
     }
     return false;
   }
-  private staveY(stave: Stave | TuneBreak) {
-    const pages = this.stavesAndTuneBreaksSplitByPage();
+  private staveY(stave: Stave | StaveSpacer) {
+    const pages = this.stavesAndSpacersSplitByPage();
     const pageIndex = pages.findIndex((page) => page.includes(stave));
     const page = pages[pageIndex];
     if (page) {
@@ -279,12 +279,12 @@ export class Score {
       return 0;
     }
   }
-  private calculateHeight(staves: (Stave | TuneBreak)[]) {
+  private calculateHeight(staves: (Stave | StaveSpacer)[]) {
     return staves.reduce((acc, s) => acc + s.height(), 0);
   }
-  private stavesAndTuneBreaksSplitByPage() {
-    // FIXME: tune breaks should be able to go across page
-    const splitStaves: (Stave | TuneBreak)[][] = foreach(
+  private stavesAndSpacersSplitByPage() {
+    // FIXME: spacers should be able to go across page
+    const splitStaves: (Stave | StaveSpacer)[][] = foreach(
       this.numberOfPages,
       () => []
     );
@@ -301,14 +301,14 @@ export class Score {
     return splitStaves;
   }
   private stavesSplitByPage() {
-    return this.stavesAndTuneBreaksSplitByPage().map(
+    return this.stavesAndSpacersSplitByPage().map(
       (page) => page.filter((s) => isStave(s)) as Stave[]
     );
   }
   private notEnoughSpace() {
     const pageHeight =
       this.calculateHeight(
-        this.stavesAndTuneBreaksSplitByPage()[this.numberOfPages - 1]
+        this.stavesAndSpacersSplitByPage()[this.numberOfPages - 1]
       ) +
       2 * settings.margin;
     return pageHeight > this.height();
@@ -317,7 +317,7 @@ export class Score {
     const availableHeight = this.height() - 2 * settings.margin;
 
     const totalUsefulHeight = sum(
-      this.stavesAndTuneBreaksSplitByPage().map(
+      this.stavesAndSpacersSplitByPage().map(
         (page) =>
           availableHeight -
           sum(page.filter((page) => !isStave(page)).map((t) => t.height()))
@@ -339,28 +339,34 @@ export class Score {
     }
     return true;
   }
-  private insert(
-    item: Stave | TuneBreak,
-    nearStave: Stave | null,
-    where: Relative
-  ) {
+
+  // The index that a new item should be spliced into
+  private indexToInsert(nearStave: Stave | null, where: Relative) {
     if (nearStave) {
-      const ind = this._staves.indexOf(nearStave);
-      if (ind !== -1)
-        this._staves.splice(where === Relative.before ? ind : ind + 1, 0, item);
-    } else {
-      this._staves.push(item);
+      return (
+        this._staves.indexOf(nearStave) + (where === Relative.before ? 0 : 1)
+      );
     }
+    return where === Relative.before ? 0 : this._staves.length;
   }
-  public addTuneBreak(nearStave: Stave | null, where: Relative) {
-    const tbreak = new TuneBreak();
-    if (!this.fitAnotherStaveWithHeight(tbreak.height(), 'tune break')) {
+
+  public addSpacer(nearStave: Stave | null, where: Relative) {
+    const spacer = new StaveSpacer();
+    const index = this.indexToInsert(nearStave, where);
+
+    // Don't add a spacer to the end (since then it's hidden)
+    if (index < 0 || index === this._staves.length) return;
+
+    if (!this.fitAnotherStaveWithHeight(spacer.height(), 'spacer')) {
       return;
     }
-
-    this.insert(tbreak, nearStave, where);
+    this._staves.splice(index, 0, spacer);
   }
+
   public addStave(nearStave: Stave | null, where: Relative) {
+    const index = this.indexToInsert(nearStave, where);
+    if (index < 0) return;
+
     if (!this.fitAnotherStaveWithHeight(Stave.minHeight(), 'stave')) {
       return;
     }
@@ -370,8 +376,9 @@ export class Score {
         : nearStave.lastBar()
       : null;
     const ts = adjacentBar && adjacentBar.timeSignature();
+
     const newStave = new Stave(ts || new TimeSignature());
-    this.insert(newStave, nearStave, where);
+    this._staves.splice(index, 0, newStave);
   }
 
   public nextBar(id: ID) {
@@ -404,7 +411,7 @@ export class Score {
     return staves[index];
   }
   public hasStuffOnLastPage() {
-    return nlast(this.stavesAndTuneBreaksSplitByPage()).length > 0;
+    return nlast(this.stavesAndSpacersSplitByPage()).length > 0;
   }
   public firstOnPage(page: number) {
     return first(this.stavesSplitByPage()[page])?.firstBar() || null;
@@ -428,7 +435,7 @@ export class Score {
   }
   // Deletes the stave from the score
   // Does not worry about purging notes/bars; that should be handled elsewhere
-  public deleteStaveOrTuneBreak(stave: Stave | TuneBreak) {
+  public deleteStaveOrSpacer(stave: Stave | StaveSpacer) {
     const ind = this._staves.indexOf(stave);
     if (ind !== -1) this._staves.splice(ind, 1);
   }
@@ -543,13 +550,13 @@ export class Score {
       gracenoteState: props.gracenoteState,
     });
 
-    const tuneBreakProps = (tuneBreak: TuneBreak) => ({
+    const staveSpacerProps = (spacer: StaveSpacer) => ({
       x: settings.margin,
-      y: this.staveY(tuneBreak),
+      y: this.staveY(spacer),
       width: staveWidth,
       isSelected:
-        props.selection instanceof TuneBreakSelection &&
-        props.selection.tuneBreak === tuneBreak,
+        props.selection instanceof StaveSpacerSelection &&
+        props.selection.spacer === spacer,
     });
 
     const timingProps = (page: number) => ({
@@ -570,7 +577,7 @@ export class Score {
       staveGap: settings.staveGap,
     });
 
-    const splitStaves = this.stavesAndTuneBreaksSplitByPage();
+    const splitStaves = this.stavesAndSpacersSplitByPage();
     console.log(splitStaves);
     const texts = (i: number) => this.textBoxes[i] || [];
 
@@ -600,7 +607,7 @@ export class Score {
             ...splitStaves[i].map((stave) =>
               isStave(stave)
                 ? stave.render(staveProps(stave))
-                : stave.render(tuneBreakProps(stave))
+                : stave.render(staveSpacerProps(stave))
             ),
             ...texts(i).map((textBox) =>
               textBox.render({

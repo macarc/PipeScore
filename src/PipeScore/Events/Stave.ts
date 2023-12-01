@@ -16,8 +16,8 @@
 
 import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
-import { ScoreSelection, TuneBreakSelection } from '../Selection';
-import { TuneBreak } from '../Score';
+import { ScoreSelection, StaveSpacerSelection } from '../Selection';
+import { StaveSpacer } from '../Score';
 import { Relative } from '../global/relativeLocation';
 import { clamp } from '../global/utils';
 
@@ -26,38 +26,38 @@ export function addStave(where: Relative): ScoreEvent {
     const stave =
       state.selection instanceof ScoreSelection
         ? state.score.location(state.selection.start).stave
-        : state.score.lastStave();
+        : null;
 
     state.score.addStave(stave, where);
     return Update.ShouldSave;
   };
 }
 
-export function addTuneBreak(where: Relative): ScoreEvent {
+export function addStaveSpacer(where: Relative): ScoreEvent {
   return async (state: State) => {
     const stave =
       state.selection instanceof ScoreSelection
         ? state.score.location(state.selection.start).stave
-        : state.score.lastStave();
+        : null;
 
-    state.score.addTuneBreak(stave, where);
+    state.score.addSpacer(stave, where);
     return Update.ShouldSave;
   };
 }
 
-export function clickTuneBreak(tuneBreak: TuneBreak) {
+export function clickStaveSpacer(spacer: StaveSpacer) {
   return async (state: State) => {
     stopInputtingNotes(state);
-    state.selection = new TuneBreakSelection(tuneBreak, true);
+    state.selection = new StaveSpacerSelection(spacer, true);
     return Update.ViewChanged;
   };
 }
 
-export function setTuneBreakHeight(height: number) {
+export function setStaveSpacerHeight(height: number) {
   return async (state: State) => {
-    if (state.selection instanceof TuneBreakSelection) {
-      state.selection.tuneBreak.setHeight(
-        clamp(height, TuneBreak.minHeight, TuneBreak.maxHeight)
+    if (state.selection instanceof StaveSpacerSelection) {
+      state.selection.spacer.setHeight(
+        clamp(height, StaveSpacer.minHeight, StaveSpacer.maxHeight)
       );
     }
     return Update.ViewChanged;

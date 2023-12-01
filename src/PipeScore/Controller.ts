@@ -28,7 +28,7 @@ import {
   TextSelection,
   TimingSelection,
   TripletLineSelection,
-  TuneBreakSelection,
+  StaveSpacerSelection,
 } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
@@ -152,9 +152,9 @@ function redraw() {
           state.selection instanceof TimingSelection
             ? state.selection.timing
             : null,
-        selectedTuneBreak:
-          state.selection instanceof TuneBreakSelection
-            ? state.selection.tuneBreak
+        selectedStaveSpacer:
+          state.selection instanceof StaveSpacerSelection
+            ? state.selection.spacer
             : null,
         isLandscape: state.score.landscape,
         selectedBar:
