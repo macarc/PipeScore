@@ -40,6 +40,7 @@ import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
 import { SavedScore, SavedTuneBreak } from '../SavedModel';
 import { clickTuneBreak } from '../Events/Stave';
+import { Relative } from '../global/relativeLocation';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -332,35 +333,36 @@ export class Score {
   private insert(
     item: Stave | TuneBreak,
     nearStave: Stave | null,
-    before: boolean
+    where: Relative
   ) {
     if (nearStave) {
       const ind = this._staves.indexOf(nearStave);
-      if (ind !== -1) this._staves.splice(before ? ind : ind + 1, 0, item);
+      if (ind !== -1)
+        this._staves.splice(where === Relative.before ? ind : ind + 1, 0, item);
     } else {
       this._staves.push(item);
     }
   }
-  public addTuneBreak(nearStave: Stave | null, before: boolean) {
+  public addTuneBreak(nearStave: Stave | null, where: Relative) {
     const tbreak = new TuneBreak();
     if (!this.fitAnotherStaveWithHeight(tbreak.height(), 'tune break')) {
       return;
     }
 
-    this.insert(tbreak, nearStave, before);
+    this.insert(tbreak, nearStave, where);
   }
-  public addStave(nearStave: Stave | null, before: boolean) {
+  public addStave(nearStave: Stave | null, where: Relative) {
     if (!this.fitAnotherStaveWithHeight(Stave.minHeight(), 'stave')) {
       return;
     }
     const adjacentBar = nearStave
-      ? before
+      ? where === Relative.before
         ? nearStave.firstBar()
         : nearStave.lastBar()
       : null;
     const ts = adjacentBar && adjacentBar.timeSignature();
     const newStave = new Stave(ts || new TimeSignature());
-    this.insert(newStave, nearStave, before);
+    this.insert(newStave, nearStave, where);
   }
 
   public nextBar(id: ID) {

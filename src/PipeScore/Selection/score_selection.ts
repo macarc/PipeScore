@@ -31,6 +31,7 @@ import { Stave } from '../Stave';
 import { Bar } from '../Bar';
 import { Note, Triplet } from '../Note';
 import { Gracenote } from '../Gracenote';
+import { Relative } from '../global/relativeLocation';
 
 interface ScoreSelectionProps {
   page: number;
@@ -161,13 +162,13 @@ export class ScoreSelection extends Selection {
     }
     return null;
   }
-  public addAnacrusis(before: boolean, score: Score) {
+  public addAnacrusis(where: Relative, score: Score) {
     const { bar, stave } = score.location(this.start);
-    stave.replaceBar(new Bar(bar.timeSignature(), true), bar, before);
+    stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
   }
-  public addBar(before: boolean, score: Score) {
+  public addBar(where: Relative, score: Score) {
     const { bar, stave } = score.location(this.start);
-    stave.replaceBar(new Bar(bar.timeSignature()), bar, before);
+    stave.replaceBar(new Bar(bar.timeSignature()), bar, where);
   }
   // Deletes all references to the items in the array
   private purgeItems(items: Item[], score: Score) {

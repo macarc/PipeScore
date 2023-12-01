@@ -26,6 +26,7 @@ import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
 import { TimeSignature } from '../TimeSignature';
 import { SavedStave } from '../SavedModel';
+import { Relative } from '../global/relativeLocation';
 
 interface StaveProps {
   x: number;
@@ -116,9 +117,9 @@ export class Stave {
     this.lastBar()?.setBarline('end', Barline.repeat);
   }
 
-  public replaceBar(newBar: Bar, oldBar: Bar, before: boolean) {
+  public replaceBar(newBar: Bar, oldBar: Bar, where: Relative) {
     const barInd = this._bars.indexOf(oldBar);
-    const ind = before ? barInd : barInd + 1;
+    const ind = where === Relative.before ? barInd : barInd + 1;
     this._bars.splice(ind, 0, newBar);
   }
   public play(previous: Stave | null) {

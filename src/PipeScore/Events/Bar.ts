@@ -26,6 +26,7 @@ import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
 import { TimeSignature } from '../TimeSignature';
 import { BarlineSelection, ScoreSelection } from '../Selection';
+import { Relative } from '../global/relativeLocation';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignature,
@@ -45,28 +46,28 @@ export function editTimeSignature(
   };
 }
 
-export function addAnacrusis(before: boolean): ScoreEvent {
+export function addAnacrusis(where: Relative): ScoreEvent {
   return async (state: State) => {
     const bar =
       state.selection instanceof ScoreSelection
         ? state.selection.bar(state.score)
-        : before
+        : where === Relative.before
         ? state.score.firstOnPage(0)
         : state.score.lastOnPage(0);
 
     if (bar) {
       const { stave } = state.score.location(bar.id);
-      stave.replaceBar(new Bar(bar.timeSignature(), true), bar, before);
+      stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
       return Update.ShouldSave;
     }
     return Update.NoChange;
   };
 }
 
-export function addBar(before: boolean): ScoreEvent {
+export function addBar(where: Relative): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      state.selection.addBar(before, state.score);
+      state.selection.addBar(where, state.score);
       return Update.ShouldSave;
     }
 

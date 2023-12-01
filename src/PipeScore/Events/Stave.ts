@@ -18,27 +18,28 @@ import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 import { ScoreSelection, TuneBreakSelection } from '../Selection';
 import { TuneBreak } from '../Score';
+import { Relative } from '../global/relativeLocation';
 
-export function addStave(before: boolean): ScoreEvent {
+export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
     const stave =
       state.selection instanceof ScoreSelection
         ? state.score.location(state.selection.start).stave
         : state.score.lastStave();
 
-    state.score.addStave(stave, before);
+    state.score.addStave(stave, where);
     return Update.ShouldSave;
   };
 }
 
-export function addTuneBreak(before: boolean): ScoreEvent {
+export function addTuneBreak(where: Relative): ScoreEvent {
   return async (state: State) => {
     const stave =
       state.selection instanceof ScoreSelection
         ? state.score.location(state.selection.start).stave
         : state.score.lastStave();
 
-    state.score.addTuneBreak(stave, before);
+    state.score.addTuneBreak(stave, where);
     return Update.ShouldSave;
   };
 }

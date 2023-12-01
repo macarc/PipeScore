@@ -90,6 +90,7 @@ import { dispatch } from '../Controller';
 import { TextBox } from '../TextBox';
 import { Timing } from '../Timing';
 import Documentation from '../Documentation';
+import { Relative } from '../global/relativeLocation';
 
 export interface UIState {
   canEdit: boolean;
@@ -296,7 +297,7 @@ export default function render(state: UIState): m.Children {
         `add ${which} before`,
         m(
           'button.textual',
-          { onclick: () => dispatch(event(true)) },
+          { onclick: () => dispatch(event(Relative.before)) },
           `Add ${which} before`
         )
       ),
@@ -304,7 +305,7 @@ export default function render(state: UIState): m.Children {
         `add ${which} after`,
         m(
           'button.textual',
-          { onclick: () => dispatch(event(false)) },
+          { onclick: () => dispatch(event(Relative.after)) },
           `Add ${which} after`
         )
       ),
@@ -515,7 +516,7 @@ export default function render(state: UIState): m.Children {
           'add stave before',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addStave(true)) },
+            { onclick: () => dispatch(addStave(Relative.before)) },
             'before'
           )
         ),
@@ -523,7 +524,7 @@ export default function render(state: UIState): m.Children {
           'add stave after',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addStave(false)) },
+            { onclick: () => dispatch(addStave(Relative.after)) },
             'after'
           )
         ),
@@ -536,7 +537,7 @@ export default function render(state: UIState): m.Children {
           'add tune break before',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addTuneBreak(true)) },
+            { onclick: () => dispatch(addTuneBreak(Relative.before)) },
             'before'
           )
         ),
@@ -544,7 +545,7 @@ export default function render(state: UIState): m.Children {
           'add tune break after',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addTuneBreak(false)) },
+            { onclick: () => dispatch(addTuneBreak(Relative.after)) },
             'after'
           )
         ),
