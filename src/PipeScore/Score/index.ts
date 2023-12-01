@@ -38,9 +38,9 @@ import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
 import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
-import { SavedScore, SavedStaveSpacer } from '../SavedModel';
+import { SavedScore } from '../SavedModel';
 import { Relative } from '../global/relativeLocation';
-import { clickStaveSpacer } from '../Events/Stave';
+import { StaveSpacer, isStave } from '../Stave/spacer';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -48,64 +48,6 @@ interface ScoreProps {
   preview: Preview | null;
   noteState: NoteState;
   gracenoteState: GracenoteState;
-}
-
-interface StaveSpacerProps {
-  x: number;
-  y: number;
-  width: number;
-  isSelected: boolean;
-}
-export class StaveSpacer {
-  _height: number;
-
-  static minHeight = 1;
-  static maxHeight = 400;
-
-  constructor(height = 100) {
-    this._height = height;
-  }
-
-  height() {
-    return this._height;
-  }
-
-  setHeight(height: number) {
-    this._height = height;
-  }
-
-  toJSON(): SavedStaveSpacer {
-    return {
-      type: 'spacer',
-      height: this._height,
-    };
-  }
-
-  static fromJSON(o: SavedStaveSpacer) {
-    return new StaveSpacer(o.height);
-  }
-
-  render(props: StaveSpacerProps) {
-    const visualUpwardsAdjustment =
-      (settings.staveGap - settings.lineHeightOf(4)) / 2;
-    return m('g.spacer', [
-      m('rect', {
-        x: props.x,
-        y: props.y - visualUpwardsAdjustment,
-        width: props.width,
-        height: this.height(),
-        stroke: 'orange',
-        'stroke-width': 10,
-        fill: '#fff',
-        opacity: props.isSelected ? 0.5 : 0,
-        onmousedown: () => dispatch(clickStaveSpacer(this)),
-      }),
-    ]);
-  }
-}
-
-function isStave(staveOrBreak: Stave | StaveSpacer): staveOrBreak is Stave {
-  return (staveOrBreak as Stave).bars !== undefined;
 }
 
 export class Score {

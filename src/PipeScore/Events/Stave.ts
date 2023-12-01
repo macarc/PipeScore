@@ -17,9 +17,9 @@
 import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 import { ScoreSelection, StaveSpacerSelection } from '../Selection';
-import { StaveSpacer } from '../Score';
 import { Relative } from '../global/relativeLocation';
 import { clamp } from '../global/utils';
+import { StaveSpacer } from '../Stave/spacer';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {

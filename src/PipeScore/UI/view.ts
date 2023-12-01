@@ -95,7 +95,7 @@ import { TextBox } from '../TextBox';
 import { Timing } from '../Timing';
 import Documentation from '../Documentation';
 import { Relative } from '../global/relativeLocation';
-import { StaveSpacer } from '../Score';
+import { StaveSpacer } from '../Stave/spacer';
 
 export interface UIState {
   canEdit: boolean;

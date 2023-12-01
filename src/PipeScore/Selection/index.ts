@@ -17,11 +17,12 @@
 import { Triplet } from '../Note';
 import { Timing, TimingPart } from '../Timing';
 import { TextBox } from '../TextBox';
-import { Score, StaveSpacer } from '../Score';
+import { Score } from '../Score';
 import { Pitch } from '../global/pitch';
 import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { Selection } from './model';
+import { StaveSpacer } from '../Stave/spacer';
 
 export { Selection } from './model';
 export { ScoreSelection } from './score_selection';
