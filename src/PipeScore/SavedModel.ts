@@ -163,7 +163,6 @@ export type SavedSettings = {
   staveGap: number;
   lineGap: number;
   margin: number;
-  topOffset: number;
   gapAfterGracenote: number;
 };
 

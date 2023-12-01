@@ -888,10 +888,7 @@ export default function render(state: UIState): m.Children {
     ]),
     m('section', [
       m('h2', 'Margins'),
-      m('div.section-content.vertical', [
-        setting('topOffset', 'Gap at top of page'),
-        setting('margin', 'Margin'),
-      ]),
+      m('div.section-content.vertical', [setting('margin', 'Margin')]),
     ]),
     m('section', [
       m('h2', 'View'),

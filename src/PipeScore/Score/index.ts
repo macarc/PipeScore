@@ -131,7 +131,11 @@ export class Score {
     this.name = name;
     this.landscape = true;
     this.showNumberOfPages = true;
+
+    const initialTopOffset = 180;
+
     this._staves = foreach(2 * numberOfParts, () => new Stave(timeSignature));
+    this._staves.unshift(new TuneBreak(initialTopOffset));
     const first = repeatParts ? 'repeatFirst' : 'partFirst';
     const last = repeatParts ? 'repeatLast' : 'partLast';
     this.staves().forEach((stave, index) =>
@@ -139,12 +143,12 @@ export class Score {
     );
     this.textBoxes = [[]];
     this.addText(
-      new TextBox(name, true, this.width() / 2, settings.topOffset / 2)
+      new TextBox(name, true, this.width() / 2, initialTopOffset / 2)
     );
 
     // Detailed text - composer / tuneType
     const detailTextSize = 15;
-    const detailY = Math.max(settings.topOffset - 45, 10);
+    const detailY = Math.max(initialTopOffset - 45, 10);
     const detailX = 8;
     if (composer.length > 0)
       this.addText(
@@ -181,6 +185,11 @@ export class Score {
     s.numberOfPages = o.numberOfPages;
     s.showNumberOfPages = o.showNumberOfPages;
     settings.fromJSON(o.settings);
+
+    const deprecatedTopOffset = (o.settings as any).topOffset;
+    if (typeof deprecatedTopOffset === 'number') {
+      s._staves.unshift(new TuneBreak(deprecatedTopOffset - 20));
+    }
     s.addMorePagesIfNecessary();
     return s;
   }
@@ -260,7 +269,7 @@ export class Score {
     const page = pages[pageIndex];
     if (page) {
       return (
-        this.topGap(pageIndex) +
+        settings.margin +
         this.calculateHeight(page.slice(0, page.indexOf(stave)))
       );
     } else {
@@ -269,9 +278,6 @@ export class Score {
       );
       return 0;
     }
-  }
-  private topGap(pageIndex: number) {
-    return pageIndex === 0 ? settings.topOffset : settings.margin;
   }
   private calculateHeight(staves: (Stave | TuneBreak)[]) {
     return staves.reduce((acc, s) => acc + s.height(), 0);
@@ -285,9 +291,7 @@ export class Score {
     let page = 0;
     for (const stave of this._staves) {
       const pageHeight =
-        this.topGap(page) +
-        this.calculateHeight(splitStaves[page]) +
-        settings.margin;
+        this.calculateHeight(splitStaves[page]) + 2 * settings.margin;
 
       if (pageHeight > this.height() && page < this.numberOfPages - 1) {
         page += 1;
@@ -303,21 +307,19 @@ export class Score {
   }
   private notEnoughSpace() {
     const pageHeight =
-      this.topGap(this.numberOfPages - 1) +
       this.calculateHeight(
         this.stavesAndTuneBreaksSplitByPage()[this.numberOfPages - 1]
       ) +
-      settings.margin;
+      2 * settings.margin;
     return pageHeight > this.height();
   }
   private fitAnotherStaveWithHeight(minHeight: number, name: string) {
-    const usefulHeightForPage = (index: number) =>
-      this.height() - settings.margin - this.topGap(index);
+    const availableHeight = this.height() - 2 * settings.margin;
 
     const totalUsefulHeight = sum(
       this.stavesAndTuneBreaksSplitByPage().map(
-        (page, i) =>
-          usefulHeightForPage(i) -
+        (page) =>
+          availableHeight -
           sum(page.filter((page) => !isStave(page)).map((t) => t.height()))
       )
     );

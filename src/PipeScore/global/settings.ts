@@ -17,12 +17,12 @@
 //  Document settings singleton.
 
 import { SavedSettings } from '../SavedModel';
+import { clamp } from './utils';
 
 export class Settings {
   staveGap = 100;
   lineGap = 7;
   margin = 80;
-  topOffset = 200;
   pageLongSideLength = 297 * 5;
   pageShortSideLength = 210 * 5;
   gapAfterGracenote = 7;
@@ -32,7 +32,6 @@ export class Settings {
     this.staveGap = o.staveGap;
     this.lineGap = o.lineGap;
     this.margin = o.margin;
-    this.topOffset = o.topOffset;
     this.bpm = o.bpm || 80;
     this.gapAfterGracenote = o.gapAfterGracenote || 7;
   }
@@ -41,7 +40,6 @@ export class Settings {
       staveGap: this.staveGap,
       lineGap: this.lineGap,
       margin: this.margin,
-      topOffset: this.topOffset,
       bpm: this.bpm,
       gapAfterGracenote: this.gapAfterGracenote,
     };
@@ -53,9 +51,7 @@ export class Settings {
       case 'lineGap':
         return Math.max(value, 1);
       case 'margin':
-        return Math.max(Math.min(value, 300), 0);
-      case 'topOffset':
-        return Math.max(Math.min(value, 500), 0);
+        return clamp(value, 0, 300);
       default:
         return false;
     }

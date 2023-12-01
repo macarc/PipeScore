@@ -84,11 +84,12 @@ async function importfile(e: SubmitEvent) {
         document.querySelector('#tune-type') as HTMLInputElement | null
       )?.value;
 
+      const initialTopOffset = 180;
       score.name = scoreName;
       score.textBoxes[0].texts = [];
       score.textBoxes[0].texts.push({
         x: settings.pageLongSideLength / 2,
-        y: settings.topOffset / 2,
+        y: initialTopOffset / 2,
         size: 20,
         font: 'sans-serif',
         centred: true,
@@ -98,7 +99,7 @@ async function importfile(e: SubmitEvent) {
       // This is copied from the Score constructor
       // FIXME: remove duplication
       const detailTextSize = 15;
-      const detailY = Math.max(settings.topOffset - 45, 10);
+      const detailY = Math.max(initialTopOffset - 45, 10);
       if (composer)
         score.textBoxes[0].texts.push({
           x: (7 / 8) * settings.pageLongSideLength,
