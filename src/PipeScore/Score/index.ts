@@ -342,12 +342,18 @@ export class Score {
 
   // The index that a new item should be spliced into
   private indexToInsert(nearStave: Stave | null, where: Relative) {
+    // If no stave is selected, place before the first stave
+    // or after the last stave
+    nearStave =
+      nearStave ||
+      (where === Relative.before ? first(this.staves()) : last(this.staves()));
+
     if (nearStave) {
       return (
         this._staves.indexOf(nearStave) + (where === Relative.before ? 0 : 1)
       );
     }
-    return where === Relative.before ? 0 : this._staves.length;
+    return 0;
   }
 
   public addSpacer(nearStave: Stave | null, where: Relative) {
