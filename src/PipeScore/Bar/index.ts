@@ -317,9 +317,8 @@ export class Bar extends Item implements Previews<Note> {
     const previousTimeSignature = previousBar && previousBar.timeSignature();
     const drawTimeSignature =
       previousTimeSignature && !this.ts.equals(previousTimeSignature);
-    return clamp(
+    return Math.max(
       width.reify(total, 5) + (drawTimeSignature ? 0 : this.ts.width()),
-      15,
       60
     );
   }
