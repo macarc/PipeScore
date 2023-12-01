@@ -29,7 +29,7 @@ type ParsedScore = {
 // or for single gracenotes as part of an embellishment (e.g. for
 // the gracenote on a birl)
 
-export function toGracenotePitch(pitch: string): Pitch {
+function toGracenotePitch(pitch: string): Pitch {
   switch (pitch.toLowerCase()) {
     case 'a':
       return Pitch.A;
@@ -52,7 +52,7 @@ export function toGracenotePitch(pitch: string): Pitch {
   }
 }
 
-export function toPitch(pitch: string): Pitch {
+function toPitch(pitch: string): Pitch {
   switch (pitch.toLowerCase()) {
     case 'lg':
       return Pitch.G;
