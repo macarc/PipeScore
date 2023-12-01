@@ -20,6 +20,7 @@ import { State } from '../State';
 import { TextBox } from '../TextBox';
 import { TextSelection } from '../Selection';
 import { settings } from '../global/settings';
+import { clamp } from '../global/utils';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
@@ -56,15 +57,10 @@ export function editText(tx: TextBox | null = null): ScoreEvent {
     return Update.NoChange;
   };
 }
-
-function clampPercent(value: number) {
-  return Math.max(0, Math.min(value, 100));
-}
-
 export function setTextX(xPercent: number): ScoreEvent {
   return async (state: State) => {
     const x =
-      (clampPercent(xPercent) / 100) *
+      (clamp(xPercent, 0, 100) / 100) *
       (state.score.landscape
         ? settings.pageLongSideLength
         : settings.pageShortSideLength);
@@ -79,7 +75,7 @@ export function setTextX(xPercent: number): ScoreEvent {
 export function setTextY(yPercent: number): ScoreEvent {
   return async (state: State) => {
     const y =
-      (clampPercent(yPercent) / 100) *
+      (clamp(yPercent, 0, 100) / 100) *
       (state.score.landscape
         ? settings.pageShortSideLength
         : settings.pageLongSideLength);

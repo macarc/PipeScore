@@ -59,12 +59,19 @@ interface TuneBreakProps {
 export class TuneBreak {
   _height: number;
 
+  static minHeight = 1;
+  static maxHeight = 400;
+
   constructor(height = 100) {
     this._height = height;
   }
 
   height() {
     return this._height;
+  }
+
+  setHeight(height: number) {
+    this._height = height;
   }
 
   toJSON(): SavedTuneBreak {

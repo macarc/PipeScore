@@ -19,6 +19,7 @@ import { State } from '../State';
 import { ScoreSelection, TuneBreakSelection } from '../Selection';
 import { TuneBreak } from '../Score';
 import { Relative } from '../global/relativeLocation';
+import { clamp } from '../global/utils';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
@@ -48,6 +49,17 @@ export function clickTuneBreak(tuneBreak: TuneBreak) {
   return async (state: State) => {
     stopInputtingNotes(state);
     state.selection = new TuneBreakSelection(tuneBreak, true);
+    return Update.ViewChanged;
+  };
+}
+
+export function setTuneBreakHeight(height: number) {
+  return async (state: State) => {
+    if (state.selection instanceof TuneBreakSelection) {
+      state.selection.tuneBreak.setHeight(
+        clamp(height, TuneBreak.minHeight, TuneBreak.maxHeight)
+      );
+    }
     return Update.ViewChanged;
   };
 }
