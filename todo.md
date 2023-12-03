@@ -1,15 +1,24 @@
 # To-do list
 
+## Things people want
+
+- [x] Upload/download scores (really, editable sharing)
+- [x] Multiple scores per page
+- [ ] Download playback
+- [ ] Actually useful triplets
+- [ ] 2 of 2. etc. play back correctly
+- [ ] Marker showing where playback is
+
 ## Code stuff
 
 - [ ] Tests? Most of it is not very testable, but having general tests for the event handlers ought to be doable and could be useful.
 
 ## Bugs to fix
 
-- [ ] Better time signature font
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
-- [ ] Move multiple bars to next/previous line easily
+- [ ] Can't drag barlines well when there's stuff in the bar
+- [ ] Deleting multiple staves doesn't preserve gap on first one
 
 ## Small features
 
@@ -214,3 +223,5 @@
 - [x] Make it possible to input natural notes immediately
 - [x] Deleting a note then moving the mouse moves the currently selected note
 - [x] Selecting multiple bars as the paste target
+- [x] Better time signature font
+- [x] Move multiple bars to next/previous line easily
