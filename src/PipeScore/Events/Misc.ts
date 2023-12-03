@@ -32,32 +32,6 @@ export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   };
 }
 
-export function addPage(): ScoreEvent {
-  return async (state: State) => {
-    state.score.numberOfPages += 1;
-    return Update.ShouldSave;
-  };
-}
-
-export function removePage(): ScoreEvent {
-  return async (state: State) => {
-    let sure = true;
-    if (state.score.numberOfPages <= 1) return Update.NoChange;
-    if (state.score.hasStuffOnLastPage()) {
-      sure =
-        confirm(
-          'Are you sure you want to delete the last page? All the music on the last page will be deleted.\nPress Enter to confirm, or Esc to stop.'
-        ) || false;
-    }
-
-    if (sure) {
-      state.score.deletePage();
-      return Update.ShouldSave;
-    }
-    return Update.NoChange;
-  };
-}
-
 export function changeSetting<T extends keyof Settings>(
   setting: T,
   target: HTMLInputElement

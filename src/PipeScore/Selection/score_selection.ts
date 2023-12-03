@@ -22,7 +22,7 @@ import { Selection } from './model';
 import { ID } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { car, last, foreach } from '../global/utils';
-import { getXY, deleteXY, before } from '../global/xy';
+import { deleteXY, XY, getXYRangeForPage } from '../global/xy';
 import { Item } from '../global/id';
 import { settings } from '../global/settings';
 import m from 'mithril';
@@ -38,7 +38,6 @@ interface ScoreSelectionProps {
   score: Score;
   staveStartX: number;
   staveEndX: number;
-  staveGap: number;
 }
 
 export class ScoreSelection extends Selection {
@@ -101,7 +100,7 @@ export class ScoreSelection extends Selection {
     if (deleteBars) {
       barsToDelete.forEach(([bar, stave]) => {
         stave.deleteBar(bar);
-        if (stave.numberOfBars() === 0) score.deleteStaveOrSpacer(stave);
+        if (stave.numberOfBars() === 0) score.deleteStave(stave);
       });
     }
 
@@ -139,6 +138,18 @@ export class ScoreSelection extends Selection {
       if (bar.hasID(this.end)) break;
     }
     return bars;
+  }
+  public staves(score: Score): Stave[] {
+    const allStaves = score.staves();
+    let foundStart = false;
+    const staves: Stave[] = [];
+
+    for (const stave of allStaves) {
+      if (stave.includesID(this.start)) foundStart = true;
+      if (foundStart) staves.push(stave);
+      if (stave.includesID(this.end)) break;
+    }
+    return staves;
   }
   public note(score: Score): Note | null {
     const notes = this.notes(score);
@@ -200,77 +211,57 @@ export class ScoreSelection extends Selection {
     return notes;
   }
 
-  public render(props: ScoreSelectionProps): m.Children {
-    const a = getXY(this.start);
-    const b = getXY(this.end);
-    if (!a || !b) {
-      // This probably has occurred because we're selecting
-      // something on a later page
-      console.log("Couldn't find selected objects.");
-      return m('g');
-    }
-    const start = before(a, b) ? a : b;
-    const end = before(a, b) ? b : a;
+  private renderHighlight(start: XY, end: XY, props: ScoreSelectionProps) {
+    const height = settings.lineHeightOf(6);
+    const borderRadius = 5;
 
-    if (
-      start.page !== props.page &&
-      end.page !== props.page &&
-      !(start.page < props.page && props.page < end.page)
-    ) {
-      return m('g');
-    }
+    if (end.y !== start.y) {
+      const staves = props.score.staves();
+      const startStaveIndex = staves.findIndex((stave) =>
+        stave.includesID(start.id)
+      );
+      const endStaveIndex = staves.findIndex((stave) =>
+        stave.includesID(end.id)
+      );
+      const numStavesBetween = Math.max(endStaveIndex - startStaveIndex - 1, 0);
 
-    const height = 6 * settings.lineGap;
-
-    if (end.page !== start.page) {
-      if (start.page === props.page) {
-        const last = props.score.lastOnPage(props.page);
-        if (last)
-          return new ScoreSelection(this.start, last.id, false).render(props);
-      } else if (end.page === props.page) {
-        const first = props.score.firstOnPage(props.page);
-        if (first)
-          return new ScoreSelection(first.id, this.end, false).render(props);
-      } else {
-        const first = props.score.firstOnPage(props.page);
-        const last = props.score.lastOnPage(props.page);
-        if (first && last)
-          return new ScoreSelection(first.id, last.id, false).render(props);
-      }
-      return m('g');
-    } else if (end.y !== start.y) {
-      const higher = start.y > end.y ? end : start;
-      const lower = start.y > end.y ? start : end;
-      const numStavesBetween =
-        Math.round((lower.y - higher.y) / props.staveGap) - 1;
       return m('g[class=selection]', [
         m('rect', {
-          x: higher.beforeX,
-          y: higher.y - settings.lineGap,
-          width: props.staveEndX - higher.beforeX,
+          x: start.beforeX,
+          y: start.y - settings.lineGap,
+          width: props.staveEndX - start.beforeX,
           height,
           fill: 'orange',
           opacity: 0.5,
           'pointer-events': 'none',
+          rx: borderRadius,
+          ry: borderRadius,
         }),
         m('rect', {
           x: props.staveStartX,
-          y: lower.y - settings.lineGap,
-          width: lower.afterX - props.staveStartX,
+          y: end.y - settings.lineGap,
+          width: end.afterX - props.staveStartX,
           height,
           fill: 'orange',
           opacity: 0.5,
           'pointer-events': 'none',
+          rx: borderRadius,
+          ry: borderRadius,
         }),
-        ...foreach(numStavesBetween, (i) => i + 1).map((i) =>
+        ...foreach(numStavesBetween, (i) => startStaveIndex + i + 1).map((i) =>
           m('rect', {
             x: props.staveStartX,
-            y: higher.y + i * props.staveGap - settings.lineGap,
+            y:
+              props.score.staveY(staves[i]) +
+              staves[i].gapAsNumber() -
+              settings.lineGap,
             width: props.staveEndX - props.staveStartX,
             height,
             fill: 'orange',
             opacity: 0.5,
             'pointer-events': 'none',
+            rx: borderRadius,
+            ry: borderRadius,
           })
         ),
       ]);
@@ -285,8 +276,25 @@ export class ScoreSelection extends Selection {
           fill: 'orange',
           opacity: 0.5,
           'pointer-events': 'none',
+          rx: borderRadius,
+          ry: borderRadius,
         }),
       ]);
     }
+  }
+
+  public render(props: ScoreSelectionProps): m.Children {
+    const { start, end } = getXYRangeForPage(
+      this.start,
+      this.end,
+      props.page,
+      props.score
+    );
+
+    if (start && end) {
+      return this.renderHighlight(start, end, props);
+    }
+
+    return null;
   }
 }

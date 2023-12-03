@@ -20,7 +20,7 @@ import { noteY, Pitch, pitchUp, pitchDown, pitchOnLine } from '../global/pitch';
 import { Gracenote, GracenoteProps, NoGracenote } from '../Gracenote';
 import { ID, genId } from '../global/id';
 import { clickTripletLine } from '../Events/Note';
-import { nfirst, nlast, foreach, isRoughlyZero } from '../global/utils';
+import { nfirst, nlast, foreach, isRoughlyZero, sum } from '../global/utils';
 import { NoteLength } from './notelength';
 import width, { Width } from '../global/width';
 import m from 'mithril';
@@ -34,11 +34,7 @@ import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 
 import { BaseNote, NoteProps } from './base';
-import {
-  SavedNote,
-  SavedTriplet,
-  isDeprecatedSavedNoteOrTriplet,
-} from '../SavedModel';
+import { SavedNote, SavedTriplet } from '../SavedModel';
 export type { NoteProps } from './base';
 
 export type NoteOrTriplet = Note | Triplet;
@@ -587,7 +583,7 @@ export class Note
     const stemY = props.y + settings.lineHeightOf(6);
 
     const lengthOfNotes = (notes: Note[]) =>
-      notes.reduce((acc, n) => acc + n.lengthInBeats(), 0);
+      sum(notes.map((n) => n.lengthInBeats()));
 
     const shortBeamDirection = (note: Note, index: number) => {
       // If we're on the outside of the group, point inwards
@@ -737,10 +733,7 @@ export class Triplet extends BaseNote {
     };
   }
   public hasID(id: ID) {
-    return (
-      super.hasID(id) ||
-      this._notes.reduce<boolean>((acc, n) => acc || n.hasID(id), false)
-    );
+    return super.hasID(id) || this._notes.some((n) => n.hasID(id));
   }
   public tripletSingleNotes() {
     return this._notes;

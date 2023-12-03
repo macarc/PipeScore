@@ -174,7 +174,6 @@ export class TimeSignature {
       );
 
     if (this.cutTime() || this.commonTime()) {
-      const y = props.y + settings.lineHeightOf(3);
       const cutLineX = props.x;
       return m('g[class=time-signature]', [
         this.renderCommonTime(props.x, props.y, edit),

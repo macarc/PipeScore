@@ -140,10 +140,6 @@ function inSecondTiming(index: number, timings: PlaybackSecondTiming[]) {
   return timings.some((t) => t.in(index));
 }
 
-function isAtEndOfTiming(index: number, timings: PlaybackSecondTiming[]) {
-  return timings.some((t) => t.end === index);
-}
-
 // Removes all PlaybackRepeats and PlaybackObjects from `elements'
 // and duplicates notes where necessary for repeats / second timings
 function expandRepeats(

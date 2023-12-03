@@ -28,7 +28,6 @@ import {
   TextSelection,
   TimingSelection,
   TripletLineSelection,
-  StaveSpacerSelection,
 } from './Selection';
 import { emptyGracenoteState } from './Gracenote/state';
 import renderUI from './UI/view';
@@ -120,7 +119,7 @@ function redraw() {
       )
     );
   }
-  if (state.view.ui)
+  if (state.view.ui) {
     m.render(
       state.view.ui,
       renderUI({
@@ -133,7 +132,6 @@ function redraw() {
         zoomLevel: state.score.zoom,
         preview: state.preview,
         showingPageNumbers: state.score.showNumberOfPages,
-        canDeletePages: state.score.numberOfPages > 1,
         selectedNotes:
           state.selection instanceof ScoreSelection
             ? state.selection.notes(state.score)
@@ -152,11 +150,11 @@ function redraw() {
           state.selection instanceof TimingSelection
             ? state.selection.timing
             : null,
-        selectedStaveSpacer:
-          state.selection instanceof StaveSpacerSelection
-            ? state.selection.spacer
-            : null,
         isLandscape: state.score.landscape,
+        selectedStaves:
+          (state.selection instanceof ScoreSelection &&
+            state.selection.staves(state.score)) ||
+          [],
         selectedBar:
           (state.selection instanceof ScoreSelection &&
             state.selection.bar(state.score)) ||
@@ -169,6 +167,7 @@ function redraw() {
         currentMenu: state.menu,
       })
     );
+  }
 }
 
 // The callback that occurs on mouse move

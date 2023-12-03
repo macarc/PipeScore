@@ -29,4 +29,4 @@ export class Item {
 }
 
 // Generate a random ID
-export const genId = (): ID => Math.floor(Math.random() * 1000000000000);
+export const genId = (): ID => 1 + Math.floor(Math.random() * 1000000000000);

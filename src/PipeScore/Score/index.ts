@@ -29,7 +29,7 @@ import { Preview } from '../Preview';
 import { NoteState } from '../Note/state';
 import { Update } from '../Events/common';
 import { Playback } from '../Playback';
-import { ScoreSelection, Selection, StaveSpacerSelection } from '../Selection';
+import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { first, foreach, last, nlast, oneBefore, sum } from '../global/utils';
 
@@ -40,7 +40,6 @@ import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
 import { SavedScore } from '../SavedModel';
 import { Relative } from '../global/relativeLocation';
-import { StaveSpacer, isStave } from '../Stave/spacer';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -53,13 +52,12 @@ interface ScoreProps {
 export class Score {
   private name: string;
   public landscape: boolean;
-  private _staves: (Stave | StaveSpacer)[];
+  private _staves: Stave[];
   // an array rather than a set since it makes rendering easier (with map)
   private textBoxes: TextBox[][];
   private timings: Timing[];
 
   public showNumberOfPages: boolean;
-  public numberOfPages = 1;
   public zoom: number;
 
   constructor(
@@ -77,7 +75,7 @@ export class Score {
     const initialTopOffset = 180;
 
     this._staves = foreach(2 * numberOfParts, () => new Stave(timeSignature));
-    this._staves.unshift(new StaveSpacer(initialTopOffset));
+    if (numberOfParts > 0) this._staves[0].setGap(initialTopOffset);
     const first = repeatParts ? 'repeatFirst' : 'partFirst';
     const last = repeatParts ? 'repeatLast' : 'partLast';
     this.staves().forEach((stave, index) =>
@@ -118,21 +116,19 @@ export class Score {
   }
   public static fromJSON(o: SavedScore) {
     const s = new Score(o.name);
-    s.landscape = o.landscape;
-    s._staves = o._staves.map((s) =>
-      s.type === 'spacer' ? StaveSpacer.fromJSON(s) : Stave.fromJSON(s)
-    );
-    s.textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
-    s.timings = o.secondTimings.map(Timing.fromJSON);
-    s.numberOfPages = o.numberOfPages;
-    s.showNumberOfPages = o.showNumberOfPages;
     settings.fromJSON(o.settings);
 
+    s.landscape = o.landscape;
+    s._staves = o._staves.map(Stave.fromJSON);
+    s.textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
+    s.timings = o.secondTimings.map(Timing.fromJSON);
+    s.showNumberOfPages = o.showNumberOfPages;
+
     const deprecatedTopOffset = (o.settings as any).topOffset;
-    if (typeof deprecatedTopOffset === 'number') {
-      s._staves.unshift(new StaveSpacer(deprecatedTopOffset - 20));
+    const firstStave = first(s._staves);
+    if (deprecatedTopOffset !== undefined && firstStave) {
+      firstStave.setGap(deprecatedTopOffset - 20);
     }
-    s.addMorePagesIfNecessary();
     return s;
   }
   public toJSON(): SavedScore {
@@ -145,7 +141,6 @@ export class Score {
         texts: p.map((txt) => txt.toJSON()),
       })),
       secondTimings: this.timings.map((st) => st.toJSON()),
-      numberOfPages: this.numberOfPages,
       settings: settings.toJSON(),
     };
   }
@@ -175,7 +170,6 @@ export class Score {
     return Update.ShouldSave;
   }
   private adjustAfterOrientationChange() {
-    this.addMorePagesIfNecessary();
     this.textBoxes.forEach((p) =>
       p.forEach((text) =>
         text.adjustAfterOrientation(this.width(), this.height())
@@ -183,14 +177,6 @@ export class Score {
     );
     this.bars().forEach((b) => b.adjustWidth(this.width() / this.height()));
     this.zoom = (this.zoom * this.height()) / this.width();
-  }
-  private addMorePagesIfNecessary() {
-    while (this.notEnoughSpace()) {
-      this.numberOfPages += 1;
-    }
-    while (this.textBoxes.length < this.numberOfPages) {
-      this.textBoxes.push([]);
-    }
   }
   public updateName() {
     this.textBoxes[0][0] && (this.name = this.textBoxes[0][0].text());
@@ -205,8 +191,8 @@ export class Score {
     }
     return false;
   }
-  private staveY(stave: Stave | StaveSpacer) {
-    const pages = this.stavesAndSpacersSplitByPage();
+  public staveY(stave: Stave) {
+    const pages = this.stavesSplitByPage();
     const pageIndex = pages.findIndex((page) => page.includes(stave));
     const page = pages[pageIndex];
     if (page) {
@@ -221,103 +207,39 @@ export class Score {
       return 0;
     }
   }
-  private calculateHeight(staves: (Stave | StaveSpacer)[]) {
-    return staves.reduce((acc, s) => acc + s.height(), 0);
+  private calculateHeight(staves: Stave[]) {
+    return sum(staves.map((s) => s.height()));
   }
-  private stavesAndSpacersSplitByPage() {
-    // FIXME: spacers should be able to go across page
-    const splitStaves: (Stave | StaveSpacer)[][] = foreach(
-      this.numberOfPages,
-      () => []
-    );
-    let page = 0;
-    for (const stave of this._staves) {
-      const pageHeight =
-        this.calculateHeight(splitStaves[page]) + 2 * settings.margin;
-
-      if (pageHeight > this.height() && page < this.numberOfPages - 1) {
-        page += 1;
-      }
-      splitStaves[page].push(stave);
-    }
-    return splitStaves;
+  private numberOfPages() {
+    return this.stavesSplitByPage().length;
   }
   private stavesSplitByPage() {
-    return this.stavesAndSpacersSplitByPage().map(
-      (page) => page.filter((s) => isStave(s)) as Stave[]
-    );
-  }
-  private notEnoughSpace() {
-    const pageHeight =
-      this.calculateHeight(
-        this.stavesAndSpacersSplitByPage()[this.numberOfPages - 1]
-      ) +
-      2 * settings.margin;
-    return pageHeight > this.height();
-  }
-  private fitAnotherStaveWithHeight(minHeight: number, name: string) {
-    const availableHeight = this.height() - 2 * settings.margin;
-
-    const totalUsefulHeight = sum(
-      this.stavesAndSpacersSplitByPage().map(
-        (page) =>
-          availableHeight -
-          sum(page.filter((page) => !isStave(page)).map((t) => t.height()))
-      )
-    );
-    // Why +0.5, not +1?
-    const gapNeededBetweenStaves =
-      totalUsefulHeight / (this.staves().length + 0.5);
-
-    if (gapNeededBetweenStaves < minHeight) {
-      alert(
-        `Cannot add ${name} - not enough space. Add another page, or reduce the margin at the top of the page.`
-      );
-      return false;
-    }
-
-    if (gapNeededBetweenStaves < settings.staveGap) {
-      settings.staveGap = gapNeededBetweenStaves;
-    }
-    return true;
+    // TODO : should gaps 'carry over' to the next page?
+    const splitStaves: Stave[][] = [[]];
+    const usefulPageHeight = this.height() - 2 * settings.margin;
+    this.staves().forEach((stave) => {
+      const pageHeight = this.calculateHeight(nlast(splitStaves));
+      if (pageHeight + stave.height() > usefulPageHeight) {
+        splitStaves.push([]);
+      }
+      nlast(splitStaves).push(stave);
+    });
+    return splitStaves;
   }
 
-  // The index that a new item should be spliced into
-  private indexToInsert(nearStave: Stave | null, where: Relative) {
+  public addStave(nearStave: Stave | null, where: Relative) {
     // If no stave is selected, place before the first stave
     // or after the last stave
     nearStave =
       nearStave ||
       (where === Relative.before ? first(this.staves()) : last(this.staves()));
 
-    if (nearStave) {
-      return (
-        this._staves.indexOf(nearStave) + (where === Relative.before ? 0 : 1)
-      );
-    }
-    return 0;
-  }
+    const index = nearStave
+      ? this._staves.indexOf(nearStave) + (where === Relative.before ? 0 : 1)
+      : 0;
 
-  public addSpacer(nearStave: Stave | null, where: Relative) {
-    const spacer = new StaveSpacer();
-    const index = this.indexToInsert(nearStave, where);
-
-    // Don't add a spacer to the end (since then it's hidden)
-    if (index < 0 || index === this._staves.length) return;
-
-    if (!this.fitAnotherStaveWithHeight(spacer.height(), 'spacer')) {
-      return;
-    }
-    this._staves.splice(index, 0, spacer);
-  }
-
-  public addStave(nearStave: Stave | null, where: Relative) {
-    const index = this.indexToInsert(nearStave, where);
     if (index < 0) return;
 
-    if (!this.fitAnotherStaveWithHeight(Stave.minHeight(), 'stave')) {
-      return;
-    }
     const adjacentBar = nearStave
       ? where === Relative.before
         ? nearStave.firstBar()
@@ -326,6 +248,10 @@ export class Score {
     const ts = adjacentBar && adjacentBar.timeSignature();
 
     const newStave = new Stave(ts || new TimeSignature());
+    if (where === Relative.before) {
+      newStave.setGap(nearStave?.gap() || 'auto');
+      nearStave?.setGap('auto');
+    }
     this._staves.splice(index, 0, newStave);
   }
 
@@ -359,7 +285,7 @@ export class Score {
     return staves[index];
   }
   public hasStuffOnLastPage() {
-    return nlast(this.stavesAndSpacersSplitByPage()).length > 0;
+    return nlast(this.stavesSplitByPage()).length > 0;
   }
   public firstOnPage(page: number) {
     return first(this.stavesSplitByPage()[page])?.firstBar() || null;
@@ -367,25 +293,22 @@ export class Score {
   public lastOnPage(page: number) {
     return last(this.stavesSplitByPage()[page])?.lastBar() || null;
   }
-  public deletePage() {
-    const stavesToDelete = this.stavesSplitByPage()[this.numberOfPages - 1];
-    if (stavesToDelete) {
-      const first = stavesToDelete[0]?.firstBar() || null;
-      const last = nlast(stavesToDelete)?.lastBar() || null;
-      if (first && last) {
-        const selection = new ScoreSelection(first.id, last.id, false);
-        selection.delete(this);
-      }
-    }
-
-    this.textBoxes[this.numberOfPages - 1] = [];
-    this.numberOfPages--;
-  }
   // Deletes the stave from the score
   // Does not worry about purging notes/bars; that should be handled elsewhere
-  public deleteStaveOrSpacer(stave: Stave | StaveSpacer) {
+  public deleteStave(stave: Stave) {
     const ind = this._staves.indexOf(stave);
-    if (ind !== -1) this._staves.splice(ind, 1);
+    if (ind !== -1) {
+      this._staves.splice(ind, 1);
+    }
+    // If there used to be a gap before this stave, preserve it
+    // (when the next stave doesn't have a custom gap)
+    if (
+      stave.gap() !== 'auto' &&
+      this._staves[ind] &&
+      this._staves[ind].gap() === 'auto'
+    ) {
+      this._staves[ind].setGap(stave.gap());
+    }
   }
   public notesAndTriplets() {
     return this.bars().flatMap((bar) => bar.notesAndTriplets());
@@ -397,7 +320,7 @@ export class Score {
     return this.staves().flatMap((stave) => stave.bars());
   }
   public staves(): Stave[] {
-    return this._staves.filter((stave) => isStave(stave)) as Stave[];
+    return this._staves;
   }
   public lastStave() {
     return last(this.staves());
@@ -436,8 +359,8 @@ export class Score {
     }
   }
   public dragTextBox(text: TextBox, x: number, y: number, page: number) {
-    if (page >= this.numberOfPages) return;
-    for (let pageIndex = 0; pageIndex < this.numberOfPages; pageIndex++) {
+    if (page >= this.numberOfPages()) return;
+    for (let pageIndex = 0; pageIndex < this.numberOfPages(); pageIndex++) {
       for (let i = 0; i < this.textBoxes[pageIndex].length; i++) {
         if (this.textBoxes[pageIndex][i].text() === text.text()) {
           if (pageIndex !== page) {
@@ -498,40 +421,26 @@ export class Score {
       gracenoteState: props.gracenoteState,
     });
 
-    const staveSpacerProps = (spacer: StaveSpacer) => ({
-      x: settings.margin,
-      y: this.staveY(spacer),
-      width: staveWidth,
-      isSelected:
-        props.selection instanceof StaveSpacerSelection &&
-        props.selection.spacer === spacer,
-    });
-
     const timingProps = (page: number) => ({
       page,
       score: this,
       staveStartX: settings.margin + trebleClefWidth,
       staveEndX: width - settings.margin,
       selection: props.selection,
-      // TODO
-      staveGap: settings.staveGap,
     });
     const selectionProps = (i: number) => ({
       page: i,
       score: this,
-      staveStartX: settings.margin,
+      staveStartX: settings.margin + trebleClefWidth,
       staveEndX: width - settings.margin,
-      // TODO
-      staveGap: settings.staveGap,
     });
 
-    const splitStaves = this.stavesAndSpacersSplitByPage();
-    console.log(splitStaves);
+    const splitStaves = this.stavesSplitByPage();
     const texts = (i: number) => this.textBoxes[i] || [];
 
     return m(
       'div',
-      foreach(this.numberOfPages, (i) => {
+      foreach(this.numberOfPages(), (i) => {
         setXYPage(i);
         return m(
           'svg',
@@ -552,11 +461,7 @@ export class Score {
               onmousedown: () => dispatch(clickBackground()),
               onmouseover: () => dispatch(mouseOffPitch()),
             }),
-            ...splitStaves[i].map((stave) =>
-              isStave(stave)
-                ? stave.render(staveProps(stave))
-                : stave.render(staveSpacerProps(stave))
-            ),
+            ...splitStaves[i].map((stave) => stave.render(staveProps(stave))),
             ...texts(i).map((textBox) =>
               textBox.render({
                 scoreWidth: width,
@@ -566,7 +471,7 @@ export class Score {
             ...this.timings.map((timing) => timing.render(timingProps(i))),
             props.selection instanceof ScoreSelection &&
               props.selection.render(selectionProps(i)),
-            this.showNumberOfPages && this.numberOfPages > 1
+            this.showNumberOfPages && this.numberOfPages() > 1
               ? m(
                   'text',
                   {

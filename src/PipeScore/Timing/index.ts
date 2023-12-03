@@ -22,8 +22,15 @@ import m from 'mithril';
 import { dispatch } from '../Controller';
 import { clickTiming, editTimingText } from '../Events/Timing';
 import { ID } from '../global/id';
-import { foreach, nmap } from '../global/utils';
-import { inOrder, closestItem, getXY, itemBefore, XY } from '../global/xy';
+import { foreach } from '../global/utils';
+import {
+  inOrder,
+  closestItem,
+  getXY,
+  itemBefore,
+  XY,
+  getXYRangeForPage,
+} from '../global/xy';
 import { Score } from '../Score';
 import { TimingSelection } from '../Selection';
 import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
@@ -33,7 +40,6 @@ import {
   SavedSingleTiming,
   SavedTiming,
 } from '../SavedModel';
-import { Bar } from '../Bar';
 import dialogueBox from '../global/dialogueBox';
 
 interface TimingProps {
@@ -42,19 +48,9 @@ interface TimingProps {
   staveStartX: number;
   staveEndX: number;
   selection: Selection | null;
-  staveGap: number;
 }
 
 export type TimingPart = 'start' | 'middle' | 'end';
-
-function barXY(bar: Bar | null) {
-  const xy = nmap(bar, (bar) => getXY(bar.id));
-  if (xy === null) {
-    console.error('Tried to get XY of a non-existent bar.');
-    return { beforeX: 0, afterX: 0, y: 0 };
-  }
-  return xy;
-}
 
 export abstract class Timing {
   abstract pointsTo(id: ID): boolean;
@@ -124,111 +120,117 @@ export abstract class Timing {
     return true;
   }
   protected lineFrom(
-    a: XY,
-    b: XY | null,
+    a: ID,
+    b: ID,
     text: string,
     click: (first: boolean) => void,
     clickText: () => void,
     // if true, draw the vertical line at the end
     // if true, we use b.afterX, otherwise we use b.beforeX
-    drawLast: boolean,
+    drawUntilAfterB: boolean,
     props: TimingProps
   ): m.Children {
-    const barIsOnALaterPage = !b || props.page < b.page;
-    const willDrawOnThisPage =
-      a.page === props.page ||
-      (b && b.page === props.page) ||
-      (a.page < props.page && barIsOnALaterPage);
+    const { start, end } = getXYRangeForPage(a, b, props.page, props.score);
 
-    if (!willDrawOnThisPage) return m('g');
+    if (start && end) {
+      const bXY = getXY(b);
+      const bIsOnALaterPage = bXY === null || props.page < bXY.page;
+      drawUntilAfterB ||= bIsOnALaterPage;
 
-    drawLast ||= barIsOnALaterPage;
+      text = a === start.id ? text : '';
 
-    const start =
-      a.page === props.page ? a : barXY(props.score.firstOnPage(props.page));
-    const end = b || barXY(props.score.lastOnPage(props.page));
+      const isSelected =
+        props.selection instanceof TimingSelection &&
+        props.selection.timing === this;
 
-    text = a === start ? text : '';
+      const colour = isSelected ? 'orange' : 'black';
 
-    const selected =
-      props.selection instanceof TimingSelection &&
-      props.selection.timing === this;
+      const height = 45;
+      const mid = 30;
+      const clickWidth = 10;
 
-    const colour = selected ? 'orange' : 'black';
+      const y = (i: number) =>
+        props.score.staveY(props.score.staves()[i]) +
+        props.score.staves()[i].gapAsNumber();
 
-    const height = 45;
-    const mid = 30;
-    const clickWidth = 10;
-    const y = (i: number) => start.y + i * props.staveGap;
+      const horizontal = (x1: number, x2: number, y: number) =>
+        m('line', {
+          x1,
+          x2,
+          y1: y - height,
+          y2: y - height,
+          stroke: colour,
+        });
+      const vertical = (x: number, y: number) =>
+        m('line', {
+          x1: x,
+          x2: x,
+          y1: y - mid,
+          y2: y - height,
+          stroke: colour,
+        });
 
-    const horizontal = (x1: number, x2: number, y: number) =>
-      m('line', {
-        x1,
-        x2,
-        y1: y - height,
-        y2: y - height,
-        stroke: colour,
-      });
-    const vertical = (x: number, y: number) =>
-      m('line', {
-        x1: x,
-        x2: x,
-        y1: y - mid,
-        y2: y - height,
-        stroke: colour,
-      });
+      const dragBox = (x: number, y: number, start: boolean) =>
+        m('rect', {
+          x: x - clickWidth / 2,
+          y: y - height,
+          width: clickWidth,
+          height: height - mid,
+          opacity: 0,
+          cursor: 'ew-resize',
+          onmousedown: () => click(start),
+        });
 
-    const dragBox = (x: number, y: number, start: boolean) =>
-      m('rect', {
-        x: x - clickWidth / 2,
-        y: y - height,
-        width: clickWidth,
-        height: height - mid,
-        opacity: 0,
-        cursor: 'ew-resize',
-        onmousedown: () => click(start),
-      });
-    const lastx = drawLast ? end.afterX : end.beforeX;
+      const lastx = drawUntilAfterB ? end.afterX : end.beforeX;
+      const verticalLines = [
+        vertical(start.beforeX, start.y),
+        dragBox(start.beforeX, start.y, true),
+        drawUntilAfterB ? vertical(lastx, end.y) : null,
+        drawUntilAfterB ? dragBox(lastx, end.y, false) : null,
+      ];
 
-    const verticalLines = [
-      vertical(start.beforeX, start.y),
-      dragBox(start.beforeX, start.y, true),
-      drawLast ? vertical(lastx, end.y) : null,
-      drawLast ? dragBox(lastx, end.y, false) : null,
-    ];
-    const stavesBetween = Math.max(
-      Math.round((end.y - start.y) / props.staveGap) - 1,
-      0
-    );
-    return m('g', [
-      ...(end && start.y === end.y
-        ? [horizontal(start.beforeX, lastx, start.y), ...verticalLines]
-        : [
-            horizontal(start.beforeX, props.staveEndX, start.y),
-            vertical(props.staveEndX, start.y),
-            horizontal(props.staveStartX, lastx, end.y),
-            vertical(props.staveStartX, end.y),
+      const staveStartIndex = props.score
+        .staves()
+        .findIndex((s) => s.includesID(start.id));
+      const staveEndIndex = props.score
+        .staves()
+        .findIndex((s) => s.includesID(end.id));
+      const stavesBetween = staveEndIndex - staveStartIndex - 1;
 
-            ...foreach(stavesBetween, (i) => i + 1).map((i) =>
-              m('g', [
-                horizontal(props.staveStartX, props.staveEndX, y(i)),
-                vertical(props.staveStartX, y(i)),
-                vertical(props.staveEndX, y(i)),
-              ])
-            ),
-            ...verticalLines,
-          ]),
-      m(
-        'text',
-        {
-          x: start.beforeX + 5,
-          y: start.y - (height * 2) / 3,
-          onmousedown: () => click(true),
-          ondblclick: clickText,
-        },
-        text
-      ),
-    ]);
+      return m('g', [
+        ...(start.y === end.y
+          ? [horizontal(start.beforeX, lastx, start.y), ...verticalLines]
+          : [
+              horizontal(start.beforeX, props.staveEndX, start.y),
+              vertical(props.staveEndX, start.y),
+
+              horizontal(props.staveStartX, lastx, end.y),
+              vertical(props.staveStartX, end.y),
+
+              ...foreach(stavesBetween, (i) => staveStartIndex + i + 1).map(
+                (i) =>
+                  m('g', [
+                    horizontal(props.staveStartX, props.staveEndX, y(i)),
+                    vertical(props.staveStartX, y(i)),
+                    vertical(props.staveEndX, y(i)),
+                  ])
+              ),
+              ...verticalLines,
+            ]),
+        m(
+          'text',
+          {
+            x: start.beforeX + 5,
+            y: start.y - (height * 2) / 3,
+            onmousedown: () => click(true),
+            ondblclick: clickText,
+          },
+          text
+        ),
+      ]);
+    }
+
+    return null;
   }
 }
 
@@ -337,31 +339,25 @@ export class SecondTiming extends Timing {
     return new PlaybackSecondTiming(start_index, middle_index, end_index);
   }
   public render(props: TimingProps): m.Children {
-    const start = getXY(this.start);
-    const middle = getXY(this.middle);
-    const end = getXY(this.end);
-
     return m('g[class=second-timing]', [
-      start &&
-        this.lineFrom(
-          start,
-          middle,
-          this.firstText,
-          (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
-          () => dispatch(editTimingText(this)),
-          false,
-          props
-        ),
-      middle &&
-        this.lineFrom(
-          middle,
-          end,
-          this.secondText,
-          (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
-          () => dispatch(editTimingText(this)),
-          true,
-          props
-        ),
+      this.lineFrom(
+        this.start,
+        this.middle,
+        this.firstText,
+        (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
+        () => dispatch(editTimingText(this)),
+        false,
+        props
+      ),
+      this.lineFrom(
+        this.middle,
+        this.end,
+        this.secondText,
+        (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
+        () => dispatch(editTimingText(this)),
+        true,
+        props
+      ),
     ]);
   }
 }
@@ -434,20 +430,16 @@ export class SingleTiming extends Timing {
     }
   }
   public render(props: TimingProps): m.Children {
-    const start = getXY(this.start);
-    const end = getXY(this.end);
-
     return m('g[class=second-timing]', [
-      start &&
-        this.lineFrom(
-          start,
-          end,
-          this.text,
-          (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
-          () => dispatch(editTimingText(this)),
-          true,
-          props
-        ),
+      this.lineFrom(
+        this.start,
+        this.end,
+        this.text,
+        (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
+        () => dispatch(editTimingText(this)),
+        true,
+        props
+      ),
     ]);
   }
 }

@@ -20,13 +20,15 @@ import { SavedSettings } from '../SavedModel';
 import { clamp } from './utils';
 
 export class Settings {
-  staveGap = 100;
+  staveGap = Settings.defaultStaveGap;
   lineGap = 7;
   margin = 80;
   pageLongSideLength = 297 * 5;
   pageShortSideLength = 210 * 5;
   gapAfterGracenote = 7;
   bpm = 80;
+
+  static defaultStaveGap = 65;
 
   fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;

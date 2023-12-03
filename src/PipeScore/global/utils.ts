@@ -28,6 +28,11 @@ export function isRoughlyZero(i: number) {
   return i < 0.000001;
 }
 
+export function log<A>(value: A): A {
+  console.log(value);
+  return value;
+}
+
 export const car = <U, V>(pair: [U, V]): U => pair[0];
 export const first = <T>(array: T[]): T | null => array[0] || null;
 // Find the last value of an array in fewer characters

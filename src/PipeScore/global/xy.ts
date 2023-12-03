@@ -18,9 +18,11 @@
 //  Useful for timings, ties, e.t.c. - anything where you need to know the
 //  coordinates of something else.
 
+import { Score } from '../Score';
 import { ID } from './id';
 
 export interface XY {
+  id: ID;
   beforeX: number;
   afterX: number;
   y: number;
@@ -55,7 +57,7 @@ export const setXY = (
   page?: number
 ): void => {
   if (page === undefined) page = currentPage;
-  itemCoords.set(item, { beforeX, afterX, y, page });
+  itemCoords.set(item, { id: item, beforeX, afterX, y, page });
 };
 export const getXY = (item: ID): XY | null => itemCoords.get(item) || null;
 export const deleteXY = (item: ID): void => {
@@ -66,9 +68,10 @@ export const inOrder = (first: XY, second: XY, third: XY) =>
   before(first, second) && before(second, third);
 
 export const before = (a: XY, b: XY, checkAfterX = false) => {
-  if (b.page > a.page) return true;
-  if (b.y > a.y) return true;
-  if (a.y > b.y) return false;
+  if (a.page < b.page) return true;
+  if (b.page < a.page) return false;
+  if (a.y < b.y) return true;
+  if (b.y < a.y) return false;
   return checkAfterX ? a.afterX <= b.afterX : a.afterX <= b.beforeX;
 };
 
@@ -114,3 +117,71 @@ export const closestItem = (
 
   return closestID;
 };
+
+// If xy is on the same page, return it
+// If xy is on an earlier page, return the first item on this page (if there is one)
+// Otherwise return null
+function itemOrFirstOnPage(xy: XY, page: number, score: Score) {
+  if (xy.page === page) {
+    return xy;
+  } else if (xy.page < page) {
+    const startID = score.firstOnPage(page)?.id;
+    return (startID && getXY(startID)) || null;
+  }
+  return null;
+}
+
+// If xy is on the same page, return it
+// If xy is on a later page, return the last item on this page (if there is one)
+// Otherwise return null
+function itemOrLastOnPage(xy: XY, page: number, score: Score) {
+  if (xy.page === page) {
+    return xy;
+  } else if (xy.page > page) {
+    const endID = score.lastOnPage(page)?.id || null;
+    return endID && getXY(endID);
+  }
+  return null;
+}
+
+// Considering a range (e.g. selection) from start to end, this returns
+// start and end, but clamped to the page
+// (so if start is before the start of the page, it returns the first item on the page)
+// (and if end is after the end of the page, it returns the last item on the page)
+export function getXYRangeForPage(
+  start: ID,
+  end: ID,
+  page: number,
+  score: Score
+) {
+  const a = getXY(start);
+  const b = getXY(end);
+
+  if (!a && !b) {
+    // Selected objects are on later pages
+    return { start: null, end: null };
+  }
+
+  if (a && b) {
+    const start = itemOrFirstOnPage(before(a, b) ? a : b, page, score);
+    const end = itemOrLastOnPage(before(a, b) ? b : a, page, score);
+    if (start && end) return { start, end };
+  }
+
+  const lastID = score.lastOnPage(page)?.id || null;
+  const lastOnPage = lastID && getXY(lastID);
+
+  if (a && !b && a.page <= page) {
+    const start = itemOrFirstOnPage(a, page, score);
+    const end = lastOnPage;
+    if (start && end) return { start, end };
+  }
+
+  if (!a && b && b.page <= page) {
+    const start = itemOrFirstOnPage(b, page, score);
+    const end = lastOnPage;
+    if (start && end) return { start, end };
+  }
+
+  return { start: null, end: null };
+}

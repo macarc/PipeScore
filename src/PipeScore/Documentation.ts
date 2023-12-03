@@ -80,10 +80,10 @@ export default {
     'Add a new blank stave on the line before the currently selected bar.',
   'add stave after':
     'Add a new blank stave on the next line after the currently currently selected bar.',
-  'add stave spacer before':
-    'Add a new stave spacer on the line before the currently selected bar.\n\nThis creates an adjustable gap between staves.',
-  'add stave spacer after':
-    'Add a new stave spacer on the line after the currently selected bar.\n\nThis creates an adjustable gap between staves.',
+  'set stave gap':
+    'Adjust the gap between the selected staves.\n\nIf no staves are selected, adjust the default gap between all staves.\n\nIf only one stave is selected, adjust the gap before that stave.\n\nSelect a stave by selecting any bar or note in the stave.',
+  'reset stave gap':
+    'Reset the gap between the selected staves to its default value.\n\nIf only one stave is selected, reset the gap before that stave to its default value.\n\nSelect a stave by selecting any bar or note in the stave.',
   'add text': 'Add a new text box.',
   'centre text': 'Horizontally centre the currently selected text box.',
   'edit text': 'Edit the currently selected text box.',

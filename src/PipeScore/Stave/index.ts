@@ -19,9 +19,9 @@
 import m from 'mithril';
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
-import { settings } from '../global/settings';
+import { Settings, settings } from '../global/settings';
 import { ID } from '../global/id';
-import { first, foreach, last, nlast } from '../global/utils';
+import { first, foreach, last, nlast, sum } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
 import { TimeSignature } from '../TimeSignature';
@@ -44,6 +44,12 @@ export const stavelineThickness = 1;
 
 export class Stave {
   private _bars: Bar[];
+  private _gap: number | 'auto';
+
+  static minGap() {
+    return settings.lineHeightOf(2);
+  }
+
   constructor(timeSignature = new TimeSignature()) {
     this._bars = [
       new Bar(timeSignature),
@@ -51,24 +57,41 @@ export class Stave {
       new Bar(timeSignature),
       new Bar(timeSignature),
     ];
+    this._gap = 'auto';
   }
   public static fromJSON(o: SavedStave) {
     const st = new Stave();
     st._bars = o.bars.map(Bar.fromJSON);
+    st._gap = o.gap || 'auto';
+
+    // Need to update the old stave gap (which included the stave itself)
+    // to the new stave gap (which is the actual gap between staves)
+    if (o.gap === undefined) {
+      settings.staveGap = Settings.defaultStaveGap;
+    }
+
     return st;
   }
   public toJSON(): SavedStave {
     return {
-      type: 'stave',
+      gap: this._gap,
       bars: this._bars.map((bar) => bar.toJSON()),
     };
   }
+  public setGap(gap: 'auto' | number) {
+    this._gap = gap;
+  }
+  public gap() {
+    return this._gap;
+  }
+  public gapAsNumber() {
+    return this._gap === 'auto' ? settings.staveGap : this._gap;
+  }
   public static minHeight() {
-    // Almost exactly the height of the treble clef
-    return settings.lineHeightOf(10);
+    return settings.lineHeightOf(4) + settings.staveGap;
   }
   public height() {
-    return settings.staveGap;
+    return settings.lineHeightOf(4) + this.gapAsNumber();
   }
   public numberOfBars() {
     return this._bars.length;
@@ -86,6 +109,14 @@ export class Stave {
     this._bars.splice(index, 1);
     if (index === this._bars.length && this._bars.length > 0)
       nlast(this._bars).fixedWidth = 'auto';
+  }
+  public includesID(id: ID) {
+    for (const bar of this.bars()) {
+      if (bar.hasID(id) || bar.includesNote(id)) {
+        return true;
+      }
+    }
+    return false;
   }
   public firstBar() {
     return first(this._bars);
@@ -143,9 +174,8 @@ export class Stave {
     previousBar: (i: number) => Bar | null
   ): number[] {
     const anacruses = this._bars.filter((bar) => bar.isAnacrusis);
-    const totalAnacrusisWidth = anacruses.reduce(
-      (width, bar, i) => width + bar.anacrusisWidth(previousBar(i)),
-      0
+    const totalAnacrusisWidth = sum(
+      anacruses.map((bar, i) => bar.anacrusisWidth(previousBar(i)))
     );
     const widthAvailable = staveWidth - trebleClefWidth - totalAnacrusisWidth;
     const averageBarWidth =
@@ -188,7 +218,7 @@ export class Stave {
     );
   }
   public render(props: StaveProps): m.Children {
-    const staveY = props.y;
+    const staveY = props.y + this.gapAsNumber();
 
     const staveLines = foreach(5, (idx) => settings.lineHeightOf(idx) + staveY);
 
@@ -200,9 +230,9 @@ export class Stave {
     const widths = this.computeBarWidths(props.width, previousBar);
     const width = (index: number) => widths[index];
     const getX = (barIdx: number) =>
-      this._bars
-        .slice(0, barIdx)
-        .reduce((soFar, _, i) => soFar + width(i), props.x + trebleClefWidth);
+      props.x +
+      trebleClefWidth +
+      sum(this._bars.slice(0, barIdx).map((_, i) => width(i)));
 
     const barProps = (bar: Bar, index: number) => ({
       x: getX(index),
@@ -254,7 +284,7 @@ export class Stave {
     });
 
     return m('g[class=stave]', [
-      this.renderTrebleClef(props.x, props.y),
+      this.renderTrebleClef(props.x, staveY),
       m(
         'g[class=bars]',
         this._bars.map((bar, idx) => bar.render(barProps(bar, idx)))

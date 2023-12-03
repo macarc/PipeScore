@@ -42,8 +42,6 @@ import {
   print,
   changeZoomLevel,
   changeSetting,
-  addPage,
-  removePage,
   landscape,
   portrait,
   setPageNumberVisibility,
@@ -73,8 +71,9 @@ import {
 } from '../Events/Text';
 import {
   addStave,
-  addStaveSpacer,
-  setStaveSpacerHeight,
+  resetStaveGap,
+  setStaveGap,
+  staveGapToDisplay,
 } from '../Events/Stave';
 import { help } from '../global/docs';
 import { isDotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
@@ -95,7 +94,7 @@ import { TextBox } from '../TextBox';
 import { Timing } from '../Timing';
 import Documentation from '../Documentation';
 import { Relative } from '../global/relativeLocation';
-import { StaveSpacer } from '../Stave/spacer';
+import { Stave } from '../Stave';
 
 export interface UIState {
   canEdit: boolean;
@@ -105,13 +104,12 @@ export interface UIState {
   loadingAudio: boolean;
   isPlaying: boolean;
   selectedGracenote: Gracenote | null;
+  selectedStaves: Stave[];
   selectedBar: Bar | null;
   selectedNotes: Note[];
   selectedText: TextBox | null;
   selectedTiming: Timing | null;
-  selectedStaveSpacer: StaveSpacer | null;
   showingPageNumbers: boolean;
-  canDeletePages: boolean;
   preview: Preview | null;
   isLandscape: boolean;
   currentMenu: Menu;
@@ -177,18 +175,30 @@ export default function render(state: UIState): m.Children {
 
   const noNotesSelected = state.selectedNotes.length === 0;
   const noBarSelected = state.selectedBar === null;
+  const noStaveSelected = state.selectedStaves.length === 0;
   const noGracenoteSelected = state.selectedGracenote === null;
   const noTextSelected = state.selectedText === null;
   const noTimingSelected = state.selectedTiming === null;
-  const noStaveSpacerSelected = state.selectedStaveSpacer === null;
   const nothingSelected =
+    noStaveSelected &&
     noBarSelected &&
     noNotesSelected &&
     noTextSelected &&
-    noGracenoteSelected &&
-    noStaveSpacerSelected;
+    noGracenoteSelected;
   // NOTE : can't copy and paste gracenotes or text, so disable even if noGracenoteSelected is false
   const cantCopyPaste = noBarSelected && noNotesSelected;
+
+  const setting = <T extends keyof Settings>(property: T, name: string) =>
+    m('div.horizontal', [
+      m('label', name + ': '),
+      m('input', {
+        type: 'number',
+        value: settings[property].toString(),
+        oninput: (e: InputEvent) =>
+          dispatch(changeSetting(property, e.target as HTMLInputElement)),
+        onchange: () => dispatch(commit()),
+      }),
+    ]);
 
   const tied =
     state.selectedNotes.length === 0
@@ -542,48 +552,35 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Add Stave Spacer'),
+      m('h2', 'Modify Stave'),
       m('div.section-content', [
         help(
-          'add stave spacer before',
-          m(
-            'button.add.text',
-            { onclick: () => dispatch(addStaveSpacer(Relative.before)) },
-            'before'
-          )
-        ),
-        help(
-          'add stave spacer after',
-          m(
-            'button.add.text',
-            { onclick: () => dispatch(addStaveSpacer(Relative.after)) },
-            'after'
-          )
-        ),
-      ]),
-    ]),
-    m('section', [
-      m('h2', 'Modify Stave Spacer'),
-      m('div.section-content.vertical', [
-        help(
-          'add stave spacer after',
+          'set stave gap',
           m('label', [
-            'Height: ',
+            state.selectedStaves.length === 0
+              ? 'Stave gap (for all staves): '
+              : state.selectedStaves.length === 1
+              ? 'Stave gap (for selected stave only): '
+              : 'Stave gap (for selected staves only): ',
             m('input', {
               type: 'number',
-              min: StaveSpacer.minHeight,
-              max: StaveSpacer.maxHeight,
-              value: state.selectedStaveSpacer?.height() || 0,
-              disabled: noStaveSpacerSelected,
+              min: Stave.minGap,
+              value: staveGapToDisplay(state.selectedStaves),
               oninput: (e: InputEvent) =>
                 dispatch(
-                  setStaveSpacerHeight(
-                    parseFloat((e.target as HTMLInputElement).value)
-                  )
+                  setStaveGap(parseFloat((e.target as HTMLInputElement).value))
                 ),
               onchange: () => dispatch(commit()),
             }),
           ])
+        ),
+        help(
+          'reset stave gap',
+          m(
+            'button.textual',
+            { onclick: () => dispatch(resetStaveGap()) },
+            'Reset'
+          )
         ),
       ]),
     ]),
@@ -780,34 +777,7 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
-  const setting = <T extends keyof Settings>(property: T, name: string) =>
-    m('div.horizontal', [
-      m('label', name + ': '),
-      m('input', {
-        type: 'number',
-        value: settings[property].toString(),
-        oninput: (e: InputEvent) =>
-          dispatch(changeSetting(property, e.target as HTMLInputElement)),
-        onchange: () => dispatch(commit()),
-      }),
-    ]);
   const documentMenu = [
-    m('section', [
-      m('h2', 'Page'),
-      m('div.section-content', [
-        help(
-          'add-page',
-          m('button.add', { onclick: () => dispatch(addPage()) })
-        ),
-        help(
-          'remove-page',
-          m('button.remove', {
-            disabled: !state.canDeletePages,
-            onclick: () => dispatch(removePage()),
-          })
-        ),
-      ]),
-    ]),
     m('section', [
       m('h2', 'Orientation'),
       m('div.section-content', [
@@ -879,20 +849,17 @@ export default function render(state: UIState): m.Children {
   const settingsMenu = [
     m('section', [
       m('h2', 'Stave layout'),
-      m('div.section-content.vertical', [
-        setting('lineGap', 'Gap between lines'),
-        setting('staveGap', 'Gap between staves'),
-      ]),
+      m('div.section-content', [setting('lineGap', 'Gap between lines')]),
     ]),
     m('section', [
       m('h2', 'Gracenote layout'),
-      m('div.section-content.vertical', [
+      m('div.section-content', [
         setting('gapAfterGracenote', 'Gap after gracenote'),
       ]),
     ]),
     m('section', [
       m('h2', 'Margins'),
-      m('div.section-content.vertical', [setting('margin', 'Margin')]),
+      m('div.section-content', [setting('margin', 'Margin')]),
     ]),
     m('section', [
       m('h2', 'View'),

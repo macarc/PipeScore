@@ -22,7 +22,6 @@ import { Pitch } from '../global/pitch';
 import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { Selection } from './model';
-import { StaveSpacer } from '../Stave/spacer';
 
 export { Selection } from './model';
 export { ScoreSelection } from './score_selection';
@@ -52,20 +51,6 @@ export class BarlineSelection extends Selection {
   }
   public mouseDrag(x: number) {
     this.drag_cb(x);
-  }
-}
-
-export class StaveSpacerSelection extends Selection {
-  spacer: StaveSpacer;
-
-  constructor(spacer: StaveSpacer, createdByMouseDown: boolean) {
-    super(createdByMouseDown);
-    this.spacer = spacer;
-  }
-
-  public delete(score: Score) {
-    score.deleteStaveOrSpacer(this.spacer);
-    return null;
   }
 }
 

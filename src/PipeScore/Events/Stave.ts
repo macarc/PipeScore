@@ -14,12 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
+import { ScoreEvent, Update } from './common';
 import { State } from '../State';
-import { ScoreSelection, StaveSpacerSelection } from '../Selection';
+import { ScoreSelection } from '../Selection';
 import { Relative } from '../global/relativeLocation';
-import { clamp } from '../global/utils';
-import { StaveSpacer } from '../Stave/spacer';
+import { Stave } from '../Stave';
+import { Settings, settings } from '../global/settings';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
@@ -33,33 +33,52 @@ export function addStave(where: Relative): ScoreEvent {
   };
 }
 
-export function addStaveSpacer(where: Relative): ScoreEvent {
-  return async (state: State) => {
-    const stave =
-      state.selection instanceof ScoreSelection
-        ? state.score.location(state.selection.start).stave
-        : null;
-
-    state.score.addSpacer(stave, where);
-    return Update.ShouldSave;
-  };
+// Set the gap between staves, or before the stave if only
+// one stave is in the list
+function setGap(staves: Stave[], gap: number | 'auto') {
+  if (staves.length === 1) {
+    staves[0].setGap(gap);
+  } else {
+    staves.slice(1).forEach((s) => s.setGap(gap));
+  }
 }
 
-export function clickStaveSpacer(spacer: StaveSpacer) {
-  return async (state: State) => {
-    stopInputtingNotes(state);
-    state.selection = new StaveSpacerSelection(spacer, true);
-    return Update.ViewChanged;
-  };
+export function staveGapToDisplay(staves: Stave[]) {
+  if (staves.length === 0) {
+    return settings.staveGap;
+  } else if (staves.length === 1) {
+    return staves[0].gapAsNumber();
+  } else {
+    // If more than one stave is selected, return their gap only if they all
+    // have the same gap, otherwise just use the default gap.
+    staves = staves.slice(1);
+    const firstGap = staves[0].gapAsNumber();
+    if (staves.every((stave) => stave.gapAsNumber() === firstGap)) {
+      return firstGap;
+    }
+    return settings.staveGap;
+  }
 }
 
-export function setStaveSpacerHeight(height: number) {
+export function setStaveGap(gap: number) {
   return async (state: State) => {
-    if (state.selection instanceof StaveSpacerSelection) {
-      state.selection.spacer.setHeight(
-        clamp(height, StaveSpacer.minHeight, StaveSpacer.maxHeight)
-      );
+    const clampedGap = Math.max(gap, Stave.minGap());
+    if (state.selection instanceof ScoreSelection) {
+      setGap(state.selection.staves(state.score), clampedGap);
+    } else {
+      settings.staveGap = clampedGap;
     }
     return Update.ViewChanged;
+  };
+}
+
+export function resetStaveGap() {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      setGap(state.selection.staves(state.score), 'auto');
+    } else {
+      settings.staveGap = Settings.defaultStaveGap;
+    }
+    return Update.ShouldSave;
   };
 }

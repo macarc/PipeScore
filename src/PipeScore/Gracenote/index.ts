@@ -374,10 +374,7 @@ export class CustomGracenote extends Gracenote {
   equals(other: Gracenote): boolean {
     return (
       other instanceof CustomGracenote &&
-      other.pitches.reduce(
-        (acc, p, i) => acc && this.pitches[i] === p,
-        true as boolean
-      )
+      other.pitches.every((p, i) => this.pitches[i] === p)
     );
   }
   drag(pitch: Pitch, index: number) {

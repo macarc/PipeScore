@@ -29,21 +29,15 @@ export type SavedData = SavedScore | { name: string; justCreated: true };
 export type SavedScore = {
   name: string;
   landscape: boolean;
-  _staves: (SavedStave | SavedStaveSpacer)[];
+  _staves: SavedStave[];
   textBoxes: SavedTextBoxPage[];
   secondTimings: SavedTiming[];
-  numberOfPages: number;
   showNumberOfPages: boolean;
   settings: SavedSettings;
 };
 
-export type SavedStaveSpacer = {
-  type: 'spacer';
-  height: number;
-};
-
 export type SavedStave = {
-  type: 'stave' | undefined;
+  gap: 'auto' | number | undefined;
   bars: SavedBar[];
 };
 

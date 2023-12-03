@@ -15,6 +15,7 @@ import {
   NoteLength,
 } from '../PipeScore/Note/notelength';
 import { Pitch } from '../PipeScore/global/pitch';
+import { sum } from '../PipeScore/global/utils';
 
 export const parse = (data: string) => new Parser(data).parse();
 
@@ -182,7 +183,6 @@ class PartialScore {
       _staves: [],
       landscape: true,
       textBoxes: [{ texts: [] }],
-      numberOfPages: 1,
       showNumberOfPages: true,
       secondTimings: this.timings,
       settings: new Settings().toJSON(),
@@ -192,7 +192,7 @@ class PartialScore {
   newStave() {
     this.endItem(this.currentBar().id);
 
-    this.score._staves.push({ type: 'stave', bars: this.currentStave });
+    this.score._staves.push({ gap: 'auto', bars: this.currentStave });
     this.currentStave = [emptyBar(this.timeSignature)];
     this.currentLineIsEmpty = true;
   }
@@ -272,9 +272,8 @@ class PartialScore {
       // We can now determine if the previous bar was an anacrusis.
       // This is a bit crude, but BWW has no concept of lead-ins
       // and I can't really think of a better metric
-      const barNoteLength = this.currentBar().notes.reduce(
-        (prev, note) => (prev += lengthInBeats(note.value.length)),
-        0
+      const barNoteLength = sum(
+        this.currentBar().notes.map((note) => lengthInBeats(note.value.length))
       );
       const ts = this.currentBar().timeSignature.ts;
       const barLength =
@@ -336,15 +335,6 @@ class PartialScore {
     this.accidental = pitch;
   }
 
-  // Get the stave, or return null if the item at index is a spacer
-  getStave(index: number) {
-    const stave = this.score._staves[index];
-    if (stave.type === 'stave') {
-      return stave;
-    }
-    return null;
-  }
-
   dotLastNote() {
     // All this is likely unnecessary since dots will almost always
     // come straight after a melody note
@@ -361,7 +351,7 @@ class PartialScore {
     };
     if (!dotLast(this.currentStave)) {
       for (let i = this.score._staves.length - 1; i >= 0; i--) {
-        if (dotLast(this.getStave(i)?.bars || [])) {
+        if (dotLast(this.score._staves[i].bars || [])) {
           break;
         }
       }

@@ -18,7 +18,7 @@ import { TimeSignature } from '../TimeSignature';
 import { NoteProps, Note, Triplet, lastNote } from '../Note';
 import { BaseNote } from '../Note/base';
 import { genId, ID, Item } from '../global/id';
-import { clamp, last, nlast } from '../global/utils';
+import { last, nlast } from '../global/utils';
 import width from '../global/width';
 import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
