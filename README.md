@@ -27,12 +27,13 @@ PipeScore is powered by:
 - Built-in documentation
 - Undo / Redo
 - Automatic note grouping and spacing
-- Automatic saving
 - Sharing using URLs
 - Playback
 - Parts, repeats, second timings
 - Ties, triplets, time signatures, text boxes
-- 8000 lines of code
+- Importing from the Bagpipe Music Writer format
+- Automatic saving, downloading and uploading of files
+- ~12000 lines of code
 
 ## Documentation
 
