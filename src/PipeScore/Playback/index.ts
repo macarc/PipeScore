@@ -31,6 +31,9 @@ import {
 } from './model';
 import { ID } from '../global/id';
 import { settings } from '../global/settings';
+import { dispatch } from '../Controller';
+import { updatePlaybackCursor } from '../Events/Playback';
+import { updateView } from '../Events/Misc';
 
 export * from './model';
 
@@ -58,15 +61,23 @@ class SoundedPitch {
   sample: AudioBufferSourceNode;
   pitch: Pitch;
   duration: number;
+  id: ID | null;
 
-  constructor(pitch: Pitch, duration: number, ctx: AudioContext) {
+  constructor(
+    pitch: Pitch,
+    duration: number,
+    ctx: AudioContext,
+    id: ID | null
+  ) {
     this.sample = pitchToSample(pitch).getSource(ctx);
     this.sample.connect(ctx.destination);
     this.pitch = pitch;
     this.duration = duration;
+    this.id = id;
   }
 
   async play(bpm: number) {
+    dispatch(updatePlaybackCursor(this.id));
     const duration = (1000 * this.duration * 60) / bpm;
     this.sample.start(0);
     await sleep(duration);
@@ -147,12 +158,12 @@ function expandRepeats(
   timings: PlaybackSecondTiming[],
   start: ID | null,
   end: ID | null
-): (PlaybackNote | PlaybackGracenote)[] {
+): (PlaybackNote | PlaybackGracenote | PlaybackObject)[] {
   let repeatStartIndex = 0;
   let repeatEndIndex = 0;
   let repeating = false;
   let timingOverRepeat: PlaybackSecondTiming | null = null;
-  let output: (PlaybackNote | PlaybackGracenote)[] = [];
+  let output: (PlaybackNote | PlaybackGracenote | PlaybackObject)[] = [];
 
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
@@ -194,6 +205,10 @@ function expandRepeats(
           }
         }
       }
+
+      if (!shouldDeleteBecauseOfSecondTimings(i, timings, repeating)) {
+        output.push(e);
+      }
     } else {
       if (!shouldDeleteBecauseOfSecondTimings(i, timings, repeating)) {
         output.push(e);
@@ -215,10 +230,15 @@ function getSoundedPitches(
   const gracenoteDuration = 0.044;
 
   const pitches: SoundedPitch[] = [];
+
+  let currentID: ID | null = null;
+
   for (let i = 0; i < elements.length; i++) {
     const e = elements[i];
     if (e instanceof PlaybackGracenote) {
-      pitches.push(new SoundedPitch(e.pitch, gracenoteDuration, ctx));
+      pitches.push(
+        new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID)
+      );
     } else if (e instanceof PlaybackNote) {
       let duration = e.duration;
       // If subsequent notes are tied, increase this note's duration
@@ -232,7 +252,9 @@ function getSoundedPitches(
       ) {
         duration += nextNote.duration;
       }
-      pitches.push(new SoundedPitch(e.pitch, duration, ctx));
+      pitches.push(new SoundedPitch(e.pitch, duration, ctx, currentID));
+    } else if (e instanceof PlaybackObject) {
+      currentID = e.id;
     } else {
       throw new Error('Unexpected playback element ' + e);
     }
@@ -295,4 +317,5 @@ async function play(
   }
 
   state.userPressedStop = false;
+  dispatch(updateView());
 }

@@ -136,6 +136,12 @@ export function print(): ScoreEvent {
       },
       textBoxState: { selectedText: null },
       preview: null,
+      playbackState: {
+        playing: false,
+        userPressedStop: false,
+        loading: false,
+        cursor: null,
+      },
       dispatch: () => null,
     };
 
@@ -198,4 +204,8 @@ export function download(): ScoreEvent {
 
 export function commit(): ScoreEvent {
   return async () => Update.ShouldSave;
+}
+
+export function updateView(): ScoreEvent {
+  return async () => Update.ViewChanged;
 }

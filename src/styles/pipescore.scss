@@ -357,3 +357,8 @@ label.text-coord {
   background-position: 0.8rem 0.6rem !important;
   background-size: 1.7rem 1.7rem !important;
 }
+
+.playback-cursor rect {
+  transition: x 0.1s, y 0.1s;
+  transition-timing-function: ease-out;
+}

@@ -40,6 +40,8 @@ import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
 import { SavedScore } from '../SavedModel';
 import { Relative } from '../global/relativeLocation';
+import { playbackCursor } from '../Playback/cursor';
+import { PlaybackState } from '../Playback/state';
 
 interface ScoreProps {
   selection: Selection | null;
@@ -47,6 +49,7 @@ interface ScoreProps {
   preview: Preview | null;
   noteState: NoteState;
   gracenoteState: GracenoteState;
+  playbackState: PlaybackState;
 }
 
 export class Score {
@@ -440,15 +443,15 @@ export class Score {
 
     return m(
       'div',
-      foreach(this.numberOfPages(), (i) => {
-        setXYPage(i);
+      foreach(this.numberOfPages(), (page) => {
+        setXYPage(page);
         return m(
           'svg',
           {
             width: (width * this.zoom) / 100,
             height: (height * this.zoom) / 100,
             viewBox: `0 0 ${width} ${height}`,
-            class: i.toString(),
+            class: page.toString(),
             onmouseup: () => dispatch(mouseUp()),
           },
           [
@@ -461,16 +464,21 @@ export class Score {
               onmousedown: () => dispatch(clickBackground()),
               onmouseover: () => dispatch(mouseOffPitch()),
             }),
-            ...splitStaves[i].map((stave) => stave.render(staveProps(stave))),
-            ...texts(i).map((textBox) =>
+            ...splitStaves[page].map((stave) =>
+              stave.render(staveProps(stave))
+            ),
+            ...texts(page).map((textBox) =>
               textBox.render({
                 scoreWidth: width,
                 selection: props.selection,
               })
             ),
-            ...this.timings.map((timing) => timing.render(timingProps(i))),
+            ...this.timings.map((timing) => timing.render(timingProps(page))),
             props.selection instanceof ScoreSelection &&
-              props.selection.render(selectionProps(i)),
+              props.selection.render(selectionProps(page)),
+
+            playbackCursor(props.playbackState, page),
+
             this.showNumberOfPages && this.numberOfPages() > 1
               ? m(
                   'text',
@@ -481,7 +489,7 @@ export class Score {
                       settings.margin +
                       settings.lineHeightOf(5),
                   },
-                  (i + 1).toString()
+                  (page + 1).toString()
                 )
               : null,
           ]

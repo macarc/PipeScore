@@ -20,6 +20,7 @@ import { State } from '../State';
 import { playback } from '../Playback';
 import { ScoreSelection } from '../Selection';
 import { settings } from '../global/settings';
+import { ID } from '../global/id';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {
@@ -67,7 +68,10 @@ export function playbackLoopingSelection(): ScoreEvent {
 
 export function stopPlayback(): ScoreEvent {
   return async (state: State) => {
-    if (state.playback.playing) state.playback.userPressedStop = true;
+    if (state.playback.playing) {
+      state.playback.userPressedStop = true;
+      return Update.ViewChanged;
+    }
     return Update.NoChange;
   };
 }
@@ -75,6 +79,16 @@ export function stopPlayback(): ScoreEvent {
 export function setPlaybackBpm(bpm: number): ScoreEvent {
   return async () => {
     settings.bpm = bpm;
+    return Update.NoChange;
+  };
+}
+
+export function updatePlaybackCursor(id: ID | null): ScoreEvent {
+  return async (state: State) => {
+    if (id !== state.playback.cursor) {
+      state.playback.cursor = id;
+      return Update.ViewChanged;
+    }
     return Update.NoChange;
   };
 }

@@ -41,7 +41,12 @@ const state: State = {
   isLoggedIn: false,
   justClickedNote: false,
   preview: null,
-  playback: { userPressedStop: false, playing: false, loading: true },
+  playback: {
+    userPressedStop: false,
+    playing: false,
+    loading: true,
+    cursor: null,
+  },
   menu: 'note',
   doc: { show: true, current: null },
   clipboard: null,
@@ -115,6 +120,7 @@ function redraw() {
               : emptyGracenoteState,
           selection: state.selection,
           preview: state.preview,
+          playbackState: state.playback,
         })
       )
     );
