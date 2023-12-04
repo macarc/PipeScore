@@ -7,7 +7,7 @@
 - [ ] Download playback
 - [ ] Actually useful triplets
 - [ ] 2 of 2. etc. play back correctly
-- [ ] Marker showing where playback is
+- [x] Marker showing where playback is
 
 ## Code stuff
 
