@@ -715,7 +715,10 @@ export default function render(state: UIState): m.Children {
           m(
             'button.double-width.text',
             {
-              disabled: state.isPlaying,
+              disabled:
+                state.isPlaying ||
+                (state.selectedNotes.length === 0 &&
+                  state.selectedBar === null),
               onclick: () => dispatch(startPlaybackAtSelection()),
             },
             'Play from Selection'
