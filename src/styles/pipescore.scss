@@ -82,7 +82,7 @@ input[type='range'] {
         outline: none;
       }
       &.selected {
-        background: lightblue;
+        background: lightskyblue;
       }
     }
   }
@@ -91,7 +91,7 @@ input[type='range'] {
   #topbar {
     display: flex;
     justify-content: space-between;
-    background: lightblue;
+    background: lightskyblue;
     padding: 1rem;
     width: calc(100% - 2rem);
     font-size: 0.8rem;
