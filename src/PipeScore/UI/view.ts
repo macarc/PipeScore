@@ -305,7 +305,7 @@ export default function render(state: UIState): m.Children {
         gracenoteInput('c-shake'),
         gracenoteInput('edre'),
         gracenoteInput('bubbly'),
-        gracenoteInput('toarluath'),
+        gracenoteInput('taorluath'),
         gracenoteInput('crunluath'),
       ]),
     ]),

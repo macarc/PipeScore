@@ -183,7 +183,7 @@ gracenotes.set('c-shake', (note, prev) => {
   return invalidateIf(note !== Pitch.D, pitches);
 });
 
-gracenotes.set('toarluath', (note, prev) => {
+gracenotes.set('taorluath', (note, prev) => {
   let pitches = [];
   if (prev === Pitch.D) {
     pitches = [Pitch.G, Pitch.B, Pitch.G, Pitch.E];
