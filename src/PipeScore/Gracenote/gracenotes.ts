@@ -132,6 +132,10 @@ gracenotes.set('edre', (note, prev) => {
     return valid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
   } else if (note === Pitch.F) {
     return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E]);
+  } else if (prev === Pitch.G && note === Pitch.D) {
+    return valid([Pitch.D, Pitch.G, Pitch.C]);
+  } else if (note === Pitch.D) {
+    return valid([Pitch.G, Pitch.D, Pitch.G, Pitch.C]);
   } else if (prev === Pitch.G && note === Pitch.B) {
     return valid([Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
   } else if (note === Pitch.B) {
@@ -253,9 +257,17 @@ gracenotes.set('g-gracenote-birl', (note, prev) => {
 });
 
 gracenotes.set('bubbly', (note, prev) => {
-  const notes =
+  if (note === Pitch.D) {
+    return valid(
+      prev === Pitch.G
+        ? [Pitch.D, Pitch.G, Pitch.C]
+        : [Pitch.G, Pitch.D, Pitch.G, Pitch.C]
+    );
+  }
+  return invalidateIf(
+    note !== Pitch.B,
     prev === Pitch.G
       ? [Pitch.D, Pitch.G, Pitch.C, Pitch.G]
-      : [Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G];
-  return invalidateIf(note !== Pitch.B, notes);
+      : [Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G]
+  );
 });
