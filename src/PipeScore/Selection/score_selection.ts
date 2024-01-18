@@ -95,6 +95,16 @@ export class ScoreSelection extends Selection {
         if (bar.hasID(this.end)) break all;
       }
     }
+
+    // If the next note after the selection is tied, untie it
+    if (notesToDelete.length > 0) {
+      const lastNote = notesToDelete[notesToDelete.length - 1][0];
+      const noteAfterLast = score.nextNote(lastNote.id);
+      if (noteAfterLast && noteAfterLast.isTied()) {
+        noteAfterLast.toggleTie(score.notes());
+      }
+    }
+
     notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
 
     if (deleteBars) {
