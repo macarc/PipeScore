@@ -218,6 +218,24 @@ function expandRepeats(
   return output;
 }
 
+// Collapses all adjacent notes with the same pitch to one note (with duration of both notes)
+// This fixes playback of tied notes
+function collapsePitches(pitches: SoundedPitch[]): SoundedPitch[] {
+  const collapsed: SoundedPitch[] = [];
+  let lastPitch: Pitch | null = null;
+
+  for (const pitch of pitches) {
+    if (pitch.pitch === lastPitch) {
+      collapsed[collapsed.length - 1].duration += pitch.duration;
+    } else {
+      collapsed.push(pitch);
+    }
+    lastPitch = pitch.pitch;
+  }
+
+  return collapsed;
+}
+
 function getSoundedPitches(
   elements: Playback[],
   timings: PlaybackSecondTiming[],
@@ -259,7 +277,7 @@ function getSoundedPitches(
       throw new Error('Unexpected playback element ' + e);
     }
   }
-  return pitches;
+  return collapsePitches(pitches);
 }
 
 export async function playback(
