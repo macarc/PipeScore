@@ -131,6 +131,7 @@ export abstract class BaseNote extends Item {
       if (note instanceof Triplet) {
         endGroup();
         groupedNotes.push(note);
+        remainingLength = findLengthOfGroup(++i);
       } else {
         if (remainingLength >= note.lengthInBeats()) {
           pushNote(note);
