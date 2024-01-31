@@ -117,7 +117,12 @@ export function deleteSelection(): ScoreEvent {
 
 function browserSupportsCopying() {
   // Notably, Firefox doesn't support this
-  return navigator && navigator.clipboard && navigator.clipboard.writeText !== undefined && navigator.clipboard.readText !== undefined;
+  return (
+    navigator &&
+    navigator.clipboard &&
+    navigator.clipboard.writeText !== undefined &&
+    navigator.clipboard.readText !== undefined
+  );
 }
 
 export function copy(): ScoreEvent {
@@ -129,7 +134,7 @@ export function copy(): ScoreEvent {
       const { bar: initBar } = state.score.location(notes[0].id);
       let currentBarId = initBar.id;
 
-      const noteList: (SavedNoteOrTriplet | 'bar-break')[] = []
+      const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
 
       notes.forEach((note) => {
         const { bar } = state.score.location(note.id);
@@ -141,12 +146,16 @@ export function copy(): ScoreEvent {
       });
 
       if (browserSupportsCopying()) {
-        navigator.clipboard.writeText(JSON.stringify({
-          "data-type": "pipescore-copied-notes",
-          notes: noteList
-        }));
+        navigator.clipboard.writeText(
+          JSON.stringify({
+            'data-type': 'pipescore-copied-notes',
+            notes: noteList,
+          })
+        );
       } else {
-        console.log("Browser doesn't support copying, falling back to PipeScore clipboard");
+        console.log(
+          "Browser doesn't support copying, falling back to PipeScore clipboard"
+        );
         state.clipboard = noteList;
       }
 
@@ -163,7 +172,9 @@ function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
     Bar.pasteNotes(
       notes
         // we have to copy (replace ID) here rather than when copying in case they paste it more than once
-        .map((note) => (typeof note === 'string' ? note : BaseNote.fromJSON(note).copy())),
+        .map((note) =>
+          typeof note === 'string' ? note : BaseNote.fromJSON(note).copy()
+        ),
       bar,
       id,
       state.score.bars()
@@ -182,24 +193,33 @@ function pasteFromPipeScoreClipboard(state: State) {
 
 export function paste(): ScoreEvent {
   return async (state: State) => {
-      if (browserSupportsCopying()) {
-        const text = await navigator.clipboard.readText();
-        try {
-          const pasted = JSON.parse(text);
-          if (pasted && pasted["data-type"] === "pipescore-copied-notes") {
-            const noteList = pasted["notes"] as (SavedNoteOrTriplet | 'bar-break')[];
-            return pasteNotes(state, noteList);
-          } else {
-            console.log("Pasted item wasn't notes, falling back to PipeScore clipboard");
-            return pasteFromPipeScoreClipboard(state);
-          }
-        } catch {
-          console.log("Couldn't parse pasted item, falling back to PipeScore clipboard");
+    if (browserSupportsCopying()) {
+      const text = await navigator.clipboard.readText();
+      try {
+        const pasted = JSON.parse(text);
+        if (pasted && pasted['data-type'] === 'pipescore-copied-notes') {
+          const noteList = pasted['notes'] as (
+            | SavedNoteOrTriplet
+            | 'bar-break'
+          )[];
+          return pasteNotes(state, noteList);
+        } else {
+          console.log(
+            "Pasted item wasn't notes, falling back to PipeScore clipboard"
+          );
           return pasteFromPipeScoreClipboard(state);
         }
-      } else {
-        console.log("Browser doesn't support pasting, falling back to PipeScore clipboard");
+      } catch {
+        console.log(
+          "Couldn't parse pasted item, falling back to PipeScore clipboard"
+        );
         return pasteFromPipeScoreClipboard(state);
       }
+    } else {
+      console.log(
+        "Browser doesn't support pasting, falling back to PipeScore clipboard"
+      );
+      return pasteFromPipeScoreClipboard(state);
+    }
   };
 }
