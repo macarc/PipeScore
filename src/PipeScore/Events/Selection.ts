@@ -19,6 +19,8 @@ import { State } from '../State';
 import { ScoreSelection } from '../Selection/score_selection';
 import { GracenoteSelection } from '../Selection';
 import { Bar } from '../Bar';
+import { SavedNoteOrTriplet } from '../SavedModel';
+import { BaseNote } from '../Note/base';
 
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {
@@ -113,45 +115,91 @@ export function deleteSelection(): ScoreEvent {
   };
 }
 
+function browserSupportsCopying() {
+  // Notably, Firefox doesn't support this
+  return navigator && navigator.clipboard && navigator.clipboard.writeText !== undefined && navigator.clipboard.readText !== undefined;
+}
+
 export function copy(): ScoreEvent {
   return async (state: State) => {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
+
     const notes = state.selection.notesAndTriplets(state.score);
     if (notes.length > 0) {
       const { bar: initBar } = state.score.location(notes[0].id);
       let currentBarId = initBar.id;
 
-      state.clipboard = [];
+      const noteList: (SavedNoteOrTriplet | 'bar-break')[] = []
+
       notes.forEach((note) => {
         const { bar } = state.score.location(note.id);
         if (currentBarId !== bar.id) {
-          state.clipboard?.push('bar-break');
+          noteList.push('bar-break');
           currentBarId = bar.id;
         }
-        state.clipboard?.push(note);
+        noteList.push(note.toJSON());
       });
+
+      if (browserSupportsCopying()) {
+        navigator.clipboard.writeText(JSON.stringify({
+          "data-type": "pipescore-copied-notes",
+          notes: noteList
+        }));
+      } else {
+        console.log("Browser doesn't support copying, falling back to PipeScore clipboard");
+        state.clipboard = noteList;
+      }
+
       return Update.NoChange;
     }
     return Update.NoChange;
   };
 }
 
+function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
+  if (state.selection instanceof ScoreSelection) {
+    const id = state.selection.start;
+    const { bar } = state.score.location(id);
+    Bar.pasteNotes(
+      notes
+        // we have to copy (replace ID) here rather than when copying in case they paste it more than once
+        .map((note) => (typeof note === 'string' ? note : BaseNote.fromJSON(note).copy())),
+      bar,
+      id,
+      state.score.bars()
+    );
+    return Update.ShouldSave;
+  }
+  return Update.NoChange;
+}
+
+function pasteFromPipeScoreClipboard(state: State) {
+  if (state.clipboard) {
+    return pasteNotes(state, state.clipboard);
+  }
+  return Update.NoChange;
+}
+
 export function paste(): ScoreEvent {
   return async (state: State) => {
-    if (state.selection instanceof ScoreSelection && state.clipboard) {
-      const id = state.selection.start;
-      const { bar } = state.score.location(id);
-      Bar.pasteNotes(
-        state.clipboard
-          .slice()
-          // we have to do it here rather than when copying in case they paste it more than once
-          .map((note) => (typeof note === 'string' ? note : note.copy())),
-        bar,
-        id,
-        state.score.bars()
-      );
-      return Update.ShouldSave;
-    }
-    return Update.NoChange;
+      if (browserSupportsCopying()) {
+        const text = await navigator.clipboard.readText();
+        try {
+          const pasted = JSON.parse(text);
+          if (pasted && pasted["data-type"] === "pipescore-copied-notes") {
+            const noteList = pasted["notes"] as (SavedNoteOrTriplet | 'bar-break')[];
+            return pasteNotes(state, noteList);
+          } else {
+            console.log("Pasted item wasn't notes, falling back to PipeScore clipboard");
+            return pasteFromPipeScoreClipboard(state);
+          }
+        } catch {
+          console.log("Couldn't parse pasted item, falling back to PipeScore clipboard");
+          return pasteFromPipeScoreClipboard(state);
+        }
+      } else {
+        console.log("Browser doesn't support pasting, falling back to PipeScore clipboard");
+        return pasteFromPipeScoreClipboard(state);
+      }
   };
 }

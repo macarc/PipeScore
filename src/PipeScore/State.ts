@@ -21,8 +21,8 @@ import { PlaybackState } from './Playback/state';
 import { Menu } from './UI/model';
 import { Score } from './Score';
 import { Selection } from './Selection';
-import { Note, Triplet } from './Note';
 import Documentation from './Documentation';
+import { SavedNoteOrTriplet } from './SavedModel';
 
 export type State = {
   canEdit: boolean;
@@ -31,7 +31,7 @@ export type State = {
   preview: Preview | null;
   menu: Menu;
   doc: { current: keyof typeof Documentation | null; show: boolean };
-  clipboard: (Note | Triplet | 'bar-break')[] | null;
+  clipboard: (SavedNoteOrTriplet | 'bar-break')[] | null;
   selection: Selection | null;
   history: { past: string[]; future: string[] };
   view: { ui: HTMLElement | null; score: HTMLElement | null };
