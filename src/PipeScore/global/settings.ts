@@ -19,12 +19,15 @@
 import { SavedSettings } from '../SavedModel';
 import { clamp } from './utils';
 
+const a4LongSide = 297; // in mm
+const a4ShortSide = 210; // in mm
+
 export class Settings {
   staveGap = Settings.defaultStaveGap;
   lineGap = 7;
   margin = 80;
-  pageLongSideLength = 297 * 5;
-  pageShortSideLength = 210 * 5;
+  pageLongSideLength = a4LongSide * 5;
+  pageShortSideLength = a4ShortSide * 5;
   gapAfterGracenote = 7;
   bpm = 80;
 
@@ -60,6 +63,12 @@ export class Settings {
   }
   lineHeightOf(n: number) {
     return n * this.lineGap;
+  }
+  pageLongSidePrintLength() {
+    return a4LongSide;
+  }
+  pageShortSidePrintLength() {
+    return a4ShortSide;
   }
 }
 

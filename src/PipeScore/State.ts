@@ -23,9 +23,10 @@ import { Score } from './Score';
 import { Selection } from './Selection';
 import Documentation from './Documentation';
 import { SavedNoteOrTriplet } from './SavedModel';
+import { Firestore } from './Firestore';
 
 export type State = {
-  canEdit: boolean;
+  store: Firestore | null;
   isLoggedIn: boolean;
   justClickedNote: boolean;
   preview: Preview | null;

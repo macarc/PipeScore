@@ -10,6 +10,7 @@
 - [x] Marker showing where playback is
 - [x] Playback ties properly
 - [ ] Snapping for text box dragging
+- [ ] View-only mode for mobile
 
 ## Code stuff
 

@@ -37,7 +37,7 @@ import {
   moveLeft,
   moveRight,
 } from './Events/Selection';
-import { undo, redo, print } from './Events/Misc';
+import { undo, redo, print, save } from './Events/Misc';
 import { Pitch } from './global/pitch';
 import { NoteLength } from './Note/notelength';
 
@@ -64,6 +64,11 @@ export function keyHandler(e: KeyboardEvent): void {
       case 'p':
         e.preventDefault();
         dispatch(print());
+        break;
+
+      case 's':
+        e.preventDefault();
+        dispatch(save());
         break;
     }
   } else if (!(document.activeElement instanceof HTMLInputElement)) {

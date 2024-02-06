@@ -157,6 +157,16 @@ export class Score {
       ? settings.pageShortSideLength
       : settings.pageLongSideLength;
   }
+  public printWidth() {
+    return this.landscape
+      ? settings.pageLongSidePrintLength()
+      : settings.pageShortSidePrintLength();
+  }
+  public printHeight() {
+    return this.landscape
+      ? settings.pageShortSidePrintLength()
+      : settings.pageLongSidePrintLength();
+  }
   public orientation() {
     return this.landscape ? 'landscape' : 'portrait';
   }

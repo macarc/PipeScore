@@ -93,6 +93,30 @@ input[type='range'] {
         background: lightskyblue;
       }
     }
+
+    span.save-text {
+      font-size: 0.8rem;
+      margin: 0 1rem;
+      margin-left: auto;
+      align-self: center;
+      justify-self: flex-end;
+
+      &.unsaved {
+        color: red;
+      }
+      &.saved {
+        color: green;
+      }
+    }
+
+    button.save {
+      background: lightskyblue;
+      margin-top: 0.1rem;
+      margin-right: 1rem;
+      border-radius: 0.3rem;
+      width: 4rem;
+      height: 1.8rem;
+    }
   }
 
   /* menu contents */

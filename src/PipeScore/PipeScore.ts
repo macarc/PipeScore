@@ -23,47 +23,24 @@ import { Score } from './Score';
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
-import { SavedData, scoreIsPresent } from './SavedModel';
+import { scoreIsPresent } from './SavedModel';
+import { Firestore } from './Firestore';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
+
+function parsePath() {
+  const path = window.location.pathname.split('/').slice(2);
+  if (path.length < 2) {
+    return null; //window.location.replace('/scores');
+  }
+  return path;
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('keydown', keyHandler);
 
   const auth = new Auth({ apiKey });
   const db = new Database({ projectId: 'pipe-score', auth });
-
-  async function save(
-    user: string,
-    score: string,
-    value: Score
-  ): Promise<SavedData | null> {
-    await db
-      .ref(`/scores/${user}/scores/${score}`)
-      .set(value.toJSON())
-      .catch(() => window.location.replace('/scores'));
-
-    return get(user, score);
-  }
-
-  function get(user: string, score: string): Promise<SavedData | null> {
-    return db
-      .ref(`scores/${user}/scores/${score}`)
-      .get()
-      .then((data) => data as unknown as SavedData)
-      .catch((e) => {
-        console.log('error when getting score: ', e);
-        return null;
-      });
-  }
-
-  function parsePath() {
-    const path = window.location.pathname.split('/').slice(2);
-    if (path.length < 2) {
-      return null; //window.location.replace('/scores');
-    }
-    return path;
-  }
   let alreadyStarted = false;
 
   onUserChange(auth, async (user) => {
@@ -77,32 +54,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         // it won't be saved, so coming here was probably a mistake
         window.location.replace('/scores');
       } else {
-        const opts = await quickStart();
-        startController(opts.toScore(), () => null, false);
+        startController(null, false);
       }
     } else {
       const [userid, scoreid] = path;
 
       if (user && user.localId === userid) {
-        const saveScore = (score: Score) => save(userid, scoreid, score);
-
-        const data = await get(userid, scoreid);
-        // If it is a new score, then it won't have staves
-        if (!data || !scoreIsPresent(data)) {
-          saveScore(new Score());
-          const opts = await quickStart();
-          const score = await save(userid, scoreid, opts.toScore());
-          if (!score || !scoreIsPresent(score))
-            throw new Error("Couldn't save score.");
-          startController(Score.fromJSON(score), saveScore, true);
-        } else {
-          startController(Score.fromJSON(data), saveScore, true);
-        }
+        const store = await Firestore.create(db, userid, scoreid);
+        startController(store, true);
       } else {
-        const score = await get(userid, scoreid);
-        if (score && scoreIsPresent(score)) {
-          startController(Score.fromJSON(score), () => null, false, false);
-        }
+        const store = await Firestore.create(db, userid, scoreid, true);
+        // FIXME : shouldn't this be true
+        startController(store, false);
       }
     }
   });

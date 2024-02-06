@@ -35,9 +35,11 @@ import Documentation from './Documentation';
 import { svgCoords } from './global/utils';
 import { startLoadingSamples } from './Playback';
 import { loadedAudio } from './Events/Misc';
+import { Firestore } from './Firestore';
+import quickStart from './QuickStart';
 
 const state: State = {
-  canEdit: true,
+  store: null,
   isLoggedIn: false,
   justClickedNote: false,
   preview: null,
@@ -56,22 +58,25 @@ const state: State = {
   view: { score: null, ui: null },
 };
 
-let save: (score: Score) => void = () => null;
-
 export async function dispatch(event: ScoreEvent): Promise<void> {
   const res = await event(state);
   if (res !== Update.NoChange) {
     updateView();
     if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
       state.score.updateName();
-      if (res === Update.ShouldSave && state.canEdit) {
-        const asJSON = JSON.stringify(state.score.toJSON());
-        if (state.history.past[state.history.past.length - 1] !== asJSON) {
-          state.history.past.push(asJSON);
+      if (
+        res === Update.ShouldSave &&
+        state.store &&
+        !state.store.isReadOnly()
+      ) {
+        const json = state.score.toJSON();
+        const jsonString = JSON.stringify(json);
+        if (state.history.past[state.history.past.length - 1] !== jsonString) {
+          state.history.past.push(jsonString);
           if (state.history.past.length > 30) state.history.past.shift();
           state.history.future = [];
+          state.store.save(json);
         }
-        save(state.score);
       }
     }
   }
@@ -129,7 +134,8 @@ function redraw() {
     m.render(
       state.view.ui,
       renderUI({
-        canEdit: state.canEdit,
+        saved: state.store ? state.store.isSaved() : false,
+        canEdit: !state.store?.isReadOnly(),
         canUndo: state.history.past.length > 1,
         canRedo: state.history.future.length > 0,
         loggedIn: state.isLoggedIn,
@@ -189,26 +195,36 @@ function mouseMove(event: MouseEvent) {
 }
 
 // Initial render, hooks event listeners
-export default function startController(
-  score: Score,
-  saveFn: (score: Score) => void,
-  isLoggedIn: boolean,
-  canEdit = true
-): void {
-  save = saveFn;
+export default async function startController(
+  store: Firestore | null,
+  isLoggedIn: boolean
+) {
   state.isLoggedIn = isLoggedIn;
-  state.canEdit = canEdit;
-  if (!state.canEdit) {
-    state.menu = 'playback';
+  state.store = store;
+
+  if (state.store) {
+    state.store.onCommit(() => updateView());
+
+    if (state.store.isReadOnly()) {
+      state.menu = 'playback';
+    }
+
+    const score = state.store.getSavedScore();
+    if (score) {
+      state.score = score;
+    } else {
+      throw new Error("Couldn't get starting score from Firestore.");
+    }
+  } else {
+    const opts = await quickStart();
+    state.score = opts.toScore();
   }
-  state.score = score;
+
   startLoadingSamples(() => dispatch(loadedAudio()));
-  state.history.past = [JSON.stringify(score.toJSON())];
+  state.history.past = [JSON.stringify(state.score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));
-  // initially set the notes to be the right groupings
   state.view.score = document.getElementById('score');
   state.view.ui = document.getElementById('interface');
-  save(state.score);
   updateView();
 }

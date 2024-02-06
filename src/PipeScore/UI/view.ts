@@ -47,6 +47,7 @@ import {
   setPageNumberVisibility,
   commit,
   download,
+  save,
 } from '../Events/Misc';
 import {
   addSecondTiming,
@@ -97,6 +98,7 @@ import { Relative } from '../global/relativeLocation';
 import { Stave } from '../Stave';
 
 export interface UIState {
+  saved: boolean;
   canEdit: boolean;
   canUndo: boolean;
   canRedo: boolean;
@@ -947,6 +949,20 @@ export default function render(state: UIState): m.Children {
           'help',
           m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
         ),
+        ...(state.canEdit
+          ? [
+              m(
+                'span.save-text',
+                { class: state.saved ? 'saved' : 'unsaved' },
+                state.saved ? 'All changes saved!' : 'Unsaved changes'
+              ),
+              m(
+                'button.save',
+                { disabled: state.saved, onclick: () => dispatch(save()) },
+                'Save'
+              ),
+            ]
+          : []),
       ]
     : [
         menuHead('playback'),

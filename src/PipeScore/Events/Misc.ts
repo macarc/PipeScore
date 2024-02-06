@@ -209,3 +209,11 @@ export function commit(): ScoreEvent {
 export function updateView(): ScoreEvent {
   return async () => Update.ViewChanged;
 }
+
+export function save(): ScoreEvent {
+  return async (state: State) => {
+    if (state.store) state.store.forceSave();
+
+    return Update.NoChange;
+  };
+}
