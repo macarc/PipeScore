@@ -20,7 +20,7 @@ import { ScoreSelection } from '../Selection/score_selection';
 import { GracenoteSelection } from '../Selection';
 import { Bar } from '../Bar';
 import { SavedNoteOrTriplet } from '../SavedModel';
-import { BaseNote } from '../Note/base';
+import { noteFromJSON, noteToJSON } from '../Note';
 
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {
@@ -142,7 +142,7 @@ export function copy(): ScoreEvent {
           noteList.push('bar-break');
           currentBarId = bar.id;
         }
-        noteList.push(note.toJSON());
+        noteList.push(noteToJSON(note));
       });
 
       if (browserSupportsCopying()) {
@@ -173,7 +173,7 @@ function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
       notes
         // we have to copy (replace ID) here rather than when copying in case they paste it more than once
         .map((note) =>
-          typeof note === 'string' ? note : BaseNote.fromJSON(note).copy()
+          typeof note === 'string' ? note : noteFromJSON(note).copy()
         ),
       bar,
       id,

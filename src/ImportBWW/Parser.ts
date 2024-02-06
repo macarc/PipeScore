@@ -9,15 +9,19 @@ import { Token, TokenType } from './token';
 import { TokenStream } from './Tokeniser';
 import { Settings } from '../PipeScore/global/settings';
 import { genId, ID } from '../PipeScore/global/id';
-import {
-  dotLength,
-  lengthInBeats,
-  NoteLength,
-} from '../PipeScore/Note/notelength';
 import { Pitch } from '../PipeScore/global/pitch';
 import { sum } from '../PipeScore/global/utils';
+import { NoteLength, Duration } from '../PipeScore/Note/notelength';
 
 export const parse = (data: string) => new Parser(data).parse();
+
+function dotDuration(d: Duration) {
+  return new NoteLength(d).dotted().duration();
+}
+
+function durationInBeats(d: Duration) {
+  return new NoteLength(d).inBeats();
+}
 
 type ParsedScore = {
   score: SavedScore;
@@ -84,20 +88,20 @@ enum TieingState {
   NewTieFormat,
 }
 
-function toNoteLength(length: string): NoteLength {
+function toDuration(length: string): Duration {
   switch (length) {
     case '1':
-      return NoteLength.Semibreve;
+      return Duration.Semibreve;
     case '2':
-      return NoteLength.Minim;
+      return Duration.Minim;
     case '4':
-      return NoteLength.Crotchet;
+      return Duration.Crotchet;
     case '8':
-      return NoteLength.Quaver;
+      return Duration.Quaver;
     case '16':
-      return NoteLength.SemiQuaver;
+      return Duration.SemiQuaver;
     case '32':
-      return NoteLength.DemiSemiQuaver;
+      return Duration.DemiSemiQuaver;
     default:
       throw new Error('Unrecognised note length');
   }
@@ -144,7 +148,7 @@ const emptyBar = (timeSignature: SavedTimeSignature): SavedBar => ({
 
 const emptyNote = (
   pitch: Pitch,
-  length: NoteLength,
+  length: Duration,
   tied: boolean,
   hasNatural: boolean,
   gracenote: SavedGracenote
@@ -197,7 +201,7 @@ class PartialScore {
     this.currentLineIsEmpty = true;
   }
 
-  newNote(pitch: Pitch, length: NoteLength) {
+  newNote(pitch: Pitch, length: Duration) {
     this.currentLineIsEmpty = false;
 
     const tieing =
@@ -250,12 +254,12 @@ class PartialScore {
         return note.value;
       }
     });
-    const notelength = notes[0].length;
+    const duration = notes[0].length;
     bar.notes.splice(bar.notes.length - 3, 3, {
       notetype: 'triplet',
       value: {
         id: genId(),
-        length: notelength,
+        length: duration,
         notes: notes,
       },
     });
@@ -272,14 +276,16 @@ class PartialScore {
       // We can now determine if the previous bar was an anacrusis.
       // This is a bit crude, but BWW has no concept of lead-ins
       // and I can't really think of a better metric
-      const barNoteLength = sum(
-        this.currentBar().notes.map((note) => lengthInBeats(note.value.length))
+      const barDuration = sum(
+        this.currentBar().notes.map((note) =>
+          durationInBeats(note.value.length)
+        )
       );
       const ts = this.currentBar().timeSignature.ts;
       const barLength =
         ts === 'cut time' || ts === 'common time' ? 4 : (ts[0] * 4) / ts[1];
 
-      if (barNoteLength < barLength / 2) {
+      if (barDuration < barLength / 2) {
         this.currentBar().isAnacrusis = true;
       }
     }
@@ -343,7 +349,7 @@ class PartialScore {
         const bar = this.currentStave[i];
         if (bar.notes.length > 0) {
           const note = bar.notes[bar.notes.length - 1];
-          note.value.length = dotLength(note.value.length);
+          note.value.length = dotDuration(note.value.length);
           return true;
         }
       }
@@ -547,7 +553,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
 
   [TokenType.MELODY_NOTE](t: Token) {
     const pitch = toPitch(t.value[1]);
-    const length = toNoteLength(t.value[3]);
+    const length = toDuration(t.value[3]);
     this.score.newNote(pitch, length);
   }
 

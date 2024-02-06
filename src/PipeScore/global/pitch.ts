@@ -100,7 +100,7 @@ export function pitchDown(pitch: Pitch): Pitch {
 }
 
 // Good Boys Deserve Football Always
-export function pitchOnLine(pitch: Pitch) {
+export function isPitchOnLine(pitch: Pitch) {
   return (
     pitch === Pitch.G ||
     pitch === Pitch.B ||
@@ -116,5 +116,5 @@ export const pitchOffset = (note: Pitch): number =>
   settings.lineHeightOf(pitchToHeight(note));
 
 // Calculates the y value of given note
-export const noteY = (staveY: number, note: Pitch): number =>
+export const pitchY = (staveY: number, note: Pitch): number =>
   staveY + pitchOffset(note);

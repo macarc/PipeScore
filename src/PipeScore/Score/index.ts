@@ -33,7 +33,7 @@ import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
 import { first, foreach, last, nlast, oneBefore, sum } from '../global/utils';
 
-import { Triplet } from '../Note';
+import { flattenTriplets } from '../Note';
 import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
 import { setXYPage } from '../global/xy';
@@ -327,7 +327,7 @@ export class Score {
     return this.bars().flatMap((bar) => bar.notesAndTriplets());
   }
   public notes() {
-    return Triplet.flatten(this.notesAndTriplets());
+    return flattenTriplets(this.notesAndTriplets());
   }
   public bars() {
     return this.staves().flatMap((stave) => stave.bars());

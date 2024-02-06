@@ -77,7 +77,7 @@ import {
   staveGapToDisplay,
 } from '../Events/Stave';
 import { help } from '../global/docs';
-import { isDotted, NoteLength, sameNoteLengthName } from '../Note/notelength';
+import { Duration, NoteLength } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
 import {
   Preview,
@@ -120,9 +120,9 @@ export interface UIState {
 }
 
 export default function render(state: UIState): m.Children {
-  const isCurrentNoteInput = (length: NoteLength) =>
+  const isCurrentNoteInput = (length: Duration) =>
     state.preview instanceof NotePreview &&
-    sameNoteLengthName(state.preview.length(), length);
+    state.preview.length().sameNoteLengthName(length);
 
   const inputtingNatural =
     state.preview instanceof NotePreview && state.preview.natural();
@@ -130,13 +130,13 @@ export default function render(state: UIState): m.Children {
   const allNotes = (pred: (note: Note) => boolean) =>
     state.selectedNotes.length > 0 && state.selectedNotes.every(pred);
 
-  const noteInputButton = (length: NoteLength) =>
+  const noteInputButton = (length: Duration) =>
     help(
       length as keyof typeof Documentation,
       m('button', {
         class:
           isCurrentNoteInput(length) ||
-          allNotes((note) => note.isLength(length))
+          allNotes((note) => note.length().sameNoteLengthName(length))
             ? 'highlighted'
             : 'not-highlighted',
         id: `note-${length}`,
@@ -220,13 +220,13 @@ export default function render(state: UIState): m.Children {
     m('section', [
       m('h2', 'Add Note'),
       m('div.section-content', [
-        noteInputButton(NoteLength.Semibreve),
-        noteInputButton(NoteLength.Minim),
-        noteInputButton(NoteLength.Crotchet),
-        noteInputButton(NoteLength.Quaver),
-        noteInputButton(NoteLength.SemiQuaver),
-        noteInputButton(NoteLength.DemiSemiQuaver),
-        noteInputButton(NoteLength.HemiDemiSemiQuaver),
+        noteInputButton(Duration.Semibreve),
+        noteInputButton(Duration.Minim),
+        noteInputButton(Duration.Crotchet),
+        noteInputButton(Duration.Quaver),
+        noteInputButton(Duration.SemiQuaver),
+        noteInputButton(Duration.DemiSemiQuaver),
+        noteInputButton(Duration.HemiDemiSemiQuaver),
       ]),
     ]),
     m('section', [
@@ -240,8 +240,8 @@ export default function render(state: UIState): m.Children {
               disabled: notInputtingNotes && noNotesSelected,
               class:
                 (state.preview instanceof NotePreview &&
-                  isDotted(state.preview.length())) ||
-                allNotes((note) => isDotted(note.lengthForInput()))
+                  state.preview.length().hasDot()) ||
+                allNotes((note) => note.length().hasDot())
                   ? 'highlighted'
                   : 'not-highlighted',
               onclick: () => dispatch(toggleDot()),

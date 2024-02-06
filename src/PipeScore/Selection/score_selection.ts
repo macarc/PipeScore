@@ -29,7 +29,7 @@ import m from 'mithril';
 import { Score } from '../Score';
 import { Stave } from '../Stave';
 import { Bar } from '../Bar';
-import { Note, Triplet } from '../Note';
+import { Note, Triplet, flattenTriplets } from '../Note';
 import { Gracenote } from '../Gracenote';
 import { Relative } from '../global/relativeLocation';
 
@@ -208,7 +208,7 @@ export class ScoreSelection extends Selection {
     all: for (const bar of bars) {
       if (bar.hasID(this.start)) foundStart = true;
       const barNotes = splitUpTriplets
-        ? Triplet.flatten(bar.notesAndTriplets())
+        ? flattenTriplets(bar.notesAndTriplets())
         : bar.notesAndTriplets();
       for (const note of barNotes) {
         if (note.hasID(this.start)) foundStart = true;

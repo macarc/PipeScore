@@ -18,7 +18,7 @@
 
 import { ID } from './global/id';
 import { Pitch } from './global/pitch';
-import { NoteLength } from './Note/notelength';
+import { Duration } from './Note/notelength';
 
 export function scoreIsPresent(data: SavedData): data is SavedScore {
   return (data as { justCreated: true }).justCreated !== true;
@@ -63,7 +63,7 @@ export type SavedTimeSignature = {
 export type SavedNote = {
   id: ID | undefined;
   pitch: Pitch;
-  length: NoteLength;
+  length: Duration;
   tied: boolean;
   hasNatural: boolean | undefined;
   gracenote: SavedGracenote;
@@ -71,7 +71,7 @@ export type SavedNote = {
 
 export type SavedTriplet = {
   id: ID | undefined;
-  length: NoteLength;
+  length: Duration;
   notes: SavedNote[];
 };
 

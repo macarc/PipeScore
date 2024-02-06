@@ -26,7 +26,7 @@ import { Bar } from '../Bar';
 import { Pitch } from '../global/pitch';
 import { ReactiveGracenote } from '../Gracenote';
 import { Note } from '../Note';
-import { dotLength, NoteLength } from '../Note/notelength';
+import { NoteLength } from '../Note/notelength';
 import { Previews } from './previews';
 
 export interface Preview {
@@ -125,12 +125,6 @@ export class NotePreview extends BasePreview<Note> {
   }
   public length() {
     return this._length;
-  }
-  public setLength(length: NoteLength) {
-    this._length = length;
-  }
-  public toggleDot() {
-    this._length = dotLength(this._length);
   }
   protected parent() {
     return this.bar;

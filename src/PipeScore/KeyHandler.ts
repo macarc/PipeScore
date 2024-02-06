@@ -39,7 +39,7 @@ import {
 } from './Events/Selection';
 import { undo, redo, print, save } from './Events/Misc';
 import { Pitch } from './global/pitch';
-import { NoteLength } from './Note/notelength';
+import { Duration } from './Note/notelength';
 
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;
@@ -122,25 +122,25 @@ export function keyHandler(e: KeyboardEvent): void {
         break;
 
       case '1':
-        dispatch(setInputLength(NoteLength.Semibreve));
+        dispatch(setInputLength(Duration.Semibreve));
         break;
       case '2':
-        dispatch(setInputLength(NoteLength.Minim));
+        dispatch(setInputLength(Duration.Minim));
         break;
       case '3':
-        dispatch(setInputLength(NoteLength.Crotchet));
+        dispatch(setInputLength(Duration.Crotchet));
         break;
       case '4':
-        dispatch(setInputLength(NoteLength.Quaver));
+        dispatch(setInputLength(Duration.Quaver));
         break;
       case '5':
-        dispatch(setInputLength(NoteLength.SemiQuaver));
+        dispatch(setInputLength(Duration.SemiQuaver));
         break;
       case '6':
-        dispatch(setInputLength(NoteLength.DemiSemiQuaver));
+        dispatch(setInputLength(Duration.DemiSemiQuaver));
         break;
       case '7':
-        dispatch(setInputLength(NoteLength.HemiDemiSemiQuaver));
+        dispatch(setInputLength(Duration.HemiDemiSemiQuaver));
         break;
 
       case 'g':

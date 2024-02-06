@@ -26,7 +26,7 @@
 import m from 'mithril';
 import { clickGracenote } from '../Events/Gracenote';
 import { settings } from '../global/settings';
-import { noteY, Pitch, pitchUp, pitchDown } from '../global/pitch';
+import { pitchY, Pitch, pitchUp, pitchDown } from '../global/pitch';
 import { GracenoteNoteList, noteList, gracenotes } from './gracenotes';
 import { GracenoteState } from './state';
 import { PlaybackGracenote } from '../Playback';
@@ -197,7 +197,7 @@ export abstract class Gracenote {
     ]);
   }
   renderSingle(note: Pitch, props: GracenoteProps) {
-    const y = noteY(props.y, note);
+    const y = pitchY(props.y, note);
     const wholeSelected =
       props.state.selected?.gracenote === this &&
       props.state.selected?.note === 'all';
@@ -240,7 +240,7 @@ export abstract class Gracenote {
 
     const x = (i: number) =>
       props.x + settings.gapAfterGracenote / 2 + i * gracenoteHeadGap;
-    const y = (p: Pitch) => noteY(props.y, p);
+    const y = (p: Pitch) => pitchY(props.y, p);
 
     if (pitches.length === 0) {
       return m('g');
