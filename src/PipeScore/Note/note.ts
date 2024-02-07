@@ -18,6 +18,7 @@
 
 import { Gracenote, NoGracenote } from '../Gracenote';
 import { Playback, PlaybackNote, PlaybackObject } from '../Playback';
+import { Previews } from '../Preview/previews';
 import { SavedNote } from '../SavedModel';
 import { Item, genId } from '../global/id';
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
@@ -29,7 +30,7 @@ export interface PreviousNote {
   y: number;
 }
 
-export class Note extends Item {
+export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
   private _length: NoteLength;
   private _pitch: Pitch;
   private _gracenote: Gracenote;

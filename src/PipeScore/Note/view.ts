@@ -95,7 +95,7 @@ function shouldDrawTie(note: Note, previous: Note | null) {
 }
 
 // Draws beams from left note to right note
-function beamFrom(
+function drawBeam(
   xL: number,
   xR: number,
   y: number,
@@ -466,22 +466,19 @@ export function drawNoteGroup(notes: Note[], props: NoteProps) {
               state: props.gracenoteState,
             }),
 
-        previousNote !== null && index > 0
-          ? beamFrom(
-              x(index - 1),
-              x(index),
-              stemY,
-              previousNote.length().numTails(),
-              note.length().numTails(),
-              (notes[index - 2] && notes[index - 2].length().numTails()) ||
-                null,
-              (notes[index + 1] && notes[index + 1].length().numTails()) ||
-                null,
-              shortBeamDirection(previousNote, index - 1),
-              shortBeamDirection(note, index)
-            )
-          : null,
-
+        previousNote !== null &&
+          index > 0 &&
+          drawBeam(
+            x(index - 1),
+            x(index),
+            stemY,
+            previousNote.length().numTails(),
+            note.length().numTails(),
+            (notes[index - 2] && notes[index - 2].length().numTails()) || null,
+            (notes[index + 1] && notes[index + 1].length().numTails()) || null,
+            shortBeamDirection(previousNote, index - 1),
+            shortBeamDirection(note, index)
+          ),
         note.length().hasStem()
           ? [
               notes.length === 1 && drawTails(note, x(index), y(index)),

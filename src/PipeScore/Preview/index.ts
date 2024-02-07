@@ -62,6 +62,9 @@ abstract class BasePreview<U> implements Preview {
   protected noteAfter: Note | null = null;
   protected justMadeReal = false;
 
+  protected abstract parent(): Previews<U> | null;
+  protected abstract toPreview(): U | null;
+
   setLocation(bar: Bar, noteBefore: Note | null, noteAfter: Note | null) {
     if (
       bar !== this.bar ||
@@ -77,6 +80,7 @@ abstract class BasePreview<U> implements Preview {
     }
     return false;
   }
+
   setPitch(pitch: Pitch | null) {
     if (pitch !== this._pitch || this.justMadeReal) {
       this.justMadeReal = false;
@@ -87,13 +91,16 @@ abstract class BasePreview<U> implements Preview {
     }
     return false;
   }
+
   stop() {
     this.parent()?.removePreview();
   }
+
   makeReal(notes: Note[]) {
     this.parent()?.makePreviewReal(notes);
     this.justMadeReal = true;
   }
+
   justAdded() {
     return this.justMadeReal;
   }
@@ -104,8 +111,6 @@ abstract class BasePreview<U> implements Preview {
     if (this._pitch && preview)
       this.parent()?.setPreview(preview, this.noteBefore, this.noteAfter);
   }
-  protected abstract parent(): Previews<U> | null;
-  protected abstract toPreview(): U | null;
 }
 
 export class NotePreview extends BasePreview<Note> {
@@ -117,18 +122,23 @@ export class NotePreview extends BasePreview<Note> {
     this._length = length;
     this._natural = false;
   }
+
   public natural() {
     return this._natural;
   }
+
   public toggleNatural() {
     this._natural = !this._natural;
   }
+
   public length() {
     return this._length;
   }
+
   protected parent() {
     return this.bar;
   }
+
   protected toPreview() {
     return (
       this._pitch &&
@@ -144,6 +154,7 @@ export class CustomGracenotePreview extends BasePreview<Pitch> {
   protected parent() {
     return this.noteAfter;
   }
+
   protected toPreview() {
     return this._pitch;
   }
@@ -156,13 +167,16 @@ export class ReactiveGracenotePreview extends BasePreview<ReactiveGracenote> {
     super();
     this.name = name;
   }
+
+  public isInputting(name: string) {
+    return name === this.name;
+  }
+
   protected parent() {
     return this.noteAfter;
   }
+
   protected toPreview() {
     return new ReactiveGracenote(this.name);
-  }
-  public isInputting(name: string) {
-    return name === this.name;
   }
 }
