@@ -186,7 +186,7 @@ function expandRepeats(
     } else if (e instanceof PlaybackObject) {
       if (e.type === 'object-start' && e.id === start) {
         output = [];
-        start = -1;
+        start = null;
       }
       if (e.type === 'object-end') {
         if (e.id === end) {
@@ -200,8 +200,6 @@ function expandRepeats(
             if (i === timingOverRepeat.end) {
               repeating = false;
             }
-          } else {
-            repeating = false;
           }
         }
       }
