@@ -152,7 +152,8 @@ export function getXYRangeForPage(
   start: ID,
   end: ID,
   page: number,
-  score: Score
+  score: Score,
+  checkAfterX = false
 ) {
   const a = getXY(start);
   const b = getXY(end);
@@ -163,8 +164,16 @@ export function getXYRangeForPage(
   }
 
   if (a && b) {
-    const start = itemOrFirstOnPage(before(a, b) ? a : b, page, score);
-    const end = itemOrLastOnPage(before(a, b) ? b : a, page, score);
+    const start = itemOrFirstOnPage(
+      before(a, b, checkAfterX) ? a : b,
+      page,
+      score
+    );
+    const end = itemOrLastOnPage(
+      before(a, b, checkAfterX) ? b : a,
+      page,
+      score
+    );
     if (start && end) return { start, end };
   }
 

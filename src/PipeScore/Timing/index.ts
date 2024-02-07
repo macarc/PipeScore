@@ -128,9 +128,16 @@ export abstract class Timing {
     // if true, draw the vertical line at the end
     // if true, we use b.afterX, otherwise we use b.beforeX
     drawUntilAfterB: boolean,
-    props: TimingProps
+    props: TimingProps,
+    lastLine: boolean
   ): m.Children {
-    const { start, end } = getXYRangeForPage(a, b, props.page, props.score);
+    const { start, end } = getXYRangeForPage(
+      a,
+      b,
+      props.page,
+      props.score,
+      lastLine
+    );
 
     if (start && end) {
       const bXY = getXY(b);
@@ -347,7 +354,8 @@ export class SecondTiming extends Timing {
         (first) => dispatch(clickTiming(this, first ? 'start' : 'middle')),
         () => dispatch(editTimingText(this)),
         false,
-        props
+        props,
+        true
       ),
       this.lineFrom(
         this.middle,
@@ -356,7 +364,8 @@ export class SecondTiming extends Timing {
         (first) => dispatch(clickTiming(this, first ? 'middle' : 'end')),
         () => dispatch(editTimingText(this)),
         true,
-        props
+        props,
+        true
       ),
     ]);
   }
@@ -438,7 +447,8 @@ export class SingleTiming extends Timing {
         (first) => dispatch(clickTiming(this, first ? 'start' : 'end')),
         () => dispatch(editTimingText(this)),
         true,
-        props
+        props,
+        true
       ),
     ]);
   }
