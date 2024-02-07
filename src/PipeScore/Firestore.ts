@@ -33,7 +33,6 @@ export class Firestore {
   private readonly: boolean;
   private editsSinceSave = 0;
   private oncommit: () => void = () => null;
-  // FIXME : storing this here currently duplicates state with State.score
   private score: SavedScore = new Score().toJSON();
 
   private constructor(
@@ -62,7 +61,7 @@ export class Firestore {
     // If it is a new score, then it won't have staves
     if (!data || !scoreIsPresent(data)) {
       const opts = await quickStart();
-      store.score = opts.toScore().toJSON();
+      store.save(opts.toScore().toJSON());
       await store.commit();
       const score = await store.pull();
       if (!score || !scoreIsPresent(score))
