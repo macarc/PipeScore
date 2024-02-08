@@ -189,10 +189,10 @@ export function toggleDot(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       state.selection
         .notesAndTriplets(state.score)
-        .forEach((note) => note.length().toggleDot());
+        .forEach((note) => note.setLength(note.length().dotted()));
     }
     if (state.preview instanceof NotePreview)
-      state.preview.length().toggleDot();
+      state.preview.setLength(state.preview.length().dotted());
     return Update.ShouldSave;
   };
 }
@@ -248,7 +248,7 @@ export function setInputLength(length: Duration): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notesAndTriplets(state.score);
-      if (notes.length > 0) notes.forEach((note) => note.length().set(length));
+      if (notes.length > 0) notes.forEach((note) => note.setLength(new NoteLength(length)));
       else {
         stopInputtingNotes(state);
         state.preview = new NotePreview(new NoteLength(length));
@@ -257,7 +257,7 @@ export function setInputLength(length: Duration): ScoreEvent {
       if (state.preview.length().sameNoteLengthName(length)) {
         stopInputtingNotes(state);
       } else {
-        state.preview.length().set(length);
+        state.preview.setLength(new NoteLength(length));
       }
     } else {
       state.selection = null;

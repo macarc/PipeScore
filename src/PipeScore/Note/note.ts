@@ -124,6 +124,10 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     return this._length;
   }
 
+  public setLength(length: NoteLength) {
+    this._length = length;
+  }
+
   public hasPreview() {
     return this.previewGracenote !== null;
   }

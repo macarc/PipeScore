@@ -135,6 +135,10 @@ export class NotePreview extends BasePreview<Note> {
     return this._length;
   }
 
+  public setLength(length: NoteLength) {
+    this._length = length;
+  }
+
   protected parent() {
     return this.bar;
   }

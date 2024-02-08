@@ -84,11 +84,15 @@ export class Triplet extends Item {
   }
 
   public ensureNotesAreCorrectLength() {
-    this._notes.forEach((note) => note.length().set(this._length));
+    this._notes.forEach((note) => note.setLength(this._length));
   }
 
   public length() {
     return this._length;
+  }
+
+  public setLength(length: NoteLength) {
+    this._length = length;
   }
 
   public play(previous: Pitch | null) {

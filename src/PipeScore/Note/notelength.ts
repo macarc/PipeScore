@@ -164,16 +164,4 @@ export class NoteLength {
       Duration.DottedHemiDemiSemiQuaver,
     ].includes(this._duration);
   }
-
-  set(length: NoteLength | Duration) {
-    if (isNoteLength(length)) {
-      this._duration = length._duration;
-    } else {
-      this._duration = length;
-    }
-  }
-
-  toggleDot() {
-    this.set(this.dotted());
-  }
 }
