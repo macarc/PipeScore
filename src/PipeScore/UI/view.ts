@@ -77,7 +77,7 @@ import {
   staveGapToDisplay,
 } from '../Events/Stave';
 import { help } from '../global/docs';
-import { Duration, NoteLength } from '../Note/notelength';
+import { Duration } from '../Note/notelength';
 import { Barline } from '../Bar/barline';
 import {
   Preview,

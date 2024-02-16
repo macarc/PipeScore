@@ -248,7 +248,8 @@ export function setInputLength(length: Duration): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notesAndTriplets(state.score);
-      if (notes.length > 0) notes.forEach((note) => note.setLength(new NoteLength(length)));
+      if (notes.length > 0)
+        notes.forEach((note) => note.setLength(new NoteLength(length)));
       else {
         stopInputtingNotes(state);
         state.preview = new NotePreview(new NoteLength(length));

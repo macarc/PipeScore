@@ -18,12 +18,9 @@
 
 import { keyHandler } from './KeyHandler';
 import startController from './Controller';
-import quickStart from './QuickStart';
-import { Score } from './Score';
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
-import { scoreIsPresent } from './SavedModel';
 import { Firestore } from './Firestore';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
@@ -31,7 +28,7 @@ const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 function parsePath() {
   const path = window.location.pathname.split('/').slice(2);
   if (path.length < 2) {
-    return null; //window.location.replace('/scores');
+    return null; // window.location.replace('/scores');
   }
   return path;
 }

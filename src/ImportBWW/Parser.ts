@@ -179,7 +179,7 @@ class PartialScore {
 
   private score: SavedScore;
 
-  public currentLineIsEmpty: boolean = true;
+  public currentLineIsEmpty = true;
 
   constructor() {
     this.score = {
@@ -345,8 +345,8 @@ class PartialScore {
     // All this is likely unnecessary since dots will almost always
     // come straight after a melody note
     const dotLast = (stave: SavedBar[]) => {
-      for (let i = this.currentStave.length - 1; i >= 0; i--) {
-        const bar = this.currentStave[i];
+      for (let i = stave.length - 1; i >= 0; i--) {
+        const bar = stave[i];
         if (bar.notes.length > 0) {
           const note = bar.notes[bar.notes.length - 1];
           note.value.length = dotDuration(note.value.length);

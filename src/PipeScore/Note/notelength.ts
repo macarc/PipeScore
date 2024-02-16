@@ -30,10 +30,6 @@ export const enum Duration {
   HemiDemiSemiQuaver = 'hdsq',
 }
 
-function isNoteLength(length: NoteLength | Duration): length is NoteLength {
-  return (length as NoteLength)._duration !== undefined;
-}
-
 export class NoteLength {
   _duration: Duration;
 
