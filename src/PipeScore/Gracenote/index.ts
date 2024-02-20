@@ -308,6 +308,9 @@ export class ReactiveGracenote extends Gracenote {
     }
   }
   static fromObject(o: SavedReactiveGracenote) {
+    // Note: fix typo in older versions of PipeScore
+    if (o.grace === 'toarluath') o.grace = 'taorluath';
+
     return new ReactiveGracenote(o.grace);
   }
   toObject(): SavedReactiveGracenote {
