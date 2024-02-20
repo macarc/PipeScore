@@ -20,6 +20,7 @@ import m from 'mithril';
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { GracenoteState } from '../Gracenote/state';
+import { Note } from '../Note';
 import { NoteState } from '../Note/state';
 import { SavedStave } from '../SavedModel';
 import { TimeSignature } from '../TimeSignature';
@@ -59,6 +60,7 @@ export class Stave {
     ];
     this._gap = 'auto';
   }
+
   public static fromJSON(o: SavedStave) {
     const st = new Stave();
     st._bars = o.bars.map(Bar.fromJSON);
@@ -72,44 +74,55 @@ export class Stave {
 
     return st;
   }
+
   public toJSON(): SavedStave {
     return {
       gap: this._gap,
       bars: this._bars.map((bar) => bar.toJSON()),
     };
   }
+
   public setGap(gap: 'auto' | number) {
     this._gap = gap;
   }
+
   public gap() {
     return this._gap;
   }
+
   public gapAsNumber() {
     return this._gap === 'auto' ? settings.staveGap : this._gap;
   }
+
   public static minHeight() {
     return settings.lineHeightOf(4) + settings.staveGap;
   }
+
   public height() {
     return settings.lineHeightOf(4) + this.gapAsNumber();
   }
+
   public numberOfBars() {
     return this._bars.length;
   }
+
   public insertBar(bar: Bar) {
     this._bars.unshift(bar);
     bar.fixedWidth = 'auto';
   }
+
   public appendBar(bar: Bar) {
     this._bars.push(bar);
     bar.fixedWidth = 'auto';
   }
+
   public deleteBar(bar: Bar) {
     const index = this._bars.indexOf(bar);
     this._bars.splice(index, 1);
     if (index === this._bars.length && this._bars.length > 0)
       nlast(this._bars).fixedWidth = 'auto';
   }
+
   public includesID(id: ID) {
     for (const bar of this.bars()) {
       if (bar.hasID(id) || bar.includesNote(id)) {
@@ -118,25 +131,31 @@ export class Stave {
     }
     return false;
   }
+
   public firstBar() {
     return first(this._bars);
   }
+
   public lastBar() {
     return last(this._bars);
   }
+
   public bars() {
     return this._bars;
   }
-  public previousNote(id: ID) {
+
+  public previousNote(id: ID): Note | null {
     return Bar.previousNote(id, this.bars());
   }
-  public previousBar(bar: Bar) {
+
+  public previousBar(bar: Bar): Bar | null {
     return this._bars[this._bars.indexOf(bar) - 1] || null;
   }
 
   public partFirst() {
     this.firstBar()?.setBarline('start', Barline.part);
   }
+
   public partLast() {
     this.lastBar()?.setBarline('end', Barline.part);
   }
@@ -144,6 +163,7 @@ export class Stave {
   public repeatFirst() {
     this.firstBar()?.setBarline('start', Barline.repeat);
   }
+
   public repeatLast() {
     this.lastBar()?.setBarline('end', Barline.repeat);
   }
@@ -153,12 +173,14 @@ export class Stave {
     const ind = where === Relative.before ? barInd : barInd + 1;
     this._bars.splice(ind, 0, newBar);
   }
+
   public play(previous: Stave | null) {
     return this._bars.flatMap((b, i) =>
-      b.play(i === 0 ? previous && previous.lastBar() : this._bars[i - 1])
+      b.play(i === 0 ? previous?.lastBar() || null : this._bars[i - 1])
     );
   }
-  // The algorithm for computing bar widths is thusly:
+
+  // The algorithm for computing bar widths is:
   // - Ignoring anacruses, work out the average bar width
   // - Each anacruses should be its .anacrusisWidth()
   // - Each fixedWidth bar m (i.e. each bar where the barline has been dragged
@@ -185,19 +207,20 @@ export class Stave {
     return this._bars.map((bar, i) => {
       if (bar.isAnacrusis) {
         return bar.anacrusisWidth(previousBar(i));
-      } else if (bar.fixedWidth !== 'auto') {
+      }
+      if (bar.fixedWidth !== 'auto') {
         extraWidth += bar.fixedWidth - averageBarWidth;
         return bar.fixedWidth;
-      } else {
-        const width = averageBarWidth - extraWidth;
-        if (width <= 0) {
-          console.error(`Bar has width ${width}!`);
-        }
-        extraWidth = 0;
-        return width;
       }
+      const width = averageBarWidth - extraWidth;
+      if (width <= 0) {
+        console.error(`Bar has width ${width}!`);
+      }
+      extraWidth = 0;
+      return width;
     });
   }
+
   public renderTrebleClef(x: number, y: number) {
     const scale = 0.00034 * settings.lineHeightOf(5);
     const baseline = 8149 * scale;
@@ -217,6 +240,7 @@ export class Stave {
       })
     );
   }
+
   public render(props: StaveProps): m.Children {
     const staveY = props.y + this.gapAsNumber();
 
@@ -224,8 +248,8 @@ export class Stave {
 
     const previousBar = (barIdx: number) =>
       barIdx === 0
-        ? props.previousStave && props.previousStave.lastBar()
-        : this._bars[barIdx - 1] || null;
+        ? props.previousStave?.lastBar() || null
+        : this._bars[barIdx - 1];
 
     const widths = this.computeBarWidths(props.width, previousBar);
     const width = (index: number) => widths[index];
@@ -266,9 +290,8 @@ export class Stave {
           // If the end of the bar would overlap with the next bar, can't resize
           if (barRHS > furthestRightPossibleNextLHS) {
             return false;
-          } else {
-            return true;
           }
+          return true;
         }
 
         // If there's no next bar, we're at the end of the stave, so can't resize
@@ -277,7 +300,7 @@ export class Stave {
       resize: (widthChange: number) => {
         // Subtract width change from the next bar, to make space for this bar
         const next = this._bars[index + 1];
-        if (next && next.fixedWidth !== 'auto') {
+        if (next?.fixedWidth !== 'auto') {
           next.fixedWidth -= widthChange;
         }
       },

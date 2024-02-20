@@ -226,7 +226,7 @@ export class Bar extends Item implements Previews<Note> {
   }
 
   public setPreview(note: Note, _: Note | null, noteAfter: Note | null) {
-    if (noteAfter && noteAfter.isPreview()) {
+    if (noteAfter?.isPreview()) {
       this._notes.splice(this._notes.indexOf(noteAfter), 1, note);
       this.previewNote = note;
     } else {
@@ -270,8 +270,7 @@ export class Bar extends Item implements Previews<Note> {
   }
 
   private lastPitch() {
-    const lastNote = this.lastNote();
-    return lastNote && lastNote.pitch();
+    return this.lastNote()?.pitch() || null;
   }
 
   public lastNote() {
@@ -354,9 +353,9 @@ export class Bar extends Item implements Previews<Note> {
   }
 
   public minWidth(previousBar: Bar | null) {
-    const previousPitch = previousBar && previousBar.lastPitch();
+    const previousPitch = previousBar?.lastPitch() || null;
     const { total } = this.noteOffsets(previousPitch, this.nonPreviewNotes());
-    const previousTimeSignature = previousBar && previousBar.timeSignature();
+    const previousTimeSignature = previousBar?.timeSignature() || null;
     const drawTimeSignature =
       previousTimeSignature && !this.ts.equals(previousTimeSignature);
     return Math.max(
@@ -368,19 +367,18 @@ export class Bar extends Item implements Previews<Note> {
   // Returns an array where the nth item is the offset of the nth note
   // from the start of the bar.
   private noteOffsets(previousPitch: Pitch | null, notes: (Note | Triplet)[]) {
-    const widths = notes.reduce(
-      (soFar, n, index) => [
-        ...soFar,
+    const widths = [width.zero()];
+    for (let i = 0; i < notes.length; i++) {
+      widths.push(
         width.add(
-          nlast(soFar),
+          nlast(widths),
           noteOrTripletWidth(
-            n,
-            index === 0 ? previousPitch : lastNote(notes[index - 1]).pitch()
+            notes[i],
+            i === 0 ? previousPitch : lastNote(notes[i - 1]).pitch()
           )
-        ),
-      ],
-      [width.zero()]
-    );
+        )
+      );
+    }
 
     // In bars with single notes, we want to display the note forward of the middle,
     // so add a bit on the end.
@@ -412,7 +410,7 @@ export class Bar extends Item implements Previews<Note> {
         note
           .play(
             i === 0
-              ? previous && previous.lastPitch()
+              ? previous?.lastPitch() || null
               : lastNote(this._notes[i - 1]).pitch()
           )
           .map((p) =>
@@ -448,8 +446,8 @@ export class Bar extends Item implements Previews<Note> {
 
     const groupedNotes = groupNotes(actualNotes, this.ts.beatDivision());
 
-    const previousNote = props.previousBar && props.previousBar.lastNote();
-    const previousPitch = props.previousBar && props.previousBar.lastPitch();
+    const previousNote = props.previousBar?.lastNote() || null;
+    const previousPitch = props.previousBar?.lastPitch() || null;
 
     const beats = this.noteOffsets(previousPitch, actualNotes);
     const numberOfBeats = beats.total.extend;

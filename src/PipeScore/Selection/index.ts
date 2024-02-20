@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Gracenote } from '../Gracenote';
+import { Gracenote, NoGracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
 import { Triplet } from '../Note';
 import { Score } from '../Score';
@@ -103,54 +103,62 @@ export class GracenoteSelection extends Selection {
     this.selected = gracenote;
     this.note = note;
   }
+
   public changeGracenote(newGracenote: Gracenote, score: Score) {
     for (const note of score.notes()) {
       note.replaceGracenote(this.selected, newGracenote);
     }
     this.selected = newGracenote;
   }
+
   public delete(score: Score) {
     if (this.note === 'all') {
-      this.changeGracenote(Gracenote.fromName('none'), score);
+      this.changeGracenote(new NoGracenote(), score);
       return null;
-    } else {
-      const updated = this.selected.removeSingle(this.note);
-      this.changeGracenote(updated, score);
-      if (this.note > 0) {
-        this.note--;
-      }
-      if (updated.numberOfNotes() === 0) return null;
-      return this;
     }
+    const updated = this.selected.removeSingle(this.note);
+    this.changeGracenote(updated, score);
+    if (this.note > 0) {
+      this.note--;
+    }
+    if (updated.numberOfNotes() === 0) return null;
+    return this;
   }
+
   public dragOverPitch(pitch: Pitch, score: Score) {
     if (this.note !== 'all') {
       const dragged = this.selected.drag(pitch, this.note);
       this.changeGracenote(dragged, score);
     }
   }
+
   public moveUp(score: Score) {
     if (this.note !== 'all') {
       const changed = this.selected.moveUp(this.note);
       if (changed) this.changeGracenote(changed, score);
     }
   }
+
   public moveDown(score: Score) {
     if (this.note !== 'all') {
       const changed = this.selected.moveDown(this.note);
       if (changed) this.changeGracenote(changed, score);
     }
   }
+
   public nextNote() {
     if (this.note !== 'all' && this.note < this.selected.notes().length - 1)
       this.note++;
   }
+
   public previousNote() {
     if (this.note !== 'all' && this.note > 0) this.note--;
   }
+
   public gracenote() {
     return this.selected;
   }
+
   public state(): GracenoteState {
     return {
       dragged:

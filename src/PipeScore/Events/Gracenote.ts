@@ -14,11 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { CustomGracenote, Gracenote, ReactiveGracenote } from '../Gracenote';
-import { CustomGracenotePreview, ReactiveGracenotePreview } from '../Preview';
+import { Gracenote } from '../Gracenote';
 import { GracenoteSelection, ScoreSelection } from '../Selection';
 import { State } from '../State';
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
+import { ScoreEvent, Update, stopInputMode } from './common';
 
 export function clickGracenote(
   gracenote: Gracenote,
@@ -26,10 +25,15 @@ export function clickGracenote(
 ): ScoreEvent {
   return async (state: State) => {
     state.justClickedNote = true;
-    stopInputtingNotes(state);
+    stopInputMode(state);
     state.selection = new GracenoteSelection(gracenote, index, true);
     return Update.ViewChanged;
   };
+}
+
+function setPreviewGracenote(gracenote: Gracenote, state: State) {
+  stopInputMode(state);
+  state.preview = gracenote.asPreview();
 }
 
 export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
@@ -37,20 +41,17 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
     const newGracenote = Gracenote.fromName(value);
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notes(state.score);
-      notes.forEach((note) => note.setGracenote(newGracenote.copy()));
+      for (const note of notes) {
+        note.setGracenote(newGracenote.copy());
+      }
       return Update.ShouldSave;
-    } else if (state.selection instanceof GracenoteSelection) {
+    }
+    if (state.selection instanceof GracenoteSelection) {
       state.selection.changeGracenote(newGracenote, state.score);
       return Update.ShouldSave;
-    } else {
-      stopInputtingNotes(state);
-      state.preview =
-        newGracenote instanceof CustomGracenote
-          ? new CustomGracenotePreview()
-          : newGracenote instanceof ReactiveGracenote && value
-            ? new ReactiveGracenotePreview(value)
-            : null;
-      return Update.ViewChanged;
     }
+
+    setPreviewGracenote(newGracenote, state);
+    return Update.ViewChanged;
   };
 }

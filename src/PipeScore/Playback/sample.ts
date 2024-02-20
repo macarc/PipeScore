@@ -14,10 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { onSafari } from '../global/safari';
+
 export function sleep(length_in_ms: number): Promise<void> {
   return new Promise((res) => setTimeout(res, length_in_ms));
 }
-
 export class Sample {
   buffer: AudioBuffer | null = null;
   name: string;
@@ -28,11 +29,11 @@ export class Sample {
 
   load(): Promise<(context: AudioContext) => void> {
     // Safari can't decode mp3
-    const file_format = (window as any).safari !== undefined ? '.wav' : '.mp3';
+    const file_format = onSafari(window) ? 'wav' : 'mp3';
 
     return new Promise((res) => {
       const request = new XMLHttpRequest();
-      request.open('GET', '/audio/' + this.name + file_format, true);
+      request.open('GET', `/audio/${this.name}.${file_format}`, true);
       request.responseType = 'arraybuffer';
       request.onload = () => {
         const data = request.response;

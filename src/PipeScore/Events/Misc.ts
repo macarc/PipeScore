@@ -17,7 +17,7 @@
 import m from 'mithril';
 import { State } from '../State';
 import { Menu } from '../UI/model';
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
+import { ScoreEvent, Update, stopInputMode } from './common';
 
 import { Score } from '../Score';
 import dialogueBox from '../global/dialogueBox';
@@ -64,7 +64,7 @@ export function loadedAudio(): ScoreEvent {
 export function setMenu(menu: Menu): ScoreEvent {
   return async (state: State) => {
     state.menu = menu;
-    stopInputtingNotes(state);
+    stopInputMode(state);
     return Update.ViewChanged;
   };
 }
@@ -87,7 +87,7 @@ export function undo(): ScoreEvent {
     const previous = last(state.history.past);
     if (current && previous) {
       state.selection = null;
-      stopInputtingNotes(state);
+      stopInputMode(state);
       const zoom = state.score.zoom;
       state.score = Score.fromJSON(JSON.parse(previous));
       state.score.zoom = zoom;
@@ -103,7 +103,7 @@ export function redo(): ScoreEvent {
     const next = state.history.future.pop();
     if (next) {
       state.selection = null;
-      stopInputtingNotes(state);
+      stopInputMode(state);
       const zoom = state.score.zoom;
       state.score = Score.fromJSON(JSON.parse(next));
       state.score.zoom = zoom;
@@ -177,8 +177,11 @@ export function print(): ScoreEvent {
     if (popupWindow) {
       popupWindow.document.open();
       popupWindow.document.write(
-        `<style>* { font-family: sans-serif; margin: 0; padding: 0; } @page { size: A4 ${state.score.orientation()}; margin: 0; }</style>` +
-          contents
+        `<style>
+        * { font-family: sans-serif; margin: 0; padding: 0; }
+        @page { size: A4 ${state.score.orientation()}; margin: 0; }
+        </style>
+        ${contents}`
       );
       popupWindow.print();
       popupWindow.document.close();
@@ -195,7 +198,7 @@ export function download(): ScoreEvent {
 
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = json.name + '.pipescore';
+    a.download = `${json.name}.pipescore`;
     a.click();
 
     return Update.NoChange;

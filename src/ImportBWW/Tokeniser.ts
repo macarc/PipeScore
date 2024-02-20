@@ -12,7 +12,7 @@ export class TokenStream {
     // Add some whitespace on the end since many
     // tokens check for whitespace after to ensure
     // that they match an entire word
-    this.stream = stream + ' ';
+    this.stream = `${stream} `;
     this.nextToken();
   }
 

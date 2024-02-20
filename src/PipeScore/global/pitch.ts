@@ -104,7 +104,7 @@ export function isPitchOnLine(pitch: Pitch) {
   return (
     pitch === Pitch.G ||
     pitch === Pitch.B ||
-    pitch == Pitch.D ||
+    pitch === Pitch.D ||
     pitch === Pitch.F ||
     pitch === Pitch.HA
   );

@@ -30,7 +30,7 @@ export enum Update {
   MovedThroughHistory = 3,
 }
 
-export function stopInputtingNotes(state: State) {
+export function stopInputMode(state: State) {
   state.preview?.stop();
   state.preview = null;
 }

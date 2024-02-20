@@ -461,8 +461,7 @@ export function drawNoteGroup(notes: Note[], props: NoteProps) {
               thisNote: note.pitch(),
               preview: false,
               previousNote:
-                (previousNote && previousNote.pitch()) ||
-                (props.previousNote && props.previousNote.pitch()),
+                previousNote?.pitch() || props.previousNote?.pitch() || null,
               state: props.gracenoteState,
             }),
 

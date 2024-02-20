@@ -85,14 +85,14 @@ export abstract class Timing {
         type: 'second timing',
         value: this.toObject(),
       };
-    } else if (this instanceof SingleTiming) {
+    }
+    if (this instanceof SingleTiming) {
       return {
         type: 'single timing',
         value: this.toObject(),
       };
-    } else {
-      throw new Error(`Unrecognised type of timing: ${this}`);
     }
+    throw new Error(`Unrecognised type of timing: ${this}`);
   }
   // Checks that there is no overlap, either with itself or with
   // the other timings in the array
@@ -140,12 +140,6 @@ export abstract class Timing {
     );
 
     if (start && end) {
-      const bXY = getXY(b);
-      const bIsOnALaterPage = bXY === null || props.page < bXY.page;
-      drawUntilAfterB ||= bIsOnALaterPage;
-
-      text = a === start.id ? text : '';
-
       const isSelected =
         props.selection instanceof TimingSelection &&
         props.selection.timing === this;
@@ -188,12 +182,15 @@ export abstract class Timing {
           onmousedown: () => click(start),
         });
 
-      const lastx = drawUntilAfterB ? end.afterX : end.beforeX;
+      const bXY = getXY(b);
+      const bIsOnALaterPage = bXY === null || props.page < bXY.page;
+      const drawAfterB = drawUntilAfterB || bIsOnALaterPage;
+      const lastx = drawAfterB ? end.afterX : end.beforeX;
       const verticalLines = [
         vertical(start.beforeX, start.y),
         dragBox(start.beforeX, start.y, true),
-        drawUntilAfterB ? vertical(lastx, end.y) : null,
-        drawUntilAfterB ? dragBox(lastx, end.y, false) : null,
+        drawAfterB ? vertical(lastx, end.y) : null,
+        drawAfterB ? dragBox(lastx, end.y, false) : null,
       ];
 
       const staveStartIndex = props.score
@@ -232,7 +229,7 @@ export abstract class Timing {
             onmousedown: () => click(true),
             ondblclick: clickText,
           },
-          text
+          a === start.id ? text : ''
         ),
       ]);
     }

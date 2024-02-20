@@ -47,10 +47,16 @@ export class Barline {
     this.type = type;
   }
   static fromJSON(o: SavedBarline): Barline {
-    if (o.type === 'normal') return Barline.normal;
-    else if (o.type === 'repeat') return Barline.repeat;
-    else if (o.type === 'end') return Barline.part;
-    else throw new Error(`Unrecognised barline type ${o.type}`);
+    switch (o.type) {
+      case 'normal':
+        return Barline.normal;
+      case 'repeat':
+        return Barline.repeat;
+      case 'end':
+        return Barline.part;
+      default:
+        throw new Error(`Unrecognised barline type ${o.type}`);
+    }
   }
   toJSON(): SavedBarline {
     return { type: this.type };
@@ -62,22 +68,25 @@ export class Barline {
     return this.type === 'repeat' || this.type === 'end';
   }
   isRepeat() {
-    return this.type == 'repeat';
+    return this.type === 'repeat';
   }
   width() {
-    if (this.type === 'normal') {
-      return 1;
-    } else {
-      return 10;
+    switch (this.type) {
+      case 'normal':
+        return 1;
+      case 'repeat':
+      case 'end':
+        return 10;
     }
   }
   render(props: BarlineProps) {
-    if (this.type === 'normal') {
-      return renderNormal(props);
-    } else if (this.type === 'repeat') {
-      return renderRepeat(props);
-    } else {
-      return renderPart(props);
+    switch (this.type) {
+      case 'normal':
+        return renderNormal(props);
+      case 'repeat':
+        return renderRepeat(props);
+      case 'end':
+        return renderPart(props);
     }
   }
 }

@@ -53,11 +53,15 @@ export const setXY = (
   item: ID,
   beforeX: number,
   afterX: number,
-  y: number,
-  page?: number
+  y: number
 ): void => {
-  if (page === undefined) page = currentPage;
-  itemCoords.set(item, { id: item, beforeX, afterX, y, page });
+  itemCoords.set(item, {
+    id: item,
+    beforeX,
+    afterX,
+    y,
+    page: currentPage,
+  });
 };
 export const getXY = (item: ID): XY | null => itemCoords.get(item) || null;
 export const deleteXY = (item: ID): void => {
@@ -79,11 +83,7 @@ export const itemBefore = (a: ID, b: ID, checkAfterX = false) => {
   const f = getXY(a);
   const g = getXY(b);
 
-  if (f && g) {
-    return before(f, g, checkAfterX);
-  } else {
-    return false;
-  }
+  return (f && g && before(f, g, checkAfterX)) || false;
 };
 
 // This finds the item the closest to the point (x,y)
@@ -95,13 +95,13 @@ export const closestItem = (
   rightMost: boolean
 ): ID | null => {
   let closestDistance = Infinity;
-  let closestID = null;
   const closer = (distance: number, previousBest: number) =>
     rightMost ? distance <= previousBest : distance < previousBest;
-  [...itemCoords]
+
+  return [...itemCoords]
     .filter(([_, coord]) => coord.page === page)
     .sort((a, b) => (b[1].beforeX < a[1].beforeX ? 1 : -1))
-    .forEach(([id, xy]) => {
+    .reduce((closestID: ID | null, [id, xy]) => {
       const xDistance = Math.min(
         Math.abs(xy.beforeX - x),
         Math.abs(xy.afterX - x)
@@ -111,11 +111,10 @@ export const closestItem = (
 
       if (closer(dist, closestDistance)) {
         closestDistance = dist;
-        closestID = id;
+        return id;
       }
-    });
-
-  return closestID;
+      return closestID;
+    }, null);
 };
 
 // If xy is on the same page, return it
@@ -124,7 +123,8 @@ export const closestItem = (
 function itemOrFirstOnPage(xy: XY, page: number, score: Score) {
   if (xy.page === page) {
     return xy;
-  } else if (xy.page < page) {
+  }
+  if (xy.page < page) {
     const startID = score.firstOnPage(page)?.id;
     return (startID && getXY(startID)) || null;
   }
@@ -137,7 +137,8 @@ function itemOrFirstOnPage(xy: XY, page: number, score: Score) {
 function itemOrLastOnPage(xy: XY, page: number, score: Score) {
   if (xy.page === page) {
     return xy;
-  } else if (xy.page > page) {
+  }
+  if (xy.page > page) {
     const endID = score.lastOnPage(page)?.id || null;
     return endID && getXY(endID);
   }

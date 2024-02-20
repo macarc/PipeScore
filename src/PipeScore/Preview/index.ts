@@ -151,10 +151,7 @@ export class NotePreview extends BasePreview<Note> {
   }
 }
 
-export class CustomGracenotePreview extends BasePreview<Pitch> {
-  // This assumes that the custom gracenote has only one pitch.
-  // That's true right now, but in future we may add more options
-  // for inputting one's own gracenotes.
+export class SingleGracenotePreview extends BasePreview<Pitch> {
   protected parent() {
     return this.noteAfter;
   }

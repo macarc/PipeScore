@@ -39,24 +39,28 @@ function setGap(staves: Stave[], gap: number | 'auto') {
   if (staves.length === 1) {
     staves[0].setGap(gap);
   } else {
-    staves.slice(1).forEach((s) => s.setGap(gap));
+    for (const stave of staves.slice(1)) {
+      stave.setGap(gap);
+    }
   }
 }
 
 export function staveGapToDisplay(staves: Stave[]) {
-  if (staves.length === 0) {
-    return settings.staveGap;
-  } else if (staves.length === 1) {
-    return staves[0].gapAsNumber();
-  } else {
-    // If more than one stave is selected, return their gap only if they all
-    // have the same gap, otherwise just use the default gap.
-    staves = staves.slice(1);
-    const firstGap = staves[0].gapAsNumber();
-    if (staves.every((stave) => stave.gapAsNumber() === firstGap)) {
-      return firstGap;
+  switch (staves.length) {
+    case 0:
+      return settings.staveGap;
+    case 1:
+      return staves[0].gapAsNumber();
+    default: {
+      // If more than one stave is selected, return their gap only if they all
+      // have the same gap, otherwise just use the default gap.
+      const gaps = staves.slice(1).map((stave) => stave.gapAsNumber());
+      const firstGap = gaps[0];
+      if (gaps.every((gap) => gap === firstGap)) {
+        return firstGap;
+      }
+      return settings.staveGap;
     }
-    return settings.staveGap;
   }
 }
 

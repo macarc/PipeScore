@@ -79,11 +79,17 @@ export class Score {
 
     this._staves = foreach(2 * numberOfParts, () => new Stave(timeSignature));
     if (numberOfParts > 0) this._staves[0].setGap(initialTopOffset);
-    const first = repeatParts ? 'repeatFirst' : 'partFirst';
-    const last = repeatParts ? 'repeatLast' : 'partLast';
-    this.staves().forEach((stave, index) =>
-      index % 2 === 0 ? stave[first]() : stave[last]()
-    );
+
+    for (let i = 0; i < this._staves.length; i++) {
+      if (repeatParts) {
+        i % 2 === 0
+          ? this._staves[i].repeatFirst()
+          : this._staves[i].repeatLast();
+      } else {
+        i % 2 === 0 ? this._staves[i].partFirst() : this._staves[i].partLast();
+      }
+    }
+
     this.textBoxes = [[]];
     this.addText(
       new TextBox(name, true, this.width() / 2, initialTopOffset / 2)
@@ -127,10 +133,9 @@ export class Score {
     s.timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
 
-    const deprecatedTopOffset = (o.settings as any).topOffset;
     const firstStave = first(s._staves);
-    if (deprecatedTopOffset !== undefined && firstStave) {
-      firstStave.setGap(deprecatedTopOffset - 20);
+    if (o.settings.topOffset !== undefined && firstStave) {
+      firstStave.setGap(o.settings.topOffset - 20);
     }
     return s;
   }
@@ -183,16 +188,20 @@ export class Score {
     return Update.ShouldSave;
   }
   private adjustAfterOrientationChange() {
-    this.textBoxes.forEach((p) =>
-      p.forEach((text) =>
-        text.adjustAfterOrientation(this.width(), this.height())
-      )
-    );
-    this.bars().forEach((b) => b.adjustWidth(this.width() / this.height()));
+    for (const page of this.textBoxes) {
+      for (const text of page) {
+        text.adjustAfterOrientation(this.width(), this.height());
+      }
+    }
+    for (const bar of this.bars()) {
+      bar.adjustWidth(this.width() / this.height());
+    }
     this.zoom = (this.zoom * this.height()) / this.width();
   }
   public updateName() {
-    this.textBoxes[0][0] && (this.name = this.textBoxes[0][0].text());
+    if (this.textBoxes[0][0]) {
+      this.name = this.textBoxes[0][0].text();
+    }
   }
   public addText(text: TextBox) {
     this.textBoxes[0].push(text);
@@ -208,17 +217,17 @@ export class Score {
     const pages = this.stavesSplitByPage();
     const pageIndex = pages.findIndex((page) => page.includes(stave));
     const page = pages[pageIndex];
-    if (page) {
-      return (
-        settings.margin +
-        this.calculateHeight(page.slice(0, page.indexOf(stave)))
-      );
-    } else {
+
+    if (!page) {
       console.error(
         "Tried to get a stave Y of a stave that isn't on any page!"
       );
       return 0;
     }
+
+    return (
+      settings.margin + this.calculateHeight(page.slice(0, page.indexOf(stave)))
+    );
   }
   private calculateHeight(staves: Stave[]) {
     return sum(staves.map((s) => s.height()));
@@ -230,40 +239,42 @@ export class Score {
     // TODO : should gaps 'carry over' to the next page?
     const splitStaves: Stave[][] = [[]];
     const usefulPageHeight = this.height() - 2 * settings.margin;
-    this.staves().forEach((stave) => {
+    for (const stave of this.staves()) {
       const pageHeight = this.calculateHeight(nlast(splitStaves));
       if (pageHeight + stave.height() > usefulPageHeight) {
         splitStaves.push([]);
       }
       nlast(splitStaves).push(stave);
-    });
+    }
     return splitStaves;
   }
 
   public addStave(nearStave: Stave | null, where: Relative) {
     // If no stave is selected, place before the first stave
     // or after the last stave
-    nearStave =
-      nearStave ||
-      (where === Relative.before ? first(this.staves()) : last(this.staves()));
 
-    const index = nearStave
-      ? this._staves.indexOf(nearStave) + (where === Relative.before ? 0 : 1)
+    const adjacentStave =
+      nearStave || where === Relative.before
+        ? first(this.staves())
+        : last(this.staves());
+
+    const index = adjacentStave
+      ? this._staves.indexOf(adjacentStave) +
+        (where === Relative.before ? 0 : 1)
       : 0;
 
     if (index < 0) return;
 
-    const adjacentBar = nearStave
-      ? where === Relative.before
-        ? nearStave.firstBar()
-        : nearStave.lastBar()
-      : null;
-    const ts = adjacentBar && adjacentBar.timeSignature();
+    const adjacentBar =
+      where === Relative.before
+        ? adjacentStave?.firstBar()
+        : adjacentStave?.lastBar();
+    const ts = adjacentBar?.timeSignature() || new TimeSignature();
 
-    const newStave = new Stave(ts || new TimeSignature());
+    const newStave = new Stave(ts);
     if (where === Relative.before) {
-      newStave.setGap(nearStave?.gap() || 'auto');
-      nearStave?.setGap('auto');
+      newStave.setGap(adjacentStave?.gap() || 'auto');
+      adjacentStave?.setGap('auto');
     }
     this._staves.splice(index, 0, newStave);
   }
@@ -284,7 +295,7 @@ export class Score {
     const staves = this.staves();
     const stave_index = staves.indexOf(stave);
     const index = stave_index + 1;
-    if (stave_index != -1 && index < staves.length) {
+    if (stave_index !== -1 && index < staves.length) {
       return staves[index];
     }
     return null;
@@ -387,6 +398,7 @@ export class Score {
       text.setCoords(x, y);
     }
   }
+
   public dragTiming(
     timing: Timing,
     part: TimingPart,
@@ -404,19 +416,24 @@ export class Score {
         if (st.pointsTo(item.id)) timingsToDelete.push(st);
       }
     }
-    timingsToDelete.forEach((t) => this.deleteTiming(t));
+    for (const timing of timingsToDelete) {
+      this.deleteTiming(timing);
+    }
   }
+
   public play() {
     return this.staves().flatMap((st, i) =>
       st.play(i === 0 ? null : this.staves()[i - 1])
     );
   }
+
   public playbackTimings(elements: Playback[]) {
     // TODO : support single timings ... ?
     return this.timings
       .filter((st) => st instanceof SecondTiming)
       .map((st) => (st as SecondTiming).playbackTiming(elements));
   }
+
   public render(props: ScoreProps): m.Children {
     const width = this.width();
     const height = this.height();

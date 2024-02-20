@@ -38,7 +38,9 @@ export class Triplet extends Item {
   public copy() {
     const n = Triplet.fromObject(this.toObject());
     n.id = genId();
-    n._notes.forEach((note) => (note.id = genId()));
+    for (const note of n._notes) {
+      note.id = genId();
+    }
     return n;
   }
 
@@ -84,7 +86,9 @@ export class Triplet extends Item {
   }
 
   public ensureNotesAreCorrectLength() {
-    this._notes.forEach((note) => note.setLength(this._length));
+    for (const note of this._notes) {
+      note.setLength(this._length);
+    }
   }
 
   public length() {

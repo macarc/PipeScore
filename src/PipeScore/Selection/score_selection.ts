@@ -65,10 +65,10 @@ export class ScoreSelection extends Selection {
     if (this.start === this.end) {
       if (n) {
         const previousNote = score.location(n.id).stave.previousNote(n.id);
-        newSelection = previousNote && previousNote.id;
+        newSelection = previousNote?.id || null;
       } else if (b) {
         const previousBar = score.location(b.id).stave.previousBar(b);
-        newSelection = previousBar && previousBar.id;
+        newSelection = previousBar?.id || null;
       }
     }
     return newSelection;
@@ -100,18 +100,20 @@ export class ScoreSelection extends Selection {
     if (notesToDelete.length > 0) {
       const lastNote = notesToDelete[notesToDelete.length - 1][0];
       const noteAfterLast = score.nextNote(lastNote.id);
-      if (noteAfterLast && noteAfterLast.isTied()) {
+      if (noteAfterLast?.isTied()) {
         noteAfterLast.toggleTie(score.notes());
       }
     }
 
-    notesToDelete.forEach(([note, bar]) => bar.deleteNote(note));
+    for (const [note, bar] of notesToDelete) {
+      bar.deleteNote(note);
+    }
 
     if (deleteBars) {
-      barsToDelete.forEach(([bar, stave]) => {
+      for (const [bar, stave] of barsToDelete) {
         stave.deleteBar(bar);
         if (stave.numberOfBars() === 0) score.deleteStave(stave);
-      });
+      }
     }
 
     this.purgeItems(
@@ -225,57 +227,7 @@ export class ScoreSelection extends Selection {
     const height = settings.lineHeightOf(6);
     const borderRadius = 5;
 
-    if (end.y !== start.y) {
-      const staves = props.score.staves();
-      const startStaveIndex = staves.findIndex((stave) =>
-        stave.includesID(start.id)
-      );
-      const endStaveIndex = staves.findIndex((stave) =>
-        stave.includesID(end.id)
-      );
-      const numStavesBetween = Math.max(endStaveIndex - startStaveIndex - 1, 0);
-
-      return m('g[class=selection]', [
-        m('rect', {
-          x: start.beforeX,
-          y: start.y - settings.lineGap,
-          width: props.staveEndX - start.beforeX,
-          height,
-          fill: 'orange',
-          opacity: 0.5,
-          'pointer-events': 'none',
-          rx: borderRadius,
-          ry: borderRadius,
-        }),
-        m('rect', {
-          x: props.staveStartX,
-          y: end.y - settings.lineGap,
-          width: end.afterX - props.staveStartX,
-          height,
-          fill: 'orange',
-          opacity: 0.5,
-          'pointer-events': 'none',
-          rx: borderRadius,
-          ry: borderRadius,
-        }),
-        ...foreach(numStavesBetween, (i) => startStaveIndex + i + 1).map((i) =>
-          m('rect', {
-            x: props.staveStartX,
-            y:
-              props.score.staveY(staves[i]) +
-              staves[i].gapAsNumber() -
-              settings.lineGap,
-            width: props.staveEndX - props.staveStartX,
-            height,
-            fill: 'orange',
-            opacity: 0.5,
-            'pointer-events': 'none',
-            rx: borderRadius,
-            ry: borderRadius,
-          })
-        ),
-      ]);
-    } else {
+    if (start.y === end.y) {
       const width = end.afterX - start.beforeX;
       return m('g[class=selection]', [
         m('rect', {
@@ -291,6 +243,54 @@ export class ScoreSelection extends Selection {
         }),
       ]);
     }
+
+    const staves = props.score.staves();
+    const startStaveIndex = staves.findIndex((stave) =>
+      stave.includesID(start.id)
+    );
+    const endStaveIndex = staves.findIndex((stave) => stave.includesID(end.id));
+    const numStavesBetween = Math.max(endStaveIndex - startStaveIndex - 1, 0);
+
+    return m('g[class=selection]', [
+      m('rect', {
+        x: start.beforeX,
+        y: start.y - settings.lineGap,
+        width: props.staveEndX - start.beforeX,
+        height,
+        fill: 'orange',
+        opacity: 0.5,
+        'pointer-events': 'none',
+        rx: borderRadius,
+        ry: borderRadius,
+      }),
+      m('rect', {
+        x: props.staveStartX,
+        y: end.y - settings.lineGap,
+        width: end.afterX - props.staveStartX,
+        height,
+        fill: 'orange',
+        opacity: 0.5,
+        'pointer-events': 'none',
+        rx: borderRadius,
+        ry: borderRadius,
+      }),
+      ...foreach(numStavesBetween, (i) => startStaveIndex + i + 1).map((i) =>
+        m('rect', {
+          x: props.staveStartX,
+          y:
+            props.score.staveY(staves[i]) +
+            staves[i].gapAsNumber() -
+            settings.lineGap,
+          width: props.staveEndX - props.staveStartX,
+          height,
+          fill: 'orange',
+          opacity: 0.5,
+          'pointer-events': 'none',
+          rx: borderRadius,
+          ry: borderRadius,
+        })
+      ),
+    ]);
   }
 
   public render(props: ScoreSelectionProps): m.Children {

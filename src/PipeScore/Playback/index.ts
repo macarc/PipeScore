@@ -112,7 +112,9 @@ export async function startLoadingSamples(onload: () => void) {
     higha.load(),
     drones.load(),
   ]);
-  samples.forEach((fn) => fn(context));
+  for (const fn of samples) {
+    fn(context);
+  }
   onload();
 }
 
@@ -159,6 +161,7 @@ function expandRepeats(
   start: ID | null,
   end: ID | null
 ): (PlaybackNote | PlaybackGracenote | PlaybackObject)[] {
+  let started = false;
   let repeatStartIndex = 0;
   let repeatEndIndex = 0;
   let repeating = false;
@@ -184,9 +187,9 @@ function expandRepeats(
         repeatStartIndex = i;
       }
     } else if (e instanceof PlaybackObject) {
-      if (e.type === 'object-start' && e.id === start) {
+      if (e.type === 'object-start' && e.id === start && !started) {
         output = [];
-        start = null;
+        started = true;
       }
       if (e.type === 'object-end') {
         if (e.id === end) {
@@ -241,7 +244,7 @@ function getSoundedPitches(
   start: ID | null,
   end: ID | null
 ): SoundedPitch[] {
-  elements = expandRepeats(elements, timings, start, end);
+  const elementsToPlay = expandRepeats(elements, timings, start, end);
 
   const gracenoteDuration = 0.044;
 
@@ -249,8 +252,8 @@ function getSoundedPitches(
 
   let currentID: ID | null = null;
 
-  for (let i = 0; i < elements.length; i++) {
-    const e = elements[i];
+  for (let i = 0; i < elementsToPlay.length; i++) {
+    const e = elementsToPlay[i];
     if (e instanceof PlaybackGracenote) {
       pitches.push(
         new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID)
@@ -260,11 +263,11 @@ function getSoundedPitches(
       // If subsequent notes are tied, increase this note's duration
       // and skip the next notes
       for (
-        let nextNote = elements[i + 1];
-        i < elements.length &&
+        let nextNote = elementsToPlay[i + 1];
+        i < elementsToPlay.length &&
         nextNote instanceof PlaybackNote &&
         nextNote.tied;
-        nextNote = elements[++i + 1]
+        nextNote = elementsToPlay[++i + 1]
       ) {
         duration += nextNote.duration;
       }
@@ -272,7 +275,8 @@ function getSoundedPitches(
     } else if (e instanceof PlaybackObject) {
       currentID = e.id;
     } else {
-      throw new Error('Unexpected playback element ' + e);
+      console.log(e);
+      throw new Error(`Unexpected playback element ${e}`);
     }
   }
   return collapsePitches(pitches);

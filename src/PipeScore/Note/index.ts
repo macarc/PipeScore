@@ -72,7 +72,8 @@ export function noteToJSON(note: NoteOrTriplet): SavedNoteOrTriplet {
       notetype: 'single',
       value: note.toObject(),
     };
-  } else if (note instanceof Triplet) {
+  }
+  if (note instanceof Triplet) {
     return {
       notetype: 'triplet',
       value: note.toObject(),
@@ -96,11 +97,10 @@ export function noteOrTripletWidth(
   note: NoteOrTriplet,
   prevNote: Pitch | null
 ) {
-  if (note instanceof Note) {
-    return noteWidth(note, prevNote);
-  } else {
+  if (note instanceof Triplet) {
     return totalWidth(note.tripletSingleNotes(), prevNote);
   }
+  return noteWidth(note, prevNote);
 }
 
 // Given a list of notes, and a function for finding out how long

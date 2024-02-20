@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { State } from '../State';
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
+import { ScoreEvent, Update, stopInputMode } from './common';
 
 import { TextSelection } from '../Selection';
 import { TextBox } from '../TextBox';
@@ -31,7 +31,7 @@ export function addText(): ScoreEvent {
 
 export function clickText(text: TextBox): ScoreEvent {
   return async (state: State) => {
-    stopInputtingNotes(state);
+    stopInputMode(state);
     state.selection = new TextSelection(text, true);
     return Update.ViewChanged;
   };
@@ -49,10 +49,11 @@ export function centreText(): ScoreEvent {
 
 export function editText(tx: TextBox | null = null): ScoreEvent {
   return async (state: State) => {
-    if (state.selection instanceof TextSelection && tx === null)
-      tx = state.selection.text;
     if (tx) {
       return await tx.edit();
+    }
+    if (state.selection instanceof TextSelection) {
+      return await state.selection.text.edit();
     }
     return Update.NoChange;
   };
@@ -64,7 +65,7 @@ export function setTextX(xPercent: number): ScoreEvent {
       (state.score.landscape
         ? settings.pageLongSideLength
         : settings.pageShortSideLength);
-    if (state.selection instanceof TextSelection && !isNaN(x)) {
+    if (state.selection instanceof TextSelection && !Number.isNaN(x)) {
       state.selection.text.setX(x);
       return Update.ViewChanged;
     }
@@ -79,7 +80,7 @@ export function setTextY(yPercent: number): ScoreEvent {
       (state.score.landscape
         ? settings.pageShortSideLength
         : settings.pageLongSideLength);
-    if (state.selection instanceof TextSelection && !isNaN(y)) {
+    if (state.selection instanceof TextSelection && !Number.isNaN(y)) {
       state.selection.text.setY(y);
       return Update.ViewChanged;
     }

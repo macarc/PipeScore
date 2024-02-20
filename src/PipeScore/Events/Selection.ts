@@ -136,14 +136,14 @@ export function copy(): ScoreEvent {
 
       const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
 
-      notes.forEach((note) => {
+      for (const note of notes) {
         const { bar } = state.score.location(note.id);
         if (currentBarId !== bar.id) {
           noteList.push('bar-break');
           currentBarId = bar.id;
         }
         noteList.push(noteToJSON(note));
-      });
+      }
 
       if (browserSupportsCopying()) {
         navigator.clipboard.writeText(
@@ -197,29 +197,24 @@ export function paste(): ScoreEvent {
       const text = await navigator.clipboard.readText();
       try {
         const pasted = JSON.parse(text);
-        if (pasted && pasted['data-type'] === 'pipescore-copied-notes') {
-          const noteList = pasted['notes'] as (
-            | SavedNoteOrTriplet
-            | 'bar-break'
-          )[];
+        if (pasted?.['data-type'] === 'pipescore-copied-notes') {
+          const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[];
           return pasteNotes(state, noteList);
-        } else {
-          console.log(
-            "Pasted item wasn't notes, falling back to PipeScore clipboard"
-          );
-          return pasteFromPipeScoreClipboard(state);
         }
+        console.log(
+          "Pasted item wasn't notes, falling back to PipeScore clipboard"
+        );
+        return pasteFromPipeScoreClipboard(state);
       } catch {
         console.log(
           "Couldn't parse pasted item, falling back to PipeScore clipboard"
         );
         return pasteFromPipeScoreClipboard(state);
       }
-    } else {
-      console.log(
-        "Browser doesn't support pasting, falling back to PipeScore clipboard"
-      );
-      return pasteFromPipeScoreClipboard(state);
     }
+    console.log(
+      "Browser doesn't support pasting, falling back to PipeScore clipboard"
+    );
+    return pasteFromPipeScoreClipboard(state);
   };
 }

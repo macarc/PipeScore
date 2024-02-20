@@ -41,7 +41,7 @@ function prettifyError(e: { message: string }) {
 }
 
 function error(text: string, type: 'login' | 'signup') {
-  const el = document.getElementById(type + '-error');
+  const el = document.getElementById(`${type}-error`);
   if (el) {
     el.innerText = text;
     el.style.display = 'block';

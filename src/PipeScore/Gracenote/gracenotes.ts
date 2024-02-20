@@ -34,6 +34,7 @@ export function noteList(list: Pitch[], valid = true): GracenoteNoteList {
   noteList.invalid = !valid;
   return noteList;
 }
+
 const invalidateIf = (pred: boolean, gracenote: Pitch[]) =>
   noteList(gracenote, !pred);
 
@@ -52,6 +53,7 @@ gracenotes.set('throw-d', (note, prev) =>
     prev === Pitch.G ? [Pitch.D, Pitch.C] : [Pitch.G, Pitch.D, Pitch.C]
   )
 );
+
 gracenotes.set('doubling', (note, prev) => {
   let pitches = [];
   if (
@@ -86,87 +88,102 @@ gracenotes.set('doubling', (note, prev) => {
 
   return valid(pitches);
 });
+
 gracenotes.set('half-doubling', (note, prev) => {
   if (note === Pitch.HA) return invalid([Pitch.HG]);
 
   const dbl = gracenotes.get('doubling');
-  if (dbl) return invalidateIfBind(note == prev, dbl(note, Pitch.HA));
-  else return invalid([]);
+  if (dbl) return invalidateIfBind(note === prev, dbl(note, Pitch.HA));
+  return invalid([]);
 });
 
 gracenotes.set('g-strike', (note, prev) => {
   const setFirst = (pitches: Pitch[]) => {
-    if (prev === Pitch.HA) {
-      return valid(pitches);
-    } else if (prev === Pitch.HG) {
-      return valid([Pitch.HA, ...pitches]);
-    } else {
-      return valid([Pitch.HG, ...pitches]);
+    switch (prev) {
+      case Pitch.HA:
+        return valid(pitches);
+      case Pitch.HG:
+        return valid([Pitch.HA, ...pitches]);
+      default:
+        return valid([Pitch.HG, ...pitches]);
     }
   };
-  if (note === Pitch.G || note === Pitch.HA) {
-    return invalid([Pitch.HG]);
-  } else if (note === Pitch.E) {
-    return setFirst([note, Pitch.A]);
-  } else if (note === Pitch.F) {
-    return setFirst([note, Pitch.E]);
-  } else if (note === Pitch.HG) {
-    if (prev === Pitch.HA) {
-      return valid([note, Pitch.F]);
-    } else {
-      return valid([Pitch.HA, note, Pitch.F]);
-    }
-  } else {
-    return setFirst([note, Pitch.G]);
+  switch (note) {
+    case Pitch.G:
+    case Pitch.HA:
+      return invalid([Pitch.HG]);
+    case Pitch.E:
+      return setFirst([note, Pitch.A]);
+    case Pitch.F:
+      return setFirst([note, Pitch.E]);
+    case Pitch.HG:
+      return prev === Pitch.HA
+        ? valid([note, Pitch.F])
+        : valid([Pitch.HA, note, Pitch.F]);
+    default:
+      return setFirst([note, Pitch.G]);
   }
 });
 
 gracenotes.set('edre', (note, prev) => {
   if (prev === Pitch.G && (note === Pitch.E || note === Pitch.HG)) {
     return valid([Pitch.E, Pitch.G, Pitch.F, Pitch.G]);
-  } else if (prev === Pitch.F && note === Pitch.HG) {
-    return valid([Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E]);
-  } else if (prev === Pitch.E && note === Pitch.HG) {
-    return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E]);
-  } else if (note === Pitch.E || note === Pitch.HG) {
-    return valid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
-  } else if (note === Pitch.F) {
-    return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E]);
-  } else if (prev === Pitch.G && note === Pitch.D) {
-    return valid([Pitch.D, Pitch.G, Pitch.C]);
-  } else if (note === Pitch.D) {
-    return valid([Pitch.G, Pitch.D, Pitch.G, Pitch.C]);
-  } else if (prev === Pitch.G && note === Pitch.B) {
-    return valid([Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
-  } else if (note === Pitch.B) {
-    return valid([Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
-  } else {
-    return invalid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
   }
+  if (prev === Pitch.F && note === Pitch.HG) {
+    return valid([Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E]);
+  }
+  if (prev === Pitch.E && note === Pitch.HG) {
+    return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E, Pitch.F, Pitch.E]);
+  }
+  if (note === Pitch.E || note === Pitch.HG) {
+    return valid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
+  }
+  if (note === Pitch.F) {
+    return valid([Pitch.F, Pitch.E, Pitch.HG, Pitch.E]);
+  }
+  if (prev === Pitch.G && note === Pitch.D) {
+    return valid([Pitch.D, Pitch.G, Pitch.C]);
+  }
+  if (note === Pitch.D) {
+    return valid([Pitch.G, Pitch.D, Pitch.G, Pitch.C]);
+  }
+  if (prev === Pitch.G && note === Pitch.B) {
+    return valid([Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
+  }
+  if (note === Pitch.B) {
+    return valid([Pitch.G, Pitch.D, Pitch.G, Pitch.C, Pitch.G]);
+  }
+  return invalid([Pitch.E, Pitch.A, Pitch.F, Pitch.A]);
 });
+
 gracenotes.set('grip', (note, prev) => {
   return note === Pitch.D || prev === Pitch.D
     ? valid([Pitch.G, Pitch.B, Pitch.G])
     : valid([Pitch.G, Pitch.D, Pitch.G]);
 });
-gracenotes.set('shake', (note, prev) => {
-  let pitches = [];
-  pitches = [Pitch.HG, note, Pitch.E, note, Pitch.G];
 
-  if (note === Pitch.E) {
-    pitches = [Pitch.HG, note, Pitch.F, note, Pitch.A];
-  }
-  // I'm not sure these are even gracenotes
-  else if (note === Pitch.G) {
-    pitches = [Pitch.HG, note, Pitch.D, note, Pitch.E];
-  } else if (note === Pitch.F) {
-    pitches = [Pitch.HG, note, Pitch.HG, note, Pitch.E];
-  } else if (note === Pitch.HG) {
-    pitches = [Pitch.HA, note, Pitch.HA, note, Pitch.F];
-  } else if (note === Pitch.HA) {
-    pitches = [Pitch.HA, Pitch.HG];
-  } else {
-    pitches = [Pitch.HG, note, Pitch.E, note, Pitch.G];
+gracenotes.set('shake', (note, prev) => {
+  let pitches: Pitch[];
+
+  switch (note) {
+    case Pitch.E:
+      pitches = [Pitch.HG, note, Pitch.F, note, Pitch.A];
+      break;
+    // I'm not sure these are even gracenotes
+    case Pitch.G:
+      pitches = [Pitch.HG, note, Pitch.D, note, Pitch.E];
+      break;
+    case Pitch.F:
+      pitches = [Pitch.HG, note, Pitch.HG, note, Pitch.E];
+      break;
+    case Pitch.HG:
+      pitches = [Pitch.HA, note, Pitch.HA, note, Pitch.F];
+      break;
+    case Pitch.HA:
+      pitches = [Pitch.HA, Pitch.HG];
+      break;
+    default:
+      pitches = [Pitch.HG, note, Pitch.E, note, Pitch.G];
   }
 
   if (prev === Pitch.HA) {
@@ -177,6 +194,7 @@ gracenotes.set('shake', (note, prev) => {
 
   return valid(pitches);
 });
+
 gracenotes.set('c-shake', (note, prev) => {
   const pitches = [Pitch.HG, note, Pitch.E, note, Pitch.C];
   if (prev === Pitch.HA) {
@@ -188,41 +206,44 @@ gracenotes.set('c-shake', (note, prev) => {
 });
 
 gracenotes.set('taorluath', (note, prev) => {
-  let pitches = [];
-  if (prev === Pitch.D) {
-    pitches = [Pitch.G, Pitch.B, Pitch.G, Pitch.E];
-  } else {
-    pitches = [Pitch.G, Pitch.D, Pitch.G, Pitch.E];
-  }
+  const pitches =
+    prev === Pitch.D
+      ? [Pitch.G, Pitch.B, Pitch.G, Pitch.E]
+      : [Pitch.G, Pitch.D, Pitch.G, Pitch.E];
+
   if (
     note === Pitch.E ||
     note === Pitch.F ||
     note === Pitch.HG ||
     note === Pitch.HA
   ) {
-    pitches = pitches.slice(0, 3);
+    return valid(pitches.slice(0, 3));
   }
   return valid(pitches);
 });
+
 gracenotes.set('crunluath', (note, prev) => {
-  let pitches = [];
-  if (!prev) {
-    return invalid([
-      Pitch.G,
-      Pitch.D,
-      Pitch.G,
-      Pitch.E,
-      Pitch.A,
-      Pitch.F,
-      Pitch.A,
-    ]);
-  }
-  if (prev === Pitch.D) {
-    pitches = [Pitch.G, Pitch.B, Pitch.G, Pitch.E, Pitch.A, Pitch.F, Pitch.A];
-  } else if (prev === Pitch.G) {
-    pitches = [Pitch.D, Pitch.A, Pitch.E, Pitch.A, Pitch.F, Pitch.A];
-  } else {
-    pitches = [Pitch.G, Pitch.D, Pitch.G, Pitch.E, Pitch.A, Pitch.F, Pitch.A];
+  let pitches: Pitch[];
+  switch (prev) {
+    case null:
+      return invalid([
+        Pitch.G,
+        Pitch.D,
+        Pitch.G,
+        Pitch.E,
+        Pitch.A,
+        Pitch.F,
+        Pitch.A,
+      ]);
+    case Pitch.D:
+      pitches = [Pitch.G, Pitch.B, Pitch.G, Pitch.E, Pitch.A, Pitch.F, Pitch.A];
+      break;
+    case Pitch.G:
+      pitches = [Pitch.D, Pitch.A, Pitch.E, Pitch.A, Pitch.F, Pitch.A];
+      break;
+    default:
+      pitches = [Pitch.G, Pitch.D, Pitch.G, Pitch.E, Pitch.A, Pitch.F, Pitch.A];
+      break;
   }
   return invalidateIf(note !== Pitch.E, pitches);
 });
@@ -234,25 +255,32 @@ gracenotes.set('birl', (note, prev) => {
       : [Pitch.A, Pitch.G, Pitch.A, Pitch.G]
   );
 });
+
 gracenotes.set('g-gracenote-birl', (note, prev) => {
-  if (prev === Pitch.HA) {
-    return invalidateIf(note !== Pitch.A, [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
-  } else if (prev === Pitch.HG) {
-    return invalidateIf(note !== Pitch.A, [
-      Pitch.HA,
-      Pitch.A,
-      Pitch.G,
-      Pitch.A,
-      Pitch.G,
-    ]);
-  } else {
-    return invalidateIf(note !== Pitch.A, [
-      Pitch.HG,
-      Pitch.A,
-      Pitch.G,
-      Pitch.A,
-      Pitch.G,
-    ]);
+  switch (prev) {
+    case Pitch.HA:
+      return invalidateIf(note !== Pitch.A, [
+        Pitch.A,
+        Pitch.G,
+        Pitch.A,
+        Pitch.G,
+      ]);
+    case Pitch.HG:
+      return invalidateIf(note !== Pitch.A, [
+        Pitch.HA,
+        Pitch.A,
+        Pitch.G,
+        Pitch.A,
+        Pitch.G,
+      ]);
+    default:
+      return invalidateIf(note !== Pitch.A, [
+        Pitch.HG,
+        Pitch.A,
+        Pitch.G,
+        Pitch.A,
+        Pitch.G,
+      ]);
   }
 });
 

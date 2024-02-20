@@ -89,7 +89,7 @@ class ScoresList {
         .ref(`scores${score.path}`)
         .get()) as unknown as SavedScore;
 
-      const newTitle = scoreContents.name + ' (copy)';
+      const newTitle = `${scoreContents.name} (copy)`;
       const titleTextbox = scoreContents.textBoxes
         .flatMap((t) => t.texts)
         .find((text) => text._text === scoreContents.name);
@@ -118,11 +118,7 @@ class ScoresList {
     const newName = prompt('Rename:', score.name);
     if (newName) {
       score.name = newName;
-      if (
-        score.textBoxes &&
-        score.textBoxes[0] &&
-        score.textBoxes[0].texts[0]
-      ) {
+      if (score.textBoxes?.[0]?.texts[0]) {
         score.textBoxes[0].texts[0]._text = newName;
       }
       await db.ref(`scores${scoreRef.path}`).set(score);
@@ -149,30 +145,21 @@ class ScoresList {
   view() {
     if (this.loading) return [m('div.loading', m('div.spinner'))];
 
+    const path = (score: ScoreRef) =>
+      `/pipescore${score.path.replace('/scores/', '/')}`;
+
     return [
       m('p', 'Scores:'),
       this.scores.length === 0 ? m('p', 'You have no scores.') : null,
       m('table', [
         ...this.scores.map((score) =>
           m('tr', [
-            m(
-              'td.td-name',
-              m(
-                'a',
-                { href: '/pipescore' + score.path.replace('/scores/', '/') },
-                score.name
-              )
-            ),
+            m('td.td-name', m('a', { href: path(score) }, score.name)),
             m(
               'td',
               m(
                 'button.edit',
-                {
-                  onclick: () =>
-                    window.location.assign(
-                      '/pipescore' + score.path.replace('/scores/', '/')
-                    ),
-                },
+                { onclick: () => window.location.assign(path(score)) },
                 'Edit'
               )
             ),

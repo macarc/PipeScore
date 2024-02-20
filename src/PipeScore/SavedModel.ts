@@ -158,6 +158,8 @@ export type SavedSettings = {
   lineGap: number;
   margin: number;
   gapAfterGracenote: number;
+  // Deprecated
+  topOffset?: number;
 };
 
 export type DeprecatedSavedNoteOrTriplet =
@@ -177,5 +179,5 @@ export type DeprecatedSavedNoteOrTriplet =
 export function isDeprecatedSavedNoteOrTriplet(
   noteOrTriplet: SavedNoteOrTriplet
 ): noteOrTriplet is DeprecatedSavedNoteOrTriplet {
-  return (noteOrTriplet as any).id !== undefined;
+  return (noteOrTriplet as DeprecatedSavedNoteOrTriplet).id !== undefined;
 }

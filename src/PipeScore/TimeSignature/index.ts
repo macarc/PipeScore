@@ -126,28 +126,37 @@ export class TimeSignature {
   public cutTime() {
     return this.ts === 'cut time';
   }
+
   public commonTime() {
     return this.ts === 'common time';
   }
+
   public top() {
-    if (this.ts === 'cut time') {
-      return 2;
-    } else if (this.ts === 'common time') {
-      return 4;
+    switch (this.ts) {
+      case 'cut time':
+        return 2;
+      case 'common time':
+        return 4;
+      default:
+        return this.ts[0];
     }
-    return this.ts[0];
   }
+
   public bottom() {
-    if (this.ts === 'cut time') {
-      return 2;
-    } else if (this.ts === 'common time') {
-      return 4;
+    switch (this.ts) {
+      case 'cut time':
+        return 2;
+      case 'common time':
+        return 4;
+      default:
+        return this.ts[1];
     }
-    return this.ts[1];
   }
+
   public edit() {
     return edit(this);
   }
+
   private renderCommonTime(x: number, y: number, onclick: () => void) {
     // https://upload.wikimedia.org/wikipedia/commons/a/ab/Music-commontime.svg
     const scale = 0.0083 * settings.lineHeightOf(5);
@@ -167,6 +176,7 @@ export class TimeSignature {
       })
     );
   }
+
   public render(props: TimeSignatureProps): m.Children {
     const edit = () =>
       this.edit().then((newTimeSignature) =>
@@ -189,34 +199,34 @@ export class TimeSignature {
             })
           : null,
       ]);
-    } else {
-      const y = props.y + settings.lineHeightOf(2);
-      return m('g[class=time-signature]', [
-        m(
-          'text',
-          {
-            'text-anchor': 'middle',
-            x: props.x,
-            y,
-            style: 'font-family: serif; font-weight: bold; cursor: pointer;',
-            'font-size': this.fontSize(),
-            onclick: edit,
-          },
-          this.top().toString()
-        ),
-        m(
-          'text',
-          {
-            'text-anchor': 'middle',
-            x: props.x,
-            y: y + settings.lineHeightOf(2),
-            style: 'font-family: serif; font-weight: bold; cursor: pointer;',
-            'font-size': this.fontSize(),
-            onclick: edit,
-          },
-          this.bottom().toString()
-        ),
-      ]);
     }
+
+    const y = props.y + settings.lineHeightOf(2);
+    return m('g[class=time-signature]', [
+      m(
+        'text',
+        {
+          'text-anchor': 'middle',
+          x: props.x,
+          y,
+          style: 'font-family: serif; font-weight: bold; cursor: pointer;',
+          'font-size': this.fontSize(),
+          onclick: edit,
+        },
+        this.top().toString()
+      ),
+      m(
+        'text',
+        {
+          'text-anchor': 'middle',
+          x: props.x,
+          y: y + settings.lineHeightOf(2),
+          style: 'font-family: serif; font-weight: bold; cursor: pointer;',
+          'font-size': this.fontSize(),
+          onclick: edit,
+        },
+        this.bottom().toString()
+      ),
+    ]);
   }
 }

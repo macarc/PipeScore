@@ -83,10 +83,10 @@ import { CustomGracenote, Gracenote, ReactiveGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { Duration } from '../Note/notelength';
 import {
-  CustomGracenotePreview,
   NotePreview,
   Preview,
   ReactiveGracenotePreview,
+  SingleGracenotePreview,
 } from '../Preview';
 import { Stave } from '../Stave';
 import { TextBox } from '../TextBox';
@@ -169,7 +169,7 @@ export default function render(state: UIState): m.Children {
     const element = e.target;
     if (element instanceof HTMLInputElement) {
       const newZoomLevel = parseInt(element.value, 10);
-      if (!isNaN(newZoomLevel)) {
+      if (!Number.isNaN(newZoomLevel)) {
         dispatch(changeZoomLevel(newZoomLevel));
       }
     }
@@ -192,7 +192,7 @@ export default function render(state: UIState): m.Children {
 
   const setting = <T extends keyof Settings>(property: T, name: string) =>
     m('div.horizontal', [
-      m('label', name + ': '),
+      m('label', `${name}: `),
       m('input', {
         type: 'number',
         value: settings[property].toString(),
@@ -287,7 +287,7 @@ export default function render(state: UIState): m.Children {
           'single',
           m('button', {
             class:
-              state.preview instanceof CustomGracenotePreview ||
+              state.preview instanceof SingleGracenotePreview ||
               (state.selectedGracenote instanceof CustomGracenote &&
                 state.selectedGracenote.notes().length === 1)
                 ? 'highlighted'
@@ -336,15 +336,9 @@ export default function render(state: UIState): m.Children {
   };
 
   const startBarClass = (type: Barline) =>
-    'textual' +
-    (state.selectedBar && state.selectedBar.startBarline(type)
-      ? ' highlighted'
-      : '');
+    state.selectedBar?.startBarline(type) ? 'textual highlighted' : 'textual';
   const endBarClass = (type: Barline) =>
-    'textual' +
-    (state.selectedBar && state.selectedBar.endBarline(type)
-      ? ' highlighted'
-      : '');
+    state.selectedBar?.endBarline(type) ? 'textual highlighted' : 'textual';
 
   const barMenu = [
     m('section', [
@@ -791,8 +785,9 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class:
-                'text double-width' + (state.isLandscape ? ' highlighted' : ''),
+              class: `text double-width ${
+                state.isLandscape ? ' highlighted' : ''
+              }`,
               onclick: () => dispatch(landscape()),
             },
             'Landscape'
@@ -803,8 +798,9 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class:
-                'text double-width' + (state.isLandscape ? '' : ' highlighted'),
+              class: `text double-width ${
+                state.isLandscape ? '' : ' highlighted'
+              }`,
               onclick: () => dispatch(portrait()),
             },
             'Portrait'

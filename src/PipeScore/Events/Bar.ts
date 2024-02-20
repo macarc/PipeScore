@@ -21,12 +21,7 @@ import { BarlineSelection, ScoreSelection } from '../Selection';
 import { State } from '../State';
 import { TimeSignature } from '../TimeSignature';
 import { Relative } from '../global/relativeLocation';
-import {
-  ScoreEvent,
-  Update,
-  addToSelection,
-  stopInputtingNotes,
-} from './common';
+import { ScoreEvent, Update, addToSelection, stopInputMode } from './common';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignature,
@@ -77,7 +72,7 @@ export function addBar(where: Relative): ScoreEvent {
 
 export function clickBarline(drag: (x: number) => void): ScoreEvent {
   return async (state: State) => {
-    stopInputtingNotes(state);
+    stopInputMode(state);
     state.selection = new BarlineSelection(drag, true);
     return Update.ViewChanged;
   };
@@ -87,7 +82,9 @@ export function resetBarLength(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const bars = state.selection.bars(state.score);
-      bars.forEach((bar) => (bar.fixedWidth = 'auto'));
+      for (const bar of bars) {
+        bar.fixedWidth = 'auto';
+      }
       if (bars.length > 0) {
         const prev = state.score.previousBar(bars[0].id);
         if (prev) prev.fixedWidth = 'auto';

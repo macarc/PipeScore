@@ -45,23 +45,23 @@ export function mouseOverPitch(pitch: Pitch, where: Note | Bar): ScoreEvent {
     if (state.preview) {
       let changed = false;
       if (where instanceof Bar) {
-        changed =
-          state.preview.setLocation(where, where.lastNote(), null) || changed;
-        changed = state.preview.setPitch(pitch) || changed;
+        changed = state.preview.setLocation(where, where.lastNote(), null);
       } else {
-        changed =
-          state.preview.setLocation(
-            state.score.location(where.id).bar,
-            state.score.previousNote(where.id),
-            where
-          ) || changed;
-        changed = state.preview.setPitch(pitch) || changed;
+        changed = state.preview.setLocation(
+          state.score.location(where.id).bar,
+          state.score.previousNote(where.id),
+          where
+        );
       }
+      changed = state.preview.setPitch(pitch) || changed;
       return changed ? Update.ViewChanged : Update.NoChange;
-    } else if (state.selection && state.selection.dragging) {
+    }
+
+    if (state.selection?.dragging) {
       state.selection.dragOverPitch(pitch, state.score);
       return Update.ViewChanged;
     }
+
     return Update.NoChange;
   };
 }

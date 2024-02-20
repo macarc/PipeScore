@@ -15,7 +15,6 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //  Invisible rectangles that are used to detect what pitch the mouse is over.
-//  TODO: Maybe name this better?
 
 import m from 'mithril';
 import { Pitch, pitchToHeight } from '../global/pitch';
@@ -25,8 +24,8 @@ export function pitchBoxes(
   x: number,
   y: number,
   width: number,
-  mouseOver: (pitch: Pitch, event: MouseEvent) => void = () => null,
-  mouseDown: (pitch: Pitch, event: MouseEvent) => void = () => null,
+  mouseOver: (pitch: Pitch, event: MouseEvent) => void,
+  mouseDown: (pitch: Pitch, event: MouseEvent) => void,
   mouseMoveIsMouseOver: boolean
 ): m.Children {
   // Need to add 0.1 for Firefox since if it is exact then the boxes don't overlap

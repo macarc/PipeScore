@@ -18,9 +18,9 @@ import { Bar } from '../Bar';
 import { Note, Triplet } from '../Note';
 import { Duration, NoteLength } from '../Note/notelength';
 import {
-  CustomGracenotePreview,
   NotePreview,
   ReactiveGracenotePreview,
+  SingleGracenotePreview,
 } from '../Preview';
 import {
   GracenoteSelection,
@@ -29,12 +29,7 @@ import {
 } from '../Selection';
 import { State } from '../State';
 import { Pitch } from '../global/pitch';
-import {
-  ScoreEvent,
-  Update,
-  addToSelection,
-  stopInputtingNotes,
-} from './common';
+import { ScoreEvent, Update, addToSelection, stopInputMode } from './common';
 
 export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
   return async (state: State) => {
@@ -87,16 +82,18 @@ export function moveNoteUp(): ScoreEvent {
     if (state.selection instanceof GracenoteSelection) {
       state.selection.moveUp(state.score);
       return Update.ShouldSave;
-    } else if (state.selection instanceof ScoreSelection) {
+    }
+
+    if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
-      state.selection.notes(state.score).forEach((note) => {
+      for (const note of state.selection.notes(state.score)) {
         note.moveUp();
         note.makeCorrectTie(notes);
-      });
+      }
       return Update.ShouldSave;
-    } else {
-      return Update.NoChange;
     }
+
+    return Update.NoChange;
   };
 }
 
@@ -105,16 +102,18 @@ export function moveNoteDown(): ScoreEvent {
     if (state.selection instanceof GracenoteSelection) {
       state.selection.moveDown(state.score);
       return Update.ShouldSave;
-    } else if (state.selection instanceof ScoreSelection) {
+    }
+
+    if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
-      state.selection.notes(state.score).forEach((note) => {
+      for (const note of state.selection.notes(state.score)) {
         note.moveDown();
         note.makeCorrectTie(notes);
-      });
+      }
       return Update.ShouldSave;
-    } else {
-      return Update.NoChange;
     }
+
+    return Update.NoChange;
   };
 }
 
@@ -125,28 +124,33 @@ export function tieSelectedNotes(): ScoreEvent {
       if (notes.length === 1) {
         notes[0].toggleTie(state.score.notes());
       } else {
-        notes
-          // Don't tie the first note so that it
-          // ties *between* the selected notes
-          .slice(1)
-          .forEach((note) => note.toggleTie(state.score.notes()));
+        const allNotes = state.score.notes();
+        // Don't tie the first note so that it
+        // ties *between* the selected notes
+        for (const note of notes.slice(1)) {
+          note.toggleTie(allNotes);
+        }
       }
       return Update.ShouldSave;
-    } else {
-      return Update.NoChange;
     }
+
+    return Update.NoChange;
   };
 }
 
 export function toggleNatural(): ScoreEvent {
   return async (state: State) => {
-    if (state.preview instanceof NotePreview) state.preview.toggleNatural();
+    if (state.preview instanceof NotePreview) {
+      state.preview.toggleNatural();
+    }
+
     if (state.selection instanceof ScoreSelection) {
-      state.selection
-        ?.notes(state.score)
-        .forEach((note) => note.toggleNatural());
+      for (const note of state.selection.notes(state.score)) {
+        note.toggleNatural();
+      }
       return Update.ShouldSave;
     }
+
     return Update.ViewChanged;
   };
 }
@@ -187,9 +191,9 @@ export function addTriplet(): ScoreEvent {
 export function toggleDot(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      state.selection
-        .notesAndTriplets(state.score)
-        .forEach((note) => note.setLength(note.length().dotted()));
+      for (const note of state.selection.notesAndTriplets(state.score)) {
+        note.setLength(note.length().dotted());
+      }
     }
     if (state.preview instanceof NotePreview)
       state.preview.setLength(state.preview.length().dotted());
@@ -199,14 +203,14 @@ export function toggleDot(): ScoreEvent {
 
 export function stopInput(): ScoreEvent {
   return async (state: State) => {
-    stopInputtingNotes(state);
+    stopInputMode(state);
     return Update.ViewChanged;
   };
 }
 
 export function clickTripletLine(triplet: Triplet): ScoreEvent {
   return async (state: State) => {
-    stopInputtingNotes(state);
+    stopInputMode(state);
     state.selection = new TripletLineSelection(triplet, true);
     return Update.ViewChanged;
   };
@@ -218,13 +222,14 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
       if (note.isPreview()) {
         state.preview?.makeReal(state.score.notes());
         return Update.ShouldSave;
-      } else {
-        stopInputtingNotes(state);
       }
+
+      stopInputMode(state);
     }
+
     if (
       state.preview instanceof ReactiveGracenotePreview ||
-      state.preview instanceof CustomGracenotePreview
+      state.preview instanceof SingleGracenotePreview
     ) {
       state.preview.setLocation(
         state.score.location(note.id).bar,
@@ -234,10 +239,12 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
       state.preview.makeReal(state.score.notes());
       return Update.ShouldSave;
     }
+
     if (event.shiftKey && state.selection instanceof ScoreSelection) {
       addToSelection(note.id, state.selection);
       return Update.ViewChanged;
     }
+
     state.justClickedNote = true;
     state.selection = new ScoreSelection(note.id, note.id, true);
     return Update.ViewChanged;
@@ -248,21 +255,23 @@ export function setInputLength(length: Duration): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notesAndTriplets(state.score);
-      if (notes.length > 0)
-        notes.forEach((note) => note.setLength(new NoteLength(length)));
-      else {
-        stopInputtingNotes(state);
+      if (notes.length > 0) {
+        for (const note of notes) {
+          note.setLength(new NoteLength(length));
+        }
+      } else {
+        stopInputMode(state);
         state.preview = new NotePreview(new NoteLength(length));
       }
     } else if (state.preview instanceof NotePreview) {
       if (state.preview.length().sameNoteLengthName(length)) {
-        stopInputtingNotes(state);
+        stopInputMode(state);
       } else {
         state.preview.setLength(new NoteLength(length));
       }
     } else {
       state.selection = null;
-      stopInputtingNotes(state);
+      stopInputMode(state);
       state.preview = new NotePreview(new NoteLength(length));
     }
     return Update.ShouldSave;

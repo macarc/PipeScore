@@ -250,9 +250,8 @@ class PartialScore {
         throw new Error(
           'Tried to make a triplet, but one of the notes in the triplet is itself a triplet!'
         );
-      } else {
-        return note.value;
       }
+      return note.value;
     });
     const duration = notes[0].length;
     bar.notes.splice(bar.notes.length - 3, 3, {
@@ -518,7 +517,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   [TokenType.TIME_LINE_START](t: Token) {
     const text =
       t.value[1] === '1' || t.value[1] === '2'
-        ? t.value[1] + '.'
+        ? `${t.value[1]}.`
         : t.value[1] || '2nd.';
 
     this.score.startTimeline(text);
@@ -628,7 +627,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
       partBeforeStrike === 'h'
     ) {
       this.score.newGracenote(reactive('g-strike'));
-    } else if (partBeforeStrike && partBeforeStrike.startsWith('l')) {
+    } else if (partBeforeStrike?.startsWith('l')) {
       // 'Light' strikes on D go to C instead of G. These are not implemented
       // as reactive gracenotes in PipeScore, so we use custom gracenotes instead.
       if (partBeforeStrike[1] === 'g') {

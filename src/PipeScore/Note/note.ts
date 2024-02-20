@@ -149,7 +149,7 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
       this.previewGracenote = this._gracenote.addSingle(
         gracenote,
         this.pitch(),
-        noteBefore && noteBefore.pitch()
+        noteBefore?.pitch() || null
       );
     }
   }
@@ -215,7 +215,7 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     this._gracenote = this._gracenote.addSingle(
       grace,
       this.pitch(),
-      previous && previous.pitch()
+      previous?.pitch() || null
     );
   }
 
