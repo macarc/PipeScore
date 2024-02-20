@@ -21,26 +21,26 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { clickTiming, editTimingText } from '../Events/Timing';
-import { ID } from '../global/id';
-import { foreach } from '../global/utils';
-import {
-  inOrder,
-  closestItem,
-  getXY,
-  itemBefore,
-  XY,
-  getXYRangeForPage,
-} from '../global/xy';
-import { Score } from '../Score';
-import { TimingSelection } from '../Selection';
 import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
-import { Selection } from '../Selection';
 import {
   SavedSecondTiming,
   SavedSingleTiming,
   SavedTiming,
 } from '../SavedModel';
+import { Score } from '../Score';
+import { TimingSelection } from '../Selection';
+import { Selection } from '../Selection';
 import dialogueBox from '../global/dialogueBox';
+import { ID } from '../global/id';
+import { foreach } from '../global/utils';
+import {
+  XY,
+  closestItem,
+  getXY,
+  getXYRangeForPage,
+  inOrder,
+  itemBefore,
+} from '../global/xy';
 
 interface TimingProps {
   score: Score;

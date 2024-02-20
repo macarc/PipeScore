@@ -16,13 +16,13 @@
 
 //  Code for drawing triplets
 
+import m from 'mithril';
 import { NoteProps } from '.';
 import { dispatch } from '../Controller';
 import { clickTripletLine } from '../Events/Note';
 import { Pitch, pitchY } from '../global/pitch';
 import { getXY } from '../global/xy';
 import { Triplet } from './triplet';
-import m from 'mithril';
 import { drawNoteGroup, totalWidth } from './view';
 
 export function width(triplet: Triplet, previousNote: Pitch | null) {

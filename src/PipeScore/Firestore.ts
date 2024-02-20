@@ -16,10 +16,10 @@
 
 //  Buffered saving interface to Firestore
 
+import { Database } from 'firebase-firestore-lite';
+import quickStart from './QuickStart';
 import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
 import { Score } from './Score';
-import quickStart from './QuickStart';
-import { Database } from 'firebase-firestore-lite';
 
 function beforeUnload(event: Event) {
   event.preventDefault();

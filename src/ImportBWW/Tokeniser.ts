@@ -1,5 +1,5 @@
-import { Token, TokenType } from './token';
 import { Spec } from './Spec';
+import { Token, TokenType } from './token';
 
 export class TokenStream {
   private stream: string;

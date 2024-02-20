@@ -14,43 +14,43 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { TimeSignature } from '../TimeSignature';
+import m from 'mithril';
+import { dispatch } from '../Controller';
+import { clickBar } from '../Events/Bar';
+import { addNoteToBarEnd } from '../Events/Note';
+import { mouseOverPitch } from '../Events/PitchBoxes';
+import { GracenoteState } from '../Gracenote/state';
 import {
-  NoteProps,
   Note,
+  NoteProps,
   Triplet,
-  lastNote,
-  noteToJSON,
   flattenTriplets,
-  notesToTriplet,
   groupNotes,
+  lastNote,
   noteFromJSON,
   noteOrTripletWidth,
+  noteToJSON,
+  notesToTriplet,
 } from '../Note';
-import { genId, ID, Item } from '../global/id';
-import { last, nlast } from '../global/utils';
-import width from '../global/width';
-import { Pitch } from '../global/pitch';
 import { NoteState } from '../Note/state';
-import { GracenoteState } from '../Gracenote/state';
-import m from 'mithril';
-import { setXY } from '../global/xy';
-import { addNoteToBarEnd } from '../Events/Note';
-import { clickBar } from '../Events/Bar';
+import { drawTriplet } from '../Note/tripletview';
+import { drawNoteGroup, noteHeadWidth, spacerWidth } from '../Note/view';
 import { pitchBoxes } from '../PitchBoxes';
-import { mouseOverPitch } from '../Events/PitchBoxes';
-import { Barline } from './barline';
 import {
   Playback,
   PlaybackNote,
   PlaybackObject,
   PlaybackRepeat,
 } from '../Playback';
-import { dispatch } from '../Controller';
 import { Previews } from '../Preview/previews';
 import { SavedBar } from '../SavedModel';
-import { drawNoteGroup, noteHeadWidth, spacerWidth } from '../Note/view';
-import { drawTriplet } from '../Note/tripletview';
+import { TimeSignature } from '../TimeSignature';
+import { ID, Item, genId } from '../global/id';
+import { Pitch } from '../global/pitch';
+import { last, nlast } from '../global/utils';
+import width from '../global/width';
+import { setXY } from '../global/xy';
+import { Barline } from './barline';
 
 interface BarProps {
   x: number;
@@ -464,12 +464,12 @@ export class Bar extends Item implements Previews<Note> {
       ? this.notes().length === 1
         ? xAfterBarline - barWidth / 5
         : this.notes().length === 2
-        ? this.notes()[0] === this.previewNote
-          ? this.isAnacrusis
-            ? xAfterBarline - 10
-            : xAfterBarline
-          : xOf(this._notes.indexOf(this.previewNote)) + beatWidth / 2
-        : xOf(this._notes.indexOf(this.previewNote)) - noteHeadWidth
+          ? this.notes()[0] === this.previewNote
+            ? this.isAnacrusis
+              ? xAfterBarline - 10
+              : xAfterBarline
+            : xOf(this._notes.indexOf(this.previewNote)) + beatWidth / 2
+          : xOf(this._notes.indexOf(this.previewNote)) - noteHeadWidth
       : 0;
 
     const noteProps = (notes: Note[] | Triplet): NoteProps => {

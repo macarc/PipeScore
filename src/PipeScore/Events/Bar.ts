@@ -14,19 +14,19 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import {
-  ScoreEvent,
-  Update,
-  stopInputtingNotes,
-  addToSelection,
-} from './common';
-import { State } from '../State';
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
 import { Score } from '../Score';
-import { TimeSignature } from '../TimeSignature';
 import { BarlineSelection, ScoreSelection } from '../Selection';
+import { State } from '../State';
+import { TimeSignature } from '../TimeSignature';
 import { Relative } from '../global/relativeLocation';
+import {
+  ScoreEvent,
+  Update,
+  addToSelection,
+  stopInputtingNotes,
+} from './common';
 
 function setTimeSignatureFrom(
   timeSignature: TimeSignature,
@@ -52,8 +52,8 @@ export function addAnacrusis(where: Relative): ScoreEvent {
       state.selection instanceof ScoreSelection
         ? state.selection.bar(state.score)
         : where === Relative.before
-        ? state.score.firstOnPage(0)
-        : state.score.lastOnPage(0);
+          ? state.score.firstOnPage(0)
+          : state.score.lastOnPage(0);
 
     if (bar) {
       const { stave } = state.score.location(bar.id);

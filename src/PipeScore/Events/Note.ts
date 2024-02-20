@@ -14,27 +14,27 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Bar } from '../Bar';
+import { Note, Triplet } from '../Note';
+import { Duration, NoteLength } from '../Note/notelength';
+import {
+  CustomGracenotePreview,
+  NotePreview,
+  ReactiveGracenotePreview,
+} from '../Preview';
+import {
+  GracenoteSelection,
+  ScoreSelection,
+  TripletLineSelection,
+} from '../Selection';
+import { State } from '../State';
+import { Pitch } from '../global/pitch';
 import {
   ScoreEvent,
   Update,
-  stopInputtingNotes,
   addToSelection,
+  stopInputtingNotes,
 } from './common';
-import { State } from '../State';
-import { Pitch } from '../global/pitch';
-import { Bar } from '../Bar';
-import {
-  ScoreSelection,
-  TripletLineSelection,
-  GracenoteSelection,
-} from '../Selection';
-import { Note, Triplet } from '../Note';
-import {
-  NotePreview,
-  CustomGracenotePreview,
-  ReactiveGracenotePreview,
-} from '../Preview';
-import { Duration, NoteLength } from '../Note/notelength';
 
 export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
   return async (state: State) => {

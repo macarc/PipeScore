@@ -17,10 +17,14 @@
 //  The main event loop of PipeScore. See ./README.md for an explanation.
 
 import m from 'mithril';
+import Documentation from './Documentation';
+import { loadedAudio } from './Events/Misc';
+import { mouseDrag, mouseUp } from './Events/Mouse';
 import { ScoreEvent, Update } from './Events/common';
-import { mouseUp, mouseDrag } from './Events/Mouse';
-import { clearXY } from './global/xy';
-import { State } from './State';
+import { Firestore } from './Firestore';
+import { emptyGracenoteState } from './Gracenote/state';
+import { startLoadingSamples } from './Playback';
+import quickStart from './QuickStart';
 import { Score } from './Score';
 import {
   GracenoteSelection,
@@ -29,14 +33,10 @@ import {
   TimingSelection,
   TripletLineSelection,
 } from './Selection';
-import { emptyGracenoteState } from './Gracenote/state';
+import { State } from './State';
 import renderUI from './UI/view';
-import Documentation from './Documentation';
 import { svgCoords } from './global/utils';
-import { startLoadingSamples } from './Playback';
-import { loadedAudio } from './Events/Misc';
-import { Firestore } from './Firestore';
-import quickStart from './QuickStart';
+import { clearXY } from './global/xy';
 
 const state: State = {
   store: null,

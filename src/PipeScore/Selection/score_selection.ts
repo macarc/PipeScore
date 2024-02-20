@@ -18,20 +18,20 @@
 //  It has considerably more functionality than the other selections
 //  so it goes in its own file
 
-import { Selection } from './model';
-import { ID } from '../global/id';
-import { Pitch } from '../global/pitch';
-import { car, last, foreach } from '../global/utils';
-import { deleteXY, XY, getXYRangeForPage } from '../global/xy';
-import { Item } from '../global/id';
-import { settings } from '../global/settings';
 import m from 'mithril';
+import { Bar } from '../Bar';
+import { Gracenote } from '../Gracenote';
+import { Note, Triplet, flattenTriplets } from '../Note';
 import { Score } from '../Score';
 import { Stave } from '../Stave';
-import { Bar } from '../Bar';
-import { Note, Triplet, flattenTriplets } from '../Note';
-import { Gracenote } from '../Gracenote';
+import { ID } from '../global/id';
+import { Item } from '../global/id';
+import { Pitch } from '../global/pitch';
 import { Relative } from '../global/relativeLocation';
+import { settings } from '../global/settings';
+import { car, foreach, last } from '../global/utils';
+import { XY, deleteXY, getXYRangeForPage } from '../global/xy';
+import { Selection } from './model';
 
 interface ScoreSelectionProps {
   page: number;

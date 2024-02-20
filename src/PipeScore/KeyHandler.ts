@@ -17,29 +17,29 @@
 import { dispatch } from './Controller';
 import { dialogueBoxIsOpen } from './global/dialogueBox';
 
+import { print, redo, save, undo } from './Events/Misc';
 import {
+  addNoteAfterSelection,
+  moveNoteDown,
+  moveNoteUp,
   setInputLength,
   stopInput,
   tieSelectedNotes,
-  moveNoteDown,
-  moveNoteUp,
   toggleDot,
-  addNoteAfterSelection,
 } from './Events/Note';
 import {
   copy,
-  paste,
-  expandSelection,
-  detractSelection,
   deleteSelection,
-  moveLeftBarwise,
-  moveRightBarwise,
+  detractSelection,
+  expandSelection,
   moveLeft,
+  moveLeftBarwise,
   moveRight,
+  moveRightBarwise,
+  paste,
 } from './Events/Selection';
-import { undo, redo, print, save } from './Events/Misc';
-import { Pitch } from './global/pitch';
 import { Duration } from './Note/notelength';
+import { Pitch } from './global/pitch';
 
 export function keyHandler(e: KeyboardEvent): void {
   if (dialogueBoxIsOpen) return;

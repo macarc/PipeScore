@@ -18,9 +18,9 @@
 //  a few default options to choose from.
 
 import m from 'mithril';
-import dialogueBox from './global/dialogueBox';
-import { timeSignatureEditor } from './TimeSignature/edit';
 import { Score } from './Score';
+import { timeSignatureEditor } from './TimeSignature/edit';
+import dialogueBox from './global/dialogueBox';
 
 import { TimeSignature } from './TimeSignature';
 

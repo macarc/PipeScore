@@ -16,12 +16,12 @@
 
 import m from 'mithril';
 import { dispatch } from '../Controller';
+import { clickText, editText } from '../Events/Text';
 import { Update } from '../Events/common';
-import { editText, clickText } from '../Events/Text';
-import dialogueBox from '../global/dialogueBox';
-import { svgCoords } from '../global/utils';
 import { SavedTextBox } from '../SavedModel';
 import { Selection, TextSelection } from '../Selection';
+import dialogueBox from '../global/dialogueBox';
+import { svgCoords } from '../global/utils';
 
 interface TextBoxProps {
   scoreWidth: number;

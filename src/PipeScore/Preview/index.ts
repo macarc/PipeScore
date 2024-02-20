@@ -23,10 +23,10 @@
 //  would be if you placed it.
 
 import { Bar } from '../Bar';
-import { Pitch } from '../global/pitch';
 import { ReactiveGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { NoteLength } from '../Note/notelength';
+import { Pitch } from '../global/pitch';
 import { Previews } from './previews';
 
 export interface Preview {

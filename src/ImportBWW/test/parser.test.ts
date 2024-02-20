@@ -1,6 +1,6 @@
+import { readFileSync } from 'fs';
 import { parse } from '../Parser';
 import { parsesWithoutWarnings } from './test_common';
-import { readFileSync } from 'fs';
 
 describe('correctly parses score body', () => {
   test('it works without any headers', () =>
@@ -223,7 +223,7 @@ describe('correctly parses score body', () => {
       )
     ).toBe(true));
 
-  test('it can parse scotland the brave', async function () {
+  test('it can parse scotland the brave', async () => {
     const path = 'src/ImportBWW/test/fixtures/Scotland_the_Brave.bww';
     const file = await readFileSync(path, {}).toString('utf-8');
     const { warnings } = parse(file);

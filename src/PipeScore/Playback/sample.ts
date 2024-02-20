@@ -27,10 +27,6 @@ export class Sample {
   }
 
   load(): Promise<(context: AudioContext) => void> {
-    // Need to do this because when it's used later on `this` refers to something else
-    // eslint-disable-next-line
-    const s = this;
-
     // Safari can't decode mp3
     const file_format = (window as any).safari !== undefined ? '.wav' : '.mp3';
 
@@ -42,7 +38,7 @@ export class Sample {
         const data = request.response;
         res((context) => {
           context.decodeAudioData(data, (buffer) => {
-            s.buffer = buffer;
+            this.buffer = buffer;
           });
         });
       };

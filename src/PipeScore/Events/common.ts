@@ -16,18 +16,18 @@
 
 //  Types / functions shared between multiple event handlers.
 
+import { ScoreSelection } from '../Selection';
 import { State } from '../State';
 import { ID } from '../global/id';
 import { itemBefore } from '../global/xy';
-import { ScoreSelection } from '../Selection';
 
 export type ScoreEvent = (state: State) => Promise<Update>;
 
-export const enum Update {
-  NoChange,
-  ViewChanged,
-  ShouldSave,
-  MovedThroughHistory,
+export enum Update {
+  NoChange = 0,
+  ViewChanged = 1,
+  ShouldSave = 2,
+  MovedThroughHistory = 3,
 }
 
 export function stopInputtingNotes(state: State) {

@@ -1,11 +1,11 @@
 import Auth from 'firebase-auth-lite';
 import { Database, Reference } from 'firebase-firestore-lite';
-import { onUserChange } from '../auth-helper';
-import { parse } from './Parser';
 import m from 'mithril';
 import { SavedScore } from '../PipeScore/SavedModel';
 import { settings } from '../PipeScore/global/settings';
+import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
+import { parse } from './Parser';
 
 // This can be safely public
 const apiToken = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';

@@ -17,9 +17,9 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { editTimeSignature } from '../Events/Bar';
+import { SavedTimeSignature } from '../SavedModel';
 import { settings } from '../global/settings';
 import { edit } from './edit';
-import { SavedTimeSignature } from '../SavedModel';
 
 export type Denominator = 2 | 4 | 8;
 

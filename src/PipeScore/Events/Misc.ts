@@ -14,15 +14,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
+import m from 'mithril';
 import { State } from '../State';
 import { Menu } from '../UI/model';
-import m from 'mithril';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 
-import dialogueBox from '../global/dialogueBox';
-import { settings, Settings } from '../global/settings';
-import { last } from '../global/utils';
 import { Score } from '../Score';
+import dialogueBox from '../global/dialogueBox';
+import { Settings, settings } from '../global/settings';
+import { last } from '../global/utils';
 
 export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   return async (state: State) => {

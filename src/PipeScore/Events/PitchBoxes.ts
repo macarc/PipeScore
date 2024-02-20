@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update } from './common';
+import { Bar } from '../Bar';
+import { Note } from '../Note';
 import { State } from '../State';
 import { Pitch } from '../global/pitch';
-import { Note } from '../Note';
-import { Bar } from '../Bar';
+import { ScoreEvent, Update } from './common';
 
 export function mouseOffPitch(): ScoreEvent {
   return async (state: State) => {

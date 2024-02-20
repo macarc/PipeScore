@@ -24,18 +24,18 @@
 //  - (NoGracenote - used if the note has no gracenote)
 
 import m from 'mithril';
-import { clickGracenote } from '../Events/Gracenote';
-import { settings } from '../global/settings';
-import { pitchY, Pitch, pitchUp, pitchDown } from '../global/pitch';
-import { GracenoteNoteList, noteList, gracenotes } from './gracenotes';
-import { GracenoteState } from './state';
-import { PlaybackGracenote } from '../Playback';
 import { dispatch } from '../Controller';
+import { clickGracenote } from '../Events/Gracenote';
+import { PlaybackGracenote } from '../Playback';
 import {
   SavedCustomGracenote,
   SavedGracenote,
   SavedReactiveGracenote,
 } from '../SavedModel';
+import { Pitch, pitchDown, pitchUp, pitchY } from '../global/pitch';
+import { settings } from '../global/settings';
+import { GracenoteNoteList, gracenotes, noteList } from './gracenotes';
+import { GracenoteState } from './state';
 
 export interface GracenoteProps {
   thisNote: Pitch;

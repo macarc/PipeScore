@@ -18,7 +18,7 @@
 
 import { settings } from './settings';
 
-export const enum Pitch {
+export enum Pitch {
   HA = 'HA',
   HG = 'HG',
   F = 'F',

@@ -1,3 +1,4 @@
+import { Duration, NoteLength } from '../PipeScore/Note/notelength';
 import {
   SavedBar,
   SavedGracenote,
@@ -5,13 +6,12 @@ import {
   SavedTimeSignature,
   SavedTiming,
 } from '../PipeScore/SavedModel';
-import { Token, TokenType } from './token';
-import { TokenStream } from './Tokeniser';
-import { Settings } from '../PipeScore/global/settings';
-import { genId, ID } from '../PipeScore/global/id';
+import { ID, genId } from '../PipeScore/global/id';
 import { Pitch } from '../PipeScore/global/pitch';
+import { Settings } from '../PipeScore/global/settings';
 import { sum } from '../PipeScore/global/utils';
-import { NoteLength, Duration } from '../PipeScore/Note/notelength';
+import { TokenStream } from './Tokeniser';
+import { Token, TokenType } from './token';
 
 export const parse = (data: string) => new Parser(data).parse();
 
@@ -83,9 +83,9 @@ function toPitch(pitch: string): Pitch {
 }
 
 enum TieingState {
-  NotTieing,
-  OldTieFormat,
-  NewTieFormat,
+  NotTieing = 0,
+  OldTieFormat = 1,
+  NewTieFormat = 2,
 }
 
 function toDuration(length: string): Duration {

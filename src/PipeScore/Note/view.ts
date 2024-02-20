@@ -16,18 +16,18 @@
 
 //  Code for drawing notes
 
+import m from 'mithril';
 import { Note, NoteProps } from '.';
 import { dispatch } from '../Controller';
 import { addNoteBefore, clickNote } from '../Events/Note';
 import { mouseOffPitch, mouseOverPitch } from '../Events/PitchBoxes';
 import { GracenoteProps } from '../Gracenote';
+import { pitchBoxes } from '../PitchBoxes';
 import { Pitch, isPitchOnLine, pitchY } from '../global/pitch';
+import { settings } from '../global/settings';
 import { foreach, isRoughlyZero, sum } from '../global/utils';
 import width, { Width } from '../global/width';
-import m from 'mithril';
 import { getXY, setXY } from '../global/xy';
-import { settings } from '../global/settings';
-import { pitchBoxes } from '../PitchBoxes';
 
 type NoteLayout = {
   gracenote: number;
@@ -36,9 +36,9 @@ type NoteLayout = {
   y: number;
 }[];
 
-const enum ShortBeamDirection {
-  Left,
-  Right,
+enum ShortBeamDirection {
+  Left = 0,
+  Right = 1,
 }
 
 const beamThickness = 3;

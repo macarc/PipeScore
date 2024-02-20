@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 
-import { TextBox } from '../TextBox';
 import { TextSelection } from '../Selection';
+import { TextBox } from '../TextBox';
 import { settings } from '../global/settings';
 import { clamp } from '../global/utils';
 

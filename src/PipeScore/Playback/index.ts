@@ -18,22 +18,22 @@
 //  Web Audio API:
 //  <https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API>
 
+import { dispatch } from '../Controller';
+import { updateView } from '../Events/Misc';
+import { updatePlaybackCursor } from '../Events/Playback';
+import { ID } from '../global/id';
 import { Pitch } from '../global/pitch';
-import { Sample, Player, sleep } from './sample';
-import { PlaybackState } from './state';
+import { settings } from '../global/settings';
 import {
   Playback,
+  PlaybackGracenote,
+  PlaybackNote,
   PlaybackObject,
   PlaybackRepeat,
-  PlaybackNote,
-  PlaybackGracenote,
   PlaybackSecondTiming,
 } from './model';
-import { ID } from '../global/id';
-import { settings } from '../global/settings';
-import { dispatch } from '../Controller';
-import { updatePlaybackCursor } from '../Events/Playback';
-import { updateView } from '../Events/Misc';
+import { Player, Sample, sleep } from './sample';
+import { PlaybackState } from './state';
 
 export * from './model';
 
@@ -328,7 +328,7 @@ async function play(
     }
 
     if (!loop) {
-      break outer;
+      break;
     }
   }
 

@@ -16,9 +16,9 @@
 
 //  The pop-up for editing a time signature that displays after clicking it.
 
-import { TimeSignature, Denominator } from './index';
-import dialogueBox from '../global/dialogueBox';
 import m from 'mithril';
+import dialogueBox from '../global/dialogueBox';
+import { Denominator, TimeSignature } from './index';
 
 function textDialogue(ts: TimeSignature) {
   return [

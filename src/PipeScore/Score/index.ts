@@ -17,31 +17,31 @@
 //  The Score contains the entire score (what a surprise). Since it delegates,
 //  this file mostly deals with delegations and pages.
 
-import { Stave, trebleClefWidth } from '../Stave';
-import { TextBox } from '../TextBox';
-import { Timing, TimingPart, SecondTiming } from '../Timing';
-import { TimeSignature } from '../TimeSignature';
-import { settings } from '../global/settings';
 import m from 'mithril';
 import { clickBackground, mouseUp } from '../Events/Mouse';
 import { mouseOffPitch } from '../Events/PitchBoxes';
-import { Preview } from '../Preview';
-import { NoteState } from '../Note/state';
 import { Update } from '../Events/common';
-import { Playback } from '../Playback';
-import { ScoreSelection, Selection } from '../Selection';
 import { GracenoteState } from '../Gracenote/state';
+import { NoteState } from '../Note/state';
+import { Playback } from '../Playback';
+import { Preview } from '../Preview';
+import { ScoreSelection, Selection } from '../Selection';
+import { Stave, trebleClefWidth } from '../Stave';
+import { TextBox } from '../TextBox';
+import { TimeSignature } from '../TimeSignature';
+import { SecondTiming, Timing, TimingPart } from '../Timing';
+import { settings } from '../global/settings';
 import { first, foreach, last, nlast, oneBefore, sum } from '../global/utils';
 
-import { flattenTriplets } from '../Note';
-import { ID, Item } from '../global/id';
 import { Bar } from '../Bar';
-import { setXYPage } from '../global/xy';
 import { dispatch } from '../Controller';
-import { SavedScore } from '../SavedModel';
-import { Relative } from '../global/relativeLocation';
+import { flattenTriplets } from '../Note';
 import { playbackCursor } from '../Playback/cursor';
 import { PlaybackState } from '../Playback/state';
+import { SavedScore } from '../SavedModel';
+import { ID, Item } from '../global/id';
+import { Relative } from '../global/relativeLocation';
+import { setXYPage } from '../global/xy';
 
 interface ScoreProps {
   selection: Selection | null;

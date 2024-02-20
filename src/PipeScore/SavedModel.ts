@@ -16,9 +16,9 @@
 
 //  The format in which scores are saved to Firebase
 
+import { Duration } from './Note/notelength';
 import { ID } from './global/id';
 import { Pitch } from './global/pitch';
-import { Duration } from './Note/notelength';
 
 export function scoreIsPresent(data: SavedData): data is SavedScore {
   return (data as { justCreated: true }).justCreated !== true;

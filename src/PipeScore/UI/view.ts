@@ -16,86 +16,86 @@
 
 //  Draw the user interface (top bar and help documentation)
 
-import { Menu } from './model';
 import m from 'mithril';
-import {
-  addTriplet,
-  toggleNatural,
-  tieSelectedNotes,
-  toggleDot,
-  setInputLength,
-} from '../Events/Note';
-import { copy, paste, deleteSelection } from '../Events/Selection';
+import { Bar } from '../Bar';
+import { Barline } from '../Bar/barline';
+import { dispatch } from '../Controller';
+import Documentation from '../Documentation';
 import {
   addAnacrusis,
   addBar,
-  setBarline,
   editBarTimeSignature,
-  resetBarLength,
   moveBarToNextLine,
   moveBarToPreviousLine,
+  resetBarLength,
+  setBarline,
 } from '../Events/Bar';
+import { toggleDoc } from '../Events/Doc';
+import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
 import {
-  setMenu,
-  undo,
-  redo,
-  print,
-  changeZoomLevel,
   changeSetting,
-  landscape,
-  portrait,
-  setPageNumberVisibility,
+  changeZoomLevel,
   commit,
   download,
+  landscape,
+  portrait,
+  print,
+  redo,
   save,
+  setMenu,
+  setPageNumberVisibility,
+  undo,
 } from '../Events/Misc';
 import {
-  addSecondTiming,
-  addSingleTiming,
-  editTimingText,
-} from '../Events/Timing';
-import { setGracenoteOnSelectedNotes } from '../Events/Gracenote';
-import { toggleDoc } from '../Events/Doc';
+  addTriplet,
+  setInputLength,
+  tieSelectedNotes,
+  toggleDot,
+  toggleNatural,
+} from '../Events/Note';
 import {
-  startPlayback,
-  stopPlayback,
-  setPlaybackBpm,
-  startPlaybackAtSelection,
   playbackLoopingSelection,
+  setPlaybackBpm,
+  startPlayback,
+  startPlaybackAtSelection,
+  stopPlayback,
 } from '../Events/Playback';
-import {
-  centreText,
-  addText,
-  editText,
-  setTextY,
-  setTextX,
-} from '../Events/Text';
+import { copy, deleteSelection, paste } from '../Events/Selection';
 import {
   addStave,
   resetStaveGap,
   setStaveGap,
   staveGapToDisplay,
 } from '../Events/Stave';
-import { help } from '../global/docs';
-import { Duration } from '../Note/notelength';
-import { Barline } from '../Bar/barline';
 import {
-  Preview,
+  addText,
+  centreText,
+  editText,
+  setTextX,
+  setTextY,
+} from '../Events/Text';
+import {
+  addSecondTiming,
+  addSingleTiming,
+  editTimingText,
+} from '../Events/Timing';
+import { CustomGracenote, Gracenote, ReactiveGracenote } from '../Gracenote';
+import { Note } from '../Note';
+import { Duration } from '../Note/notelength';
+import {
   CustomGracenotePreview,
   NotePreview,
+  Preview,
   ReactiveGracenotePreview,
 } from '../Preview';
-import { Settings, settings } from '../global/settings';
-import { capitalise } from '../global/utils';
-import { Bar } from '../Bar';
-import { Gracenote, ReactiveGracenote, CustomGracenote } from '../Gracenote';
-import { Note } from '../Note';
-import { dispatch } from '../Controller';
+import { Stave } from '../Stave';
 import { TextBox } from '../TextBox';
 import { Timing } from '../Timing';
-import Documentation from '../Documentation';
+import { help } from '../global/docs';
 import { Relative } from '../global/relativeLocation';
-import { Stave } from '../Stave';
+import { Settings, settings } from '../global/settings';
+import { capitalise } from '../global/utils';
+import { Menu } from './model';
 
 export interface UIState {
   saved: boolean;
@@ -206,8 +206,8 @@ export default function render(state: UIState): m.Children {
     state.selectedNotes.length === 0
       ? false
       : state.selectedNotes.length === 1
-      ? state.selectedNotes[0].isTied()
-      : state.selectedNotes.slice(1).every((note) => note.isTied());
+        ? state.selectedNotes[0].isTied()
+        : state.selectedNotes.slice(1).every((note) => note.isTied());
 
   const naturalAlready =
     state.selectedNotes.length === 0
@@ -562,8 +562,8 @@ export default function render(state: UIState): m.Children {
             state.selectedStaves.length === 0
               ? 'Stave gap (for all staves): '
               : state.selectedStaves.length === 1
-              ? 'Stave gap (for selected stave only): '
-              : 'Stave gap (for selected staves only): ',
+                ? 'Stave gap (for selected stave only): '
+                : 'Stave gap (for selected staves only): ',
             m('input', {
               type: 'number',
               min: Stave.minGap,

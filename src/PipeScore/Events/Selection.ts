@@ -14,13 +14,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update } from './common';
-import { State } from '../State';
-import { ScoreSelection } from '../Selection/score_selection';
-import { GracenoteSelection } from '../Selection';
 import { Bar } from '../Bar';
-import { SavedNoteOrTriplet } from '../SavedModel';
 import { noteFromJSON, noteToJSON } from '../Note';
+import { SavedNoteOrTriplet } from '../SavedModel';
+import { GracenoteSelection } from '../Selection';
+import { ScoreSelection } from '../Selection/score_selection';
+import { State } from '../State';
+import { ScoreEvent, Update } from './common';
 
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {

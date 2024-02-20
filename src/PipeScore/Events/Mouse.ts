@@ -14,9 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
 import { State } from '../State';
 import { dialogueBoxIsOpen } from '../global/dialogueBox';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 
 export function mouseUp(): ScoreEvent {
   return async (state: State) => {

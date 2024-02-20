@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update, stopInputtingNotes } from './common';
-import { State } from '../State';
-import { Gracenote, CustomGracenote, ReactiveGracenote } from '../Gracenote';
-import { GracenoteSelection, ScoreSelection } from '../Selection';
+import { CustomGracenote, Gracenote, ReactiveGracenote } from '../Gracenote';
 import { CustomGracenotePreview, ReactiveGracenotePreview } from '../Preview';
+import { GracenoteSelection, ScoreSelection } from '../Selection';
+import { State } from '../State';
+import { ScoreEvent, Update, stopInputtingNotes } from './common';
 
 export function clickGracenote(
   gracenote: Gracenote,
@@ -48,8 +48,8 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
         newGracenote instanceof CustomGracenote
           ? new CustomGracenotePreview()
           : newGracenote instanceof ReactiveGracenote && value
-          ? new ReactiveGracenotePreview(value)
-          : null;
+            ? new ReactiveGracenotePreview(value)
+            : null;
       return Update.ViewChanged;
     }
   };

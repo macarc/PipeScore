@@ -14,12 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update } from './common';
-import { State } from '../State';
 import { ScoreSelection } from '../Selection';
-import { Relative } from '../global/relativeLocation';
+import { State } from '../State';
 import { Stave } from '../Stave';
+import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
+import { ScoreEvent, Update } from './common';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {

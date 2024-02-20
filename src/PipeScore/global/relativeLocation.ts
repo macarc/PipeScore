@@ -16,7 +16,7 @@
 
 //  A boolean value describing position relative to selection.
 
-export const enum Relative {
+export enum Relative {
   before = 0,
   after = 1,
 }

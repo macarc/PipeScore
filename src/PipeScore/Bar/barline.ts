@@ -22,9 +22,9 @@
 import m from 'mithril';
 import { dispatch } from '../Controller';
 import { clickBarline } from '../Events/Bar';
-import { settings } from '../global/settings';
 import { SavedBarline } from '../SavedModel';
 import { stavelineThickness } from '../Stave';
+import { settings } from '../global/settings';
 
 interface BarlineProps {
   x: number;

@@ -16,12 +16,12 @@
 
 //  Load the score from the database and start the controller.
 
-import { keyHandler } from './KeyHandler';
-import startController from './Controller';
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
 import { onUserChange } from '../auth-helper';
+import startController from './Controller';
 import { Firestore } from './Firestore';
+import { keyHandler } from './KeyHandler';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 

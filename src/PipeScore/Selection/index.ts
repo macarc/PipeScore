@@ -14,13 +14,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Triplet } from '../Note';
-import { Timing, TimingPart } from '../Timing';
-import { TextBox } from '../TextBox';
-import { Score } from '../Score';
-import { Pitch } from '../global/pitch';
 import { Gracenote } from '../Gracenote';
 import { GracenoteState } from '../Gracenote/state';
+import { Triplet } from '../Note';
+import { Score } from '../Score';
+import { TextBox } from '../TextBox';
+import { Timing, TimingPart } from '../Timing';
+import { Pitch } from '../global/pitch';
 import { Selection } from './model';
 
 export { Selection } from './model';

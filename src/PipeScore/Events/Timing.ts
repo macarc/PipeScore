@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update } from './common';
-import { State } from '../State';
 import { ScoreSelection, TimingSelection } from '../Selection';
+import { State } from '../State';
 import { SecondTiming, SingleTiming, Timing, TimingPart } from '../Timing';
+import { ScoreEvent, Update } from './common';
 
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {

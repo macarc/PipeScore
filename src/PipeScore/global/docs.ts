@@ -19,8 +19,8 @@
 
 import m from 'mithril';
 import { dispatch } from '../Controller';
-import { hoverDoc } from '../Events/Doc';
 import documentationStrings from '../Documentation';
+import { hoverDoc } from '../Events/Doc';
 
 export function help(
   docName: keyof typeof documentationStrings,

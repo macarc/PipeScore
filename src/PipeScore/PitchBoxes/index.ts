@@ -18,8 +18,8 @@
 //  TODO: Maybe name this better?
 
 import m from 'mithril';
-import { settings } from '../global/settings';
 import { Pitch, pitchToHeight } from '../global/pitch';
+import { settings } from '../global/settings';
 
 export function pitchBoxes(
   x: number,

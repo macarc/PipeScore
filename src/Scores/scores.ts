@@ -18,9 +18,9 @@
 
 import Auth from 'firebase-auth-lite';
 import { Database } from 'firebase-firestore-lite';
-import { onUserChange } from '../auth-helper';
 import m from 'mithril';
 import { SavedScore } from '../PipeScore/SavedModel';
+import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
 
 let userId = '';

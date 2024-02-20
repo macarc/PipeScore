@@ -14,9 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreEvent, Update } from './common';
-import { State } from '../State';
 import Documentation from '../Documentation';
+import { State } from '../State';
+import { ScoreEvent, Update } from './common';
 
 export function hoverDoc(
   element: keyof typeof Documentation | null

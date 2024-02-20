@@ -19,14 +19,14 @@
 import m from 'mithril';
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
-import { Settings, settings } from '../global/settings';
-import { ID } from '../global/id';
-import { first, foreach, last, nlast, sum } from '../global/utils';
 import { GracenoteState } from '../Gracenote/state';
 import { NoteState } from '../Note/state';
-import { TimeSignature } from '../TimeSignature';
 import { SavedStave } from '../SavedModel';
+import { TimeSignature } from '../TimeSignature';
+import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
+import { Settings, settings } from '../global/settings';
+import { first, foreach, last, nlast, sum } from '../global/utils';
 
 interface StaveProps {
   x: number;
