@@ -214,7 +214,7 @@
 - [x] Should be able to drag notes in custom embellishments and/or add notes inside them
 - [x] Highlight barline buttons in UI if a single bar is selected
 - [x] Fix copy/paste
-- [x] Notes with many beams can interfere with gracenotes (e.g. toarluath). Make beams lower?
+- [x] Notes with many beams can interfere with gracenotes (e.g. taorluath). Make beams lower?
 - [x] Second timings over multiple pages
 - [x] Page numbers
 - [x] Printing overlaps pages

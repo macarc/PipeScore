@@ -587,7 +587,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   }
   [TokenType.TAORLUATH]() {
     // typo intentional
-    this.score.newGracenote(reactive('toarluath'));
+    this.score.newGracenote(reactive('taorluath'));
   }
   [TokenType.BUBBLY]() {
     this.score.newGracenote(reactive('bubbly'));

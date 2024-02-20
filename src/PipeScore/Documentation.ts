@@ -58,7 +58,7 @@ export default {
   'g-strike': gracenoteDoc('gracenote strike'),
   shake: gracenoteDoc('shake'),
   'c-shake': gracenoteDoc('C shake'),
-  toarluath: gracenoteDoc('toarluath'),
+  taorluath: gracenoteDoc('taorluath'),
   crunluath: gracenoteDoc('crunluath'),
   edre: gracenoteDoc('edre'),
   bubbly: gracenoteDoc('bubbly'),
