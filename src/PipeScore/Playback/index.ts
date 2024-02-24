@@ -63,12 +63,7 @@ class SoundedPitch {
   duration: number;
   id: ID | null;
 
-  constructor(
-    pitch: Pitch,
-    duration: number,
-    ctx: AudioContext,
-    id: ID | null
-  ) {
+  constructor(pitch: Pitch, duration: number, ctx: AudioContext, id: ID | null) {
     this.sample = pitchToSample(pitch).getSource(ctx);
     this.sample.connect(ctx.destination);
     this.pitch = pitch;
@@ -255,9 +250,7 @@ function getSoundedPitches(
   for (let i = 0; i < elementsToPlay.length; i++) {
     const e = elementsToPlay[i];
     if (e instanceof PlaybackGracenote) {
-      pitches.push(
-        new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID)
-      );
+      pitches.push(new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID));
     } else if (e instanceof PlaybackNote) {
       let duration = e.duration;
       // If subsequent notes are tied, increase this note's duration

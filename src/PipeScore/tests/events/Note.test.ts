@@ -96,25 +96,15 @@ describe('addNoteAfterSelection', () => {
     const selectionEnd = note();
     nfirst(state.score.bars()).insertNote(null, selectionStart);
     nlast(state.score.bars()).insertNote(null, selectionEnd);
-    state.selection = new ScoreSelection(
-      selectionStart.id,
-      selectionEnd.id,
-      false
-    );
+    state.selection = new ScoreSelection(selectionStart.id, selectionEnd.id, false);
     state.preview = new NotePreview(new NoteLength(Duration.SemiQuaver));
     expect(state.score.notes()).toHaveLength(2);
-    expect((state.selection as ScoreSelection).notes(state.score)).toHaveLength(
-      2
-    );
+    expect((state.selection as ScoreSelection).notes(state.score)).toHaveLength(2);
     addNoteAfterSelection(Pitch.D)(state);
-    expect((state.selection as ScoreSelection).notes(state.score)).toHaveLength(
-      1
-    );
+    expect((state.selection as ScoreSelection).notes(state.score)).toHaveLength(1);
     expect(state.score.notes()).toHaveLength(3);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
-    expect(nlast(state.score.notes()).length().duration()).toBe(
-      Duration.SemiQuaver
-    );
+    expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
   });
 
   it('uses length of last note in (note) selection if there is no preview', () => {
@@ -124,18 +114,12 @@ describe('addNoteAfterSelection', () => {
     selectionEnd.setLength(new NoteLength(Duration.SemiQuaver));
     nfirst(state.score.bars()).insertNote(null, selectionStart);
     nlast(state.score.bars()).insertNote(null, selectionEnd);
-    state.selection = new ScoreSelection(
-      selectionStart.id,
-      selectionEnd.id,
-      false
-    );
+    state.selection = new ScoreSelection(selectionStart.id, selectionEnd.id, false);
     expect(state.score.notes()).toHaveLength(2);
     addNoteAfterSelection(Pitch.D)(state);
     expect(state.score.notes()).toHaveLength(3);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
-    expect(nlast(state.score.notes()).length().duration()).toBe(
-      Duration.SemiQuaver
-    );
+    expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
   });
 
   it('uses length of last note in (bar) selection if there is no preview', () => {
@@ -145,18 +129,12 @@ describe('addNoteAfterSelection', () => {
     nfirst(state.score.bars()).insertNote(null, firstNote);
     const selectionStart = nfirst(state.score.bars());
     const selectionEnd = nlast(state.score.bars());
-    state.selection = new ScoreSelection(
-      selectionStart.id,
-      selectionEnd.id,
-      false
-    );
+    state.selection = new ScoreSelection(selectionStart.id, selectionEnd.id, false);
     expect(state.score.notes()).toHaveLength(1);
     addNoteAfterSelection(Pitch.D)(state);
     expect(state.score.notes()).toHaveLength(2);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
-    expect(nlast(state.score.notes()).length().duration()).toBe(
-      Duration.SemiQuaver
-    );
+    expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
   });
 
   // TODO : it uses length of previously selected note if (bar) selection is empty

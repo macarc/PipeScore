@@ -17,10 +17,7 @@
 //  Implementations of notes and triplets
 
 import { GracenoteState } from '../Gracenote/state';
-import {
-  SavedNoteOrTriplet,
-  isDeprecatedSavedNoteOrTriplet,
-} from '../SavedModel';
+import { SavedNoteOrTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
 import { Pitch } from '../global/pitch';
 import { Note } from './note';
 import { NoteState } from './state';
@@ -94,10 +91,7 @@ export function flattenTriplets(notes: NoteOrTriplet[]): Note[] {
   );
 }
 
-export function noteOrTripletWidth(
-  note: NoteOrTriplet,
-  prevNote: Pitch | null
-) {
+export function noteOrTripletWidth(note: NoteOrTriplet, prevNote: Pitch | null) {
   if (note instanceof Triplet) {
     return totalWidth(note.tripletSingleNotes(), prevNote);
   }

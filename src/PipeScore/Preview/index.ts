@@ -33,11 +33,7 @@ export interface Preview {
   // Returns true if the pitch changed
   setPitch(pitch: Pitch | null): boolean;
   // Returns true if the location changed
-  setLocation(
-    bar: Bar,
-    noteBefore: Note | null,
-    noteAfter: Note | null
-  ): boolean;
+  setLocation(bar: Bar, noteBefore: Note | null, noteAfter: Note | null): boolean;
   stop(): void;
   makeReal(notes: Note[]): void;
   justAdded(): boolean;

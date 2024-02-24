@@ -131,32 +131,35 @@ export function copy(): ScoreEvent {
 
     const notes = state.selection.notesAndTriplets(state.score);
     if (notes.length > 0) {
-      const { bar: initBar } = state.score.location(notes[0].id);
-      let currentBarId = initBar.id;
+      const initialBar = state.score.location(notes[0].id)?.bar;
 
-      const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
+      if (initialBar) {
+        let currentBarId = initialBar.id;
 
-      for (const note of notes) {
-        const { bar } = state.score.location(note.id);
-        if (currentBarId !== bar.id) {
-          noteList.push('bar-break');
-          currentBarId = bar.id;
+        const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
+
+        for (const note of notes) {
+          const bar = state.score.location(note.id)?.bar;
+          if (bar && currentBarId !== bar.id) {
+            noteList.push('bar-break');
+            currentBarId = bar.id;
+          }
+          noteList.push(noteToJSON(note));
         }
-        noteList.push(noteToJSON(note));
-      }
 
-      if (browserSupportsCopying()) {
-        navigator.clipboard.writeText(
-          JSON.stringify({
-            'data-type': 'pipescore-copied-notes',
-            notes: noteList,
-          })
-        );
-      } else {
-        console.log(
-          "Browser doesn't support copying, falling back to PipeScore clipboard"
-        );
-        state.clipboard = noteList;
+        if (browserSupportsCopying()) {
+          navigator.clipboard.writeText(
+            JSON.stringify({
+              'data-type': 'pipescore-copied-notes',
+              notes: noteList,
+            })
+          );
+        } else {
+          console.log(
+            "Browser doesn't support copying, falling back to PipeScore clipboard"
+          );
+          state.clipboard = noteList;
+        }
       }
 
       return Update.NoChange;
@@ -168,8 +171,7 @@ export function copy(): ScoreEvent {
 function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
   if (state.selection instanceof ScoreSelection) {
     const id = state.selection.start;
-    const bar =
-      state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
+    const bar = state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
     if (bar) {
       Bar.pasteNotes(
         notes
@@ -204,9 +206,7 @@ export function paste(): ScoreEvent {
           const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[];
           return pasteNotes(state, noteList);
         }
-        console.log(
-          "Pasted item wasn't notes, falling back to PipeScore clipboard"
-        );
+        console.log("Pasted item wasn't notes, falling back to PipeScore clipboard");
         return pasteFromPipeScoreClipboard(state);
       } catch {
         console.log(

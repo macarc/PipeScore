@@ -81,18 +81,14 @@ export class Score {
 
     for (let i = 0; i < this._staves.length; i++) {
       if (repeatParts) {
-        i % 2 === 0
-          ? this._staves[i].repeatFirst()
-          : this._staves[i].repeatLast();
+        i % 2 === 0 ? this._staves[i].repeatFirst() : this._staves[i].repeatLast();
       } else {
         i % 2 === 0 ? this._staves[i].partFirst() : this._staves[i].partLast();
       }
     }
 
     this.textBoxes = [[]];
-    this.addText(
-      new TextBox(name, true, this.width() / 2, initialTopOffset / 2)
-    );
+    this.addText(new TextBox(name, true, this.width() / 2, initialTopOffset / 2));
 
     // Detailed text - composer / tuneType
     const detailTextSize = 15;
@@ -110,13 +106,7 @@ export class Score {
       );
     if (tuneType.length > 0)
       this.addText(
-        new TextBox(
-          tuneType,
-          false,
-          this.width() / detailX,
-          detailY,
-          detailTextSize
-        )
+        new TextBox(tuneType, false, this.width() / detailX, detailY, detailTextSize)
       );
 
     this.timings = [];
@@ -218,9 +208,7 @@ export class Score {
     const page = pages[pageIndex];
 
     if (!page) {
-      console.error(
-        "Tried to get a stave Y of a stave that isn't on any page!"
-      );
+      console.error("Tried to get a stave Y of a stave that isn't on any page!");
       return 0;
     }
 
@@ -258,8 +246,7 @@ export class Score {
         : last(this.staves());
 
     const index = adjacentStave
-      ? this._staves.indexOf(adjacentStave) +
-        (where === Relative.before ? 0 : 1)
+      ? this._staves.indexOf(adjacentStave) + (where === Relative.before ? 0 : 1)
       : 0;
 
     if (index < 0) return;
@@ -496,9 +483,7 @@ export class Score {
               onmousedown: () => dispatch(clickBackground()),
               onmouseover: () => dispatch(mouseOffPitch()),
             }),
-            ...splitStaves[page].map((stave) =>
-              stave.render(staveProps(stave))
-            ),
+            ...splitStaves[page].map((stave) => stave.render(staveProps(stave))),
             ...texts(page).map((textBox) =>
               textBox.render({
                 scoreWidth: width,
@@ -516,10 +501,7 @@ export class Score {
                   'text',
                   {
                     x: this.width() / 2,
-                    y:
-                      this.height() -
-                      settings.margin +
-                      settings.lineHeightOf(5),
+                    y: this.height() - settings.margin + settings.lineHeightOf(5),
                   },
                   (page + 1).toString()
                 )

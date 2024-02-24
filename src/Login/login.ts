@@ -96,9 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (!email || !passwd) {
           signupError('Please enter email and password');
         } else {
-          auth
-            .signUp(email, passwd)
-            .catch((e) => signupError(prettifyError(e)));
+          auth.signUp(email, passwd).catch((e) => signupError(prettifyError(e)));
         }
       }
     });

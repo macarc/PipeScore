@@ -127,9 +127,7 @@ export abstract class Gracenote {
 
   play(thisNote: Pitch, previousNote: Pitch | null) {
     const notes = this.notes(thisNote, previousNote);
-    return notes.invalid
-      ? []
-      : notes.map((pitch) => new PlaybackGracenote(pitch));
+    return notes.invalid ? [] : notes.map((pitch) => new PlaybackGracenote(pitch));
   }
 
   width(thisNote: Pitch, previousNote: Pitch | null) {
@@ -150,10 +148,7 @@ export abstract class Gracenote {
     if (notes.length <= 1) {
       return new NoGracenote();
     }
-    return new CustomGracenote(
-      ...notes.slice(0, index),
-      ...notes.slice(index + 1)
-    );
+    return new CustomGracenote(...notes.slice(0, index), ...notes.slice(index + 1));
   }
 
   // Draws head and stem

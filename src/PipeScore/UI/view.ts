@@ -67,18 +67,8 @@ import {
   setStaveGap,
   staveGapToDisplay,
 } from '../Events/Stave';
-import {
-  addText,
-  centreText,
-  editText,
-  setTextX,
-  setTextY,
-} from '../Events/Text';
-import {
-  addSecondTiming,
-  addSingleTiming,
-  editTimingText,
-} from '../Events/Timing';
+import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
+import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { CustomGracenote, Gracenote, ReactiveGracenote } from '../Gracenote';
 import { Note } from '../Note';
 import { Duration } from '../Note/notelength';
@@ -210,9 +200,7 @@ export default function render(state: UIState): m.Children {
         : state.selectedNotes.slice(1).every((note) => note.isTied());
 
   const naturalAlready =
-    state.selectedNotes.length === 0
-      ? false
-      : allNotes((note) => note.natural());
+    state.selectedNotes.length === 0 ? false : allNotes((note) => note.natural());
 
   const notInputtingNotes = state.preview === null;
 
@@ -493,11 +481,7 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', [
         help(
           'second timing',
-          m(
-            'button',
-            { onclick: () => dispatch(addSecondTiming()) },
-            '1st/ 2nd'
-          )
+          m('button', { onclick: () => dispatch(addSecondTiming()) }, '1st/ 2nd')
         ),
         help(
           'single timing',
@@ -572,11 +556,7 @@ export default function render(state: UIState): m.Children {
         ),
         help(
           'reset stave gap',
-          m(
-            'button.textual',
-            { onclick: () => dispatch(resetStaveGap()) },
-            'Reset'
-          )
+          m('button.textual', { onclick: () => dispatch(resetStaveGap()) }, 'Reset')
         ),
       ]),
     ]),
@@ -614,10 +594,7 @@ export default function render(state: UIState): m.Children {
     m('section', [
       m('h2', 'Add Text Box'),
       m('div.section-content', [
-        help(
-          'add text',
-          m('button.add', { onclick: () => dispatch(addText()) })
-        ),
+        help('add text', m('button.add', { onclick: () => dispatch(addText()) })),
       ]),
     ]),
     m('section', [
@@ -659,9 +636,7 @@ export default function render(state: UIState): m.Children {
                 percentage(state.selectedText?.x() || 0, pageWidth)
               ),
               oninput: (e: InputEvent) =>
-                dispatch(
-                  setTextX(parseFloat((e.target as HTMLInputElement).value))
-                ),
+                dispatch(setTextX(parseFloat((e.target as HTMLInputElement).value))),
               onchange: () => dispatch(commit()),
             }),
             '%',
@@ -679,9 +654,7 @@ export default function render(state: UIState): m.Children {
                 percentage(state.selectedText?.y() || 0, pageHeight)
               ),
               oninput: (e: InputEvent) =>
-                dispatch(
-                  setTextY(parseFloat((e.target as HTMLInputElement).value))
-                ),
+                dispatch(setTextY(parseFloat((e.target as HTMLInputElement).value))),
               onchange: () => dispatch(commit()),
             }),
             '%',
@@ -713,8 +686,7 @@ export default function render(state: UIState): m.Children {
             {
               disabled:
                 state.isPlaying ||
-                (state.selectedNotes.length === 0 &&
-                  state.selectedBar === null),
+                (state.selectedNotes.length === 0 && state.selectedBar === null),
               onclick: () => dispatch(startPlaybackAtSelection()),
             },
             'Play from Selection'
@@ -785,9 +757,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class: `text double-width ${
-                state.isLandscape ? ' highlighted' : ''
-              }`,
+              class: `text double-width ${state.isLandscape ? ' highlighted' : ''}`,
               onclick: () => dispatch(landscape()),
             },
             'Landscape'
@@ -798,9 +768,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class: `text double-width ${
-                state.isLandscape ? '' : ' highlighted'
-              }`,
+              class: `text double-width ${state.isLandscape ? '' : ' highlighted'}`,
               onclick: () => dispatch(portrait()),
             },
             'Portrait'
@@ -891,11 +859,9 @@ export default function render(state: UIState): m.Children {
     document: documentMenu,
   };
 
-  const menuClass = (s: Menu): string =>
-    s === state.currentMenu ? 'selected' : '';
+  const menuClass = (s: Menu): string => (s === state.currentMenu ? 'selected' : '');
 
-  const pretty = (name: Menu): string =>
-    name.split('_').map(capitalise).join(' ');
+  const pretty = (name: Menu): string => name.split('_').map(capitalise).join(' ');
 
   const loginWarning = [
     'You are currently not logged in. Any changes you make will not be saved. ',
@@ -909,8 +875,7 @@ export default function render(state: UIState): m.Children {
   ];
   const showLoginWarning = state.canEdit && !state.loggedIn;
   const showOtherUsersScoreWarning = !state.canEdit;
-  const showAudioWarning =
-    state.loadingAudio && state.currentMenu === 'playback';
+  const showAudioWarning = state.loadingAudio && state.currentMenu === 'playback';
   const warning = [
     ...(showLoginWarning ? loginWarning : []),
     ...(showOtherUsersScoreWarning ? otherUsersScoreWarning : []),
@@ -941,10 +906,7 @@ export default function render(state: UIState): m.Children {
         menuHead('playback'),
         menuHead('document'),
         menuHead('settings'),
-        help(
-          'help',
-          m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
-        ),
+        help('help', m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))),
         ...(state.canEdit
           ? [
               m(
@@ -963,10 +925,7 @@ export default function render(state: UIState): m.Children {
     : [
         menuHead('playback'),
         menuHead('document'),
-        help(
-          'help',
-          m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))
-        ),
+        help('help', m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))),
       ];
 
   return m('div', [

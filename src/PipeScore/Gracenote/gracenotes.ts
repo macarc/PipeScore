@@ -56,12 +56,7 @@ gracenotes.set('throw-d', (note, prev) =>
 
 gracenotes.set('doubling', (note, prev) => {
   let pitches = [];
-  if (
-    note === Pitch.G ||
-    note === Pitch.A ||
-    note === Pitch.B ||
-    note === Pitch.C
-  ) {
+  if (note === Pitch.G || note === Pitch.A || note === Pitch.B || note === Pitch.C) {
     pitches = [Pitch.HG, note, Pitch.D];
   } else if (note === Pitch.D) {
     pitches = [Pitch.HG, note, Pitch.E];
@@ -259,12 +254,7 @@ gracenotes.set('birl', (note, prev) => {
 gracenotes.set('g-gracenote-birl', (note, prev) => {
   switch (prev) {
     case Pitch.HA:
-      return invalidateIf(note !== Pitch.A, [
-        Pitch.A,
-        Pitch.G,
-        Pitch.A,
-        Pitch.G,
-      ]);
+      return invalidateIf(note !== Pitch.A, [Pitch.A, Pitch.G, Pitch.A, Pitch.G]);
     case Pitch.HG:
       return invalidateIf(note !== Pitch.A, [
         Pitch.HA,

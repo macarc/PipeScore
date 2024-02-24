@@ -27,9 +27,8 @@ const auth = new Auth({
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = (
-      document.querySelector('input[type="email"]') as HTMLInputElement
-    )?.value;
+    const email = (document.querySelector('input[type="email"]') as HTMLInputElement)
+      ?.value;
     if (email) {
       try {
         await auth.sendOobCode('PASSWORD_RESET', email);

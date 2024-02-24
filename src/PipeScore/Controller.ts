@@ -64,11 +64,7 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
     updateView();
     if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
       state.score.updateName();
-      if (
-        res === Update.ShouldSave &&
-        state.store &&
-        !state.store.isReadOnly()
-      ) {
+      if (res === Update.ShouldSave && state.store && !state.store.isReadOnly()) {
         const json = state.score.toJSON();
         const jsonString = JSON.stringify(json);
         if (state.history.past[state.history.past.length - 1] !== jsonString) {
@@ -155,13 +151,9 @@ function redraw() {
             state.selection.gracenote(state.score)) ||
           null,
         selectedText:
-          state.selection instanceof TextSelection
-            ? state.selection.text
-            : null,
+          state.selection instanceof TextSelection ? state.selection.text : null,
         selectedTiming:
-          state.selection instanceof TimingSelection
-            ? state.selection.timing
-            : null,
+          state.selection instanceof TimingSelection ? state.selection.timing : null,
         isLandscape: state.score.landscape,
         selectedStaves:
           (state.selection instanceof ScoreSelection &&

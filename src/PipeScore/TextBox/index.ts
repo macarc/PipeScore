@@ -147,12 +147,10 @@ export class TextBox {
       const size = parseInt(
         (form.querySelector('input[type="number"]') as HTMLInputElement).value
       );
-      const text = (
-        form.querySelector('input[type="text"]') as HTMLInputElement
-      ).value;
+      const text = (form.querySelector('input[type="text"]') as HTMLInputElement)
+        .value;
 
-      const font = (form.querySelector('select') as HTMLSelectElement)
-        .value as Font;
+      const font = (form.querySelector('select') as HTMLSelectElement).value as Font;
       return this.set(text, size, font);
     }
     return Update.NoChange;

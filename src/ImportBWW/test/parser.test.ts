@@ -13,9 +13,9 @@ describe('parser', () => {
     expect(parsesWithoutWarnings('& sharpf sharpc C_')).toBe(true));
 
   it('parses a single bar', () =>
-    expect(
-      parsesWithoutWarnings('& sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 !I')
-    ).toBe(true));
+    expect(parsesWithoutWarnings('& sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 !I')).toBe(
+      true
+    ));
 
   it('parses multiple bars', () =>
     expect(
@@ -69,9 +69,7 @@ describe('parser', () => {
 
   it('parses taorluaths', () =>
     expect(
-      parsesWithoutWarnings(
-        '& sharpf sharpc 4_4 I! C_4 tar LA_4 D_4 tarb LA_4 !I'
-      )
+      parsesWithoutWarnings('& sharpf sharpc 4_4 I! C_4 tar LA_4 D_4 tarb LA_4 !I')
     ).toBe(true));
 
   it('parses bubbly notes', () =>
@@ -125,16 +123,12 @@ describe('parser', () => {
 
   it('parses singly dotted notes', () =>
     expect(
-      parsesWithoutWarnings(
-        "& sharpf sharpc 4_4 I! gg LA_4 tar LAr_8 'la Bl_16 !I"
-      )
+      parsesWithoutWarnings("& sharpf sharpc 4_4 I! gg LA_4 tar LAr_8 'la Bl_16 !I")
     ).toBe(true));
 
   it('parses doubly dotted notes', () =>
     expect(
-      parsesWithoutWarnings(
-        "& sharpf sharpc 4_4 I! gg LA_4 tar LAr_8 ''la Bl_16 !I"
-      )
+      parsesWithoutWarnings("& sharpf sharpc 4_4 I! gg LA_4 tar LAr_8 ''la Bl_16 !I")
     ).toBe(true));
 
   it('parses an anacrusis', () =>
@@ -163,9 +157,7 @@ describe('parser', () => {
 
   it('parses fermatas', () =>
     expect(
-      parsesWithoutWarnings(
-        '& sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 fermatd !I'
-      )
+      parsesWithoutWarnings('& sharpf sharpc 4_4 I! LA_4 B_4 C_4 D_4 fermatd !I')
     ).toBe(true));
 
   it('parses the old tie format', () =>
@@ -258,7 +250,7 @@ describe('parser', () => {
     expect(parsesWithoutWarnings('& sharpf sharpc  6_8 I! gg !I')).toBe(true));
 
   it('parses notes with multiple embellishments', () =>
-    expect(
-      parsesWithoutWarnings("& sharpf sharpc 2_4 I!'' eg strla E_4 ''!I")
-    ).toBe(true));
+    expect(parsesWithoutWarnings("& sharpf sharpc 2_4 I!'' eg strla E_4 ''!I")).toBe(
+      true
+    ));
 });

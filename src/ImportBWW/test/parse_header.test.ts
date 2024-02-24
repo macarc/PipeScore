@@ -2,15 +2,11 @@ import { parsesWithoutWarnings } from './test_common';
 
 describe('parse header', () => {
   it('handles a two captures', () =>
-    expect(parsesWithoutWarnings('Bagpipe Music Writer Gold:1.0\r\n')).toBe(
-      true
-    ));
+    expect(parsesWithoutWarnings('Bagpipe Music Writer Gold:1.0\r\n')).toBe(true));
   it('parses a bagpipe reader software header', () =>
     expect(parsesWithoutWarnings('Bagpipe Reader:1.0\r\n')).toBe(true));
   it('parses a bagpipe musicworks software header', () =>
-    expect(parsesWithoutWarnings('Bagpipe Musicworks Gold:1.0\r\n')).toBe(
-      true
-    ));
+    expect(parsesWithoutWarnings('Bagpipe Musicworks Gold:1.0\r\n')).toBe(true));
 
   it('parses multiple headers', () =>
     expect(

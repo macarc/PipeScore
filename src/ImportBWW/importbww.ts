@@ -75,8 +75,8 @@ async function importfile(e: SubmitEvent) {
     const goToScore = async (e: SubmitEvent) => {
       e.preventDefault();
       const scoreName =
-        (document.querySelector('#score-name') as HTMLInputElement | null)
-          ?.value || '[Imported from BWW]';
+        (document.querySelector('#score-name') as HTMLInputElement | null)?.value ||
+        '[Imported from BWW]';
       const composer = (
         document.querySelector('#composer') as HTMLInputElement | null
       )?.value;

@@ -24,8 +24,7 @@ export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const location =
-        state.score.location(state.selection.start) ||
-        state.score.lastBarAndStave();
+        state.score.location(state.selection.start) || state.score.lastBarAndStave();
 
       if (location) {
         const { bar } = location;

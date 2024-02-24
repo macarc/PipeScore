@@ -102,10 +102,7 @@ export const closestItem = (
     .filter(([_, coord]) => coord.page === page)
     .sort((a, b) => (b[1].beforeX < a[1].beforeX ? 1 : -1))
     .reduce((closestID: ID | null, [id, xy]) => {
-      const xDistance = Math.min(
-        Math.abs(xy.beforeX - x),
-        Math.abs(xy.afterX - x)
-      );
+      const xDistance = Math.min(Math.abs(xy.beforeX - x), Math.abs(xy.afterX - x));
       const yDistance = xy.y - y;
       const dist = xDistance ** 2 + yDistance ** 2;
 
@@ -165,16 +162,8 @@ export function getXYRangeForPage(
   }
 
   if (a && b) {
-    const start = itemOrFirstOnPage(
-      before(a, b, checkAfterX) ? a : b,
-      page,
-      score
-    );
-    const end = itemOrLastOnPage(
-      before(a, b, checkAfterX) ? b : a,
-      page,
-      score
-    );
+    const start = itemOrFirstOnPage(before(a, b, checkAfterX) ? a : b, page, score);
+    const end = itemOrLastOnPage(before(a, b, checkAfterX) ? b : a, page, score);
     if (start && end) return { start, end };
   }
 

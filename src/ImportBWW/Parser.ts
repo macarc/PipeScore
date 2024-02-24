@@ -276,9 +276,7 @@ class PartialScore {
       // This is a bit crude, but BWW has no concept of lead-ins
       // and I can't really think of a better metric
       const barDuration = sum(
-        this.currentBar().notes.map((note) =>
-          durationInBeats(note.value.length)
-        )
+        this.currentBar().notes.map((note) => durationInBeats(note.value.length))
       );
       const ts = this.currentBar().timeSignature.ts;
       const barLength =
@@ -500,8 +498,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
 
   [TokenType.IRREGULAR_GROUP_START](t: Token) {
     const size = transformIrregularGroupToSize(t.value[1]);
-    if (size !== 3)
-      throw new Error("Can't deal with non-triplet irregular groups");
+    if (size !== 3) throw new Error("Can't deal with non-triplet irregular groups");
   }
   [TokenType.IRREGULAR_GROUP_END]() {
     this.score.makeTriplet();

@@ -64,8 +64,7 @@ export class Firestore {
       store.save(opts.toScore().toJSON());
       await store.commit();
       const score = await store.pull();
-      if (!score || !scoreIsPresent(score))
-        throw new Error("Couldn't save score.");
+      if (!score || !scoreIsPresent(score)) throw new Error("Couldn't save score.");
     } else {
       store.score = data;
     }

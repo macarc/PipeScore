@@ -60,8 +60,7 @@ export function minWidth(bar: Bar, previousBar: Bar | null) {
   const drawTimeSignature =
     previousTimeSignature && !bar.timeSignature().equals(previousTimeSignature);
   return Math.max(
-    width.reify(total, 5) +
-      (drawTimeSignature ? 0 : bar.timeSignature().width()),
+    width.reify(total, 5) + (drawTimeSignature ? 0 : bar.timeSignature().width()),
     60
   );
 }
@@ -120,10 +119,7 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
 
   const actualNotes = bar.nonPreviewNotes();
 
-  const groupedNotes = groupNotes(
-    actualNotes,
-    bar.timeSignature().beatDivision()
-  );
+  const groupedNotes = groupNotes(actualNotes, bar.timeSignature().beatDivision());
 
   const previousNote = props.previousBar?.lastNote() || null;
   const previousPitch = props.previousBar?.lastPitch() || null;
@@ -132,8 +128,7 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
   const numberOfBeats = beats.total.extend;
   const beatWidth = (barWidth - beats.total.min) / numberOfBeats;
 
-  const xOf = (i: number) =>
-    xAfterBarline + width.reify(beats.widths[i], beatWidth);
+  const xOf = (i: number) => xAfterBarline + width.reify(beats.widths[i], beatWidth);
 
   const preview = bar.preview();
 
@@ -160,8 +155,7 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
       justAddedNote: props.justAddedNote,
       boxToLast: index === 0 ? xAfterBarline : 'lastnote',
       noteWidth: beatWidth,
-      previousNote:
-        index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
+      previousNote: index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
       endOfLastStave: props.endOfLastStave,
       state: props.noteState,
       gracenoteState: props.gracenoteState,

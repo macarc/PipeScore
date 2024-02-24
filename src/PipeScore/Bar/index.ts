@@ -23,12 +23,7 @@ import {
   noteToJSON,
   notesToTriplet,
 } from '../Note';
-import {
-  Playback,
-  PlaybackNote,
-  PlaybackObject,
-  PlaybackRepeat,
-} from '../Playback';
+import { Playback, PlaybackNote, PlaybackObject, PlaybackRepeat } from '../Playback';
 import { Previews } from '../Preview/previews';
 import { SavedBar } from '../SavedModel';
 import { TimeSignature } from '../TimeSignature';
@@ -301,8 +296,7 @@ export class Bar extends Item implements Previews<Note> {
   }
 
   public adjustWidth(ratio: number) {
-    this.fixedWidth =
-      this.fixedWidth === 'auto' ? 'auto' : this.fixedWidth * ratio;
+    this.fixedWidth = this.fixedWidth === 'auto' ? 'auto' : this.fixedWidth * ratio;
   }
 
   public setBarline(position: 'start' | 'end', barline: Barline) {
@@ -318,9 +312,7 @@ export class Bar extends Item implements Previews<Note> {
   }
 
   public play(previous: Bar | null): Playback[] {
-    const start = this.frontBarline.isRepeat()
-      ? [new PlaybackRepeat('start')]
-      : [];
+    const start = this.frontBarline.isRepeat() ? [new PlaybackRepeat('start')] : [];
     const end = this.backBarline.isRepeat() ? [new PlaybackRepeat('end')] : [];
     const beatRatio = 1 / this.timeSignature().crotchetsPerBeat();
     return [

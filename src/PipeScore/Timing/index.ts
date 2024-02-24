@@ -22,11 +22,7 @@ import m from 'mithril';
 import { dispatch } from '../Controller';
 import { clickTiming, editTimingText } from '../Events/Timing';
 import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
-import {
-  SavedSecondTiming,
-  SavedSingleTiming,
-  SavedTiming,
-} from '../SavedModel';
+import { SavedSecondTiming, SavedSingleTiming, SavedTiming } from '../SavedModel';
 import { Score } from '../Score';
 import { TimingSelection } from '../Selection';
 import { Selection } from '../Selection';
@@ -211,13 +207,12 @@ export abstract class Timing {
               horizontal(props.staveStartX, lastx, end.y),
               vertical(props.staveStartX, end.y),
 
-              ...foreach(stavesBetween, (i) => staveStartIndex + i + 1).map(
-                (i) =>
-                  m('g', [
-                    horizontal(props.staveStartX, props.staveEndX, y(i)),
-                    vertical(props.staveStartX, y(i)),
-                    vertical(props.staveEndX, y(i)),
-                  ])
+              ...foreach(stavesBetween, (i) => staveStartIndex + i + 1).map((i) =>
+                m('g', [
+                  horizontal(props.staveStartX, props.staveEndX, y(i)),
+                  vertical(props.staveStartX, y(i)),
+                  vertical(props.staveEndX, y(i)),
+                ])
               ),
               ...verticalLines,
             ]),
@@ -281,8 +276,7 @@ export class SecondTiming extends Timing {
   }
   protected noSelfOverlap() {
     return (
-      itemBefore(this.start, this.middle) &&
-      itemBefore(this.middle, this.end, true)
+      itemBefore(this.start, this.middle) && itemBefore(this.middle, this.end, true)
     );
   }
   public async editText() {

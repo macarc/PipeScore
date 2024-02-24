@@ -116,10 +116,7 @@ export class ScoreSelection extends Selection {
       }
     }
 
-    this.purgeItems(
-      [...notesToDelete.map(car), ...barsToDelete.map(car)],
-      score
-    );
+    this.purgeItems([...notesToDelete.map(car), ...barsToDelete.map(car)], score);
 
     if (newSelection) {
       return new ScoreSelection(newSelection, newSelection, false);
@@ -207,10 +204,7 @@ export class ScoreSelection extends Selection {
       deleteXY(note.id);
     }
   }
-  private collectNotes(
-    score: Score,
-    splitUpTriplets: boolean
-  ): (Note | Triplet)[] {
+  private collectNotes(score: Score, splitUpTriplets: boolean): (Note | Triplet)[] {
     const bars = score.bars();
     let foundStart = false;
     const notes: (Note | Triplet)[] = [];
@@ -252,9 +246,7 @@ export class ScoreSelection extends Selection {
     }
 
     const staves = props.score.staves();
-    const startStaveIndex = staves.findIndex((stave) =>
-      stave.includesID(start.id)
-    );
+    const startStaveIndex = staves.findIndex((stave) => stave.includesID(start.id));
     const endStaveIndex = staves.findIndex((stave) => stave.includesID(end.id));
     const numStavesBetween = Math.max(endStaveIndex - startStaveIndex - 1, 0);
 

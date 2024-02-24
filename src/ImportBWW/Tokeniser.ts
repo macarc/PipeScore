@@ -24,9 +24,7 @@ export class TokenStream {
     const token = this.current;
 
     if (token === null) {
-      throw new SyntaxError(
-        `Unexpected end of input, expected: "${tokenType}"`
-      );
+      throw new SyntaxError(`Unexpected end of input, expected: "${tokenType}"`);
     }
 
     if (token.type !== tokenType) {

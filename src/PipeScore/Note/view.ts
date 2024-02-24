@@ -87,10 +87,7 @@ export function noteWidth(note: Note, pitchBefore: Pitch | null): Width {
 
 function shouldDrawTie(note: Note, previous: Note | null) {
   return (
-    note.isTied() &&
-    previous !== null &&
-    !note.isPreview() &&
-    !previous?.isPreview()
+    note.isTied() && previous !== null && !note.isPreview() && !previous?.isPreview()
   );
 }
 
@@ -158,12 +155,7 @@ function colour(note: Note) {
 }
 
 // Draws note head, ledger line and dot
-function drawHead(
-  note: Note,
-  x: number,
-  y: number,
-  props: NoteProps
-): m.Children {
+function drawHead(note: Note, x: number, y: number, props: NoteProps): m.Children {
   const rotation = note.length().hasStem() ? -35 : 0;
   const noteWidth = 4.5;
   const noteHeight = 3;
@@ -361,10 +353,7 @@ function layoutNotes(notes: Note[], props: NoteProps): NoteLayout {
     const gracenote =
       props.x +
       xOffset +
-      width.reify(
-        totalWidth(notes.slice(0, i), previousPitch),
-        props.noteWidth
-      );
+      width.reify(totalWidth(notes.slice(0, i), previousPitch), props.noteWidth);
     const natural =
       gracenote +
       width.reify(

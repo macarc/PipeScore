@@ -28,10 +28,7 @@ interface TimeSignatureProps {
   y: number;
 }
 
-export type TimeSignatureType =
-  | [number, Denominator]
-  | 'cut time'
-  | 'common time';
+export type TimeSignatureType = [number, Denominator] | 'cut time' | 'common time';
 
 export class TimeSignature {
   private ts: TimeSignatureType;

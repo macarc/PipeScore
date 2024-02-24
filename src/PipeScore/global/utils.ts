@@ -36,8 +36,7 @@ export function log<A>(value: A): A {
 export const car = <U, V>(pair: [U, V]): U => pair[0];
 export const first = <T>(array: T[]): T | null => array[0] || null;
 // Find the last value of an array in fewer characters
-export const last = <T>(array: T[]): T | null =>
-  array[array.length - 1] || null;
+export const last = <T>(array: T[]): T | null => array[array.length - 1] || null;
 // ONLY use these if you have checked before hand that the array length is > 0
 export const nfirst = <T>(array: T[]): T => array[0];
 export const nlast = <T>(array: T[]): T => array[array.length - 1];

@@ -201,8 +201,7 @@ export class Stave {
       anacruses.map((bar, i) => anacrusisWidth(bar, previousBar(i)))
     );
     const widthAvailable = staveWidth - trebleClefWidth - totalAnacrusisWidth;
-    const averageBarWidth =
-      widthAvailable / (this._bars.length - anacruses.length);
+    const averageBarWidth = widthAvailable / (this._bars.length - anacruses.length);
     let extraWidth = 0;
 
     return this._bars.map((bar, i) => {
@@ -248,9 +247,7 @@ export class Stave {
     const staveLines = foreach(5, (idx) => settings.lineHeightOf(idx) + staveY);
 
     const previousBar = (barIdx: number) =>
-      barIdx === 0
-        ? props.previousStave?.lastBar() || null
-        : this._bars[barIdx - 1];
+      barIdx === 0 ? props.previousStave?.lastBar() || null : this._bars[barIdx - 1];
 
     const widths = this.computeBarWidths(props.width, previousBar);
     const width = (index: number) => widths[index];

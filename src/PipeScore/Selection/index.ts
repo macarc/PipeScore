@@ -58,11 +58,7 @@ export class TimingSelection extends Selection {
   timing: Timing;
   private part: TimingPart;
 
-  constructor(
-    timing: Timing,
-    clickedPart: TimingPart,
-    createdByMouseDown: boolean
-  ) {
+  constructor(timing: Timing, clickedPart: TimingPart, createdByMouseDown: boolean) {
     super(createdByMouseDown);
     this.timing = timing;
     this.part = clickedPart;

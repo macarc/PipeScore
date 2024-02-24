@@ -202,9 +202,7 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
   }
 
   public gracenote(): Gracenote {
-    return this.previewGracenote !== null
-      ? this.previewGracenote
-      : this._gracenote;
+    return this.previewGracenote !== null ? this.previewGracenote : this._gracenote;
   }
 
   public setGracenote(gracenote: Gracenote) {

@@ -165,11 +165,7 @@ class ScoresList {
             ),
             m(
               'td',
-              m(
-                'button.rename',
-                { onclick: () => this.rename(score) },
-                'Rename'
-              )
+              m('button.rename', { onclick: () => this.rename(score) }, 'Rename')
             ),
             m(
               'td',
@@ -181,11 +177,7 @@ class ScoresList {
             ),
             m(
               'td',
-              m(
-                'button.delete',
-                { onclick: () => this.delete(score) },
-                'Delete'
-              )
+              m('button.delete', { onclick: () => this.delete(score) }, 'Delete')
             ),
           ])
         ),
