@@ -47,11 +47,14 @@ export function mouseOverPitch(pitch: Pitch, where: Note | Bar): ScoreEvent {
       if (where instanceof Bar) {
         changed = state.preview.setLocation(where, where.lastNote(), null);
       } else {
-        changed = state.preview.setLocation(
-          state.score.location(where.id).bar,
-          state.score.previousNote(where.id),
-          where
-        );
+        const bar = state.score.location(where.id)?.bar;
+        if (bar) {
+          changed = state.preview.setLocation(
+            bar,
+            state.score.previousNote(where.id),
+            where
+          );
+        }
       }
       changed = state.preview.setPitch(pitch) || changed;
       return changed ? Update.ViewChanged : Update.NoChange;

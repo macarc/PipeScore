@@ -46,6 +46,10 @@ export function oneBefore<A>(item: A, array: A[]) {
   return array[array.indexOf(item) - 1] || null;
 }
 
+export function after<A>(item: A, array: A[]) {
+  return array[array.indexOf(item) + 1] || null;
+}
+
 export function sum(array: number[]) {
   return array.reduce((acc, n) => acc + n, 0);
 }

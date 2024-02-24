@@ -7,7 +7,10 @@
     "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
-    "alwaysStrict": true
+    "alwaysStrict": true,
+    // There's a type mismatch somewher
+    // in bun/happy-dom, and this silences it
+    "skipLibCheck": true
   },
   "exclude": ["build", "node_modules"]
 }

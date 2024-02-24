@@ -168,18 +168,21 @@ export function copy(): ScoreEvent {
 function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
   if (state.selection instanceof ScoreSelection) {
     const id = state.selection.start;
-    const { bar } = state.score.location(id);
-    Bar.pasteNotes(
-      notes
-        // we have to copy (replace ID) here rather than when copying in case they paste it more than once
-        .map((note) =>
-          typeof note === 'string' ? note : noteFromJSON(note).copy()
-        ),
-      bar,
-      id,
-      state.score.bars()
-    );
-    return Update.ShouldSave;
+    const bar =
+      state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
+    if (bar) {
+      Bar.pasteNotes(
+        notes
+          // we have to copy (replace ID) here rather than when copying in case they paste it more than once
+          .map((note) =>
+            typeof note === 'string' ? note : noteFromJSON(note).copy()
+          ),
+        bar,
+        id,
+        state.score.bars()
+      );
+      return Update.ShouldSave;
+    }
   }
   return Update.NoChange;
 }

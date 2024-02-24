@@ -24,9 +24,9 @@ import { ScoreEvent, Update } from './common';
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
     const stave =
-      state.selection instanceof ScoreSelection
-        ? state.score.location(state.selection.start).stave
-        : null;
+      (state.selection instanceof ScoreSelection &&
+        state.score.location(state.selection.start)?.stave) ||
+      null;
 
     state.score.addStave(stave, where);
     return Update.ShouldSave;

@@ -364,12 +364,18 @@ export class Score {
       }
     }
 
-    const lastStave = nlast(staves);
-    const lastBar = nlast(lastStave.bars());
-    return {
-      stave: lastStave,
-      bar: lastBar,
-    };
+    return null;
+  }
+
+  public lastBarAndStave() {
+    const lastStave = last(this.staves());
+    const lastBar = lastStave && last(lastStave.bars());
+    return (
+      lastBar && {
+        stave: lastStave,
+        bar: lastBar,
+      }
+    );
   }
 
   public deleteTiming(timing: Timing) {

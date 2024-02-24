@@ -1,18 +1,18 @@
 import { parsesWithoutWarnings } from './test_common';
 
-describe('correctly parses file header', () => {
-  test('it handles a two captures', () =>
+describe('parse header', () => {
+  it('handles a two captures', () =>
     expect(parsesWithoutWarnings('Bagpipe Music Writer Gold:1.0\r\n')).toBe(
       true
     ));
-  test('it can parse a bagpipe reader software header', () =>
+  it('parses a bagpipe reader software header', () =>
     expect(parsesWithoutWarnings('Bagpipe Reader:1.0\r\n')).toBe(true));
-  test('it can parse a bagpipe musicworks software header', () =>
+  it('parses a bagpipe musicworks software header', () =>
     expect(parsesWithoutWarnings('Bagpipe Musicworks Gold:1.0\r\n')).toBe(
       true
     ));
 
-  test('it handles multiple headers', () =>
+  it('parses multiple headers', () =>
     expect(
       parsesWithoutWarnings(`
                   Bagpipe Music Writer Gold:1.0
@@ -20,7 +20,7 @@ describe('correctly parses file header', () => {
               `)
     ).toBe(true));
 
-  test('it handles all headers', () =>
+  it('parses all headers', () =>
     expect(
       parsesWithoutWarnings(`
                   Bagpipe Music Writer Gold:1.0

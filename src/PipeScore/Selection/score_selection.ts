@@ -64,10 +64,10 @@ export class ScoreSelection extends Selection {
     let newSelection: ID | null = null;
     if (this.start === this.end) {
       if (n) {
-        const previousNote = score.location(n.id).stave.previousNote(n.id);
+        const previousNote = score.location(n.id)?.stave.previousNote(n.id);
         newSelection = previousNote?.id || null;
       } else if (b) {
-        const previousBar = score.location(b.id).stave.previousBar(b);
+        const previousBar = score.location(b.id)?.stave.previousBar(b);
         newSelection = previousBar?.id || null;
       }
     }
@@ -126,9 +126,10 @@ export class ScoreSelection extends Selection {
     }
     return null;
   }
-  public lastNoteAndBar(score: Score): { note: Note | null; bar: Bar } {
+  public lastNoteAndBar(score: Score): { note: Note | null; bar: Bar | null } {
     const notes = this.notes(score);
-    return { note: last(notes), bar: score.location(this.end).bar };
+    const bar = score.location(this.end)?.bar || null;
+    return { note: last(notes), bar };
   }
   // Get all selected notes and triplets
   public notesAndTriplets(score: Score): (Note | Triplet)[] {
@@ -137,7 +138,7 @@ export class ScoreSelection extends Selection {
   // Get all selected single notes, including notes
   // that are part of a triplet
   public notes(score: Score): Note[] {
-    // When true is passed, this will always be a SingleNote[]
+    // When true is passed, this will always be a Note[]
     return this.collectNotes(score, true) as Note[];
   }
   public bars(score: Score): Bar[] {
@@ -186,12 +187,18 @@ export class ScoreSelection extends Selection {
     return null;
   }
   public addAnacrusis(where: Relative, score: Score) {
-    const { bar, stave } = score.location(this.start);
-    stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
+    const location = score.location(this.start);
+    if (location) {
+      const { stave, bar } = location;
+      stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
+    }
   }
   public addBar(where: Relative, score: Score) {
-    const { bar, stave } = score.location(this.start);
-    stave.replaceBar(new Bar(bar.timeSignature()), bar, where);
+    const location = score.location(this.start);
+    if (location) {
+      const { bar, stave } = location;
+      stave.replaceBar(new Bar(bar.timeSignature()), bar, where);
+    }
   }
   // Deletes all references to the items in the array
   private purgeItems(items: Item[], score: Score) {

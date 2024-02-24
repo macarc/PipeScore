@@ -51,9 +51,11 @@ export function addAnacrusis(where: Relative): ScoreEvent {
           : state.score.lastOnPage(0);
 
     if (bar) {
-      const { stave } = state.score.location(bar.id);
-      stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
-      return Update.ShouldSave;
+      const stave = state.score.location(bar.id)?.stave;
+      if (stave) {
+        stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
+        return Update.ShouldSave;
+      }
     }
     return Update.NoChange;
   };
@@ -109,9 +111,11 @@ export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
 export function setBarline(which: 'start' | 'end', what: Barline): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar } = state.score.location(state.selection.start);
-      bar.setBarline(which, what);
-      return Update.ShouldSave;
+      const bar = state.score.location(state.selection.start)?.bar;
+      if (bar) {
+        bar.setBarline(which, what);
+        return Update.ShouldSave;
+      }
     }
     return Update.NoChange;
   };
@@ -121,7 +125,7 @@ export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     const bar =
       state.selection instanceof ScoreSelection
-        ? state.score.location(state.selection.start).bar
+        ? state.score.location(state.selection.start)?.bar
         : state.score.bars()[0];
 
     if (bar) {
@@ -136,12 +140,15 @@ export function editBarTimeSignature(): ScoreEvent {
 export function moveBarToNextLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar, stave } = state.score.location(state.selection.start);
-      const next = state.score.nextStave(stave);
-      if (bar === stave.lastBar() && next) {
-        stave.deleteBar(bar);
-        next.insertBar(bar);
-        return Update.ShouldSave;
+      const location = state.score.location(state.selection.start);
+      if (location) {
+        const { bar, stave } = location;
+        const next = state.score.nextStave(stave);
+        if (bar === stave.lastBar() && next) {
+          stave.deleteBar(bar);
+          next.insertBar(bar);
+          return Update.ShouldSave;
+        }
       }
     }
     return Update.NoChange;
@@ -151,12 +158,15 @@ export function moveBarToNextLine(): ScoreEvent {
 export function moveBarToPreviousLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const { bar, stave } = state.score.location(state.selection.start);
-      const previous = state.score.previousStave(stave);
-      if (bar === stave.firstBar() && previous) {
-        stave.deleteBar(bar);
-        previous.appendBar(bar);
-        return Update.ShouldSave;
+      const location = state.score.location(state.selection.start);
+      if (location) {
+        const { bar, stave } = location;
+        const previous = state.score.previousStave(stave);
+        if (bar === stave.firstBar() && previous) {
+          stave.deleteBar(bar);
+          previous.appendBar(bar);
+          return Update.ShouldSave;
+        }
       }
     }
     return Update.NoChange;

@@ -34,18 +34,23 @@ import { ScoreEvent, Update, addToSelection, stopInputMode } from './common';
 export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
   return async (state: State) => {
     if (state.preview) {
-      state.preview.setLocation(
-        state.score.location(noteAfter.id).bar,
-        state.score.previousNote(noteAfter.id),
-        noteAfter
-      );
-      state.preview.setPitch(pitch);
-      state.preview.makeReal(state.score.notes());
-      return Update.ShouldSave;
+      const location = state.score.location(noteAfter.id);
+
+      if (location) {
+        state.preview.setLocation(
+          location.bar,
+          state.score.previousNote(noteAfter.id),
+          noteAfter
+        );
+        state.preview.setPitch(pitch);
+        state.preview.makeReal(state.score.notes());
+        return Update.ShouldSave;
+      }
     }
     return Update.NoChange;
   };
 }
+
 export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
@@ -53,8 +58,9 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
       const length =
         state.preview instanceof NotePreview
           ? state.preview.length()
-          : state.selection.note(state.score)?.length();
-      if (length) {
+          : state.selection.lastNoteAndBar(state.score)?.note?.length();
+
+      if (length && last.bar) {
         const note = new Note(pitch, length);
         last.bar.insertNote(last.note, note);
         // createdByMouseDown is false since this is triggered by keyboard shortcut
@@ -65,6 +71,7 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
     return Update.NoChange;
   };
 }
+
 export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
   return async (state: State) => {
     if (state.preview) {
@@ -170,16 +177,18 @@ export function addTriplet(): ScoreEvent {
           second instanceof Note &&
           third instanceof Note
         ) {
-          const { bar } = state.score.location(first.id);
-          bar.makeTriplet(first, second, third);
-          return Update.ShouldSave;
+          const location = state.score.location(first.id);
+          if (location) {
+            location.bar.makeTriplet(first, second, third);
+            return Update.ShouldSave;
+          }
         }
       } else if (selected.length >= 1) {
         // Remove triplet
         const tr = selected[0];
-        if (tr instanceof Triplet) {
-          const { bar } = state.score.location(tr.id);
-          bar.unmakeTriplet(tr);
+        const location = state.score.location(tr.id);
+        if (tr instanceof Triplet && location) {
+          location.bar.unmakeTriplet(tr);
           return Update.ShouldSave;
         }
       }
@@ -225,28 +234,28 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
       }
 
       stopInputMode(state);
-    }
-
-    if (
+    } else if (
       state.preview instanceof ReactiveGracenotePreview ||
       state.preview instanceof SingleGracenotePreview
     ) {
-      state.preview.setLocation(
-        state.score.location(note.id).bar,
-        state.score.previousNote(note.id),
-        note
-      );
-      state.preview.makeReal(state.score.notes());
-      return Update.ShouldSave;
-    }
-
-    if (event.shiftKey && state.selection instanceof ScoreSelection) {
+      const location = state.score.location(note.id);
+      if (location) {
+        state.preview.setLocation(
+          location.bar,
+          state.score.previousNote(note.id),
+          note
+        );
+        state.preview.makeReal(state.score.notes());
+        return Update.ShouldSave;
+      }
+    } else if (state.selection instanceof ScoreSelection && event.shiftKey) {
       addToSelection(note.id, state.selection);
       return Update.ViewChanged;
+    } else {
+      state.justClickedNote = true;
+      state.selection = new ScoreSelection(note.id, note.id, true);
     }
 
-    state.justClickedNote = true;
-    state.selection = new ScoreSelection(note.id, note.id, true);
     return Update.ViewChanged;
   };
 }
