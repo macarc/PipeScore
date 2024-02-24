@@ -58,7 +58,8 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
       const length =
         state.preview instanceof NotePreview
           ? state.preview.length()
-          : state.selection.lastNoteAndBar(state.score)?.note?.length();
+          : state.selection.lastNoteAndBar(state.score)?.note?.length() ||
+            state.score.previousNote(state.selection.start)?.length();
 
       if (length && last.bar) {
         const note = new Note(pitch, length);
