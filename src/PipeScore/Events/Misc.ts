@@ -15,14 +15,13 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
+import { Score } from '../Score';
 import { State } from '../State';
 import { Menu } from '../UI/model';
-import { ScoreEvent, Update, stopInputMode } from './common';
-
-import { Score } from '../Score';
 import dialogueBox from '../global/dialogueBox';
 import { Settings, settings } from '../global/settings';
 import { last } from '../global/utils';
+import { ScoreEvent, Update, stopInputMode } from './common';
 
 export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   return async (state: State) => {

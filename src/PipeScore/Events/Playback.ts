@@ -14,13 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { State } from '../State';
-import { ScoreEvent, Update } from './common';
-
 import { playback } from '../Playback';
 import { ScoreSelection } from '../Selection';
+import { State } from '../State';
 import { ID } from '../global/id';
 import { settings } from '../global/settings';
+import { ScoreEvent, Update } from './common';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {

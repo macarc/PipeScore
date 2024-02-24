@@ -19,6 +19,7 @@
 import m from 'mithril';
 import { Bar } from '../Bar';
 import { Barline } from '../Bar/barline';
+import { anacrusisWidth, drawBar, minWidth } from '../Bar/view';
 import { GracenoteState } from '../Gracenote/state';
 import { Note } from '../Note';
 import { NoteState } from '../Note/state';
@@ -197,7 +198,7 @@ export class Stave {
   ): number[] {
     const anacruses = this._bars.filter((bar) => bar.isAnacrusis);
     const totalAnacrusisWidth = sum(
-      anacruses.map((bar, i) => bar.anacrusisWidth(previousBar(i)))
+      anacruses.map((bar, i) => anacrusisWidth(bar, previousBar(i)))
     );
     const widthAvailable = staveWidth - trebleClefWidth - totalAnacrusisWidth;
     const averageBarWidth =
@@ -206,7 +207,7 @@ export class Stave {
 
     return this._bars.map((bar, i) => {
       if (bar.isAnacrusis) {
-        return bar.anacrusisWidth(previousBar(i));
+        return anacrusisWidth(bar, previousBar(i));
       }
       if (bar.fixedWidth !== 'auto') {
         extraWidth += bar.fixedWidth - averageBarWidth;
@@ -275,7 +276,7 @@ export class Stave {
         // If the new width is smaller than the minimum, can't resize
         // Only enforce if we aren't making the bar larger (in case everything's really cramped)
         if (
-          newWidth < bar.minWidth(previousBar(index)) &&
+          newWidth < minWidth(bar, previousBar(index)) &&
           newWidth < widths[index]
         ) {
           return false;
@@ -285,7 +286,7 @@ export class Stave {
         if (next) {
           const barRHS = getX(index) + newWidth;
           const furthestRightPossibleNextLHS =
-            getX(index + 1) + width(index + 1) - next.minWidth(bar);
+            getX(index + 1) + width(index + 1) - minWidth(next, bar);
 
           // If the end of the bar would overlap with the next bar, can't resize
           if (barRHS > furthestRightPossibleNextLHS) {
@@ -310,7 +311,7 @@ export class Stave {
       this.renderTrebleClef(props.x, staveY),
       m(
         'g[class=bars]',
-        this._bars.map((bar, idx) => bar.render(barProps(bar, idx)))
+        this._bars.map((bar, idx) => drawBar(bar, barProps(bar, idx)))
       ),
       m(
         'g[class=stave-lines]',

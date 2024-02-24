@@ -26,6 +26,7 @@ import { Note } from './note';
 import { NoteState } from './state';
 import { Triplet } from './triplet';
 import { noteWidth, totalWidth } from './view';
+
 export { Note } from './note';
 export { Triplet } from './triplet';
 
@@ -79,7 +80,7 @@ export function noteToJSON(note: NoteOrTriplet): SavedNoteOrTriplet {
       value: note.toObject(),
     };
   }
-  throw new Error('Unknown note type (not a single or triplet)');
+  throw new Error('Unknown note type (not a single or tripl[et)');
 }
 
 export function lastNote(note: NoteOrTriplet): Note {

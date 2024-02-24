@@ -19,10 +19,9 @@
 
 import m from 'mithril';
 import { Score } from './Score';
+import { TimeSignature } from './TimeSignature';
 import { timeSignatureEditor } from './TimeSignature/edit';
 import dialogueBox from './global/dialogueBox';
-
-import { TimeSignature } from './TimeSignature';
 
 class ScoreOptions {
   name = 'Blank Score';

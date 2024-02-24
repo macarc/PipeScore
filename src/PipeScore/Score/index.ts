@@ -18,29 +18,28 @@
 //  this file mostly deals with delegations and pages.
 
 import m from 'mithril';
+import { Bar } from '../Bar';
+import { dispatch } from '../Controller';
 import { clickBackground, mouseUp } from '../Events/Mouse';
 import { mouseOffPitch } from '../Events/PitchBoxes';
 import { Update } from '../Events/common';
 import { GracenoteState } from '../Gracenote/state';
+import { flattenTriplets } from '../Note';
 import { NoteState } from '../Note/state';
 import { Playback } from '../Playback';
+import { playbackCursor } from '../Playback/cursor';
+import { PlaybackState } from '../Playback/state';
 import { Preview } from '../Preview';
+import { SavedScore } from '../SavedModel';
 import { ScoreSelection, Selection } from '../Selection';
 import { Stave, trebleClefWidth } from '../Stave';
 import { TextBox } from '../TextBox';
 import { TimeSignature } from '../TimeSignature';
 import { SecondTiming, Timing, TimingPart } from '../Timing';
-import { settings } from '../global/settings';
-import { first, foreach, last, nlast, oneBefore, sum } from '../global/utils';
-
-import { Bar } from '../Bar';
-import { dispatch } from '../Controller';
-import { flattenTriplets } from '../Note';
-import { playbackCursor } from '../Playback/cursor';
-import { PlaybackState } from '../Playback/state';
-import { SavedScore } from '../SavedModel';
 import { ID, Item } from '../global/id';
 import { Relative } from '../global/relativeLocation';
+import { settings } from '../global/settings';
+import { first, foreach, last, nlast, oneBefore, sum } from '../global/utils';
 import { setXYPage } from '../global/xy';
 
 interface ScoreProps {

@@ -1,0 +1,239 @@
+//  PipeScore - online bagpipe notation
+//  Copyright (C) macarc
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import m from 'mithril';
+import { Bar } from '.';
+import { dispatch } from '../Controller';
+import { clickBar } from '../Events/Bar';
+import { addNoteToBarEnd } from '../Events/Note';
+import { mouseOverPitch } from '../Events/PitchBoxes';
+import { GracenoteState } from '../Gracenote/state';
+import {
+  Note,
+  NoteProps,
+  Triplet,
+  groupNotes,
+  lastNote,
+  noteOrTripletWidth,
+} from '../Note';
+import { NoteState } from '../Note/state';
+import { drawTriplet } from '../Note/tripletview';
+import { drawNoteGroup, noteHeadWidth, spacerWidth } from '../Note/view';
+import { pitchBoxes } from '../PitchBoxes';
+import { Pitch } from '../global/pitch';
+import { nlast } from '../global/utils';
+import width from '../global/width';
+import { setXY } from '../global/xy';
+
+interface BarProps {
+  x: number;
+  y: number;
+  width: number;
+  justAddedNote: boolean;
+  previousBar: Bar | null;
+  shouldRenderLastBarline: boolean;
+  mustNotRenderFirstBarline: boolean;
+  endOfLastStave: number;
+  canResize: (newWidth: number) => boolean;
+  resize: (widthChange: number) => void;
+  noteState: NoteState;
+  gracenoteState: GracenoteState;
+}
+
+export function minWidth(bar: Bar, previousBar: Bar | null) {
+  const previousPitch = previousBar?.lastPitch() || null;
+  const { total } = noteOffsets(previousPitch, bar.nonPreviewNotes());
+  const previousTimeSignature = previousBar?.timeSignature() || null;
+  const drawTimeSignature =
+    previousTimeSignature && !bar.timeSignature().equals(previousTimeSignature);
+  return Math.max(
+    width.reify(total, 5) +
+      (drawTimeSignature ? 0 : bar.timeSignature().width()),
+    60
+  );
+}
+
+export function anacrusisWidth(bar: Bar, previousBar: Bar | null) {
+  if (bar.fixedWidth !== 'auto') return bar.fixedWidth;
+  return minWidth(bar, previousBar);
+}
+
+// Returns an array where the nth item is the offset of the nth note
+// from the start of the bar.
+function noteOffsets(previousPitch: Pitch | null, notes: (Note | Triplet)[]) {
+  const widths = [width.zero()];
+  for (let i = 0; i < notes.length; i++) {
+    widths.push(
+      width.add(
+        nlast(widths),
+        noteOrTripletWidth(
+          notes[i],
+          i === 0 ? previousPitch : lastNote(notes[i - 1]).pitch()
+        )
+      )
+    );
+  }
+
+  // In bars with single notes, we want to display the note forward of the middle,
+  // so add a bit on the end.
+  const extraWidth =
+    notes.length === 1 && notes[0] instanceof Note
+      ? width.init(noteHeadWidth, 1)
+      : width.zero();
+
+  return {
+    widths,
+    total: width.addAll(nlast(widths), spacerWidth(), extraWidth),
+  };
+}
+
+export function drawBar(bar: Bar, props: BarProps): m.Children {
+  setXY(bar.id, props.x, props.x + props.width, props.y);
+  const staveY = props.y;
+  const hasTimeSignature =
+    props.previousBar !== null
+      ? !props.previousBar.timeSignature().equals(bar.timeSignature())
+      : true;
+  const barWidth =
+    props.width -
+    (hasTimeSignature ? bar.timeSignature().width() : 0) -
+    // Uhh.. not sure why this is here
+    (noteHeadWidth * 2) / 3 -
+    bar.frontBarline.width() -
+    bar.backBarline.width();
+  const xAfterTimeSignature =
+    props.x + (hasTimeSignature ? bar.timeSignature().width() : 0);
+  const xAfterBarline = xAfterTimeSignature + bar.frontBarline.width();
+
+  const actualNotes = bar.nonPreviewNotes();
+
+  const groupedNotes = groupNotes(
+    actualNotes,
+    bar.timeSignature().beatDivision()
+  );
+
+  const previousNote = props.previousBar?.lastNote() || null;
+  const previousPitch = props.previousBar?.lastPitch() || null;
+
+  const beats = noteOffsets(previousPitch, actualNotes);
+  const numberOfBeats = beats.total.extend;
+  const beatWidth = (barWidth - beats.total.min) / numberOfBeats;
+
+  const xOf = (i: number) =>
+    xAfterBarline + width.reify(beats.widths[i], beatWidth);
+
+  const preview = bar.preview();
+
+  // There are a few special cases to deal with single notes being further
+  // forward than they should be.
+  const previewX = preview
+    ? bar.notes().length === 1
+      ? xAfterBarline - barWidth / 5
+      : bar.notes().length === 2
+        ? bar.notes()[0] === preview
+          ? bar.isAnacrusis
+            ? xAfterBarline - 10
+            : xAfterBarline
+          : xOf(bar.notesAndTriplets().indexOf(preview)) + beatWidth / 2
+        : xOf(bar.notesAndTriplets().indexOf(preview)) - noteHeadWidth
+    : 0;
+
+  const noteProps = (notes: Note[] | Triplet): NoteProps => {
+    const firstNote = notes instanceof Triplet ? notes : notes[0];
+    const index = actualNotes.indexOf(firstNote);
+    return {
+      x: xOf(index),
+      y: staveY,
+      justAddedNote: props.justAddedNote,
+      boxToLast: index === 0 ? xAfterBarline : 'lastnote',
+      noteWidth: beatWidth,
+      previousNote:
+        index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
+      endOfLastStave: props.endOfLastStave,
+      state: props.noteState,
+      gracenoteState: props.gracenoteState,
+    };
+  };
+
+  // note that the pitch boxes must extend the whole width of the bar because they are used to drag notes
+  // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
+  // note adds a note to the start of the bar
+  return m('g[class=bar]', [
+    pitchBoxes(
+      xAfterBarline,
+      staveY,
+      barWidth,
+      (pitch) => dispatch(mouseOverPitch(pitch, bar)),
+      (pitch, e) =>
+        props.noteState.inputtingNotes
+          ? dispatch(addNoteToBarEnd(pitch, bar))
+          : dispatch(clickBar(bar, e)),
+      props.justAddedNote
+    ),
+    ...groupedNotes.map((notes) =>
+      notes instanceof Triplet
+        ? drawTriplet(notes, noteProps(notes))
+        : drawNoteGroup(notes, noteProps(notes))
+    ),
+    preview
+      ? drawNoteGroup([preview], {
+          x: previewX,
+          y: props.y,
+          justAddedNote: props.justAddedNote,
+          boxToLast: 'lastnote',
+          noteWidth: beatWidth / 2,
+          previousNote: null,
+          endOfLastStave: props.endOfLastStave,
+          state: props.noteState,
+          gracenoteState: props.gracenoteState,
+        }) || null
+      : null,
+
+    bar.frontBarline.mustDraw() ||
+    (hasTimeSignature && !props.mustNotRenderFirstBarline)
+      ? bar.frontBarline.render({
+          x: xAfterTimeSignature,
+          y: props.y,
+          atStart: true,
+          drag: () => null,
+        })
+      : null,
+    bar.backBarline.mustDraw() || props.shouldRenderLastBarline
+      ? bar.backBarline.render({
+          x: props.x + props.width,
+          y: props.y,
+          atStart: false,
+          drag: (x) => {
+            const newWidth = x - props.x;
+            // The reason we can't just do props.width here is that when
+            // this is called in the future, props.width may be out of date
+            const oldWidth =
+              bar.fixedWidth === 'auto' ? props.width : bar.fixedWidth;
+            if (props.canResize(newWidth)) {
+              props.resize(newWidth - oldWidth);
+              bar.fixedWidth = newWidth;
+            }
+          },
+        })
+      : null,
+    hasTimeSignature
+      ? bar.timeSignature().render({
+          x: props.x + 10,
+          y: props.y,
+        })
+      : null,
+  ]);
+}

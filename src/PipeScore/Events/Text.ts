@@ -14,13 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { State } from '../State';
-import { ScoreEvent, Update, stopInputMode } from './common';
-
 import { TextSelection } from '../Selection';
+import { State } from '../State';
 import { TextBox } from '../TextBox';
 import { settings } from '../global/settings';
 import { clamp } from '../global/utils';
+import { ScoreEvent, Update, stopInputMode } from './common';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
