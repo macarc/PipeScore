@@ -19,6 +19,13 @@ PipeScore is split into the following components:
 - `UI` - the top/side panel, containing user controls
 - `PitchBoxes` - the mechanism for detecting which pitch the mouse is hovering over
 
+Most components are made up of 3 files:
+- `index.ts` - contains an abstract base class (without any implementations) which forms the interface of the component
+- `impl.ts` - contains a concrete class which implements the interface
+- `view.ts` - contains functions for drawing the component (using the component interface)
+
+By splitting up the interface and implementation, circular dependency hell is mitigated (I was having problems with this before switching to this structure). Interfaces should only import other interfaces. Implementations should only import other interfaces. Views should only import interfaces, views and events. Events import everything. There are still circular dependencies present in the code (e.g. between interfaces) but generally these don't seem to pose much of a problem, since they're only importing types.
+
 For events, the `dispatch` function is used, passing an event from the `Events` folder. The `Events` folder contains a lot of event functions. The event functions are stored in a separate directory from their respective components since they need knowledge of the entire state in order to update it, not just that of the single component.
 
 The lifecycle goes like this:

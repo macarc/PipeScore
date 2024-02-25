@@ -73,12 +73,6 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-// Monad :)
-export const nmap = <T, U>(a: T | null, fn: (b: T) => U): U | null => {
-  if (a) return fn(a);
-  return null;
-};
-
 type SvgPt = { x: number; y: number; page: number };
 
 export function svgCoords(event: MouseEvent): SvgPt | null {

@@ -24,10 +24,10 @@ import { mouseOverPitch } from '../Events/PitchBoxes';
 import { GracenoteState } from '../Gracenote/state';
 import { INote, ITriplet, NoteOrTriplet, groupNotes, lastNote } from '../Note';
 import { NoteState } from '../Note/state';
-import { drawTriplet } from '../Note/tripletview';
 import {
   NoteProps,
   drawNoteGroup,
+  drawTriplet,
   noteHeadWidth,
   noteOrTripletWidth,
   spacerWidth,

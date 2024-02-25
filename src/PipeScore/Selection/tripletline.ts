@@ -21,7 +21,7 @@ import { DefaultSelection } from './dragging';
 export class TripletLineSelection extends DefaultSelection {
   public selected: ITriplet;
 
-  constructor(triplet: ITriplet, createdByMouseDown: boolean) {
+  constructor(triplet: ITriplet) {
     super();
     this.selected = triplet;
   }

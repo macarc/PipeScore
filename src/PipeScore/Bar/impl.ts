@@ -160,7 +160,6 @@ export class Bar extends IBar {
     const noteToDelete = this._notes[ind];
     if (noteToDelete instanceof ITriplet) {
       this.unmakeTriplet(noteToDelete);
-      // TODO BUG : this won't work!
       this.deleteNote(note);
     } else {
       this._notes.splice(ind, 1);

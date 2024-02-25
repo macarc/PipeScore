@@ -60,8 +60,6 @@ export abstract class Timing extends ITiming {
     throw new Error(`Unrecognised type of timing: ${this}`);
   }
 
-  // Checks that there is no overlap, either with itself or with
-  // the other timings in the array
   noOverlap(others: Timing[]) {
     if (!this.noSelfOverlap()) return false;
 

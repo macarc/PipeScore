@@ -221,7 +221,7 @@ export function stopInput(): ScoreEvent {
 export function clickTripletLine(triplet: ITriplet): ScoreEvent {
   return async (state: State) => {
     stopInputMode(state);
-    state.selection = new TripletLineSelection(triplet, true);
+    state.selection = new TripletLineSelection(triplet);
     return Update.ViewChanged;
   };
 }

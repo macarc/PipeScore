@@ -44,8 +44,8 @@ export abstract class ITiming {
   ): void;
   abstract editText(): Promise<void>;
   abstract lines(): TimingLine[];
-  abstract noOverlap(others: ITiming[]): boolean;
   // Checks that there is no overlap, either with itself or with
   // the other timings in the array
+  abstract noOverlap(others: ITiming[]): boolean;
   abstract play(elements: Playback[]): PlaybackSecondTiming | null;
 }

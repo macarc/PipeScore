@@ -25,12 +25,6 @@ import { genId } from '../global/id';
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
 import { NoteLength } from './notelength';
 
-export interface PreviousNote {
-  pitch: Pitch;
-  x: number;
-  y: number;
-}
-
 export class Note extends INote {
   private _length: NoteLength;
   private _pitch: Pitch;

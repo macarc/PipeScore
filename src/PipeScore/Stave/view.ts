@@ -43,10 +43,6 @@ export function minStaveGap() {
   return settings.lineHeightOf(2);
 }
 
-export function minStaveHeight() {
-  return settings.lineHeightOf(4) + settings.staveGap;
-}
-
 // The algorithm for computing bar widths is:
 // - Ignoring anacruses, work out the average bar width
 // - Each anacruses should be its .anacrusisWidth()
