@@ -18,9 +18,11 @@
 //  a few default options to choose from.
 
 import m from 'mithril';
-import { Score } from './Score';
-import { TimeSignature } from './TimeSignature';
+import { IScore } from './Score';
+import { Score } from './Score/impl';
+import { parseDenominator } from './TimeSignature';
 import { timeSignatureEditor } from './TimeSignature/edit';
+import { TimeSignature } from './TimeSignature/impl';
 import dialogueBox from './global/dialogueBox';
 
 class ScoreOptions {
@@ -31,7 +33,7 @@ class ScoreOptions {
   repeatParts = true;
   timeSignature = new TimeSignature('cut time');
 
-  toScore(): Score {
+  toScore(): IScore {
     return new Score(
       this.name,
       this.composer,
@@ -120,7 +122,7 @@ export default async function blankForm(): Promise<ScoreOptions> {
     } else {
       options.timeSignature = new TimeSignature([
         parseInt(data.numerator.toString()),
-        TimeSignature.parseDenominator(data.denominator.toString()) || 4,
+        parseDenominator(data.denominator.toString()) || 4,
       ]);
     }
   }

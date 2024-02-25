@@ -14,32 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  Types / functions shared between multiple event handlers.
+//  Functions shared between multiple event handlers.
 
-import { ScoreSelection } from '../Selection';
 import { State } from '../State';
-import { ID } from '../global/id';
-import { itemBefore } from '../global/xy';
-
-export type ScoreEvent = (state: State) => Promise<Update>;
-
-export enum Update {
-  NoChange = 0,
-  ViewChanged = 1,
-  ShouldSave = 2,
-  MovedThroughHistory = 3,
-}
 
 export function stopInputMode(state: State) {
   state.preview?.stop();
   state.preview = null;
-}
-
-// Extend the current selection to include the item
-export function addToSelection(id: ID, selection: ScoreSelection) {
-  if (itemBefore(selection.end, id)) {
-    selection.end = id;
-  } else if (itemBefore(id, selection.start)) {
-    selection.start = id;
-  }
 }

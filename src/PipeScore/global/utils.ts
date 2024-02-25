@@ -49,6 +49,22 @@ export function after<A>(item: A, array: A[]) {
   return array[array.indexOf(item) + 1] || null;
 }
 
+export function removeNulls<A>(array: (A | null)[]): A[] {
+  return array.filter((a) => a !== null) as A[];
+}
+
+export function splitOn<A>(item: A, array: A[]): A[][] {
+  const result: A[][] = [[]];
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] === item) {
+      result.push([]);
+    } else {
+      nlast(result).push(array[i]);
+    }
+  }
+  return result;
+}
+
 export function sum(array: number[]) {
   return array.reduce((acc, n) => acc + n, 0);
 }

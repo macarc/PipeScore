@@ -29,6 +29,7 @@ export enum Pitch {
   A = 'A',
   G = 'G',
 }
+
 export function pitchToHeight(pitch: Pitch): number {
   // Finds the height of the pitch from the top of the stave, in lines
 
@@ -76,6 +77,7 @@ export function pitchUp(pitch: Pitch): Pitch {
       return Pitch.HA;
   }
 }
+
 export function pitchDown(pitch: Pitch): Pitch {
   switch (pitch) {
     case Pitch.G:

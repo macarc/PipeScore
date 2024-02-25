@@ -14,11 +14,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreSelection, TimingSelection } from '../Selection';
+import { ScoreSelection } from '../Selection/score';
+import { TimingSelection } from '../Selection/timing';
 import { State } from '../State';
-import { SecondTiming, SingleTiming, Timing, TimingPart } from '../Timing';
+import { ITiming, TimingPart } from '../Timing';
+import { SecondTiming, SingleTiming } from '../Timing/impl';
 import { after } from '../global/utils';
-import { ScoreEvent, Update } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {
@@ -52,14 +54,14 @@ export function addSecondTiming(): ScoreEvent {
   };
 }
 
-export function clickTiming(timing: Timing, part: TimingPart): ScoreEvent {
+export function clickTiming(timing: ITiming, part: TimingPart): ScoreEvent {
   return async (state: State) => {
     state.selection = new TimingSelection(timing, part, true);
     return Update.ViewChanged;
   };
 }
 
-export function editTimingText(timing: Timing): ScoreEvent {
+export function editTimingText(timing: ITiming): ScoreEvent {
   return async () => {
     await timing.editText();
     return Update.ShouldSave;

@@ -15,24 +15,25 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { Bar } from '.';
-import { dispatch } from '../Controller';
+import { IBar } from '.';
+import { barlineWidth, drawBarline } from '../Barline/view';
+import { Dispatch } from '../Dispatch';
 import { clickBar } from '../Events/Bar';
 import { addNoteToBarEnd } from '../Events/Note';
 import { mouseOverPitch } from '../Events/PitchBoxes';
 import { GracenoteState } from '../Gracenote/state';
-import {
-  Note,
-  NoteProps,
-  Triplet,
-  groupNotes,
-  lastNote,
-  noteOrTripletWidth,
-} from '../Note';
+import { INote, ITriplet, NoteOrTriplet, groupNotes, lastNote } from '../Note';
 import { NoteState } from '../Note/state';
 import { drawTriplet } from '../Note/tripletview';
-import { drawNoteGroup, noteHeadWidth, spacerWidth } from '../Note/view';
+import {
+  NoteProps,
+  drawNoteGroup,
+  noteHeadWidth,
+  noteOrTripletWidth,
+  spacerWidth,
+} from '../Note/view';
 import { pitchBoxes } from '../PitchBoxes';
+import { drawTimeSignature } from '../TimeSignature/view';
 import { Pitch } from '../global/pitch';
 import { nlast } from '../global/utils';
 import width from '../global/width';
@@ -43,7 +44,7 @@ interface BarProps {
   y: number;
   width: number;
   justAddedNote: boolean;
-  previousBar: Bar | null;
+  previousBar: IBar | null;
   shouldRenderLastBarline: boolean;
   mustNotRenderFirstBarline: boolean;
   endOfLastStave: number;
@@ -51,9 +52,10 @@ interface BarProps {
   resize: (widthChange: number) => void;
   noteState: NoteState;
   gracenoteState: GracenoteState;
+  dispatch: Dispatch;
 }
 
-export function minWidth(bar: Bar, previousBar: Bar | null) {
+export function minWidth(bar: IBar, previousBar: IBar | null) {
   const previousPitch = previousBar?.lastPitch() || null;
   const { total } = noteOffsets(previousPitch, bar.nonPreviewNotes());
   const previousTimeSignature = previousBar?.timeSignature() || null;
@@ -65,14 +67,14 @@ export function minWidth(bar: Bar, previousBar: Bar | null) {
   );
 }
 
-export function anacrusisWidth(bar: Bar, previousBar: Bar | null) {
+export function totalFixedWidth(bar: IBar, previousBar: IBar | null) {
   if (bar.fixedWidth !== 'auto') return bar.fixedWidth;
   return minWidth(bar, previousBar);
 }
 
 // Returns an array where the nth item is the offset of the nth note
 // from the start of the bar.
-function noteOffsets(previousPitch: Pitch | null, notes: (Note | Triplet)[]) {
+function noteOffsets(previousPitch: Pitch | null, notes: NoteOrTriplet[]) {
   const widths = [width.zero()];
   for (let i = 0; i < notes.length; i++) {
     widths.push(
@@ -89,7 +91,7 @@ function noteOffsets(previousPitch: Pitch | null, notes: (Note | Triplet)[]) {
   // In bars with single notes, we want to display the note forward of the middle,
   // so add a bit on the end.
   const extraWidth =
-    notes.length === 1 && notes[0] instanceof Note
+    notes.length === 1 && notes[0] instanceof INote
       ? width.init(noteHeadWidth, 1)
       : width.zero();
 
@@ -99,7 +101,7 @@ function noteOffsets(previousPitch: Pitch | null, notes: (Note | Triplet)[]) {
   };
 }
 
-export function drawBar(bar: Bar, props: BarProps): m.Children {
+export function drawBar(bar: IBar, props: BarProps): m.Children {
   setXY(bar.id, props.x, props.x + props.width, props.y);
   const staveY = props.y;
   const hasTimeSignature =
@@ -111,11 +113,11 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
     (hasTimeSignature ? bar.timeSignature().width() : 0) -
     // Uhh.. not sure why this is here
     (noteHeadWidth * 2) / 3 -
-    bar.frontBarline.width() -
-    bar.backBarline.width();
+    barlineWidth(bar.startBarline()) -
+    barlineWidth(bar.endBarline());
   const xAfterTimeSignature =
     props.x + (hasTimeSignature ? bar.timeSignature().width() : 0);
-  const xAfterBarline = xAfterTimeSignature + bar.frontBarline.width();
+  const xAfterBarline = xAfterTimeSignature + barlineWidth(bar.startBarline());
 
   const actualNotes = bar.nonPreviewNotes();
 
@@ -139,15 +141,15 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
       ? xAfterBarline - barWidth / 5
       : bar.notes().length === 2
         ? bar.notes()[0] === preview
-          ? bar.isAnacrusis
+          ? bar.isAnacrusis()
             ? xAfterBarline - 10
             : xAfterBarline
           : xOf(bar.notesAndTriplets().indexOf(preview)) + beatWidth / 2
         : xOf(bar.notesAndTriplets().indexOf(preview)) - noteHeadWidth
     : 0;
 
-  const noteProps = (notes: Note[] | Triplet): NoteProps => {
-    const firstNote = notes instanceof Triplet ? notes : notes[0];
+  const noteProps = (notes: INote[] | ITriplet): NoteProps => {
+    const firstNote = notes instanceof ITriplet ? notes : notes[0];
     const index = actualNotes.indexOf(firstNote);
     return {
       x: xOf(index),
@@ -159,6 +161,7 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
       endOfLastStave: props.endOfLastStave,
       state: props.noteState,
       gracenoteState: props.gracenoteState,
+      dispatch: props.dispatch,
     };
   };
 
@@ -170,15 +173,15 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
       xAfterBarline,
       staveY,
       barWidth,
-      (pitch) => dispatch(mouseOverPitch(pitch, bar)),
+      (pitch) => props.dispatch(mouseOverPitch(pitch, bar)),
       (pitch, e) =>
         props.noteState.inputtingNotes
-          ? dispatch(addNoteToBarEnd(pitch, bar))
-          : dispatch(clickBar(bar, e)),
+          ? props.dispatch(addNoteToBarEnd(pitch, bar))
+          : props.dispatch(clickBar(bar, e)),
       props.justAddedNote
     ),
     ...groupedNotes.map((notes) =>
-      notes instanceof Triplet
+      notes instanceof ITriplet
         ? drawTriplet(notes, noteProps(notes))
         : drawNoteGroup(notes, noteProps(notes))
     ),
@@ -193,20 +196,22 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
           endOfLastStave: props.endOfLastStave,
           state: props.noteState,
           gracenoteState: props.gracenoteState,
+          dispatch: props.dispatch,
         }) || null
       : null,
 
-    bar.frontBarline.mustDraw() ||
+    bar.startBarline().mustDraw() ||
     (hasTimeSignature && !props.mustNotRenderFirstBarline)
-      ? bar.frontBarline.render({
+      ? drawBarline(bar.startBarline(), {
           x: xAfterTimeSignature,
           y: props.y,
           atStart: true,
           drag: () => null,
+          dispatch: props.dispatch,
         })
       : null,
-    bar.backBarline.mustDraw() || props.shouldRenderLastBarline
-      ? bar.backBarline.render({
+    bar.endBarline().mustDraw() || props.shouldRenderLastBarline
+      ? drawBarline(bar.endBarline(), {
           x: props.x + props.width,
           y: props.y,
           atStart: false,
@@ -221,12 +226,14 @@ export function drawBar(bar: Bar, props: BarProps): m.Children {
               bar.fixedWidth = newWidth;
             }
           },
+          dispatch: props.dispatch,
         })
       : null,
     hasTimeSignature
-      ? bar.timeSignature().render({
+      ? drawTimeSignature(bar.timeSignature(), {
           x: props.x + 10,
           y: props.y,
+          dispatch: props.dispatch,
         })
       : null,
   ]);

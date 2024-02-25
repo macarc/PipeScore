@@ -18,13 +18,14 @@
 //  Actual documentation strings are stored in ../Documentation.
 
 import m from 'mithril';
-import { dispatch } from '../Controller';
+import { Dispatch } from '../Dispatch';
 import documentationStrings from '../Documentation';
 import { hoverDoc } from '../Events/Doc';
 
 export function help(
   docName: keyof typeof documentationStrings,
-  element: m.Vnode
+  element: m.Vnode,
+  dispatch: Dispatch
 ): m.Vnode {
   const attrs = element.attrs as {
     onmouseover: (e: MouseEvent) => void;

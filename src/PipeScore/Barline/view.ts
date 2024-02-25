@@ -14,16 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  Barlines may be:
-//  - normal (a single vertical line)
-//  - repeat (a thick line with dots)
-//  - end (a thick line only)
-
 import m from 'mithril';
-import { dispatch } from '../Controller';
+import { Barline } from '.';
+import { Dispatch } from '../Dispatch';
 import { clickBarline } from '../Events/Bar';
-import { SavedBarline } from '../SavedModel';
-import { stavelineThickness } from '../Stave';
+import { stavelineThickness } from '../Stave/view';
 import { settings } from '../global/settings';
 
 interface BarlineProps {
@@ -32,63 +27,7 @@ interface BarlineProps {
   // atStart : is the barline at the start of the bar or not?
   atStart: boolean;
   drag: (x: number) => void;
-}
-
-type BarlineType = 'normal' | 'repeat' | 'end';
-
-export class Barline {
-  private type: BarlineType;
-
-  static normal = new Barline('normal');
-  static repeat = new Barline('repeat');
-  static part = new Barline('end'); // It's called end for "legacy reasons"
-
-  private constructor(type: BarlineType) {
-    this.type = type;
-  }
-  static fromJSON(o: SavedBarline): Barline {
-    switch (o.type) {
-      case 'normal':
-        return Barline.normal;
-      case 'repeat':
-        return Barline.repeat;
-      case 'end':
-        return Barline.part;
-      default:
-        throw new Error(`Unrecognised barline type ${o.type}`);
-    }
-  }
-  toJSON(): SavedBarline {
-    return { type: this.type };
-  }
-  // Repeat and end barlines must be drawn. Normal barlines may
-  // be skipped, e.g. if the previous bar ended in a normal barline,
-  // there's no need to draw another normal barline at the start of this bar
-  mustDraw() {
-    return this.type === 'repeat' || this.type === 'end';
-  }
-  isRepeat() {
-    return this.type === 'repeat';
-  }
-  width() {
-    switch (this.type) {
-      case 'normal':
-        return 1;
-      case 'repeat':
-      case 'end':
-        return 10;
-    }
-  }
-  render(props: BarlineProps) {
-    switch (this.type) {
-      case 'normal':
-        return renderNormal(props);
-      case 'repeat':
-        return renderRepeat(props);
-      case 'end':
-        return renderPart(props);
-    }
-  }
+  dispatch: Dispatch;
 }
 
 const lineOffset = 6;
@@ -99,7 +38,7 @@ function height() {
   return settings.lineHeightOf(4);
 }
 
-function renderNormal({ x, y, drag }: BarlineProps) {
+function drawNormal({ x, y, drag, dispatch }: BarlineProps) {
   return m('g', [
     m('line', {
       x1: x,
@@ -119,7 +58,8 @@ function renderNormal({ x, y, drag }: BarlineProps) {
     }),
   ]);
 }
-function renderRepeat(props: BarlineProps) {
+
+function drawRepeat(props: BarlineProps) {
   const { x, y, atStart } = props;
   const circleXOffset = 10;
   const topCircleY = y + settings.lineHeightOf(1.5);
@@ -127,7 +67,7 @@ function renderRepeat(props: BarlineProps) {
   const circleRadius = 2;
   const cx = atStart ? x + circleXOffset : x - circleXOffset;
   return m('g[class=barline-repeat]', [
-    renderPart(props),
+    drawPart(props),
     m('circle', {
       cx,
       cy: topCircleY,
@@ -142,7 +82,8 @@ function renderRepeat(props: BarlineProps) {
     }),
   ]);
 }
-function renderPart({ x, y, atStart, drag }: BarlineProps) {
+
+function drawPart({ x, y, atStart, drag, dispatch }: BarlineProps) {
   const thickX = atStart ? x : x - thickLineWidth / 2;
   const thinX = atStart ? x + lineOffset : x - lineOffset;
   return m('g[class=barline-end]', [
@@ -163,4 +104,31 @@ function renderPart({ x, y, atStart, drag }: BarlineProps) {
       stroke: 'black',
     }),
   ]);
+}
+
+export function drawBarline(barline: Barline, props: BarlineProps) {
+  switch (barline) {
+    case Barline.normal:
+      return drawNormal(props);
+    case Barline.repeat:
+      return drawRepeat(props);
+    case Barline.part:
+      return drawPart(props);
+    default:
+      console.log(barline);
+      throw new Error('Unrecognised barline');
+  }
+}
+
+export function barlineWidth(barline: Barline) {
+  switch (barline) {
+    case Barline.normal:
+      return 1;
+    case Barline.repeat:
+    case Barline.part:
+      return 10;
+    default:
+      console.log(barline);
+      throw new Error('Unrecognised barline');
+  }
 }

@@ -14,24 +14,24 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Bar } from '../Bar';
-import { Note, Triplet } from '../Note';
+import { IBar } from '../Bar';
+import { INote, ITriplet } from '../Note';
+import { Note } from '../Note/impl';
 import { Duration, NoteLength } from '../Note/notelength';
 import {
   NotePreview,
   ReactiveGracenotePreview,
   SingleGracenotePreview,
-} from '../Preview';
-import {
-  GracenoteSelection,
-  ScoreSelection,
-  TripletLineSelection,
-} from '../Selection';
+} from '../Preview/impl';
+import { GracenoteSelection } from '../Selection/gracenote';
+import { ScoreSelection } from '../Selection/score';
+import { TripletLineSelection } from '../Selection/tripletline';
 import { State } from '../State';
 import { Pitch } from '../global/pitch';
-import { ScoreEvent, Update, addToSelection, stopInputMode } from './common';
+import { stopInputMode } from './common';
+import { ScoreEvent, Update } from './types';
 
-export function addNoteBefore(pitch: Pitch, noteAfter: Note): ScoreEvent {
+export function addNoteBefore(pitch: Pitch, noteAfter: INote): ScoreEvent {
   return async (state: State) => {
     if (state.preview) {
       const location = state.score.location(noteAfter.id);
@@ -73,7 +73,7 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
   };
 }
 
-export function addNoteToBarEnd(pitch: Pitch, bar: Bar): ScoreEvent {
+export function addNoteToBarEnd(pitch: Pitch, bar: IBar): ScoreEvent {
   return async (state: State) => {
     if (state.preview) {
       state.preview.setLocation(bar, bar.lastNote(), null);
@@ -174,9 +174,9 @@ export function addTriplet(): ScoreEvent {
         const second = selected[1];
         const third = selected[2];
         if (
-          first instanceof Note &&
-          second instanceof Note &&
-          third instanceof Note
+          first instanceof INote &&
+          second instanceof INote &&
+          third instanceof INote
         ) {
           const location = state.score.location(first.id);
           if (location) {
@@ -188,7 +188,7 @@ export function addTriplet(): ScoreEvent {
         // Remove triplet
         const tr = selected[0];
         const location = state.score.location(tr.id);
-        if (tr instanceof Triplet && location) {
+        if (tr instanceof ITriplet && location) {
           location.bar.unmakeTriplet(tr);
           return Update.ShouldSave;
         }
@@ -218,7 +218,7 @@ export function stopInput(): ScoreEvent {
   };
 }
 
-export function clickTripletLine(triplet: Triplet): ScoreEvent {
+export function clickTripletLine(triplet: ITriplet): ScoreEvent {
   return async (state: State) => {
     stopInputMode(state);
     state.selection = new TripletLineSelection(triplet, true);
@@ -226,7 +226,7 @@ export function clickTripletLine(triplet: Triplet): ScoreEvent {
   };
 }
 
-export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
+export function clickNote(note: INote, event: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (state.preview instanceof NotePreview) {
       if (note.isPreview()) {
@@ -250,7 +250,7 @@ export function clickNote(note: Note, event: MouseEvent): ScoreEvent {
         return Update.ShouldSave;
       }
     } else if (state.selection instanceof ScoreSelection && event.shiftKey) {
-      addToSelection(note.id, state.selection);
+      state.selection.extend(note.id);
       return Update.ViewChanged;
     } else {
       state.justClickedNote = true;

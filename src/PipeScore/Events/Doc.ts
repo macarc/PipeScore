@@ -16,7 +16,7 @@
 
 import Documentation from '../Documentation';
 import { State } from '../State';
-import { ScoreEvent, Update } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function hoverDoc(element: keyof typeof Documentation | null): ScoreEvent {
   return async (state: State) => {

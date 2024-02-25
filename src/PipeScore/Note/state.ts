@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Note, Triplet } from '.';
+import { INote, ITriplet } from '.';
 
 export interface NoteState {
-  dragged: Note | null;
-  selectedTripletLine: Triplet | null;
+  dragged: INote | null;
+  selectedTripletLine: ITriplet | null;
   inputtingNotes: boolean;
 }

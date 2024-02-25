@@ -14,12 +14,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { TextSelection } from '../Selection';
+import { TextSelection } from '../Selection/text';
 import { State } from '../State';
-import { TextBox } from '../TextBox';
+import { ITextBox } from '../TextBox';
+import { editTextBox } from '../TextBox/edit';
+import { TextBox } from '../TextBox/impl';
 import { settings } from '../global/settings';
 import { clamp } from '../global/utils';
-import { ScoreEvent, Update, stopInputMode } from './common';
+import { stopInputMode } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
@@ -28,7 +31,7 @@ export function addText(): ScoreEvent {
   };
 }
 
-export function clickText(text: TextBox): ScoreEvent {
+export function clickText(text: ITextBox): ScoreEvent {
   return async (state: State) => {
     stopInputMode(state);
     state.selection = new TextSelection(text, true);
@@ -46,13 +49,13 @@ export function centreText(): ScoreEvent {
   };
 }
 
-export function editText(tx: TextBox | null = null): ScoreEvent {
+export function editText(tx: ITextBox | null = null): ScoreEvent {
   return async (state: State) => {
     if (tx) {
-      return await tx.edit();
+      return await editTextBox(tx);
     }
     if (state.selection instanceof TextSelection) {
-      return await state.selection.text.edit();
+      return await editTextBox(state.selection.text);
     }
     return Update.NoChange;
   };

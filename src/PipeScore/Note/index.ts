@@ -14,100 +14,104 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  Implementations of notes and triplets
+//  Interfaces of notes and triplets
 
-import { GracenoteState } from '../Gracenote/state';
-import { SavedNoteOrTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
+import { IGracenote } from '../Gracenote';
+import { Playback } from '../Playback';
+import { Previews } from '../Preview/previews';
+import { SavedNote, SavedNoteOrTriplet, SavedTriplet } from '../SavedModel';
+import { Item } from '../global/id';
 import { Pitch } from '../global/pitch';
-import { Note } from './note';
-import { NoteState } from './state';
-import { Triplet } from './triplet';
-import { noteWidth, totalWidth } from './view';
+import { NoteLength } from './notelength';
 
-export { Note } from './note';
-export { Triplet } from './triplet';
-
-export interface NoteProps {
-  x: number;
-  y: number;
-  boxToLast: number | 'lastnote';
-  justAddedNote: boolean;
-  previousNote: Note | null;
-  noteWidth: number;
-  endOfLastStave: number;
-  state: NoteState;
-  gracenoteState: GracenoteState;
+export abstract class INote
+  extends Item
+  implements Previews<IGracenote>, Previews<Pitch>
+{
+  abstract toObject(): SavedNote;
+  abstract copy(): INote;
+  abstract toggleTie(notes: INote[]): void;
+  abstract isTied(): boolean;
+  // Corrects the pitches of any notes tied to this note
+  abstract makeCorrectTie(notes: INote[]): void;
+  abstract pitch(): Pitch;
+  abstract setPitch(pitch: Pitch): void;
+  abstract length(): NoteLength;
+  abstract setLength(length: NoteLength): void;
+  abstract hasPreview(): boolean;
+  abstract makePreviewReal(): void;
+  abstract setPreview(gracenote: IGracenote | Pitch, noteBefore: INote | null): void;
+  abstract removePreview(): void;
+  abstract isPreview(): boolean;
+  abstract makeUnPreview(): INote;
+  abstract makePreview(): INote;
+  abstract drag(pitch: Pitch): void;
+  abstract moveUp(): void;
+  abstract moveDown(): void;
+  abstract natural(): boolean;
+  abstract toggleNatural(): void;
+  abstract gracenote(): IGracenote;
+  abstract setGracenote(gracenote: IGracenote): void;
+  abstract addSingleGracenote(grace: Pitch, previous: INote | null): void;
+  abstract replaceGracenote(g: IGracenote, n: IGracenote | null): void;
+  abstract play(pitchBefore: Pitch | null): Playback[];
 }
 
-export type NoteOrTriplet = Note | Triplet;
-
-export function notesToTriplet(first: Note, second: Note, third: Note) {
-  return new Triplet(first.length(), first, second, third);
+// FIXME : must we extend Item here?
+export abstract class ITriplet extends Item {
+  abstract copy(): ITriplet;
+  abstract toObject(): SavedTriplet;
+  abstract tripletSingleNotes(): INote[];
+  abstract firstSingle(): INote;
+  abstract lastSingle(): INote;
+  abstract ensureNotesAreCorrectLength(): void;
+  abstract length(): NoteLength;
+  abstract setLength(length: NoteLength): void;
+  abstract play(previous: Pitch | null): Playback[];
 }
 
-export function noteFromJSON(o: SavedNoteOrTriplet) {
-  let s: NoteOrTriplet | null = null;
-  switch (o.notetype) {
-    case 'single':
-      s = Note.fromObject(o.value);
-      break;
-    case 'triplet':
-      s = Triplet.fromObject(o.value);
-      break;
-  }
-  if (s) {
-    if (isDeprecatedSavedNoteOrTriplet(o)) {
-      s.id = o.id;
-    }
-    return s;
-  }
-  throw new Error(`Unrecognised note type ${o.notetype}`);
-}
+export type NoteOrTriplet = INote | ITriplet;
 
 export function noteToJSON(note: NoteOrTriplet): SavedNoteOrTriplet {
-  if (note instanceof Note) {
+  if (note instanceof INote) {
     return {
       notetype: 'single',
       value: note.toObject(),
     };
   }
-  if (note instanceof Triplet) {
+  if (note instanceof ITriplet) {
     return {
       notetype: 'triplet',
       value: note.toObject(),
     };
   }
-  throw new Error('Unknown note type (not a single or tripl[et)');
+  console.log(note);
+  throw new Error('Unknown note type (not a single or triplet)');
 }
 
-export function lastNote(note: NoteOrTriplet): Note {
-  if (note instanceof Triplet) return note.lastSingle();
+export function lastNote(note: NoteOrTriplet): INote {
+  if (note instanceof ITriplet) return note.lastSingle();
   return note;
 }
 
-export function flattenTriplets(notes: NoteOrTriplet[]): Note[] {
+export function flattenTriplets(notes: NoteOrTriplet[]): INote[] {
   return notes.flatMap((note) =>
-    note instanceof Triplet ? note.tripletSingleNotes() : note
+    note instanceof ITriplet ? note.tripletSingleNotes() : note
   );
 }
 
-export function noteOrTripletWidth(note: NoteOrTriplet, prevNote: Pitch | null) {
-  if (note instanceof Triplet) {
-    return totalWidth(note.tripletSingleNotes(), prevNote);
-  }
-  return noteWidth(note, prevNote);
-}
+type NoteGroup = INote[] | ITriplet;
 
 // Given a list of notes, and a function for finding out how long
 // each group should be, turns the notes into a set of groups
 export function groupNotes(
   notes: NoteOrTriplet[],
   findLengthOfGroup: (i: number) => number
-): (Note[] | Triplet)[] {
+): NoteGroup[] {
   let i = 0;
   let remainingLength = findLengthOfGroup(i);
-  let currentGroup: Note[] = [];
-  const groupedNotes: (Note[] | Triplet)[] = [];
+  let currentGroup: INote[] = [];
+  const groupedNotes: NoteGroup[] = [];
 
   function endGroup() {
     if (currentGroup.length > 0) {
@@ -116,7 +120,7 @@ export function groupNotes(
     }
   }
 
-  function pushNote(note: Note) {
+  function pushNote(note: INote) {
     if (note.length().hasBeam()) {
       currentGroup.push(note);
     } else {
@@ -128,7 +132,7 @@ export function groupNotes(
   }
 
   for (const note of notes) {
-    if (note instanceof Triplet) {
+    if (note instanceof ITriplet) {
       endGroup();
       groupedNotes.push(note);
       remainingLength = findLengthOfGroup(++i);

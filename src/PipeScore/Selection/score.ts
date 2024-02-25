@@ -19,66 +19,51 @@
 //  so it goes in its own file
 
 import m from 'mithril';
-import { Bar } from '../Bar';
-import { Gracenote } from '../Gracenote';
-import { Note, Triplet, flattenTriplets } from '../Note';
-import { Score } from '../Score';
-import { Stave } from '../Stave';
+import { IBar } from '../Bar';
+import { Bar } from '../Bar/impl';
+import { IGracenote } from '../Gracenote';
+import { INote, NoteOrTriplet, flattenTriplets } from '../Note';
+import { IScore } from '../Score';
+import { IStave } from '../Stave';
 import { ID } from '../global/id';
 import { Item } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { car, foreach, last } from '../global/utils';
-import { XY, deleteXY, getXYRangeForPage } from '../global/xy';
-import { Selection } from './model';
+import { XY, deleteXY, getXYRangeForPage, itemBefore } from '../global/xy';
+import { DraggableSelection } from './dragging';
 
 interface ScoreSelectionProps {
   page: number;
-  score: Score;
+  score: IScore;
   staveStartX: number;
   staveEndX: number;
 }
 
-export class ScoreSelection extends Selection {
-  public start: ID;
-  public end: ID;
+export class ScoreSelection extends DraggableSelection {
+  start: ID;
+  end: ID;
 
   constructor(start: ID, end: ID, createdByMouseDown: boolean) {
     super(createdByMouseDown);
     this.start = start;
     this.end = end;
   }
-  public dragOverPitch(pitch: Pitch, score: Score) {
+
+  override dragOverPitch(pitch: Pitch, score: IScore) {
     for (const note of this.notes(score)) {
       note.drag(pitch);
       note.makeCorrectTie(score.notes());
     }
   }
-  // If selection is:
-  // - A single note, find the previous note
-  // - A single bar, find the previous bar
-  private selectedPrevious(score: Score): ID | null {
-    const n = this.note(score);
-    const b = this.bars(score)[0] || null;
-    let newSelection: ID | null = null;
-    if (this.start === this.end) {
-      if (n) {
-        const previousNote = score.location(n.id)?.stave.previousNote(n.id);
-        newSelection = previousNote?.id || null;
-      } else if (b) {
-        const previousBar = score.location(b.id)?.stave.previousBar(b);
-        newSelection = previousBar?.id || null;
-      }
-    }
-    return newSelection;
-  }
-  public delete(score: Score) {
+
+  override delete(score: IScore) {
     let started = false;
     let deleteBars = false;
     const newSelection = this.selectedPrevious(score);
-    const notesToDelete: [Note, Bar][] = [];
-    const barsToDelete: [Bar, Stave][] = [];
+    const notesToDelete: [INote, IBar][] = [];
+    const barsToDelete: [IBar, IStave][] = [];
 
     all: for (const stave of score.staves()) {
       for (const bar of stave.bars()) {
@@ -123,25 +108,29 @@ export class ScoreSelection extends Selection {
     }
     return null;
   }
-  public lastNoteAndBar(score: Score): { note: Note | null; bar: Bar | null } {
+
+  lastNoteAndBar(score: IScore): { note: INote | null; bar: IBar | null } {
     const notes = this.notes(score);
     const bar = score.location(this.end)?.bar || null;
     return { note: last(notes), bar };
   }
+
   // Get all selected notes and triplets
-  public notesAndTriplets(score: Score): (Note | Triplet)[] {
+  notesAndTriplets(score: IScore): NoteOrTriplet[] {
     return this.collectNotes(score, false);
   }
+
   // Get all selected single notes, including notes
   // that are part of a triplet
-  public notes(score: Score): Note[] {
+  notes(score: IScore): INote[] {
     // When true is passed, this will always be a Note[]
-    return this.collectNotes(score, true) as Note[];
+    return this.collectNotes(score, true) as INote[];
   }
-  public bars(score: Score): Bar[] {
+
+  bars(score: IScore): IBar[] {
     const allBars = score.bars();
     let foundStart = false;
-    const bars: Bar[] = [];
+    const bars: IBar[] = [];
     for (const bar of allBars) {
       if (bar.hasID(this.start)) foundStart = true;
       if (foundStart) bars.push(bar);
@@ -149,10 +138,11 @@ export class ScoreSelection extends Selection {
     }
     return bars;
   }
-  public staves(score: Score): Stave[] {
+
+  staves(score: IScore): IStave[] {
     const allStaves = score.staves();
     let foundStart = false;
-    const staves: Stave[] = [];
+    const staves: IStave[] = [];
 
     for (const stave of allStaves) {
       if (stave.includesID(this.start)) foundStart = true;
@@ -161,14 +151,16 @@ export class ScoreSelection extends Selection {
     }
     return staves;
   }
-  public note(score: Score): Note | null {
+
+  note(score: IScore): INote | null {
     const notes = this.notes(score);
     if (notes.length > 0) {
       return notes[0];
     }
     return null;
   }
-  public bar(score: Score): Bar | null {
+
+  bar(score: IScore): IBar | null {
     if (this.start === this.end) {
       for (const bar of score.bars()) {
         if (bar.id === this.start) return bar;
@@ -176,38 +168,71 @@ export class ScoreSelection extends Selection {
     }
     return null;
   }
-  public gracenote(score: Score): Gracenote | null {
+
+  gracenote(score: IScore): IGracenote | null {
     const notes = this.notes(score);
     if (notes.length === 1) {
       return notes[0].gracenote();
     }
     return null;
   }
-  public addAnacrusis(where: Relative, score: Score) {
+
+  addAnacrusis(where: Relative, score: IScore) {
     const location = score.location(this.start);
     if (location) {
       const { stave, bar } = location;
       stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
     }
   }
-  public addBar(where: Relative, score: Score) {
+
+  addBar(where: Relative, score: IScore) {
     const location = score.location(this.start);
     if (location) {
       const { bar, stave } = location;
       stave.replaceBar(new Bar(bar.timeSignature()), bar, where);
     }
   }
+
+  // Extend the current selection to include the item
+  extend(id: ID) {
+    if (itemBefore(this.end, id)) {
+      this.end = id;
+    } else if (itemBefore(id, this.start)) {
+      this.start = id;
+    }
+  }
+
+  // If selection is:
+  // - A single note, find the previous note
+  // - A single bar, find the previous bar
+  private selectedPrevious(score: IScore): ID | null {
+    const n = this.note(score);
+    const b = this.bars(score)[0] || null;
+    let newSelection: ID | null = null;
+    if (this.start === this.end) {
+      if (n) {
+        const previousNote = score.location(n.id)?.stave.previousNote(n.id);
+        newSelection = previousNote?.id || null;
+      } else if (b) {
+        const previousBar = score.location(b.id)?.stave.previousBar(b);
+        newSelection = previousBar?.id || null;
+      }
+    }
+    return newSelection;
+  }
+
   // Deletes all references to the items in the array
-  private purgeItems(items: Item[], score: Score) {
+  private purgeItems(items: Item[], score: IScore) {
     score.purgeTimings(items);
     for (const note of items) {
       deleteXY(note.id);
     }
   }
-  private collectNotes(score: Score, splitUpTriplets: boolean): (Note | Triplet)[] {
+
+  private collectNotes(score: IScore, splitUpTriplets: boolean): NoteOrTriplet[] {
     const bars = score.bars();
     let foundStart = false;
-    const notes: (Note | Triplet)[] = [];
+    const notes: NoteOrTriplet[] = [];
     all: for (const bar of bars) {
       if (bar.hasID(this.start)) foundStart = true;
       const barNotes = splitUpTriplets
@@ -215,7 +240,7 @@ export class ScoreSelection extends Selection {
         : bar.notesAndTriplets();
       for (const note of barNotes) {
         if (note.hasID(this.start)) foundStart = true;
-        if (foundStart && !(note instanceof Note && note.isPreview()))
+        if (foundStart && !(note instanceof INote && note.isPreview()))
           notes.push(note);
         if (note.hasID(this.end)) break all;
       }
@@ -292,7 +317,7 @@ export class ScoreSelection extends Selection {
     ]);
   }
 
-  public render(props: ScoreSelectionProps): m.Children {
+  render(props: ScoreSelectionProps): m.Children {
     const { start, end } = getXYRangeForPage(
       this.start,
       this.end,

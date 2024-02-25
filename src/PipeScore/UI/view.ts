@@ -17,9 +17,9 @@
 //  Draw the user interface (top bar and help documentation)
 
 import m from 'mithril';
-import { Bar } from '../Bar';
-import { Barline } from '../Bar/barline';
-import { dispatch } from '../Controller';
+import { IBar } from '../Bar';
+import { Barline } from '../Barline';
+import { Dispatch } from '../Dispatch';
 import Documentation from '../Documentation';
 import {
   addAnacrusis,
@@ -37,9 +37,9 @@ import {
   changeZoomLevel,
   commit,
   download,
+  exportPDF,
   landscape,
   portrait,
-  print,
   redo,
   save,
   setMenu,
@@ -69,18 +69,19 @@ import {
 } from '../Events/Stave';
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
-import { CustomGracenote, Gracenote, ReactiveGracenote } from '../Gracenote';
-import { Note } from '../Note';
+import { IGracenote } from '../Gracenote';
+import { INote } from '../Note';
 import { Duration } from '../Note/notelength';
+import { IPreview } from '../Preview';
 import {
   NotePreview,
-  Preview,
   ReactiveGracenotePreview,
   SingleGracenotePreview,
-} from '../Preview';
-import { Stave } from '../Stave';
-import { TextBox } from '../TextBox';
-import { Timing } from '../Timing';
+} from '../Preview/impl';
+import { IStave } from '../Stave';
+import { minStaveGap } from '../Stave/view';
+import { ITextBox } from '../TextBox';
+import { ITiming } from '../Timing';
 import { help } from '../global/docs';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
@@ -95,18 +96,19 @@ export interface UIState {
   loggedIn: boolean;
   loadingAudio: boolean;
   isPlaying: boolean;
-  selectedGracenote: Gracenote | null;
-  selectedStaves: Stave[];
-  selectedBar: Bar | null;
-  selectedNotes: Note[];
-  selectedText: TextBox | null;
-  selectedTiming: Timing | null;
+  selectedGracenote: IGracenote | null;
+  selectedStaves: IStave[];
+  selectedBar: IBar | null;
+  selectedNotes: INote[];
+  selectedText: ITextBox | null;
+  selectedTiming: ITiming | null;
   showingPageNumbers: boolean;
-  preview: Preview | null;
+  preview: IPreview | null;
   isLandscape: boolean;
   currentMenu: Menu;
   docs: string | null;
   zoomLevel: number;
+  dispatch: Dispatch;
 }
 
 export default function render(state: UIState): m.Children {
@@ -117,7 +119,7 @@ export default function render(state: UIState): m.Children {
   const inputtingNatural =
     state.preview instanceof NotePreview && state.preview.natural();
 
-  const allNotes = (pred: (note: Note) => boolean) =>
+  const allNotes = (pred: (note: INote) => boolean) =>
     state.selectedNotes.length > 0 && state.selectedNotes.every(pred);
 
   const noteInputButton = (length: Duration) =>
@@ -130,8 +132,9 @@ export default function render(state: UIState): m.Children {
             ? 'highlighted'
             : 'not-highlighted',
         id: `note-${length}`,
-        onclick: () => dispatch(setInputLength(length)),
-      })
+        onclick: () => state.dispatch(setInputLength(length)),
+      }),
+      state.dispatch
     );
 
   const isGracenoteInput = (name: string) =>
@@ -139,8 +142,7 @@ export default function render(state: UIState): m.Children {
     state.preview.isInputting(name);
 
   const isSelectedGracenote = (name: string) =>
-    state.selectedGracenote instanceof ReactiveGracenote &&
-    state.selectedGracenote.name() === name;
+    state.selectedGracenote?.reactiveName() === name;
 
   const gracenoteInput = (name: keyof typeof Documentation) =>
     help(
@@ -151,8 +153,9 @@ export default function render(state: UIState): m.Children {
             ? 'highlighted'
             : 'not-highlighted',
         style: `background-image: url("/images/icons/gracenote-${name}.svg")`,
-        onclick: () => dispatch(setGracenoteOnSelectedNotes(name)),
-      })
+        onclick: () => state.dispatch(setGracenoteOnSelectedNotes(name)),
+      }),
+      state.dispatch
     );
 
   const inputZoomLevel = (e: Event) => {
@@ -160,7 +163,7 @@ export default function render(state: UIState): m.Children {
     if (element instanceof HTMLInputElement) {
       const newZoomLevel = parseInt(element.value, 10);
       if (!Number.isNaN(newZoomLevel)) {
-        dispatch(changeZoomLevel(newZoomLevel));
+        state.dispatch(changeZoomLevel(newZoomLevel));
       }
     }
   };
@@ -187,8 +190,8 @@ export default function render(state: UIState): m.Children {
         type: 'number',
         value: settings[property].toString(),
         oninput: (e: InputEvent) =>
-          dispatch(changeSetting(property, e.target as HTMLInputElement)),
-        onchange: () => dispatch(commit()),
+          state.dispatch(changeSetting(property, e.target as HTMLInputElement)),
+        onchange: () => state.dispatch(commit()),
       }),
     ]);
 
@@ -232,25 +235,28 @@ export default function render(state: UIState): m.Children {
                 allNotes((note) => note.length().hasDot())
                   ? 'highlighted'
                   : 'not-highlighted',
-              onclick: () => dispatch(toggleDot()),
+              onclick: () => state.dispatch(toggleDot()),
             },
             '•'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'tie',
           m('button#tie', {
             disabled: noNotesSelected,
             class: tied ? 'highlighted' : 'not-highlighted',
-            onclick: () => dispatch(tieSelectedNotes()),
-          })
+            onclick: () => state.dispatch(tieSelectedNotes()),
+          }),
+          state.dispatch
         ),
         help(
           'triplet',
           m('button#triplet', {
             disabled: noNotesSelected,
-            onclick: () => dispatch(addTriplet()),
-          })
+            onclick: () => state.dispatch(addTriplet()),
+          }),
+          state.dispatch
         ),
         help(
           'natural',
@@ -260,8 +266,9 @@ export default function render(state: UIState): m.Children {
               inputtingNatural || (!state.preview && naturalAlready)
                 ? 'highlighted'
                 : 'not-highlighted',
-            onclick: () => dispatch(toggleNatural()),
-          })
+            onclick: () => state.dispatch(toggleNatural()),
+          }),
+          state.dispatch
         ),
       ]),
     ]),
@@ -276,13 +283,14 @@ export default function render(state: UIState): m.Children {
           m('button', {
             class:
               state.preview instanceof SingleGracenotePreview ||
-              (state.selectedGracenote instanceof CustomGracenote &&
-                state.selectedGracenote.notes().length === 1)
+              (state.selectedGracenote?.notes().length === 1 &&
+                state.selectedGracenote.reactiveName() === null)
                 ? 'highlighted'
                 : 'not-highlighted',
             style: 'background-image: url("/images/icons/single.svg")',
-            onclick: () => dispatch(setGracenoteOnSelectedNotes(null)),
-          })
+            onclick: () => state.dispatch(setGracenoteOnSelectedNotes(null)),
+          }),
+          state.dispatch
         ),
         gracenoteInput('doubling'),
         gracenoteInput('half-doubling'),
@@ -308,25 +316,27 @@ export default function render(state: UIState): m.Children {
         `add ${which} before`,
         m(
           'button.textual',
-          { onclick: () => dispatch(event(Relative.before)) },
+          { onclick: () => state.dispatch(event(Relative.before)) },
           `Add ${which} before`
-        )
+        ),
+        state.dispatch
       ),
       help(
         `add ${which} after`,
         m(
           'button.textual',
-          { onclick: () => dispatch(event(Relative.after)) },
+          { onclick: () => state.dispatch(event(Relative.after)) },
           `Add ${which} after`
-        )
+        ),
+        state.dispatch
       ),
     ]);
   };
 
   const startBarClass = (type: Barline) =>
-    state.selectedBar?.startBarline(type) ? 'textual highlighted' : 'textual';
+    state.selectedBar?.startBarline() === type ? 'textual highlighted' : 'textual';
   const endBarClass = (type: Barline) =>
-    state.selectedBar?.endBarline(type) ? 'textual highlighted' : 'textual';
+    state.selectedBar?.endBarline() === type ? 'textual highlighted' : 'textual';
 
   const barMenu = [
     m('section', [
@@ -344,9 +354,10 @@ export default function render(state: UIState): m.Children {
           'edit bar time signature',
           m(
             'button.textual',
-            { onclick: () => dispatch(editBarTimeSignature()) },
+            { onclick: () => state.dispatch(editBarTimeSignature()) },
             'Edit time signature'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'reset bar length',
@@ -354,10 +365,11 @@ export default function render(state: UIState): m.Children {
             'button.textual',
             {
               disabled: noBarSelected,
-              onclick: () => dispatch(resetBarLength()),
+              onclick: () => state.dispatch(resetBarLength()),
             },
             'Reset bar length'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -374,10 +386,11 @@ export default function render(state: UIState): m.Children {
                 disabled: noBarSelected,
                 class: startBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
-                onclick: () => dispatch(setBarline('start', Barline.normal)),
+                onclick: () => state.dispatch(setBarline('start', Barline.normal)),
               },
               'Normal'
-            )
+            ),
+            state.dispatch
           ),
           help(
             'repeat barline',
@@ -386,10 +399,11 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: noBarSelected,
                 class: startBarClass(Barline.repeat),
-                onclick: () => dispatch(setBarline('start', Barline.repeat)),
+                onclick: () => state.dispatch(setBarline('start', Barline.repeat)),
               },
               'Repeat'
-            )
+            ),
+            state.dispatch
           ),
           help(
             'part barline',
@@ -398,10 +412,11 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: noBarSelected,
                 class: startBarClass(Barline.part),
-                onclick: () => dispatch(setBarline('start', Barline.part)),
+                onclick: () => state.dispatch(setBarline('start', Barline.part)),
               },
               'Part'
-            )
+            ),
+            state.dispatch
           ),
         ]),
         m('div.horizontal', [
@@ -414,10 +429,11 @@ export default function render(state: UIState): m.Children {
                 disabled: noBarSelected,
                 class: endBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
-                onclick: () => dispatch(setBarline('end', Barline.normal)),
+                onclick: () => state.dispatch(setBarline('end', Barline.normal)),
               },
               'Normal'
-            )
+            ),
+            state.dispatch
           ),
           help(
             'repeat barline',
@@ -426,10 +442,11 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: noBarSelected,
                 class: endBarClass(Barline.repeat),
-                onclick: () => dispatch(setBarline('end', Barline.repeat)),
+                onclick: () => state.dispatch(setBarline('end', Barline.repeat)),
               },
               'Repeat'
-            )
+            ),
+            state.dispatch
           ),
           help(
             'part barline',
@@ -438,10 +455,11 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: noBarSelected,
                 class: endBarClass(Barline.part),
-                onclick: () => dispatch(setBarline('end', Barline.part)),
+                onclick: () => state.dispatch(setBarline('end', Barline.part)),
               },
               ['Part']
-            )
+            ),
+            state.dispatch
           ),
         ]),
       ]),
@@ -455,10 +473,11 @@ export default function render(state: UIState): m.Children {
             'button.textual',
             {
               disabled: noBarSelected,
-              onclick: () => dispatch(moveBarToPreviousLine()),
+              onclick: () => state.dispatch(moveBarToPreviousLine()),
             },
             'Move to previous stave'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'move bar to next line',
@@ -466,10 +485,11 @@ export default function render(state: UIState): m.Children {
             'button.textual',
             {
               disabled: noBarSelected,
-              onclick: () => dispatch(moveBarToNextLine()),
+              onclick: () => state.dispatch(moveBarToNextLine()),
             },
             'Move to next stave'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -481,11 +501,17 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', [
         help(
           'second timing',
-          m('button', { onclick: () => dispatch(addSecondTiming()) }, '1st/ 2nd')
+          m(
+            'button',
+            { onclick: () => state.dispatch(addSecondTiming()) },
+            '1st/ 2nd'
+          ),
+          state.dispatch
         ),
         help(
           'single timing',
-          m('button', { onclick: () => dispatch(addSingleTiming()) }, '2nd')
+          m('button', { onclick: () => state.dispatch(addSingleTiming()) }, '2nd'),
+          state.dispatch
         ),
       ]),
     ]),
@@ -500,10 +526,11 @@ export default function render(state: UIState): m.Children {
               disabled: noTimingSelected,
               onclick: () =>
                 state.selectedTiming &&
-                dispatch(editTimingText(state.selectedTiming)),
+                state.dispatch(editTimingText(state.selectedTiming)),
             },
             'Edit timing text'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -517,17 +544,19 @@ export default function render(state: UIState): m.Children {
           'add stave before',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addStave(Relative.before)) },
+            { onclick: () => state.dispatch(addStave(Relative.before)) },
             'before'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'add stave after',
           m(
             'button.add.text',
-            { onclick: () => dispatch(addStave(Relative.after)) },
+            { onclick: () => state.dispatch(addStave(Relative.after)) },
             'after'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -544,19 +573,25 @@ export default function render(state: UIState): m.Children {
                 : 'Stave gap (for selected staves only): ',
             m('input', {
               type: 'number',
-              min: Stave.minGap,
+              min: minStaveGap,
               value: staveGapToDisplay(state.selectedStaves),
               oninput: (e: InputEvent) =>
-                dispatch(
+                state.dispatch(
                   setStaveGap(parseFloat((e.target as HTMLInputElement).value))
                 ),
-              onchange: () => dispatch(commit()),
+              onchange: () => state.dispatch(commit()),
             }),
-          ])
+          ]),
+          state.dispatch
         ),
         help(
           'reset stave gap',
-          m('button.textual', { onclick: () => dispatch(resetStaveGap()) }, 'Reset')
+          m(
+            'button.textual',
+            { onclick: () => state.dispatch(resetStaveGap()) },
+            'Reset'
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -594,27 +629,38 @@ export default function render(state: UIState): m.Children {
     m('section', [
       m('h2', 'Add Text Box'),
       m('div.section-content', [
-        help('add text', m('button.add', { onclick: () => dispatch(addText()) })),
+        help(
+          'add text',
+          m('button.add', { onclick: () => state.dispatch(addText()) }),
+          state.dispatch
+        ),
       ]),
     ]),
     m('section', [
       m('h2', 'Modify Text Box'),
       m('div.section-content', [
+        // TODO : highlight when selected text is already centred
+        // TODO : remove need for this with snapping
         help(
           'centre text',
           m(
             'button.double-width.text',
-            { disabled: noTextSelected, onclick: () => dispatch(centreText()) },
+            {
+              disabled: noTextSelected,
+              onclick: () => state.dispatch(centreText()),
+            },
             'Centre text'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'edit text',
           m(
             'button.double-width.text',
-            { disabled: noTextSelected, onclick: () => dispatch(editText()) },
+            { disabled: noTextSelected, onclick: () => state.dispatch(editText()) },
             'Edit text'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -636,8 +682,10 @@ export default function render(state: UIState): m.Children {
                 percentage(state.selectedText?.x() || 0, pageWidth)
               ),
               oninput: (e: InputEvent) =>
-                dispatch(setTextX(parseFloat((e.target as HTMLInputElement).value))),
-              onchange: () => dispatch(commit()),
+                state.dispatch(
+                  setTextX(parseFloat((e.target as HTMLInputElement).value))
+                ),
+              onchange: () => state.dispatch(commit()),
             }),
             '%',
           ]),
@@ -654,12 +702,15 @@ export default function render(state: UIState): m.Children {
                 percentage(state.selectedText?.y() || 0, pageHeight)
               ),
               oninput: (e: InputEvent) =>
-                dispatch(setTextY(parseFloat((e.target as HTMLInputElement).value))),
-              onchange: () => dispatch(commit()),
+                state.dispatch(
+                  setTextY(parseFloat((e.target as HTMLInputElement).value))
+                ),
+              onchange: () => state.dispatch(commit()),
             }),
             '%',
           ]),
-        ])
+        ]),
+        state.dispatch
       ),
     ]),
   ];
@@ -674,10 +725,11 @@ export default function render(state: UIState): m.Children {
             'button.double-width.text',
             {
               disabled: state.isPlaying,
-              onclick: () => dispatch(startPlayback()),
+              onclick: () => state.dispatch(startPlayback()),
             },
             'Play from Beginning'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'play from selection',
@@ -687,10 +739,11 @@ export default function render(state: UIState): m.Children {
               disabled:
                 state.isPlaying ||
                 (state.selectedNotes.length === 0 && state.selectedBar === null),
-              onclick: () => dispatch(startPlaybackAtSelection()),
+              onclick: () => state.dispatch(startPlaybackAtSelection()),
             },
             'Play from Selection'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'play looping selection',
@@ -698,10 +751,11 @@ export default function render(state: UIState): m.Children {
             'button.double-width.text',
             {
               disabled: state.isPlaying || state.selectedNotes.length === 0,
-              onclick: () => dispatch(playbackLoopingSelection()),
+              onclick: () => state.dispatch(playbackLoopingSelection()),
             },
             'Play looped Selection'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'stop',
@@ -709,10 +763,11 @@ export default function render(state: UIState): m.Children {
             'button',
             {
               disabled: !state.isPlaying,
-              onclick: () => dispatch(stopPlayback()),
+              onclick: () => state.dispatch(stopPlayback()),
             },
             'Stop'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -729,7 +784,7 @@ export default function render(state: UIState): m.Children {
               step: '1',
               value: settings.bpm,
               oninput: (e: InputEvent) =>
-                dispatch(
+                state.dispatch(
                   setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
                 ),
             }),
@@ -737,12 +792,13 @@ export default function render(state: UIState): m.Children {
               type: 'number',
               value: settings.bpm,
               oninput: (e: InputEvent) =>
-                dispatch(
+                state.dispatch(
                   setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
                 ),
             }),
             'beats per minute',
-          ])
+          ]),
+          state.dispatch
         ),
       ]),
     ]),
@@ -758,10 +814,11 @@ export default function render(state: UIState): m.Children {
             'button',
             {
               class: `text double-width ${state.isLandscape ? ' highlighted' : ''}`,
-              onclick: () => dispatch(landscape()),
+              onclick: () => state.dispatch(landscape()),
             },
             'Landscape'
-          )
+          ),
+          state.dispatch
         ),
         help(
           'portrait',
@@ -769,10 +826,11 @@ export default function render(state: UIState): m.Children {
             'button',
             {
               class: `text double-width ${state.isLandscape ? '' : ' highlighted'}`,
-              onclick: () => dispatch(portrait()),
+              onclick: () => state.dispatch(portrait()),
             },
             'Portrait'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -787,9 +845,12 @@ export default function render(state: UIState): m.Children {
               type: 'checkbox',
               checked: state.showingPageNumbers,
               onclick: (e: MouseEvent) =>
-                dispatch(setPageNumberVisibility(e.target as HTMLInputElement)),
+                state.dispatch(
+                  setPageNumberVisibility(e.target as HTMLInputElement)
+                ),
             }),
-          ])
+          ]),
+          state.dispatch
         ),
       ]),
     ]),
@@ -797,20 +858,22 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Export'),
       m('div.section-content', [
         help(
-          'print',
+          'export',
           m(
             'button.text.double-width',
-            { onclick: () => dispatch(print()) },
-            'Print (to PDF, or printer)'
-          )
+            { onclick: () => state.dispatch(exportPDF()) },
+            'Export to PDF'
+          ),
+          state.dispatch
         ),
         help(
           'download',
           m(
             'button.text.double-width',
-            { onclick: () => dispatch(download()) },
+            { onclick: () => state.dispatch(download()) },
             'Download PipeScore file'
-          )
+          ),
+          state.dispatch
         ),
       ]),
     ]),
@@ -839,8 +902,9 @@ export default function render(state: UIState): m.Children {
             'disable help',
             m('input', {
               type: 'checkbox',
-              onclick: () => dispatch(toggleDoc()),
-            })
+              onclick: () => state.dispatch(toggleDoc()),
+            }),
+            state.dispatch
           ),
         ]),
       ]),
@@ -890,7 +954,7 @@ export default function render(state: UIState): m.Children {
       'button',
       {
         class: menuClass(name),
-        onmousedown: () => dispatch(setMenu(name)),
+        onmousedown: () => state.dispatch(setMenu(name)),
       },
       [pretty(name)]
     );
@@ -906,7 +970,11 @@ export default function render(state: UIState): m.Children {
         menuHead('playback'),
         menuHead('document'),
         menuHead('settings'),
-        help('help', m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))),
+        help(
+          'help',
+          m('button', m('a[href=/help]', { target: '_blank' }, 'Help')),
+          state.dispatch
+        ),
         ...(state.canEdit
           ? [
               m(
@@ -916,7 +984,7 @@ export default function render(state: UIState): m.Children {
               ),
               m(
                 'button.save',
-                { disabled: state.saved, onclick: () => dispatch(save()) },
+                { disabled: state.saved, onclick: () => state.dispatch(save()) },
                 'Save'
               ),
             ]
@@ -925,13 +993,17 @@ export default function render(state: UIState): m.Children {
     : [
         menuHead('playback'),
         menuHead('document'),
-        help('help', m('button', m('a[href=/help]', { target: '_blank' }, 'Help'))),
+        help(
+          'help',
+          m('button', m('a[href=/help]', { target: '_blank' }, 'Help')),
+          state.dispatch
+        ),
       ];
 
   return m('div', [
     m('div#ui', [
       m('div#headings', [
-        help('home', m('button', m('a[href=/scores]', 'Home'))),
+        help('home', m('button', m('a[href=/scores]', 'Home')), state.dispatch),
         ...headings,
       ]),
       m('div#topbar', [m('div#topbar-main', menuMap[state.currentMenu])]),
@@ -948,43 +1020,49 @@ export default function render(state: UIState): m.Children {
           step: '2',
           value: state.zoomLevel,
           oninput: inputZoomLevel,
-        })
+        }),
+        state.dispatch
       ),
       m('section', [
         help(
           'delete',
           m('button.delete', {
             disabled: nothingSelected,
-            onclick: () => dispatch(deleteSelection()),
-          })
+            onclick: () => state.dispatch(deleteSelection()),
+          }),
+          state.dispatch
         ),
         help(
           'copy',
           m('button#copy', {
             disabled: cantCopyPaste,
-            onclick: () => dispatch(copy()),
-          })
+            onclick: () => state.dispatch(copy()),
+          }),
+          state.dispatch
         ),
         help(
           'paste',
           m('button#paste', {
             disabled: cantCopyPaste,
-            onclick: () => dispatch(paste()),
-          })
+            onclick: () => state.dispatch(paste()),
+          }),
+          state.dispatch
         ),
         help(
           'undo',
           m('button#undo', {
             disabled: !state.canUndo,
-            onclick: () => dispatch(undo()),
-          })
+            onclick: () => state.dispatch(undo()),
+          }),
+          state.dispatch
         ),
         help(
           'redo',
           m('button#redo', {
             disabled: !state.canRedo,
-            onclick: () => dispatch(redo()),
-          })
+            onclick: () => state.dispatch(redo()),
+          }),
+          state.dispatch
         ),
       ]),
     ]),

@@ -18,6 +18,7 @@
 //  this the set of all possible reactive gracenotes.
 
 import { Pitch } from '../global/pitch';
+
 export type GracenoteNoteList = Pitch[] & {
   invalid: boolean;
 };

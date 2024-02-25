@@ -14,13 +14,16 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Gracenote } from '../Gracenote';
-import { GracenoteSelection, ScoreSelection } from '../Selection';
+import { IGracenote } from '../Gracenote';
+import { Gracenote } from '../Gracenote/impl';
+import { GracenoteSelection } from '../Selection/gracenote';
+import { ScoreSelection } from '../Selection/score';
 import { State } from '../State';
-import { ScoreEvent, Update, stopInputMode } from './common';
+import { stopInputMode } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function clickGracenote(
-  gracenote: Gracenote,
+  gracenote: IGracenote,
   index: number | 'all'
 ): ScoreEvent {
   return async (state: State) => {
@@ -31,7 +34,7 @@ export function clickGracenote(
   };
 }
 
-function setPreviewGracenote(gracenote: Gracenote, state: State) {
+function setPreviewGracenote(gracenote: IGracenote, state: State) {
   stopInputMode(state);
   state.preview = gracenote.asPreview();
 }

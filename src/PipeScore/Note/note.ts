@@ -16,11 +16,12 @@
 
 //  Note model
 
-import { Gracenote, NoGracenote } from '../Gracenote';
+import { INote } from '.';
+import { IGracenote } from '../Gracenote';
+import { Gracenote, NoGracenote } from '../Gracenote/impl';
 import { Playback, PlaybackNote, PlaybackObject } from '../Playback';
-import { Previews } from '../Preview/previews';
 import { SavedNote } from '../SavedModel';
-import { Item, genId } from '../global/id';
+import { genId } from '../global/id';
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
 import { NoteLength } from './notelength';
 
@@ -30,14 +31,14 @@ export interface PreviousNote {
   y: number;
 }
 
-export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
+export class Note extends INote {
   private _length: NoteLength;
   private _pitch: Pitch;
-  private _gracenote: Gracenote;
+  private _gracenote: IGracenote;
   private hasNatural: boolean;
   private tied: boolean;
 
-  private previewGracenote: Gracenote | null;
+  private previewGracenote: IGracenote | null;
   private preview = false;
 
   constructor(
@@ -45,7 +46,7 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     length: NoteLength,
     tied = false,
     hasNatural = false,
-    gracenote: Gracenote = new NoGracenote()
+    gracenote: IGracenote = new NoGracenote()
   ) {
     super(genId());
     this.tied = tied;
@@ -56,7 +57,7 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     this.previewGracenote = null;
   }
 
-  public static fromObject(o: SavedNote) {
+  static fromObject(o: SavedNote) {
     const n = new Note(
       o.pitch,
       new NoteLength(o.length),
@@ -70,7 +71,7 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     return n;
   }
 
-  public toObject(): SavedNote {
+  toObject(): SavedNote {
     return {
       id: this.id,
       pitch: this._pitch,
@@ -81,23 +82,23 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     };
   }
 
-  public copy() {
+  copy() {
     const n = Note.fromObject(this.toObject());
     n.id = genId();
     return n;
   }
 
-  public toggleTie(notes: Note[]) {
+  toggleTie(notes: Note[]) {
     this.tied = !this.tied;
     this.makeCorrectTie(notes);
   }
 
-  public isTied() {
+  isTied() {
     return this.tied;
   }
 
   // Corrects the pitches of any notes tied to this note
-  public makeCorrectTie(notes: Note[]) {
+  makeCorrectTie(notes: Note[]) {
     const thisIdx = notes.findIndex((n) => n.hasID(this.id));
     const pitch = this.pitch();
 
@@ -112,33 +113,33 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     }
   }
 
-  public pitch() {
+  pitch() {
     return this._pitch;
   }
 
-  public setPitch(pitch: Pitch) {
+  setPitch(pitch: Pitch) {
     this._pitch = pitch;
   }
 
-  public length() {
+  length() {
     return this._length;
   }
 
-  public setLength(length: NoteLength) {
+  setLength(length: NoteLength) {
     this._length = length;
   }
 
-  public hasPreview() {
+  hasPreview() {
     return this.previewGracenote !== null;
   }
 
-  public makePreviewReal() {
+  makePreviewReal() {
     if (this.previewGracenote) this.setGracenote(this.previewGracenote);
     this.previewGracenote = null;
   }
 
-  public setPreview(gracenote: Gracenote | Pitch, noteBefore: Note | null) {
-    if (gracenote instanceof Gracenote) {
+  setPreview(gracenote: IGracenote | Pitch, noteBefore: Note | null) {
+    if (gracenote instanceof IGracenote) {
       if (!this._gracenote.equals(gracenote)) {
         this.previewGracenote = gracenote;
       } else {
@@ -154,44 +155,44 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     }
   }
 
-  public removePreview() {
+  removePreview() {
     this.previewGracenote = null;
   }
 
-  public isPreview() {
+  isPreview() {
     return this.preview;
   }
 
-  public makeUnPreview() {
+  makeUnPreview() {
     this.preview = false;
     return this;
   }
 
-  public makePreview() {
+  makePreview() {
     this.preview = true;
     return this;
   }
 
-  public drag(pitch: Pitch) {
+  drag(pitch: Pitch) {
     this.setPitch(pitch);
     this.hasNatural = false;
   }
 
-  public moveUp() {
+  moveUp() {
     this.setPitch(pitchUp(this.pitch()));
     this.hasNatural = false;
   }
 
-  public moveDown() {
+  moveDown() {
     this.setPitch(pitchDown(this.pitch()));
     this.hasNatural = false;
   }
 
-  public natural() {
+  natural() {
     return this.hasNatural && this.canHaveNatural();
   }
 
-  public toggleNatural() {
+  toggleNatural() {
     if (this.canHaveNatural()) {
       this.hasNatural = !this.hasNatural;
     }
@@ -201,15 +202,15 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     return this.pitch() === Pitch.C || this.pitch() === Pitch.F;
   }
 
-  public gracenote(): Gracenote {
+  gracenote() {
     return this.previewGracenote !== null ? this.previewGracenote : this._gracenote;
   }
 
-  public setGracenote(gracenote: Gracenote) {
+  setGracenote(gracenote: IGracenote) {
     this._gracenote = gracenote;
   }
 
-  public addSingleGracenote(grace: Pitch, previous: Note | null = null) {
+  addSingleGracenote(grace: Pitch, previous: INote | null = null) {
     this._gracenote = this._gracenote.addSingle(
       grace,
       this.pitch(),
@@ -217,11 +218,11 @@ export class Note extends Item implements Previews<Gracenote>, Previews<Pitch> {
     );
   }
 
-  public replaceGracenote(g: Gracenote, n: Gracenote) {
-    if (this._gracenote === g) this._gracenote = n;
+  replaceGracenote(g: IGracenote, n: IGracenote | null) {
+    if (this._gracenote === g) this._gracenote = n || new NoGracenote();
   }
 
-  public play(pitchBefore: Pitch | null): Playback[] {
+  play(pitchBefore: Pitch | null): Playback[] {
     return [
       new PlaybackObject('start', this.id),
       ...this.gracenote().play(this._pitch, pitchBefore),

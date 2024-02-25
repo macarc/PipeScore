@@ -20,19 +20,18 @@ import m from 'mithril';
 import Documentation from './Documentation';
 import { loadedAudio } from './Events/Misc';
 import { mouseDrag, mouseUp } from './Events/Mouse';
-import { ScoreEvent, Update } from './Events/common';
+import { ScoreEvent, Update } from './Events/types';
 import { Firestore } from './Firestore';
 import { emptyGracenoteState } from './Gracenote/state';
-import { startLoadingSamples } from './Playback';
+import { startLoadingSamples } from './Playback/impl';
 import quickStart from './QuickStart';
-import { Score } from './Score';
-import {
-  GracenoteSelection,
-  ScoreSelection,
-  TextSelection,
-  TimingSelection,
-  TripletLineSelection,
-} from './Selection';
+import { Score } from './Score/impl';
+import { drawScore } from './Score/view';
+import { GracenoteSelection } from './Selection/gracenote';
+import { ScoreSelection } from './Selection/score';
+import { TextSelection } from './Selection/text';
+import { TimingSelection } from './Selection/timing';
+import { TripletLineSelection } from './Selection/tripletline';
 import { State } from './State';
 import renderUI from './UI/view';
 import { svgCoords } from './global/utils';
@@ -53,7 +52,7 @@ const state: State = {
   doc: { show: true, current: null },
   clipboard: null,
   selection: null,
-  score: new Score(),
+  score: Score.blank(),
   history: { past: [], future: [] },
   view: { score: null, ui: null },
 };
@@ -101,12 +100,12 @@ function redraw() {
       m(
         'div',
         { class: 'ui-topbar' },
-        state.score.render({
+        drawScore(state.score, {
           justAddedNote: state.preview?.justAdded() || false,
           noteState: {
             dragged:
               (state.selection instanceof ScoreSelection &&
-                state.selection.dragging &&
+                state.selection.dragging() &&
                 state.selection.note(state.score)) ||
               null,
             selectedTripletLine:
@@ -122,6 +121,7 @@ function redraw() {
           selection: state.selection,
           preview: state.preview,
           playbackState: state.playback,
+          dispatch,
         })
       )
     );
@@ -169,6 +169,7 @@ function redraw() {
             : 'Hover over different icons to view Help here.'
           : null,
         currentMenu: state.menu,
+        dispatch,
       })
     );
   }

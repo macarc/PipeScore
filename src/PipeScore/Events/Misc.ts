@@ -15,13 +15,15 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { Score } from '../Score';
+import { Score } from '../Score/impl';
+import { drawScore } from '../Score/view';
 import { State } from '../State';
 import { Menu } from '../UI/model';
 import dialogueBox from '../global/dialogueBox';
 import { Settings, settings } from '../global/settings';
 import { last } from '../global/utils';
-import { ScoreEvent, Update, stopInputMode } from './common';
+import { stopInputMode } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   return async (state: State) => {
@@ -113,7 +115,7 @@ export function redo(): ScoreEvent {
   };
 }
 
-export function print(): ScoreEvent {
+export function exportPDF(): ScoreEvent {
   return async (state: State) => {
     // Printing is a bit annoying on browsers - to print the SVG element, a new window is created
     // and that window is printed
@@ -141,12 +143,12 @@ export function print(): ScoreEvent {
         loading: false,
         cursor: null,
       },
-      dispatch: () => null,
+      dispatch: async () => void 0,
     };
 
     state.score.zoom = 100;
     // Patch it onto a new element with none of the state (e.g. zoom, selected elements)
-    m.render(blankEl, m('div', state.score.render(props)));
+    m.render(blankEl, m('div', drawScore(state.score, props)));
     const contents = blankEl.querySelector('div')?.innerHTML;
 
     await dialogueBox(
@@ -189,6 +191,67 @@ export function print(): ScoreEvent {
     return Update.NoChange;
   };
 }
+
+/*
+export function exportPDF(): ScoreEvent {
+  return async (state: State) => {
+    const blankEl = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    const script = document.createElement('script');
+    script.setAttribute('src', 'print.js');
+    iframe.contentDocument?.append(script);
+    iframe.contentDocument?.append(blankEl);
+
+    const props = {
+      justAddedNote: false,
+      selection: null,
+      noteState: {
+        dragged: null,
+        inputtingNotes: false,
+        selectedTripletLine: null,
+      },
+      gracenoteState: {
+        dragged: null,
+        selected: null,
+      },
+      textBoxState: { selectedText: null },
+      preview: null,
+      playbackState: {
+        playing: false,
+        userPressedStop: false,
+        loading: false,
+        cursor: null,
+      },
+      dispatch: async () => {},
+    };
+
+    state.score.zoom = 100;
+    // Patch it onto a new element with none of the state (e.g. zoom, selected elements)
+    m.render(blankEl, m('div', drawScore(state.score, props)));
+
+    const pdf = new jsPDF({
+      orientation: state.score.orientation(),
+    });
+    pdf.deletePage(1);
+
+    const svgs = blankEl.querySelectorAll('svg');
+
+    for (let page = 0; page < svgs.length; page++) {
+      pdf.addPage();
+      await pdf.svg(svgs[page], {
+        x: 0,
+        y: 0,
+        width: state.score.printWidth(),
+        height: state.score.printHeight(),
+      });
+    }
+
+    pdf.save(`${state.score.name()}.pdf`);
+
+    return Update.ViewChanged;
+  };
+}
+*/
 
 export function download(): ScoreEvent {
   return async (state: State) => {

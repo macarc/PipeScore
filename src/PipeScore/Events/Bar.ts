@@ -14,29 +14,31 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Bar } from '../Bar';
-import { Barline } from '../Bar/barline';
-import { Score } from '../Score';
-import { BarlineSelection, ScoreSelection } from '../Selection';
+import { IBar, setTimeSignatureFrom } from '../Bar';
+import { Bar } from '../Bar/impl';
+import { Barline } from '../Barline';
+import { IScore } from '../Score';
+import { BarlineSelection } from '../Selection/barline';
+import { ScoreSelection } from '../Selection/score';
 import { State } from '../State';
-import { TimeSignature } from '../TimeSignature';
+import { ITimeSignature } from '../TimeSignature';
+import { timeSignatureEditDialog } from '../TimeSignature/edit';
 import { Relative } from '../global/relativeLocation';
-import { ScoreEvent, Update, addToSelection, stopInputMode } from './common';
+import { stopInputMode } from './common';
+import { ScoreEvent, Update } from './types';
 
-function setTimeSignatureFrom(
-  timeSignature: TimeSignature,
-  newTimeSignature: TimeSignature,
-  score: Score
+function setTimeSignature(
+  timeSignature: ITimeSignature,
+  newTimeSignature: ITimeSignature,
+  score: IScore
 ) {
-  Bar.setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
+  setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
 }
 
-export function editTimeSignature(
-  timeSignature: TimeSignature,
-  newTimeSignature: TimeSignature
-): ScoreEvent {
+export function editTimeSignature(timeSignature: ITimeSignature): ScoreEvent {
   return async (state: State) => {
-    setTimeSignatureFrom(timeSignature, newTimeSignature, state.score);
+    const newTimeSignature = await timeSignatureEditDialog(timeSignature);
+    setTimeSignature(timeSignature, newTimeSignature, state.score);
     return Update.ShouldSave;
   };
 }
@@ -97,10 +99,10 @@ export function resetBarLength(): ScoreEvent {
   };
 }
 
-export function clickBar(bar: Bar, mouseEvent: MouseEvent): ScoreEvent {
+export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
-      addToSelection(bar.id, state.selection);
+      state.selection.extend(bar.id);
       return Update.ViewChanged;
     }
     state.selection = new ScoreSelection(bar.id, bar.id, true);
@@ -129,8 +131,8 @@ export function editBarTimeSignature(): ScoreEvent {
         : state.score.bars()[0];
 
     if (bar) {
-      const newTimeSignature = await bar.timeSignature().edit();
-      setTimeSignatureFrom(bar.timeSignature(), newTimeSignature, state.score);
+      const newTimeSignature = await timeSignatureEditDialog(bar.timeSignature());
+      setTimeSignature(bar.timeSignature(), newTimeSignature, state.score);
       return Update.ShouldSave;
     }
     return Update.NoChange;

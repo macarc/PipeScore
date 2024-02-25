@@ -16,20 +16,20 @@
 
 //  Triplet model
 
+import { INote, ITriplet } from '.';
 import { PlaybackNote, PlaybackObject } from '../Playback';
 import { SavedTriplet } from '../SavedModel';
-import { ID, Item, genId } from '../global/id';
+import { ID, genId } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { nfirst, nlast } from '../global/utils';
-import { Note } from './index';
+import { Note } from './impl';
 import { NoteLength } from './notelength';
 
-// FIXME : must we extend Item here?
-export class Triplet extends Item {
-  private _notes: [Note, Note, Note];
+export class Triplet extends ITriplet {
+  private _notes: [INote, INote, INote];
   private _length: NoteLength;
 
-  constructor(length: NoteLength, first: Note, second: Note, third: Note) {
+  constructor(length: NoteLength, first: INote, second: INote, third: INote) {
     super(genId());
     this._length = length;
     this._notes = [first, second, third];
@@ -47,7 +47,11 @@ export class Triplet extends Item {
   public static fromObject(o: SavedTriplet) {
     const t = new Triplet(
       new NoteLength(o.length),
-      ...(o.notes.map((note) => Note.fromObject(note)) as [Note, Note, Note])
+      ...(o.notes.map((note) => Note.fromObject(note)) as INote[] as [
+        INote,
+        INote,
+        INote,
+      ])
     );
     if (o.id) {
       t.id = o.id;

@@ -18,7 +18,7 @@
 //  Useful for timings, ties, e.t.c. - anything where you need to know the
 //  coordinates of something else.
 
-import { Score } from '../Score';
+import { IScore } from '../Score';
 import { ID } from './id';
 
 export interface XY {
@@ -117,7 +117,7 @@ export const closestItem = (
 // If xy is on the same page, return it
 // If xy is on an earlier page, return the first item on this page (if there is one)
 // Otherwise return null
-function itemOrFirstOnPage(xy: XY, page: number, score: Score) {
+function itemOrFirstOnPage(xy: XY, page: number, score: IScore) {
   if (xy.page === page) {
     return xy;
   }
@@ -131,7 +131,7 @@ function itemOrFirstOnPage(xy: XY, page: number, score: Score) {
 // If xy is on the same page, return it
 // If xy is on a later page, return the last item on this page (if there is one)
 // Otherwise return null
-function itemOrLastOnPage(xy: XY, page: number, score: Score) {
+function itemOrLastOnPage(xy: XY, page: number, score: IScore) {
   if (xy.page === page) {
     return xy;
   }
@@ -150,7 +150,7 @@ export function getXYRangeForPage(
   start: ID,
   end: ID,
   page: number,
-  score: Score,
+  score: IScore,
   checkAfterX = false
 ) {
   const a = getXY(start);

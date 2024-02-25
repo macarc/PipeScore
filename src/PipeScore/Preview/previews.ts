@@ -20,11 +20,11 @@
 //  - Note implements Previews<Gracenote>
 //  The reason it's an interface is to make the code in ./index a bit nicer.
 
-import { Note } from '../Note';
+import { INote } from '../Note';
 
 export interface Previews<T> {
-  setPreview(preview: T, noteBefore: Note | null, noteAfter: Note | null): void;
+  setPreview(preview: T, noteBefore: INote | null, noteAfter: INote | null): void;
   removePreview(): void;
   hasPreview(): boolean;
-  makePreviewReal(notes: Note[]): void;
+  makePreviewReal(notes: INote[]): void;
 }

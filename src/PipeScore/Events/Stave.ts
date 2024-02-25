@@ -14,12 +14,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ScoreSelection } from '../Selection';
+import { ScoreSelection } from '../Selection/score';
 import { State } from '../State';
-import { Stave } from '../Stave';
+import { IStave } from '../Stave';
+import { minStaveGap } from '../Stave/view';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
-import { ScoreEvent, Update } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
@@ -35,7 +36,7 @@ export function addStave(where: Relative): ScoreEvent {
 
 // Set the gap between staves, or before the stave if only
 // one stave is in the list
-function setGap(staves: Stave[], gap: number | 'auto') {
+function setGap(staves: IStave[], gap: number | 'auto') {
   if (staves.length === 1) {
     staves[0].setGap(gap);
   } else {
@@ -45,7 +46,7 @@ function setGap(staves: Stave[], gap: number | 'auto') {
   }
 }
 
-export function staveGapToDisplay(staves: Stave[]) {
+export function staveGapToDisplay(staves: IStave[]) {
   switch (staves.length) {
     case 0:
       return settings.staveGap;
@@ -66,7 +67,7 @@ export function staveGapToDisplay(staves: Stave[]) {
 
 export function setStaveGap(gap: number) {
   return async (state: State) => {
-    const clampedGap = Math.max(gap, Stave.minGap());
+    const clampedGap = Math.max(gap, minStaveGap());
     if (state.selection instanceof ScoreSelection) {
       setGap(state.selection.staves(state.score), clampedGap);
     } else {

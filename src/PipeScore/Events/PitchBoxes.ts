@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Bar } from '../Bar';
-import { Note } from '../Note';
+import { IBar } from '../Bar';
+import { INote } from '../Note';
 import { State } from '../State';
 import { Pitch } from '../global/pitch';
-import { ScoreEvent, Update } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function mouseOffPitch(): ScoreEvent {
   return async (state: State) => {
@@ -29,7 +29,7 @@ export function mouseOffPitch(): ScoreEvent {
   };
 }
 
-export function mouseOverPitch(pitch: Pitch, where: Note | Bar): ScoreEvent {
+export function mouseOverPitch(pitch: Pitch, where: INote | IBar): ScoreEvent {
   // This event never returns ShouldSave - if it did, the intermediate steps of
   // dragging a note would be in the history, which we don't want. Instead
   // it should be saved only on mouse up.
@@ -44,7 +44,7 @@ export function mouseOverPitch(pitch: Pitch, where: Note | Bar): ScoreEvent {
 
     if (state.preview) {
       let changed = false;
-      if (where instanceof Bar) {
+      if (where instanceof IBar) {
         changed = state.preview.setLocation(where, where.lastNote(), null);
       } else {
         const bar = state.score.location(where.id)?.bar;
@@ -60,7 +60,7 @@ export function mouseOverPitch(pitch: Pitch, where: Note | Bar): ScoreEvent {
       return changed ? Update.ViewChanged : Update.NoChange;
     }
 
-    if (state.selection?.dragging) {
+    if (state.selection?.dragging()) {
       state.selection.dragOverPitch(pitch, state.score);
       return Update.ViewChanged;
     }

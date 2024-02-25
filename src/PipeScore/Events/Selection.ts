@@ -14,13 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Bar } from '../Bar';
-import { noteFromJSON, noteToJSON } from '../Note';
+import { NoteOrTriplet, noteToJSON } from '../Note';
+import { noteFromJSON } from '../Note/impl';
 import { SavedNoteOrTriplet } from '../SavedModel';
-import { GracenoteSelection } from '../Selection';
-import { ScoreSelection } from '../Selection/score_selection';
+import { GracenoteSelection } from '../Selection/gracenote';
+import { ScoreSelection } from '../Selection/score';
 import { State } from '../State';
-import { ScoreEvent, Update } from './common';
+import { splitOn } from '../global/utils';
+import { ScoreEvent, Update } from './types';
 
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {
@@ -169,20 +170,45 @@ export function copy(): ScoreEvent {
 }
 
 function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
+  const copiedNotes = splitOn(
+    'bar-break',
+    notes
+      // we have to copy (replace ID) here rather than when copying in case they paste it more than once
+      .map((note) => (typeof note === 'string' ? note : noteFromJSON(note).copy()))
+  ) as NoteOrTriplet[][];
+
   if (state.selection instanceof ScoreSelection) {
     const id = state.selection.start;
-    const bar = state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
-    if (bar) {
-      Bar.pasteNotes(
-        notes
-          // we have to copy (replace ID) here rather than when copying in case they paste it more than once
-          .map((note) =>
-            typeof note === 'string' ? note : noteFromJSON(note).copy()
-          ),
-        bar,
-        id,
-        state.score.bars()
-      );
+    const startingBar =
+      state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
+    if (startingBar) {
+      let startedPasting = false;
+
+      for (const bar of state.score.bars()) {
+        if (bar.hasID(startingBar.id)) {
+          startedPasting = true;
+          if (bar.hasID(id)) {
+            const notesToDelete = bar.notes();
+            state.score.purgeTimings(notesToDelete);
+            for (const note of notesToDelete) {
+              bar.deleteNote(note);
+            }
+          }
+        } else if (startedPasting) {
+          // Only delete the current notes if we aren't on the first bar
+          // since we should append to the first, then replace for the rest
+          bar.clearNotes();
+        }
+
+        if (startedPasting) {
+          const notesToPaste = copiedNotes.shift();
+          if (notesToPaste) {
+            bar.appendNotes(notesToPaste);
+          } else {
+            break;
+          }
+        }
+      }
       return Update.ShouldSave;
     }
   }

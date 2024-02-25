@@ -16,7 +16,8 @@
 
 import { State } from '../State';
 import { dialogueBoxIsOpen } from '../global/dialogueBox';
-import { ScoreEvent, Update, stopInputMode } from './common';
+import { stopInputMode } from './common';
+import { ScoreEvent, Update } from './types';
 
 export function mouseUp(): ScoreEvent {
   return async (state: State) => {

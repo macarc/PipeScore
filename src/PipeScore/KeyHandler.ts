@@ -15,9 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { dispatch } from './Controller';
-import { dialogueBoxIsOpen } from './global/dialogueBox';
-
-import { print, redo, save, undo } from './Events/Misc';
+import { exportPDF, redo, save, undo } from './Events/Misc';
 import {
   addNoteAfterSelection,
   moveNoteDown,
@@ -39,6 +37,7 @@ import {
   paste,
 } from './Events/Selection';
 import { Duration } from './Note/notelength';
+import { dialogueBoxIsOpen } from './global/dialogueBox';
 import { Pitch } from './global/pitch';
 
 export function keyHandler(e: KeyboardEvent): void {
@@ -63,7 +62,7 @@ export function keyHandler(e: KeyboardEvent): void {
         break;
       case 'p':
         e.preventDefault();
-        dispatch(print());
+        dispatch(exportPDF());
         break;
 
       case 's':

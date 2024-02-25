@@ -19,23 +19,23 @@
 import Documentation from './Documentation';
 import { Firestore } from './Firestore';
 import { PlaybackState } from './Playback/state';
-import { Preview } from './Preview';
+import { IPreview } from './Preview';
 import { SavedNoteOrTriplet } from './SavedModel';
-import { Score } from './Score';
-import { Selection } from './Selection';
+import { IScore } from './Score';
+import { ISelection } from './Selection';
 import { Menu } from './UI/model';
 
 export type State = {
   store: Firestore | null;
   isLoggedIn: boolean;
   justClickedNote: boolean;
-  preview: Preview | null;
+  preview: IPreview | null;
   menu: Menu;
   doc: { current: keyof typeof Documentation | null; show: boolean };
   clipboard: (SavedNoteOrTriplet | 'bar-break')[] | null;
-  selection: Selection | null;
+  selection: ISelection | null;
   history: { past: string[]; future: string[] };
   view: { ui: HTMLElement | null; score: HTMLElement | null };
   playback: PlaybackState;
-  score: Score;
+  score: IScore;
 };

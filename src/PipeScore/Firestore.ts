@@ -19,7 +19,8 @@
 import { Database } from 'firebase-firestore-lite';
 import quickStart from './QuickStart';
 import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
-import { Score } from './Score';
+import { IScore } from './Score';
+import { Score } from './Score/impl';
 
 function beforeUnload(event: Event) {
   event.preventDefault();
@@ -33,7 +34,7 @@ export class Firestore {
   private readonly: boolean;
   private editsSinceSave = 0;
   private oncommit: () => void = () => null;
-  private score: SavedScore = new Score().toJSON();
+  private score: SavedScore = Score.blank().toJSON();
 
   private constructor(
     db: Database,
@@ -78,7 +79,7 @@ export class Firestore {
     this.editsSinceSave++;
   }
 
-  getSavedScore(): Score | null {
+  getSavedScore(): IScore | null {
     if (this.score) return Score.fromJSON(this.score);
     return null;
   }

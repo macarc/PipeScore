@@ -18,32 +18,10 @@
 
 import m from 'mithril';
 import dialogueBox from '../global/dialogueBox';
-import { Denominator, TimeSignature } from './index';
+import { TimeSignature } from './impl';
+import { Denominator, ITimeSignature, parseDenominator } from './index';
 
-function textDialogue(ts: TimeSignature) {
-  return [
-    m('section', [
-      timeSignatureEditor(ts),
-      m('details', [
-        m('summary', 'Advanced'),
-        m('label', [
-          'Custom grouping (See ',
-          m('a[href=/help#time-signatures]', 'help page'),
-          ')',
-          m('input', {
-            type: 'text',
-            name: 'breaks',
-            // Need to do \. for the pattern regex
-            pattern: '^([1-9][0-9]*(,\\s*[1-9][0-9]*)*|())$',
-            value: ts.breaksString(),
-          }),
-        ]),
-      ]),
-    ]),
-  ];
-}
-
-export function timeSignatureEditor(ts: TimeSignature): m.Children {
+export function timeSignatureEditor(ts: ITimeSignature): m.Children {
   const denominatorOption = (i: Denominator) =>
     m(
       'option',
@@ -95,8 +73,33 @@ export function timeSignatureEditor(ts: TimeSignature): m.Children {
   ]);
 }
 
+function textDialogue(ts: ITimeSignature) {
+  return [
+    m('section', [
+      timeSignatureEditor(ts),
+      m('details', [
+        m('summary', 'Advanced'),
+        m('label', [
+          'Custom grouping (See ',
+          m('a[href=/help#time-signatures]', 'help page'),
+          ')',
+          m('input', {
+            type: 'text',
+            name: 'breaks',
+            // Need to do \. for the pattern regex
+            pattern: '^([1-9][0-9]*(,\\s*[1-9][0-9]*)*|())$',
+            value: ts.breaksString(),
+          }),
+        ]),
+      ]),
+    ]),
+  ];
+}
+
 // Makes a dialogue box for the user to edit the text, then updates the text
-export async function edit(ts: TimeSignature): Promise<TimeSignature> {
+export async function timeSignatureEditDialog(
+  ts: ITimeSignature
+): Promise<ITimeSignature> {
   const form = await dialogueBox('Edit Time Signature', textDialogue(ts));
 
   if (form) {
@@ -112,7 +115,7 @@ export async function edit(ts: TimeSignature): Promise<TimeSignature> {
 
     if (data.ts === 'normal') {
       const num = Math.max(parseInt(data.numerator.toString()), 1);
-      const denom = TimeSignature.parseDenominator(data.denominator.toString());
+      const denom = parseDenominator(data.denominator.toString());
       if (num && denom) return new TimeSignature([num, denom], breaks);
     } else if (data.ts === 'cut time' || data.ts === 'common time') {
       return new TimeSignature(data.ts, breaks);

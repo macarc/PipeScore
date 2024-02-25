@@ -17,27 +17,22 @@
 //  Code for drawing triplets
 
 import m from 'mithril';
-import { NoteProps } from '.';
-import { dispatch } from '../Controller';
+import { ITriplet } from '.';
 import { clickTripletLine } from '../Events/Note';
-import { Pitch, pitchY } from '../global/pitch';
+import { pitchY } from '../global/pitch';
 import { getXY } from '../global/xy';
-import { Triplet } from './triplet';
-import { drawNoteGroup, totalWidth } from './view';
-
-export function width(triplet: Triplet, previousNote: Pitch | null) {
-  return totalWidth(triplet.tripletSingleNotes(), previousNote);
-}
+import { NoteProps, drawNoteGroup } from './view';
 
 // Draws a triplet marking from x1,y1 to x2,y2
 function tripletLine(
-  triplet: Triplet,
+  triplet: ITriplet,
   staveY: number,
   x1: number,
   x2: number,
   y1: number,
   y2: number,
-  selected: boolean
+  selected: boolean,
+  onmousedown: () => void
 ): m.Children {
   const midx = x1 + (x2 - x1) / 2;
   const height = 40;
@@ -54,7 +49,7 @@ function tripletLine(
         'text-anchor': 'center',
         fill: colour,
         style: 'font-size: 10px;',
-        onmousedown: () => dispatch(clickTripletLine(triplet)),
+        onmousedown,
       },
       '3'
     ),
@@ -62,12 +57,12 @@ function tripletLine(
       d: path,
       stroke: colour,
       fill: 'none',
-      onmousedown: () => dispatch(clickTripletLine(triplet)),
+      onmousedown,
     }),
   ]);
 }
 
-export function drawTriplet(triplet: Triplet, props: NoteProps) {
+export function drawTriplet(triplet: ITriplet, props: NoteProps) {
   triplet.ensureNotesAreCorrectLength();
 
   return m('g', [
@@ -79,7 +74,8 @@ export function drawTriplet(triplet: Triplet, props: NoteProps) {
       getXY(triplet.lastSingle().id)?.beforeX || 0,
       pitchY(props.y, triplet.firstSingle().pitch()),
       pitchY(props.y, triplet.lastSingle().pitch()),
-      props.state.selectedTripletLine === triplet
+      props.state.selectedTripletLine === triplet,
+      () => props.dispatch(clickTripletLine(triplet))
     ),
   ]);
 }

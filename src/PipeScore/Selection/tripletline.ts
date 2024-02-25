@@ -14,25 +14,21 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Score } from '../Score';
-import { Pitch } from '../global/pitch';
+import { ITriplet } from '../Note';
+import { IScore } from '../Score';
+import { DefaultSelection } from './dragging';
 
-export class Selection {
-  dragging: boolean;
-  // Selections created by the user clicking should
-  // have createdByMouseDown on, otherwise (e.g. from keyboard)
-  // createdByMouseDown should be off
-  constructor(createdByMouseDown: boolean) {
-    this.dragging = createdByMouseDown;
+export class TripletLineSelection extends DefaultSelection {
+  public selected: ITriplet;
+
+  constructor(triplet: ITriplet, createdByMouseDown: boolean) {
+    super();
+    this.selected = triplet;
   }
 
-  // Returns the new selection if there is one
-  delete(score: Score): Selection | null {
+  override delete(score: IScore) {
+    const location = score.location(this.selected.id);
+    if (location) location.bar.unmakeTriplet(this.selected);
     return null;
-  }
-  dragOverPitch(pitch: Pitch, score: Score) {}
-  mouseDrag(x: number, y: number, score: Score, page: number) {}
-  mouseUp() {
-    this.dragging = false;
   }
 }

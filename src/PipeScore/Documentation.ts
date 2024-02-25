@@ -96,7 +96,7 @@ export default {
     'Play the currently selected part of the score, repeating forever.',
   stop: 'Stop the playback.',
   'playback speed': 'Control the playback speed (further right is faster).',
-  print: 'Print the score to a physical printer or PDF file.',
+  export: 'Export the score to a PDF file, that may then be shared or printed.',
   download:
     'Download the score as a .pipescore file.\n\nThis allows you to save your scores on your computer, and to upload them again to another account.\n\nThe downloaded file cannot be opened in anything other than PipeScore.',
   landscape: 'Make the page(s) landscape.',
