@@ -67,7 +67,7 @@ export function totalWidth(notes: INote[], prevNote: Pitch | null): Width {
     .reduce(width.add, width.zero());
 }
 
-// FIXME : only pass gracenote here?
+// TODO : only pass gracenote here?
 function widthOfGracenote(note: INote, pitchBefore: Pitch | null) {
   return note.isTied()
     ? width.zero()

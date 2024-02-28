@@ -61,7 +61,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         startController(store, true);
       } else {
         const store = await Firestore.create(db, userid, scoreid, true);
-        // FIXME : shouldn't this be true
+        // TODO : shouldn't this be true
         startController(store, false);
       }
     }

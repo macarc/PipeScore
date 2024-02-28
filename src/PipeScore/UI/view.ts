@@ -47,11 +47,11 @@ import {
   undo,
 } from '../Events/Misc';
 import {
-  addTriplet,
   setInputLength,
   tieSelectedNotes,
   toggleDot,
   toggleNatural,
+  toggleTriplet,
 } from '../Events/Note';
 import {
   playbackLoopingSelection,
@@ -254,7 +254,7 @@ export default function render(state: UIState): m.Children {
           'triplet',
           m('button#triplet', {
             disabled: noNotesSelected,
-            onclick: () => state.dispatch(addTriplet()),
+            onclick: () => state.dispatch(toggleTriplet()),
           }),
           state.dispatch
         ),

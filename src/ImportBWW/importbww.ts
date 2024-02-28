@@ -97,7 +97,7 @@ async function importfile(e: SubmitEvent) {
       });
 
       // This is copied from the Score constructor
-      // FIXME: remove duplication
+      // TODO : remove duplication
       const detailTextSize = 15;
       const detailY = Math.max(initialTopOffset - 45, 10);
       if (composer)

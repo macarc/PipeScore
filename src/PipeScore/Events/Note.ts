@@ -163,7 +163,7 @@ export function toggleNatural(): ScoreEvent {
   };
 }
 
-export function addTriplet(): ScoreEvent {
+export function toggleTriplet(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const selected = state.selection.notesAndTriplets(state.score);

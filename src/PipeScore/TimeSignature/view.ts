@@ -19,7 +19,6 @@ import { ITimeSignature } from '.';
 import { Dispatch } from '../Dispatch';
 import { editTimeSignature } from '../Events/Bar';
 import { settings } from '../global/settings';
-import { timeSignatureEditDialog } from './edit';
 
 interface TimeSignatureProps {
   x: number;

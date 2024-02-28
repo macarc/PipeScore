@@ -20,6 +20,7 @@ PipeScore is split into the following components:
 - `PitchBoxes` - the mechanism for detecting which pitch the mouse is hovering over
 
 Most components are made up of 3 files:
+
 - `index.ts` - contains an abstract base class (without any implementations) which forms the interface of the component
 - `impl.ts` - contains a concrete class which implements the interface
 - `view.ts` - contains functions for drawing the component (using the component interface)

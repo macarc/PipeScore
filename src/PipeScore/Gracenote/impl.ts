@@ -36,6 +36,9 @@ import { Pitch, pitchDown, pitchUp } from '../global/pitch';
 import { gracenotes, noteList } from './gracenotes';
 
 export abstract class Gracenote extends IGracenote {
+  protected abstract toObject(): object;
+  protected abstract type: string;
+
   toJSON(): SavedGracenote {
     return {
       type: this.type,

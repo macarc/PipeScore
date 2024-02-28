@@ -21,8 +21,6 @@ import { Pitch } from '../global/pitch';
 import { GracenoteNoteList } from './gracenotes';
 
 export abstract class IGracenote {
-  protected abstract toObject(): object;
-  protected abstract type: string;
   abstract drag(pitch: Pitch, index: number): IGracenote;
   abstract notes(thisNote?: Pitch, previous?: Pitch | null): GracenoteNoteList;
   abstract equals(other: IGracenote): boolean;

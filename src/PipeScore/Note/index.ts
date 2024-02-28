@@ -57,7 +57,7 @@ export abstract class INote
   abstract play(pitchBefore: Pitch | null): Playback[];
 }
 
-// FIXME : must we extend Item here?
+// TODO : must we extend Item here?
 export abstract class ITriplet extends Item {
   abstract copy(): ITriplet;
   abstract toObject(): SavedTriplet;
