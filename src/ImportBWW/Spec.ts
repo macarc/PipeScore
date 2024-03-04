@@ -11,29 +11,29 @@ export const Spec: SpecType[] = [
       /^(Bagpipe Reader|Bagpipe Music Writer Gold|Bagpipe Musicworks Gold):(\d\.\d)/,
     type: TokenType.SOFTWARE_NAME_AND_VERSION,
   },
+  // We can't use .*? inside brackets since that wouldn't match newlines
   {
-    regex: /^MIDINoteMappings,\((\d{0,2},?){27}\)/,
+    regex: /^MIDINoteMappings,\([^)]*\)/,
     type: TokenType.MIDI_NOTE_MAPPINGS,
   },
   {
-    regex: /^FrequencyMappings,\((\d{3},?){27}\)/,
+    regex: /^FrequencyMappings,\([^)]*\)/,
     type: TokenType.FREQUENCY_MAPPINGS,
   },
   {
-    regex: /^InstrumentMappings,\((\d{1,4},?){7}\)/,
+    regex: /^InstrumentMappings,\([^)]*\)/,
     type: TokenType.INSTRUMENT_MAPPINGS,
   },
   {
-    regex: /^GracenoteDurations,\((\d{1,3},?){14}\)/,
+    regex: /^GracenoteDurations,\([^)]*\)/,
     type: TokenType.GRACENOTE_DURATIONS,
   },
   {
-    regex: /^FontSizes,\((\d{1,3},?){5}\)/,
+    regex: /^FontSizes,\([^)]*\)/,
     type: TokenType.FONT_SIZES,
   },
   {
-    regex:
-      /^TuneFormat,\(\d,\d,([a-zA-Z]*),([a-zA-Z]*),\d{2,4},\d{3,4},\d{3,4},\d{3,4},([a-zA-Z]*),\d,\d\)/,
+    regex: /^TuneFormat,\([^)]*\)/,
     type: TokenType.TUNE_FORMAT,
   },
   {
@@ -41,12 +41,11 @@ export const Spec: SpecType[] = [
     type: TokenType.TUNE_TEMPO,
   },
   {
-    regex:
-      /^"([^"]*)",\((\w),(\w),\d{1,2},\d{1,2},[^,]*,\d{1,2},\d{1,3},\d{1,3},\d,\d{1,2},\d,\d,\d\)/,
+    regex: /^"([^"]*)",\([^)]*\)/,
     type: TokenType.TEXT_TAG,
   },
   {
-    regex: /^"(.*?)"/,
+    regex: /^"([^"]*)"/,
     type: TokenType.TEXT_TAG,
   },
   {
