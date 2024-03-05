@@ -31,7 +31,7 @@ import { Pitch } from '../global/pitch';
 import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { car, foreach, last } from '../global/utils';
-import { XY, deleteXY, getXYRangeForPage, itemBefore } from '../global/xy';
+import { XY, deleteXY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
 
 interface ScoreSelectionProps {
@@ -195,9 +195,9 @@ export class ScoreSelection extends DraggableSelection {
 
   // Extend the current selection to include the item
   extend(id: ID) {
-    if (itemBefore(this.end, id)) {
+    if (isItemBefore(this.end, id, 'afterX', 'afterX')) {
       this.end = id;
-    } else if (itemBefore(id, this.start)) {
+    } else if (isItemBefore(id, this.start, 'beforeX', 'beforeX')) {
       this.start = id;
     }
   }
@@ -322,7 +322,8 @@ export class ScoreSelection extends DraggableSelection {
       this.start,
       this.end,
       props.page,
-      props.score
+      props.score,
+      false
     );
 
     if (start && end) {

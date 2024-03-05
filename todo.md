@@ -22,7 +22,6 @@
 - [ ] Triplets with tails can group
 - [ ] Can't drag barlines well when there's stuff in the bar
 - [ ] Deleting multiple staves doesn't preserve gap on first one
-- [ ] Can't move middle/end of timing closer than 1 bar towards front
 
 ## Small features
 
@@ -229,3 +228,4 @@
 - [x] Selecting multiple bars as the paste target
 - [x] Better time signature font
 - [x] Move multiple bars to next/previous line easily
+- [x] Can't move middle/end of timing closer than 1 bar towards front

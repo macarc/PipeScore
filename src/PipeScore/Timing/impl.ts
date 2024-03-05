@@ -24,7 +24,7 @@ import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
 import { SavedSecondTiming, SavedSingleTiming, SavedTiming } from '../SavedModel';
 import dialogueBox from '../global/dialogueBox';
 import { ID } from '../global/id';
-import { XY, closestItem, getXY, inOrder, itemBefore } from '../global/xy';
+import { XY, closestItem, getXY, isBefore, isItemBefore } from '../global/xy';
 
 export type TimingPart = 'start' | 'middle' | 'end';
 
@@ -73,11 +73,25 @@ export abstract class Timing extends ITiming {
         end === ostart ||
         start === ostart ||
         end === oend ||
-        inOrder(ostart, start, oend) ||
-        inOrder(start, ostart, end) ||
-        inOrder(ostart, end, oend) ||
-        inOrder(start, oend, end)
+        (isBefore(ostart, start, 'beforeX', 'beforeX') &&
+          isBefore(start, oend, 'beforeX', 'afterX')) ||
+        (isBefore(start, ostart, 'beforeX', 'beforeX') &&
+          isBefore(ostart, end, 'beforeX', 'afterX')) ||
+        (isBefore(ostart, end, 'beforeX', 'afterX') &&
+          isBefore(end, oend, 'afterX', 'afterX')) ||
+        (isBefore(start, oend, 'beforeX', 'afterX') &&
+          isBefore(oend, end, 'beforeX', 'afterX'))
       ) {
+        console.log(
+          isBefore(ostart, start, 'beforeX', 'beforeX') &&
+            isBefore(start, oend, 'beforeX', 'afterX'),
+          isBefore(start, ostart, 'beforeX', 'beforeX') &&
+            isBefore(ostart, end, 'beforeX', 'afterX'),
+          isBefore(ostart, end, 'beforeX', 'afterX') &&
+            isBefore(end, oend, 'afterX', 'afterX'),
+          isBefore(start, oend, 'beforeX', 'afterX') &&
+            isBefore(oend, end, 'beforeX', 'afterX')
+        );
         return false;
       }
     }
@@ -134,7 +148,8 @@ export class SecondTiming extends Timing {
 
   protected noSelfOverlap() {
     return (
-      itemBefore(this.start, this.middle) && itemBefore(this.middle, this.end, true)
+      isItemBefore(this.start, this.middle, 'beforeX', 'beforeX') &&
+      isItemBefore(this.middle, this.end, 'beforeX', 'afterX')
     );
   }
 
@@ -162,7 +177,7 @@ export class SecondTiming extends Timing {
   }
 
   drag(drag: TimingPart, x: number, y: number, page: number, others: Timing[]) {
-    const closest = closestItem(x, y, page, drag !== 'end');
+    const closest = closestItem(x, y, page, drag === 'end' ? 'afterX' : 'beforeX');
     if (closest) {
       const test = new SecondTiming(this.start, this.middle, this.end);
       test[drag] = closest;
@@ -258,7 +273,7 @@ export class SingleTiming extends Timing {
   }
 
   protected noSelfOverlap() {
-    return itemBefore(this.start, this.end, true);
+    return isItemBefore(this.start, this.end, 'beforeX', 'afterX');
   }
 
   async editText() {
@@ -276,7 +291,7 @@ export class SingleTiming extends Timing {
 
   drag(drag: TimingPart, x: number, y: number, page: number, others: Timing[]) {
     if (drag === 'middle') return;
-    const closest = closestItem(x, y, page, drag !== 'end');
+    const closest = closestItem(x, y, page, drag === 'end' ? 'afterX' : 'beforeX');
     if (closest) {
       const test = new SingleTiming(this.start, this.end);
       test[drag] = closest;

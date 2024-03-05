@@ -63,28 +63,26 @@ export const setXY = (
     page: currentPage,
   });
 };
+
 export const getXY = (item: ID): XY | null => itemCoords.get(item) || null;
 export const deleteXY = (item: ID): void => {
   itemCoords.delete(item);
 };
 
-export const inOrder = (first: XY, second: XY, third: XY) =>
-  before(first, second) && before(second, third);
-
-export const before = (a: XY, b: XY, checkAfterX = false) => {
+export function isBefore(a: XY, b: XY, aProp: keyof XY, bProp: keyof XY) {
   if (a.page < b.page) return true;
   if (b.page < a.page) return false;
   if (a.y < b.y) return true;
   if (b.y < a.y) return false;
-  return checkAfterX ? a.afterX <= b.afterX : a.afterX <= b.beforeX;
-};
+  return a[aProp] < b[bProp];
+}
 
-export const itemBefore = (a: ID, b: ID, checkAfterX = false) => {
+export function isItemBefore(a: ID, b: ID, aProp: keyof XY, bProp: keyof XY) {
   const f = getXY(a);
   const g = getXY(b);
 
-  return (f && g && before(f, g, checkAfterX)) || false;
-};
+  return (f && g && isBefore(f, g, aProp, bProp)) || false;
+}
 
 // This finds the item the closest to the point (x,y)
 // rightMost should be set to true if it should (in the case of a draw) favour the right-most element
@@ -92,21 +90,17 @@ export const closestItem = (
   x: number,
   y: number,
   page: number,
-  rightMost: boolean
+  prop: keyof XY
 ): ID | null => {
   let closestDistance = Infinity;
-  const closer = (distance: number, previousBest: number) =>
-    rightMost ? distance <= previousBest : distance < previousBest;
-
   return [...itemCoords]
     .filter(([_, coord]) => coord.page === page)
-    .sort((a, b) => (b[1].beforeX < a[1].beforeX ? 1 : -1))
     .reduce((closestID: ID | null, [id, xy]) => {
-      const xDistance = Math.min(Math.abs(xy.beforeX - x), Math.abs(xy.afterX - x));
+      const xDistance = Math.abs(xy[prop] - x);
       const yDistance = xy.y - y;
       const dist = xDistance ** 2 + yDistance ** 2;
 
-      if (closer(dist, closestDistance)) {
+      if (dist < closestDistance) {
         closestDistance = dist;
         return id;
       }
@@ -151,7 +145,7 @@ export function getXYRangeForPage(
   end: ID,
   page: number,
   score: IScore,
-  checkAfterX = false
+  useAfterEnd: boolean
 ) {
   const a = getXY(start);
   const b = getXY(end);
@@ -162,8 +156,9 @@ export function getXYRangeForPage(
   }
 
   if (a && b) {
-    const start = itemOrFirstOnPage(before(a, b, checkAfterX) ? a : b, page, score);
-    const end = itemOrLastOnPage(before(a, b, checkAfterX) ? b : a, page, score);
+    const aIsBeforeB = isBefore(a, b, 'beforeX', useAfterEnd ? 'afterX' : 'beforeX');
+    const start = itemOrFirstOnPage(aIsBeforeB ? a : b, page, score);
+    const end = itemOrLastOnPage(aIsBeforeB ? b : a, page, score);
     if (start && end) return { start, end };
   }
 
