@@ -98,7 +98,7 @@ export default {
   'playback speed': 'Control the playback speed (further right is faster).',
   export: 'Export the score to a PDF file, that may then be shared or printed.',
   'export bww':
-    "Export the score to a BWW file, that may be opened in other applications.\n\nThis is currently very new, and won't work for most scores",
+    "Export the score to a BWW file, that may be opened in other applications.\n\nThis is currently very new, and won't work for most scores.",
   download:
     'Download the score as a .pipescore file.\n\nThis allows you to save your scores on your computer, and to upload them again to another account.\n\nThe downloaded file cannot be opened in anything other than PipeScore.',
   landscape: 'Make the page(s) landscape.',

@@ -19,6 +19,7 @@
 import { Barline } from '../PipeScore/Barline';
 import { Duration, NoteLength } from '../PipeScore/Note/notelength';
 import { ShortBeamDirection } from '../PipeScore/Note/noteview';
+import { ITimeSignature } from '../PipeScore/TimeSignature';
 import { Pitch } from '../PipeScore/global/pitch';
 import { gracenoteToBWW } from './gracenotes';
 import { toBWWPitch } from './pitch';
@@ -74,20 +75,41 @@ export class BGracenote extends BWWItem {
   }
 }
 
+export class BBeatBreak extends BWWItem {
+  generate() {
+    return '\t';
+  }
+}
+
 export class BNote extends BWWItem {
   pitch: Pitch;
+  natural: boolean;
   length: NoteLength;
   tail: ShortBeamDirection;
 
-  constructor(pitch: Pitch, length: NoteLength, tail: ShortBeamDirection) {
+  constructor(
+    pitch: Pitch,
+    length: NoteLength,
+    natural: boolean,
+    tail: ShortBeamDirection
+  ) {
     super();
     this.pitch = pitch;
     this.length = length;
+    this.natural = natural;
     this.tail = tail;
   }
 
   generate(): string {
-    let bww = toBWWPitch(this.pitch).toUpperCase();
+    const pitch = toBWWPitch(this.pitch);
+
+    let bww = '';
+
+    if (this.natural) {
+      bww += `natural${pitch} `;
+    }
+
+    bww += pitch.toUpperCase();
 
     switch (this.tail) {
       case ShortBeamDirection.Left:
@@ -124,14 +146,33 @@ export class BNote extends BWWItem {
         break;
       default:
         throw new Error(
-          `Cannot convert duration to BWW format: ${this.length.duration()}`
+          `Failed to export to BWW: cannot convert duration: ${this.length.duration()}`
         );
     }
 
     if (this.length.hasDot()) {
-      bww += ` '${toBWWPitch(this.pitch)}`;
+      bww += ` '${pitch}`;
     }
 
     return bww;
+  }
+}
+
+export class BTimeSignature extends BWWItem {
+  ts: ITimeSignature;
+
+  constructor(ts: ITimeSignature) {
+    super();
+    this.ts = ts;
+  }
+
+  generate(): string {
+    if (this.ts.commonTime()) {
+      return 'C';
+    }
+    if (this.ts.cutTime()) {
+      return 'C_';
+    }
+    return `${this.ts.top()}_${this.ts.bottom()}`;
   }
 }

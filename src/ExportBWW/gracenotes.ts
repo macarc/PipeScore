@@ -368,5 +368,9 @@ export function gracenoteToBWW(gracenote: Pitch[]): string {
 
   // TODO : piobaireachd gracenotes
 
-  throw new Error(`Can't convert gracenote to BWW format: ${gracenote.join(',')}`);
+  throw new Error(
+    `Failed to export to BWW: can't convert gracenote with notes ${gracenote.join(
+      ','
+    )}`
+  );
 }

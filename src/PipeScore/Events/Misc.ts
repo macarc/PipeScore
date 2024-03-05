@@ -118,7 +118,32 @@ export function redo(): ScoreEvent {
 
 export function exportBWW(): ScoreEvent {
   return async (state: State) => {
-    console.log(scoreToBWW(state.score));
+    await dialogueBox(
+      'Export to BWW',
+      [
+        m('section', [
+          m(
+            'p',
+            "This functionality is new and experimental - i.e. it probably won't work!"
+          ),
+        ]),
+      ],
+      false
+    );
+
+    try {
+      const bww = scoreToBWW(state.score);
+      const blob = new Blob([bww], { type: 'text/bww' });
+
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${state.score.name()}.bww`;
+      a.click();
+    } catch (e) {
+      console.log(e);
+      alert(`An error occurred while trying to export to BWW! ${e}`);
+    }
+
     return Update.NoChange;
   };
 }

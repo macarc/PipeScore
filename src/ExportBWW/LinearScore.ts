@@ -21,13 +21,16 @@ import { Barline } from '../PipeScore/Barline';
 import { ITriplet, groupNotes } from '../PipeScore/Note';
 import { shortBeamDirection } from '../PipeScore/Note/noteview';
 import { IScore } from '../PipeScore/Score';
+import { ITimeSignature } from '../PipeScore/TimeSignature';
 import { Pitch } from '../PipeScore/global/pitch';
 import {
   BBarline,
+  BBeatBreak,
   BClef,
   BGracenote,
   BNote,
   BTerminatingBarline,
+  BTimeSignature,
   BWWItem,
 } from './BWWItem';
 
@@ -40,10 +43,19 @@ export function toLinearScore(score: IScore): LinearScore {
   const linear: LinearScore = [];
 
   let previousPitch: Pitch | null = null;
+  let previousTimeSignature: ITimeSignature | null = null;
 
   for (const stave of score.staves()) {
     linear.push(new BClef());
     for (const bar of stave.bars()) {
+      if (
+        previousTimeSignature === null ||
+        !bar.timeSignature().equals(previousTimeSignature)
+      ) {
+        linear.push(new BTimeSignature(bar.timeSignature()));
+        previousTimeSignature = bar.timeSignature();
+      }
+
       linear.push(new BBarline(bar.startBarline(), true));
 
       const groupedNotes = groupNotes(
@@ -52,6 +64,8 @@ export function toLinearScore(score: IScore): LinearScore {
       );
 
       for (const group of groupedNotes) {
+        linear.push(new BBeatBreak());
+
         if (Array.isArray(group)) {
           for (const note of group) {
             linear.push(
@@ -62,6 +76,7 @@ export function toLinearScore(score: IScore): LinearScore {
               new BNote(
                 note.pitch(),
                 note.length(),
+                note.natural(),
                 shortBeamDirection(group, group.indexOf(note))
               )
             );
