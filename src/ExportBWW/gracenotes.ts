@@ -192,7 +192,7 @@ export function gracenoteToBWW(gracenote: Pitch[]): string {
     return 'tstd';
   }
   if (match(Pitch.HA, Pitch.D, Pitch.C)) {
-    return 'lgtstd';
+    return 'ltstd';
   }
   if (match(Pitch.HA, Pitch.E, Pitch.A)) {
     return 'tste';
@@ -217,7 +217,7 @@ export function gracenoteToBWW(gracenote: Pitch[]): string {
     return 'hstd';
   }
   if (match(Pitch.D, Pitch.C)) {
-    return 'lghstd';
+    return 'lhstd';
   }
   if (match(Pitch.E, Pitch.A)) {
     return 'hste';
