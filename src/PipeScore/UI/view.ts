@@ -37,6 +37,7 @@ import {
   changeZoomLevel,
   commit,
   download,
+  exportBWW,
   exportPDF,
   landscape,
   portrait,
@@ -863,6 +864,15 @@ export default function render(state: UIState): m.Children {
             'button.text.double-width',
             { onclick: () => state.dispatch(exportPDF()) },
             'Export to PDF'
+          ),
+          state.dispatch
+        ),
+        help(
+          'export bww',
+          m(
+            'button.text.double-width',
+            { onclick: () => state.dispatch(exportBWW()) },
+            'Export to BWW'
           ),
           state.dispatch
         ),

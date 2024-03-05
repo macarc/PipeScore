@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
+import scoreToBWW from '../../ExportBWW/index';
 import { Score } from '../Score/impl';
 import { drawScore } from '../Score/view';
 import { State } from '../State';
@@ -111,6 +112,13 @@ export function redo(): ScoreEvent {
       state.history.past.push(next);
       return Update.MovedThroughHistory;
     }
+    return Update.NoChange;
+  };
+}
+
+export function exportBWW(): ScoreEvent {
+  return async (state: State) => {
+    console.log(scoreToBWW(state.score));
     return Update.NoChange;
   };
 }

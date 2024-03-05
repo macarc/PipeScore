@@ -36,7 +36,7 @@ type NoteLayout = {
   y: number;
 }[];
 
-enum ShortBeamDirection {
+export enum ShortBeamDirection {
   Left = 0,
   Right = 1,
 }
@@ -366,6 +366,31 @@ function layoutNotes(notes: INote[], props: NoteProps): NoteLayout {
   });
 }
 
+export function shortBeamDirection(
+  notes: INote[],
+  index: number
+): ShortBeamDirection {
+  const lengthOfNotes = (notes: INote[]) =>
+    sum(notes.map((n) => n.length().inBeats()));
+
+  // If we're on the outside of the group, point inwards
+  if (index === 0) {
+    return ShortBeamDirection.Right;
+  }
+  if (index === notes.length - 1) {
+    return ShortBeamDirection.Left;
+  }
+  // Otherwise:
+  // The short beam should point to the left if we are part way
+  // through a "beat" ("beat" = 2 * length of note) - i.e. if it "completes the beat"
+  // Otherwise, we're at the start of a new "beat" so point to the right
+  const lengthUpToNote = lengthOfNotes(notes.slice(0, index));
+  if (isRoughlyZero(lengthUpToNote % (notes[index].length().inBeats() * 2))) {
+    return ShortBeamDirection.Right;
+  }
+  return ShortBeamDirection.Left;
+}
+
 // Render a group of notes
 export function drawNoteGroup(notes: INote[], props: NoteProps) {
   if (notes.length === 0) return m('g');
@@ -378,28 +403,6 @@ export function drawNoteGroup(notes: INote[], props: NoteProps) {
   const y = (i: number) => layout[i].y;
 
   const stemY = props.y + settings.lineHeightOf(6);
-
-  const lengthOfNotes = (notes: INote[]) =>
-    sum(notes.map((n) => n.length().inBeats()));
-
-  const shortBeamDirection = (note: INote, index: number) => {
-    // If we're on the outside of the group, point inwards
-    if (index === 0) {
-      return ShortBeamDirection.Right;
-    }
-    if (index === notes.length - 1) {
-      return ShortBeamDirection.Left;
-    }
-    // Otherwise:
-    // The short beam should point to the left if we are part way
-    // through a "beat" ("beat" = 2 * length of note) - i.e. if it "completes the beat"
-    // Otherwise, we're at the start of a new "beat" so point to the right
-    const lengthUpToNote = lengthOfNotes(notes.slice(0, index));
-    if (isRoughlyZero(lengthUpToNote % (note.length().inBeats() * 2))) {
-      return ShortBeamDirection.Right;
-    }
-    return ShortBeamDirection.Left;
-  };
 
   return m(
     'g[class=grouped-notes]',
@@ -465,8 +468,8 @@ export function drawNoteGroup(notes: INote[], props: NoteProps) {
             note.length().numTails(),
             (notes[index - 2] && notes[index - 2].length().numTails()) || null,
             (notes[index + 1] && notes[index + 1].length().numTails()) || null,
-            shortBeamDirection(previousNote, index - 1),
-            shortBeamDirection(note, index)
+            shortBeamDirection(notes, index - 1),
+            shortBeamDirection(notes, index)
           ),
         note.length().hasStem()
           ? [
