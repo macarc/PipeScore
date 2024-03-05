@@ -26,7 +26,7 @@ TuneTempo,90
 "test title",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
 "test tune type",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
 "test composer",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
-"BWW file (imperfectly) generated using PipeScore",(F,R,0,0,Times New Roman,10,400,0,0,0,0,0,0)
+"BWW file generated using PipeScore's experimental export feature",(F,R,0,0,Times New Roman,10,400,0,0,0,0,0,0)
 & sharpf sharpc`);
   });
 });
