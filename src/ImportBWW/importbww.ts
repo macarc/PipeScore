@@ -85,6 +85,7 @@ async function importfile(e: SubmitEvent) {
       )?.value;
 
       const initialTopOffset = 180;
+      score._staves[0].gap = initialTopOffset;
       score.name = scoreName;
       score.textBoxes[0].texts = [];
       score.textBoxes[0].texts.push({
