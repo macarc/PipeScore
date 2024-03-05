@@ -17,14 +17,19 @@
 //  Export to BWW format
 
 import { IScore } from '../PipeScore/Score';
+import { BBeatBreak } from './BWWItem';
 import { toLinearScore } from './LinearScore';
 
 export default function exportBWW(score: IScore): string {
   return (
     header(score) +
-    toLinearScore(score)
-      .map((i) => i.generate())
-      .join(' ')
+    toLinearScore(score).reduce(
+      (acc, item, i, ls) =>
+        `${acc}${
+          item instanceof BBeatBreak || ls[i - 1] instanceof BBeatBreak ? '' : ' '
+        }${item.generate()}`,
+      ''
+    )
   );
 }
 

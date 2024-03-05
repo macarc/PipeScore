@@ -85,13 +85,13 @@ export class BNote extends BWWItem {
   pitch: Pitch;
   natural: boolean;
   length: NoteLength;
-  tail: ShortBeamDirection;
+  tail: ShortBeamDirection | null;
 
   constructor(
     pitch: Pitch,
     length: NoteLength,
     natural: boolean,
-    tail: ShortBeamDirection
+    tail: ShortBeamDirection | null
   ) {
     super();
     this.pitch = pitch;
