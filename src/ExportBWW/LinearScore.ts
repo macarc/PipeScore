@@ -77,7 +77,9 @@ export function toLinearScore(score: IScore): LinearScore {
                 note.pitch(),
                 note.length(),
                 note.natural(),
-                group.length > 1 ? shortBeamDirection(group, group.indexOf(note)) : null,
+                group.length > 1
+                  ? shortBeamDirection(group, group.indexOf(note))
+                  : null
               )
             );
 

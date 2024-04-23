@@ -26,7 +26,11 @@ export default function exportBWW(score: IScore): string {
     toLinearScore(score).reduce(
       (acc, item, i, ls) =>
         `${acc}${
-          item instanceof BBeatBreak || ls[i - 1] instanceof BBeatBreak ? '' : ' '
+          item instanceof BBeatBreak ||
+          ls[i - 1] instanceof BBeatBreak ||
+          ls[i - 1] === undefined
+            ? ''
+            : ' '
         }${item.generate()}`,
       ''
     )
