@@ -39,22 +39,18 @@ let currentPage = 0;
 
 // This MUST be called before every render
 // so that dragging second timings doesn't snap to previous things :)
-export const clearXY = () => {
+export function clearXY() {
   itemCoords.clear();
-};
+}
 
-export const setXYPage = (page: number) => {
+export function setXYPage(page: number) {
   currentPage = page;
-};
+}
+
 // The y value will be the stave's y rather than the actual y value of the note
 // The y value of the note can always be calculated from this, but it's harder to do it in reverse
 // Also it makes things like checking order easier
-export const setXY = (
-  item: ID,
-  beforeX: number,
-  afterX: number,
-  y: number
-): void => {
+export function setXY(item: ID, beforeX: number, afterX: number, y: number) {
   itemCoords.set(item, {
     id: item,
     beforeX,
@@ -62,12 +58,12 @@ export const setXY = (
     y,
     page: currentPage,
   });
-};
+}
 
 export const getXY = (item: ID): XY | null => itemCoords.get(item) || null;
-export const deleteXY = (item: ID): void => {
+export function deleteXY(item: ID) {
   itemCoords.delete(item);
-};
+}
 
 export function isBefore(a: XY, b: XY, aProp: keyof XY, bProp: keyof XY) {
   if (a.page < b.page) return true;
@@ -86,12 +82,12 @@ export function isItemBefore(a: ID, b: ID, aProp: keyof XY, bProp: keyof XY) {
 
 // This finds the item the closest to the point (x,y)
 // rightMost should be set to true if it should (in the case of a draw) favour the right-most element
-export const closestItem = (
+export function closestItem(
   x: number,
   y: number,
   page: number,
   prop: keyof XY
-): ID | null => {
+): ID | null {
   let closestDistance = Infinity;
   return [...itemCoords]
     .filter(([_, coord]) => coord.page === page)
@@ -106,7 +102,7 @@ export const closestItem = (
       }
       return closestID;
     }, null);
-};
+}
 
 // If xy is on the same page, return it
 // If xy is on an earlier page, return the first item on this page (if there is one)
