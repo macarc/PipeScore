@@ -1,0 +1,75 @@
+import { addStave } from '../../Events/Stave';
+import { ScoreSelection } from '../../Selection/score';
+import { Relative } from '../../global/relativeLocation';
+import { emptyState } from './common';
+
+describe('addStave', () => {
+  it('can add a stave at start', () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave0.bars()[1].id;
+    const selectionEnd = stave0.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    addStave(Relative.before)(state);
+    expect(state.score.staves()).toHaveLength(5);
+    expect(state.score.staves()[1]).toBe(stave0);
+    expect(state.score.staves()[2]).toBe(stave1);
+    expect(state.score.staves()[3]).toBe(stave2);
+    expect(state.score.staves()[4]).toBe(stave3);
+  });
+  it('can add a stave at end', () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave3.bars()[1].id;
+    const selectionEnd = stave3.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    addStave(Relative.after)(state);
+    expect(state.score.staves()).toHaveLength(5);
+    expect(state.score.staves()[0]).toBe(stave0);
+    expect(state.score.staves()[1]).toBe(stave1);
+    expect(state.score.staves()[2]).toBe(stave2);
+    expect(state.score.staves()[3]).toBe(stave3);
+  });
+  it('can add a stave before, in the middle', () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave2.bars()[1].id;
+    const selectionEnd = stave2.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    addStave(Relative.before)(state);
+    expect(state.score.staves()).toHaveLength(5);
+    expect(state.score.staves()[0]).toBe(stave0);
+    expect(state.score.staves()[1]).toBe(stave1);
+    expect(state.score.staves()[3]).toBe(stave2);
+    expect(state.score.staves()[4]).toBe(stave3);
+  });
+  it('can add a stave after, in the middle', () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave2.bars()[1].id;
+    const selectionEnd = stave2.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    addStave(Relative.after)(state);
+    expect(state.score.staves()).toHaveLength(5);
+    expect(state.score.staves()[0]).toBe(stave0);
+    expect(state.score.staves()[1]).toBe(stave1);
+    expect(state.score.staves()[2]).toBe(stave2);
+    expect(state.score.staves()[4]).toBe(stave3);
+  });
+});

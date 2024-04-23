@@ -262,9 +262,8 @@ export class Score extends IScore {
     // or after the last stave
 
     const adjacentStave =
-      nearStave || where === Relative.before
-        ? first(this.staves())
-        : last(this.staves());
+      nearStave ||
+      (where === Relative.before ? first(this.staves()) : last(this.staves()));
 
     const index = adjacentStave
       ? this._staves.indexOf(adjacentStave) + (where === Relative.before ? 0 : 1)

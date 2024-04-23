@@ -14,33 +14,11 @@ import { INote, ITriplet } from '../../Note';
 import { Note, Triplet } from '../../Note/impl';
 import { Duration, NoteLength } from '../../Note/notelength';
 import { NotePreview } from '../../Preview/impl';
-import { IScore } from '../../Score';
-import { Score } from '../../Score/impl';
 import { ScoreSelection } from '../../Selection/score';
-import { State } from '../../State';
 import { TimeSignature } from '../../TimeSignature/impl';
 import { Pitch } from '../../global/pitch';
 import { nfirst, nlast } from '../../global/utils';
-
-const emptyState = (score: IScore = Score.blank()): State => ({
-  store: null,
-  isLoggedIn: false,
-  justClickedNote: false,
-  preview: null,
-  menu: 'note',
-  doc: { current: 'doubling', show: false },
-  clipboard: null,
-  selection: null,
-  history: { past: [], future: [] },
-  view: { ui: null, score: null },
-  playback: {
-    playing: false,
-    loading: false,
-    userPressedStop: false,
-    cursor: null,
-  },
-  score,
-});
+import { emptyState } from './common';
 
 const note = () => new Note(Pitch.A, new NoteLength(Duration.Crotchet));
 const noteP = (p: Pitch) => new Note(p, new NoteLength(Duration.Crotchet));
