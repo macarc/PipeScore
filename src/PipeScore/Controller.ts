@@ -63,14 +63,17 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
     updateView();
     if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
       state.score.updateName();
-      if (res === Update.ShouldSave && state.store && !state.store.isReadOnly()) {
+      if (res === Update.ShouldSave) {
         const json = state.score.toJSON();
         const jsonString = JSON.stringify(json);
         if (state.history.past[state.history.past.length - 1] !== jsonString) {
           state.history.past.push(jsonString);
           if (state.history.past.length > 30) state.history.past.shift();
           state.history.future = [];
-          state.store.save(json);
+
+          if (state.store && !state.store.isReadOnly()) {
+            state.store.save(json);
+          }
         }
       }
     }
