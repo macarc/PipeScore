@@ -24,9 +24,23 @@ export function scoreIsPresent(data: SavedData): data is SavedScore {
   return (data as { justCreated: true }).justCreated !== true;
 }
 
-export type SavedData = SavedScore | { name: string; justCreated: true };
+export function scoreHasStavesNotTunes(score: SavedScore | DeprecatedSavedScore): score is DeprecatedSavedScore {
+  return (score as DeprecatedSavedScore)._staves !== undefined;
+}
+
+export type SavedData = SavedScore | DeprecatedSavedScore | { name: string; justCreated: true };
 
 export type SavedScore = {
+  name: string;
+  landscape: boolean;
+  _tunes: SavedTune[];
+  textBoxes: SavedTextBoxPage[];
+  secondTimings: SavedTiming[];
+  showNumberOfPages: boolean;
+  settings: SavedSettings;
+};
+
+export type DeprecatedSavedScore = {
   name: string;
   landscape: boolean;
   _staves: SavedStave[];
@@ -34,7 +48,11 @@ export type SavedScore = {
   secondTimings: SavedTiming[];
   showNumberOfPages: boolean;
   settings: SavedSettings;
-};
+}
+
+export type SavedTune = {
+  _staves: SavedStave[];
+}
 
 export type SavedStave = {
   gap: 'auto' | number | undefined;

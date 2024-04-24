@@ -25,10 +25,10 @@ import { SavedScore } from '../SavedModel';
 import { IStave } from '../Stave';
 import { ITextBox } from '../TextBox';
 import { ITiming, TimingPart } from '../Timing';
+import { ITune } from '../Tune';
 import { ID, Item } from '../global/id';
-import { Relative } from '../global/relativeLocation';
 
-type Location = { stave: IStave; bar: IBar };
+type Location = { tune: ITune, stave: IStave; bar: IBar };
 
 export abstract class IScore {
   abstract landscape: boolean;
@@ -46,7 +46,6 @@ export abstract class IScore {
   abstract makePortrait(): Update;
   abstract addText(text: ITextBox): void;
   abstract staveY(stave: IStave): number;
-  abstract addStave(nearStave: IStave | null, where: Relative): void;
   abstract nextBar(id: ID): IBar | null;
   abstract previousBar(id: ID): IBar | null;
   abstract nextNote(id: ID): INote | null;
@@ -55,13 +54,11 @@ export abstract class IScore {
   abstract previousStave(stave: IStave): IStave | null;
   abstract firstOnPage(page: number): IBar | null;
   abstract lastOnPage(page: number): IBar | null;
-  // Deletes the stave from the score
-  // Does not worry about purging notes/bars; that should be handled elsewhere
-  abstract deleteStave(stave: IStave): void;
   abstract notesAndTriplets(): NoteOrTriplet[];
   abstract notes(): INote[];
   abstract bars(): IBar[];
   abstract staves(): IStave[];
+  abstract tunes(): ITune[]
   abstract lastStave(): IStave | null;
   abstract pages(): IStave[][];
   abstract location(id: ID): Location | null;

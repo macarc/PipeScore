@@ -22,7 +22,7 @@ import { nextBar, nextNote, previousBar, previousNote } from '../Bar';
 import { Update } from '../Events/types';
 import { flattenTriplets } from '../Note';
 import { Playback } from '../Playback';
-import { SavedScore } from '../SavedModel';
+import { SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
 import { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
 import { ITextBox } from '../TextBox';
@@ -31,16 +31,17 @@ import { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { ITiming, TimingPart } from '../Timing';
 import { Timing } from '../Timing/impl';
+import { ITune } from '../Tune';
+import { Tune } from '../Tune/impl';
 import { ID, Item } from '../global/id';
-import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
-import { first, foreach, last, nlast, removeNulls, sum } from '../global/utils';
+import { first, last, nlast, removeNulls, sum } from '../global/utils';
 
 export class Score extends IScore {
   landscape: boolean;
 
   private _name: string;
-  private _staves: IStave[];
+  private _tunes: ITune[];
   // an array rather than a set since it makes rendering easier (with map)
   private _textBoxes: ITextBox[][];
   private _timings: ITiming[];
@@ -64,16 +65,8 @@ export class Score extends IScore {
 
     const initialTopOffset = 180;
 
-    this._staves = foreach(2 * numberOfParts, () => Stave.create(timeSignature));
-    if (numberOfParts > 0) this._staves[0].setGap(initialTopOffset);
-
-    for (let i = 0; i < this._staves.length; i++) {
-      if (repeatParts) {
-        i % 2 === 0 ? this._staves[i].repeatFirst() : this._staves[i].repeatLast();
-      } else {
-        i % 2 === 0 ? this._staves[i].partFirst() : this._staves[i].partLast();
-      }
-    }
+    this._tunes = [Tune.create(timeSignature, numberOfParts, repeatParts)];
+    if (numberOfParts > 0) this.staves()[0].setGap(initialTopOffset);
 
     this._textBoxes = [[]];
     this.addText(new TextBox(name, true, this.width() / 2, initialTopOffset / 2));
@@ -114,12 +107,16 @@ export class Score extends IScore {
     settings.fromJSON(o.settings);
 
     s.landscape = o.landscape;
-    s._staves = o._staves.map(Stave.fromJSON);
+    if (scoreHasStavesNotTunes(o)) {
+      s._tunes = [new Tune(o._staves.map(Stave.fromJSON))]
+    } else {
+      s._tunes = o._tunes.map(Tune.fromJSON);
+    }
     s._textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
 
-    const firstStave = first(s._staves);
+    const firstStave = first(s.staves());
     if (o.settings.topOffset !== undefined && firstStave) {
       firstStave.setGap(o.settings.topOffset - 20);
     }
@@ -131,7 +128,7 @@ export class Score extends IScore {
       name: this._name,
       landscape: this.landscape,
       showNumberOfPages: this.showNumberOfPages,
-      _staves: this._staves.map((stave) => stave.toJSON()),
+      _tunes: this._tunes.map((tune) => tune.toJSON()),
       textBoxes: this._textBoxes.map((p) => ({
         texts: p.map((txt) => txt.toJSON()),
       })),
@@ -257,34 +254,6 @@ export class Score extends IScore {
     return splitStaves;
   }
 
-  addStave(nearStave: IStave | null, where: Relative) {
-    // If no stave is selected, place before the first stave
-    // or after the last stave
-
-    const adjacentStave =
-      nearStave ||
-      (where === Relative.before ? first(this.staves()) : last(this.staves()));
-
-    const index = adjacentStave
-      ? this._staves.indexOf(adjacentStave) + (where === Relative.before ? 0 : 1)
-      : 0;
-
-    if (index < 0) return;
-
-    const adjacentBar =
-      where === Relative.before
-        ? adjacentStave?.firstBar()
-        : adjacentStave?.lastBar();
-    const ts = adjacentBar?.timeSignature() || new TimeSignature();
-
-    const newStave = Stave.create(ts);
-    if (where === Relative.before) {
-      newStave.setGap(adjacentStave?.gap() || 'auto');
-      adjacentStave?.setGap('auto');
-    }
-    this._staves.splice(index, 0, newStave);
-  }
-
   nextBar(id: ID) {
     return nextBar(id, this.bars());
   }
@@ -327,24 +296,6 @@ export class Score extends IScore {
   lastOnPage(page: number) {
     return last(this.pages()[page])?.lastBar() || null;
   }
-  // Deletes the stave from the score
-  // Does not worry about purging notes/bars; that should be handled elsewhere
-
-  deleteStave(stave: IStave) {
-    const ind = this._staves.indexOf(stave);
-    if (ind !== -1) {
-      this._staves.splice(ind, 1);
-    }
-    // If there used to be a gap before this stave, preserve it
-    // (when the next stave doesn't have a custom gap)
-    if (
-      stave.gap() !== 'auto' &&
-      this._staves[ind] &&
-      this._staves[ind].gap() === 'auto'
-    ) {
-      this._staves[ind].setGap(stave.gap());
-    }
-  }
 
   notesAndTriplets() {
     return this.bars().flatMap((bar) => bar.notesAndTriplets());
@@ -359,7 +310,11 @@ export class Score extends IScore {
   }
 
   staves(): IStave[] {
-    return this._staves;
+    return this._tunes.flatMap(tune => tune.staves());
+  }
+
+  tunes(): ITune[] {
+    return this._tunes;
   }
 
   lastStave() {
@@ -369,15 +324,12 @@ export class Score extends IScore {
   // Finds the parent bar and stave of the bar/note passed
 
   location(id: ID) {
-    const staves = this.staves();
-
-    if (staves.length === 0)
-      throw Error('Tried to get location of a note, but there are no staves!');
-
-    for (const stave of staves) {
-      for (const bar of stave.bars()) {
-        if (bar.hasID(id) || bar.includesNote(id)) {
-          return { stave, bar };
+    for (const tune of this.tunes()) {
+      for (const stave of tune.staves()) {
+        for (const bar of stave.bars()) {
+          if (bar.hasID(id) || bar.includesNote(id)) {
+            return { tune, stave, bar };
+          }
         }
       }
     }
@@ -386,12 +338,14 @@ export class Score extends IScore {
   }
 
   lastBarAndStave() {
-    const lastStave = last(this.staves());
-    const lastBar = lastStave && last(lastStave.bars());
+    const tune = last(this.tunes());
+    const stave = tune && last(tune.staves());
+    const bar = stave && last(stave.bars());
     return (
-      lastBar && {
-        stave: lastStave,
-        bar: lastBar,
+      bar && {
+        tune,
+        stave,
+        bar
       }
     );
   }

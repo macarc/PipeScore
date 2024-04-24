@@ -20,16 +20,23 @@ import { IStave } from '../Stave';
 import { minStaveGap } from '../Stave/view';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
+import { first, last } from '../global/utils';
 import { ScoreEvent, Update } from './types';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
-    const stave =
-      (state.selection instanceof ScoreSelection &&
-        state.score.location(state.selection.start)?.stave) ||
-      null;
+    const location = state.selection instanceof ScoreSelection && state.score.location(state.selection.start);
 
-    state.score.addStave(stave, where);
+    if (location) {
+      location.tune.addStave(location.stave, where);
+    } else if (where === Relative.before) {
+      // Add stave before first tune
+      first(state.score.tunes())?.addStave(null, Relative.before);
+    } else if (where === Relative.after) {
+      // Add stave after last tune
+      last(state.score.tunes())?.addStave(null, Relative.after);
+    }
+
     return Update.ShouldSave;
   };
 }
