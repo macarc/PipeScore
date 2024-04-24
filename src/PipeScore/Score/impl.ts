@@ -33,10 +33,14 @@ import { ITiming, TimingPart } from '../Timing';
 import { Timing } from '../Timing/impl';
 import { ITune } from '../Tune';
 import { Tune } from '../Tune/impl';
-import { ID, Item } from '../global/id';
+import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { first, last, nlast, removeNulls, sum } from '../global/utils';
+
+export function isStave(s: IStave | ITune): s is IStave {
+  return (s as ITune).staves === undefined;
+}
 
 export class Score extends IScore {
   landscape: boolean;
@@ -256,20 +260,26 @@ export class Score extends IScore {
     );
   }
 
-  private calculateHeight(staves: IStave[]) {
-    return sum(staves.map((s) => s.height()));
+  private calculateHeight(staves: (IStave | ITune)[]) {
+    return sum(staves.map((s) => (s instanceof ITune ? s.tuneGap() : s.height())));
+  }
+
+  stavesByPage(): IStave[][] {
+    return this.pages().map((p) => p.filter(isStave));
   }
 
   pages() {
-    // TODO : should gaps 'carry over' to the next page?
-    const splitStaves: IStave[][] = [[]];
+    const splitStaves: (IStave | ITune)[][] = [[]];
     const usefulPageHeight = this.height() - 2 * settings.margin;
-    for (const stave of this.staves()) {
-      const pageHeight = this.calculateHeight(nlast(splitStaves));
-      if (pageHeight + stave.height() > usefulPageHeight) {
-        splitStaves.push([]);
+    for (const tune of this.tunes()) {
+      nlast(splitStaves).push(tune);
+      for (const stave of tune.staves()) {
+        const pageHeight = this.calculateHeight(nlast(splitStaves));
+        if (pageHeight + stave.height() > usefulPageHeight) {
+          splitStaves.push([]);
+        }
+        nlast(splitStaves).push(stave);
       }
-      nlast(splitStaves).push(stave);
     }
     return splitStaves;
   }
@@ -291,11 +301,11 @@ export class Score extends IScore {
   }
 
   firstOnPage(page: number) {
-    return first(this.pages()[page])?.firstBar() || null;
+    return first(this.stavesByPage()[page])?.firstBar() || null;
   }
 
   lastOnPage(page: number) {
-    return last(this.pages()[page])?.lastBar() || null;
+    return last(this.stavesByPage()[page])?.lastBar() || null;
   }
 
   notesAndTriplets() {

@@ -21,6 +21,7 @@ import { Barline } from '../Barline';
 import { INote } from '../Note';
 import { SavedStave } from '../SavedModel';
 import { ITimeSignature } from '../TimeSignature';
+import { ITune } from '../Tune';
 import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
@@ -79,7 +80,8 @@ export class Stave extends IStave {
   }
 
   gapAsNumber() {
-    return this._gap === 'auto' ? settings.staveGap : this._gap;
+    return settings.staveGap;
+    // return this._gap === 'auto' ? settings.staveGap : this._gap;
   }
 
   height() {

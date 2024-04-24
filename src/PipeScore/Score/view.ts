@@ -78,12 +78,12 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
     staveEndX: width - settings.margin,
   });
 
-  const pages = score.pages();
+  const stavesByPage = score.stavesByPage();
   const texts = (i: number) => score.textBoxes()[i] || [];
 
   const rendered = m(
     'div',
-    foreach(pages.length, (page) => {
+    foreach(stavesByPage.length, (page) => {
       setXYPage(page);
       return m(
         'svg',
@@ -104,7 +104,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
             onmousedown: () => props.dispatch(clickBackground()),
             onmouseover: () => props.dispatch(mouseOffPitch()),
           }),
-          ...pages[page].map((stave) => drawStave(stave, staveProps(stave))),
+          ...stavesByPage[page].map((stave) => drawStave(stave, staveProps(stave))),
           ...texts(page).map((textBox) =>
             drawTextBox(textBox, {
               scoreWidth: width,
@@ -118,7 +118,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
 
           playbackCursor(props.playbackState, page),
 
-          score.showNumberOfPages && pages.length > 1
+          score.showNumberOfPages && stavesByPage.length > 1
             ? m(
                 'text',
                 {

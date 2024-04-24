@@ -58,6 +58,10 @@ export class Tune extends ITune {
     };
   }
 
+  tuneGap() {
+    return 100;
+  }
+
   staves() {
     return this._staves;
   }

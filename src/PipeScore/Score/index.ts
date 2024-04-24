@@ -26,7 +26,7 @@ import { IStave } from '../Stave';
 import { ITextBox } from '../TextBox';
 import { ITiming, TimingPart } from '../Timing';
 import { ITune } from '../Tune';
-import { ID, Item } from '../global/id';
+import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 
 type Location = { tune: ITune; stave: IStave; bar: IBar };
@@ -61,7 +61,8 @@ export abstract class IScore {
   abstract staves(): IStave[];
   abstract tunes(): ITune[];
   abstract lastStave(): IStave | null;
-  abstract pages(): IStave[][];
+  abstract stavesByPage(): IStave[][];
+  abstract pages(): (IStave | ITune)[][];
   abstract location(id: ID): Location | null;
   abstract lastBarAndStave(): Location | null;
   abstract deleteTextBox(text: ITextBox): void;

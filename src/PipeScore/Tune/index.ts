@@ -21,6 +21,7 @@ import { Relative } from '../global/relativeLocation';
 
 export abstract class ITune {
   abstract toJSON(): SavedTune;
+  abstract tuneGap(): number;
   abstract staves(): IStave[];
   // TODO : this assumes that there will be at least one bar in the tune
   //        enforce this?
