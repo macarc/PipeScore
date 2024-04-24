@@ -25,7 +25,9 @@ import { ScoreEvent, Update } from './types';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {
-    const location = state.selection instanceof ScoreSelection && state.score.location(state.selection.start);
+    const location =
+      state.selection instanceof ScoreSelection &&
+      state.score.location(state.selection.start);
 
     if (location) {
       location.tune.addStave(location.stave, where);

@@ -47,5 +47,9 @@ export abstract class ITiming {
   // Checks that there is no overlap, either with itself or with
   // the other timings in the array
   abstract noOverlap(others: ITiming[]): boolean;
+  // Returns true if the timing is pointing to something that doesn't exist
+  // This only works if it is called after the score is drawn! i.e. directly before
+  // clearXY
+  abstract isDangling(): boolean;
   abstract play(elements: Playback[]): PlaybackSecondTiming | null;
 }

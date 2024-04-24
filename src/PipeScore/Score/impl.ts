@@ -34,6 +34,7 @@ import { Timing } from '../Timing/impl';
 import { ITune } from '../Tune';
 import { Tune } from '../Tune/impl';
 import { ID, Item } from '../global/id';
+import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { first, last, nlast, removeNulls, sum } from '../global/utils';
 
@@ -108,7 +109,7 @@ export class Score extends IScore {
 
     s.landscape = o.landscape;
     if (scoreHasStavesNotTunes(o)) {
-      s._tunes = [new Tune(o._staves.map(Stave.fromJSON))]
+      s._tunes = [new Tune(o._staves.map(Stave.fromJSON))];
     } else {
       s._tunes = o._tunes.map(Tune.fromJSON);
     }
@@ -221,6 +222,25 @@ export class Score extends IScore {
     return this._timings;
   }
 
+  addTune(nearTune: ITune | null, where: Relative) {
+    const tune =
+      nearTune ||
+      (where === Relative.before ? first(this.tunes()) : last(this.tunes()));
+
+    if (tune) {
+      const newTune = Tune.create(tune.timeSignature(), 2, true);
+      const indexOffset = where === Relative.before ? 0 : 1;
+      this._tunes.splice(this._tunes.indexOf(tune) + indexOffset, 0, newTune);
+    }
+  }
+
+  deleteTune(tune: ITune) {
+    const index = this._tunes.indexOf(tune);
+    if (index !== -1) {
+      this._tunes.splice(index, 1);
+    }
+  }
+
   staveY(stave: IStave) {
     const pages = this.pages();
     const pageIndex = pages.findIndex((page) => page.includes(stave));
@@ -310,7 +330,7 @@ export class Score extends IScore {
   }
 
   staves(): IStave[] {
-    return this._tunes.flatMap(tune => tune.staves());
+    return this._tunes.flatMap((tune) => tune.staves());
   }
 
   tunes(): ITune[] {
@@ -345,7 +365,7 @@ export class Score extends IScore {
       bar && {
         tune,
         stave,
-        bar
+        bar,
       }
     );
   }
@@ -384,16 +404,13 @@ export class Score extends IScore {
     timing.drag(part, x, y, page, this._timings);
   }
 
-  purgeTimings(items: Item[]) {
-    const timingsToDelete: ITiming[] = [];
-    for (const item of items) {
-      for (const st of this._timings) {
-        if (st.pointsTo(item.id)) timingsToDelete.push(st);
-      }
+  removeUselessTimings() {
+    const usefulTimings = this._timings.filter((timing) => !timing.isDangling());
+    if (usefulTimings.length !== this.timings().length) {
+      this._timings = usefulTimings;
+      return true;
     }
-    for (const timing of timingsToDelete) {
-      this.deleteTiming(timing);
-    }
+    return false;
   }
 
   play() {

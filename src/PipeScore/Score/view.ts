@@ -70,6 +70,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
     selection: props.selection,
     dispatch: props.dispatch,
   });
+
   const selectionProps = (i: number) => ({
     page: i,
     score,
@@ -80,7 +81,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
   const pages = score.pages();
   const texts = (i: number) => score.textBoxes()[i] || [];
 
-  return m(
+  const rendered = m(
     'div',
     foreach(pages.length, (page) => {
       setXYPage(page);
@@ -131,4 +132,12 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
       );
     })
   );
+
+  // If there are timings that point to nothing,
+  // remove them and then redraw the score
+  if (score.removeUselessTimings()) {
+    return drawScore(score, props);
+  }
+
+  return rendered;
 }

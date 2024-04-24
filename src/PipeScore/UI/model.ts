@@ -20,6 +20,7 @@ export type Menu =
   | 'bar'
   | 'second_timing'
   | 'stave'
+  | 'tune'
   | 'text'
   | 'playback'
   | 'settings'

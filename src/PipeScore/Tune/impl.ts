@@ -14,24 +14,28 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ITune } from ".";
-import { SavedTune } from "../SavedModel";
-import { IStave } from "../Stave";
-import { Stave } from "../Stave/impl";
-import { ITimeSignature } from "../TimeSignature";
-import { TimeSignature } from "../TimeSignature/impl";
-import { Relative } from "../global/relativeLocation";
-import { first, foreach, last } from "../global/utils";
+import { ITune } from '.';
+import { SavedTune } from '../SavedModel';
+import { IStave } from '../Stave';
+import { Stave } from '../Stave/impl';
+import { ITimeSignature } from '../TimeSignature';
+import { TimeSignature } from '../TimeSignature/impl';
+import { Relative } from '../global/relativeLocation';
+import { first, foreach, last } from '../global/utils';
 
 export class Tune extends ITune {
-    private _staves: IStave[];
+  private _staves: IStave[];
 
-    constructor(staves: IStave[]) {
-        super();
-        this._staves = staves;
-    }
+  constructor(staves: IStave[]) {
+    super();
+    this._staves = staves;
+  }
 
-    static create(timeSignature: ITimeSignature, numberOfParts: number, repeatParts: boolean): ITune {
+  static create(
+    timeSignature: ITimeSignature,
+    numberOfParts: number,
+    repeatParts: boolean
+  ): ITune {
     const staves = foreach(2 * numberOfParts, () => Stave.create(timeSignature));
     for (let i = 0; i < staves.length; i++) {
       if (repeatParts) {
@@ -42,67 +46,70 @@ export class Tune extends ITune {
     }
 
     return new Tune(staves);
+  }
 
-    }
+  static fromJSON(tune: SavedTune) {
+    return new Tune(tune._staves.map(Stave.fromJSON));
+  }
 
-    static fromJSON(tune: SavedTune) {
-        return new Tune(tune._staves.map(Stave.fromJSON))
-    }
+  toJSON(): SavedTune {
+    return {
+      _staves: this._staves.map((stave) => stave.toJSON()),
+    };
+  }
 
-    toJSON(): SavedTune {
-        return {
-            _staves: this._staves.map(stave => stave.toJSON())
-        }
-    }
+  staves() {
+    return this._staves;
+  }
 
-    staves() {
-        return this._staves;
-    }
+  timeSignature(): ITimeSignature {
+    return this.staves()[0].bars()[0].timeSignature();
+  }
 
-    addStave(nearStave: IStave | null, where: Relative) {
-      // If no stave is selected, place before the first stave
-      // or after the last stave
-  
-      const adjacentStave =
-        nearStave ||
-        (where === Relative.before ? first(this.staves()) : last(this.staves()));
-  
-      const index = adjacentStave
-        ? this.staves().indexOf(adjacentStave) + (where === Relative.before ? 0 : 1)
-        : 0;
-  
-      if (index < 0) return;
-  
-      const adjacentBar =
-        where === Relative.before
-          ? adjacentStave?.firstBar()
-          : adjacentStave?.lastBar();
-      const ts = adjacentBar?.timeSignature() || new TimeSignature();
-  
-      const newStave = Stave.create(ts);
-      if (where === Relative.before) {
-        newStave.setGap(adjacentStave?.gap() || 'auto');
-        adjacentStave?.setGap('auto');
-      }
-      this._staves.splice(index, 0, newStave);
+  addStave(nearStave: IStave | null, where: Relative) {
+    // If no stave is selected, place before the first stave
+    // or after the last stave
+
+    const adjacentStave =
+      nearStave ||
+      (where === Relative.before ? first(this.staves()) : last(this.staves()));
+
+    const index = adjacentStave
+      ? this.staves().indexOf(adjacentStave) + (where === Relative.before ? 0 : 1)
+      : 0;
+
+    if (index < 0) return;
+
+    const adjacentBar =
+      where === Relative.before
+        ? adjacentStave?.firstBar()
+        : adjacentStave?.lastBar();
+    const ts = adjacentBar?.timeSignature() || new TimeSignature();
+
+    const newStave = Stave.create(ts);
+    if (where === Relative.before) {
+      newStave.setGap(adjacentStave?.gap() || 'auto');
+      adjacentStave?.setGap('auto');
     }
-    
-    // Deletes the stave from the score
-    // Does not worry about purging notes/bars; that should be handled elsewhere
-  
-    deleteStave(stave: IStave) {
-      const ind = this._staves.indexOf(stave);
-      if (ind !== -1) {
-        this._staves.splice(ind, 1);
-      }
-      // If there used to be a gap before this stave, preserve it
-      // (when the next stave doesn't have a custom gap)
-      if (
-        stave.gap() !== 'auto' &&
-        this._staves[ind] &&
-        this._staves[ind].gap() === 'auto'
-      ) {
-        this._staves[ind].setGap(stave.gap());
-      }
+    this._staves.splice(index, 0, newStave);
+  }
+
+  // Deletes the stave from the score
+  // Does not worry about purging notes/bars; that should be handled elsewhere
+
+  deleteStave(stave: IStave) {
+    const ind = this._staves.indexOf(stave);
+    if (ind !== -1) {
+      this._staves.splice(ind, 1);
     }
+    // If there used to be a gap before this stave, preserve it
+    // (when the next stave doesn't have a custom gap)
+    if (
+      stave.gap() !== 'auto' &&
+      this._staves[ind] &&
+      this._staves[ind].gap() === 'auto'
+    ) {
+      this._staves[ind].setGap(stave.gap());
+    }
+  }
 }

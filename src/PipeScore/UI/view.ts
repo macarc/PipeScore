@@ -70,6 +70,7 @@ import {
 } from '../Events/Stave';
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
+import { addTune, deleteTune } from '../Events/Tune';
 import { IGracenote } from '../Gracenote';
 import { INote } from '../Note';
 import { Duration } from '../Note/notelength';
@@ -598,6 +599,46 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
+  const tuneMenu = [
+    m('section', [
+      m('h2', 'Add Tune'),
+      m('div.section-content', [
+        help(
+          'add tune before',
+          m(
+            'button.add.text',
+            { onclick: () => state.dispatch(addTune(Relative.before)) },
+            'before'
+          ),
+          state.dispatch
+        ),
+        help(
+          'add tune after',
+          m(
+            'button.add.text',
+            { onclick: () => state.dispatch(addTune(Relative.after)) },
+            'after'
+          ),
+          state.dispatch
+        ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Modify Tune'),
+      m('div.section-content', [
+        help(
+          'delete tune',
+          m(
+            'button.text',
+            { onclick: () => state.dispatch(deleteTune()) },
+            'Delete Tune'
+          ),
+          state.dispatch
+        ),
+      ]),
+    ]),
+  ];
+
   const pageWidth = state.isLandscape
     ? settings.pageLongSideLength
     : settings.pageShortSideLength;
@@ -927,6 +968,7 @@ export default function render(state: UIState): m.Children {
     bar: barMenu,
     second_timing: secondTimingMenu,
     stave: staveMenu,
+    tune: tuneMenu,
     text: textMenu,
     settings: settingsMenu,
     playback: playBackMenu,
@@ -976,6 +1018,7 @@ export default function render(state: UIState): m.Children {
         menuHead('bar'),
         menuHead('second_timing'),
         menuHead('stave'),
+        menuHead('tune'),
         menuHead('text'),
         menuHead('playback'),
         menuHead('document'),

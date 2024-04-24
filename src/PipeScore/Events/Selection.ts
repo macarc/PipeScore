@@ -189,7 +189,6 @@ function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
           startedPasting = true;
           if (bar.hasID(id)) {
             const notesToDelete = bar.notes();
-            state.score.purgeTimings(notesToDelete);
             for (const note of notesToDelete) {
               bar.deleteNote(note);
             }

@@ -27,8 +27,9 @@ import { ITextBox } from '../TextBox';
 import { ITiming, TimingPart } from '../Timing';
 import { ITune } from '../Tune';
 import { ID, Item } from '../global/id';
+import { Relative } from '../global/relativeLocation';
 
-type Location = { tune: ITune, stave: IStave; bar: IBar };
+type Location = { tune: ITune; stave: IStave; bar: IBar };
 
 export abstract class IScore {
   abstract landscape: boolean;
@@ -54,11 +55,13 @@ export abstract class IScore {
   abstract previousStave(stave: IStave): IStave | null;
   abstract firstOnPage(page: number): IBar | null;
   abstract lastOnPage(page: number): IBar | null;
+  abstract addTune(nearTune: ITune | null, where: Relative): void;
+  abstract deleteTune(tune: ITune): void;
   abstract notesAndTriplets(): NoteOrTriplet[];
   abstract notes(): INote[];
   abstract bars(): IBar[];
   abstract staves(): IStave[];
-  abstract tunes(): ITune[]
+  abstract tunes(): ITune[];
   abstract lastStave(): IStave | null;
   abstract pages(): IStave[][];
   abstract location(id: ID): Location | null;
@@ -69,6 +72,9 @@ export abstract class IScore {
   abstract timings(): ITiming[];
   abstract addTiming(timing: ITiming): boolean;
   abstract deleteTiming(timing: ITiming): void;
+  // This may only be called immediately after drawing! It relies on the global XY store
+  // Returns true if timings were removed
+  abstract removeUselessTimings(): boolean;
   abstract dragTiming(
     timing: ITiming,
     part: TimingPart,
@@ -76,7 +82,6 @@ export abstract class IScore {
     y: number,
     page: number
   ): void;
-  abstract purgeTimings(items: Item[]): void;
   abstract play(): Playback[];
   abstract playbackTimings(elements: Playback[]): PlaybackSecondTiming[];
 }

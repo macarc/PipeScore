@@ -146,6 +146,14 @@ export class SecondTiming extends Timing {
     throw new Error('SecondTiming points to invalid start point.');
   }
 
+  isDangling() {
+    return (
+      getXY(this.start) === null ||
+      getXY(this.middle) === null ||
+      getXY(this.end) === null
+    );
+  }
+
   protected noSelfOverlap() {
     return (
       isItemBefore(this.start, this.middle, 'beforeX', 'beforeX') &&
@@ -270,6 +278,10 @@ export class SingleTiming extends Timing {
     const end = getXY(this.end);
     if (end) return end;
     throw new Error('SecondTiming points to invalid start point.');
+  }
+
+  isDangling() {
+    return getXY(this.start) === null || getXY(this.end) === null;
   }
 
   protected noSelfOverlap() {

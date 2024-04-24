@@ -25,15 +25,14 @@ import { IGracenote } from '../Gracenote';
 import { INote, NoteOrTriplet, flattenTriplets } from '../Note';
 import { IScore } from '../Score';
 import { IStave } from '../Stave';
+import { ITune } from '../Tune';
 import { ID } from '../global/id';
-import { Item } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
-import { car, car3, foreach, last } from '../global/utils';
-import { XY, deleteXY, getXYRangeForPage, isItemBefore } from '../global/xy';
+import { foreach, last } from '../global/utils';
+import { XY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
-import { ITune } from '../Tune';
 
 interface ScoreSelectionProps {
   page: number;
@@ -67,22 +66,22 @@ export class ScoreSelection extends DraggableSelection {
     const barsToDelete: [IBar, IStave, ITune][] = [];
 
     all: for (const tune of score.tunes()) {
-    for (const stave of tune.staves()) {
-      for (const bar of stave.bars()) {
-        if (bar.hasID(this.start)) {
-          deleteBars = true;
-          started = true;
+      for (const stave of tune.staves()) {
+        for (const bar of stave.bars()) {
+          if (bar.hasID(this.start)) {
+            deleteBars = true;
+            started = true;
+          }
+          for (const note of bar.notes()) {
+            if (note.hasID(this.start)) started = true;
+            if (started) notesToDelete.push([note, bar]);
+            if (note.hasID(this.end)) break all;
+          }
+          if (started) barsToDelete.push([bar, stave, tune]);
+          if (bar.hasID(this.end)) break all;
         }
-        for (const note of bar.notes()) {
-          if (note.hasID(this.start)) started = true;
-          if (started) notesToDelete.push([note, bar]);
-          if (note.hasID(this.end)) break all;
-        }
-        if (started) barsToDelete.push([bar, stave, tune]);
-        if (bar.hasID(this.end)) break all;
       }
     }
-  }
 
     // If the next note after the selection is tied, untie it
     if (notesToDelete.length > 0) {
@@ -103,8 +102,6 @@ export class ScoreSelection extends DraggableSelection {
         if (stave.numberOfBars() === 0) tune.deleteStave(stave);
       }
     }
-
-    this.purgeItems([...notesToDelete.map(car), ...barsToDelete.map(car3)], score);
 
     if (newSelection) {
       return new ScoreSelection(newSelection, newSelection, false);
@@ -222,14 +219,6 @@ export class ScoreSelection extends DraggableSelection {
       }
     }
     return newSelection;
-  }
-
-  // Deletes all references to the items in the array
-  private purgeItems(items: Item[], score: IScore) {
-    score.purgeTimings(items);
-    for (const note of items) {
-      deleteXY(note.id);
-    }
   }
 
   private collectNotes(score: IScore, splitUpTriplets: boolean): NoteOrTriplet[] {

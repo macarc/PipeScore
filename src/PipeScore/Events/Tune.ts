@@ -14,17 +14,31 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { SavedTune } from '../SavedModel';
-import { IStave } from '../Stave';
-import { ITimeSignature } from '../TimeSignature';
+import { ScoreSelection } from '../Selection/score';
+import { State } from '../State';
 import { Relative } from '../global/relativeLocation';
+import { ScoreEvent, Update } from './types';
 
-export abstract class ITune {
-  abstract toJSON(): SavedTune;
-  abstract staves(): IStave[];
-  abstract timeSignature(): ITimeSignature;
-  abstract addStave(nearStave: IStave | null, where: Relative): void;
-  // Deletes the stave from the score
-  // Does not worry about purging notes/bars; that should be handled elsewhere
-  abstract deleteStave(stave: IStave): void;
+export function addTune(where: Relative): ScoreEvent {
+  return async (state: State) => {
+    const tune =
+      (state.selection instanceof ScoreSelection &&
+        state.score.location(state.selection.start)?.tune) ||
+      null;
+    state.score.addTune(tune, where);
+    return Update.ShouldSave;
+  };
+}
+
+export function deleteTune(): ScoreEvent {
+  return async (state: State) => {
+    const tune =
+      state.selection instanceof ScoreSelection &&
+      state.score.location(state.selection.start)?.tune;
+    if (tune) {
+      state.score.deleteTune(tune);
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
 }
