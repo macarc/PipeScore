@@ -10,6 +10,7 @@ import {
   toggleNatural,
   toggleTriplet,
 } from '../../Events/Note';
+import { Update } from '../../Events/types';
 import { INote, ITriplet } from '../../Note';
 import { Note, Triplet } from '../../Note/impl';
 import { Duration, NoteLength } from '../../Note/notelength';
@@ -25,32 +26,32 @@ const noteP = (p: Pitch) => new Note(p, new NoteLength(Duration.Crotchet));
 const noteD = (d: Duration) => new Note(Pitch.A, new NoteLength(d));
 
 describe('addNoteBefore', () => {
-  it("doesn't do anything if there is no preview note", () => {
+  it("doesn't do anything if there is no preview note", async () => {
     const state = emptyState();
     const firstNote = note();
     state.score.bars()[0].insertNote(null, firstNote);
     expect(state.score.notes()).toHaveLength(1);
-    addNoteBefore(Pitch.D, firstNote)(state);
+    expect(await addNoteBefore(Pitch.D, firstNote)(state)).toBe(Update.NoChange);
     expect(state.score.notes()).toHaveLength(1);
   });
 
-  it("doesn't do anything if score is empty", () => {
+  it("doesn't do anything if score is empty", async () => {
     const state = emptyState();
     state.preview = new NotePreview(new NoteLength(Duration.Crotchet));
-    addNoteBefore(Pitch.D, note())(state);
+    expect(await addNoteBefore(Pitch.D, note())(state)).toBe(Update.NoChange);
     expect(state.score.notes()).toHaveLength(0);
   });
 
-  it("doesn't do anything if an invalid note is passed", () => {
+  it("doesn't do anything if an invalid note is passed", async () => {
     const state = emptyState();
     state.preview = new NotePreview(new NoteLength(Duration.Crotchet));
     state.score.staves()[0].firstBar()?.insertNote(null, note());
     expect(state.score.notes()).toHaveLength(1);
-    addNoteBefore(Pitch.D, note())(state);
+    expect(await addNoteBefore(Pitch.D, note())(state)).toBe(Update.NoChange);
     expect(state.score.notes()).toHaveLength(1);
   });
 
-  it('adds note before using preview length', () => {
+  it('adds note before using preview length', async () => {
     const state = emptyState();
     const firstNote = note();
     const bar = state.score.bars()[2];
@@ -58,7 +59,7 @@ describe('addNoteBefore', () => {
     state.preview = new NotePreview(new NoteLength(Duration.SemiQuaver));
     expect(bar.notes()).toHaveLength(1);
     expect(state.score.notes()).toHaveLength(1);
-    addNoteBefore(Pitch.D, firstNote)(state);
+    expect(await addNoteBefore(Pitch.D, firstNote)(state)).toBe(Update.ShouldSave);
     expect(state.score.notes()).toHaveLength(2);
     expect(nfirst(state.score.notes()).pitch()).toBe(Pitch.D);
     expect(nfirst(state.score.notes()).length().duration()).toBe(
@@ -67,7 +68,7 @@ describe('addNoteBefore', () => {
     expect(bar.notes()).toHaveLength(2);
   });
 
-  it('adds a note before a triplet', () => {
+  it('adds a note before a triplet', async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = note();
@@ -81,7 +82,9 @@ describe('addNoteBefore', () => {
     state.preview = new NotePreview(new NoteLength(Duration.SemiQuaver));
     expect(bar.notesAndTriplets()).toHaveLength(1);
     expect(bar.notes()).toHaveLength(3);
-    addNoteBefore(Pitch.D, triplet.firstSingle())(state);
+    expect(await addNoteBefore(Pitch.D, triplet.firstSingle())(state)).toBe(
+      Update.ShouldSave
+    );
     expect(bar.notesAndTriplets()).toHaveLength(2);
     expect(bar.notes()).toHaveLength(4);
     expect(nfirst(state.score.notes()).pitch()).toBe(Pitch.D);
@@ -94,7 +97,7 @@ describe('addNoteBefore', () => {
 });
 
 describe('addNoteAfterSelection', () => {
-  it("doesn't do anything if there is no selection", () => {
+  it("doesn't do anything if there is no selection", async () => {
     const state = emptyState();
     const selectionStart = note();
     const selectionEnd = note();
@@ -102,11 +105,11 @@ describe('addNoteAfterSelection', () => {
     nlast(state.score.bars()).insertNote(null, selectionEnd);
     state.preview = new NotePreview(new NoteLength(Duration.Crotchet));
     expect(state.score.notes()).toHaveLength(2);
-    addNoteAfterSelection(Pitch.D)(state);
+    expect(await addNoteAfterSelection(Pitch.D)(state)).toBe(Update.NoChange);
     expect(state.score.notes()).toHaveLength(2);
   });
 
-  it('adds note after selection of notes using preview length', () => {
+  it('adds note after selection of notes using preview length', async () => {
     const state = emptyState();
     const selectionStart = note();
     const selectionEnd = note();
@@ -116,14 +119,14 @@ describe('addNoteAfterSelection', () => {
     state.preview = new NotePreview(new NoteLength(Duration.SemiQuaver));
     expect(state.score.notes()).toHaveLength(2);
     expect((state.selection as ScoreSelection).notes(state.score)).toHaveLength(2);
-    addNoteAfterSelection(Pitch.D)(state);
+    expect(await addNoteAfterSelection(Pitch.D)(state)).toBe(Update.ShouldSave);
     expect((state.selection as ScoreSelection).notes(state.score)).toHaveLength(1);
     expect(state.score.notes()).toHaveLength(3);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
     expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
   });
 
-  it('uses length of last note in (note) selection if there is no preview', () => {
+  it('uses length of last note in (note) selection if there is no preview', async () => {
     const state = emptyState();
     const selectionStart = note();
     const selectionEnd = noteD(Duration.SemiQuaver);
@@ -131,33 +134,33 @@ describe('addNoteAfterSelection', () => {
     nlast(state.score.bars()).insertNote(null, selectionEnd);
     state.selection = new ScoreSelection(selectionStart.id, selectionEnd.id, false);
     expect(state.score.notes()).toHaveLength(2);
-    addNoteAfterSelection(Pitch.D)(state);
+    expect(await addNoteAfterSelection(Pitch.D)(state)).toBe(Update.ShouldSave);
     expect(state.score.notes()).toHaveLength(3);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
     expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
   });
 
-  it('uses length of last note in (bar) selection if there is no preview', () => {
+  it('uses length of last note in (bar) selection if there is no preview', async () => {
     const state = emptyState();
     nfirst(state.score.bars()).insertNote(null, noteD(Duration.SemiQuaver));
     const selectionStart = nfirst(state.score.bars());
     const selectionEnd = nlast(state.score.bars());
     state.selection = new ScoreSelection(selectionStart.id, selectionEnd.id, false);
     expect(state.score.notes()).toHaveLength(1);
-    addNoteAfterSelection(Pitch.D)(state);
+    expect(await addNoteAfterSelection(Pitch.D)(state)).toBe(Update.ShouldSave);
     expect(state.score.notes()).toHaveLength(2);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
     expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
   });
 
-  it('uses length of previously selected note if (bar) selection is empty', () => {
+  it('uses length of previously selected note if (bar) selection is empty', async () => {
     const state = emptyState();
     nfirst(state.score.bars()).insertNote(null, noteD(Duration.SemiQuaver));
     const selectionStart = state.score.bars()[1];
     const selectionEnd = nlast(state.score.bars());
     state.selection = new ScoreSelection(selectionStart.id, selectionEnd.id, false);
     expect(state.score.notes()).toHaveLength(1);
-    addNoteAfterSelection(Pitch.D)(state);
+    expect(await addNoteAfterSelection(Pitch.D)(state)).toBe(Update.ShouldSave);
     expect(state.score.notes()).toHaveLength(2);
     expect(nlast(state.score.notes()).pitch()).toBe(Pitch.D);
     expect(nlast(state.score.notes()).length().duration()).toBe(Duration.SemiQuaver);
@@ -167,27 +170,27 @@ describe('addNoteAfterSelection', () => {
 });
 
 describe('addNoteToBarEnd', () => {
-  it("doesn't do anything if an invalid bar is passed", () => {
+  it("doesn't do anything if an invalid bar is passed", async () => {
     const state = emptyState();
     state.preview = new NotePreview(new NoteLength(Duration.SemiQuaver));
-    addNoteToBarEnd(Pitch.A, new Bar(new TimeSignature()))(state);
+    await addNoteToBarEnd(Pitch.A, new Bar(new TimeSignature()))(state);
     expect(state.score.notes()).toHaveLength(0);
   });
 });
 
 describe('moveNoteUp', () => {
-  it('moves up a single note', () => {
+  it('moves up a single note', async () => {
     const state = emptyState();
     const n = note();
     nfirst(state.score.bars()).insertNote(null, n);
     state.selection = new ScoreSelection(n.id, n.id, false);
     expect(state.score.notes()).toHaveLength(1);
-    moveNoteUp()(state);
+    await moveNoteUp()(state);
     expect(state.score.notes()).toHaveLength(1);
     expect(nfirst(state.score.notes()).pitch()).toBe(Pitch.B);
   });
 
-  it('moves up a note in a triplet', () => {
+  it('moves up a note in a triplet', async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = note();
@@ -197,23 +200,23 @@ describe('moveNoteUp', () => {
     nfirst(state.score.bars()).insertNote(n2, n3);
     nfirst(state.score.bars()).makeTriplet(n1, n2, n3);
     state.selection = new ScoreSelection(n2.id, n2.id, false);
-    moveNoteUp()(state);
+    await moveNoteUp()(state);
     expect(state.score.notes()).toHaveLength(3);
     expect(state.score.notesAndTriplets()).toHaveLength(1);
     expect(state.score.notes()[1].pitch()).toBe(Pitch.B);
   });
 
-  it("doesn't move up a high A", () => {
+  it("doesn't move up a high A", async () => {
     const state = emptyState();
     const n = noteP(Pitch.HA);
     nfirst(state.score.bars()).insertNote(null, n);
     state.selection = new ScoreSelection(n.id, n.id, false);
-    moveNoteUp()(state);
+    await moveNoteUp()(state);
     expect(state.score.notes()).toHaveLength(1);
     expect(nfirst(state.score.notes()).pitch()).toBe(Pitch.HA);
   });
 
-  it('moves up multiple notes', () => {
+  it('moves up multiple notes', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.E);
@@ -224,7 +227,7 @@ describe('moveNoteUp', () => {
     state.score.bars()[2].insertNote(null, n3);
     state.score.bars()[3].insertNote(null, n4);
     state.selection = new ScoreSelection(n1.id, n3.id, false);
-    moveNoteUp()(state);
+    await moveNoteUp()(state);
     expect(state.score.notes()).toHaveLength(4);
     expect(state.score.notes()[0].pitch()).toBe(Pitch.D);
     expect(state.score.notes()[1].pitch()).toBe(Pitch.F);
@@ -232,7 +235,7 @@ describe('moveNoteUp', () => {
     expect(state.score.notes()[3].pitch()).toBe(Pitch.D);
   });
 
-  it('moves up multiple notes including notes in triplets', () => {
+  it('moves up multiple notes including notes in triplets', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.G);
@@ -244,7 +247,7 @@ describe('moveNoteUp', () => {
     state.score.bars()[0].insertNote(n3, n4);
     state.score.bars()[0].makeTriplet(n2, n3, n4);
     state.selection = new ScoreSelection(n1.id, n3.id, false);
-    moveNoteUp()(state);
+    await moveNoteUp()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(2);
     expect(state.score.notes()).toHaveLength(4);
     expect(state.score.notes()[0].pitch()).toBe(Pitch.D);
@@ -255,17 +258,17 @@ describe('moveNoteUp', () => {
 });
 
 describe('moveNoteDown', () => {
-  it('moves down a single note', () => {
+  it('moves down a single note', async () => {
     const state = emptyState();
     const n = note();
     nfirst(state.score.bars()).insertNote(null, n);
     state.selection = new ScoreSelection(n.id, n.id, false);
-    moveNoteDown()(state);
+    await moveNoteDown()(state);
     expect(state.score.notes()).toHaveLength(1);
     expect(nfirst(state.score.notes()).pitch()).toBe(Pitch.G);
   });
 
-  it('moves down a note in a triplet', () => {
+  it('moves down a note in a triplet', async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = note();
@@ -275,23 +278,23 @@ describe('moveNoteDown', () => {
     nfirst(state.score.bars()).insertNote(n2, n3);
     nfirst(state.score.bars()).makeTriplet(n1, n2, n3);
     state.selection = new ScoreSelection(n2.id, n2.id, false);
-    moveNoteDown()(state);
+    await moveNoteDown()(state);
     expect(state.score.notes()).toHaveLength(3);
     expect(state.score.notesAndTriplets()).toHaveLength(1);
     expect(state.score.notes()[1].pitch()).toBe(Pitch.G);
   });
 
-  it("doesn't move down a low G", () => {
+  it("doesn't move down a low G", async () => {
     const state = emptyState();
     const n = noteP(Pitch.G);
     nfirst(state.score.bars()).insertNote(null, n);
     state.selection = new ScoreSelection(n.id, n.id, false);
-    moveNoteDown()(state);
+    await moveNoteDown()(state);
     expect(state.score.notes()).toHaveLength(1);
     expect(nfirst(state.score.notes()).pitch()).toBe(Pitch.G);
   });
 
-  it('moves down multiple notes', () => {
+  it('moves down multiple notes', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.G);
@@ -302,7 +305,7 @@ describe('moveNoteDown', () => {
     state.score.bars()[2].insertNote(null, n3);
     state.score.bars()[3].insertNote(null, n4);
     state.selection = new ScoreSelection(n1.id, n3.id, false);
-    moveNoteDown()(state);
+    await moveNoteDown()(state);
     expect(state.score.notes()).toHaveLength(4);
     expect(state.score.notes()[0].pitch()).toBe(Pitch.B);
     expect(state.score.notes()[1].pitch()).toBe(Pitch.G);
@@ -310,7 +313,7 @@ describe('moveNoteDown', () => {
     expect(state.score.notes()[3].pitch()).toBe(Pitch.D);
   });
 
-  it('moves down multiple notes including notes in triplets', () => {
+  it('moves down multiple notes including notes in triplets', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.G);
@@ -322,7 +325,7 @@ describe('moveNoteDown', () => {
     state.score.bars()[0].insertNote(n3, n4);
     state.score.bars()[0].makeTriplet(n2, n3, n4);
     state.selection = new ScoreSelection(n1.id, n3.id, false);
-    moveNoteDown()(state);
+    await moveNoteDown()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(2);
     expect(state.score.notes()).toHaveLength(4);
     expect(state.score.notes()[0].pitch()).toBe(Pitch.B);
@@ -333,7 +336,7 @@ describe('moveNoteDown', () => {
 });
 
 describe('tieSelectedNotes', () => {
-  it('ties two notes with the same pitch', () => {
+  it('ties two notes with the same pitch', async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = note();
@@ -342,12 +345,12 @@ describe('tieSelectedNotes', () => {
     state.selection = new ScoreSelection(n1.id, n2.id, false);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(false);
-    tieSelectedNotes()(state);
+    await tieSelectedNotes()(state);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(true);
   });
 
-  it('ties two notes with different pitches', () => {
+  it('ties two notes with different pitches', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.A);
     const n2 = noteP(Pitch.B);
@@ -356,14 +359,14 @@ describe('tieSelectedNotes', () => {
     state.selection = new ScoreSelection(n1.id, n2.id, false);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(false);
-    tieSelectedNotes()(state);
+    await tieSelectedNotes()(state);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(true);
     expect(state.score.notes()[0].pitch()).toBe(Pitch.B);
     expect(state.score.notes()[1].pitch()).toBe(Pitch.B);
   });
 
-  it('ties two notes across bars', () => {
+  it('ties two notes across bars', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.A);
     const n2 = noteP(Pitch.B);
@@ -372,14 +375,14 @@ describe('tieSelectedNotes', () => {
     state.selection = new ScoreSelection(n1.id, n2.id, false);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(false);
-    tieSelectedNotes()(state);
+    await tieSelectedNotes()(state);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(true);
     expect(state.score.notes()[0].pitch()).toBe(Pitch.B);
     expect(state.score.notes()[1].pitch()).toBe(Pitch.B);
   });
 
-  it('ties multiple notes across bars', () => {
+  it('ties multiple notes across bars', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.A);
     const n2 = noteP(Pitch.B);
@@ -394,7 +397,7 @@ describe('tieSelectedNotes', () => {
     expect(state.score.notes()[1].isTied()).toBe(false);
     expect(state.score.notes()[2].isTied()).toBe(false);
     expect(state.score.notes()[3].isTied()).toBe(false);
-    tieSelectedNotes()(state);
+    await tieSelectedNotes()(state);
     expect(state.score.notes()[0].isTied()).toBe(false);
     expect(state.score.notes()[1].isTied()).toBe(false);
     expect(state.score.notes()[2].isTied()).toBe(true);
@@ -409,7 +412,7 @@ describe('tieSelectedNotes', () => {
 });
 
 describe('toggleNatural', () => {
-  it('changes C#s and F#s', () => {
+  it('changes C#s and F#s', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.G);
@@ -425,7 +428,7 @@ describe('toggleNatural', () => {
     expect(state.score.notes()[1].natural()).toBe(false);
     expect(state.score.notes()[2].natural()).toBe(false);
     expect(state.score.notes()[3].natural()).toBe(false);
-    toggleNatural()(state);
+    await toggleNatural()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(2);
     expect(state.score.notes()).toHaveLength(4);
     expect(state.score.notes()[0].natural()).toBe(true);
@@ -434,7 +437,7 @@ describe('toggleNatural', () => {
     expect(state.score.notes()[3].natural()).toBe(false);
   });
 
-  it('changes Cs and Fs', () => {
+  it('changes Cs and Fs', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.G);
@@ -452,7 +455,7 @@ describe('toggleNatural', () => {
     expect(state.score.notes()[1].natural()).toBe(false);
     expect(state.score.notes()[2].natural()).toBe(true);
     expect(state.score.notes()[3].natural()).toBe(false);
-    toggleNatural()(state);
+    await toggleNatural()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(2);
     expect(state.score.notes()).toHaveLength(4);
     expect(state.score.notes()[0].natural()).toBe(false);
@@ -461,7 +464,7 @@ describe('toggleNatural', () => {
     expect(state.score.notes()[3].natural()).toBe(false);
   });
 
-  it('toggles naturals in triplets', () => {
+  it('toggles naturals in triplets', async () => {
     const state = emptyState();
     const n1 = noteP(Pitch.C);
     const n2 = noteP(Pitch.F);
@@ -477,7 +480,7 @@ describe('toggleNatural', () => {
     expect(state.score.notes()[0].natural()).toBe(false);
     expect(state.score.notes()[1].natural()).toBe(true);
     expect(state.score.notes()[2].natural()).toBe(false);
-    toggleNatural()(state);
+    await toggleNatural()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(1);
     expect(state.score.notes()).toHaveLength(3);
     expect(state.score.notes()[0].natural()).toBe(true);
@@ -487,17 +490,17 @@ describe('toggleNatural', () => {
 });
 
 describe('toggleTriplet', () => {
-  it("doesn't add a triplet if nothing is selected", () => {
+  it("doesn't add a triplet if nothing is selected", async () => {
     const state = emptyState();
     state.score.bars()[0].insertNote(null, note());
     state.score.bars()[0].insertNote(null, note());
     state.score.bars()[0].insertNote(null, note());
     expect(state.score.notesAndTriplets()).toHaveLength(3);
-    toggleTriplet()(state);
+    await toggleTriplet()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(3);
   });
 
-  it('creates a triplet if three notes are selected', () => {
+  it('creates a triplet if three notes are selected', async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = noteD(Duration.SemiQuaver);
@@ -509,7 +512,7 @@ describe('toggleTriplet', () => {
     state.score.bars()[0].insertNote(n3, n4);
     state.selection = new ScoreSelection(n2.id, n4.id, false);
     expect(state.score.notesAndTriplets()).toHaveLength(4);
-    toggleTriplet()(state);
+    await toggleTriplet()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(2);
     expect(state.score.notesAndTriplets()[0]).toBeInstanceOf(INote);
     expect(state.score.notesAndTriplets()[1]).toBeInstanceOf(ITriplet);
@@ -518,7 +521,7 @@ describe('toggleTriplet', () => {
     );
   });
 
-  it('creates a triplet from first three notes if many notes are selected', () => {
+  it('creates a triplet from first three notes if many notes are selected', async () => {
     const state = emptyState();
     const n1 = noteD(Duration.SemiQuaver);
     const n2 = note();
@@ -530,7 +533,7 @@ describe('toggleTriplet', () => {
     state.score.bars()[0].insertNote(n3, n4);
     state.selection = new ScoreSelection(n1.id, n4.id, false);
     expect(state.score.notesAndTriplets()).toHaveLength(4);
-    toggleTriplet()(state);
+    await toggleTriplet()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(2);
     expect(state.score.notesAndTriplets()[0]).toBeInstanceOf(ITriplet);
     expect(state.score.notesAndTriplets()[0].length().duration()).toBe(
@@ -539,7 +542,7 @@ describe('toggleTriplet', () => {
     expect(state.score.notesAndTriplets()[1]).toBeInstanceOf(INote);
   });
 
-  it("doesn't create a triplet across barlines", () => {
+  it("doesn't create a triplet across barlines", async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = note();
@@ -549,11 +552,11 @@ describe('toggleTriplet', () => {
     state.score.bars()[1].insertNote(n2, n3);
     state.selection = new ScoreSelection(n1.id, n3.id, false);
     expect(state.score.notesAndTriplets()).toHaveLength(3);
-    toggleTriplet()(state);
+    await toggleTriplet()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(3);
   });
 
-  it('unmakes a triplet if it is in the first three selected notes', () => {
+  it('unmakes a triplet if it is in the first three selected notes', async () => {
     const state = emptyState();
     const n1 = note();
     const n2 = note();
@@ -568,13 +571,13 @@ describe('toggleTriplet', () => {
     state.score.bars()[0].makeTriplet(n1, n2, n3);
     state.selection = new ScoreSelection(n1.id, n5.id, false);
     expect(state.score.notesAndTriplets()).toHaveLength(3);
-    toggleTriplet()(state);
+    await toggleTriplet()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(3);
   });
 });
 
 describe('toggleDot', () => {
-  it('toggles dot on selected notes', () => {
+  it('toggles dot on selected notes', async () => {
     const state = emptyState();
     const n1 = noteD(Duration.Crotchet);
     const n2 = noteD(Duration.DottedQuaver);
@@ -583,14 +586,14 @@ describe('toggleDot', () => {
     state.score.bars()[0].insertNote(n1, n2);
     state.score.bars()[1].insertNote(n2, n3);
     state.selection = new ScoreSelection(n2.id, n3.id, false);
-    toggleDot()(state);
+    await toggleDot()(state);
     expect(state.score.notes()).toHaveLength(3);
     expect(state.score.notes()[0].length().duration()).toBe(Duration.Crotchet);
     expect(state.score.notes()[1].length().duration()).toBe(Duration.Quaver);
     expect(state.score.notes()[2].length().duration()).toBe(Duration.DottedMinim);
   });
 
-  it('toggles dot on all triplet notes if any note in triplet is selected', () => {
+  it('toggles dot on all triplet notes if any note in triplet is selected', async () => {
     const state = emptyState();
     const n1 = noteD(Duration.Quaver);
     const n2 = note();
@@ -601,7 +604,7 @@ describe('toggleDot', () => {
     state.score.bars()[0].makeTriplet(n1, n2, n3);
     state.selection = new ScoreSelection(n2.id, n2.id, false);
     expect(state.score.notesAndTriplets()).toHaveLength(1);
-    toggleDot()(state);
+    await toggleDot()(state);
     expect(state.score.notesAndTriplets()).toHaveLength(1);
     expect(state.score.notesAndTriplets()[0].length().duration()).toBe(
       Duration.DottedQuaver
@@ -609,10 +612,10 @@ describe('toggleDot', () => {
   });
 });
 
-describe('stopInput', () => {});
+describe('stopInput', async () => {});
 
-describe('clickTripletLine', () => {});
+describe('clickTripletLine', async () => {});
 
-describe('clickNote', () => {});
+describe('clickNote', async () => {});
 
-describe('setInputLength', () => {});
+describe('setInputLength', async () => {});

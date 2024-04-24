@@ -1,9 +1,10 @@
 import { deleteSelection } from '../../Events/Selection';
+import { Update } from '../../Events/types';
 import { ScoreSelection } from '../../Selection/score';
 import { emptyState } from './common';
 
 describe('deleteSelection', () => {
-  it('deletes a stave when all bars in the stave are deleted', () => {
+  it('deletes a stave when all bars in the stave are deleted', async () => {
     const state = emptyState();
     const stave0 = state.score.staves()[0];
     const stave1 = state.score.staves()[1];
@@ -13,7 +14,7 @@ describe('deleteSelection', () => {
     const selectionEnd = stave2.bars()[3].id;
     state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
     expect(state.score.staves()).toHaveLength(4);
-    deleteSelection()(state);
+    expect(await deleteSelection()(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(3);
     expect(state.score.staves()[0]).toBe(stave0);
     expect(state.score.staves()[1]).toBe(stave1);
