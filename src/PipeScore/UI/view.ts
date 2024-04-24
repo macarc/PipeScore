@@ -93,6 +93,7 @@ import { Menu } from './model';
 export interface UIState {
   saved: boolean;
   canEdit: boolean;
+  canSave: boolean;
   canUndo: boolean;
   canRedo: boolean;
   loggedIn: boolean;
@@ -1028,7 +1029,7 @@ export default function render(state: UIState): m.Children {
           m('button', m('a[href=/help]', { target: '_blank' }, 'Help')),
           state.dispatch
         ),
-        ...(state.canEdit
+        ...(state.canSave
           ? [
               m(
                 'span.save-text',

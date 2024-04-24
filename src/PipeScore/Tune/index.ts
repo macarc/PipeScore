@@ -27,4 +27,6 @@ export abstract class ITune {
   // Deletes the stave from the score
   // Does not worry about purging notes/bars; that should be handled elsewhere
   abstract deleteStave(stave: IStave): void;
+  abstract nextStave(stave: IStave): IStave | null;
+  abstract previousStave(stave: IStave): IStave | null;
 }

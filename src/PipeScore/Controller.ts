@@ -135,6 +135,7 @@ function redraw() {
       renderUI({
         saved: state.store ? state.store.isSaved() : false,
         canEdit: !state.store?.isReadOnly(),
+        canSave: state.store !== null,
         canUndo: state.history.past.length > 1,
         canRedo: state.history.future.length > 0,
         loggedIn: state.isLoggedIn,

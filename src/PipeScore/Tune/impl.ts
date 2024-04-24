@@ -112,4 +112,23 @@ export class Tune extends ITune {
       this._staves[ind].setGap(stave.gap());
     }
   }
+
+  nextStave(stave: IStave) {
+    const staves = this.staves();
+    const stave_index = staves.indexOf(stave);
+    const index = stave_index + 1;
+    if (stave_index !== -1 && index < staves.length) {
+      return staves[index];
+    }
+    return null;
+  }
+
+  previousStave(stave: IStave) {
+    const staves = this.staves();
+    const index = staves.indexOf(stave) - 1;
+    if (index < 0) {
+      return null;
+    }
+    return staves[index];
+  }
 }

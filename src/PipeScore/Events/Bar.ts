@@ -144,8 +144,8 @@ export function moveBarToNextLine(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const location = state.score.location(state.selection.start);
       if (location) {
-        const { bar, stave } = location;
-        const next = state.score.nextStave(stave);
+        const { tune, bar, stave } = location;
+        const next = tune.nextStave(stave);
         if (bar === stave.lastBar() && next) {
           stave.deleteBar(bar);
           next.insertBar(bar);
@@ -162,8 +162,8 @@ export function moveBarToPreviousLine(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const location = state.score.location(state.selection.start);
       if (location) {
-        const { bar, stave } = location;
-        const previous = state.score.previousStave(stave);
+        const { tune, bar, stave } = location;
+        const previous = tune.previousStave(stave);
         if (bar === stave.firstBar() && previous) {
           stave.deleteBar(bar);
           previous.appendBar(bar);
