@@ -62,13 +62,7 @@ import {
   stopPlayback,
 } from '../Events/Playback';
 import { copy, deleteSelection, paste } from '../Events/Selection';
-import {
-  addStave,
-  deleteStave,
-  resetStaveGap,
-  setStaveGap,
-  staveGapToDisplay,
-} from '../Events/Stave';
+import { addStave, deleteStave, resetStaveGap, setStaveGap } from '../Events/Stave';
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { addTune, deleteTune } from '../Events/Tune';
@@ -570,15 +564,11 @@ export default function render(state: UIState): m.Children {
         help(
           'set stave gap',
           m('label', [
-            state.selectedStaves.length === 0
-              ? 'Stave gap (for all staves): '
-              : state.selectedStaves.length === 1
-                ? 'Stave gap (for selected stave only): '
-                : 'Stave gap (for selected staves only): ',
+            'Adjust stave gap: ',
             m('input', {
               type: 'number',
               min: minStaveGap,
-              value: staveGapToDisplay(state.selectedStaves),
+              value: settings.staveGap,
               oninput: (e: InputEvent) =>
                 state.dispatch(
                   setStaveGap(parseFloat((e.target as HTMLInputElement).value))
@@ -604,10 +594,14 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', [
         help(
           'delete stave',
-          m('button.delete', {
-            disabled: noStaveSelected,
-            onclick: () => state.dispatch(deleteStave()),
-          }),
+          m(
+            'button.text',
+            {
+              disabled: noStaveSelected,
+              onclick: () => state.dispatch(deleteStave()),
+            },
+            'Delete'
+          ),
           state.dispatch
         ),
       ]),
@@ -639,14 +633,17 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', 'Modify Tune'),
+      m('h2', 'Delete Tune'),
       m('div.section-content', [
         help(
           'delete tune',
           m(
             'button.text',
-            { onclick: () => state.dispatch(deleteTune()) },
-            'Delete Tune'
+            {
+              disabled: noStaveSelected,
+              onclick: () => state.dispatch(deleteTune()),
+            },
+            'Delete'
           ),
           state.dispatch
         ),

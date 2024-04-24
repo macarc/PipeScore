@@ -15,13 +15,14 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ITune } from '.';
+import { IBar } from '../Bar';
 import { SavedTune } from '../SavedModel';
 import { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
 import { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { Relative } from '../global/relativeLocation';
-import { first, foreach, last } from '../global/utils';
+import { first, foreach, last, nfirst, nlast } from '../global/utils';
 
 export class Tune extends ITune {
   private _staves: IStave[];
@@ -59,6 +60,7 @@ export class Tune extends ITune {
   }
 
   tuneGap() {
+    // TODO : allow modification
     return 100;
   }
 
@@ -67,33 +69,27 @@ export class Tune extends ITune {
   }
 
   timeSignature(): ITimeSignature {
-    return this.staves()[0].bars()[0].timeSignature();
+    return this.staves()[0]?.bars()[0]?.timeSignature() || null;
   }
 
   addStave(nearStave: IStave | null, where: Relative) {
-    // If no stave is selected, place before the first stave
-    // or after the last stave
-    const adjacentStave =
-      nearStave ||
-      (where === Relative.before ? first(this.staves()) : last(this.staves()));
+    let index: number;
+    let nearestBar: IBar | null;
 
-    const index = adjacentStave
-      ? this.staves().indexOf(adjacentStave) + (where === Relative.before ? 0 : 1)
-      : 0;
-
-    if (index < 0) return;
-
-    const adjacentBar =
-      where === Relative.before
-        ? adjacentStave?.firstBar()
-        : adjacentStave?.lastBar();
-    const ts = adjacentBar?.timeSignature() || new TimeSignature();
-
-    const newStave = Stave.create(ts);
-    if (where === Relative.before) {
-      newStave.setGap(adjacentStave?.gap() || 'auto');
-      adjacentStave?.setGap('auto');
+    if (nearStave) {
+      index = this.staves().indexOf(nearStave) + (where === Relative.before ? 0 : 1);
+      nearestBar =
+        where === Relative.before ? nearStave.firstBar() : nearStave.lastBar();
+    } else if (where === Relative.before) {
+      index = 0;
+      nearestBar = nfirst(this.staves())?.firstBar();
+    } else {
+      index = this.staves().length;
+      nearestBar = nlast(this.staves())?.lastBar();
     }
+
+    const ts = nearestBar?.timeSignature() || new TimeSignature();
+    const newStave = Stave.create(ts);
     this._staves.splice(index, 0, newStave);
   }
 
@@ -101,15 +97,6 @@ export class Tune extends ITune {
     const ind = this._staves.indexOf(stave);
     if (ind !== -1) {
       this._staves.splice(ind, 1);
-    }
-    // If there used to be a gap before this stave, preserve it
-    // (when the next stave doesn't have a custom gap)
-    if (
-      stave.gap() !== 'auto' &&
-      this._staves[ind] &&
-      this._staves[ind].gap() === 'auto'
-    ) {
-      this._staves[ind].setGap(stave.gap());
     }
   }
 

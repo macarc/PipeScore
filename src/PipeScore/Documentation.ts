@@ -77,15 +77,13 @@ export default {
   'add lead in before': 'Add a new lead in before the currently selected bar.',
   'add lead in after': 'Add a new lead in after the currently selected bar.',
   'add stave before':
-    'Add a new blank stave on the line before the currently selected bar.',
+    'Add a new blank stave on the line before the currently selected stave.\n\nSelect a stave by selecting any note or bar in that stave.',
   'add stave after':
-    'Add a new blank stave on the next line after the currently currently selected bar.',
+    'Add a new blank stave on the next line after the currently currently selected stave.\n\nSelect a stave by selecting any note or bar in that stave.',
   'delete stave':
-    'Delete the currently selected stave (the stave containing a selected note/bar).',
-  'set stave gap':
-    'Adjust the gap between the selected staves.\n\nIf no staves are selected, adjust the default gap between all staves.\n\nIf only one stave is selected, adjust the gap before that stave.\n\nSelect a stave by selecting any bar or note in the stave.',
-  'reset stave gap':
-    'Reset the gap between the selected staves to its default value.\n\nIf only one stave is selected, reset the gap before that stave to its default value.\n\nSelect a stave by selecting any bar or note in the stave.',
+    'Delete the currently selected stave.\n\nSelect a stave by selecting any note or bar in that stave.',
+  'set stave gap': 'Adjust the default gap between all staves.',
+  'reset stave gap': 'Reset the gap between staves to its default value.',
   'add tune before': 'Add a new tune before the currently selected tune.',
   'add tune after': 'Add a new tune after the currently selected tune.',
   'delete tune': 'Delete the currently selected tune',

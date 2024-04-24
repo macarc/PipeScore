@@ -16,7 +16,6 @@
 
 import { ScoreSelection } from '../Selection/score';
 import { State } from '../State';
-import { IStave } from '../Stave';
 import { minStaveGap } from '../Stave/view';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
@@ -60,56 +59,17 @@ export function deleteStave(): ScoreEvent {
   };
 }
 
-// Set the gap between staves, or before the stave if only
-// one stave is in the list
-function setGap(staves: IStave[], gap: number | 'auto') {
-  if (staves.length === 1) {
-    staves[0].setGap(gap);
-  } else {
-    for (const stave of staves.slice(1)) {
-      stave.setGap(gap);
-    }
-  }
-}
-
-export function staveGapToDisplay(staves: IStave[]) {
-  switch (staves.length) {
-    case 0:
-      return settings.staveGap;
-    case 1:
-      return staves[0].gapAsNumber();
-    default: {
-      // If more than one stave is selected, return their gap only if they all
-      // have the same gap, otherwise just use the default gap.
-      const gaps = staves.slice(1).map((stave) => stave.gapAsNumber());
-      const firstGap = gaps[0];
-      if (gaps.every((gap) => gap === firstGap)) {
-        return firstGap;
-      }
-      return settings.staveGap;
-    }
-  }
-}
-
 export function setStaveGap(gap: number) {
-  return async (state: State) => {
+  return async () => {
     const clampedGap = Math.max(gap, minStaveGap());
-    if (state.selection instanceof ScoreSelection) {
-      setGap(state.selection.staves(state.score), clampedGap);
-    } else {
-      settings.staveGap = clampedGap;
-    }
-    return Update.ViewChanged;
+    settings.staveGap = clampedGap;
+    return Update.ShouldSave;
   };
 }
 
 export function resetStaveGap() {
-  return async (state: State) => {
-    if (state.selection instanceof ScoreSelection) {
-      setGap(state.selection.staves(state.score), 'auto');
-    } else {
-      settings.staveGap = Settings.defaultStaveGap;
-    }
+  return async () => {
+    settings.staveGap = Settings.defaultStaveGap;
     return Update.ShouldSave;
   };
 }

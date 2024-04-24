@@ -85,7 +85,8 @@ async function importfile(e: SubmitEvent) {
       )?.value;
 
       const initialTopOffset = 180;
-      score._tunes[0]._staves[0].gap = initialTopOffset;
+      // TODO : implement tune.setTuneGap
+      // score._tunes[0].setTuneGap(initialTopOffset);
       score.name = scoreName;
       score.textBoxes[0].texts = [];
       score.textBoxes[0].texts.push({

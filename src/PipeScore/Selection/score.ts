@@ -146,11 +146,11 @@ export class ScoreSelection extends DraggableSelection {
   staveLocations(score: IScore): { tune: ITune; stave: IStave }[] {
     let foundStart = false;
     const staves: { tune: ITune; stave: IStave }[] = [];
-    for (const tune of score.tunes()) {
+    all: for (const tune of score.tunes()) {
       for (const stave of tune.staves()) {
         if (stave.includesID(this.start)) foundStart = true;
         if (foundStart) staves.push({ tune, stave });
-        if (stave.includesID(this.end)) break;
+        if (stave.includesID(this.end)) break all;
       }
     }
     return staves;
@@ -297,10 +297,7 @@ export class ScoreSelection extends DraggableSelection {
       ...foreach(numStavesBetween, (i) => startStaveIndex + i + 1).map((i) =>
         m('rect', {
           x: props.staveStartX,
-          y:
-            props.score.staveY(staves[i]) +
-            staves[i].gapAsNumber() -
-            settings.lineGap,
+          y: props.score.staveY(staves[i]) + settings.staveGap - settings.lineGap,
           width: props.staveEndX - props.staveStartX,
           height,
           fill: 'orange',

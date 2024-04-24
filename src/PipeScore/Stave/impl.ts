@@ -21,7 +21,6 @@ import { Barline } from '../Barline';
 import { INote } from '../Note';
 import { SavedStave } from '../SavedModel';
 import { ITimeSignature } from '../TimeSignature';
-import { ITune } from '../Tune';
 import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
@@ -29,12 +28,10 @@ import { first, last, nlast } from '../global/utils';
 
 export class Stave extends IStave {
   private _bars: IBar[];
-  private _gap: number | 'auto';
 
   private constructor(bars: IBar[]) {
     super();
     this._bars = bars;
-    this._gap = 'auto';
   }
 
   static empty() {
@@ -53,39 +50,17 @@ export class Stave extends IStave {
   static fromJSON(o: SavedStave) {
     const st = Stave.empty();
     st._bars = o.bars.map(Bar.fromJSON);
-    st._gap = o.gap || 'auto';
-
-    // Need to update the old stave gap (which included the stave itself)
-    // to the new stave gap (which is the actual gap between staves)
-    if (o.gap === undefined) {
-      settings.staveGap = Settings.defaultStaveGap;
-    }
-
     return st;
   }
 
   toJSON(): SavedStave {
     return {
-      gap: this._gap,
       bars: this._bars.map((bar) => bar.toJSON()),
     };
   }
 
-  setGap(gap: 'auto' | number) {
-    this._gap = gap;
-  }
-
-  gap() {
-    return this._gap;
-  }
-
-  gapAsNumber() {
-    return settings.staveGap;
-    // return this._gap === 'auto' ? settings.staveGap : this._gap;
-  }
-
   height() {
-    return settings.lineHeightOf(4) + this.gapAsNumber();
+    return settings.lineHeightOf(4) + settings.staveGap;
   }
 
   numberOfBars() {

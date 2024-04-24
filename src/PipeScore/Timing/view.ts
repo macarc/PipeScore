@@ -21,6 +21,7 @@ import { clickTiming, editTimingText } from '../Events/Timing';
 import { IScore } from '../Score';
 import { ISelection } from '../Selection';
 import { TimingSelection } from '../Selection/timing';
+import { settings } from '../global/settings';
 import { foreach } from '../global/utils';
 import { getXY, getXYRangeForPage } from '../global/xy';
 
@@ -58,8 +59,7 @@ function drawLine(
     const clickWidth = 10;
 
     const y = (i: number) =>
-      props.score.staveY(props.score.staves()[i]) +
-      props.score.staves()[i].gapAsNumber();
+      props.score.staveY(props.score.staves()[i]) + settings.staveGap;
 
     const horizontal = (x1: number, x2: number, y: number) =>
       m('line', {

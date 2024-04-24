@@ -196,7 +196,7 @@ class PartialScore {
   newStave() {
     this.endItem(this.currentBar().id);
 
-    this.score._tunes[0]._staves.push({ gap: 'auto', bars: this.currentStave });
+    this.score._tunes[0]._staves.push({ bars: this.currentStave });
     this.currentStave = [emptyBar(this.timeSignature)];
     this.currentLineIsEmpty = true;
   }

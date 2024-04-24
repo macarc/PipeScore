@@ -105,7 +105,7 @@ function renderTrebleClef(x: number, y: number) {
 }
 
 export function drawStave(stave: IStave, props: StaveProps): m.Children {
-  const staveY = props.y + stave.gapAsNumber();
+  const staveY = props.y + settings.staveGap;
 
   const staveLines = foreach(5, (idx) => settings.lineHeightOf(idx) + staveY);
 

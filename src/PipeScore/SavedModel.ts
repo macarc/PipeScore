@@ -60,7 +60,6 @@ export type SavedTune = {
 };
 
 export type SavedStave = {
-  gap: 'auto' | number | undefined;
   bars: SavedBar[];
 };
 

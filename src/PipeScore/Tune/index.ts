@@ -23,9 +23,7 @@ export abstract class ITune {
   abstract toJSON(): SavedTune;
   abstract tuneGap(): number;
   abstract staves(): IStave[];
-  // TODO : this assumes that there will be at least one bar in the tune
-  //        enforce this?
-  abstract timeSignature(): ITimeSignature;
+  abstract timeSignature(): ITimeSignature | null;
   abstract addStave(nearStave: IStave | null, where: Relative): void;
   abstract deleteStave(stave: IStave): void;
   abstract nextStave(stave: IStave): IStave | null;

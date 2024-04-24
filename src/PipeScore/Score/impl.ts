@@ -71,7 +71,6 @@ export class Score extends IScore {
     const initialTopOffset = 180;
 
     this._tunes = [Tune.create(timeSignature, numberOfParts, repeatParts)];
-    if (numberOfParts > 0) this.staves()[0].setGap(initialTopOffset);
 
     this._textBoxes = [[]];
     this.addText(new TextBox(name, true, this.width() / 2, initialTopOffset / 2));
@@ -121,9 +120,10 @@ export class Score extends IScore {
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
 
-    const firstStave = first(s.staves());
-    if (o.settings.topOffset !== undefined && firstStave) {
-      firstStave.setGap(o.settings.topOffset - 20);
+    const firstTune = first(s.tunes());
+    if (o.settings.topOffset !== undefined && firstTune) {
+      // TODO : implement setTuneGap
+      // firstTune.setTuneGap(o.settings.topOffset - 20);
     }
     return s;
   }
@@ -227,14 +227,20 @@ export class Score extends IScore {
   }
 
   addTune(nearTune: ITune | null, where: Relative) {
-    const tune =
-      nearTune ||
-      (where === Relative.before ? first(this.tunes()) : last(this.tunes()));
-
-    if (tune) {
-      const newTune = Tune.create(tune.timeSignature(), 2, true);
+    if (nearTune) {
+      const newTune = Tune.create(
+        nearTune.timeSignature() || new TimeSignature(),
+        2,
+        true
+      );
       const indexOffset = where === Relative.before ? 0 : 1;
-      this._tunes.splice(this._tunes.indexOf(tune) + indexOffset, 0, newTune);
+      this._tunes.splice(this._tunes.indexOf(nearTune) + indexOffset, 0, newTune);
+    } else if (where === Relative.before) {
+      const newTune = Tune.create(new TimeSignature(), 2, true);
+      this._tunes.unshift(newTune);
+    } else {
+      const newTune = Tune.create(new TimeSignature(), 2, true);
+      this._tunes.push(newTune);
     }
   }
 
@@ -332,8 +338,7 @@ export class Score extends IScore {
     return last(this.staves());
   }
 
-  // Finds the parent bar and stave of the bar/note passed
-
+  // Finds the parent bar stave, and tune of the bar/note passed
   location(id: ID) {
     for (const tune of this.tunes()) {
       for (const stave of tune.staves()) {

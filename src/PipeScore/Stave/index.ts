@@ -23,13 +23,8 @@ import { SavedStave } from '../SavedModel';
 import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 
-type Gap = 'auto' | number;
-
 export abstract class IStave {
   abstract toJSON(): SavedStave;
-  abstract setGap(gap: Gap): void;
-  abstract gap(): Gap;
-  abstract gapAsNumber(): number;
   abstract height(): number;
   abstract numberOfBars(): number;
   abstract insertBar(bar: IBar): void;
