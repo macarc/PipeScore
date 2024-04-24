@@ -22,10 +22,10 @@ import { Relative } from '../global/relativeLocation';
 export abstract class ITune {
   abstract toJSON(): SavedTune;
   abstract staves(): IStave[];
+  // TODO : this assumes that there will be at least one bar in the tune
+  //        enforce this?
   abstract timeSignature(): ITimeSignature;
   abstract addStave(nearStave: IStave | null, where: Relative): void;
-  // Deletes the stave from the score
-  // Does not worry about purging notes/bars; that should be handled elsewhere
   abstract deleteStave(stave: IStave): void;
   abstract nextStave(stave: IStave): IStave | null;
   abstract previousStave(stave: IStave): IStave | null;

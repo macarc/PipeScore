@@ -64,6 +64,7 @@ import {
 import { copy, deleteSelection, paste } from '../Events/Selection';
 import {
   addStave,
+  deleteStave,
   resetStaveGap,
   setStaveGap,
   staveGapToDisplay,
@@ -594,6 +595,19 @@ export default function render(state: UIState): m.Children {
             { onclick: () => state.dispatch(resetStaveGap()) },
             'Reset'
           ),
+          state.dispatch
+        ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', 'Delete Stave'),
+      m('div.section-content', [
+        help(
+          'delete stave',
+          m('button.delete', {
+            disabled: noStaveSelected,
+            onclick: () => state.dispatch(deleteStave()),
+          }),
           state.dispatch
         ),
       ]),

@@ -69,7 +69,6 @@ export class Tune extends ITune {
   addStave(nearStave: IStave | null, where: Relative) {
     // If no stave is selected, place before the first stave
     // or after the last stave
-
     const adjacentStave =
       nearStave ||
       (where === Relative.before ? first(this.staves()) : last(this.staves()));
@@ -93,9 +92,6 @@ export class Tune extends ITune {
     }
     this._staves.splice(index, 0, newStave);
   }
-
-  // Deletes the stave from the score
-  // Does not worry about purging notes/bars; that should be handled elsewhere
 
   deleteStave(stave: IStave) {
     const ind = this._staves.indexOf(stave);

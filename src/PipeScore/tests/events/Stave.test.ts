@@ -102,3 +102,76 @@ describe('addStave', () => {
     expect(state.score.staves()[3]).toBe(stave3);
   });
 });
+
+describe('deleteStave', () => {
+  it("doesn't delete anything if nothing is selected", async () => {
+    const state = emptyState();
+    expect(state.score.staves()).toHaveLength(4);
+    expect(await deleteStave()(state)).toBe(Update.NoChange);
+    expect(state.score.staves()).toHaveLength(4);
+  });
+  it("deletes the first stave if it's selected", async () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave0.bars()[1].id;
+    const selectionEnd = stave0.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    expect(await deleteStave()(state)).toBe(Update.ShouldSave);
+    expect(state.score.staves()).toHaveLength(3);
+    expect(state.score.staves()[0]).toBe(stave1);
+    expect(state.score.staves()[1]).toBe(stave2);
+    expect(state.score.staves()[2]).toBe(stave3);
+  });
+  it("deletes the last stave if it's selected", async () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave3.bars()[1].id;
+    const selectionEnd = stave3.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    expect(await deleteStave()(state)).toBe(Update.ShouldSave);
+    expect(state.score.staves()).toHaveLength(3);
+    expect(state.score.staves()[0]).toBe(stave0);
+    expect(state.score.staves()[1]).toBe(stave1);
+    expect(state.score.staves()[2]).toBe(stave2);
+  });
+  it("deletes a stave in the middle if it's selected", async () => {
+    const state = emptyState();
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave2 = state.score.staves()[2];
+    const stave3 = state.score.staves()[3];
+    const selectionStart = stave2.bars()[1].id;
+    const selectionEnd = stave2.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(4);
+    expect(await deleteStave()(state)).toBe(Update.ShouldSave);
+    expect(state.score.staves()).toHaveLength(3);
+    expect(state.score.staves()[0]).toBe(stave0);
+    expect(state.score.staves()[1]).toBe(stave1);
+    expect(state.score.staves()[2]).toBe(stave3);
+  });
+  it('deletes multiple selected staves', async () => {
+    const state = emptyState();
+    state.score.tunes()[0].addStave(null, Relative.after);
+    const stave0 = state.score.staves()[0];
+    const stave1 = state.score.staves()[1];
+    const stave3 = state.score.staves()[3];
+    const stave4 = state.score.staves()[4];
+    const selectionStart = stave1.bars()[1].id;
+    const selectionEnd = stave3.bars()[2].id;
+    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    expect(state.score.staves()).toHaveLength(5);
+    expect(await deleteStave()(state)).toBe(Update.ShouldSave);
+    expect(state.score.staves()).toHaveLength(2);
+    expect(state.score.staves()[0]).toBe(stave0);
+    expect(state.score.staves()[1]).toBe(stave4);
+  });
+});

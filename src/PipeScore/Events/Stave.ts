@@ -43,6 +43,23 @@ export function addStave(where: Relative): ScoreEvent {
   };
 }
 
+export function deleteStave(): ScoreEvent {
+  return async (state: State) => {
+    const staves =
+      state.selection instanceof ScoreSelection &&
+      state.selection.staveLocations(state.score);
+
+    if (staves) {
+      for (const { tune, stave } of staves) {
+        tune.deleteStave(stave);
+      }
+      return Update.ShouldSave;
+    }
+
+    return Update.NoChange;
+  };
+}
+
 // Set the gap between staves, or before the stave if only
 // one stave is in the list
 function setGap(staves: IStave[], gap: number | 'auto') {

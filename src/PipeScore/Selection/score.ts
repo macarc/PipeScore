@@ -140,14 +140,18 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   staves(score: IScore): IStave[] {
-    const allStaves = score.staves();
-    let foundStart = false;
-    const staves: IStave[] = [];
+    return this.staveLocations(score).map(({ stave }) => stave);
+  }
 
-    for (const stave of allStaves) {
-      if (stave.includesID(this.start)) foundStart = true;
-      if (foundStart) staves.push(stave);
-      if (stave.includesID(this.end)) break;
+  staveLocations(score: IScore): { tune: ITune; stave: IStave }[] {
+    let foundStart = false;
+    const staves: { tune: ITune; stave: IStave }[] = [];
+    for (const tune of score.tunes()) {
+      for (const stave of tune.staves()) {
+        if (stave.includesID(this.start)) foundStart = true;
+        if (foundStart) staves.push({ tune, stave });
+        if (stave.includesID(this.end)) break;
+      }
     }
     return staves;
   }

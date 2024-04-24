@@ -80,6 +80,8 @@ export default {
     'Add a new blank stave on the line before the currently selected bar.',
   'add stave after':
     'Add a new blank stave on the next line after the currently currently selected bar.',
+  'delete stave':
+    'Delete the currently selected stave (the stave containing a selected note/bar).',
   'set stave gap':
     'Adjust the gap between the selected staves.\n\nIf no staves are selected, adjust the default gap between all staves.\n\nIf only one stave is selected, adjust the gap before that stave.\n\nSelect a stave by selecting any bar or note in the stave.',
   'reset stave gap':
