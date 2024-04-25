@@ -84,9 +84,16 @@ export default {
     'Delete the currently selected stave.\n\nSelect a stave by selecting any note or bar in that stave.',
   'set stave gap': 'Adjust the default gap between all staves.',
   'reset stave gap': 'Reset the gap between staves to its default value.',
-  'add tune before': 'Add a new tune before the currently selected tune.',
-  'add tune after': 'Add a new tune after the currently selected tune.',
-  'delete tune': 'Delete the currently selected tune',
+  'add tune before':
+    'Add a new tune before the currently selected tune.\n\nSelect a tune by selecting any note or bar in that tune.',
+  'add tune after':
+    'Add a new tune after the currently selected tune.\n\nSelect a tune by selecting any note or bar in that tune.',
+  'set tune gap':
+    'Adjust the gap before the currently selected tune.\n\nSelect a tune by selecting any note or bar in that tune.',
+  'reset tune gap':
+    'Reset the gap before the currently selected tune.\n\nSelect a tune by selecting any note or bar in that tune.',
+  'delete tune':
+    'Delete the currently selected tune.\n\nSelect a tune by selecting any note or bar in that tune.',
   'add text': 'Add a new text box.',
   'centre text': 'Horizontally centre the currently selected text box.',
   'edit text': 'Edit the currently selected text box.',

@@ -14,18 +14,18 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { Score } from '../Score/impl';
 import { ScoreSelection } from '../Selection/score';
 import { State } from '../State';
 import { Relative } from '../global/relativeLocation';
+import { Settings } from '../global/settings';
 import { ScoreEvent, Update } from './types';
 
 export function addTune(where: Relative): ScoreEvent {
   return async (state: State) => {
     const tune =
-      (state.selection instanceof ScoreSelection &&
-        state.score.location(state.selection.start)?.tune) ||
-      null;
-    state.score.addTune(tune, where);
+      state.selection instanceof ScoreSelection && state.selection.tune(state.score);
+    state.score.addTune(tune || null, where);
     return Update.ShouldSave;
   };
 }
@@ -33,10 +33,33 @@ export function addTune(where: Relative): ScoreEvent {
 export function deleteTune(): ScoreEvent {
   return async (state: State) => {
     const tune =
-      state.selection instanceof ScoreSelection &&
-      state.score.location(state.selection.start)?.tune;
+      state.selection instanceof ScoreSelection && state.selection.tune(state.score);
     if (tune) {
       state.score.deleteTune(tune);
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
+
+export function setTuneGap(gap: number): ScoreEvent {
+  return async (state: State) => {
+    const tune =
+      state.selection instanceof ScoreSelection && state.selection.tune(state.score);
+    if (tune) {
+      tune.setTuneGap(gap);
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
+
+export function resetTuneGap(): ScoreEvent {
+  return async (state: State) => {
+    const tune =
+      state.selection instanceof ScoreSelection && state.selection.tune(state.score);
+    if (tune) {
+      tune.setTuneGap(Settings.defaultTuneGap);
       return Update.ShouldSave;
     }
     return Update.NoChange;

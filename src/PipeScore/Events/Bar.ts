@@ -24,6 +24,7 @@ import { State } from '../State';
 import { ITimeSignature } from '../TimeSignature';
 import { timeSignatureEditDialog } from '../TimeSignature/edit';
 import { Relative } from '../global/relativeLocation';
+import { reversed } from '../global/utils';
 import { stopInputMode } from './common';
 import { ScoreEvent, Update } from './types';
 
@@ -113,11 +114,10 @@ export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
 export function setBarline(which: 'start' | 'end', what: Barline): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const bar = state.score.location(state.selection.start)?.bar;
-      if (bar) {
+      for (const bar of state.selection.bars(state.score)) {
         bar.setBarline(which, what);
-        return Update.ShouldSave;
       }
+      return Update.ShouldSave;
     }
     return Update.NoChange;
   };
@@ -142,16 +142,19 @@ export function editBarTimeSignature(): ScoreEvent {
 export function moveBarToNextLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const location = state.score.location(state.selection.start);
-      if (location) {
-        const { tune, bar, stave } = location;
-        const next = tune.nextStave(stave);
-        if (bar === stave.lastBar() && next) {
+      for (const { tune, bar, stave } of reversed(
+        state.selection.barLocations(state.score)
+      )) {
+        const nextStave = tune.nextStave(stave);
+        if (bar === stave.lastBar() && nextStave) {
           stave.deleteBar(bar);
-          next.insertBar(bar);
-          return Update.ShouldSave;
+          nextStave.insertBar(bar);
+        }
+        if (stave.bars().length === 0) {
+          tune.deleteStave(stave);
         }
       }
+      return Update.ShouldSave;
     }
     return Update.NoChange;
   };
@@ -160,16 +163,17 @@ export function moveBarToNextLine(): ScoreEvent {
 export function moveBarToPreviousLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const location = state.score.location(state.selection.start);
-      if (location) {
-        const { tune, bar, stave } = location;
-        const previous = tune.previousStave(stave);
-        if (bar === stave.firstBar() && previous) {
+      for (const { tune, bar, stave } of state.selection.barLocations(state.score)) {
+        const previousStave = tune.previousStave(stave);
+        if (bar === stave.firstBar() && previousStave) {
           stave.deleteBar(bar);
-          previous.appendBar(bar);
-          return Update.ShouldSave;
+          previousStave.appendBar(bar);
+        }
+        if (stave.bars().length === 0) {
+          tune.deleteStave(stave);
         }
       }
+      return Update.ShouldSave;
     }
     return Update.NoChange;
   };

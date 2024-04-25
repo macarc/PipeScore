@@ -127,16 +127,23 @@ export class ScoreSelection extends DraggableSelection {
     return this.collectNotes(score, true) as INote[];
   }
 
-  bars(score: IScore): IBar[] {
-    const allBars = score.bars();
+  barLocations(score: IScore): { bar: IBar; tune: ITune; stave: IStave }[] {
     let foundStart = false;
-    const bars: IBar[] = [];
-    for (const bar of allBars) {
-      if (bar.hasID(this.start)) foundStart = true;
-      if (foundStart) bars.push(bar);
-      if (bar.hasID(this.end)) break;
+    const bars: { bar: IBar; tune: ITune; stave: IStave }[] = [];
+    all: for (const tune of score.tunes()) {
+      for (const stave of tune.staves()) {
+        for (const bar of stave.bars()) {
+          if (bar.hasID(this.start)) foundStart = true;
+          if (foundStart) bars.push({ bar, tune, stave });
+          if (bar.hasID(this.end)) break all;
+        }
+      }
     }
     return bars;
+  }
+
+  bars(score: IScore): IBar[] {
+    return this.barLocations(score).map(({ bar }) => bar);
   }
 
   staves(score: IScore): IStave[] {
@@ -171,6 +178,10 @@ export class ScoreSelection extends DraggableSelection {
       }
     }
     return null;
+  }
+
+  tune(score: IScore): ITune | null {
+    return score.location(this.start)?.tune || null;
   }
 
   gracenote(score: IScore): IGracenote | null {

@@ -66,6 +66,12 @@ export function splitOn<A>(item: A, array: A[]): A[][] {
   return result;
 }
 
+export function reversed<A>(array: A[]): A[] {
+  const copy = [...array];
+  copy.reverse();
+  return copy;
+}
+
 export function sum(array: number[]) {
   return array.reduce((acc, n) => acc + n, 0);
 }

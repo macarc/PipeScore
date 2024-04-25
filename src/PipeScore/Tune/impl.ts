@@ -22,14 +22,17 @@ import { Stave } from '../Stave/impl';
 import { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { Relative } from '../global/relativeLocation';
-import { first, foreach, last, nfirst, nlast } from '../global/utils';
+import { Settings } from '../global/settings';
+import { foreach, nfirst, nlast } from '../global/utils';
 
 export class Tune extends ITune {
   private _staves: IStave[];
+  private _tuneGap: number;
 
-  constructor(staves: IStave[]) {
+  constructor(staves: IStave[], gap = Settings.defaultTuneGap) {
     super();
     this._staves = staves;
+    this._tuneGap = gap;
   }
 
   static create(
@@ -50,18 +53,22 @@ export class Tune extends ITune {
   }
 
   static fromJSON(tune: SavedTune) {
-    return new Tune(tune._staves.map(Stave.fromJSON));
+    return new Tune(tune.staves.map(Stave.fromJSON), tune.tuneGap);
   }
 
   toJSON(): SavedTune {
     return {
-      _staves: this._staves.map((stave) => stave.toJSON()),
+      staves: this._staves.map((stave) => stave.toJSON()),
+      tuneGap: this._tuneGap,
     };
   }
 
   tuneGap() {
-    // TODO : allow modification
-    return 100;
+    return this._tuneGap;
+  }
+
+  setTuneGap(gap: number) {
+    this._tuneGap = gap;
   }
 
   staves() {

@@ -114,7 +114,7 @@ export class Score extends IScore {
     if (scoreHasStavesNotTunes(o)) {
       s._tunes = [new Tune(o._staves.map(Stave.fromJSON))];
     } else {
-      s._tunes = o._tunes.map(Tune.fromJSON);
+      s._tunes = o.tunes.map(Tune.fromJSON);
     }
     s._textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
@@ -122,8 +122,8 @@ export class Score extends IScore {
 
     const firstTune = first(s.tunes());
     if (o.settings.topOffset !== undefined && firstTune) {
-      // TODO : implement setTuneGap
-      // firstTune.setTuneGap(o.settings.topOffset - 20);
+      // TODO check if this is a good value
+      firstTune.setTuneGap(o.settings.topOffset);
     }
     return s;
   }
@@ -133,7 +133,7 @@ export class Score extends IScore {
       name: this._name,
       landscape: this.landscape,
       showNumberOfPages: this.showNumberOfPages,
-      _tunes: this._tunes.map((tune) => tune.toJSON()),
+      tunes: this._tunes.map((tune) => tune.toJSON()),
       textBoxes: this._textBoxes.map((p) => ({
         texts: p.map((txt) => txt.toJSON()),
       })),

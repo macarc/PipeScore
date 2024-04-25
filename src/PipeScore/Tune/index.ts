@@ -22,6 +22,7 @@ import { Relative } from '../global/relativeLocation';
 export abstract class ITune {
   abstract toJSON(): SavedTune;
   abstract tuneGap(): number;
+  abstract setTuneGap(gap: number): void;
   abstract staves(): IStave[];
   abstract timeSignature(): ITimeSignature | null;
   abstract addStave(nearStave: IStave | null, where: Relative): void;

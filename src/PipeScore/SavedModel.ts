@@ -38,7 +38,7 @@ export type SavedData =
 export type SavedScore = {
   name: string;
   landscape: boolean;
-  _tunes: SavedTune[];
+  tunes: SavedTune[];
   textBoxes: SavedTextBoxPage[];
   secondTimings: SavedTiming[];
   showNumberOfPages: boolean;
@@ -56,7 +56,8 @@ export type DeprecatedSavedScore = {
 };
 
 export type SavedTune = {
-  _staves: SavedStave[];
+  staves: SavedStave[];
+  tuneGap: number;
 };
 
 export type SavedStave = {

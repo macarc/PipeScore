@@ -32,6 +32,7 @@ export class Settings {
   bpm = 80;
 
   static defaultStaveGap = 65;
+  static defaultTuneGap = 100;
 
   fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;

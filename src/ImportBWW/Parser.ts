@@ -184,7 +184,7 @@ class PartialScore {
   constructor() {
     this.score = {
       name: '[Imported from BWW]',
-      _tunes: [{ _staves: [] }],
+      tunes: [{ staves: [], tuneGap: Settings.defaultTuneGap }],
       landscape: true,
       textBoxes: [{ texts: [] }],
       showNumberOfPages: true,
@@ -196,7 +196,7 @@ class PartialScore {
   newStave() {
     this.endItem(this.currentBar().id);
 
-    this.score._tunes[0]._staves.push({ bars: this.currentStave });
+    this.score.tunes[0].staves.push({ bars: this.currentStave });
     this.currentStave = [emptyBar(this.timeSignature)];
     this.currentLineIsEmpty = true;
   }
@@ -353,8 +353,8 @@ class PartialScore {
       return false;
     };
     if (!dotLast(this.currentStave)) {
-      for (let i = this.score._tunes[0]._staves.length - 1; i >= 0; i--) {
-        if (dotLast(this.score._tunes[0]._staves[i].bars || [])) {
+      for (let i = this.score.tunes[0].staves.length - 1; i >= 0; i--) {
+        if (dotLast(this.score.tunes[0].staves[i].bars || [])) {
           break;
         }
       }

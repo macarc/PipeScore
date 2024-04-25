@@ -163,10 +163,14 @@ function redraw() {
           (state.selection instanceof ScoreSelection &&
             state.selection.staves(state.score)) ||
           [],
-        selectedBar:
-          (state.selection instanceof ScoreSelection &&
-            state.selection.bar(state.score)) ||
-          null,
+        selectedBars:
+          state.selection instanceof ScoreSelection
+            ? state.selection.bars(state.score)
+            : [],
+        selectedTune:
+          state.selection instanceof ScoreSelection
+            ? state.selection.tune(state.score)
+            : null,
         docs: state.doc.show
           ? state.doc.current
             ? Documentation[state.doc.current]

@@ -65,7 +65,7 @@ import { copy, deleteSelection, paste } from '../Events/Selection';
 import { addStave, deleteStave, resetStaveGap, setStaveGap } from '../Events/Stave';
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
-import { addTune, deleteTune } from '../Events/Tune';
+import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
 import { IGracenote } from '../Gracenote';
 import { INote } from '../Note';
 import { Duration } from '../Note/notelength';
@@ -79,6 +79,7 @@ import { IStave } from '../Stave';
 import { minStaveGap } from '../Stave/view';
 import { ITextBox } from '../TextBox';
 import { ITiming } from '../Timing';
+import { ITune } from '../Tune';
 import { help } from '../global/docs';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
@@ -96,8 +97,9 @@ export interface UIState {
   isPlaying: boolean;
   selectedGracenote: IGracenote | null;
   selectedStaves: IStave[];
-  selectedBar: IBar | null;
+  selectedBars: IBar[];
   selectedNotes: INote[];
+  selectedTune: ITune | null;
   selectedText: ITextBox | null;
   selectedTiming: ITiming | null;
   showingPageNumbers: boolean;
@@ -110,15 +112,30 @@ export interface UIState {
 }
 
 export default function render(state: UIState): m.Children {
+  const canCopyPaste = state.selectedTune !== null;
+  const inputtingNatural =
+    state.preview instanceof NotePreview && state.preview.natural();
+  const inputtingNotes = state.preview !== null;
+
+  const notesSelected = state.selectedNotes.length > 0;
+  const barsSelected = state.selectedBars.length > 0;
+  const stavesSelected = state.selectedStaves.length > 0;
+  const tuneSelected = state.selectedTune !== null;
+  const timingSelected = state.selectedTiming !== null;
+  const textSelected = state.selectedText !== null;
+  const gracenoteSelected = state.selectedGracenote !== null;
+  const anythingSelected =
+    tuneSelected || timingSelected || textSelected || gracenoteSelected;
+
   const isCurrentNoteInput = (length: Duration) =>
     state.preview instanceof NotePreview &&
     state.preview.length().sameNoteLengthName(length);
 
-  const inputtingNatural =
-    state.preview instanceof NotePreview && state.preview.natural();
-
   const allNotes = (pred: (note: INote) => boolean) =>
-    state.selectedNotes.length > 0 && state.selectedNotes.every(pred);
+    notesSelected && state.selectedNotes.every(pred);
+
+  const allBars = (pred: (bar: IBar) => boolean) =>
+    barsSelected && state.selectedBars.every(pred);
 
   const noteInputButton = (length: Duration) =>
     help(
@@ -166,21 +183,6 @@ export default function render(state: UIState): m.Children {
     }
   };
 
-  const noNotesSelected = state.selectedNotes.length === 0;
-  const noBarSelected = state.selectedBar === null;
-  const noStaveSelected = state.selectedStaves.length === 0;
-  const noGracenoteSelected = state.selectedGracenote === null;
-  const noTextSelected = state.selectedText === null;
-  const noTimingSelected = state.selectedTiming === null;
-  const nothingSelected =
-    noStaveSelected &&
-    noBarSelected &&
-    noNotesSelected &&
-    noTextSelected &&
-    noGracenoteSelected;
-  // NOTE : can't copy and paste gracenotes or text, so disable even if noGracenoteSelected is false
-  const cantCopyPaste = noBarSelected && noNotesSelected;
-
   const setting = <T extends keyof Settings>(property: T, name: string) =>
     m('div.horizontal', [
       m('label', `${name}: `),
@@ -194,16 +196,12 @@ export default function render(state: UIState): m.Children {
     ]);
 
   const tied =
-    state.selectedNotes.length === 0
-      ? false
-      : state.selectedNotes.length === 1
-        ? state.selectedNotes[0].isTied()
-        : state.selectedNotes.slice(1).every((note) => note.isTied());
+    notesSelected &&
+    (state.selectedNotes.length === 1
+      ? state.selectedNotes[0].isTied()
+      : state.selectedNotes.slice(1).every((note) => note.isTied()));
 
-  const naturalAlready =
-    state.selectedNotes.length === 0 ? false : allNotes((note) => note.natural());
-
-  const notInputtingNotes = state.preview === null;
+  const naturalAlready = allNotes((note) => note.natural());
 
   const noteMenu = [
     m('section', [
@@ -226,7 +224,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              disabled: notInputtingNotes && noNotesSelected,
+              disabled: !(inputtingNotes || notesSelected),
               class:
                 (state.preview instanceof NotePreview &&
                   state.preview.length().hasDot()) ||
@@ -242,7 +240,7 @@ export default function render(state: UIState): m.Children {
         help(
           'tie',
           m('button#tie', {
-            disabled: noNotesSelected,
+            disabled: !notesSelected,
             class: tied ? 'highlighted' : 'not-highlighted',
             onclick: () => state.dispatch(tieSelectedNotes()),
           }),
@@ -251,7 +249,7 @@ export default function render(state: UIState): m.Children {
         help(
           'triplet',
           m('button#triplet', {
-            disabled: noNotesSelected,
+            disabled: !notesSelected,
             onclick: () => state.dispatch(toggleTriplet()),
           }),
           state.dispatch
@@ -259,7 +257,7 @@ export default function render(state: UIState): m.Children {
         help(
           'natural',
           m('button#natural', {
-            disabled: noNotesSelected && notInputtingNotes,
+            disabled: !(inputtingNotes || notesSelected),
             class:
               inputtingNatural || (!state.preview && naturalAlready)
                 ? 'highlighted'
@@ -309,12 +307,13 @@ export default function render(state: UIState): m.Children {
 
   const addBarOrAnacrusis = (which: 'bar' | 'lead in') => {
     const event = which === 'bar' ? addBar : addAnacrusis;
+    const disabled = !tuneSelected;
     return m('div.section-content.vertical', [
       help(
         `add ${which} before`,
         m(
           'button.textual',
-          { onclick: () => state.dispatch(event(Relative.before)) },
+          { disabled, onclick: () => state.dispatch(event(Relative.before)) },
           `Add ${which} before`
         ),
         state.dispatch
@@ -323,7 +322,7 @@ export default function render(state: UIState): m.Children {
         `add ${which} after`,
         m(
           'button.textual',
-          { onclick: () => state.dispatch(event(Relative.after)) },
+          { disabled, onclick: () => state.dispatch(event(Relative.after)) },
           `Add ${which} after`
         ),
         state.dispatch
@@ -332,9 +331,11 @@ export default function render(state: UIState): m.Children {
   };
 
   const startBarClass = (type: Barline) =>
-    state.selectedBar?.startBarline() === type ? 'textual highlighted' : 'textual';
+    allBars((bar) => bar.startBarline() === type)
+      ? 'textual highlighted'
+      : 'textual';
   const endBarClass = (type: Barline) =>
-    state.selectedBar?.endBarline() === type ? 'textual highlighted' : 'textual';
+    allBars((bar) => bar.endBarline() === type) ? 'textual highlighted' : 'textual';
 
   const barMenu = [
     m('section', [
@@ -362,7 +363,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: noBarSelected,
+              disabled: !barsSelected,
               onclick: () => state.dispatch(resetBarLength()),
             },
             'Reset bar length'
@@ -381,7 +382,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noBarSelected,
+                disabled: !barsSelected,
                 class: startBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
                 onclick: () => state.dispatch(setBarline('start', Barline.normal)),
@@ -395,7 +396,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noBarSelected,
+                disabled: !barsSelected,
                 class: startBarClass(Barline.repeat),
                 onclick: () => state.dispatch(setBarline('start', Barline.repeat)),
               },
@@ -408,7 +409,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noBarSelected,
+                disabled: !barsSelected,
                 class: startBarClass(Barline.part),
                 onclick: () => state.dispatch(setBarline('start', Barline.part)),
               },
@@ -424,7 +425,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noBarSelected,
+                disabled: !barsSelected,
                 class: endBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
                 onclick: () => state.dispatch(setBarline('end', Barline.normal)),
@@ -438,7 +439,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noBarSelected,
+                disabled: !barsSelected,
                 class: endBarClass(Barline.repeat),
                 onclick: () => state.dispatch(setBarline('end', Barline.repeat)),
               },
@@ -451,7 +452,7 @@ export default function render(state: UIState): m.Children {
             m(
               'button',
               {
-                disabled: noBarSelected,
+                disabled: !barsSelected,
                 class: endBarClass(Barline.part),
                 onclick: () => state.dispatch(setBarline('end', Barline.part)),
               },
@@ -470,7 +471,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: noBarSelected,
+              disabled: !barsSelected,
               onclick: () => state.dispatch(moveBarToPreviousLine()),
             },
             'Move to previous stave'
@@ -482,7 +483,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: noBarSelected,
+              disabled: !barsSelected,
               onclick: () => state.dispatch(moveBarToNextLine()),
             },
             'Move to next stave'
@@ -521,7 +522,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.double-width.text',
             {
-              disabled: noTimingSelected,
+              disabled: !timingSelected,
               onclick: () =>
                 state.selectedTiming &&
                 state.dispatch(editTimingText(state.selectedTiming)),
@@ -571,7 +572,7 @@ export default function render(state: UIState): m.Children {
               value: settings.staveGap,
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setStaveGap(parseFloat((e.target as HTMLInputElement).value))
+                  setStaveGap(parseFloat((e.target as HTMLInputElement).value) || 0)
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -597,7 +598,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.text',
             {
-              disabled: noStaveSelected,
+              disabled: !stavesSelected,
               onclick: () => state.dispatch(deleteStave()),
             },
             'Delete'
@@ -633,6 +634,41 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
+      m('h2', 'Modify Tune'),
+      m('div.section-content', [
+        help(
+          'set tune gap',
+          m('label', [
+            'Adjust gap before tune: ',
+            m('input', {
+              type: 'number',
+              disabled: !tuneSelected,
+              min: 0,
+              value: state.selectedTune?.tuneGap(),
+              oninput: (e: InputEvent) =>
+                state.dispatch(
+                  setTuneGap(parseFloat((e.target as HTMLInputElement).value) || 0)
+                ),
+              onchange: () => state.dispatch(commit()),
+            }),
+          ]),
+          state.dispatch
+        ),
+        help(
+          'reset tune gap',
+          m(
+            'button.textual',
+            {
+              disabled: !tuneSelected,
+              onclick: () => state.dispatch(resetTuneGap()),
+            },
+            'Reset'
+          ),
+          state.dispatch
+        ),
+      ]),
+    ]),
+    m('section', [
       m('h2', 'Delete Tune'),
       m('div.section-content', [
         help(
@@ -640,7 +676,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.text',
             {
-              disabled: noStaveSelected,
+              disabled: !tuneSelected,
               onclick: () => state.dispatch(deleteTune()),
             },
             'Delete'
@@ -671,7 +707,7 @@ export default function render(state: UIState): m.Children {
   const userText = (id: string, value: number) => {
     const element = document.getElementById(id);
     if (element instanceof HTMLInputElement) {
-      const previousValue = parseFloat(element.value);
+      const previousValue = parseFloat(element.value) || 0;
       if (previousValue === value) {
         return element.value;
       }
@@ -700,7 +736,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.double-width.text',
             {
-              disabled: noTextSelected,
+              disabled: !textSelected,
               onclick: () => state.dispatch(centreText()),
             },
             'Centre text'
@@ -711,7 +747,7 @@ export default function render(state: UIState): m.Children {
           'edit text',
           m(
             'button.double-width.text',
-            { disabled: noTextSelected, onclick: () => state.dispatch(editText()) },
+            { disabled: !textSelected, onclick: () => state.dispatch(editText()) },
             'Edit text'
           ),
           state.dispatch
@@ -726,7 +762,7 @@ export default function render(state: UIState): m.Children {
           m('label.text-coord', [
             'X: ',
             m('input#text-x-coord', {
-              disabled: noTextSelected,
+              disabled: !textSelected,
               type: 'number',
               min: 0,
               max: 100,
@@ -737,7 +773,7 @@ export default function render(state: UIState): m.Children {
               ),
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setTextX(parseFloat((e.target as HTMLInputElement).value))
+                  setTextX(parseFloat((e.target as HTMLInputElement).value) || 0)
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -746,7 +782,7 @@ export default function render(state: UIState): m.Children {
           m('label.text-coord', [
             'Y: ',
             m('input#text-y-coord', {
-              disabled: noTextSelected,
+              disabled: !textSelected,
               type: 'number',
               min: 0,
               max: 100,
@@ -757,7 +793,7 @@ export default function render(state: UIState): m.Children {
               ),
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setTextY(parseFloat((e.target as HTMLInputElement).value))
+                  setTextY(parseFloat((e.target as HTMLInputElement).value) || 0)
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -790,9 +826,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.double-width.text',
             {
-              disabled:
-                state.isPlaying ||
-                (state.selectedNotes.length === 0 && state.selectedBar === null),
+              disabled: state.isPlaying || !barsSelected,
               onclick: () => state.dispatch(startPlaybackAtSelection()),
             },
             'Play from Selection'
@@ -1092,7 +1126,7 @@ export default function render(state: UIState): m.Children {
         help(
           'delete',
           m('button.delete', {
-            disabled: nothingSelected,
+            disabled: !anythingSelected,
             onclick: () => state.dispatch(deleteSelection()),
           }),
           state.dispatch
@@ -1100,7 +1134,7 @@ export default function render(state: UIState): m.Children {
         help(
           'copy',
           m('button#copy', {
-            disabled: cantCopyPaste,
+            disabled: !canCopyPaste,
             onclick: () => state.dispatch(copy()),
           }),
           state.dispatch
@@ -1108,7 +1142,7 @@ export default function render(state: UIState): m.Children {
         help(
           'paste',
           m('button#paste', {
-            disabled: cantCopyPaste,
+            disabled: !canCopyPaste,
             onclick: () => state.dispatch(paste()),
           }),
           state.dispatch
