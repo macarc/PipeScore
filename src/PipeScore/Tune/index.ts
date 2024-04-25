@@ -21,6 +21,12 @@ import { Relative } from '../global/relativeLocation';
 
 export abstract class ITune {
   abstract toJSON(): SavedTune;
+  abstract name(): string;
+  abstract setName(name: string): void;
+  abstract composer(): string;
+  abstract setComposer(composer: string): void;
+  abstract tuneType(): string;
+  abstract setTuneType(tuneType: string): void;
   abstract tuneGap(): number;
   abstract setTuneGap(gap: number): void;
   abstract staves(): IStave[];

@@ -28,17 +28,32 @@ import { foreach, nfirst, nlast } from '../global/utils';
 export class Tune extends ITune {
   private _staves: IStave[];
   private _tuneGap: number;
+  private _name: string;
+  private _tuneType: string;
+  private _composer: string;
 
-  constructor(staves: IStave[], gap = Settings.defaultTuneGap) {
+  constructor(
+    name: string,
+    composer: string,
+    tuneType: string,
+    staves: IStave[],
+    gap = Settings.defaultTuneGap
+  ) {
     super();
     this._staves = staves;
     this._tuneGap = gap;
+    this._name = name;
+    this._composer = composer;
+    this._tuneType = tuneType;
   }
 
   static create(
     timeSignature: ITimeSignature,
     numberOfParts: number,
-    repeatParts: boolean
+    repeatParts: boolean,
+    name = 'My Tune',
+    composer = 'Composer',
+    tuneType = 'March'
   ): ITune {
     const staves = foreach(2 * numberOfParts, () => Stave.create(timeSignature));
     for (let i = 0; i < staves.length; i++) {
@@ -49,18 +64,51 @@ export class Tune extends ITune {
       }
     }
 
-    return new Tune(staves);
+    return new Tune(name, composer, tuneType, staves);
   }
 
   static fromJSON(tune: SavedTune) {
-    return new Tune(tune.staves.map(Stave.fromJSON), tune.tuneGap);
+    return new Tune(
+      tune.name,
+      tune.composer,
+      tune.tuneType,
+      tune.staves.map(Stave.fromJSON),
+      tune.tuneGap
+    );
   }
 
   toJSON(): SavedTune {
     return {
+      name: this._name,
+      tuneType: this._tuneType,
+      composer: this._composer,
       staves: this._staves.map((stave) => stave.toJSON()),
       tuneGap: this._tuneGap,
     };
+  }
+
+  name() {
+    return this._name;
+  }
+
+  setName(name: string) {
+    this._name = name;
+  }
+
+  tuneType() {
+    return this._tuneType;
+  }
+
+  setTuneType(tuneType: string) {
+    this._tuneType = tuneType;
+  }
+
+  composer() {
+    return this._composer;
+  }
+
+  setComposer(composer: string) {
+    this._composer = composer;
   }
 
   tuneGap() {

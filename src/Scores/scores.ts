@@ -17,9 +17,13 @@
 //  The page that allows the user to view, open and delete all their scores.
 
 import Auth from 'firebase-auth-lite';
-import { Database } from 'firebase-firestore-lite';
+import { Database, Document } from 'firebase-firestore-lite';
 import m from 'mithril';
-import { SavedScore } from '../PipeScore/SavedModel';
+import {
+  DeprecatedSavedScore,
+  SavedScore,
+  scoreHasStavesNotTunes,
+} from '../PipeScore/SavedModel';
 import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
 
@@ -32,9 +36,29 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
-type ScoreRef = { name: string; path: string };
+type ScoreRef = { path: string };
 
 type FileInput = HTMLInputElement & { files: FileList };
+
+function getName(score: Document | ScoreRef | SavedScore | DeprecatedSavedScore) {
+  return (
+    (score as DeprecatedSavedScore).name ||
+    (score as SavedScore).tunes?.[0]?.name ||
+    'Empty Score'
+  );
+}
+
+function setName(
+  score: Document | ScoreRef | SavedScore | DeprecatedSavedScore,
+  name: string
+) {
+  const s = score as SavedScore | DeprecatedSavedScore;
+  if (scoreHasStavesNotTunes(s)) {
+    s.name = name;
+  } else if (s.tunes[0]) {
+    s.tunes[0].name = name;
+  }
+}
 
 class ScoresList {
   loading = true;
@@ -55,6 +79,7 @@ class ScoresList {
       // Create a temporary file input element, and use that to
       // prompt the user to select a file
       const f = document.createElement('input') as FileInput;
+      
       f.setAttribute('type', 'file');
       f.setAttribute('multiple', 'multiple');
       f.setAttribute('accept', '.pipescore,.json,text/json');
@@ -89,12 +114,8 @@ class ScoresList {
         .ref(`scores${score.path}`)
         .get()) as unknown as SavedScore;
 
-      const newTitle = `${scoreContents.name} (copy)`;
-      const titleTextbox = scoreContents.textBoxes
-        .flatMap((t) => t.texts)
-        .find((text) => text._text === scoreContents.name);
-      scoreContents.name = newTitle;
-      if (titleTextbox) titleTextbox._text = newTitle;
+      const newTitle = `${getName(scoreContents)} (copy)`;
+      setName(scoreContents, newTitle);
 
       await db.ref(`scores/${userId}/scores`).add(scoreContents);
 
@@ -106,7 +127,7 @@ class ScoresList {
   }
 
   async delete(score: ScoreRef) {
-    const sure = confirm(`Are you sure you want to delete ${score.name}?`);
+    const sure = confirm(`Are you sure you want to delete ${getName(score)}?`);
     if (sure) {
       await db.ref(`scores${score.path}`).delete();
       this.refreshScores();
@@ -115,12 +136,9 @@ class ScoresList {
 
   async rename(scoreRef: ScoreRef) {
     const score = await db.ref(`scores${scoreRef.path}`).get();
-    const newName = prompt('Rename:', score.name);
+    const newName = prompt('Rename:', getName(score));
     if (newName) {
-      score.name = newName;
-      if (score.textBoxes?.[0]?.texts[0]) {
-        score.textBoxes[0].texts[0]._text = newName;
-      }
+      setName(score, newName);
       await db.ref(`scores${scoreRef.path}`).set(score);
       this.refreshScores();
     }
@@ -132,7 +150,7 @@ class ScoresList {
     });
     this.scores = collection.documents
       .map((doc) => ({
-        name: doc.name,
+        name: getName(doc),
         path: doc.__meta__.path.replace('/scores', ''),
       }))
       .sort(({ name: name1 }, { name: name2 }) =>
@@ -154,7 +172,7 @@ class ScoresList {
       m('table', [
         ...this.scores.map((score) =>
           m('tr', [
-            m('td.td-name', m('a', { href: path(score) }, score.name)),
+            m('td.td-name', m('a', { href: path(score) }, getName(score))),
             m(
               'td',
               m(

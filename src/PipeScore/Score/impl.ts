@@ -45,7 +45,6 @@ export function isStave(s: IStave | ITune): s is IStave {
 export class Score extends IScore {
   landscape: boolean;
 
-  private _name: string;
   private _tunes: ITune[];
   // an array rather than a set since it makes rendering easier (with map)
   private _textBoxes: ITextBox[][];
@@ -64,42 +63,22 @@ export class Score extends IScore {
     timeSignature: ITimeSignature
   ) {
     super();
-    this._name = name;
     this.landscape = true;
     this.showNumberOfPages = true;
-
-    const initialTopOffset = 180;
-
-    this._tunes = [Tune.create(timeSignature, numberOfParts, repeatParts)];
-
+    this._tunes = [
+      Tune.create(
+        timeSignature,
+        numberOfParts,
+        repeatParts,
+        name,
+        composer,
+        tuneType
+      ),
+    ];
     this._textBoxes = [[]];
-    this.addText(new TextBox(name, true, this.width() / 2, initialTopOffset / 2));
-
-    // Detailed text - composer / tuneType
-    const detailTextSize = 15;
-    const detailY = Math.max(initialTopOffset - 45, 10);
-    const detailX = 8;
-    if (composer.length > 0)
-      this.addText(
-        new TextBox(
-          composer,
-          false,
-          ((detailX - 1) * this.width()) / detailX,
-          detailY,
-          detailTextSize
-        )
-      );
-    if (tuneType.length > 0)
-      this.addText(
-        new TextBox(tuneType, false, this.width() / detailX, detailY, detailTextSize)
-      );
 
     this._timings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
-  }
-
-  static withName(name: string) {
-    return new Score(name, '', '', 2, true, new TimeSignature());
   }
 
   static blank() {
@@ -107,18 +86,23 @@ export class Score extends IScore {
   }
 
   static fromJSON(o: SavedScore) {
-    const s = Score.withName(o.name);
+    const s = Score.blank();
     settings.fromJSON(o.settings);
 
     s.landscape = o.landscape;
-    if (scoreHasStavesNotTunes(o)) {
-      s._tunes = [new Tune(o._staves.map(Stave.fromJSON))];
-    } else {
-      s._tunes = o.tunes.map(Tune.fromJSON);
-    }
     s._textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
+
+    if (scoreHasStavesNotTunes(o)) {
+      const name = s._textBoxes[0]?.[0]?.text() || 'My Tune';
+      const composer = s._textBoxes[0]?.[1]?.text() || 'Composer';
+      const tuneType = s._textBoxes[0]?.[2]?.text() || 'Tune Type';
+      s._textBoxes[0].splice(0, 3);
+      s._tunes = [new Tune(name, composer, tuneType, o._staves.map(Stave.fromJSON))];
+    } else {
+      s._tunes = o.tunes.map(Tune.fromJSON);
+    }
 
     const firstTune = first(s.tunes());
     if (o.settings.topOffset !== undefined && firstTune) {
@@ -130,7 +114,6 @@ export class Score extends IScore {
 
   toJSON(): SavedScore {
     return {
-      name: this._name,
       landscape: this.landscape,
       showNumberOfPages: this.showNumberOfPages,
       tunes: this._tunes.map((tune) => tune.toJSON()),
@@ -143,7 +126,7 @@ export class Score extends IScore {
   }
 
   name() {
-    return this._name;
+    return this._tunes[0]?.name() || 'Empty Score';
   }
 
   width() {
@@ -200,12 +183,6 @@ export class Score extends IScore {
     this.zoom = (this.zoom * this.height()) / this.width();
   }
 
-  updateName() {
-    if (this._textBoxes[0][0]) {
-      this._name = this._textBoxes[0][0].text();
-    }
-  }
-
   addText(text: ITextBox): void {
     this._textBoxes[0].push(text);
   }
@@ -251,7 +228,7 @@ export class Score extends IScore {
     }
   }
 
-  staveY(stave: IStave) {
+  staveY(stave: IStave | ITune) {
     const pages = this.pages();
     const pageIndex = pages.findIndex((page) => page.includes(stave));
     const page = pages[pageIndex];

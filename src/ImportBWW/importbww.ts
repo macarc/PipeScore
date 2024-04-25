@@ -2,7 +2,6 @@ import Auth from 'firebase-auth-lite';
 import { Database, Reference } from 'firebase-firestore-lite';
 import m from 'mithril';
 import { SavedScore } from '../PipeScore/SavedModel';
-import { settings } from '../PipeScore/global/settings';
 import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
 import { parse } from './Parser';
@@ -77,47 +76,16 @@ async function importfile(e: SubmitEvent) {
       const scoreName =
         (document.querySelector('#score-name') as HTMLInputElement | null)?.value ||
         '[Imported from BWW]';
-      const composer = (
-        document.querySelector('#composer') as HTMLInputElement | null
-      )?.value;
-      const tuneType = (
-        document.querySelector('#tune-type') as HTMLInputElement | null
-      )?.value;
+      const composer =
+        (document.querySelector('#composer') as HTMLInputElement | null)?.value ||
+        'Composer';
+      const tuneType =
+        (document.querySelector('#tune-type') as HTMLInputElement | null)?.value ||
+        'March';
 
-      const initialTopOffset = 180;
-      score.name = scoreName;
-      score.textBoxes[0].texts = [];
-      score.textBoxes[0].texts.push({
-        x: settings.pageLongSideLength / 2,
-        y: initialTopOffset / 2,
-        size: 20,
-        font: 'sans-serif',
-        centred: true,
-        _text: scoreName,
-      });
-
-      // This is copied from the Score constructor
-      // TODO : remove duplication
-      const detailTextSize = 15;
-      const detailY = Math.max(initialTopOffset - 45, 10);
-      if (composer)
-        score.textBoxes[0].texts.push({
-          x: (7 / 8) * settings.pageLongSideLength,
-          y: detailY,
-          size: detailTextSize,
-          _text: composer,
-          font: 'sans-serif',
-          centred: false,
-        });
-      if (tuneType)
-        score.textBoxes[0].texts.push({
-          x: (1 / 8) * settings.pageLongSideLength,
-          y: detailY,
-          size: detailTextSize,
-          _text: tuneType,
-          font: 'sans-serif',
-          centred: false,
-        });
+      score.tunes[0].name = scoreName;
+      score.tunes[0].composer = composer;
+      score.tunes[0].tuneType = tuneType;
 
       await updatefile(dbEntry, score);
       window.location.replace(`/pipescore/${user}/${dbEntry.id}`);

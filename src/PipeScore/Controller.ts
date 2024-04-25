@@ -62,7 +62,6 @@ export async function dispatch(event: ScoreEvent): Promise<void> {
   if (res !== Update.NoChange) {
     updateView();
     if (res === Update.MovedThroughHistory || res === Update.ShouldSave) {
-      state.score.updateName();
       if (res === Update.ShouldSave) {
         const json = state.score.toJSON();
         const jsonString = JSON.stringify(json);

@@ -23,7 +23,7 @@ import { SavedStave } from '../SavedModel';
 import { ITimeSignature } from '../TimeSignature';
 import { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
-import { Settings, settings } from '../global/settings';
+import { settings } from '../global/settings';
 import { first, last, nlast } from '../global/utils';
 
 export class Stave extends IStave {

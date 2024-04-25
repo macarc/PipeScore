@@ -36,7 +36,6 @@ export abstract class IScore {
   abstract showNumberOfPages: boolean;
   abstract zoom: number;
   abstract name(): string;
-  abstract updateName(): void;
   abstract toJSON(): SavedScore;
   abstract width(): number;
   abstract height(): number;
@@ -46,7 +45,7 @@ export abstract class IScore {
   abstract makeLandscape(): Update;
   abstract makePortrait(): Update;
   abstract addText(text: ITextBox): void;
-  abstract staveY(stave: IStave): number;
+  abstract staveY(stave: IStave | ITune): number;
   abstract nextBar(id: ID): IBar | null;
   abstract previousBar(id: ID): IBar | null;
   abstract nextNote(id: ID): INote | null;

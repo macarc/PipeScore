@@ -30,6 +30,8 @@ import { IStave } from '../Stave';
 import { drawStave, trebleClefWidth } from '../Stave/view';
 import { drawTextBox } from '../TextBox/view';
 import { drawTiming } from '../Timing/view';
+import { ITune } from '../Tune';
+import { drawTuneHeading } from '../Tune/view';
 import { settings } from '../global/settings';
 import { foreach, oneBefore } from '../global/utils';
 import { setXYPage } from '../global/xy';
@@ -78,12 +80,18 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
     staveEndX: width - settings.margin,
   });
 
-  const stavesByPage = score.stavesByPage();
+  const tuneProps = (tune: ITune) => ({
+    y: score.staveY(tune),
+    pageWidth: score.width(),
+    dispatch: props.dispatch,
+  });
+
+  const pages = score.pages();
   const texts = (i: number) => score.textBoxes()[i] || [];
 
   const rendered = m(
     'div',
-    foreach(stavesByPage.length, (page) => {
+    foreach(pages.length, (page) => {
       setXYPage(page);
       return m(
         'svg',
@@ -104,7 +112,11 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
             onmousedown: () => props.dispatch(clickBackground()),
             onmouseover: () => props.dispatch(mouseOffPitch()),
           }),
-          ...stavesByPage[page].map((stave) => drawStave(stave, staveProps(stave))),
+          ...pages[page].map((staveOrTune) =>
+            staveOrTune instanceof ITune
+              ? drawTuneHeading(staveOrTune, tuneProps(staveOrTune))
+              : drawStave(staveOrTune, staveProps(staveOrTune))
+          ),
           ...texts(page).map((textBox) =>
             drawTextBox(textBox, {
               scoreWidth: width,
@@ -118,7 +130,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
 
           playbackCursor(props.playbackState, page),
 
-          score.showNumberOfPages && stavesByPage.length > 1
+          score.showNumberOfPages && pages.length > 1
             ? m(
                 'text',
                 {

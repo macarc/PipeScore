@@ -34,6 +34,8 @@ interface TimingProps {
   dispatch: Dispatch;
 }
 
+export const timingHeight = 45;
+
 function drawLine(
   timing: ITiming,
   line: TimingLine,
@@ -54,7 +56,6 @@ function drawLine(
 
     const colour = isSelected ? 'orange' : 'black';
 
-    const height = 45;
     const mid = 30;
     const clickWidth = 10;
 
@@ -65,8 +66,8 @@ function drawLine(
       m('line', {
         x1,
         x2,
-        y1: y - height,
-        y2: y - height,
+        y1: y - timingHeight,
+        y2: y - timingHeight,
         stroke: colour,
       });
     const vertical = (x: number, y: number) =>
@@ -74,16 +75,16 @@ function drawLine(
         x1: x,
         x2: x,
         y1: y - mid,
-        y2: y - height,
+        y2: y - timingHeight,
         stroke: colour,
       });
 
     const dragBox = (x: number, y: number, start: boolean) =>
       m('rect', {
         x: x - clickWidth / 2,
-        y: y - height,
+        y: y - timingHeight,
         width: clickWidth,
-        height: height - mid,
+        height: timingHeight - mid,
         opacity: 0,
         cursor: 'ew-resize',
         onmousedown: () => props.dispatch(clickTiming(timing, line.part(start))),
@@ -131,7 +132,7 @@ function drawLine(
         'text',
         {
           x: start.beforeX + 5,
-          y: start.y - (height * 2) / 3,
+          y: start.y - (timingHeight * 2) / 3,
           onmousedown: () => props.dispatch(clickTiming(timing, line.part(true))),
           ondblclick: () => props.dispatch(editTimingText(timing)),
         },

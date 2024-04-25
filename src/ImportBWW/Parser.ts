@@ -183,8 +183,15 @@ class PartialScore {
 
   constructor() {
     this.score = {
-      name: '[Imported from BWW]',
-      tunes: [{ staves: [], tuneGap: Settings.defaultTuneGap }],
+      tunes: [
+        {
+          name: '[Imported from BWW]',
+          tuneType: 'Tune Type',
+          composer: 'Composer',
+          staves: [],
+          tuneGap: Settings.defaultTuneGap,
+        },
+      ],
       landscape: true,
       textBoxes: [{ texts: [] }],
       showNumberOfPages: true,

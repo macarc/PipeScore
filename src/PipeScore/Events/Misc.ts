@@ -293,7 +293,7 @@ export function download(): ScoreEvent {
 
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${json.name}.pipescore`;
+    a.download = `${state.score.name()}.pipescore`;
     a.click();
 
     return Update.NoChange;
