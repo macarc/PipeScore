@@ -91,6 +91,7 @@
           <li><a href="#staves">Staves</a></li>
           <li><a href="#text-boxes">Text Boxes</a></li>
           <li><a href="#second-timings">Second Timings</a></li>
+          <li><a href="#tunes">Tunes</a></li>
           <li>
             <a href="#pages">Pages</a>
             <ul>
@@ -103,6 +104,7 @@
             <a href="#sharing">Sharing your scores</a>
           </li>
           <li><a href="#importbww">Importing from other Applications</a></li>
+          <li><a href="#exportbww">Exporting to other Applications</a></li>
           <li><a href="#keyboard-shortcut-list">Keyboard Shortcuts</a></li>
           <li><a href="#getting-help">Getting Help</a></li>
         </ul>
@@ -355,9 +357,9 @@
         <h2 id="gracenotes">Gracenotes</h2>
         <h3 id="single-gracenotes">Single Gracenotes</h3>
         <p>
-          You can add single a single gracenote by clicking the single gracenote
-          under the <span class="location">Gracenote</span> tab, then clicking
-          on the place you want to place the single.
+          You can add a single gracenote by clicking the single gracenote under
+          the <span class="location">Gracenote</span> tab, then clicking on
+          where you want to place it.
         </p>
         <h3 id="embellishments">Embellishments</h3>
         <p>
@@ -428,14 +430,12 @@
         <p>
           If you want to move a bar to the previous stave (line), then you can
           use the <span class="button-name">Move to previous line</span> button.
-          You can only do this for the first bar in the stave. To move multiple
-          bars to the previous stave, move them one at a time.
+          You can only do this for the first bar(s) in a stave.
         </p>
         <p>
           If you want to move a bar to the next stave (line), then you can use
           the <span class="button-name">Move to next line</span> button. You can
-          only do this for the last bar in the stave. To move multiple bars to
-          the next stave, move them one at a time.
+          only do this for the last bar(s) in a stave.
         </p>
         <h3 id="lead-ins">Lead ins</h3>
         <p>
@@ -499,26 +499,13 @@
           You can delete a stave by selecting and deleting all the bars on the
           stave.
         </p>
+        <p>You can select a stave by selecting any item in that stave.</p>
 
         <h3>Stave Gaps</h3>
         <p>
-          You can modify the gap between all the staves by making sure nothing
-          is selected, then changing the
+          You can modify the gap between all the staves by changing the
           <span class="option">Stave gap</span> option under the
           <span class="location">Stave</span> menu.
-        </p>
-        <p>
-          You can change the gap above a single stave by selecting that stave,
-          then changing the
-          <span class="option">Stave gap</span> option. This can be used to
-          adjust the gap at the top of the page too (by selecting the first
-          stave, then modifying its gap).
-        </p>
-        <p>You can select a stave by selecting any item in that stave.</p>
-        <p>
-          Resetting the stave gap for a stave sets it back to the 'normal' stave
-          gap - i.e. the gap that you edit when you change the stave gap without
-          anything selected.
         </p>
 
         <h2 id="text-boxes">Text boxes</h2>
@@ -535,7 +522,10 @@
         <p>
           You can move a text box by clicking and dragging it. You can tell
           PipeScore to centre it by pressing the
-          <span class="button-name">Centre text</span> button.
+          <span class="button-name">Centre text</span> button. You can also
+          control the precise coordinates of a textbox by selecting it, then
+          editing the values under the
+          <strong>Set Text Box Position</strong> heading.
         </p>
 
         <h2 id="second-timings">Second Timings</h2>
@@ -564,6 +554,19 @@
           dialogue should pop up.
         </p>
 
+        <h2 id="tunes">Tunes</h2>
+        <p>You can have multiple tunes in the same score.</p>
+        <p>
+          To add a tune before/after the currently selected tune, use the
+          options in the <span class="location">Tune</span> menu.
+        </p>
+        <p>
+          You can also delete tunes under this menu. Furthermore, the gap
+          between this tune and the previous tune may be adjusted here.
+        </p>
+        <p>To select a tune, select any note or bar in the tune.</p>
+        <p>To edit the tune name/composer/tune type, double click them.</p>
+
         <h2 id="pages">Pages</h2>
         <p>
           Pages are added and removed automatically, depending on how many
@@ -571,11 +574,11 @@
         </p>
         <p>
           If you want to reduce the number of pages, you'll have to reduce the
-          default gap between the staves (or the gap before the first stave).
+          default gap between the staves (or the gap between tunes).
         </p>
         <h3 id="orientation">Orientation</h3>
         <p>
-          You can change a score between portait and landscape by pressing the
+          You can switch a score between portrait and landscape by pressing the
           <span class="button-name">Portrait</span> and
           <span class="button-name">Landscape</span> buttons under the
           <span class="location">Document</span>
@@ -588,6 +591,10 @@
           <span class="location">Playback</span> menu. The first time you play a
           score, be aware that it may take slightly longer than normal to
           download the samples.
+        </p>
+        <p>
+          The playback speed may be controlled using the slider under the
+          <span class="location">Playback</span> menu.
         </p>
 
         <h2 id="keyboard">Keyboard Input</h2>
@@ -671,6 +678,20 @@
           Not all BWW files can be imported - if you are having problems,
           <a href="/contact">send me the file</a>, and I'll see if I can sort it
           out for you.
+        </p>
+
+        <h2 id="exportbww">Exporting to other Applications</h2>
+        <p>
+          You can also export scores to BWW format, which can be imported into
+          many applications. Use the
+          <span class="button-name">Export to BWW</span> button under the
+          <span class="location">Document</span> menu for this.
+        </p>
+        <p>
+          This is quite new functionality, so it may be your score is not yet
+          supported, or exports incorrectly. In this case,
+          <a href="/contact">contact me</a> with the problem, and I'll see if I
+          can sort it out for you.
         </p>
 
         <h2 id="keyboard-shortcut-list">Keyboard Shortcuts</h2>

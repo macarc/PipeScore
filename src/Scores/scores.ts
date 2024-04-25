@@ -79,7 +79,7 @@ class ScoresList {
       // Create a temporary file input element, and use that to
       // prompt the user to select a file
       const f = document.createElement('input') as FileInput;
-      
+
       f.setAttribute('type', 'file');
       f.setAttribute('multiple', 'multiple');
       f.setAttribute('accept', '.pipescore,.json,text/json');
