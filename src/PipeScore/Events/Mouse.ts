@@ -21,16 +21,22 @@ import { ScoreEvent, Update } from './types';
 
 export function mouseUp(): ScoreEvent {
   return async (state: State) => {
-    state.selection?.mouseUp();
-    // Something could have been dragged
-    return Update.ShouldSave;
+    if (state.selection) {
+      state.selection.mouseUp();
+      // Something could have been dragged
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
   };
 }
 
 export function mouseDrag(x: number, y: number, page: number): ScoreEvent {
   return async (state: State) => {
-    state.selection?.mouseDrag(x, y, state.score, page);
-    return Update.ViewChanged;
+    if (state.selection) {
+      state.selection.mouseDrag(x, y, state.score, page);
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
   };
 }
 

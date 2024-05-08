@@ -21,10 +21,18 @@ import quickStart from './QuickStart';
 import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
 import { IScore } from './Score';
 import { Score } from './Score/impl';
+import { onMobile } from './global/browser';
 
 function beforeUnload(event: Event) {
   event.preventDefault();
   event.returnValue = true;
+}
+
+function dipIfOnMobile() {
+  if (onMobile()) {
+    alert('You cannot create or edit scores on mobile, only view them. Sorry!');
+    window.location.replace('/scores');
+  }
 }
 
 export class Firestore {
@@ -61,6 +69,7 @@ export class Firestore {
     const data = await store.pull();
     // If it is a new score, then it won't have staves
     if (!data || !scoreIsPresent(data)) {
+      dipIfOnMobile();
       const opts = await quickStart();
       store.save(opts.toScore().toJSON());
       await store.commit();
@@ -101,7 +110,7 @@ export class Firestore {
   }
 
   private async commit() {
-    if (!this.readonly && !this.isSaved())
+    if (!this.readonly && !this.isSaved() && !onMobile())
       await this.db
         .ref(`/scores/${this.userid}/scores/${this.scoreid}`)
         .set(this.score)

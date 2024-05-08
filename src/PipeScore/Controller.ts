@@ -99,33 +99,29 @@ function redraw() {
     clearXY();
     m.render(
       state.view.score,
-      m(
-        'div',
-        { class: 'ui-topbar' },
-        drawScore(state.score, {
-          justAddedNote: state.preview?.justAdded() || false,
-          noteState: {
-            dragged:
-              (state.selection instanceof ScoreSelection &&
-                state.selection.dragging() &&
-                state.selection.note(state.score)) ||
-              null,
-            selectedTripletLine:
-              (state.selection instanceof TripletLineSelection &&
-                state.selection.selected) ||
-              null,
-            inputtingNotes: state.preview !== null,
-          },
-          gracenoteState:
-            state.selection instanceof GracenoteSelection
-              ? state.selection.state()
-              : emptyGracenoteState,
-          selection: state.selection,
-          preview: state.preview,
-          playbackState: state.playback,
-          dispatch,
-        })
-      )
+      drawScore(state.score, {
+        justAddedNote: state.preview?.justAdded() || false,
+        noteState: {
+          dragged:
+            (state.selection instanceof ScoreSelection &&
+              state.selection.dragging() &&
+              state.selection.note(state.score)) ||
+            null,
+          selectedTripletLine:
+            (state.selection instanceof TripletLineSelection &&
+              state.selection.selected) ||
+            null,
+          inputtingNotes: state.preview !== null,
+        },
+        gracenoteState:
+          state.selection instanceof GracenoteSelection
+            ? state.selection.state()
+            : emptyGracenoteState,
+        selection: state.selection,
+        preview: state.preview,
+        playbackState: state.playback,
+        dispatch,
+      })
     );
   }
   if (state.view.ui) {

@@ -21,11 +21,11 @@ noscript {
   position: static;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
 }
 
-.ui-topbar {
+#score {
   margin-top: 12rem;
   margin-bottom: 10rem;
 }
@@ -63,8 +63,9 @@ input[type='range'] {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  max-width: 100%;
+  width: 100vw;
+  max-width: 100vw;
+  overflow: hidden;
 
   #login-warning {
     background: orange;
@@ -126,7 +127,7 @@ input[type='range'] {
     justify-content: space-between;
     background: lightskyblue;
     padding: 1rem;
-    width: calc(100% - 2rem);
+    width: calc(100vw - 2rem);
     font-size: 0.8rem;
 
     #topbar-main {
@@ -241,6 +242,10 @@ input[type='number'] {
   min-height: 6rem;
   white-space: pre-line;
 
+  &.partial {
+    min-height: 3rem;
+  }
+
   input[type='range'] {
     margin: 1rem 0;
     width: 100%;
@@ -287,27 +292,6 @@ label.text-coord {
   }
   to {
     transform: rotate(360deg);
-  }
-}
-
-@media only screen and (max-width: 800px) {
-  html {
-    background: white;
-  }
-  #browser-size-warning {
-    display: block;
-    width: 80%;
-    line-height: 2rem;
-    text-align: center;
-    margin: 30% auto;
-    font-size: 1.5rem;
-    z-index: 500;
-  }
-  #score,
-  #ui,
-  #doc,
-  #dialogue-parent {
-    display: none !important;
   }
 }
 
@@ -394,4 +378,12 @@ label.text-coord {
 .playback-cursor rect {
   transition: x 0.1s, y 0.1s;
   transition-timing-function: ease-out;
+}
+
+.play-button {
+  background-image: url('../images/play.svg');
+}
+
+.stop-button {
+  background-image: url('../images/stop.svg');
 }

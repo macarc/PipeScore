@@ -14,10 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  Utilities for checking if we're on Safari
+//  Utilities for checking browser status
 
 type SafariWindow = Window & { safari: boolean };
 
-export function onSafari(w: Window) {
-  return (w as SafariWindow).safari !== undefined;
+export function onSafari() {
+  return (window as unknown as SafariWindow).safari !== undefined;
+}
+
+export function onMobile() {
+  return !matchMedia('(pointer:fine)').matches;
 }

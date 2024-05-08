@@ -78,7 +78,7 @@ export function stopPlayback(): ScoreEvent {
 export function setPlaybackBpm(bpm: number): ScoreEvent {
   return async () => {
     settings.bpm = bpm;
-    return Update.NoChange;
+    return Update.ViewChanged;
   };
 }
 

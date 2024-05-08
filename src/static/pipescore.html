@@ -3,7 +3,11 @@
   <!-- PipeScore is open source! https://github.com/macarc/pipescore -->
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- This is a bit rude, but it's the only way I can find to keep the top bar working on mobile. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <meta
       name="description"
       content="PipeScore is a modern, web-based bagpipe notation app."
@@ -19,13 +23,6 @@
       needs JavaScript to provide the complex interactivity of music notation,
       so please enable it if you want to use PipeScore!
     </noscript>
-    <div id="browser-size-warning">
-      <p>
-        PipeScore requires a full-size screen - a laptop or desktop. It doesn't
-        work on tablets or mobiles.
-      </p>
-      <p>Sorry for the inconvenience.</p>
-    </div>
     <div id="score"></div>
     <div id="interface"></div>
 

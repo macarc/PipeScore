@@ -80,6 +80,7 @@ import { minStaveGap } from '../Stave/view';
 import { ITextBox } from '../TextBox';
 import { ITiming } from '../Timing';
 import { ITune } from '../Tune';
+import { onMobile } from '../global/browser';
 import { help } from '../global/docs';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
@@ -109,6 +110,16 @@ export interface UIState {
   docs: string | null;
   zoomLevel: number;
   dispatch: Dispatch;
+}
+
+function setZoomLevel(e: Event, dispatch: Dispatch) {
+  const element = e.target;
+  if (element instanceof HTMLInputElement) {
+    const newZoomLevel = parseInt(element.value, 10);
+    if (!Number.isNaN(newZoomLevel)) {
+      dispatch(changeZoomLevel(newZoomLevel));
+    }
+  }
 }
 
 export default function render(state: UIState): m.Children {
@@ -173,16 +184,6 @@ export default function render(state: UIState): m.Children {
       state.dispatch
     );
 
-  const inputZoomLevel = (e: Event) => {
-    const element = e.target;
-    if (element instanceof HTMLInputElement) {
-      const newZoomLevel = parseInt(element.value, 10);
-      if (!Number.isNaN(newZoomLevel)) {
-        state.dispatch(changeZoomLevel(newZoomLevel));
-      }
-    }
-  };
-
   const setting = <T extends keyof Settings>(property: T, name: string) =>
     m('div.horizontal', [
       m('label', `${name}: `),
@@ -202,6 +203,10 @@ export default function render(state: UIState): m.Children {
       : state.selectedNotes.slice(1).every((note) => note.isTied()));
 
   const naturalAlready = allNotes((note) => note.natural());
+
+  if (onMobile()) {
+    return mobileView(state);
+  }
 
   const noteMenu = [
     m('section', [
@@ -1118,7 +1123,7 @@ export default function render(state: UIState): m.Children {
           max: '200',
           step: '2',
           value: state.zoomLevel,
-          oninput: inputZoomLevel,
+          oninput: (e: Event) => setZoomLevel(e, state.dispatch),
         }),
         state.dispatch
       ),
@@ -1164,6 +1169,92 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
       ]),
+    ]),
+  ]);
+}
+
+function mobileView(state: UIState): m.Children {
+  return m('div', [
+    m(
+      'div#ui',
+      m('div#topbar', [
+        m('section', [
+          m(
+            'div.section-content',
+            { class: state.isPlaying ? 'play-button' : 'stop-button' },
+            [
+              help(
+                state.isPlaying ? 'stop' : 'play',
+                m('button', {
+                  onclick: () =>
+                    state.dispatch(
+                      state.isPlaying
+                        ? stopPlayback()
+                        : state.selectedTune === null
+                          ? startPlayback()
+                          : startPlaybackAtSelection()
+                    ),
+                  class: state.isPlaying ? 'stop-button' : 'play-button',
+                }),
+                state.dispatch
+              ),
+            ]
+          ),
+        ]),
+        m('div.section-content', [
+          m('input', {
+            type: 'range',
+            min: '30',
+            max: '150',
+            step: '1',
+            value: settings.bpm,
+            oninput: (e: InputEvent) =>
+              state.dispatch(
+                setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+              ),
+          }),
+          help(
+            'playback speed',
+            m('label#playback-speed-label', [
+              m('input#playback-bpm', {
+                type: 'number',
+                value: settings.bpm,
+                oninput: (e: InputEvent) =>
+                  state.dispatch(
+                    setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                  ),
+              }),
+              'beats per minute',
+            ]),
+            state.dispatch
+          ),
+        ]),
+        m('div.section-content', [
+          help(
+            'export',
+            m(
+              'button.text',
+              { onclick: () => state.dispatch(exportPDF()) },
+              'Download PDF'
+            ),
+            state.dispatch
+          ),
+        ]),
+      ])
+    ),
+    m('div#doc.partial', [
+      help(
+        'zoom',
+        m('input#zoom-level', {
+          type: 'range',
+          min: '10',
+          max: '200',
+          step: '2',
+          value: state.zoomLevel,
+          oninput: (e: Event) => setZoomLevel(e, state.dispatch),
+        }),
+        state.dispatch
+      ),
     ]),
   ]);
 }

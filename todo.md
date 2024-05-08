@@ -23,6 +23,13 @@
 - [ ] Can't drag barlines well when there's stuff in the bar
 - [ ] Deleting multiple staves doesn't preserve gap on first one
 
+Mobile
+
+- [x] Shouldn't be able to create a new score
+- [x] BPM slider not updating
+- [x] Better images for playback
+- [ ] Faster rendering needed! So that large scores can playback
+
 ## Small features
 
 - [ ] Allow choosing fonts

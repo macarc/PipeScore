@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { onSafari } from '../global/safari';
+import { onSafari } from '../global/browser';
 
 export function sleep(length_in_ms: number): Promise<void> {
   return new Promise((res) => setTimeout(res, length_in_ms));
@@ -29,7 +29,7 @@ export class Sample {
 
   load(): Promise<(context: AudioContext) => void> {
     // Safari can't decode mp3
-    const file_format = onSafari(window) ? 'wav' : 'mp3';
+    const file_format = onSafari() ? 'wav' : 'mp3';
 
     return new Promise((res) => {
       const request = new XMLHttpRequest();
