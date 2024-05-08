@@ -158,6 +158,18 @@ export class BNote extends BWWItem {
   }
 }
 
+export class BTripletStart extends BWWItem {
+  generate(): string {
+    return '^3s';
+  }
+}
+
+export class BTripletEnd extends BWWItem {
+  generate(): string {
+    return '^3e';
+  }
+}
+
 export class BTimeSignature extends BWWItem {
   ts: ITimeSignature;
 

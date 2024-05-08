@@ -18,7 +18,7 @@
 //  then be used to generate BWW text
 
 import { Barline } from '../PipeScore/Barline';
-import { ITriplet, groupNotes } from '../PipeScore/Note';
+import { INote, ITriplet, groupNotes } from '../PipeScore/Note';
 import { shortBeamDirection } from '../PipeScore/Note/noteview';
 import { IScore } from '../PipeScore/Score';
 import { ITimeSignature } from '../PipeScore/TimeSignature';
@@ -31,6 +31,8 @@ import {
   BNote,
   BTerminatingBarline,
   BTimeSignature,
+  BTripletEnd,
+  BTripletStart,
   BWWItem,
 } from './BWWItem';
 
@@ -44,6 +46,24 @@ export function toLinearScore(score: IScore): LinearScore {
 
   let previousPitch: Pitch | null = null;
   let previousTimeSignature: ITimeSignature | null = null;
+
+  const pushNotes = (group: INote[]) => {
+    for (const note of group) {
+      linear.push(
+        new BGracenote(note.gracenote().notes(note.pitch(), previousPitch))
+      );
+      linear.push(
+        new BNote(
+          note.pitch(),
+          note.length(),
+          note.natural(),
+          group.length > 1 ? shortBeamDirection(group, group.indexOf(note)) : null
+        )
+      );
+
+      previousPitch = note.pitch();
+    }
+  };
 
   for (const stave of score.staves()) {
     linear.push(new BClef());
@@ -67,27 +87,11 @@ export function toLinearScore(score: IScore): LinearScore {
         linear.push(new BBeatBreak());
 
         if (Array.isArray(group)) {
-          for (const note of group) {
-            linear.push(
-              new BGracenote(note.gracenote().notes(note.pitch(), previousPitch))
-            );
-
-            linear.push(
-              new BNote(
-                note.pitch(),
-                note.length(),
-                note.natural(),
-                group.length > 1
-                  ? shortBeamDirection(group, group.indexOf(note))
-                  : null
-              )
-            );
-
-            previousPitch = note.pitch();
-          }
-        } else if (groupedNotes instanceof ITriplet) {
-          // TODO : triplets
-          throw new Error("Failed to export to BWW: can't do triplets");
+          pushNotes(group);
+        } else if (group instanceof ITriplet) {
+          linear.push(new BTripletStart());
+          pushNotes(group.tripletSingleNotes());
+          linear.push(new BTripletEnd());
         } else {
           throw new Error('Failed to export to BWW: unrecognised group type');
         }
