@@ -227,4 +227,12 @@ export const Spec: SpecType[] = [
     regex: /^space/,
     type: TokenType.SPACE,
   },
+  {
+    regex: /^fine/,
+    type: TokenType.SPACE,
+  },
+  {
+    regex: /^dacapoalfine/,
+    type: TokenType.SPACE,
+  }
 ];

@@ -124,7 +124,7 @@ export function exportBWW(): ScoreEvent {
         m('section', [
           m(
             'p',
-            "This functionality is new and experimental - i.e. it probably won't work!"
+            "This functionality is new and experimental - i.e. it may not work!"
           ),
         ]),
       ],
