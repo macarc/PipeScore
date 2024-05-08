@@ -50,6 +50,7 @@ export abstract class IScore {
   abstract previousBar(id: ID): IBar | null;
   abstract nextNote(id: ID): INote | null;
   abstract previousNote(id: ID): INote | null;
+  abstract previousStaveSameTune(stave: IStave): IStave | null;
   abstract firstOnPage(page: number): IBar | null;
   abstract lastOnPage(page: number): IBar | null;
   abstract addTune(nearTune: ITune | null, where: Relative): void;

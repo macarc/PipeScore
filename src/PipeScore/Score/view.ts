@@ -57,7 +57,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
     y: score.staveY(stave),
     justAddedNote: props.justAddedNote,
     width: staveWidth,
-    previousStave: oneBefore(stave, score.staves()),
+    previousStave: score.previousStaveSameTune(stave),
     previousStaveY: score.staveY(stave),
     noteState: props.noteState,
     gracenoteState: props.gracenoteState,

@@ -283,6 +283,16 @@ export class Score extends IScore {
     return previousNote(id, this.bars());
   }
 
+  previousStaveSameTune(stave: IStave): IStave | null {
+    for (const tune of this.tunes()) {
+      const previous = tune.previousStave(stave);
+      if (previous) {
+        return previous;
+      }
+    }
+    return null;
+  }
+
   firstOnPage(page: number) {
     return first(this.stavesByPage()[page])?.firstBar() || null;
   }
