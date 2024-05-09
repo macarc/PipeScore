@@ -18,7 +18,6 @@
 - [ ] Triplets with tails can group
 - [ ] Can't drag barlines well when there's stuff in the bar
 - [ ] Deleting multiple staves doesn't preserve gap on first one
-- [ ] Add back in gaps after sentences in help documentation
 
 Mobile
 
@@ -233,3 +232,4 @@ Mobile
 - [x] Better time signature font
 - [x] Move multiple bars to next/previous line easily
 - [x] Can't move middle/end of timing closer than 1 bar towards front
+- [x] Add back in gaps after sentences in help documentation

@@ -21,13 +21,18 @@ import { Documentation } from './Translations';
 import { EnglishTranslation } from './Translations/English';
 import { FrenchTranslation } from './Translations/French';
 
-export default function (doc: keyof Documentation) {
+function getDocForSelectedLanguage(doc: keyof Documentation) {
   switch (getLanguage()) {
     case 'ENG':
       return EnglishTranslation[doc];
     case 'FRA':
-      return FrenchTranslation[doc] || EnglishTranslation[doc];
+      return FrenchTranslation[doc];
     default:
-      return '???';
+      return '';
   }
+}
+
+export default function (doc: keyof Documentation) {
+  const helpText = getDocForSelectedLanguage(doc) || EnglishTranslation[doc];
+  return helpText.replaceAll(/\.\s?/g, '.\n\n');
 }
