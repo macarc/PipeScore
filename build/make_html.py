@@ -70,6 +70,7 @@ def cp_file(filename):
 build("index")
 build("login")
 build("scores")
+build("translate")
 build("importbww")
 build("support")
 build("404")

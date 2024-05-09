@@ -17,10 +17,10 @@
 //  Draw the user interface (top bar and help documentation)
 
 import m from 'mithril';
+import { getLanguage, setLanguage } from '../../common/i18n';
 import { IBar } from '../Bar';
 import { Barline } from '../Barline';
 import { Dispatch } from '../Dispatch';
-import Documentation from '../Documentation';
 import {
   addAnacrusis,
   addBar,
@@ -79,6 +79,7 @@ import { IStave } from '../Stave';
 import { minStaveGap } from '../Stave/view';
 import { ITextBox } from '../TextBox';
 import { ITiming } from '../Timing';
+import { Documentation } from '../Translations';
 import { ITune } from '../Tune';
 import { onMobile } from '../global/browser';
 import { help } from '../global/docs';
@@ -150,7 +151,7 @@ export default function render(state: UIState): m.Children {
 
   const noteInputButton = (length: Duration) =>
     help(
-      length as keyof typeof Documentation,
+      length as keyof Documentation,
       m('button', {
         class:
           isCurrentNoteInput(length) ||
@@ -170,7 +171,7 @@ export default function render(state: UIState): m.Children {
   const isSelectedGracenote = (name: string) =>
     state.selectedGracenote?.reactiveName() === name;
 
-  const gracenoteInput = (name: keyof typeof Documentation) =>
+  const gracenoteInput = (name: keyof Documentation) =>
     help(
       name,
       m('button', {
@@ -310,12 +311,12 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
-  const addBarOrAnacrusis = (which: 'bar' | 'lead in') => {
+  const addBarOrAnacrusis = (which: 'bar' | 'lead-in') => {
     const event = which === 'bar' ? addBar : addAnacrusis;
     const disabled = !tuneSelected;
     return m('div.section-content.vertical', [
       help(
-        `add ${which} before`,
+        `add-${which}-before`,
         m(
           'button.textual',
           { disabled, onclick: () => state.dispatch(event(Relative.before)) },
@@ -324,7 +325,7 @@ export default function render(state: UIState): m.Children {
         state.dispatch
       ),
       help(
-        `add ${which} after`,
+        `add-${which}-after`,
         m(
           'button.textual',
           { disabled, onclick: () => state.dispatch(event(Relative.after)) },
@@ -349,13 +350,13 @@ export default function render(state: UIState): m.Children {
     ]),
     m('section', [
       m('h2', 'Add Lead In'),
-      m('div.section-content', addBarOrAnacrusis('lead in')),
+      m('div.section-content', addBarOrAnacrusis('lead-in')),
     ]),
     m('section', [
       m('h2', 'Modify Bar'),
       m('div.section-content.vertical', [
         help(
-          'edit bar time signature',
+          'edit-bar-time-signature',
           m(
             'button.textual',
             { onclick: () => state.dispatch(editBarTimeSignature()) },
@@ -364,7 +365,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'reset bar length',
+          'reset-bar-length',
           m(
             'button.textual',
             {
@@ -383,7 +384,7 @@ export default function render(state: UIState): m.Children {
         m('div.horizontal', [
           m('label', 'Start:'),
           help(
-            'normal barline',
+            'normal-barline',
             m(
               'button',
               {
@@ -397,7 +398,7 @@ export default function render(state: UIState): m.Children {
             state.dispatch
           ),
           help(
-            'repeat barline',
+            'repeat-barline',
             m(
               'button',
               {
@@ -410,7 +411,7 @@ export default function render(state: UIState): m.Children {
             state.dispatch
           ),
           help(
-            'part barline',
+            'part-barline',
             m(
               'button',
               {
@@ -426,7 +427,7 @@ export default function render(state: UIState): m.Children {
         m('div.horizontal', [
           m('label', 'End:  '),
           help(
-            'normal barline',
+            'normal-barline',
             m(
               'button',
               {
@@ -440,7 +441,7 @@ export default function render(state: UIState): m.Children {
             state.dispatch
           ),
           help(
-            'repeat barline',
+            'repeat-barline',
             m(
               'button',
               {
@@ -453,7 +454,7 @@ export default function render(state: UIState): m.Children {
             state.dispatch
           ),
           help(
-            'part barline',
+            'part-barline',
             m(
               'button',
               {
@@ -472,7 +473,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Move Bar'),
       m('div.section-content.vertical', [
         help(
-          'move bar to previous line',
+          'move-bar-to-previous-line',
           m(
             'button.textual',
             {
@@ -484,7 +485,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'move bar to next line',
+          'move-bar-to-next-line',
           m(
             'button.textual',
             {
@@ -504,7 +505,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Add Timing'),
       m('div.section-content', [
         help(
-          'second timing',
+          'second-timing',
           m(
             'button',
             { onclick: () => state.dispatch(addSecondTiming()) },
@@ -513,7 +514,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'single timing',
+          'single-timing',
           m('button', { onclick: () => state.dispatch(addSingleTiming()) }, '2nd'),
           state.dispatch
         ),
@@ -523,7 +524,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Edit Timing'),
       m('div.section-content', [
         help(
-          'edit second timing',
+          'edit-second-timing',
           m(
             'button.double-width.text',
             {
@@ -545,7 +546,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Add Stave'),
       m('div.section-content', [
         help(
-          'add stave before',
+          'add-stave-before',
           m(
             'button.add.text',
             { onclick: () => state.dispatch(addStave(Relative.before)) },
@@ -554,7 +555,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'add stave after',
+          'add-stave-after',
           m(
             'button.add.text',
             { onclick: () => state.dispatch(addStave(Relative.after)) },
@@ -568,7 +569,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Modify Stave'),
       m('div.section-content', [
         help(
-          'set stave gap',
+          'set-stave-gap',
           m('label', [
             'Adjust stave gap: ',
             m('input', {
@@ -585,7 +586,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'reset stave gap',
+          'reset-stave-gap',
           m(
             'button.textual',
             { onclick: () => state.dispatch(resetStaveGap()) },
@@ -599,7 +600,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Delete Stave'),
       m('div.section-content', [
         help(
-          'delete stave',
+          'delete-stave',
           m(
             'button.text',
             {
@@ -619,7 +620,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Add Tune'),
       m('div.section-content', [
         help(
-          'add tune before',
+          'add-tune-before',
           m(
             'button.add.text',
             { onclick: () => state.dispatch(addTune(Relative.before)) },
@@ -628,7 +629,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'add tune after',
+          'add-tune-after',
           m(
             'button.add.text',
             { onclick: () => state.dispatch(addTune(Relative.after)) },
@@ -642,7 +643,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Modify Tune'),
       m('div.section-content', [
         help(
-          'set tune gap',
+          'set-tune-gap',
           m('label', [
             'Adjust gap before tune: ',
             m('input', {
@@ -660,7 +661,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'reset tune gap',
+          'reset-tune-gap',
           m(
             'button.textual',
             {
@@ -677,7 +678,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Delete Tune'),
       m('div.section-content', [
         help(
-          'delete tune',
+          'delete-tune',
           m(
             'button.text',
             {
@@ -725,7 +726,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Add Text Box'),
       m('div.section-content', [
         help(
-          'add text',
+          'add-text',
           m('button.add', { onclick: () => state.dispatch(addText()) }),
           state.dispatch
         ),
@@ -737,7 +738,7 @@ export default function render(state: UIState): m.Children {
         // TODO : highlight when selected text is already centred
         // TODO : remove need for this with snapping
         help(
-          'centre text',
+          'centre-text',
           m(
             'button.double-width.text',
             {
@@ -749,7 +750,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'edit text',
+          'edit-text',
           m(
             'button.double-width.text',
             { disabled: !textSelected, onclick: () => state.dispatch(editText()) },
@@ -762,7 +763,7 @@ export default function render(state: UIState): m.Children {
     m('section', [
       m('h2', 'Set Text Box Position'),
       help(
-        'set text coords',
+        'set-text-coords',
         m('div.section-content.vertical', [
           m('label.text-coord', [
             'X: ',
@@ -827,7 +828,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'play from selection',
+          'play-from-selection',
           m(
             'button.double-width.text',
             {
@@ -839,7 +840,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'play looping selection',
+          'play-looping-selection',
           m(
             'button.double-width.text',
             {
@@ -868,7 +869,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Speed'),
       m('div.section-content', [
         help(
-          'playback speed',
+          'playback-speed',
           m('label#playback-speed-label', [
             m('input', {
               type: 'range',
@@ -931,7 +932,7 @@ export default function render(state: UIState): m.Children {
       m('h2', 'Page Numbers'),
       m('div.section-content', [
         help(
-          'page numbers',
+          'page-numbers',
           m('label', [
             'Show page numbers: ',
             m('input', {
@@ -960,7 +961,7 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
         help(
-          'export bww',
+          'export-bww',
           m(
             'button.text.double-width',
             { onclick: () => state.dispatch(exportBWW()) },
@@ -1001,7 +1002,7 @@ export default function render(state: UIState): m.Children {
         m('label', [
           'Disable Help',
           help(
-            'disable help',
+            'disable-help',
             m('input', {
               type: 'checkbox',
               onclick: () => state.dispatch(toggleDoc()),
@@ -1062,6 +1063,8 @@ export default function render(state: UIState): m.Children {
       [pretty(name)]
     );
 
+  const language = getLanguage();
+
   const headings = state.canEdit
     ? [
         menuHead('note'),
@@ -1079,6 +1082,19 @@ export default function render(state: UIState): m.Children {
           m('button', m('a[href=/help]', { target: '_blank' }, 'Help')),
           state.dispatch
         ),
+        m('select', { style: 'padding-left: 1rem', onchange: setLanguage }, [
+          m(
+            'option',
+            { name: 'lang', value: 'ENG', selected: language === 'ENG' },
+            '🇬🇧'
+          ),
+          m(
+            'option',
+            { name: 'lang', value: 'FRA', selected: language === 'FRA' },
+            '🇫🇷'
+          ),
+        ]),
+
         ...(state.canSave
           ? [
               m(
@@ -1086,10 +1102,14 @@ export default function render(state: UIState): m.Children {
                 { class: state.saved ? 'saved' : 'unsaved' },
                 state.saved ? 'All changes saved!' : 'Unsaved changes'
               ),
-              m(
-                'button.save',
-                { disabled: state.saved, onclick: () => state.dispatch(save()) },
-                'Save'
+              help(
+                'save',
+                m(
+                  'button.save',
+                  { disabled: state.saved, onclick: () => state.dispatch(save()) },
+                  'Save'
+                ),
+                state.dispatch
               ),
             ]
           : []),
@@ -1214,7 +1234,7 @@ function mobileView(state: UIState): m.Children {
               ),
           }),
           help(
-            'playback speed',
+            'playback-speed',
             m('label#playback-speed-label', [
               m('input#playback-bpm', {
                 type: 'number',

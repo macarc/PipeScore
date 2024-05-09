@@ -14,20 +14,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  Documentation - explanations for the UI that are shown on hover.
+//  Keeps the user language in sync with the selected user language.
 
-import { getLanguage } from '../common/i18n';
-import { Documentation } from './Translations';
-import { EnglishTranslation } from './Translations/English';
-import { FrenchTranslation } from './Translations/French';
+import { getLanguage, setLanguage } from '../common/i18n';
 
-export default function (doc: keyof Documentation) {
-  switch (getLanguage()) {
-    case 'ENG':
-      return EnglishTranslation[doc];
-    case 'FRA':
-      return FrenchTranslation[doc] || EnglishTranslation[doc];
-    default:
-      return '???';
-  }
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const language = getLanguage();
+
+  document
+    .querySelector(`option[value="${language}"]`)
+    ?.setAttribute('selected', '');
+  document.querySelector('select')?.addEventListener('change', setLanguage);
+});

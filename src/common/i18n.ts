@@ -14,20 +14,27 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//  Documentation - explanations for the UI that are shown on hover.
+//  Functionality for getting/setting user language
 
-import { getLanguage } from '../common/i18n';
-import { Documentation } from './Translations';
-import { EnglishTranslation } from './Translations/English';
-import { FrenchTranslation } from './Translations/French';
+export type Language = 'ENG' | 'FRA';
 
-export default function (doc: keyof Documentation) {
-  switch (getLanguage()) {
-    case 'ENG':
-      return EnglishTranslation[doc];
-    case 'FRA':
-      return FrenchTranslation[doc] || EnglishTranslation[doc];
-    default:
-      return '???';
+export function setLanguage(event: Event) {
+  if (event.target instanceof HTMLSelectElement) {
+    if (event.target.value === 'ENG' || event.target.value === 'FRA')
+      localStorage.setItem('lang', event.target.value);
   }
+}
+
+export function getLanguage() {
+  const stored = localStorage.getItem('lang');
+
+  if (stored) {
+    return stored;
+  }
+
+  if (navigator.language === 'fr') {
+    return 'FRA';
+  }
+
+  return 'ENG';
 }

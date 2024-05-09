@@ -10,11 +10,7 @@
 - [x] Marker showing where playback is
 - [x] Playback ties properly
 - [ ] Snapping for text box dragging
-- [ ] View-only mode for mobile
-
-## Code stuff
-
-- [ ] Tests? Most of it is not very testable, but having general tests for the event handlers ought to be doable and could be useful.
+- [x] View-only mode for mobile
 
 ## Bugs to fix
 
@@ -22,6 +18,7 @@
 - [ ] Triplets with tails can group
 - [ ] Can't drag barlines well when there's stuff in the bar
 - [ ] Deleting multiple staves doesn't preserve gap on first one
+- [ ] Add back in gaps after sentences in help documentation
 
 Mobile
 

@@ -22,7 +22,6 @@ import { onUserChange } from '../auth-helper';
 import startController from './Controller';
 import { Firestore } from './Firestore';
 import { keyHandler } from './KeyHandler';
-import { onMobile } from './global/browser';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 

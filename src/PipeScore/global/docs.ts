@@ -19,11 +19,11 @@
 
 import m from 'mithril';
 import { Dispatch } from '../Dispatch';
-import documentationStrings from '../Documentation';
 import { hoverDoc } from '../Events/Doc';
+import { Documentation } from '../Translations';
 
 export function help(
-  docName: keyof typeof documentationStrings,
+  docName: keyof Documentation,
   element: m.Vnode,
   dispatch: Dispatch
 ): m.Vnode {

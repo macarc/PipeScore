@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import Documentation from '../Documentation';
 import { State } from '../State';
+import { Documentation } from '../Translations';
 import { ScoreEvent, Update } from './types';
 
-export function hoverDoc(element: keyof typeof Documentation | null): ScoreEvent {
+export function hoverDoc(element: keyof Documentation | null): ScoreEvent {
   return async (state: State) => {
     state.doc.current = element;
     return Update.ViewChanged;

@@ -17,7 +17,7 @@
 //  The main event loop of PipeScore. See ./README.md for an explanation.
 
 import m from 'mithril';
-import Documentation from './Documentation';
+import doc from './Documentation';
 import { loadedAudio } from './Events/Misc';
 import { mouseDrag, mouseUp } from './Events/Mouse';
 import { ScoreEvent, Update } from './Events/types';
@@ -166,11 +166,7 @@ function redraw() {
           state.selection instanceof ScoreSelection
             ? state.selection.tune(state.score)
             : null,
-        docs: state.doc.show
-          ? state.doc.current
-            ? Documentation[state.doc.current]
-            : 'Hover over different icons to view Help here.'
-          : null,
+        docs: state.doc.show ? doc(state.doc.current || 'nothing-hovered') : null,
         currentMenu: state.menu,
         dispatch,
       })

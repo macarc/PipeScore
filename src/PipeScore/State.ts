@@ -16,13 +16,13 @@
 
 //  The type of the global state
 
-import Documentation from './Documentation';
 import { Firestore } from './Firestore';
 import { PlaybackState } from './Playback/state';
 import { IPreview } from './Preview';
 import { SavedNoteOrTriplet } from './SavedModel';
 import { IScore } from './Score';
 import { ISelection } from './Selection';
+import { Documentation } from './Translations';
 import { Menu } from './UI/model';
 
 export type State = {
@@ -31,7 +31,7 @@ export type State = {
   justClickedNote: boolean;
   preview: IPreview | null;
   menu: Menu;
-  doc: { current: keyof typeof Documentation | null; show: boolean };
+  doc: { current: keyof Documentation | null; show: boolean };
   clipboard: (SavedNoteOrTriplet | 'bar-break')[] | null;
   selection: ISelection | null;
   history: { past: string[]; future: string[] };

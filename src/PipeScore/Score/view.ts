@@ -33,7 +33,7 @@ import { drawTiming } from '../Timing/view';
 import { ITune } from '../Tune';
 import { drawTuneHeading } from '../Tune/view';
 import { settings } from '../global/settings';
-import { foreach, oneBefore } from '../global/utils';
+import { foreach } from '../global/utils';
 import { setXYPage } from '../global/xy';
 
 interface ScoreProps {

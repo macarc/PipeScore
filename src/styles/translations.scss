@@ -1,0 +1,17 @@
+.sentence {
+  display: block;
+  margin: 1rem 0;
+
+  textarea {
+    margin-top: 0.4rem;
+    display: block;
+    width: calc(100% - 0.8rem);
+    padding: 0.4rem;
+    font-family: serif;
+    font-size: 0.9rem;
+  }
+}
+
+form {
+  margin: 0.5rem;
+}
