@@ -7,16 +7,16 @@
 //  (at your option) any later version.
 //
 //  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  but WITHOUT ANY WARRANTY, without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Documentation } from '.';
+import { Documentation, TextItems } from '.';
 
-export const FrenchTranslation: Documentation = {
+export const FrenchDocumentation: Documentation = {
   home: 'Retourner à la page des partitions.',
   help: "Voir la page d'aide.",
   save: '',
@@ -134,4 +134,88 @@ export const FrenchTranslation: Documentation = {
   'move-bar-to-next-line':
     "Déplacer la mesure sélectionnée au début de la portée suivante. Ceci ne s'applique que si vous êtes en train de sélectionner la dernière mesure d'une portée.",
   'nothing-hovered': '',
+};
+
+export const FrenchTextItems: TextItems = {
+  homeMenu: '',
+  noteMenu: '',
+  gracenoteMenu: '',
+  barMenu: '',
+  secondTimingMenu: '',
+  staveMenu: '',
+  tuneMenu: '',
+  textMenu: '',
+  playbackMenu: '',
+  documentMenu: '',
+  settingsMenu: '',
+  helpMenu: '',
+  addNote: '',
+  modifyNote: '',
+  addGracenote: '',
+  addBar: '',
+  addBarBefore: '',
+  addBarAfter: '',
+  addLeadIn: '',
+  addLeadInBefore: '',
+  addLeadInAfter: '',
+  modifyBar: '',
+  editTimeSignature: '',
+  resetBarLength: '',
+  start: '',
+  end: '',
+  modifyBarlines: '',
+  normalBarline: '',
+  repeatBarline: '',
+  partBarline: '',
+  moveBar: '',
+  moveToPreviousStave: '',
+  moveToNextStave: '',
+  addTiming: '',
+  addSecondTiming: '',
+  addSingleTiming: '',
+  modifyTiming: '',
+  editTimingText: '',
+  addStave: '',
+  before: '',
+  after: '',
+  modifyStave: '',
+  adjustStaveGap: '',
+  reset: '',
+  deleteStave: '',
+  delete: '',
+  addTune: '',
+  modifyTune: '',
+  adjustGapBeforeTune: '',
+  deleteTune: '',
+  addTextBox: '',
+  modifyTextBox: '',
+  centreText: '',
+  editText: '',
+  setTextBoxPosition: '',
+  x: '',
+  y: '',
+  controls: '',
+  playFromBeginning: '',
+  playFromSelection: '',
+  playLoopedSelection: '',
+  stop: '',
+  speed: '',
+  beatsPerMinute: '',
+  orientation: '',
+  landscape: '',
+  portrait: '',
+  pageNumbers: '',
+  showPageNumbers: '',
+  export: '',
+  exportPDF: '',
+  exportBWW: '',
+  download: '',
+  staveLayout: '',
+  gapBetweenLines: '',
+  gracenoteLayout: '',
+  gapAfterGracenote: '',
+  margins: '',
+  margin: '',
+  view: '',
+  disableHelp: '',
 };

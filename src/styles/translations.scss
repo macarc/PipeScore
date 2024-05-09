@@ -2,7 +2,8 @@
   display: block;
   margin: 1rem 0;
 
-  textarea {
+  textarea,
+  input {
     margin-top: 0.4rem;
     display: block;
     width: calc(100% - 0.8rem);
@@ -14,4 +15,12 @@
 
 form {
   margin: 0.5rem;
+}
+
+input[type="submit"] {
+    margin: 1rem auto;
+    display: block;
+    font-size: 1.2rem;
+    background: lightskyblue;
+    border: 1px solid lightblue;
 }

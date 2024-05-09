@@ -16,6 +16,7 @@
 
 import m from 'mithril';
 import scoreToBWW from '../../ExportBWW/index';
+import { saveFile } from '../../common/file';
 import { Score } from '../Score/impl';
 import { drawScore } from '../Score/view';
 import { State } from '../State';
@@ -133,12 +134,7 @@ export function exportBWW(): ScoreEvent {
 
     try {
       const bww = scoreToBWW(state.score);
-      const blob = new Blob([bww], { type: 'text/bww' });
-
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${state.score.name()}.bww`;
-      a.click();
+      saveFile(`${state.score.name()}.bww`, bww, 'text/bww');
     } catch (e) {
       console.log(e);
       alert(`An error occurred while trying to export to BWW! ${e}`);
@@ -289,12 +285,7 @@ export function exportPDF(): ScoreEvent {
 export function download(): ScoreEvent {
   return async (state: State) => {
     const json = state.score.toJSON();
-    const blob = new Blob([JSON.stringify(json)], { type: 'text/json' });
-
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${state.score.name()}.pipescore`;
-    a.click();
+    saveFile(`${state.score.name()}.pipescore`, JSON.stringify(json), 'text/json');
 
     return Update.NoChange;
   };

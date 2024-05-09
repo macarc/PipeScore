@@ -17,7 +17,6 @@
 //  The main event loop of PipeScore. See ./README.md for an explanation.
 
 import m from 'mithril';
-import doc from './Documentation';
 import { loadedAudio } from './Events/Misc';
 import { mouseDrag, mouseUp } from './Events/Mouse';
 import { ScoreEvent, Update } from './Events/types';
@@ -33,6 +32,7 @@ import { TextSelection } from './Selection/text';
 import { TimingSelection } from './Selection/timing';
 import { TripletLineSelection } from './Selection/tripletline';
 import { State } from './State';
+import { helpText } from './Translations/current';
 import renderUI from './UI/view';
 import { svgCoords } from './global/utils';
 import { clearXY } from './global/xy';
@@ -166,7 +166,9 @@ function redraw() {
           state.selection instanceof ScoreSelection
             ? state.selection.tune(state.score)
             : null,
-        docs: state.doc.show ? doc(state.doc.current || 'nothing-hovered') : null,
+        docs: state.doc.show
+          ? helpText(state.doc.current || 'nothing-hovered')
+          : null,
         currentMenu: state.menu,
         dispatch,
       })

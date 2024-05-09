@@ -15,47 +15,93 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { Documentation } from '../PipeScore/Translations';
-import { EnglishTranslation } from '../PipeScore/Translations/English';
-import { FrenchTranslation } from '../PipeScore/Translations/French';
+import { Documentation, TextItems } from '../PipeScore/Translations';
+import {
+  EnglishDocumentation,
+  EnglishTextItems,
+} from '../PipeScore/Translations/English';
+import {
+  FrenchDocumentation,
+  FrenchTextItems,
+} from '../PipeScore/Translations/French';
+import { saveFile } from '../common/file';
+import { Language } from '../common/i18n';
+
+window.addEventListener('beforeunload', (event: Event) => {
+    event.preventDefault();
+    event.returnValue = true;
+});
 
 function redraw() {
   const root = document.getElementById('editor');
   if (root) m.render(root, generateForm());
 }
 
-let currentTranslation: Documentation | null = null;
+let language: Language | null = null;
 
 function setCurrentTranslation(e: Event) {
   if ((e.target as HTMLOptionElement).value === 'FRA') {
-    currentTranslation = FrenchTranslation;
+    language = 'FRA';
   } else {
-    currentTranslation = null;
+    language = null;
   }
 
   redraw();
 }
 
-function generateForm() {
+function currentDocumentation() {
+  switch (language) {
+    case 'FRA':
+      return FrenchDocumentation;
+    default:
+      return null;
+  }
+}
+
+function currentTextItems() {
+  switch (language) {
+    case 'FRA':
+      return FrenchTextItems;
+    default:
+      return null;
+  }
+}
+
+function generateTextAreasFromProps(
+  o: Record<string, string> | null,
+  default_: Record<string, string>,
+  longform = false
+) {
   const children = [];
-  for (const sentence in EnglishTranslation) {
+  for (const sentence in default_) {
     const k = sentence as keyof Documentation;
     children.push(
       m('label.sentence', [
-        EnglishTranslation[k],
+        default_[k],
         m(
-          'textarea',
+          longform ? 'textarea' : 'input',
           {
             rows: 3,
             id: sentence,
           },
-          currentTranslation && currentTranslation[k] !== EnglishTranslation[k]
-            ? currentTranslation[k]
-            : ''
+          o && o[k] !== default_[k] ? o[k] : ''
         ),
       ])
     );
   }
+  return children;
+}
+
+function generateForm() {
+  const documentationInputs = generateTextAreasFromProps(
+    currentDocumentation(),
+    EnglishDocumentation,
+    true
+  );
+  const textItemInputs = generateTextAreasFromProps(
+    currentTextItems(),
+    EnglishTextItems
+  );
 
   const headers = ['Login', 'Help', 'Contact', 'Donate', 'Source'];
   const scorePageButtons = [
@@ -68,19 +114,6 @@ function generateForm() {
     'Duplicate',
     'Delete',
   ];
-  const pipescoreTabs = [
-    'Note',
-    'Gracenote',
-    'Bar',
-    'Second Timing',
-    'Stave',
-    'Tune',
-    'Text',
-    'Playback',
-    'Document',
-    'Settings',
-    'Help',
-  ];
 
   return m('form', { action: '', onclick: (e: Event) => e.preventDefault() }, [
     m('label', [
@@ -91,7 +124,7 @@ function generateForm() {
           {
             name: 'current-translation',
             value: 'FRA',
-            selected: currentTranslation === FrenchTranslation,
+            selected: language === 'FRA',
           },
           'français'
         ),
@@ -100,14 +133,14 @@ function generateForm() {
           {
             name: 'current-translation',
             value: '',
-            selected: currentTranslation === null,
+            selected: language === null,
           },
           'blank'
         ),
       ]),
     ]),
-    m('fieldset', [m('legend', 'Navigation headers'), ...headers]),
-    m('fieldset', [m('legend', 'Help text'), ...children]),
+    m('fieldset', [m('legend', 'Help text'), ...documentationInputs]),
+    m('fieldset', [m('legend', 'UI Buttons'), ...textItemInputs]),
     m('input', {
       type: 'submit',
       onclick: collectForm,
@@ -117,15 +150,27 @@ function generateForm() {
 }
 
 function collectForm() {
-  const translation = { ...EnglishTranslation };
-  for (const sentence in EnglishTranslation) {
+  const documentation = { ...EnglishDocumentation };
+  for (const sentence in EnglishDocumentation) {
     const k = sentence as keyof Documentation;
     const el = document.querySelector(`textarea#${sentence}`);
     if (el instanceof HTMLTextAreaElement) {
-      translation[k] = el.value.replace('\n', '');
+      documentation[k] = el.value.replace('\n', '');
     }
   }
-  console.log(JSON.stringify(translation));
+  console.log(JSON.stringify(documentation));
+
+  const textitems = { ...EnglishTextItems };
+  for (const sentence in EnglishTextItems) {
+    const k = sentence as keyof TextItems;
+    const el = document.querySelector(`input#${sentence}`);
+    if (el instanceof HTMLInputElement) {
+      textitems[k] = el.value.replace('\n', '');
+    }
+  }
+  console.log(JSON.stringify(textitems));
+
+  saveFile('translation.json', `[${JSON.stringify(documentation)}, ${JSON.stringify(textitems)}]`, 'text/json');
 }
 
 document.addEventListener('DOMContentLoaded', redraw);
