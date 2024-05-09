@@ -22,6 +22,7 @@ import { onUserChange } from '../auth-helper';
 import startController from './Controller';
 import { Firestore } from './Firestore';
 import { keyHandler } from './KeyHandler';
+import { dipIfOnMobile } from './global/browser';
 
 const apiKey = 'AIzaSyDQXDp-MUDHHnjNg3LX-furdTZ2GSRcV2k';
 
@@ -51,6 +52,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         // it won't be saved, so coming here was probably a mistake
         window.location.replace('/scores');
       } else {
+        dipIfOnMobile();
         startController(null, false);
       }
     } else {

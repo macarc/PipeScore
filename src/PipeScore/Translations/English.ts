@@ -166,7 +166,7 @@ export const EnglishTextItems: TextItems = {
   moveToPreviousStave: 'Move to previous stave',
   moveToNextStave: 'Move to next stave',
   addTiming: 'Add Timing',
-  addSecondTiming: '1st/2nd', // TODO
+  addSecondTiming: '1st/ 2nd', // TODO
   addSingleTiming: '2nd', // TODO
   modifyTiming: 'Modify Timing',
   editTimingText: 'Edit timing text',
@@ -177,7 +177,7 @@ export const EnglishTextItems: TextItems = {
   adjustStaveGap: 'Adjust stave gap',
   reset: 'Reset',
   deleteStave: 'Delete Stave',
-  delete: 'delete',
+  delete: 'Delete',
   addTune: 'Add Tune',
   modifyTune: 'Modify Tune',
   adjustGapBeforeTune: 'Adjust gap before tune',

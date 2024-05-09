@@ -25,3 +25,10 @@ export function onSafari() {
 export function onMobile() {
   return !matchMedia('(pointer:fine)').matches;
 }
+
+export function dipIfOnMobile() {
+  if (onMobile()) {
+    alert('You cannot create or edit scores on mobile, only view them. Sorry!');
+    window.location.replace('/scores');
+  }
+}

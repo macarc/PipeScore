@@ -116,7 +116,7 @@ function generateForm() {
   ];
 
   return m('form', { action: '', onclick: (e: Event) => e.preventDefault() }, [
-    m('label', [
+    m('label.choose-translation', [
       'Choose translation to work on: ',
       m('select', { onchange: setCurrentTranslation }, [
         m(

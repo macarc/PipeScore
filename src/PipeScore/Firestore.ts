@@ -21,18 +21,11 @@ import quickStart from './QuickStart';
 import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
 import { IScore } from './Score';
 import { Score } from './Score/impl';
-import { onMobile } from './global/browser';
+import { dipIfOnMobile, onMobile } from './global/browser';
 
 function beforeUnload(event: Event) {
   event.preventDefault();
   event.returnValue = true;
-}
-
-function dipIfOnMobile() {
-  if (onMobile()) {
-    alert('You cannot create or edit scores on mobile, only view them. Sorry!');
-    window.location.replace('/scores');
-  }
 }
 
 export class Firestore {
