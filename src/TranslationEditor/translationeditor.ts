@@ -75,6 +75,7 @@ function generateTextAreasFromProps(
   const children = [];
   for (const sentence in default_) {
     const k = sentence as keyof Documentation;
+    const text = o && o[k] !== default_[k] ? o[k] : '';
     children.push(
       m('label.sentence', [
         default_[k],
@@ -83,8 +84,9 @@ function generateTextAreasFromProps(
           {
             rows: 3,
             id: sentence,
+            value: text,
           },
-          o && o[k] !== default_[k] ? o[k] : ''
+          text
         ),
       ])
     );
