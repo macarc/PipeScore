@@ -213,4 +213,7 @@ export const EnglishTextItems: TextItems = {
   margin: 'Margin',
   view: 'View',
   disableHelp: 'Disable Help',
+  save: 'Save',
+  allChangesSaved: 'All changes saved!',
+  unsavedChanges: 'Unsaved changes',
 };

@@ -218,4 +218,7 @@ export const FrenchTextItems: TextItems = {
   margin: 'Marge',
   view: 'Voir',
   disableHelp: 'Désactiver Aide',
+  save: '',
+  allChangesSaved: '',
+  unsavedChanges: '',
 };

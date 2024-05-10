@@ -1151,14 +1151,14 @@ export default function render(state: UIState): m.Children {
               m(
                 'span.save-text',
                 { class: state.saved ? 'saved' : 'unsaved' },
-                state.saved ? 'All changes saved!' : 'Unsaved changes'
+                state.saved ? text('allChangesSaved') : text('unsavedChanges')
               ),
               help(
                 'save',
                 m(
                   'button.save',
                   { disabled: state.saved, onclick: () => state.dispatch(save()) },
-                  'Save'
+                  text('save')
                 ),
                 state.dispatch
               ),

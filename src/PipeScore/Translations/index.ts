@@ -177,4 +177,7 @@ export type TextItems = {
   margin: string;
   view: string;
   disableHelp: string;
+  save: string;
+  allChangesSaved: string;
+  unsavedChanges: string;
 };
