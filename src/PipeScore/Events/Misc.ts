@@ -17,6 +17,7 @@
 import m from 'mithril';
 import scoreToBWW from '../../ExportBWW/index';
 import { saveFile } from '../../common/file';
+import { setLanguage } from '../../common/i18n';
 import { Score } from '../Score/impl';
 import { drawScore } from '../Score/view';
 import { State } from '../State';
@@ -81,6 +82,13 @@ export function landscape(): ScoreEvent {
 export function portrait(): ScoreEvent {
   return async (state: State) => {
     return state.score.makePortrait();
+  };
+}
+
+export function updateLanguage(event: Event): ScoreEvent {
+  return async (state: State) => {
+    setLanguage(event);
+    return Update.ViewChanged;
   };
 }
 

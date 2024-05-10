@@ -17,12 +17,11 @@
 //  Draw the user interface (top bar and help documentation)
 
 import m from 'mithril';
-import { getLanguage, setLanguage } from '../../common/i18n';
+import { getLanguage } from '../../common/i18n';
 import { IBar } from '../Bar';
 import { Barline } from '../Barline';
 import { Dispatch } from '../Dispatch';
 import {
-  addAnacrusis,
   addBar,
   editBarTimeSignature,
   moveBarToNextLine,
@@ -46,6 +45,7 @@ import {
   setMenu,
   setPageNumberVisibility,
   undo,
+  updateLanguage,
 } from '../Events/Misc';
 import {
   setInputLength,
@@ -1126,18 +1126,25 @@ export default function render(state: UIState): m.Children {
           m('button', m('a[href=/help]', { target: '_blank' }, text('helpMenu'))),
           state.dispatch
         ),
-        m('select', { style: 'padding-left: 1rem', onchange: setLanguage }, [
-          m(
-            'option',
-            { name: 'lang', value: 'ENG', selected: language === 'ENG' },
-            '🇬🇧'
-          ),
-          m(
-            'option',
-            { name: 'lang', value: 'FRA', selected: language === 'FRA' },
-            '🇫🇷'
-          ),
-        ]),
+        m(
+          'select',
+          {
+            style: 'padding-left: 1rem',
+            onchange: (e: Event) => state.dispatch(updateLanguage(e)),
+          },
+          [
+            m(
+              'option',
+              { name: 'lang', value: 'ENG', selected: language === 'ENG' },
+              '🇬🇧'
+            ),
+            m(
+              'option',
+              { name: 'lang', value: 'FRA', selected: language === 'FRA' },
+              '🇫🇷'
+            ),
+          ]
+        ),
 
         ...(state.canSave
           ? [
