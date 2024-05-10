@@ -28,8 +28,8 @@ import { saveFile } from '../common/file';
 import { Language } from '../common/i18n';
 
 window.addEventListener('beforeunload', (event: Event) => {
-    event.preventDefault();
-    event.returnValue = true;
+  event.preventDefault();
+  event.returnValue = true;
 });
 
 function redraw() {
@@ -170,7 +170,11 @@ function collectForm() {
   }
   console.log(JSON.stringify(textitems));
 
-  saveFile('translation.json', `[${JSON.stringify(documentation)}, ${JSON.stringify(textitems)}]`, 'text/json');
+  saveFile(
+    'translation.json',
+    `[${JSON.stringify(documentation)}, ${JSON.stringify(textitems)}]`,
+    'text/json'
+  );
 }
 
 document.addEventListener('DOMContentLoaded', redraw);

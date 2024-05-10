@@ -183,8 +183,6 @@ export type SavedSettings = {
   lineGap: number;
   margin: number;
   gapAfterGracenote: number;
-  // Deprecated
-  topOffset?: number;
 };
 
 export type DeprecatedSavedNoteOrTriplet =

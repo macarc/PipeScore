@@ -104,11 +104,6 @@ export class Score extends IScore {
       s._tunes = o.tunes.map(Tune.fromJSON);
     }
 
-    const firstTune = first(s.tunes());
-    if (o.settings.topOffset !== undefined && firstTune) {
-      // TODO check if this is a good value
-      firstTune.setTuneGap(o.settings.topOffset);
-    }
     return s;
   }
 
