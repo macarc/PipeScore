@@ -13,31 +13,31 @@ export const Spec: SpecType[] = [
   },
   // We can't use .*? inside brackets since that wouldn't match newlines
   {
-    regex: /^MIDINoteMappings,\([^)]*\)/,
+    regex: /^MIDINoteMappings,\s*\([^)]*\)/,
     type: TokenType.MIDI_NOTE_MAPPINGS,
   },
   {
-    regex: /^FrequencyMappings,\([^)]*\)/,
+    regex: /^FrequencyMappings,\s*\([^)]*\)/,
     type: TokenType.FREQUENCY_MAPPINGS,
   },
   {
-    regex: /^InstrumentMappings,\([^)]*\)/,
+    regex: /^InstrumentMappings,\s*\([^)]*\)/,
     type: TokenType.INSTRUMENT_MAPPINGS,
   },
   {
-    regex: /^GracenoteDurations,\([^)]*\)/,
+    regex: /^GracenoteDurations,\s*\([^)]*\)/,
     type: TokenType.GRACENOTE_DURATIONS,
   },
   {
-    regex: /^FontSizes,\([^)]*\)/,
+    regex: /^FontSizes,\s*\([^)]*\)/,
     type: TokenType.FONT_SIZES,
   },
   {
-    regex: /^TuneFormat,\([^)]*\)/,
+    regex: /^TuneFormat,\s*\([^)]*\)/,
     type: TokenType.TUNE_FORMAT,
   },
   {
-    regex: /^TuneTempo,(\d*)/,
+    regex: /^TuneTempo,\s*(\d*)/,
     type: TokenType.TUNE_TEMPO,
   },
   {
