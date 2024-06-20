@@ -38,36 +38,36 @@ export const FrenchDocumentation: Documentation = {
   natural:
     "Ajouter/supprimer la tonalité naturelle (bécarre) de la note. Ceci ne s'applique qu'aux notes C et F.",
   delete:
-    "Supprimer note, gracenote, texte ou mesure actuellement sélectionnés. Pour les gracenotes, cliquez sur la ligature pour sélectionner l'ensemble ou cliquez sur la tête pour ne sélectionner qu'une seule note. Pour supprimer une portée, supprimer toutes les mesures qu'elle contient.",
+    "Supprimer la note, la note d'ornementation, le texte ou la mesure actuellement sélectionnés. Pour les notes d'ornementation, cliquez sur la ligature pour sélectionner l'ensemble ou cliquez sur la tête pour ne sélectionner qu'une seule note. Pour supprimer une portée, supprimer toutes les mesures qu'elle contient.",
   copy: 'Copier les notes (ou les mesures) actuellement sélectionnées. Pour sélectionner plusieurs notes, cliquez sur la première note à sélectionner, puis maintenez la touche Shift enfoncée et cliquez sur la dernière note à sélectionner.',
   paste: 'Coller les notes que vous avez copiées.',
   undo: 'Annuler la dernière action qui a modifié la partition.',
   redo: 'Refaire la dernière action que vous avez annulée.',
   single:
-    "Ajoute une seule gracenote à la note sélectionnée. Vous pouvez également appuyer sur ce bouton, puis utiliser la souris pour placer la note gracieuse à l'endroit voulu sur la partition.",
+    "Ajoute une note unique d'ornementation à la note sélectionnée. Vous pouvez également appuyer sur ce bouton, puis utiliser la souris pour placer la note gracieuse à l'endroit voulu sur la partition.",
   doubling:
-    'Ajouter une doublé à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une doubling.',
+    'Ajouter une doublée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une doublée.',
   'half-doubling':
-    'Ajouter une demi-doublé à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une half-doubling.',
+    'Ajouter une demi-doublée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une demi-doublée.',
   'throw-d':
-    'Ajouter une lancé sur D à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une throw on D.',
-  grip: 'Ajouter une grip à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une grip.',
-  birl: 'Ajouter une birl à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une birl.',
+    'Ajouter une lancée sur ré à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une lancée sur ré.',
+  grip: 'Ajouter une prise à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une prise.',
+  birl: 'Ajouter une fillette à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une fillette.',
   'g-gracenote-birl':
-    'Ajouter une G gracenote sur birl à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une G gracenote birl.',
+    'Ajouter une fillette de si à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une fillette de si.',
   'g-strike':
-    'Ajouter une gracenote strike à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une gracenote strike.',
+    'Ajouter une choquée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une choquée.',
   shake:
-    'Ajouter une shake à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une shake.',
+    'Ajouter une secouée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une secouée.',
   'c-shake':
-    'Ajouter une light shake à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une C shake.',
+    'Ajouter une secouée aiguë à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une secouée aiguë.',
   taorluath:
-    'Ajouter une taorluath à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une taorluath.',
+    'Ajouter une avancée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une avancée.',
   crunluath:
-    'Ajouter une crunluath à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une crunluath.',
-  edre: 'Ajouter une edre à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une edre.',
+    'Ajouter une rattrapée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une rattrapée.',
+  edre: 'Ajouter une entre-note à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une entre-note.',
   bubbly:
-    'Ajouter une bubbly à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une bubbly.',
+    'Ajouter une pétillante à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une pétillante.',
   'add-bar-before': 'Ajouter une nouvelle mesure avant la barre sélectionnée.',
   'add-bar-after': 'Ajouter une nouvelle mesure après la mesure sélectionnée.',
   'edit-bar-time-signature':
