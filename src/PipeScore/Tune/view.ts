@@ -36,7 +36,6 @@ export function drawTuneHeading(tune: ITune, props: TuneProps) {
 
   const titleY = props.y + Math.max(heightToWorkWith / 2, titleSize);
   const otherY = props.y + heightToWorkWith - otherSize / 2;
-  const detailX = 8;
 
   return m('g.tune', [
     drawStaticTextBox(
@@ -45,22 +44,25 @@ export function drawTuneHeading(tune: ITune, props: TuneProps) {
       titleY,
       titleSize,
       'sans-serif',
+      'middle',
       () => props.dispatch(editTuneName(tune))
     ),
     drawStaticTextBox(
       tune.tuneType(),
-      props.pageWidth / detailX,
+      settings.margin,
       otherY,
       otherSize,
       'sans-serif',
+      'start',
       () => props.dispatch(editTuneType(tune))
     ),
     drawStaticTextBox(
       tune.composer(),
-      ((detailX - 1) / detailX) * props.pageWidth,
+      props.pageWidth - settings.margin,
       otherY,
       otherSize,
       'sans-serif',
+      'end',
       () => props.dispatch(editComposer(tune))
     ),
   ]);

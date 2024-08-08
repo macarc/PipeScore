@@ -22,6 +22,7 @@ export function drawStaticTextBox(
   y: number,
   fontSize: number,
   font: string,
+  anchor: 'start' | 'middle' | 'end',
   onclick: () => void
 ): m.Children {
   return m(
@@ -30,7 +31,7 @@ export function drawStaticTextBox(
       x,
       y,
       style: `font-size: ${fontSize}px; cursor: pointer; font-family: ${font};`,
-      'text-anchor': 'middle',
+      'text-anchor': anchor,
       ondblclick: onclick,
     },
     text || 'Double Click to Edit'
