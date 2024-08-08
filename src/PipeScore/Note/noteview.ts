@@ -45,8 +45,8 @@ export enum ShortBeamDirection {
   Right = 1,
 }
 
-const beamThickness = 3;
-const tailGap = 4;
+const beamThickness = 2.5;
+const tailGap = 5;
 const shortTailLength = 10;
 // note that this is half the width of the note, not the actual radius
 // (the actual radius will actually be slightly larger since the note head is slanted slightly)
@@ -406,7 +406,7 @@ export function drawNoteGroup(notes: INote[], props: NoteProps) {
   const x = (i: number) => layout[i].x;
   const y = (i: number) => layout[i].y;
 
-  const stemY = props.y + settings.lineHeightOf(6);
+  const stemY = props.y + settings.lineHeightOf(4) + 3 * tailGap + beamThickness / 2;
 
   return m(
     'g[class=grouped-notes]',
