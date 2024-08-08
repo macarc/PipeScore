@@ -14,9 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { State } from '../State';
-import { Documentation } from '../Translations';
-import { ScoreEvent, Update } from './types';
+import type { State } from '../State';
+import type { Documentation } from '../Translations';
+import { type ScoreEvent, Update } from './types';
 
 export function hoverDoc(element: keyof Documentation | null): ScoreEvent {
   return async (state: State) => {

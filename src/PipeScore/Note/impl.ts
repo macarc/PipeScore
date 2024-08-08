@@ -16,8 +16,11 @@
 
 //  Implementations of notes and triplets
 
-import { INote, NoteOrTriplet } from '.';
-import { SavedNoteOrTriplet, isDeprecatedSavedNoteOrTriplet } from '../SavedModel';
+import type { INote, NoteOrTriplet } from '.';
+import {
+  type SavedNoteOrTriplet,
+  isDeprecatedSavedNoteOrTriplet,
+} from '../SavedModel';
 import { Note } from './note';
 import { Triplet } from './triplet';
 

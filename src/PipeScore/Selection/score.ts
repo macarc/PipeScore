@@ -19,19 +19,19 @@
 //  so it goes in its own file
 
 import m from 'mithril';
-import { IBar } from '../Bar';
+import type { IBar } from '../Bar';
 import { Bar } from '../Bar/impl';
-import { IGracenote } from '../Gracenote';
-import { INote, NoteOrTriplet, flattenTriplets } from '../Note';
-import { IScore } from '../Score';
-import { IStave } from '../Stave';
-import { ITune } from '../Tune';
-import { ID } from '../global/id';
-import { Pitch } from '../global/pitch';
-import { Relative } from '../global/relativeLocation';
+import type { IGracenote } from '../Gracenote';
+import { INote, type NoteOrTriplet, flattenTriplets } from '../Note';
+import type { IScore } from '../Score';
+import type { IStave } from '../Stave';
+import type { ITune } from '../Tune';
+import type { ID } from '../global/id';
+import type { Pitch } from '../global/pitch';
+import type { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { foreach, last } from '../global/utils';
-import { XY, getXYRangeForPage, isItemBefore } from '../global/xy';
+import { type XY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
 
 interface ScoreSelectionProps {

@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { State } from '../State';
+import type { State } from '../State';
 import { dialogueBoxIsOpen } from '../global/dialogueBox';
 import { stopInputMode } from './common';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function mouseUp(): ScoreEvent {
   return async (state: State) => {

@@ -17,19 +17,24 @@
 import { IBar } from '.';
 import { Barline } from '../Barline';
 import {
-  INote,
+  type INote,
   ITriplet,
-  NoteOrTriplet,
+  type NoteOrTriplet,
   flattenTriplets,
   lastNote,
   noteToJSON,
 } from '../Note';
 import { noteFromJSON, notesToTriplet } from '../Note/impl';
-import { Playback, PlaybackNote, PlaybackObject, PlaybackRepeat } from '../Playback';
-import { SavedBar } from '../SavedModel';
-import { ITimeSignature } from '../TimeSignature';
+import {
+  type Playback,
+  PlaybackNote,
+  PlaybackObject,
+  PlaybackRepeat,
+} from '../Playback';
+import type { SavedBar } from '../SavedModel';
+import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
-import { ID, genId } from '../global/id';
+import { type ID, genId } from '../global/id';
 import { last } from '../global/utils';
 
 export class Bar extends IBar {

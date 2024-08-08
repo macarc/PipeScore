@@ -17,10 +17,10 @@
 //  BWWItem represents an atom (from the point of view of the BWW format)
 
 import { Barline } from '../PipeScore/Barline';
-import { Duration, NoteLength } from '../PipeScore/Note/notelength';
+import { Duration, type NoteLength } from '../PipeScore/Note/notelength';
 import { ShortBeamDirection } from '../PipeScore/Note/noteview';
-import { ITimeSignature } from '../PipeScore/TimeSignature';
-import { Pitch } from '../PipeScore/global/pitch';
+import type { ITimeSignature } from '../PipeScore/TimeSignature';
+import type { Pitch } from '../PipeScore/global/pitch';
 import { gracenoteToBWW } from './gracenotes';
 import { toBWWPitch } from './pitch';
 

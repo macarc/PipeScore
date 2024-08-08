@@ -15,12 +15,12 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ScoreSelection } from '../Selection/score';
-import { State } from '../State';
+import type { State } from '../State';
 import { minStaveGap } from '../Stave/view';
 import { Relative } from '../global/relativeLocation';
 import { Settings, settings } from '../global/settings';
 import { first, last } from '../global/utils';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function addStave(where: Relative): ScoreEvent {
   return async (state: State) => {

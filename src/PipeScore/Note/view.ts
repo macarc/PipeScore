@@ -16,12 +16,12 @@
 
 //  Code for drawing notes
 
-import { INote, ITriplet, NoteOrTriplet } from '.';
-import { Dispatch } from '../Dispatch';
-import { GracenoteState } from '../Gracenote/state';
-import { Pitch } from '../global/pitch';
+import { type INote, ITriplet, type NoteOrTriplet } from '.';
+import type { Dispatch } from '../Dispatch';
+import type { GracenoteState } from '../Gracenote/state';
+import type { Pitch } from '../global/pitch';
 import { noteWidth, totalWidth } from './noteview';
-import { NoteState } from './state';
+import type { NoteState } from './state';
 
 export {
   drawNoteGroup,

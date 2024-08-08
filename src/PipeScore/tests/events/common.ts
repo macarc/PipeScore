@@ -1,6 +1,6 @@
-import { IScore } from '../../Score';
+import type { IScore } from '../../Score';
 import { Score } from '../../Score/impl';
-import { State } from '../../State';
+import type { State } from '../../State';
 
 export function emptyState(score: IScore = Score.blank()): State {
   return {

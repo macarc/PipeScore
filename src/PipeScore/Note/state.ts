@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { INote, ITriplet } from '.';
+import type { INote, ITriplet } from '.';
 
 export interface NoteState {
   dragged: INote | null;

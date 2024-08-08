@@ -18,8 +18,8 @@
 //  Useful for timings, ties, e.t.c. - anything where you need to know the
 //  coordinates of something else.
 
-import { IScore } from '../Score';
-import { ID } from './id';
+import type { IScore } from '../Score';
+import type { ID } from './id';
 
 export interface XY {
   id: ID;
@@ -88,7 +88,7 @@ export function closestItem(
   page: number,
   prop: keyof XY
 ): ID | null {
-  let closestDistance = Infinity;
+  let closestDistance = Number.POSITIVE_INFINITY;
   return [...itemCoords]
     .filter(([_, coord]) => coord.page === page)
     .reduce((closestID: ID | null, [id, xy]) => {

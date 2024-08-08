@@ -16,10 +16,10 @@
 
 //  Buffered saving interface to Firestore
 
-import { Database } from 'firebase-firestore-lite';
+import type { Database } from 'firebase-firestore-lite';
 import quickStart from './QuickStart';
-import { SavedData, SavedScore, scoreIsPresent } from './SavedModel';
-import { IScore } from './Score';
+import { type SavedData, type SavedScore, scoreIsPresent } from './SavedModel';
+import type { IScore } from './Score';
 import { Score } from './Score/impl';
 import { dipIfOnMobile, onMobile } from './global/browser';
 

@@ -19,8 +19,8 @@
 import { INote } from '.';
 import { IGracenote } from '../Gracenote';
 import { Gracenote, NoGracenote } from '../Gracenote/impl';
-import { Playback, PlaybackNote, PlaybackObject } from '../Playback';
-import { SavedNote } from '../SavedModel';
+import { type Playback, PlaybackNote, PlaybackObject } from '../Playback';
+import type { SavedNote } from '../SavedModel';
 import { genId } from '../global/id';
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
 import { NoteLength } from './notelength';

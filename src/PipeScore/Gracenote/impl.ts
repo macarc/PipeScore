@@ -25,9 +25,9 @@
 
 import { IGracenote } from '.';
 import { PlaybackGracenote } from '../Playback';
-import { IPreview } from '../Preview';
+import type { IPreview } from '../Preview';
 import { ReactiveGracenotePreview, SingleGracenotePreview } from '../Preview/impl';
-import {
+import type {
   SavedCustomGracenote,
   SavedGracenote,
   SavedReactiveGracenote,

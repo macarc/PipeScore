@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { IScore } from '../Score';
-import { ITiming, TimingPart } from '../Timing';
+import type { IScore } from '../Score';
+import type { ITiming, TimingPart } from '../Timing';
 import { DraggableSelection } from './dragging';
 
 export class TimingSelection extends DraggableSelection {

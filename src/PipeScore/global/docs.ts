@@ -17,10 +17,10 @@
 //  Helper to add hoverable documentation to any HTML element.
 //  Actual documentation strings are stored in ../Documentation.
 
-import m from 'mithril';
-import { Dispatch } from '../Dispatch';
+import type m from 'mithril';
+import type { Dispatch } from '../Dispatch';
 import { hoverDoc } from '../Events/Doc';
-import { Documentation } from '../Translations';
+import type { Documentation } from '../Translations';
 
 export function help(
   docName: keyof Documentation,

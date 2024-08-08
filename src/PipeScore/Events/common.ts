@@ -16,7 +16,7 @@
 
 //  Functions shared between multiple event handlers.
 
-import { State } from '../State';
+import type { State } from '../State';
 
 export function stopInputMode(state: State) {
   state.preview?.stop();

@@ -14,14 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Barline } from '../Barline';
-import { INote, ITriplet, NoteOrTriplet } from '../Note';
-import { Playback } from '../Playback';
-import { Previews } from '../Preview/previews';
-import { SavedBar } from '../SavedModel';
-import { ITimeSignature } from '../TimeSignature';
-import { ID, Item } from '../global/id';
-import { Pitch } from '../global/pitch';
+import type { Barline } from '../Barline';
+import type { INote, ITriplet, NoteOrTriplet } from '../Note';
+import type { Playback } from '../Playback';
+import type { Previews } from '../Preview/previews';
+import type { SavedBar } from '../SavedModel';
+import type { ITimeSignature } from '../TimeSignature';
+import { type ID, Item } from '../global/id';
+import type { Pitch } from '../global/pitch';
 import { last } from '../global/utils';
 
 export abstract class IBar extends Item implements Previews<INote> {

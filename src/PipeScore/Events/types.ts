@@ -16,7 +16,7 @@
 
 //  Types shared between multiple event handlers.
 
-import { State } from '../State';
+import type { State } from '../State';
 
 export type ScoreEvent = (state: State) => Promise<Update>;
 

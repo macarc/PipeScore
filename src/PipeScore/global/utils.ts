@@ -90,7 +90,7 @@ export function svgCoords(event: MouseEvent): SvgPt | null {
     svg = document.getElementsByTagName('svg')[0];
   }
   if (svg instanceof SVGSVGElement) {
-    const page = parseInt(svg.classList[0]);
+    const page = Number.parseInt(svg.classList[0]);
     const CTM = svg.getScreenCTM();
     if (CTM == null) return null;
     const pt = svg.createSVGPoint();

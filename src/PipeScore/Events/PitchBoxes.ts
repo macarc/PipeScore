@@ -15,10 +15,10 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { IBar } from '../Bar';
-import { INote } from '../Note';
-import { State } from '../State';
-import { Pitch } from '../global/pitch';
-import { ScoreEvent, Update } from './types';
+import type { INote } from '../Note';
+import type { State } from '../State';
+import type { Pitch } from '../global/pitch';
+import { type ScoreEvent, Update } from './types';
 
 export function mouseOffPitch(): ScoreEvent {
   return async (state: State) => {

@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Documentation, TextItems } from '.';
+import type { Documentation, TextItems } from '.';
 
 export const FrenchDocumentation: Documentation = {
   home: 'Retourner à la page des partitions.',

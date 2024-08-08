@@ -15,11 +15,11 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { ITiming, TimingLine } from '.';
-import { Dispatch } from '../Dispatch';
+import type { ITiming, TimingLine } from '.';
+import type { Dispatch } from '../Dispatch';
 import { clickTiming, editTimingText } from '../Events/Timing';
-import { IScore } from '../Score';
-import { ISelection } from '../Selection';
+import type { IScore } from '../Score';
+import type { ISelection } from '../Selection';
 import { TimingSelection } from '../Selection/timing';
 import { settings } from '../global/settings';
 import { foreach } from '../global/utils';

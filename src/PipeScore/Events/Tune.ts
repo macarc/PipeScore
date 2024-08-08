@@ -15,12 +15,10 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ScoreSelection } from '../Selection/score';
-import { State } from '../State';
-import { editStaticTextBox } from '../StaticTextBox/edit';
-import { ITune } from '../Tune';
-import { Relative } from '../global/relativeLocation';
+import type { State } from '../State';
+import type { Relative } from '../global/relativeLocation';
 import { Settings } from '../global/settings';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function addTune(where: Relative): ScoreEvent {
   return async (state: State) => {
@@ -61,45 +59,6 @@ export function resetTuneGap(): ScoreEvent {
       state.selection instanceof ScoreSelection && state.selection.tune(state.score);
     if (tune) {
       tune.setTuneGap(Settings.defaultTuneGap);
-      return Update.ShouldSave;
-    }
-    return Update.NoChange;
-  };
-}
-
-export function editTuneName(tune: ITune): ScoreEvent {
-  return async () => {
-    const name = await editStaticTextBox('Edit tune name', tune.name());
-    if (name && name !== tune.name()) {
-      tune.setName(name);
-      return Update.ShouldSave;
-    }
-    return Update.NoChange;
-  };
-}
-
-export function editTuneType(tune: ITune): ScoreEvent {
-  return async () => {
-    const tuneType = await editStaticTextBox(
-      `Edit tune type for '${tune.name()}'`,
-      tune.tuneType()
-    );
-    if (tuneType && tuneType !== tune.tuneType()) {
-      tune.setTuneType(tuneType);
-      return Update.ShouldSave;
-    }
-    return Update.NoChange;
-  };
-}
-
-export function editComposer(tune: ITune): ScoreEvent {
-  return async () => {
-    const composer = await editStaticTextBox(
-      `Edit composer for '${tune.name()}'`,
-      tune.composer()
-    );
-    if (composer && composer !== tune.composer()) {
-      tune.setComposer(composer);
       return Update.ShouldSave;
     }
     return Update.NoChange;

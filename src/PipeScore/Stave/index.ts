@@ -16,12 +16,12 @@
 
 //  A Stave is a single line of music.
 
-import { IBar } from '../Bar';
-import { INote } from '../Note';
-import { Playback } from '../Playback';
-import { SavedStave } from '../SavedModel';
-import { ID } from '../global/id';
-import { Relative } from '../global/relativeLocation';
+import type { IBar } from '../Bar';
+import type { INote } from '../Note';
+import type { Playback } from '../Playback';
+import type { SavedStave } from '../SavedModel';
+import type { ID } from '../global/id';
+import type { Relative } from '../global/relativeLocation';
 
 export abstract class IStave {
   abstract toJSON(): SavedStave;

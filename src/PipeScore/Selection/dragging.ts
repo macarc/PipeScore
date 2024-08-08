@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ISelection } from '.';
-import { IScore } from '../Score';
-import { Pitch } from '../global/pitch';
+import type { IScore } from '../Score';
+import type { Pitch } from '../global/pitch';
 
 // Stubs for all methods, that can then be overriden as needed
 export abstract class DefaultSelection extends ISelection {

@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { IScore } from '../Score';
-import { Pitch } from '../global/pitch';
+import type { IScore } from '../Score';
+import type { Pitch } from '../global/pitch';
 
 export abstract class ISelection {
   abstract dragging(): boolean;

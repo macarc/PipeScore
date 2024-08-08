@@ -16,7 +16,7 @@
 
 import m from 'mithril';
 import { Barline } from '.';
-import { Dispatch } from '../Dispatch';
+import type { Dispatch } from '../Dispatch';
 import { clickBarline } from '../Events/Bar';
 import { stavelineThickness } from '../Stave/view';
 import { settings } from '../global/settings';

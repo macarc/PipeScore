@@ -14,14 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { IScore } from '../Score';
-import { ITextBox } from '../TextBox';
+import type { IScore } from '../Score';
+import type { IMovableTextBox } from '../TextBox';
 import { DraggableSelection } from './dragging';
 
 export class TextSelection extends DraggableSelection {
-  public text: ITextBox;
+  public text: IMovableTextBox;
 
-  constructor(text: ITextBox, createdByMouseDown: boolean) {
+  constructor(text: IMovableTextBox, createdByMouseDown: boolean) {
     super(createdByMouseDown);
     this.text = text;
   }

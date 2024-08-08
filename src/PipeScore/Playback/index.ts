@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ID } from '../global/id';
-import { Pitch } from '../global/pitch';
+import type { ID } from '../global/id';
+import type { Pitch } from '../global/pitch';
 
 export class PlaybackObject {
   type: 'object-start' | 'object-end';

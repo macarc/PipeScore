@@ -1,7 +1,7 @@
 import Auth from 'firebase-auth-lite';
-import { Database, Reference } from 'firebase-firestore-lite';
+import { Database, type Reference } from 'firebase-firestore-lite';
 import m from 'mithril';
-import { SavedScore } from '../PipeScore/SavedModel';
+import type { SavedScore } from '../PipeScore/SavedModel';
 import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
 import { parse } from './Parser';

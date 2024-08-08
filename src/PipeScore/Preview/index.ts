@@ -16,9 +16,9 @@
 
 //  Preview interface - this is used for note and gracenote previews
 
-import { IBar } from '../Bar';
-import { INote } from '../Note';
-import { Pitch } from '../global/pitch';
+import type { IBar } from '../Bar';
+import type { INote } from '../Note';
+import type { Pitch } from '../global/pitch';
 
 export interface IPreview {
   // Returns true if the pitch changed

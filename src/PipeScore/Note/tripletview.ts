@@ -17,11 +17,11 @@
 //  Code for drawing triplets
 
 import m from 'mithril';
-import { ITriplet } from '.';
+import type { ITriplet } from '.';
 import { clickTripletLine } from '../Events/Note';
 import { pitchY } from '../global/pitch';
 import { getXY } from '../global/xy';
-import { NoteProps, drawNoteGroup } from './view';
+import { type NoteProps, drawNoteGroup } from './view';
 
 // Draws a triplet marking from x1,y1 to x2,y2
 function tripletLine(

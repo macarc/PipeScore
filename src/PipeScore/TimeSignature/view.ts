@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { ITimeSignature } from '.';
-import { Dispatch } from '../Dispatch';
+import type { ITimeSignature } from '.';
+import type { Dispatch } from '../Dispatch';
 import { editTimeSignature } from '../Events/Bar';
 import { settings } from '../global/settings';
 

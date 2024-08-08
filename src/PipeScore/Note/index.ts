@@ -16,13 +16,13 @@
 
 //  Interfaces of notes and triplets
 
-import { IGracenote } from '../Gracenote';
-import { Playback } from '../Playback';
-import { Previews } from '../Preview/previews';
-import { SavedNote, SavedNoteOrTriplet, SavedTriplet } from '../SavedModel';
+import type { IGracenote } from '../Gracenote';
+import type { Playback } from '../Playback';
+import type { Previews } from '../Preview/previews';
+import type { SavedNote, SavedNoteOrTriplet, SavedTriplet } from '../SavedModel';
 import { Item } from '../global/id';
-import { Pitch } from '../global/pitch';
-import { NoteLength } from './notelength';
+import type { Pitch } from '../global/pitch';
+import type { NoteLength } from './notelength';
 
 export abstract class INote
   extends Item

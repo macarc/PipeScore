@@ -16,14 +16,14 @@
 
 //  The type of the global state
 
-import { Firestore } from './Firestore';
-import { PlaybackState } from './Playback/state';
-import { IPreview } from './Preview';
-import { SavedNoteOrTriplet } from './SavedModel';
-import { IScore } from './Score';
-import { ISelection } from './Selection';
-import { Documentation } from './Translations';
-import { Menu } from './UI/model';
+import type { Firestore } from './Firestore';
+import type { PlaybackState } from './Playback/state';
+import type { IPreview } from './Preview';
+import type { SavedNoteOrTriplet } from './SavedModel';
+import type { IScore } from './Score';
+import type { ISelection } from './Selection';
+import type { Documentation } from './Translations';
+import type { Menu } from './UI/model';
 
 export type State = {
   store: Firestore | null;

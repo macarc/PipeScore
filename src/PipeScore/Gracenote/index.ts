@@ -14,11 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Playback } from '../Playback';
-import { IPreview } from '../Preview';
-import { SavedGracenote } from '../SavedModel';
-import { Pitch } from '../global/pitch';
-import { GracenoteNoteList } from './gracenotes';
+import type { Playback } from '../Playback';
+import type { IPreview } from '../Preview';
+import type { SavedGracenote } from '../SavedModel';
+import type { Pitch } from '../global/pitch';
+import type { GracenoteNoteList } from './gracenotes';
 
 export abstract class IGracenote {
   abstract drag(pitch: Pitch, index: number): IGracenote;

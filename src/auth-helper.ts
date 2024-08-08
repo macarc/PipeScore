@@ -14,7 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import Auth, { User } from 'firebase-auth-lite';
+import type Auth from 'firebase-auth-lite';
+import type { User } from 'firebase-auth-lite';
 
 // A small wrapper over auth.listen(). The auth.listen() isn't used directly
 // is that by default it won't alert when the user isn't logged in

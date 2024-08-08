@@ -15,17 +15,17 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { IBar } from '.';
+import type { IBar } from '.';
 import { barlineWidth, drawBarline } from '../Barline/view';
-import { Dispatch } from '../Dispatch';
+import type { Dispatch } from '../Dispatch';
 import { clickBar } from '../Events/Bar';
 import { addNoteToBarEnd } from '../Events/Note';
 import { mouseOverPitch } from '../Events/PitchBoxes';
-import { GracenoteState } from '../Gracenote/state';
-import { INote, ITriplet, NoteOrTriplet, groupNotes, lastNote } from '../Note';
-import { NoteState } from '../Note/state';
+import type { GracenoteState } from '../Gracenote/state';
+import { INote, ITriplet, type NoteOrTriplet, groupNotes, lastNote } from '../Note';
+import type { NoteState } from '../Note/state';
 import {
-  NoteProps,
+  type NoteProps,
   drawNoteGroup,
   drawTriplet,
   noteHeadWidth,
@@ -34,7 +34,7 @@ import {
 } from '../Note/view';
 import { pitchBoxes } from '../PitchBoxes';
 import { drawTimeSignature } from '../TimeSignature/view';
-import { Pitch } from '../global/pitch';
+import type { Pitch } from '../global/pitch';
 import { nlast } from '../global/utils';
 import width from '../global/width';
 import { setXY } from '../global/xy';

@@ -19,7 +19,7 @@
 import m from 'mithril';
 import dialogueBox from '../global/dialogueBox';
 import { TimeSignature } from './impl';
-import { Denominator, ITimeSignature, parseDenominator } from './index';
+import { type Denominator, type ITimeSignature, parseDenominator } from './index';
 
 export function timeSignatureEditor(ts: ITimeSignature): m.Children {
   const denominatorOption = (i: Denominator) =>
@@ -111,10 +111,10 @@ export async function timeSignatureEditDialog(
       .filter((l) => l.length > 0)
       // map(parseInt) passes in the index as a radix :)
       // glad I knew that already and didn't have to debug...
-      .map((i) => parseInt(i));
+      .map((i) => Number.parseInt(i));
 
     if (data.ts === 'normal') {
-      const num = Math.max(parseInt(data.numerator.toString()), 1);
+      const num = Math.max(Number.parseInt(data.numerator.toString()), 1);
       const denom = parseDenominator(data.denominator.toString());
       if (num && denom) return new TimeSignature([num, denom], breaks);
     } else if (data.ts === 'cut time' || data.ts === 'common time') {

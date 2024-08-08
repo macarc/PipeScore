@@ -1,17 +1,17 @@
 import { Duration, NoteLength } from '../PipeScore/Note/notelength';
-import {
+import type {
   SavedBar,
   SavedGracenote,
   SavedScore,
   SavedTimeSignature,
   SavedTiming,
 } from '../PipeScore/SavedModel';
-import { ID, genId } from '../PipeScore/global/id';
+import { type ID, genId } from '../PipeScore/global/id';
 import { Pitch } from '../PipeScore/global/pitch';
 import { Settings } from '../PipeScore/global/settings';
 import { sum } from '../PipeScore/global/utils';
 import { TokenStream } from './Tokeniser';
-import { Token, TokenType } from './token';
+import { type Token, TokenType } from './token';
 
 export const parse = (data: string) => new Parser(data).parse();
 
@@ -451,8 +451,8 @@ class Parser implements Record<TokenType, (t: Token) => void> {
 
   [TokenType.TIME_SIGNATURE](t: Token) {
     if (t.value[1]) {
-      const top = parseInt(t.value[1]);
-      const bottom = parseInt(t.value[2]);
+      const top = Number.parseInt(t.value[1]);
+      const bottom = Number.parseInt(t.value[2]);
       if (top && (bottom === 2 || bottom === 4 || bottom === 8)) {
         this.score.setTimeSignature({
           ts: [top, bottom],

@@ -16,11 +16,11 @@
 
 import { ScoreSelection } from '../Selection/score';
 import { TimingSelection } from '../Selection/timing';
-import { State } from '../State';
-import { ITiming, TimingPart } from '../Timing';
+import type { State } from '../State';
+import type { ITiming, TimingPart } from '../Timing';
 import { SecondTiming, SingleTiming } from '../Timing/impl';
 import { after } from '../global/utils';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {

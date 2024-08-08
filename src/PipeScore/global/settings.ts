@@ -16,7 +16,7 @@
 
 //  Document settings singleton.
 
-import { SavedSettings } from '../SavedModel';
+import type { SavedSettings } from '../SavedModel';
 import { clamp } from './utils';
 
 const a4LongSide = 297; // in mm

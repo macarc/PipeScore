@@ -15,23 +15,23 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { TextSelection } from '../Selection/text';
-import { State } from '../State';
-import { ITextBox } from '../TextBox';
+import type { State } from '../State';
+import type { IMovableTextBox, ITextBox } from '../TextBox';
 import { editTextBox } from '../TextBox/edit';
-import { TextBox } from '../TextBox/impl';
+import { MovableTextBox } from '../TextBox/impl';
 import { settings } from '../global/settings';
 import { clamp } from '../global/utils';
 import { stopInputMode } from './common';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function addText(): ScoreEvent {
   return async (state: State) => {
-    state.score.addText(new TextBox(''));
+    state.score.addText(new MovableTextBox(''));
     return Update.ShouldSave;
   };
 }
 
-export function clickText(text: ITextBox): ScoreEvent {
+export function clickText(text: IMovableTextBox): ScoreEvent {
   return async (state: State) => {
     stopInputMode(state);
     state.selection = new TextSelection(text, true);

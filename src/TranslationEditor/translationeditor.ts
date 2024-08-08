@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { Documentation, TextItems } from '../PipeScore/Translations';
+import type { Documentation, TextItems } from '../PipeScore/Translations';
 import {
   EnglishDocumentation,
   EnglishTextItems,
@@ -25,7 +25,7 @@ import {
   FrenchTextItems,
 } from '../PipeScore/Translations/French';
 import { saveFile } from '../common/file';
-import { Language } from '../common/i18n';
+import type { Language } from '../common/i18n';
 
 window.addEventListener('beforeunload', (event: Event) => {
   event.preventDefault();

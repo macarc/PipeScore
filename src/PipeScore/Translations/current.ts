@@ -16,7 +16,7 @@
 
 //  Documentation - explanations for the UI that are shown on hover.
 
-import { Documentation, TextItems } from '.';
+import type { Documentation, TextItems } from '.';
 import { getLanguage } from '../../common/i18n';
 import { EnglishDocumentation, EnglishTextItems } from './English';
 import { FrenchDocumentation, FrenchTextItems } from './French';

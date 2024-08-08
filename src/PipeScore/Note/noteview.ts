@@ -17,17 +17,21 @@
 //  Code for drawing notes
 
 import m from 'mithril';
-import { INote } from '.';
+import type { INote } from '.';
 import { addNoteBefore, clickNote } from '../Events/Note';
 import { mouseOffPitch, mouseOverPitch } from '../Events/PitchBoxes';
-import { GracenoteProps, drawGracenote, gracenoteWidth } from '../Gracenote/view';
+import {
+  type GracenoteProps,
+  drawGracenote,
+  gracenoteWidth,
+} from '../Gracenote/view';
 import { pitchBoxes } from '../PitchBoxes';
 import { Pitch, isPitchOnLine, pitchY } from '../global/pitch';
 import { settings } from '../global/settings';
 import { foreach, isRoughlyZero, sum } from '../global/utils';
-import width, { Width } from '../global/width';
+import width, { type Width } from '../global/width';
 import { getXY, setXY } from '../global/xy';
-import { NoteProps } from './view';
+import type { NoteProps } from './view';
 
 type NoteLayout = {
   gracenote: number;

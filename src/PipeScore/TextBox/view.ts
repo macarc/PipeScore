@@ -15,20 +15,49 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { ITextBox } from '.';
-import { Dispatch } from '../Dispatch';
+import type { IMovableTextBox, IStaticTextBox } from '.';
+import type { Dispatch } from '../Dispatch';
 import { clickText, editText } from '../Events/Text';
-import { ISelection } from '../Selection';
+import type { ISelection } from '../Selection';
 import { TextSelection } from '../Selection/text';
 import { svgCoords } from '../global/utils';
 
-interface TextBoxProps {
+const defaultText = 'Double Click to Edit';
+
+interface StaticTextBoxProps {
+  x: number;
+  y: number;
+  anchor: 'start' | 'middle' | 'end';
+  dispatch: Dispatch;
+}
+
+export function drawStaticTextBox(
+  tx: IStaticTextBox,
+  props: StaticTextBoxProps
+): m.Children {
+  return m(
+    'text',
+    {
+      x: props.x,
+      y: props.y,
+      style: `font-size: ${tx.fontSize()}px; cursor: pointer; font-family: ${tx.font()};`,
+      'text-anchor': props.anchor,
+      ondblclick: () => props.dispatch(editText(tx)),
+    },
+    tx.text() || defaultText
+  );
+}
+
+interface MovableTextBoxProps {
   scoreWidth: number;
   selection: ISelection | null;
   dispatch: Dispatch;
 }
 
-export function drawTextBox(tx: ITextBox, props: TextBoxProps): m.Children {
+export function drawMovableTextBox(
+  tx: IMovableTextBox,
+  props: MovableTextBoxProps
+): m.Children {
   if (tx.centred()) tx.setX(props.scoreWidth / 2);
   const selected =
     props.selection instanceof TextSelection && props.selection.text === tx;
@@ -47,6 +76,6 @@ export function drawTextBox(tx: ITextBox, props: TextBoxProps): m.Children {
         return props.dispatch(clickText(tx));
       },
     },
-    tx.text() || 'Double Click to Edit'
+    tx.text() || defaultText
   );
 }

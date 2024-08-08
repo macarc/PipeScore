@@ -15,12 +15,12 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { IStave } from '.';
-import { IBar } from '../Bar';
+import type { IStave } from '.';
+import type { IBar } from '../Bar';
 import { drawBar, minWidth, totalFixedWidth } from '../Bar/view';
-import { Dispatch } from '../Dispatch';
-import { GracenoteState } from '../Gracenote/state';
-import { NoteState } from '../Note/state';
+import type { Dispatch } from '../Dispatch';
+import type { GracenoteState } from '../Gracenote/state';
+import type { NoteState } from '../Note/state';
 import { settings } from '../global/settings';
 import { foreach, sum } from '../global/utils';
 

@@ -18,11 +18,11 @@
 //  then be used to generate BWW text
 
 import { Barline } from '../PipeScore/Barline';
-import { INote, ITriplet, groupNotes } from '../PipeScore/Note';
+import { type INote, ITriplet, groupNotes } from '../PipeScore/Note';
 import { shortBeamDirection } from '../PipeScore/Note/noteview';
-import { IScore } from '../PipeScore/Score';
-import { ITimeSignature } from '../PipeScore/TimeSignature';
-import { Pitch } from '../PipeScore/global/pitch';
+import type { IScore } from '../PipeScore/Score';
+import type { ITimeSignature } from '../PipeScore/TimeSignature';
+import type { Pitch } from '../PipeScore/global/pitch';
 import {
   BBarline,
   BBeatBreak,
@@ -33,7 +33,7 @@ import {
   BTimeSignature,
   BTripletEnd,
   BTripletStart,
-  BWWItem,
+  type BWWItem,
 } from './BWWItem';
 
 type LinearScore = BWWItem[];

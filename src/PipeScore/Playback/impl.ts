@@ -19,21 +19,21 @@
 //  <https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API>
 
 import {
-  Playback,
+  type Playback,
   PlaybackGracenote,
   PlaybackNote,
   PlaybackObject,
   PlaybackRepeat,
-  PlaybackSecondTiming,
+  type PlaybackSecondTiming,
 } from '.';
 import { dispatch } from '../Controller';
 import { updateView } from '../Events/Misc';
 import { updatePlaybackCursor } from '../Events/Playback';
-import { ID } from '../global/id';
+import type { ID } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
 import { Player, Sample, sleep } from './sample';
-import { PlaybackState } from './state';
+import type { PlaybackState } from './state';
 
 class Drones {
   private player: Player;

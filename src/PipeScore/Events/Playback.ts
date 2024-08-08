@@ -16,10 +16,10 @@
 
 import { playback } from '../Playback/impl';
 import { ScoreSelection } from '../Selection/score';
-import { State } from '../State';
-import { ID } from '../global/id';
+import type { State } from '../State';
+import type { ID } from '../global/id';
 import { settings } from '../global/settings';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function startPlayback(): ScoreEvent {
   return async (state: State) => {

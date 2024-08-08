@@ -16,11 +16,11 @@
 
 //  Triplet model
 
-import { INote, ITriplet } from '.';
+import { type INote, ITriplet } from '.';
 import { PlaybackNote, PlaybackObject } from '../Playback';
-import { SavedTriplet } from '../SavedModel';
-import { ID, genId } from '../global/id';
-import { Pitch } from '../global/pitch';
+import type { SavedTriplet } from '../SavedModel';
+import { type ID, genId } from '../global/id';
+import type { Pitch } from '../global/pitch';
 import { nfirst, nlast } from '../global/utils';
 import { Note } from './impl';
 import { NoteLength } from './notelength';

@@ -14,13 +14,13 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { IGracenote } from '../Gracenote';
+import type { IGracenote } from '../Gracenote';
 import { Gracenote } from '../Gracenote/impl';
 import { GracenoteSelection } from '../Selection/gracenote';
 import { ScoreSelection } from '../Selection/score';
-import { State } from '../State';
+import type { State } from '../State';
 import { stopInputMode } from './common';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function clickGracenote(
   gracenote: IGracenote,

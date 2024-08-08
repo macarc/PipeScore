@@ -1,11 +1,11 @@
 import m from 'mithril';
-import { IGracenote } from '.';
-import { Dispatch } from '../Dispatch';
+import type { IGracenote } from '.';
+import type { Dispatch } from '../Dispatch';
 import { clickGracenote } from '../Events/Gracenote';
 import { Pitch, pitchY } from '../global/pitch';
 import { settings } from '../global/settings';
-import { GracenoteNoteList } from './gracenotes';
-import { GracenoteState } from './state';
+import type { GracenoteNoteList } from './gracenotes';
+import type { GracenoteState } from './state';
 
 // Offsets from the centre of the gracenote head to the point where the stem touches it
 const stemXOf = (x: number) => x + 2.5;

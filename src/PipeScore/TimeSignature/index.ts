@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { SavedTimeSignature } from '../SavedModel';
+import type { SavedTimeSignature } from '../SavedModel';
 
 export type Denominator = 2 | 4 | 8;
 

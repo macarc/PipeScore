@@ -18,9 +18,9 @@
 //  - second timings - with two parts
 //  - single timings - has one part
 
-import { Playback, PlaybackSecondTiming } from '../Playback';
-import { SavedTiming } from '../SavedModel';
-import { ID } from '../global/id';
+import type { Playback, PlaybackSecondTiming } from '../Playback';
+import type { SavedTiming } from '../SavedModel';
+import type { ID } from '../global/id';
 
 export type TimingPart = 'start' | 'middle' | 'end';
 

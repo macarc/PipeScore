@@ -18,7 +18,7 @@
 //  a few default options to choose from.
 
 import m from 'mithril';
-import { IScore } from './Score';
+import type { IScore } from './Score';
 import { Score } from './Score/impl';
 import { parseDenominator } from './TimeSignature';
 import { timeSignatureEditor } from './TimeSignature/edit';
@@ -113,7 +113,7 @@ export default async function blankForm(): Promise<ScoreOptions> {
     if (data['tune-type']) options.tuneType = data['tune-type'].toString();
 
     if (data['stave-number'])
-      options.numberOfParts = parseInt(data['stave-number'].toString());
+      options.numberOfParts = Number.parseInt(data['stave-number'].toString());
 
     options.repeatParts = data['repeat-parts'] === 'on';
 
@@ -121,7 +121,7 @@ export default async function blankForm(): Promise<ScoreOptions> {
       options.timeSignature = new TimeSignature(data.ts);
     } else {
       options.timeSignature = new TimeSignature([
-        parseInt(data.numerator.toString()),
+        Number.parseInt(data.numerator.toString()),
         parseDenominator(data.denominator.toString()) || 4,
       ]);
     }

@@ -19,7 +19,7 @@
 //  - repeat (a thick line with dots)
 //  - end (a thick line only)
 
-import { SavedBarline } from '../SavedModel';
+import type { SavedBarline } from '../SavedModel';
 
 type BarlineType = 'normal' | 'repeat' | 'end';
 

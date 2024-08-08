@@ -12,7 +12,7 @@ import {
 } from '../../Events/Note';
 import { Update } from '../../Events/types';
 import { INote, ITriplet } from '../../Note';
-import { Note, Triplet } from '../../Note/impl';
+import { Note, type Triplet } from '../../Note/impl';
 import { Duration, NoteLength } from '../../Note/notelength';
 import { NotePreview } from '../../Preview/impl';
 import { ScoreSelection } from '../../Selection/score';

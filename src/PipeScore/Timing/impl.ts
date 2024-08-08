@@ -20,11 +20,15 @@
 
 import m from 'mithril';
 import { ITiming } from '.';
-import { Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
-import { SavedSecondTiming, SavedSingleTiming, SavedTiming } from '../SavedModel';
+import { type Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
+import type {
+  SavedSecondTiming,
+  SavedSingleTiming,
+  SavedTiming,
+} from '../SavedModel';
 import dialogueBox from '../global/dialogueBox';
-import { ID } from '../global/id';
-import { XY, closestItem, getXY, isBefore, isItemBefore } from '../global/xy';
+import type { ID } from '../global/id';
+import { type XY, closestItem, getXY, isBefore, isItemBefore } from '../global/xy';
 
 export type TimingPart = 'start' | 'middle' | 'end';
 

@@ -14,19 +14,19 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { IBar, setTimeSignatureFrom } from '../Bar';
+import { type IBar, setTimeSignatureFrom } from '../Bar';
 import { Bar } from '../Bar/impl';
-import { Barline } from '../Barline';
-import { IScore } from '../Score';
+import type { Barline } from '../Barline';
+import type { IScore } from '../Score';
 import { BarlineSelection } from '../Selection/barline';
 import { ScoreSelection } from '../Selection/score';
-import { State } from '../State';
-import { ITimeSignature } from '../TimeSignature';
+import type { State } from '../State';
+import type { ITimeSignature } from '../TimeSignature';
 import { timeSignatureEditDialog } from '../TimeSignature/edit';
 import { Relative } from '../global/relativeLocation';
 import { reversed } from '../global/utils';
 import { stopInputMode } from './common';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 function setTimeSignature(
   timeSignature: ITimeSignature,

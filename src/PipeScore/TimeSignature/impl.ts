@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ITimeSignature, TimeSignatureType } from '.';
-import { SavedTimeSignature } from '../SavedModel';
+import { ITimeSignature, type TimeSignatureType } from '.';
+import type { SavedTimeSignature } from '../SavedModel';
 import { settings } from '../global/settings';
 
 export class TimeSignature extends ITimeSignature {

@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import { parse } from '../Parser';
 import { parsesWithoutWarnings } from './test_common';
 

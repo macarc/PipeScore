@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { ID } from '../global/id';
+import type { ID } from '../global/id';
 
 export type PlaybackState = {
   userPressedStop: boolean;

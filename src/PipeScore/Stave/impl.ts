@@ -15,13 +15,13 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { IStave } from '.';
-import { IBar, previousNote } from '../Bar';
+import { type IBar, previousNote } from '../Bar';
 import { Bar } from '../Bar/impl';
 import { Barline } from '../Barline';
-import { INote } from '../Note';
-import { SavedStave } from '../SavedModel';
-import { ITimeSignature } from '../TimeSignature';
-import { ID } from '../global/id';
+import type { INote } from '../Note';
+import type { SavedStave } from '../SavedModel';
+import type { ITimeSignature } from '../TimeSignature';
+import type { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { first, last, nlast } from '../global/utils';

@@ -30,14 +30,14 @@
 // setPitch() is called, if justMadeReal is true, the preview will redraw
 // even if the pitch is the same.
 
-import { IPreview } from '.';
-import { IBar } from '../Bar';
+import type { IPreview } from '.';
+import type { IBar } from '../Bar';
 import { ReactiveGracenote } from '../Gracenote/impl';
-import { INote } from '../Note';
+import type { INote } from '../Note';
 import { Note } from '../Note/impl';
-import { NoteLength } from '../Note/notelength';
-import { Pitch } from '../global/pitch';
-import { Previews } from './previews';
+import type { NoteLength } from '../Note/notelength';
+import type { Pitch } from '../global/pitch';
+import type { Previews } from './previews';
 
 // The reason that the preview is removed by the parent when the preview is made
 // real is that adding the preview may make the bar change, which could put the

@@ -20,13 +20,13 @@ import { saveFile } from '../../common/file';
 import { setLanguage } from '../../common/i18n';
 import { Score } from '../Score/impl';
 import { drawScore } from '../Score/view';
-import { State } from '../State';
-import { Menu } from '../UI/model';
+import type { State } from '../State';
+import type { Menu } from '../UI/model';
 import dialogueBox from '../global/dialogueBox';
-import { Settings, settings } from '../global/settings';
+import { type Settings, settings } from '../global/settings';
 import { last } from '../global/utils';
 import { stopInputMode } from './common';
-import { ScoreEvent, Update } from './types';
+import { type ScoreEvent, Update } from './types';
 
 export function setPageNumberVisibility(element: HTMLInputElement): ScoreEvent {
   return async (state: State) => {
@@ -41,7 +41,7 @@ export function changeSetting<T extends keyof Settings>(
   target: HTMLInputElement
 ): ScoreEvent {
   return async () => {
-    const v = parseFloat(target.value);
+    const v = Number.parseFloat(target.value);
     target.value = settings.validate(setting, v).toString();
     settings[setting] = v as Settings[T];
     return Update.ViewChanged;
@@ -86,7 +86,7 @@ export function portrait(): ScoreEvent {
 }
 
 export function updateLanguage(event: Event): ScoreEvent {
-  return async (state: State) => {
+  return async () => {
     setLanguage(event);
     return Update.ViewChanged;
   };

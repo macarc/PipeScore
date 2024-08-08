@@ -19,7 +19,7 @@
 import m from 'mithril';
 import { settings } from '../global/settings';
 import { getXY } from '../global/xy';
-import { PlaybackState } from './state';
+import type { PlaybackState } from './state';
 
 export function playbackCursor(state: PlaybackState, page: number) {
   if (state.playing && state.cursor) {
