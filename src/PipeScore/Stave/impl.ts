@@ -28,6 +28,8 @@ import { first, last, nlast } from '../global/utils';
 
 export class Stave extends IStave {
   private _bars: IBar[];
+  // TODO : propagate this to bars
+  private _numberOfParts = 2;
 
   private constructor(bars: IBar[]) {
     super();
@@ -60,7 +62,11 @@ export class Stave extends IStave {
   }
 
   height() {
-    return settings.lineHeightOf(4) + settings.staveGap;
+    return this._numberOfParts * (settings.lineHeightOf(4) + settings.staveGap);
+  }
+
+  numberOfParts(): number {
+    return this._numberOfParts;
   }
 
   numberOfBars() {

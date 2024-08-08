@@ -26,6 +26,7 @@ import type { Relative } from '../global/relativeLocation';
 export abstract class IStave {
   abstract toJSON(): SavedStave;
   abstract height(): number;
+  abstract numberOfParts(): number;
   abstract numberOfBars(): number;
   abstract insertBar(bar: IBar): void;
   abstract appendBar(bar: IBar): void;

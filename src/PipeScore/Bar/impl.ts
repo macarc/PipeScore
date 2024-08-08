@@ -24,7 +24,8 @@ import {
   lastNote,
   noteToJSON,
 } from '../Note';
-import { noteFromJSON, notesToTriplet } from '../Note/impl';
+import { Note, noteFromJSON, notesToTriplet } from '../Note/impl';
+import { Duration, NoteLength } from '../Note/notelength';
 import {
   type Playback,
   PlaybackNote,
@@ -35,6 +36,7 @@ import type { SavedBar } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { type ID, genId } from '../global/id';
+import { Pitch } from '../global/pitch';
 import { last } from '../global/utils';
 
 export class Bar extends IBar {
@@ -50,7 +52,7 @@ export class Bar extends IBar {
   constructor(timeSignature: ITimeSignature | undefined, isAnacrusis = false) {
     super(genId());
     this.ts = (timeSignature || new TimeSignature()).copy();
-    this._parts = [[]];
+    this._parts = [[], [new Note(Pitch.A, new NoteLength(Duration.Crotchet))]];
     this._isAnacrusis = isAnacrusis;
     this.frontBarline = Barline.normal;
     this.backBarline = Barline.normal;
@@ -70,7 +72,7 @@ export class Bar extends IBar {
     return {
       id: this.id,
       isAnacrusis: this._isAnacrusis,
-      notes: this.nonPreviewNotes().map((n) => noteToJSON(n)),
+      notes: this.nonPreviewNotes()[0].map((n) => noteToJSON(n)),
       backBarline: this.backBarline.toJSON(),
       frontBarline: this.frontBarline.toJSON(),
       timeSignature: this.ts.toJSON(),
@@ -237,7 +239,9 @@ export class Bar extends IBar {
   }
 
   nonPreviewNotes() {
-    return this.notesAndTriplets().filter((note) => note !== this.previewNote);
+    return this._parts.map((part) =>
+      part.filter((note) => note !== this.previewNote)
+    );
   }
 
   play(previous: Bar | null): Playback[] {

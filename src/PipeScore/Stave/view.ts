@@ -107,8 +107,6 @@ function renderTrebleClef(x: number, y: number) {
 export function drawStave(stave: IStave, props: StaveProps): m.Children {
   const staveY = props.y + settings.staveGap;
 
-  const staveLines = foreach(5, (idx) => settings.lineHeightOf(idx) + staveY);
-
   const previousBar = (barIdx: number) =>
     barIdx === 0 ? props.previousStave?.lastBar() || null : stave.bars()[barIdx - 1];
 
@@ -169,6 +167,13 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     },
     dispatch: props.dispatch,
   });
+
+  // TODO : duplicated in stave.height()
+  const actualStaveHeight = settings.staveGap + settings.lineHeightOf(4);
+
+  const staveLines = foreach(stave.numberOfParts(), (p) =>
+    foreach(5, (idx) => settings.lineHeightOf(idx) + staveY + p * actualStaveHeight)
+  ).flat();
 
   return m('g[class=stave]', [
     renderTrebleClef(props.x, staveY),

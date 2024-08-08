@@ -26,32 +26,38 @@ interface BarlineProps {
   y: number;
   // atStart : is the barline at the start of the bar or not?
   atStart: boolean;
+  isHarmony: boolean;
   drag: (x: number) => void;
   dispatch: Dispatch;
+}
+
+function yStart(y: number, isHarmony: boolean) {
+  return y - stavelineThickness - (isHarmony ? settings.staveGap : 0);
 }
 
 const lineOffset = 6;
 const thickLineWidth = 3;
 const dragWidth = 2;
 
-function height() {
-  return settings.lineHeightOf(4);
+function height(isHarmony: boolean) {
+  return settings.lineHeightOf(4) + (isHarmony ? settings.staveGap : 0);
 }
 
-function drawNormal({ x, y, drag, dispatch }: BarlineProps) {
+function drawNormal({ x, y, isHarmony, drag, dispatch }: BarlineProps) {
+  const top = yStart(y, isHarmony);
   return m('g', [
     m('line', {
       x1: x,
       x2: x,
-      y1: y - stavelineThickness / 2,
-      y2: y + height() + stavelineThickness / 2,
+      y1: top,
+      y2: top + height(isHarmony) + stavelineThickness / 2,
       stroke: 'black',
     }),
     m('rect', {
       x: x - dragWidth,
-      y: y - stavelineThickness / 2,
+      y1: top,
       width: 2 * dragWidth,
-      height: height() + stavelineThickness,
+      height: height(isHarmony) + stavelineThickness,
       opacity: 0,
       style: 'cursor: ew-resize',
       onmousedown: () => dispatch(clickBarline(drag)),
@@ -83,15 +89,16 @@ function drawRepeat(props: BarlineProps) {
   ]);
 }
 
-function drawPart({ x, y, atStart, drag, dispatch }: BarlineProps) {
+function drawPart({ x, y, atStart, isHarmony, drag, dispatch }: BarlineProps) {
   const thickX = atStart ? x : x - thickLineWidth / 2;
   const thinX = atStart ? x + lineOffset : x - lineOffset;
+  const top = yStart(y, isHarmony);
   return m('g[class=barline-end]', [
     m('rect', {
       x: thickX,
-      y: y - stavelineThickness / 2,
+      y: top,
       width: thickLineWidth,
-      height: height() + stavelineThickness,
+      height: height(isHarmony) + stavelineThickness,
       fill: 'black',
       style: 'cursor: ew-resize',
       onmousedown: () => dispatch(clickBarline(drag)),
@@ -99,8 +106,8 @@ function drawPart({ x, y, atStart, drag, dispatch }: BarlineProps) {
     m('line', {
       x1: thinX,
       x2: thinX,
-      y1: y - stavelineThickness / 2,
-      y2: y + height() + stavelineThickness / 2,
+      y1: top,
+      y2: top + height(isHarmony) + stavelineThickness / 2,
       stroke: 'black',
     }),
   ]);
