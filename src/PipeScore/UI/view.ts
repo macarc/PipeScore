@@ -105,6 +105,7 @@ export interface UIState {
   selectedTune: ITune | null;
   selectedText: IMovableTextBox | null;
   selectedTiming: ITiming | null;
+  firstTune: ITune | null;
   showingPageNumbers: boolean;
   preview: IPreview | null;
   isLandscape: boolean;
@@ -689,9 +690,9 @@ export default function render(state: UIState): m.Children {
             `${text('adjustGapBeforeTune')}: `,
             m('input', {
               type: 'number',
-              disabled: !tuneSelected,
+              disabled: !(tuneSelected || state.firstTune),
               min: 0,
-              value: state.selectedTune?.tuneGap(),
+              value: (state.selectedTune || state.firstTune)?.tuneGap(),
               oninput: (e: InputEvent) =>
                 state.dispatch(
                   setTuneGap(
@@ -708,7 +709,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.textual',
             {
-              disabled: !tuneSelected,
+              disabled: !(tuneSelected || state.firstTune),
               onclick: () => state.dispatch(resetTuneGap()),
             },
             text('reset')

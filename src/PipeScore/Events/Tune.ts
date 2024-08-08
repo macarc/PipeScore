@@ -44,7 +44,9 @@ export function deleteTune(): ScoreEvent {
 export function setTuneGap(gap: number): ScoreEvent {
   return async (state: State) => {
     const tune =
-      state.selection instanceof ScoreSelection && state.selection.tune(state.score);
+      (state.selection instanceof ScoreSelection &&
+        state.selection.tune(state.score)) ||
+      state.score.tunes()[0];
     if (tune) {
       tune.setTuneGap(gap);
       return Update.ShouldSave;
@@ -56,7 +58,9 @@ export function setTuneGap(gap: number): ScoreEvent {
 export function resetTuneGap(): ScoreEvent {
   return async (state: State) => {
     const tune =
-      state.selection instanceof ScoreSelection && state.selection.tune(state.score);
+      (state.selection instanceof ScoreSelection &&
+        state.selection.tune(state.score)) ||
+      state.score.tunes()[0];
     if (tune) {
       tune.setTuneGap(Settings.defaultTuneGap);
       return Update.ShouldSave;

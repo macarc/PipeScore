@@ -166,6 +166,7 @@ function redraw() {
           state.selection instanceof ScoreSelection
             ? state.selection.tune(state.score)
             : null,
+        firstTune: state.score.tunes()[0] || null,
         docs: state.doc.show
           ? helpText(state.doc.current || 'nothing-hovered')
           : null,
