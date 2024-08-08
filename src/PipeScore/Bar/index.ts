@@ -45,6 +45,8 @@ export abstract class IBar extends Item implements Previews<INote> {
   abstract previousNote(note: INote): NoteOrTriplet | null;
   abstract notesAndTriplets(): NoteOrTriplet[];
   abstract notes(): INote[];
+  abstract parts(): INote[][];
+  abstract setNumberOfParts(n: number): void;
   abstract nonPreviewNotes(): NoteOrTriplet[];
   abstract insertNote(noteBefore: INote | null, note: INote): void;
   abstract appendNotes(note: NoteOrTriplet[]): void;

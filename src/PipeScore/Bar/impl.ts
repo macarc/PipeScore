@@ -41,7 +41,7 @@ export class Bar extends IBar {
   fixedWidth: number | 'auto' = 'auto';
 
   private ts: ITimeSignature;
-  private _notes: NoteOrTriplet[];
+  private _parts: NoteOrTriplet[][];
   private frontBarline: Barline;
   private backBarline: Barline;
   private _isAnacrusis: boolean;
@@ -50,7 +50,7 @@ export class Bar extends IBar {
   constructor(timeSignature: ITimeSignature | undefined, isAnacrusis = false) {
     super(genId());
     this.ts = (timeSignature || new TimeSignature()).copy();
-    this._notes = [];
+    this._parts = [[]];
     this._isAnacrusis = isAnacrusis;
     this.frontBarline = Barline.normal;
     this.backBarline = Barline.normal;
@@ -58,7 +58,7 @@ export class Bar extends IBar {
 
   static fromJSON(o: SavedBar) {
     const b = new Bar(TimeSignature.fromJSON(o.timeSignature), o.isAnacrusis);
-    b._notes = o.notes.map(noteFromJSON);
+    b._parts = [o.notes.map(noteFromJSON)];
     b.id = o.id;
     b.fixedWidth = o.width === undefined ? 'auto' : o.width;
     b.backBarline = Barline.fromJSON(o.backBarline);
@@ -92,19 +92,21 @@ export class Bar extends IBar {
 
   setPreview(note: INote, _: INote | null, noteAfter: INote | null) {
     if (noteAfter?.isPreview()) {
-      this._notes.splice(this._notes.indexOf(noteAfter), 1, note);
+      this._parts[0].splice(this._parts[0].indexOf(noteAfter), 1, note);
       this.previewNote = note;
     } else {
       if (this.previewNote) this.removePreview();
       this.previewNote = note;
 
       if (noteAfter) {
-        let index = this._notes.indexOf(noteAfter);
+        let index = this._parts[0].indexOf(noteAfter);
         // If it is a note within a triplet, we need to do this
         if (index === -1)
-          index = this._notes.findIndex((note) => note.hasID(noteAfter.id));
-        this._notes.splice(index, 0, this.previewNote);
-      } else this._notes.push(this.previewNote);
+          index = this._parts[0].findIndex((note) => note.hasID(noteAfter.id));
+        this._parts[0].splice(index, 0, this.previewNote);
+      } else {
+        this._parts[0].push(this.previewNote);
+      }
     }
   }
 
@@ -118,8 +120,9 @@ export class Bar extends IBar {
   }
 
   removePreview() {
-    if (this.previewNote)
-      this._notes.splice(this._notes.indexOf(this.previewNote), 1);
+    if (this.previewNote) {
+      this._parts[0].splice(this._parts[0].indexOf(this.previewNote), 1);
+    }
     this.previewNote = null;
   }
 
@@ -127,8 +130,21 @@ export class Bar extends IBar {
     return this.previewNote;
   }
 
+  setNumberOfParts(n: number): void {
+    // Add more parts n > parts.length
+    while (this._parts.length < n) {
+      this._parts.push([]);
+    }
+    // Remove parts if n < parts.length
+    this._parts.splice(n);
+  }
+
+  parts(): INote[][] {
+    return this._parts.map(flattenTriplets);
+  }
+
   numberOfNotes() {
-    return this._notes.length;
+    return this._parts[0].length;
   }
 
   lastPitch() {
@@ -140,51 +156,51 @@ export class Bar extends IBar {
   }
 
   previousNote(note: INote) {
-    return this._notes[this._notes.indexOf(note) - 1] || null;
+    return this._parts[0][this._parts[0].indexOf(note) - 1] || null;
   }
 
   notes(): INote[] {
-    return flattenTriplets(this._notes);
+    return flattenTriplets(this._parts[0]);
   }
 
   insertNote(noteBefore: INote | null, note: INote) {
     let ind = noteBefore
-      ? this._notes.findIndex((note) => note.hasID(noteBefore.id)) + 1
+      ? this._parts[0].findIndex((note) => note.hasID(noteBefore.id)) + 1
       : 0;
     if (noteBefore?.isPreview() && ind > 0) ind -= 1;
 
-    this._notes.splice(ind, 0, note);
+    this._parts[0].splice(ind, 0, note);
   }
 
   appendNotes(note: INote[]): void {
-    this._notes = this._notes.concat(note);
+    this._parts[0] = this._parts[0].concat(note);
   }
 
   deleteNote(note: INote) {
-    const ind = this._notes.findIndex((n) => n.hasID(note.id));
-    const noteToDelete = this._notes[ind];
+    const ind = this._parts[0].findIndex((n) => n.hasID(note.id));
+    const noteToDelete = this._parts[0][ind];
     if (noteToDelete instanceof ITriplet) {
       this.unmakeTriplet(noteToDelete);
       this.deleteNote(note);
     } else {
-      this._notes.splice(ind, 1);
+      this._parts[0].splice(ind, 1);
     }
   }
 
   clearNotes() {
-    this._notes = [];
+    this._parts[0] = [];
   }
 
   makeTriplet(first: INote, second: INote, third: INote) {
-    this._notes.splice(
-      this._notes.indexOf(first),
+    this._parts[0].splice(
+      this._parts[0].indexOf(first),
       3,
       notesToTriplet(first, second, third)
     );
   }
 
   unmakeTriplet(tr: ITriplet) {
-    this._notes.splice(this._notes.indexOf(tr), 1, ...tr.tripletSingleNotes());
+    this._parts[0].splice(this._parts[0].indexOf(tr), 1, ...tr.tripletSingleNotes());
   }
 
   includesNote(id: ID) {
@@ -197,7 +213,7 @@ export class Bar extends IBar {
   }
 
   notesAndTriplets() {
-    return this._notes;
+    return this._parts[0];
   }
 
   timeSignature() {
@@ -231,12 +247,12 @@ export class Bar extends IBar {
     return [
       ...start,
       new PlaybackObject('start', this.id),
-      ...this._notes.flatMap((note, i) =>
+      ...this._parts[0].flatMap((note, i) =>
         note
           .play(
             i === 0
               ? previous?.lastPitch() || null
-              : lastNote(this._notes[i - 1]).pitch()
+              : lastNote(this._parts[0][i - 1]).pitch()
           )
           .map((p) =>
             p.type === 'note'
