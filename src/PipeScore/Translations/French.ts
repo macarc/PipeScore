@@ -54,7 +54,7 @@ export const FrenchDocumentation: Documentation = {
   grip: 'Ajouter une prise à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une prise.',
   birl: 'Ajouter une fillette à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une fillette.',
   'g-gracenote-birl':
-    'Ajouter une fillette de si à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une fillette de si.',
+    'Ajouter une fillette de do à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une fillette de si.',
   'g-strike':
     'Ajouter une choquée à la note sélectionnée. Vous pouvez également cliquer sur ce bouton puis sur toutes les notes auxquelles vous souhaitez ajouter une choquée.',
   shake:

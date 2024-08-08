@@ -80,3 +80,4 @@ $ npm run build    # build minified bundle
 Thank you to any and all who have contributed code to PipeScore!
 
 - [benjaminelliot](https://github.com/benjaminelliot) - the initial implementation of BWW file parsing
+- [HerveDubois](https://github.com/HervePierreDubois) - translations of gracenote names into French
