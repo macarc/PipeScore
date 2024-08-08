@@ -24,6 +24,7 @@ const a4ShortSide = 210; // in mm
 
 export class Settings {
   staveGap = Settings.defaultStaveGap;
+  harmonyGap = Settings.defaultHarmonyGap;
   lineGap = 7;
   margin = 80;
   pageLongSideLength = a4LongSide * 5;
@@ -32,12 +33,14 @@ export class Settings {
   bpm = 80;
 
   static defaultStaveGap = 65;
+  static defaultHarmonyGap = 40;
   static defaultTuneGap = 100;
 
   fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;
     this.lineGap = o.lineGap;
     this.margin = o.margin;
+    this.harmonyGap = o.harmonyGap || Settings.defaultHarmonyGap;
     this.bpm = o.bpm || 80;
     this.gapAfterGracenote = o.gapAfterGracenote || 7;
   }
@@ -45,6 +48,7 @@ export class Settings {
     return {
       staveGap: this.staveGap,
       lineGap: this.lineGap,
+      harmonyGap: this.harmonyGap,
       margin: this.margin,
       bpm: this.bpm,
       gapAfterGracenote: this.gapAfterGracenote,
@@ -56,6 +60,8 @@ export class Settings {
         return Math.max(value, this.lineHeightOf(5));
       case 'lineGap':
         return Math.max(value, 1);
+      case 'harmonyGap':
+        return Math.max(value, this.lineHeightOf(5));
       case 'margin':
         return clamp(value, 0, 300);
       default:
@@ -70,6 +76,9 @@ export class Settings {
   }
   pageShortSidePrintLength() {
     return a4ShortSide;
+  }
+  harmonyStaveHeight() {
+    return this.lineHeightOf(4) + this.harmonyGap;
   }
 }
 

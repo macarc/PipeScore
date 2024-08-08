@@ -191,6 +191,7 @@ export type SavedSettings = {
   bpm: number;
   staveGap: number;
   lineGap: number;
+  harmonyGap: number;
   margin: number;
   gapAfterGracenote: number;
 };

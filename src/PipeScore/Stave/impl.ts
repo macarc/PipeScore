@@ -62,7 +62,8 @@ export class Stave extends IStave {
   }
 
   height() {
-    return this._numberOfParts * (settings.lineHeightOf(4) + settings.staveGap);
+    const firstStaveHeight = settings.lineHeightOf(4) + settings.staveGap;
+    return firstStaveHeight + (this._numberOfParts - 1) * settings.harmonyStaveHeight();
   }
 
   numberOfParts(): number {

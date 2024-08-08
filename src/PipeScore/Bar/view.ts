@@ -131,8 +131,7 @@ export function drawBar(bar: IBar, props: BarProps): m.Children {
   return m(
     'g[class=bar]',
     bar.parts().map((part, p) => {
-      // TODO : duplicated with stave.height()
-      const staveY = props.y + p * (settings.staveGap + settings.lineHeightOf(4));
+      const staveY = props.y + p * settings.harmonyStaveHeight();
 
       const isHarmony = p > 0;
       

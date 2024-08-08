@@ -168,11 +168,8 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     dispatch: props.dispatch,
   });
 
-  // TODO : duplicated in stave.height()
-  const actualStaveHeight = settings.staveGap + settings.lineHeightOf(4);
-
   const staveLines = foreach(stave.numberOfParts(), (p) =>
-    foreach(5, (idx) => settings.lineHeightOf(idx) + staveY + p * actualStaveHeight)
+    foreach(5, (idx) => settings.lineHeightOf(idx) + staveY + p * settings.harmonyStaveHeight())
   ).flat();
 
   return m('g[class=stave]', [

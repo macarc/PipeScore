@@ -32,7 +32,7 @@ interface BarlineProps {
 }
 
 function yStart(y: number, isHarmony: boolean) {
-  return y - stavelineThickness - (isHarmony ? settings.staveGap : 0);
+  return y - stavelineThickness - (isHarmony ? settings.harmonyGap : 0);
 }
 
 const lineOffset = 6;
@@ -40,7 +40,7 @@ const thickLineWidth = 3;
 const dragWidth = 2;
 
 function height(isHarmony: boolean) {
-  return settings.lineHeightOf(4) + (isHarmony ? settings.staveGap : 0);
+  return settings.lineHeightOf(4) + (isHarmony ? settings.harmonyGap : 0);
 }
 
 function drawNormal({ x, y, isHarmony, drag, dispatch }: BarlineProps) {
