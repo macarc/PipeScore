@@ -15,10 +15,12 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //  The format in which scores are saved to Firebase
+//  Many of these contained 'undefined' fields, for backwards compatibility
+//  (a new field that is not defined in older scores)
 
-import { Duration } from './Note/notelength';
-import { ID } from './global/id';
-import { Pitch } from './global/pitch';
+import type { Duration } from './Note/notelength';
+import type { ID } from './global/id';
+import type { Pitch } from './global/pitch';
 
 export function scoreIsPresent(data: SavedData): data is SavedScore {
   return (data as { justCreated: true }).justCreated !== true;
@@ -54,10 +56,12 @@ export type DeprecatedSavedScore = {
   settings: SavedSettings;
 };
 
+// name/tuneType/composer were originally string,
+// preserved for backwards compatibility
 export type SavedTune = {
-  name: string;
-  tuneType: string;
-  composer: string;
+  name: SavedStaticTextBox | string;
+  tuneType: SavedStaticTextBox | string;
+  composer: SavedStaticTextBox | string;
   staves: SavedStave[];
   tuneGap: number;
 };
@@ -141,10 +145,16 @@ export type SavedGracenote =
     };
 
 export type SavedTextBoxPage = {
-  texts: SavedTextBox[];
+  texts: SavedMovableTextBox[];
 };
 
-export type SavedTextBox = {
+export type SavedStaticTextBox = {
+  size: number;
+  text: string;
+  font: 'sans-serif' | 'serif' | undefined;
+};
+
+export type SavedMovableTextBox = {
   x: number;
   y: number;
   size: number;

@@ -9,7 +9,7 @@
     "dev": "python server.py",
     "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts src/ImportBWW/importbww.ts src/TranslationEditor/translationeditor.ts src/Base/base.ts --bundle --watch --outdir=public/dist",
     "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts src/ImportBWW/importbww.ts src/TranslationEditor/translationeditor.ts src/Base/base.ts --bundle --minify --outdir=public/dist; python build; sass src/styles/:public/styles",
-    "lint": "prettier --write .; eslint src --ext .ts; biome check --apply src"
+    "lint": "prettier --write .; eslint src --ext .ts; biome check --write src"
   },
   "author": "macarc",
   "license": "GPL-3.0",

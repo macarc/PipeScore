@@ -1,5 +1,5 @@
 import m from 'mithril';
-import { Font, ITextBox } from '.';
+import type { Font, ITextBox } from '.';
 import { Update } from '../Events/types';
 import dialogueBox from '../global/dialogueBox';
 
@@ -42,7 +42,7 @@ export async function editTextBox(tx: ITextBox) {
     ]),
   ]);
   if (form) {
-    const size = parseInt(
+    const size = Number.parseInt(
       (form.querySelector('input[type="number"]') as HTMLInputElement).value
     );
     const text = (form.querySelector('input[type="text"]') as HTMLInputElement)

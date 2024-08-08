@@ -15,10 +15,9 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { ITune } from '.';
-import { Dispatch } from '../Dispatch';
-import { editComposer, editTuneName, editTuneType } from '../Events/Tune';
-import { drawStaticTextBox } from '../StaticTextBox/view';
+import type { ITune } from '.';
+import type { Dispatch } from '../Dispatch';
+import { drawStaticTextBox } from '../TextBox/view';
 import { timingHeight } from '../Timing/view';
 import { settings } from '../global/settings';
 
@@ -29,41 +28,30 @@ export type TuneProps = {
 };
 
 export function drawTuneHeading(tune: ITune, props: TuneProps) {
-  const titleSize = 20;
-  const otherSize = 15;
-
   const heightToWorkWith = tune.tuneGap() + settings.staveGap - timingHeight;
 
-  const titleY = props.y + Math.max(heightToWorkWith / 2, titleSize);
-  const otherY = props.y + heightToWorkWith - otherSize / 2;
+  const titleY = props.y + Math.max(heightToWorkWith / 2, tune.name().fontSize());
+  const composerY = props.y + heightToWorkWith - tune.composer().fontSize() / 2;
+  const tuneTypeY = props.y + heightToWorkWith - tune.tuneType().fontSize() / 2;
 
   return m('g.tune', [
-    drawStaticTextBox(
-      tune.name(),
-      props.pageWidth / 2,
-      titleY,
-      titleSize,
-      'sans-serif',
-      'middle',
-      () => props.dispatch(editTuneName(tune))
-    ),
-    drawStaticTextBox(
-      tune.tuneType(),
-      settings.margin,
-      otherY,
-      otherSize,
-      'sans-serif',
-      'start',
-      () => props.dispatch(editTuneType(tune))
-    ),
-    drawStaticTextBox(
-      tune.composer(),
-      props.pageWidth - settings.margin,
-      otherY,
-      otherSize,
-      'sans-serif',
-      'end',
-      () => props.dispatch(editComposer(tune))
-    ),
+    drawStaticTextBox(tune.name(), {
+      x: props.pageWidth / 2,
+      y: titleY,
+      anchor: 'middle',
+      dispatch: props.dispatch,
+    }),
+    drawStaticTextBox(tune.tuneType(), {
+      x: settings.margin,
+      y: tuneTypeY,
+      anchor: 'start',
+      dispatch: props.dispatch,
+    }),
+    drawStaticTextBox(tune.composer(), {
+      x: props.pageWidth - settings.margin,
+      y: composerY,
+      anchor: 'end',
+      dispatch: props.dispatch,
+    }),
   ]);
 }

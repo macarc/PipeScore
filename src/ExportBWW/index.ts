@@ -16,7 +16,7 @@
 
 //  Export to BWW format
 
-import { IScore } from '../PipeScore/Score';
+import type { IScore } from '../PipeScore/Score';
 import { BBeatBreak } from './BWWItem';
 import { toLinearScore } from './LinearScore';
 
@@ -50,7 +50,7 @@ FontSizes,(100,100,100,100)
 TuneFormat,(1,0,F,L,500,500,500,500,P,0,0)
 TuneTempo,90
 "${score.name()}",(T,L,0,0,Times New Roman,16,700,0,0,18,0,0,0)
-"${score.tunes()[0]?.tuneType() || 'Type'}",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
-"${score.tunes()[0]?.composer() || 'Composer/Arranger'}",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+"${score.tunes()[0]?.tuneType().text() || 'Type'}",(Y,C,0,0,Times New Roman,14,400,0,0,18,0,0,0)
+"${score.tunes()[0]?.composer().text() || 'Composer/Arranger'}",(M,R,0,0,Times New Roman,14,400,0,0,18,0,0,0)
 "BWW file generated using PipeScore's experimental export feature",(F,R,0,0,Times New Roman,10,400,0,0,0,0,0,0)`;
 }

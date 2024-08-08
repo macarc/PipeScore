@@ -18,9 +18,9 @@
 
 import m from 'mithril';
 import { getLanguage } from '../../common/i18n';
-import { IBar } from '../Bar';
+import type { IBar } from '../Bar';
 import { Barline } from '../Barline';
-import { Dispatch } from '../Dispatch';
+import type { Dispatch } from '../Dispatch';
 import {
   addBar,
   editBarTimeSignature,
@@ -66,28 +66,28 @@ import { addStave, deleteStave, resetStaveGap, setStaveGap } from '../Events/Sta
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
-import { IGracenote } from '../Gracenote';
-import { INote } from '../Note';
+import type { IGracenote } from '../Gracenote';
+import type { INote } from '../Note';
 import { Duration } from '../Note/notelength';
-import { IPreview } from '../Preview';
+import type { IPreview } from '../Preview';
 import {
   NotePreview,
   ReactiveGracenotePreview,
   SingleGracenotePreview,
 } from '../Preview/impl';
-import { IStave } from '../Stave';
+import type { IStave } from '../Stave';
 import { minStaveGap } from '../Stave/view';
-import { ITextBox } from '../TextBox';
-import { ITiming } from '../Timing';
-import { Documentation } from '../Translations';
+import type { IMovableTextBox } from '../TextBox';
+import type { ITiming } from '../Timing';
+import type { Documentation } from '../Translations';
 import { text } from '../Translations/current';
-import { ITune } from '../Tune';
+import type { ITune } from '../Tune';
 import { onMobile } from '../global/browser';
 import { help } from '../global/docs';
 import { Relative } from '../global/relativeLocation';
-import { Settings, settings } from '../global/settings';
+import { type Settings, settings } from '../global/settings';
 import { capitalise } from '../global/utils';
-import { Menu } from './model';
+import type { Menu } from './model';
 
 export interface UIState {
   saved: boolean;
@@ -103,7 +103,7 @@ export interface UIState {
   selectedBars: IBar[];
   selectedNotes: INote[];
   selectedTune: ITune | null;
-  selectedText: ITextBox | null;
+  selectedText: IMovableTextBox | null;
   selectedTiming: ITiming | null;
   showingPageNumbers: boolean;
   preview: IPreview | null;
@@ -117,7 +117,7 @@ export interface UIState {
 function setZoomLevel(e: Event, dispatch: Dispatch) {
   const element = e.target;
   if (element instanceof HTMLInputElement) {
-    const newZoomLevel = parseInt(element.value, 10);
+    const newZoomLevel = Number.parseInt(element.value, 10);
     if (!Number.isNaN(newZoomLevel)) {
       dispatch(changeZoomLevel(newZoomLevel));
     }
@@ -617,7 +617,9 @@ export default function render(state: UIState): m.Children {
               value: settings.staveGap,
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setStaveGap(parseFloat((e.target as HTMLInputElement).value) || 0)
+                  setStaveGap(
+                    Number.parseFloat((e.target as HTMLInputElement).value) || 0
+                  )
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -692,7 +694,9 @@ export default function render(state: UIState): m.Children {
               value: state.selectedTune?.tuneGap(),
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setTuneGap(parseFloat((e.target as HTMLInputElement).value) || 0)
+                  setTuneGap(
+                    Number.parseFloat((e.target as HTMLInputElement).value) || 0
+                  )
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -752,7 +756,7 @@ export default function render(state: UIState): m.Children {
   const userText = (id: string, value: number) => {
     const element = document.getElementById(id);
     if (element instanceof HTMLInputElement) {
-      const previousValue = parseFloat(element.value) || 0;
+      const previousValue = Number.parseFloat(element.value) || 0;
       if (previousValue === value) {
         return element.value;
       }
@@ -818,7 +822,9 @@ export default function render(state: UIState): m.Children {
               ),
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setTextX(parseFloat((e.target as HTMLInputElement).value) || 0)
+                  setTextX(
+                    Number.parseFloat((e.target as HTMLInputElement).value) || 0
+                  )
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -838,7 +844,9 @@ export default function render(state: UIState): m.Children {
               ),
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setTextY(parseFloat((e.target as HTMLInputElement).value) || 0)
+                  setTextY(
+                    Number.parseFloat((e.target as HTMLInputElement).value) || 0
+                  )
                 ),
               onchange: () => state.dispatch(commit()),
             }),
@@ -918,7 +926,9 @@ export default function render(state: UIState): m.Children {
               value: settings.bpm,
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                  setPlaybackBpm(
+                    Number.parseInt((e.target as HTMLInputElement).value)
+                  )
                 ),
             }),
             m('input#playback-bpm', {
@@ -926,7 +936,9 @@ export default function render(state: UIState): m.Children {
               value: settings.bpm,
               oninput: (e: InputEvent) =>
                 state.dispatch(
-                  setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                  setPlaybackBpm(
+                    Number.parseInt((e.target as HTMLInputElement).value)
+                  )
                 ),
             }),
             text('beatsPerMinute'),
@@ -1067,8 +1079,6 @@ export default function render(state: UIState): m.Children {
   };
 
   const menuClass = (s: Menu): string => (s === state.currentMenu ? 'selected' : '');
-
-  const pretty = (name: Menu): string => name.split('_').map(capitalise).join(' ');
 
   const loginWarning = [
     'You are currently not logged in. Any changes you make will not be saved. ',
@@ -1283,7 +1293,7 @@ function mobileView(state: UIState): m.Children {
             value: settings.bpm,
             oninput: (e: InputEvent) =>
               state.dispatch(
-                setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                setPlaybackBpm(Number.parseInt((e.target as HTMLInputElement).value))
               ),
           }),
           help(
@@ -1294,7 +1304,9 @@ function mobileView(state: UIState): m.Children {
                 value: settings.bpm,
                 oninput: (e: InputEvent) =>
                   state.dispatch(
-                    setPlaybackBpm(parseInt((e.target as HTMLInputElement).value))
+                    setPlaybackBpm(
+                      Number.parseInt((e.target as HTMLInputElement).value)
+                    )
                   ),
               }),
               'beats per minute',

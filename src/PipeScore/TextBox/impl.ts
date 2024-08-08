@@ -14,11 +14,61 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Font, ITextBox } from '.';
+import { type Font, IMovableTextBox, IStaticTextBox } from '.';
 import { Update } from '../Events/types';
-import { SavedTextBox } from '../SavedModel';
+import type { SavedMovableTextBox, SavedStaticTextBox } from '../SavedModel';
 
-export class TextBox extends ITextBox {
+export class StaticTextBox extends IStaticTextBox {
+  private _text: string;
+  private _size: number;
+  private _font: Font;
+
+  constructor(text = '', size = 20, font: Font = 'sans-serif') {
+    super();
+    this._text = text;
+    this._size = size;
+    this._font = font;
+  }
+
+  static fromJSON(o: string | SavedStaticTextBox, defaultFontSize: number) {
+    if (typeof o === 'string') {
+      return new StaticTextBox(o, defaultFontSize);
+    }
+    return new StaticTextBox(o.text, o.size, o.font);
+  }
+
+  toJSON(): SavedStaticTextBox {
+    return {
+      text: this._text,
+      font: this._font,
+      size: this._size,
+    };
+  }
+
+  text() {
+    return this._text;
+  }
+
+  font() {
+    return this._font;
+  }
+
+  fontSize() {
+    return this._size;
+  }
+
+  set(text: string, size: number, font: Font): Update {
+    if (text !== this._text || size !== this._size || font !== this._font) {
+      this._text = text;
+      this._size = size;
+      this._font = font;
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  }
+}
+
+export class MovableTextBox extends IMovableTextBox {
   private _centred: boolean;
   private _x: number;
   private _y: number;
@@ -38,13 +88,13 @@ export class TextBox extends ITextBox {
     this._font = 'sans-serif';
   }
 
-  static fromJSON(o: SavedTextBox) {
-    const tx = new TextBox(o._text, o.centred, o.x, o.y, o.size);
+  static fromJSON(o: SavedMovableTextBox) {
+    const tx = new MovableTextBox(o._text, o.centred, o.x, o.y, o.size);
     tx._font = o.font || 'sans-serif';
     return tx;
   }
 
-  toJSON(): SavedTextBox {
+  toJSON(): SavedMovableTextBox {
     return {
       x: this._x,
       y: this._y,

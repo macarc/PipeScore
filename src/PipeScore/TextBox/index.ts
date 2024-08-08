@@ -14,18 +14,25 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { Update } from '../Events/types';
-import { SavedTextBox } from '../SavedModel';
+import type { Update } from '../Events/types';
+import type { SavedMovableTextBox, SavedStaticTextBox } from '../SavedModel';
 
 export type Font = 'serif' | 'sans-serif';
 
 export abstract class ITextBox {
-  abstract toJSON(): SavedTextBox;
   abstract text(): string;
-  abstract setCursorDragOffset(mouseX: number, mouseY: number): void;
   abstract set(text: string, size: number, font: Font): Update;
   abstract font(): Font;
   abstract fontSize(): number;
+}
+
+export abstract class IStaticTextBox extends ITextBox {
+  abstract toJSON(): SavedStaticTextBox;
+}
+
+export abstract class IMovableTextBox extends ITextBox {
+  abstract toJSON(): SavedMovableTextBox;
+  abstract setCursorDragOffset(mouseX: number, mouseY: number): void;
   abstract toggleCentre(): void;
   abstract centred(): boolean;
   abstract adjustAfterOrientation(newWidth: number, newHeight: number): void;

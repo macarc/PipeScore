@@ -14,19 +14,17 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { SavedTune } from '../SavedModel';
-import { IStave } from '../Stave';
-import { ITimeSignature } from '../TimeSignature';
-import { Relative } from '../global/relativeLocation';
+import type { SavedTune } from '../SavedModel';
+import type { IStave } from '../Stave';
+import type { IStaticTextBox } from '../TextBox';
+import type { ITimeSignature } from '../TimeSignature';
+import type { Relative } from '../global/relativeLocation';
 
 export abstract class ITune {
   abstract toJSON(): SavedTune;
-  abstract name(): string;
-  abstract setName(name: string): void;
-  abstract composer(): string;
-  abstract setComposer(composer: string): void;
-  abstract tuneType(): string;
-  abstract setTuneType(tuneType: string): void;
+  abstract name(): IStaticTextBox;
+  abstract composer(): IStaticTextBox;
+  abstract tuneType(): IStaticTextBox;
   abstract tuneGap(): number;
   abstract setTuneGap(gap: number): void;
   abstract staves(): IStave[];

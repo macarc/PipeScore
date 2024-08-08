@@ -21,19 +21,19 @@ import { IScore } from '.';
 import { nextBar, nextNote, previousBar, previousNote } from '../Bar';
 import { Update } from '../Events/types';
 import { flattenTriplets } from '../Note';
-import { Playback } from '../Playback';
-import { SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
-import { IStave } from '../Stave';
+import type { Playback } from '../Playback';
+import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
+import type { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
-import { ITextBox } from '../TextBox';
-import { TextBox } from '../TextBox/impl';
-import { ITimeSignature } from '../TimeSignature';
+import type { IMovableTextBox } from '../TextBox';
+import { MovableTextBox } from '../TextBox/impl';
+import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
-import { ITiming, TimingPart } from '../Timing';
+import type { ITiming, TimingPart } from '../Timing';
 import { Timing } from '../Timing/impl';
 import { ITune } from '../Tune';
 import { Tune } from '../Tune/impl';
-import { ID } from '../global/id';
+import type { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { first, last, nlast, removeNulls, sum } from '../global/utils';
@@ -47,7 +47,7 @@ export class Score extends IScore {
 
   private _tunes: ITune[];
   // an array rather than a set since it makes rendering easier (with map)
-  private _textBoxes: ITextBox[][];
+  private _textBoxes: IMovableTextBox[][];
   private _timings: ITiming[];
 
   showNumberOfPages: boolean;
@@ -90,7 +90,7 @@ export class Score extends IScore {
     settings.fromJSON(o.settings);
 
     s.landscape = o.landscape;
-    s._textBoxes = o.textBoxes.map((p) => p.texts.map(TextBox.fromJSON));
+    s._textBoxes = o.textBoxes.map((p) => p.texts.map(MovableTextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
 
@@ -99,7 +99,14 @@ export class Score extends IScore {
       const composer = s._textBoxes[0]?.[1]?.text() || 'Composer';
       const tuneType = s._textBoxes[0]?.[2]?.text() || 'Tune Type';
       s._textBoxes[0].splice(0, 3);
-      s._tunes = [new Tune(name, composer, tuneType, o._staves.map(Stave.fromJSON))];
+      s._tunes = [
+        Tune.createFromStaves(
+          name,
+          composer,
+          tuneType,
+          o._staves.map(Stave.fromJSON)
+        ),
+      ];
     } else {
       s._tunes = o.tunes.map(Tune.fromJSON);
     }
@@ -121,7 +128,7 @@ export class Score extends IScore {
   }
 
   name() {
-    return this._tunes[0]?.name() || 'Empty Score';
+    return this._tunes[0]?.name().text() || 'Empty Score';
   }
 
   width() {
@@ -178,11 +185,11 @@ export class Score extends IScore {
     this.zoom = (this.zoom * this.height()) / this.width();
   }
 
-  addText(text: ITextBox): void {
+  addText(text: IMovableTextBox): void {
     this._textBoxes[0].push(text);
   }
 
-  textBoxes(): ITextBox[][] {
+  textBoxes(): IMovableTextBox[][] {
     return this._textBoxes;
   }
 
@@ -352,14 +359,14 @@ export class Score extends IScore {
     this._timings.splice(this._timings.indexOf(timing), 1);
   }
 
-  deleteTextBox(text: ITextBox) {
+  deleteTextBox(text: IMovableTextBox) {
     for (const p of this._textBoxes) {
       const i = p.indexOf(text);
       if (i > -1) p.splice(i, 1);
     }
   }
 
-  dragTextBox(text: ITextBox, x: number, y: number, page: number) {
+  dragTextBox(text: IMovableTextBox, x: number, y: number, page: number) {
     const pages = this.pages();
 
     if (page >= pages.length) return;

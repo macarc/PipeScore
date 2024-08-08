@@ -17,17 +17,17 @@
 //  The Score contains the entire score (what a surprise). Since it delegates,
 //  this file mostly deals with delegations and pages.
 
-import { IBar } from '../Bar';
-import { Update } from '../Events/types';
-import { INote, NoteOrTriplet } from '../Note';
-import { Playback, PlaybackSecondTiming } from '../Playback';
-import { SavedScore } from '../SavedModel';
-import { IStave } from '../Stave';
-import { ITextBox } from '../TextBox';
-import { ITiming, TimingPart } from '../Timing';
-import { ITune } from '../Tune';
-import { ID } from '../global/id';
-import { Relative } from '../global/relativeLocation';
+import type { IBar } from '../Bar';
+import type { Update } from '../Events/types';
+import type { INote, NoteOrTriplet } from '../Note';
+import type { Playback, PlaybackSecondTiming } from '../Playback';
+import type { SavedScore } from '../SavedModel';
+import type { IStave } from '../Stave';
+import type { IMovableTextBox } from '../TextBox';
+import type { ITiming, TimingPart } from '../Timing';
+import type { ITune } from '../Tune';
+import type { ID } from '../global/id';
+import type { Relative } from '../global/relativeLocation';
 
 type Location = { tune: ITune; stave: IStave; bar: IBar };
 
@@ -44,7 +44,7 @@ export abstract class IScore {
   abstract orientation(): 'landscape' | 'portrait';
   abstract makeLandscape(): Update;
   abstract makePortrait(): Update;
-  abstract addText(text: ITextBox): void;
+  abstract addText(text: IMovableTextBox): void;
   abstract staveY(stave: IStave | ITune): number;
   abstract nextBar(id: ID): IBar | null;
   abstract previousBar(id: ID): IBar | null;
@@ -65,9 +65,14 @@ export abstract class IScore {
   abstract pages(): (IStave | ITune)[][];
   abstract location(id: ID): Location | null;
   abstract lastBarAndStave(): Location | null;
-  abstract deleteTextBox(text: ITextBox): void;
-  abstract dragTextBox(text: ITextBox, x: number, y: number, page: number): void;
-  abstract textBoxes(): ITextBox[][];
+  abstract deleteTextBox(text: IMovableTextBox): void;
+  abstract dragTextBox(
+    text: IMovableTextBox,
+    x: number,
+    y: number,
+    page: number
+  ): void;
+  abstract textBoxes(): IMovableTextBox[][];
   abstract timings(): ITiming[];
   abstract addTiming(timing: ITiming): boolean;
   abstract deleteTiming(timing: ITiming): void;

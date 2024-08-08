@@ -17,11 +17,11 @@
 //  The page that allows the user to view, open and delete all their scores.
 
 import Auth from 'firebase-auth-lite';
-import { Database, Document } from 'firebase-firestore-lite';
+import { Database, type Document } from 'firebase-firestore-lite';
 import m from 'mithril';
 import {
-  DeprecatedSavedScore,
-  SavedScore,
+  type DeprecatedSavedScore,
+  type SavedScore,
   scoreHasStavesNotTunes,
 } from '../PipeScore/SavedModel';
 import { onUserChange } from '../auth-helper';
@@ -41,11 +41,19 @@ type ScoreRef = { path: string };
 type FileInput = HTMLInputElement & { files: FileList };
 
 function getName(score: Document | ScoreRef | SavedScore | DeprecatedSavedScore) {
-  return (
-    (score as DeprecatedSavedScore).name ||
-    (score as SavedScore).tunes?.[0]?.name ||
-    'Empty Score'
-  );
+  const defaultName = 'Empty Score';
+  if ((score as DeprecatedSavedScore).name) {
+    return (score as DeprecatedSavedScore).name || defaultName;
+  }
+
+  const sscore = score as SavedScore;
+  const name = sscore.tunes?.[0]?.name;
+
+  if (typeof name === 'string') {
+    return name || defaultName;
+  }
+
+  return name.text || defaultName;
 }
 
 function setName(

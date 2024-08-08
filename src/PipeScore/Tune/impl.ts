@@ -15,27 +15,32 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ITune } from '.';
-import { IBar } from '../Bar';
-import { SavedTune } from '../SavedModel';
-import { IStave } from '../Stave';
+import type { IBar } from '../Bar';
+import type { SavedTune } from '../SavedModel';
+import type { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
-import { ITimeSignature } from '../TimeSignature';
+import type { IStaticTextBox } from '../TextBox';
+import { StaticTextBox } from '../TextBox/impl';
+import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { Relative } from '../global/relativeLocation';
 import { Settings } from '../global/settings';
 import { foreach, nfirst, nlast } from '../global/utils';
 
+const titleSize = 20;
+const otherSize = 15;
+
 export class Tune extends ITune {
   private _staves: IStave[];
   private _tuneGap: number;
-  private _name: string;
-  private _tuneType: string;
-  private _composer: string;
+  private _name: IStaticTextBox;
+  private _tuneType: IStaticTextBox;
+  private _composer: IStaticTextBox;
 
   constructor(
-    name: string,
-    composer: string,
-    tuneType: string,
+    name: IStaticTextBox,
+    composer: IStaticTextBox,
+    tuneType: IStaticTextBox,
     staves: IStave[],
     gap = Settings.defaultTuneGap
   ) {
@@ -63,15 +68,28 @@ export class Tune extends ITune {
         i % 2 === 0 ? staves[i].partFirst() : staves[i].partLast();
       }
     }
+    return Tune.createFromStaves(name, composer, tuneType, staves);
+  }
 
-    return new Tune(name, composer, tuneType, staves);
+  static createFromStaves(
+    name: string,
+    composer: string,
+    tuneType: string,
+    staves: IStave[]
+  ) {
+    return new Tune(
+      new StaticTextBox(name, titleSize),
+      new StaticTextBox(composer, otherSize),
+      new StaticTextBox(tuneType, otherSize),
+      staves
+    );
   }
 
   static fromJSON(tune: SavedTune) {
     return new Tune(
-      tune.name,
-      tune.composer,
-      tune.tuneType,
+      StaticTextBox.fromJSON(tune.name, titleSize),
+      StaticTextBox.fromJSON(tune.composer, otherSize),
+      StaticTextBox.fromJSON(tune.tuneType, otherSize),
       tune.staves.map(Stave.fromJSON),
       tune.tuneGap
     );
@@ -79,9 +97,9 @@ export class Tune extends ITune {
 
   toJSON(): SavedTune {
     return {
-      name: this._name,
-      tuneType: this._tuneType,
-      composer: this._composer,
+      name: this._name.toJSON(),
+      tuneType: this._tuneType.toJSON(),
+      composer: this._composer.toJSON(),
       staves: this._staves.map((stave) => stave.toJSON()),
       tuneGap: this._tuneGap,
     };
@@ -91,24 +109,12 @@ export class Tune extends ITune {
     return this._name;
   }
 
-  setName(name: string) {
-    this._name = name;
-  }
-
   tuneType() {
     return this._tuneType;
   }
 
-  setTuneType(tuneType: string) {
-    this._tuneType = tuneType;
-  }
-
   composer() {
     return this._composer;
-  }
-
-  setComposer(composer: string) {
-    this._composer = composer;
   }
 
   tuneGap() {

@@ -15,20 +15,20 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import { IScore } from '.';
-import { Dispatch } from '../Dispatch';
+import type { IScore } from '.';
+import type { Dispatch } from '../Dispatch';
 import { clickBackground, mouseUp } from '../Events/Mouse';
 import { mouseOffPitch } from '../Events/PitchBoxes';
-import { GracenoteState } from '../Gracenote/state';
-import { NoteState } from '../Note/state';
+import type { GracenoteState } from '../Gracenote/state';
+import type { NoteState } from '../Note/state';
 import { playbackCursor } from '../Playback/cursor';
-import { PlaybackState } from '../Playback/state';
-import { IPreview } from '../Preview';
-import { ISelection } from '../Selection';
+import type { PlaybackState } from '../Playback/state';
+import type { IPreview } from '../Preview';
+import type { ISelection } from '../Selection';
 import { ScoreSelection } from '../Selection/score';
-import { IStave } from '../Stave';
+import type { IStave } from '../Stave';
 import { drawStave, trebleClefWidth } from '../Stave/view';
-import { drawTextBox } from '../TextBox/view';
+import { drawMovableTextBox } from '../TextBox/view';
 import { drawTiming } from '../Timing/view';
 import { ITune } from '../Tune';
 import { drawTuneHeading } from '../Tune/view';
@@ -118,7 +118,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
               : drawStave(staveOrTune, staveProps(staveOrTune))
           ),
           ...texts(page).map((textBox) =>
-            drawTextBox(textBox, {
+            drawMovableTextBox(textBox, {
               scoreWidth: width,
               selection: props.selection,
               dispatch: props.dispatch,
