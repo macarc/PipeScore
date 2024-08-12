@@ -14,8 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { type IBar, setTimeSignatureFrom } from '../Bar';
+import type { IBar } from '../Bar';
 import type { Barline } from '../Barline';
+import { setTimeSignatureFrom } from '../Measure';
 import type { IScore } from '../Score';
 import { BarlineSelection } from '../Selection/barline';
 import { ScoreSelection } from '../Selection/score';
@@ -105,7 +106,7 @@ export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
       state.selection.extend(bar.id);
       return Update.ViewChanged;
     }
-    state.selection = ScoreSelection.from(bar.id, bar.id, true, state.score);
+    state.selection = ScoreSelection.from(bar.id, bar.id, true);
     return Update.ViewChanged;
   };
 }

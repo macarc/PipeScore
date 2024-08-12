@@ -15,9 +15,10 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { IStave } from '.';
-import { type IBar, type IMeasure, previousBar, previousNote } from '../Bar';
-import { Measure } from '../Bar/impl';
+import type { IBar } from '../Bar';
 import { Barline } from '../Barline';
+import { type IMeasure, previousBar, previousNote } from '../Measure';
+import { Measure } from '../Measure/impl';
 import type { INote } from '../Note';
 import type { SavedStave } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';

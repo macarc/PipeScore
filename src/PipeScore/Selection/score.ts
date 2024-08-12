@@ -19,8 +19,9 @@
 //  so it goes in its own file
 
 import m from 'mithril';
-import type { IBar, IMeasure } from '../Bar';
+import type { IBar } from '../Bar';
 import type { IGracenote } from '../Gracenote';
+import type { IMeasure } from '../Measure';
 import type { INote, NoteOrTriplet } from '../Note';
 import type { IScore } from '../Score';
 import type { IStave } from '../Stave';
@@ -50,7 +51,7 @@ export class ScoreSelection extends DraggableSelection {
     this._end = end;
   }
 
-  static from(start: ID, end: ID, createdByMouseDown: boolean, score: IScore) {
+  static from(start: ID, end: ID, createdByMouseDown: boolean) {
     if (ScoreSelection.checkIfInSameHarmonyPart(start, end)) {
       return new ScoreSelection(start, end, createdByMouseDown);
     }

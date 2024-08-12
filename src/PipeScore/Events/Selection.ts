@@ -28,7 +28,7 @@ export function moveLeft(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const prev = state.score.previousNote(state.selection.start());
       if (prev) {
-        state.selection = ScoreSelection.from(prev.id, prev.id, false, state.score);
+        state.selection = ScoreSelection.from(prev.id, prev.id, false);
         return Update.ViewChanged;
       }
     } else if (state.selection instanceof GracenoteSelection) {
@@ -44,7 +44,7 @@ export function moveRight(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const next = state.score.nextNote(state.selection.end());
       if (next) {
-        state.selection = ScoreSelection.from(next.id, next.id, false, state.score);
+        state.selection = ScoreSelection.from(next.id, next.id, false);
         return Update.ViewChanged;
       }
     } else if (state.selection instanceof GracenoteSelection) {
@@ -88,8 +88,7 @@ export function moveLeftMeasurewise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const prev = state.score.previousBar(state.selection.end());
-      if (prev)
-        state.selection = ScoreSelection.from(prev.id, prev.id, false, state.score);
+      if (prev) state.selection = ScoreSelection.from(prev.id, prev.id, false);
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -100,8 +99,7 @@ export function moveRightMeasurewise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const next = state.score.nextBar(state.selection.end());
-      if (next)
-        state.selection = ScoreSelection.from(next.id, next.id, false, state.score);
+      if (next) state.selection = ScoreSelection.from(next.id, next.id, false);
       return Update.ViewChanged;
     }
     return Update.NoChange;

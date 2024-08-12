@@ -17,12 +17,7 @@ describe('moveBarToNextLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[1].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[2].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -35,12 +30,7 @@ describe('moveBarToNextLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[3].measures()[3].bars()[0].id;
     const selectionEnd = state.score.staves()[3].measures()[3].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -53,12 +43,7 @@ describe('moveBarToNextLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[3].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[3].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -73,12 +58,7 @@ describe('moveBarToNextLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[1].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[3].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -94,12 +74,7 @@ describe('moveBarToNextLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[0].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[3].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -129,12 +104,7 @@ describe('moveBarToPreviousLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[1].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[2].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -147,12 +117,7 @@ describe('moveBarToPreviousLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[0].measures()[0].bars()[0].id;
     const selectionEnd = state.score.staves()[0].measures()[0].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -165,12 +130,7 @@ describe('moveBarToPreviousLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[0].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[0].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -185,12 +145,7 @@ describe('moveBarToPreviousLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[0].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[2].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);
@@ -206,12 +161,7 @@ describe('moveBarToPreviousLine', () => {
     const state = emptyState();
     const selectionStart = state.score.staves()[1].measures()[0].bars()[0].id;
     const selectionEnd = state.score.staves()[1].measures()[3].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(
       state.score.staves().every((stave) => stave.measures().length === 4)
     ).toBe(true);

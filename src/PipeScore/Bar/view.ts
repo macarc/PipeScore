@@ -14,74 +14,27 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import m from 'mithril';
-import type { IMeasure } from '.';
-import { barlineWidth, drawBarline } from '../Barline/view';
-import type { Dispatch } from '../Dispatch';
-import { clickBar } from '../Events/Bar';
-import { addNoteToBarEnd } from '../Events/Note';
-import { mouseOverPitch } from '../Events/PitchBoxes';
-import type { GracenoteState } from '../Gracenote/state';
-import { INote, ITriplet, type NoteOrTriplet, groupNotes, lastNote } from '../Note';
-import type { NoteState } from '../Note/state';
-import {
-  type NoteProps,
-  drawNoteGroup,
-  drawTriplet,
-  noteHeadWidth,
-  noteOrTripletWidth,
-  spacerWidth,
-} from '../Note/view';
-import { pitchBoxes } from '../PitchBoxes';
-import { drawTimeSignature } from '../TimeSignature/view';
-import type { Pitch } from '../global/pitch';
-import { settings } from '../global/settings';
+import m from 'mithril'
+import { IBar } from ".";
+import { Dispatch } from "../Dispatch";
+import { GracenoteState } from "../Gracenote/state";
+import { NoteState } from "../Note/state";
+import { groupNotes, INote, ITriplet, lastNote, NoteOrTriplet } from '../Note';
+import width, { Width } from '../global/width';
+import { drawNoteGroup, drawTriplet, noteHeadWidth, noteOrTripletWidth, NoteProps, spacerWidth } from '../Note/view';
 import { nlast } from '../global/utils';
-import width from '../global/width';
-import { setXY } from '../global/xy';
+import { Pitch } from '../global/pitch';
 
 interface BarProps {
   x: number;
   y: number;
   width: number;
+  previousBar: IBar | null;
   justAddedNote: boolean;
-  previousBar: IMeasure | null;
-  shouldRenderLastBarline: boolean;
-  mustNotRenderFirstBarline: boolean;
   endOfLastStave: number;
-  canResize: (newWidth: number) => boolean;
-  resize: (widthChange: number) => void;
   noteState: NoteState;
   gracenoteState: GracenoteState;
   dispatch: Dispatch;
-}
-
-export function minWidth(measure: IMeasure, previousBar: IMeasure | null) {
-  const totalReifiedWidth = Math.max(
-    ...measure
-      .bars()
-      .map((bar, i) =>
-        width.reify(
-          noteOffsets(
-            previousBar?.bars()[i].lastPitch() || null,
-            bar.nonPreviewNotes()
-          ).total,
-          5
-        )
-      )
-  );
-  const previousTimeSignature = previousBar?.timeSignature() || null;
-  const drawTimeSignature =
-    previousTimeSignature && !measure.timeSignature().equals(previousTimeSignature);
-  return Math.max(
-    totalReifiedWidth + (drawTimeSignature ? 0 : measure.timeSignature().width()),
-    60
-  );
-}
-
-export function totalFixedWidth(bar: IMeasure, previousBar: IMeasure | null) {
-  if (bar.fixedWidth !== 'auto') return bar.fixedWidth;
-  return minWidth(bar, previousBar);
 }
 
 // Returns an array where the nth item is the offset of the nth note
@@ -113,159 +66,81 @@ function noteOffsets(previousPitch: Pitch | null, notes: NoteOrTriplet[]) {
   };
 }
 
-export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
-  const hasTimeSignature =
-    props.previousBar !== null
-      ? !props.previousBar.timeSignature().equals(measure.timeSignature())
-      : true;
+export function barWidth(bar: IBar, previousPitch: Pitch | null): Width {
+  return noteOffsets(previousPitch, bar.nonPreviewNotes()).total;
+}
 
-  const barWidth =
-    props.width -
-    (hasTimeSignature ? measure.timeSignature().width() : 0) -
-    // Uhh.. not sure why this is here
-    (noteHeadWidth * 2) / 3 -
-    barlineWidth(measure.startBarline()) -
-    barlineWidth(measure.endBarline());
+export function drawBar(bar: IBar, props: BarProps): m.Children {
+  const partNotes = bar.notes();
+  const actualNotes = bar.nonPreviewNotes();
+  const groupedNotes = groupNotes(
+    actualNotes,
+    bar.measure().timeSignature().beatDivision()
+  );
 
-  const xAfterTimeSignature =
-    props.x + (hasTimeSignature ? measure.timeSignature().width() : 0);
-  const xAfterBarline = xAfterTimeSignature + barlineWidth(measure.startBarline());
+  const previousNote = props.previousBar?.lastNote() || null;
+  const previousPitch = props.previousBar?.lastPitch() || null;
 
-  // note that the pitch boxes must extend the whole width of the bar because they are used to drag notes
-  // but not if placing notes, because that causes strange behaviour where clicking in-between gracenote and
-  // note adds a note to the start of the bar
-  return m(
-    'g[class=bar]',
-    measure.bars().map((bar, p) => {
-      const staveY = props.y + p * settings.harmonyStaveHeight();
-      setXY(bar.id, props.x, props.x + props.width, staveY, bar.harmonyIndex());
+  const beats = noteOffsets(previousPitch, actualNotes);
+  const numberOfBeats = beats.total.extend;
+  const beatWidth = (props.width - beats.total.min) / numberOfBeats;
 
-      const isHarmony = p > 0;
+  const xOf = (i: number) => props.x + width.reify(beats.widths[i], beatWidth);
 
-      const partNotes = bar.notes();
-      const actualNotes = bar.nonPreviewNotes();
-      const groupedNotes = groupNotes(
-        actualNotes,
-        measure.timeSignature().beatDivision()
-      );
+  const preview = bar.preview();
 
-      const previousNote = props.previousBar?.bars()[p]?.lastNote() || null;
-      const previousPitch = props.previousBar?.bars()[p]?.lastPitch() || null;
+  // There are a few special cases to deal with single notes being further
+  // forward than they should be.
+  const previewX = preview
+    ? partNotes.length === 1
+      ? props.x - props.width / 5
+      : partNotes.length === 2
+        ? partNotes[0] === preview
+          ? bar.measure().isAnacrusis()
+            ? props.x - 10
+            : props.x
+          : xOf(bar.notesAndTriplets().indexOf(preview)) + beatWidth / 2
+        : xOf(bar.notesAndTriplets().indexOf(preview)) - noteHeadWidth
+    : 0;
 
-      const beats = noteOffsets(previousPitch, actualNotes);
-      const numberOfBeats = beats.total.extend;
-      const beatWidth = (barWidth - beats.total.min) / numberOfBeats;
+  const noteProps = (notes: INote[] | ITriplet): NoteProps => {
+    const firstNote = notes instanceof ITriplet ? notes : notes[0];
+    const index = actualNotes.indexOf(firstNote);
+    return {
+      x: xOf(index),
+      y: props.y,
+      harmonyIndex: bar.harmonyIndex(),
+      justAddedNote: props.justAddedNote,
+      boxToLast: index === 0 ? props.x : 'lastnote',
+      noteWidth: beatWidth,
+      previousNote: index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
+      endOfLastStave: props.endOfLastStave,
+      state: props.noteState,
+      gracenoteState: props.gracenoteState,
+      dispatch: props.dispatch,
+    };
+  };
 
-      const xOf = (i: number) =>
-        xAfterBarline + width.reify(beats.widths[i], beatWidth);
-
-      const preview = bar.preview(p);
-
-      // There are a few special cases to deal with single notes being further
-      // forward than they should be.
-      const previewX = preview
-        ? partNotes.length === 1
-          ? xAfterBarline - barWidth / 5
-          : partNotes.length === 2
-            ? partNotes[0] === preview
-              ? measure.isAnacrusis()
-                ? xAfterBarline - 10
-                : xAfterBarline
-              : xOf(bar.notesAndTriplets().indexOf(preview)) + beatWidth / 2
-            : xOf(bar.notesAndTriplets().indexOf(preview)) - noteHeadWidth
-        : 0;
-
-      const noteProps = (notes: INote[] | ITriplet): NoteProps => {
-        const firstNote = notes instanceof ITriplet ? notes : notes[0];
-        const index = actualNotes.indexOf(firstNote);
-        return {
-          x: xOf(index),
-          y: staveY,
+  return [
+    ...groupedNotes.map((notes) =>
+      notes instanceof ITriplet
+        ? drawTriplet(notes, noteProps(notes))
+        : drawNoteGroup(notes, noteProps(notes))
+    ),
+    preview
+      ? drawNoteGroup([preview], {
+          x: previewX,
+          y: props.y,
           harmonyIndex: bar.harmonyIndex(),
           justAddedNote: props.justAddedNote,
-          boxToLast: index === 0 ? xAfterBarline : 'lastnote',
-          noteWidth: beatWidth,
-          previousNote:
-            index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
+          boxToLast: 'lastnote',
+          noteWidth: beatWidth / 2,
+          previousNote: null,
           endOfLastStave: props.endOfLastStave,
           state: props.noteState,
           gracenoteState: props.gracenoteState,
           dispatch: props.dispatch,
-        };
-      };
-
-      return [
-        pitchBoxes(
-          xAfterBarline,
-          staveY,
-          barWidth,
-          (pitch) => props.dispatch(mouseOverPitch(pitch, bar)),
-          (pitch, e) =>
-            props.noteState.inputtingNotes
-              ? props.dispatch(addNoteToBarEnd(pitch, bar))
-              : props.dispatch(clickBar(bar, e)),
-          props.justAddedNote
-        ),
-        ...groupedNotes.map((notes) =>
-          notes instanceof ITriplet
-            ? drawTriplet(notes, noteProps(notes))
-            : drawNoteGroup(notes, noteProps(notes))
-        ),
-        preview
-          ? drawNoteGroup([preview], {
-              x: previewX,
-              y: staveY,
-              harmonyIndex: bar.harmonyIndex(),
-              justAddedNote: props.justAddedNote,
-              boxToLast: 'lastnote',
-              noteWidth: beatWidth / 2,
-              previousNote: null,
-              endOfLastStave: props.endOfLastStave,
-              state: props.noteState,
-              gracenoteState: props.gracenoteState,
-              dispatch: props.dispatch,
-            }) || null
-          : null,
-
-        measure.startBarline().mustDraw() ||
-        (hasTimeSignature && !props.mustNotRenderFirstBarline)
-          ? drawBarline(measure.startBarline(), {
-              x: xAfterTimeSignature,
-              y: staveY,
-              atStart: true,
-              isHarmony,
-              drag: () => null,
-              dispatch: props.dispatch,
-            })
-          : null,
-        measure.endBarline().mustDraw() || props.shouldRenderLastBarline
-          ? drawBarline(measure.endBarline(), {
-              x: props.x + props.width,
-              y: staveY,
-              atStart: false,
-              isHarmony,
-              drag: (x) => {
-                const newWidth = x - props.x;
-                // The reason we can't just do props.width here is that when
-                // this is called in the future, props.width may be out of date
-                const oldWidth =
-                  measure.fixedWidth === 'auto' ? props.width : measure.fixedWidth;
-                if (props.canResize(newWidth)) {
-                  props.resize(newWidth - oldWidth);
-                  measure.fixedWidth = newWidth;
-                }
-              },
-              dispatch: props.dispatch,
-            })
-          : null,
-        hasTimeSignature
-          ? drawTimeSignature(measure.timeSignature(), {
-              x: props.x + 10,
-              y: staveY,
-              dispatch: props.dispatch,
-            })
-          : null,
-      ];
-    })
-  );
+        }) || null
+      : null,
+  ];
 }

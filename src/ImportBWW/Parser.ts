@@ -1,6 +1,5 @@
 import { Duration, NoteLength } from '../PipeScore/Note/notelength';
 import type {
-  SavedBar,
   SavedGracenote,
   SavedMeasure,
   SavedScore,

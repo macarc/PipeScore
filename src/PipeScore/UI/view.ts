@@ -18,7 +18,6 @@
 
 import m from 'mithril';
 import { getLanguage } from '../../common/i18n';
-import type { IMeasure } from '../Bar';
 import { Barline } from '../Barline';
 import type { Dispatch } from '../Dispatch';
 import {
@@ -75,6 +74,7 @@ import { addText, centreText, editText, setTextX, setTextY } from '../Events/Tex
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
 import type { IGracenote } from '../Gracenote';
+import type { IMeasure } from '../Measure';
 import type { INote } from '../Note';
 import { Duration } from '../Note/notelength';
 import type { IPreview } from '../Preview';

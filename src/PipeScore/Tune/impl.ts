@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ITune } from '.';
-import type { IMeasure } from '../Bar';
+import type { IMeasure } from '../Measure';
 import type { SavedTune } from '../SavedModel';
 import type { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';

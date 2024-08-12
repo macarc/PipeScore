@@ -18,7 +18,7 @@ PipeScore is powered by:
   - [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite)
   - [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite)
 - [esbuild](https://github.com/evanw/esbuild) for building
-- [eslint](https://eslint.org/) for linting
+- [biome](https://biomejs.dev/) for linting
 - [prettier](https://prettier.io) for code formatting
 
 ## Features
@@ -31,9 +31,14 @@ PipeScore is powered by:
 - Playback
 - Parts, repeats, second timings
 - Ties, triplets, time signatures, text boxes
-- Importing from the Bagpipe Music Writer format
-- Automatic saving, downloading and uploading of files
-- ~12000 lines of code
+- Harmony staves
+- Multiple tunes and pages
+- Importing/exporting from the Bagpipe Music Writer format
+- Exporting to PDF
+- Cloud saving, downloading and uploading of files
+- Multi-language interface (currently English and French)
+- Intuitive user interface for all of the above
+- ~16000 lines of code (including tests)
 
 ## Documentation
 

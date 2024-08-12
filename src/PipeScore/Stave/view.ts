@@ -16,10 +16,10 @@
 
 import m from 'mithril';
 import type { IStave } from '.';
-import type { IMeasure } from '../Bar';
-import { drawMeasure, minWidth, totalFixedWidth } from '../Bar/view';
+import { drawMeasure, minWidth, totalFixedWidth } from '../Measure/view';
 import type { Dispatch } from '../Dispatch';
 import type { GracenoteState } from '../Gracenote/state';
+import type { IMeasure } from '../Measure';
 import type { NoteState } from '../Note/state';
 import { settings } from '../global/settings';
 import { foreach, sum } from '../global/utils';
@@ -129,7 +129,7 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     x: getX(index),
     y: staveY,
     width: width(index),
-    previousBar: previousBar(index),
+    previousMeasure: previousBar(index),
     justAddedNote: props.justAddedNote,
     shouldRenderLastBarline: stave.measures()[index + 1]
       ? stave.measures()[index + 1].timeSignature().equals(bar.timeSignature())

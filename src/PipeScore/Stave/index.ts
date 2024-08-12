@@ -16,7 +16,8 @@
 
 //  A Stave is a single line of music.
 
-import type { IBar, IMeasure } from '../Bar';
+import type { IBar } from '../Bar';
+import type { IMeasure } from '../Measure';
 import type { INote } from '../Note';
 import type { Playback } from '../Playback';
 import type { SavedStave } from '../SavedModel';

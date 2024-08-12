@@ -155,7 +155,7 @@ export class SecondTiming extends Timing {
       getXY(this.start) === null ||
       getXY(this.middle) === null ||
       getXY(this.end) === null
-    )
+    );
   }
 
   protected noSelfOverlap() {
@@ -299,7 +299,11 @@ export class SingleTiming extends Timing {
   }
 
   protected noSelfOverlap() {
-    return isItemBefore(this.start, this.end, 'beforeX', 'afterX') && getXY(this.start)?.harmonyIndex === 0 && getXY(this.end)?.harmonyIndex === 0;
+    return (
+      isItemBefore(this.start, this.end, 'beforeX', 'afterX') &&
+      getXY(this.start)?.harmonyIndex === 0 &&
+      getXY(this.end)?.harmonyIndex === 0
+    );
   }
 
   async editText() {

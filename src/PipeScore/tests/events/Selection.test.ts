@@ -12,12 +12,7 @@ describe('deleteSelection', () => {
     const stave3 = state.score.staves()[3];
     const selectionStart = stave2.measures()[0].bars()[0].id;
     const selectionEnd = stave2.measures()[3].bars()[0].id;
-    state.selection = ScoreSelection.from(
-      selectionStart,
-      selectionEnd,
-      false,
-      state.score
-    );
+    state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
     expect(state.score.staves()).toHaveLength(4);
     expect(await deleteSelection()(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(3);

@@ -65,7 +65,7 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
         const note = new Note(pitch, length || new NoteLength(Duration.Crotchet));
         last.bar.insertNote(last.note, note);
         // createdByMouseDown is false since this is triggered by keyboard shortcut
-        state.selection = ScoreSelection.from(note.id, note.id, false, state.score);
+        state.selection = ScoreSelection.from(note.id, note.id, false);
         return Update.ShouldSave;
       }
     }
@@ -254,7 +254,7 @@ export function clickNote(note: INote, event: MouseEvent): ScoreEvent {
       return Update.ViewChanged;
     } else {
       state.justClickedNote = true;
-      state.selection = ScoreSelection.from(note.id, note.id, true, state.score);
+      state.selection = ScoreSelection.from(note.id, note.id, true);
     }
 
     return Update.ViewChanged;

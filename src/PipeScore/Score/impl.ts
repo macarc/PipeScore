@@ -18,8 +18,9 @@
 //  this file mostly deals with delegations and pages.
 
 import { IScore } from '.';
-import { type IBar, nextBar, nextNote, previousBar, previousNote } from '../Bar';
+import type { IBar } from '../Bar';
 import { Update } from '../Events/types';
+import { nextBar, nextNote, previousBar, previousNote } from '../Measure';
 import type { NoteOrTriplet } from '../Note';
 import type { Playback } from '../Playback';
 import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';

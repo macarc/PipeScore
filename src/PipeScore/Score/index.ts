@@ -17,8 +17,9 @@
 //  The Score contains the entire score (what a surprise). Since it delegates,
 //  this file mostly deals with delegations and pages.
 
-import type { IBar, IMeasure } from '../Bar';
+import type { IBar } from '../Bar';
 import type { Update } from '../Events/types';
+import type { IMeasure } from '../Measure';
 import type { INote, NoteOrTriplet } from '../Note';
 import type { Playback, PlaybackSecondTiming } from '../Playback';
 import type { SavedScore } from '../SavedModel';
