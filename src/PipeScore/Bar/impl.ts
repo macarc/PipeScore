@@ -32,29 +32,47 @@ import {
   PlaybackObject,
   PlaybackRepeat,
 } from '../Playback';
-import type { SavedBar } from '../SavedModel';
+import {
+  type DeprecatedSavedMeasure,
+  type SavedBar,
+  type SavedMeasure,
+  isDeprecatedSavedMeasure,
+} from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { type ID, genID } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { last } from '../global/utils';
 
-class Bar extends IBar {
+export class Bar extends IBar {
   private _notes: NoteOrTriplet[];
-  // TODO : MAKE SURE THESE ARE UPDATED WHEN COPYING BARS!!!
   private _measure: IMeasure;
   private previewNote: INote | null = null;
 
   constructor(measure: IMeasure) {
     super(genID());
     this._measure = measure;
-    this._notes = [new Note(Pitch.A, new NoteLength(Duration.Crotchet))];
+    this._notes = [];
   }
 
   static withNotes(measure: IMeasure, notes: NoteOrTriplet[]) {
     const part = new Bar(measure);
     part._notes = notes;
     return part;
+  }
+
+  static fromJSON(bar: SavedBar, measure: IMeasure): Bar {
+    const b = new Bar(measure);
+    b._notes = bar.notes.map(noteFromJSON);
+    b.id = bar.id;
+    return b;
+  }
+
+  toJSON(): SavedBar {
+    return {
+      id: this.id,
+      notes: this._notes.map(noteToJSON),
+    };
   }
 
   measure(): IMeasure {
@@ -191,35 +209,39 @@ export class Measure extends IMeasure {
   private backBarline: Barline;
   private _isAnacrusis: boolean;
 
-  constructor(timeSignature: ITimeSignature | undefined, isAnacrusis = false) {
+  constructor(timeSignature: ITimeSignature | undefined, isAnacrusis = false, numberOfParts = 1) {
     super();
     this.ts = (timeSignature || new TimeSignature()).copy();
-    this._bars = [new Bar(this), new Bar(this)];
+    this._bars = [];
     this._isAnacrusis = isAnacrusis;
     this.frontBarline = Barline.normal;
     this.backBarline = Barline.normal;
+
+    for (let i = 0; i < numberOfParts; i++) {
+      this._bars.push(new Bar(this));
+    }
   }
 
-  static fromJSON(o: SavedBar) {
+  static fromJSON(o: SavedMeasure | DeprecatedSavedMeasure) {
     const m = new Measure(TimeSignature.fromJSON(o.timeSignature), o.isAnacrusis);
     m.fixedWidth = o.width === undefined ? 'auto' : o.width;
     m.backBarline = Barline.fromJSON(o.backBarline);
     m.frontBarline = Barline.fromJSON(o.frontBarline);
 
-    // TODO : actually save bars (with ids!)
-    // TODO : BREAKING CHANGE - make sure that IDs are moved from measure
-    //        to first bar, if in the old format
-    m._bars = [Bar.withNotes(m, o.notes.map(noteFromJSON))];
+    if (isDeprecatedSavedMeasure(o)) {
+      m._bars = [Bar.withNotes(m, o.notes.map(noteFromJSON))];
+      m._bars[0].id = o.id;
+    } else {
+      m._bars = o.bars.map((bar) => Bar.fromJSON(bar, m));
+    }
+
     return m;
   }
 
-  toJSON(): SavedBar {
+  toJSON(): SavedMeasure {
     return {
-      id: 0,
       isAnacrusis: this._isAnacrusis,
-      notes: this.bars()[0]
-        .notesAndTriplets()
-        .map((n) => noteToJSON(n)),
+      bars: this._bars.map((bar) => bar.toJSON()),
       backBarline: this.backBarline.toJSON(),
       frontBarline: this.frontBarline.toJSON(),
       timeSignature: this.ts.toJSON(),

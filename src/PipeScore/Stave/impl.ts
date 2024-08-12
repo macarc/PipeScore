@@ -28,15 +28,16 @@ import { first, last, nlast } from '../global/utils';
 
 export class Stave extends IStave {
   private _measures: IMeasure[];
-  // TODO : propagate this to measures
-  private _numberOfParts = 2;
+  // NOTE : this must be kept in sync with its child measures
+  //        by calling propagateNumberOfPartsToMeasures()
+  private _numberOfParts = 1;
 
   private constructor(measures: IMeasure[]) {
     super();
     this._measures = measures;
   }
 
-  static empty() {
+  static empty() {  
     return new Stave([]);
   }
 
@@ -52,11 +53,14 @@ export class Stave extends IStave {
   static fromJSON(o: SavedStave) {
     const st = Stave.empty();
     st._measures = o.bars.map(Measure.fromJSON);
+    st._numberOfParts = o.numberOfParts || 1;
+    st.propagateNumberOfPartsToMeasures();
     return st;
   }
 
   toJSON(): SavedStave {
     return {
+      numberOfParts: this._numberOfParts,
       bars: this._measures.map((bar) => bar.toJSON()),
     };
   }
@@ -68,8 +72,24 @@ export class Stave extends IStave {
     );
   }
 
-  numberOfParts(): number {
+  numberOfHarmonyParts(): number {
     return this._numberOfParts;
+  }
+
+  addHarmony(): void {
+    this._numberOfParts += 1;
+    this.propagateNumberOfPartsToMeasures();
+  }
+
+  removeHarmony(): void {
+    this._numberOfParts -= 1;
+    this.propagateNumberOfPartsToMeasures();
+  }
+
+  propagateNumberOfPartsToMeasures() {
+    for (const measure of this._measures) {
+      measure.setNumberOfParts(this._numberOfParts);
+    }
   }
 
   numberOfMeasures() {
@@ -79,11 +99,13 @@ export class Stave extends IStave {
   prependMeasure(measure: IMeasure) {
     this._measures.unshift(measure);
     measure.fixedWidth = 'auto';
+    measure.setNumberOfParts(this._numberOfParts);
   }
 
   appendMeasure(measure: IMeasure) {
     this._measures.push(measure);
     measure.fixedWidth = 'auto';
+    measure.setNumberOfParts(this._numberOfParts);
   }
 
   deleteMeasure(measure: IMeasure) {
@@ -144,7 +166,7 @@ export class Stave extends IStave {
     this._measures.splice(
       ind,
       0,
-      new Measure(relativeTo.timeSignature(), anacrusis)
+      new Measure(relativeTo.timeSignature(), anacrusis, this._numberOfParts)
     );
   }
 

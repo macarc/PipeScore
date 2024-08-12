@@ -18,8 +18,8 @@
 - [ ] Copying/pasting in Firefox
 - [x] Updating .measure() references in copy/paste
 - [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
-- [ ] Saving
-- [ ] UI
+- [x] Saving
+- [x] UI
 - [ ] Playback
 
 ## Bugs to fix

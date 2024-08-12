@@ -171,7 +171,7 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     dispatch: props.dispatch,
   });
 
-  const staveLines = foreach(stave.numberOfParts(), (p) =>
+  const staveLines = foreach(stave.numberOfHarmonyParts(), (p) =>
     foreach(
       5,
       (idx) =>

@@ -141,6 +141,8 @@ export class ScoreSelection extends DraggableSelection {
       }
     }
 
+    const deletedSomething = notesToDelete.length > 0 || (deleteBars && measuresToDelete.length > 0);
+
     // If the next note after the selection is tied, untie it
     if (notesToDelete.length > 0) {
       const lastNote = notesToDelete[notesToDelete.length - 1][0];
@@ -161,6 +163,9 @@ export class ScoreSelection extends DraggableSelection {
       }
     }
 
+    if (!deletedSomething) {
+      return this;
+    }
     if (newSelection) {
       return new ScoreSelection(newSelection, newSelection, false);
     }
@@ -179,13 +184,39 @@ export class ScoreSelection extends DraggableSelection {
   // Selected notes and triplets
   // (these are guaranteed to all be in the same harmony stave)
   notesAndTriplets(score: IScore): NoteOrTriplet[] {
-    return this.bars(score).flatMap((bar) => bar.notesAndTriplets());
+    for (const part of score.bars()) {
+      let foundStart = false;
+      const notes: NoteOrTriplet[] = [];
+      for (const bar of part) {
+        if (bar.hasID(this._start)) foundStart = true;
+        for (const note of bar.notesAndTriplets()) {
+          if (note.hasID(this._start)) foundStart = true;
+          if (foundStart) notes.push(note);
+          if (note.hasID(this._end)) return notes;
+        }
+        if (bar.hasID(this._end)) return notes;
+      }
+    }
+    return [];
   }
 
   // Selected notes, including notes that are part of a triplet
   // (these are guaranteed to all be in the same harmony stave)
   notes(score: IScore): INote[] {
-    return this.bars(score).flatMap((bar) => bar.notes());
+    for (const part of score.bars()) {
+      let foundStart = false;
+      const notes: INote[] = [];
+      for (const bar of part) {
+        if (bar.hasID(this._start)) foundStart = true;
+        for (const note of bar.notes()) {
+          if (note.hasID(this._start)) foundStart = true;
+          if (foundStart) notes.push(note);
+          if (note.hasID(this._end)) return notes;
+        }
+        if (bar.hasID(this._end)) return notes;
+      }
+    }
+    return [];
   }
 
   bars(score: IScore): IBar[] {

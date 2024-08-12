@@ -20,6 +20,7 @@
 import { IScore } from '.';
 import { type IBar, nextBar, nextNote, previousBar, previousNote } from '../Bar';
 import { Update } from '../Events/types';
+import type { NoteOrTriplet } from '../Note';
 import type { Playback } from '../Playback';
 import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
 import type { IStave } from '../Stave';
@@ -325,6 +326,12 @@ export class Score extends IScore {
   flatNotes() {
     return this.measures().flatMap((measure) =>
       measure.bars().flatMap((bar) => bar.notes())
+    );
+  }
+
+  flatNotesAndTriplets(): NoteOrTriplet[] {
+    return this.measures().flatMap((measure) =>
+      measure.bars().flatMap((bar) => bar.notesAndTriplets())
     );
   }
 

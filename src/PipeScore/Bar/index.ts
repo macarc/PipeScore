@@ -18,14 +18,15 @@ import type { Barline } from '../Barline';
 import type { INote, ITriplet, NoteOrTriplet } from '../Note';
 import type { Playback } from '../Playback';
 import type { Previews } from '../Preview/previews';
-import type { SavedBar } from '../SavedModel';
+import type { SavedBar, SavedMeasure } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import { type ID, Item } from '../global/id';
 import type { Pitch } from '../global/pitch';
 
-// A single bar (whereas IBar contains multiple bars vertically if there are harmony parts)
-// If you have an idea for a better name tell me!
+// A single bar (whereas IMeasure contains multiple bars vertically if there are harmony parts)
 export abstract class IBar extends Item implements Previews<INote> {
+  abstract toJSON(): SavedBar;
+  // Get parent measure
   abstract measure(): IMeasure;
   abstract harmonyIndex(): number;
   abstract containsNoteWithID(id: ID): boolean;
@@ -52,12 +53,15 @@ export abstract class IBar extends Item implements Previews<INote> {
   abstract preview(inPart: number): INote | null;
 }
 
+// A container for multiple IBars placed vertically, i.e. in harmony
+// This just worries about barlines , bar size, and time signature
+// Actual notes is left to IBar
 export abstract class IMeasure {
   abstract fixedWidth: number | 'auto';
-  // Check if measure or any notes of measure have this ID
+  abstract toJSON(): SavedMeasure;
+  // Check any bars or notes of measure have the ID
   abstract containsID(id: ID): boolean;
   abstract isAnacrusis(): boolean;
-  abstract toJSON(): SavedBar;
   abstract bars(): IBar[];
   abstract startBarline(): Barline;
   abstract endBarline(): Barline;

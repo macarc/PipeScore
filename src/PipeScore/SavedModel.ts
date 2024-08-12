@@ -67,10 +67,12 @@ export type SavedTune = {
 };
 
 export type SavedStave = {
-  bars: SavedBar[];
+  // Called bars for backwards compatibility
+  bars: (SavedMeasure | DeprecatedSavedMeasure)[];
+  numberOfParts: number | undefined;
 };
 
-export type SavedBar = {
+export type DeprecatedSavedMeasure = {
   id: ID;
   isAnacrusis: boolean;
   timeSignature: SavedTimeSignature;
@@ -78,6 +80,20 @@ export type SavedBar = {
   width: 'auto' | number | undefined;
   frontBarline: SavedBarline;
   backBarline: SavedBarline;
+};
+
+export type SavedMeasure = {
+  isAnacrusis: boolean;
+  timeSignature: SavedTimeSignature;
+  bars: SavedBar[];
+  width: 'auto' | number | undefined;
+  frontBarline: SavedBarline;
+  backBarline: SavedBarline;
+};
+
+export type SavedBar = {
+  id: ID;
+  notes: SavedNoteOrTriplet[];
 };
 
 export type SavedBarline = {
@@ -214,4 +230,10 @@ export function isDeprecatedSavedNoteOrTriplet(
   noteOrTriplet: SavedNoteOrTriplet
 ): noteOrTriplet is DeprecatedSavedNoteOrTriplet {
   return (noteOrTriplet as DeprecatedSavedNoteOrTriplet).id !== undefined;
+}
+
+export function isDeprecatedSavedMeasure(
+  m: SavedMeasure | DeprecatedSavedMeasure
+): m is DeprecatedSavedMeasure {
+  return (m as DeprecatedSavedMeasure).notes !== undefined;
 }

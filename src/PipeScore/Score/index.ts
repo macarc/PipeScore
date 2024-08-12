@@ -19,7 +19,7 @@
 
 import type { IBar, IMeasure } from '../Bar';
 import type { Update } from '../Events/types';
-import type { INote } from '../Note';
+import type { INote, NoteOrTriplet } from '../Note';
 import type { Playback, PlaybackSecondTiming } from '../Playback';
 import type { SavedScore } from '../SavedModel';
 import type { IStave } from '../Stave';
@@ -57,6 +57,7 @@ export abstract class IScore {
   abstract deleteTune(tune: ITune): void;
   abstract notes(): INote[][];
   abstract flatNotes(): INote[];
+  abstract flatNotesAndTriplets(): NoteOrTriplet[];
   abstract bars(): IBar[][];
   abstract measures(): IMeasure[];
   abstract staves(): IStave[];

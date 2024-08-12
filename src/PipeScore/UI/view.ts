@@ -62,7 +62,7 @@ import {
   stopPlayback,
 } from '../Events/Playback';
 import { copy, deleteSelection, paste } from '../Events/Selection';
-import { addStave, deleteStave, resetStaveGap, setStaveGap } from '../Events/Stave';
+import { addHarmonyStave, addHarmonyStaveToAll, addStave, deleteStave, removeHarmonyStave, resetStaveGap, setStaveGap } from '../Events/Stave';
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
@@ -314,10 +314,10 @@ export default function render(state: UIState): m.Children {
 
   const startBarClass = (type: Barline) =>
     allBars((bar) => bar.startBarline() === type)
-      ? 'textual highlighted'
-      : 'textual';
+      ? 'textual highlighted top'
+      : 'textual top';
   const endBarClass = (type: Barline) =>
-    allBars((bar) => bar.endBarline() === type) ? 'textual highlighted' : 'textual';
+    allBars((bar) => bar.endBarline() === type) ? 'textual highlighted bottom' : 'textual bottom';
 
   const barMenu = [
     m('section', [
@@ -653,6 +653,43 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
       ]),
+    ]),
+    m('section', [
+      m('h2', text('harmonyStave')),
+      m('div.section-content.vertical', [
+        help(
+          'add-harmony',
+          m(
+            'button.textual',
+            { disabled: !stavesSelected, onclick: () => state.dispatch(addHarmonyStave()) },
+            text('addHarmony')
+          ),
+          state.dispatch
+        ),
+        help(
+          'add-harmony-to-all',
+          m(
+            'button.textual',
+            { onclick: () => state.dispatch(addHarmonyStaveToAll()) },
+            text('addHarmonyToAll')
+          ),
+          state.dispatch
+        ),
+      ]),
+    ]),
+    m('section', [
+      m('h2', text('deleteHarmony')),
+      m('div.section-content', [
+        help(
+          'remove-harmony',
+          m(
+            'button.text',
+            { disabled: !stavesSelected, onclick: () => state.dispatch(removeHarmonyStave()) },
+            text('delete')
+          ),
+          state.dispatch
+        ),
+      ])
     ]),
   ];
 

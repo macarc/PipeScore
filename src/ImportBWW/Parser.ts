@@ -2,6 +2,7 @@ import { Duration, NoteLength } from '../PipeScore/Note/notelength';
 import type {
   SavedBar,
   SavedGracenote,
+  SavedMeasure,
   SavedScore,
   SavedTimeSignature,
   SavedTiming,
@@ -136,11 +137,10 @@ function reactive(name: string): SavedGracenote {
   return { type: 'reactive', value: { grace: name } };
 }
 
-const emptyBar = (timeSignature: SavedTimeSignature): SavedBar => ({
-  id: genID(),
+const emptyMeasure = (timeSignature: SavedTimeSignature): SavedMeasure => ({
   isAnacrusis: false,
   timeSignature,
-  notes: [],
+  bars: [{ id: genID(), notes: [] }],
   width: 'auto',
   frontBarline: { type: 'normal' },
   backBarline: { type: 'normal' },
@@ -175,7 +175,7 @@ class PartialScore {
   private previousID: ID = -1;
 
   private currentTiming: SavedTiming | null = null;
-  private currentStave: SavedBar[] = [emptyBar(this.timeSignature)];
+  private currentStave: SavedMeasure[] = [emptyMeasure(this.timeSignature)];
 
   private score: SavedScore;
 
@@ -201,10 +201,10 @@ class PartialScore {
   }
 
   newStave() {
-    this.endItem(this.currentBar().id);
+    this.endItem(this.currentMeasure().bars[0].id);
 
-    this.score.tunes[0].staves.push({ bars: this.currentStave });
-    this.currentStave = [emptyBar(this.timeSignature)];
+    this.score.tunes[0].staves.push({ numberOfParts: 1, bars: this.currentStave });
+    this.currentStave = [emptyMeasure(this.timeSignature)];
     this.currentLineIsEmpty = true;
   }
 
@@ -224,7 +224,7 @@ class PartialScore {
     );
     const id = note.id;
 
-    this.currentBar().notes.push({
+    this.currentMeasure().bars[0].notes.push({
       notetype: 'single',
       value: note,
     });
@@ -245,8 +245,10 @@ class PartialScore {
   }
 
   makeTriplet() {
-    const bar = this.currentBar();
-    const notesOrTriplets = bar.notes.slice(bar.notes.length - 3);
+    const measure = this.currentMeasure();
+    const notesOrTriplets = measure.bars[0].notes.slice(
+      measure.bars[0].notes.length - 3
+    );
     if (notesOrTriplets.length !== 3) {
       throw new Error(
         "Tried to make a triplet, but there weren't enough notes in the bar!"
@@ -261,7 +263,7 @@ class PartialScore {
       return note.value;
     });
     const duration = notes[0].length;
-    bar.notes.splice(bar.notes.length - 3, 3, {
+    measure.bars[0].notes.splice(measure.bars[0].notes.length - 3, 3, {
       notetype: 'triplet',
       value: {
         id: genID(),
@@ -271,7 +273,7 @@ class PartialScore {
     });
   }
 
-  newBar() {
+  newMeasure() {
     // Sometimes a barline is placed at the start of a line
     // in which case we should ignore it
     if (this.currentLineIsEmpty) {
@@ -282,23 +284,25 @@ class PartialScore {
       // We can now determine if the previous bar was an anacrusis.
       // This is a bit crude, but BWW has no concept of lead-ins
       // and I can't really think of a better metric
-      const barDuration = sum(
-        this.currentBar().notes.map((note) => durationInBeats(note.value.length))
+      const measureDuration = sum(
+        this.currentMeasure().bars[0].notes.map((note) =>
+          durationInBeats(note.value.length)
+        )
       );
-      const ts = this.currentBar().timeSignature.ts;
+      const ts = this.currentMeasure().timeSignature.ts;
       const barLength =
         ts === 'cut time' || ts === 'common time' ? 4 : (ts[0] * 4) / ts[1];
 
-      if (barDuration < barLength / 2) {
-        this.currentBar().isAnacrusis = true;
+      if (measureDuration < barLength / 2) {
+        this.currentMeasure().isAnacrusis = true;
       }
     }
 
-    this.endItem(this.currentBar().id);
+    this.endItem(this.currentMeasure().bars[0].id);
 
-    const bar = emptyBar(this.timeSignature);
-    this.startItem(bar.id);
-    this.currentStave.push(bar);
+    const measure = emptyMeasure(this.timeSignature);
+    this.startItem(measure.bars[0].id);
+    this.currentStave.push(measure);
   }
 
   startTimeline(text: string) {
@@ -320,16 +324,16 @@ class PartialScore {
 
   setBarline(barline: BarlineType, place: 'start' | 'end') {
     if (place === 'start') {
-      this.currentBar().frontBarline.type = barline;
+      this.currentMeasure().frontBarline.type = barline;
     } else {
-      this.currentBar().backBarline.type = barline;
+      this.currentMeasure().backBarline.type = barline;
     }
   }
 
   setTimeSignature(ts: SavedTimeSignature) {
     this.timeSignature = ts;
     if (this.currentLineIsEmpty) {
-      this.currentBar().timeSignature = ts;
+      this.currentMeasure().timeSignature = ts;
     }
   }
 
@@ -348,11 +352,11 @@ class PartialScore {
   dotLastNote() {
     // All this is likely unnecessary since dots will almost always
     // come straight after a melody note
-    const dotLast = (stave: SavedBar[]) => {
+    const dotLast = (stave: SavedMeasure[]) => {
       for (let i = stave.length - 1; i >= 0; i--) {
-        const bar = stave[i];
-        if (bar.notes.length > 0) {
-          const note = bar.notes[bar.notes.length - 1];
+        const measure = stave[i];
+        if (measure.bars[0].notes.length > 0) {
+          const note = measure.bars[0].notes[measure.bars[0].notes.length - 1];
           note.value.length = dotDuration(note.value.length);
           return true;
         }
@@ -361,7 +365,7 @@ class PartialScore {
     };
     if (!dotLast(this.currentStave)) {
       for (let i = this.score.tunes[0].staves.length - 1; i >= 0; i--) {
-        if (dotLast(this.score.tunes[0].staves[i].bars || [])) {
+        if (dotLast((this.score.tunes[0].staves[i].bars as SavedMeasure[]) || [])) {
           break;
         }
       }
@@ -384,7 +388,7 @@ class PartialScore {
     return this.tieing === TieingState.NewTieFormat;
   }
 
-  private currentBar() {
+  private currentMeasure() {
     return this.currentStave[this.currentStave.length - 1];
   }
   private startItem(id: ID) {
@@ -477,7 +481,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   [TokenType.PART_BEGINNING](t: Token) {
     // Only make a new bar if we aren't at the start of the line
     if (!this.score.currentLineIsEmpty) {
-      this.score.newBar();
+      this.score.newMeasure();
     }
     const barline = t.value[1] ? 'repeat' : 'end';
     this.score.setBarline(barline, 'start');
@@ -492,7 +496,7 @@ class Parser implements Record<TokenType, (t: Token) => void> {
   }
 
   [TokenType.BAR_LINE]() {
-    this.score.newBar();
+    this.score.newMeasure();
   }
 
   [TokenType.FERMATA]() {

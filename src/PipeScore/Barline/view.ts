@@ -32,7 +32,7 @@ interface BarlineProps {
 }
 
 function yStart(y: number, isHarmony: boolean) {
-  return y - stavelineThickness - (isHarmony ? settings.harmonyGap : 0);
+  return y - stavelineThickness / 2 - (isHarmony ? settings.harmonyGap : 0);
 }
 
 const lineOffset = 6;

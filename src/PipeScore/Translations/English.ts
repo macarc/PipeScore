@@ -88,6 +88,12 @@ export const EnglishDocumentation: Documentation = {
     'Add a new blank stave on the next line after the currently currently selected stave. Select a stave by selecting any note or bar in that stave.',
   'delete-stave':
     'Delete the currently selected stave. Select a stave by selecting any note or bar in that stave.',
+  'add-harmony':
+    'Add a harmony stave after the currently selected stave. Select a stave by selecting any note or bar in that stave.',
+  'add-harmony-to-all':
+    'Add a harmony stave to all staves in the selected tune. Select a tune by selecting any note or bar in that tune.',
+  'remove-harmony':
+    'Delete the last harmony stave on selected stave(s). Select a stave by selecting any note or bar in that stave.',
   'set-stave-gap': 'Adjust the default gap between all staves.',
   'reset-stave-gap': 'Reset the gap between staves to its default value.',
   'add-tune-before':
@@ -178,6 +184,10 @@ export const EnglishTextItems: TextItems = {
   reset: 'Reset',
   deleteStave: 'Delete Stave',
   delete: 'Delete',
+  harmonyStave: 'Add Harmony',
+  addHarmony: 'Add harmony to selected staves',
+  addHarmonyToAll: 'Add harmony to all staves',
+  deleteHarmony: 'Delete Harmony',  
   addTune: 'Add Tune',
   modifyTune: 'Modify Tune',
   adjustGapBeforeTune: 'Adjust gap before tune',

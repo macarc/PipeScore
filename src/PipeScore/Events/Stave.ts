@@ -73,3 +73,37 @@ export function resetStaveGap() {
     return Update.ShouldSave;
   };
 }
+
+export function addHarmonyStave() {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      for (const stave of state.selection.staves(state.score)) {
+        stave.addHarmony();
+      }
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  }
+}
+
+export function addHarmonyStaveToAll() {
+  return async (state: State) => {
+    for (const stave of state.score.staves()) {
+      stave.addHarmony();
+    }
+    return Update.ShouldSave;
+  }
+}
+
+export function removeHarmonyStave() {
+  return async (state: State) => {
+    if (state.selection instanceof ScoreSelection) {
+      for (const stave of state.selection.staves(state.score)) {
+        stave.removeHarmony();
+      }
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+
+  }
+}

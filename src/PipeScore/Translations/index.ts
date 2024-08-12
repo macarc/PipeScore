@@ -65,6 +65,9 @@ export type Documentation = {
   'add-stave-before': string;
   'add-stave-after': string;
   'delete-stave': string;
+  'add-harmony': string;
+  'add-harmony-to-all': string;
+  'remove-harmony': string;
   'set-stave-gap': string;
   'reset-stave-gap': string;
   'add-tune-before': string;
@@ -142,6 +145,10 @@ export type TextItems = {
   reset: string;
   deleteStave: string;
   delete: string;
+  harmonyStave: string;
+  addHarmony: string;
+  addHarmonyToAll: string;
+  deleteHarmony: string;
   addTune: string;
   modifyTune: string;
   adjustGapBeforeTune: string;
