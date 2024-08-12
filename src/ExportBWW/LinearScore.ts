@@ -67,20 +67,21 @@ export function toLinearScore(score: IScore): LinearScore {
 
   for (const stave of score.staves()) {
     linear.push(new BClef());
-    for (const bar of stave.bars()) {
+    for (const measure of stave.measures()) {
       if (
         previousTimeSignature === null ||
-        !bar.timeSignature().equals(previousTimeSignature)
+        !measure.timeSignature().equals(previousTimeSignature)
       ) {
-        linear.push(new BTimeSignature(bar.timeSignature()));
-        previousTimeSignature = bar.timeSignature();
+        linear.push(new BTimeSignature(measure.timeSignature()));
+        previousTimeSignature = measure.timeSignature();
       }
 
-      linear.push(new BBarline(bar.startBarline(), true));
+      linear.push(new BBarline(measure.startBarline(), true));
 
+      // TODO : support harmony staves
       const groupedNotes = groupNotes(
-        bar.nonPreviewNotes(),
-        bar.timeSignature().beatDivision()
+        measure.bars()[0].nonPreviewNotes(),
+        measure.timeSignature().beatDivision()
       );
 
       for (const group of groupedNotes) {
@@ -97,7 +98,7 @@ export function toLinearScore(score: IScore): LinearScore {
         }
       }
 
-      linear.push(new BBarline(bar.endBarline(), false));
+      linear.push(new BBarline(measure.endBarline(), false));
     }
     linear.push(new BTerminatingBarline());
   }

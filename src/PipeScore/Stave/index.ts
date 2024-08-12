@@ -16,7 +16,7 @@
 
 //  A Stave is a single line of music.
 
-import type { IBar } from '../Bar';
+import type { IMeasure } from '../Bar';
 import type { INote } from '../Note';
 import type { Playback } from '../Playback';
 import type { SavedStave } from '../SavedModel';
@@ -27,20 +27,20 @@ export abstract class IStave {
   abstract toJSON(): SavedStave;
   abstract height(): number;
   abstract numberOfParts(): number;
-  abstract numberOfBars(): number;
-  abstract insertBar(bar: IBar): void;
-  abstract appendBar(bar: IBar): void;
-  abstract deleteBar(bar: IBar): void;
+  abstract numberOfMeasures(): number;
+  abstract prependMeasure(measure: IMeasure): void;
+  abstract appendMeasure(measure: IMeasure): void;
+  abstract insertMeasure(newMeasure: IMeasure, relativeTo: IMeasure, where: Relative): void;
+  abstract deleteMeasure(measure: IMeasure): void;
   abstract includesID(id: ID): boolean;
-  abstract firstBar(): IBar | null;
-  abstract lastBar(): IBar | null;
-  abstract bars(): IBar[];
+  abstract firstMeasure(): IMeasure | null;
+  abstract lastMeasure(): IMeasure | null;
+  abstract measures(): IMeasure[];
   abstract previousNote(id: ID): INote | null;
-  abstract previousBar(bar: IBar): IBar | null;
+  abstract previousMeasure(measure: IMeasure): IMeasure | null;
   abstract partFirst(): void;
   abstract partLast(): void;
   abstract repeatFirst(): void;
   abstract repeatLast(): void;
-  abstract replaceBar(newBar: IBar, oldBar: IBar, where: Relative): void;
   abstract play(previous: IStave | null): Playback[];
 }

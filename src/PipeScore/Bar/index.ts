@@ -24,12 +24,23 @@ import { type ID, Item } from '../global/id';
 import type { Pitch } from '../global/pitch';
 import { last } from '../global/utils';
 
-export abstract class IBar extends Item implements Previews<INote> {
-  abstract fixedWidth: number | 'auto';
-  abstract isAnacrusis(): boolean;
-  abstract toJSON(): SavedBar;
-  abstract startBarline(): Barline;
-  abstract endBarline(): Barline;
+// A single bar (whereas IBar contains multiple bars vertically if there are harmony parts)
+// If you have an idea for a better name tell me!
+export abstract class IBar implements Previews<INote> {
+  abstract measure(): IMeasure;
+  abstract containsNoteWithId(id: ID): boolean;
+  abstract notes(): INote[];
+  abstract notesAndTriplets(): NoteOrTriplet[];
+  abstract nonPreviewNotes(): NoteOrTriplet[];
+  abstract insertNote(noteBefore: INote | null, note: INote): void;
+  abstract appendNotes(note: NoteOrTriplet[]): void;
+  abstract deleteNote(note: INote): void;
+  abstract clearNotes(): void;
+  abstract lastPitch(): Pitch | null;
+  abstract lastNote(): INote | null;
+  abstract previousNote(note: INote): NoteOrTriplet | null;
+  abstract makeTriplet(first: INote, second: INote, third: INote): void;
+  abstract unmakeTriplet(tr: ITriplet): void;
   abstract setPreview(
     note: INote,
     noteBefore: INote | null,
@@ -38,28 +49,24 @@ export abstract class IBar extends Item implements Previews<INote> {
   abstract hasPreview(): boolean;
   abstract makePreviewReal(notes: INote[]): void;
   abstract removePreview(): void;
-  abstract preview(): INote | null;
-  abstract numberOfNotes(): number;
-  abstract lastPitch(): Pitch | null;
-  abstract lastNote(): INote | null;
-  abstract previousNote(note: INote): NoteOrTriplet | null;
-  abstract notesAndTriplets(): NoteOrTriplet[];
-  abstract notes(): INote[];
-  abstract parts(): INote[][];
+  abstract preview(inPart: number): INote | null;
+};
+
+export abstract class IMeasure extends Item {
+  abstract fixedWidth: number | 'auto';
+  // Check if measure or any notes of measure have this ID
+  abstract containsID(id: ID): boolean;
+  abstract isAnacrusis(): boolean;
+  abstract toJSON(): SavedBar;
+  abstract bars(): IBar[];
+  abstract startBarline(): Barline;
+  abstract endBarline(): Barline;
+  abstract setBarline(position: 'start' | 'end', barline: Barline): void;
   abstract setNumberOfParts(n: number): void;
-  abstract nonPreviewNotes(): NoteOrTriplet[][];
-  abstract insertNote(noteBefore: INote | null, note: INote): void;
-  abstract appendNotes(note: NoteOrTriplet[]): void;
-  abstract deleteNote(note: INote): void;
-  abstract clearNotes(): void;
-  abstract makeTriplet(first: INote, second: INote, third: INote): void;
-  abstract unmakeTriplet(tr: ITriplet): void;
-  abstract includesNote(id: ID): boolean;
   abstract timeSignature(): ITimeSignature;
   abstract setTimeSignature(ts: ITimeSignature): void;
   abstract adjustWidth(ratio: number): void;
-  abstract setBarline(position: 'start' | 'end', barline: Barline): void;
-  abstract play(previous: IBar | null): Playback[];
+  abstract play(previous: IMeasure | null): Playback[];
 }
 
 // Replaces timeSignature with newTimeSignature.
@@ -69,18 +76,18 @@ export abstract class IBar extends Item implements Previews<INote> {
 export function setTimeSignatureFrom(
   timeSignature: ITimeSignature,
   newTimeSignature: ITimeSignature,
-  bars: IBar[]
+  measures: IMeasure[]
 ) {
   let atTimeSignature = false;
-  for (const bar of bars) {
-    if (bar.timeSignature() === timeSignature) {
-      bar.setTimeSignature(newTimeSignature);
+  for (const measure of measures) {
+    if (measure.timeSignature() === timeSignature) {
+      measure.setTimeSignature(newTimeSignature);
       atTimeSignature = true;
       continue;
     }
     if (atTimeSignature) {
-      if (bar.timeSignature().equals(timeSignature)) {
-        bar.setTimeSignature(newTimeSignature);
+      if (measure.timeSignature().equals(timeSignature)) {
+        measure.setTimeSignature(newTimeSignature);
       } else {
         break;
       }
@@ -88,47 +95,59 @@ export function setTimeSignatureFrom(
   }
 }
 
-export function nextBar(id: ID, bars: IBar[]) {
-  for (let i = 0; i < bars.length - 1; i++) {
-    if (bars[i].hasID(id)) return bars[i + 1];
-    for (const note of bars[i].notesAndTriplets()) {
-      if (note.hasID(id)) return bars[i + 1];
+export function getMeasureBars(measures: IMeasure[]): IBar[][] {
+  const bars: IBar[][] = [];
+  for (const measure of measures) {
+    const measureBars = measure.bars();
+    for (let i = 0; i < measureBars.length; i++) {
+      if (i >= bars.length) {
+        bars.push([]);
+      }
+      bars[i].push(measureBars[i]);
     }
+  }
+  return bars;
+}
+
+export function nextMeasure(id: ID, measures: IMeasure[]) {
+  for (let i = 0; i < measures.length - 1; i++) {
+    if (measures[i].containsID(id)) return measures[i + 1];
   }
   return null;
 }
 
-export function previousBar(id: ID, bars: IBar[]) {
-  for (let i = 1; i < bars.length; i++) {
-    if (bars[i].hasID(id)) return bars[i - 1];
-    for (const note of bars[i].notesAndTriplets()) {
-      if (note.hasID(id)) return bars[i - 1];
-    }
+export function previousMeasure(id: ID, measures: IMeasure[]) {
+  for (let i = 1; i < measures.length; i++) {
+    if (measures[i].containsID(id)) return measures[i - 1];
   }
-  return last(bars);
+  return last(measures);
 }
 
-export function nextNote(id: ID, bars: IBar[]) {
+export function nextNote(id: ID, measures: IMeasure[]) {
   let lastWasIt = false;
-  for (const bar of bars) {
-    if (bar.hasID(id)) lastWasIt = true;
-    for (const note of bar.notes()) {
-      if (note.isPreview()) continue;
-      if (lastWasIt) return note;
-      if (note.hasID(id)) lastWasIt = true;
+  for (const bars of getMeasureBars(measures)) {
+    for (const bar of bars) {
+      if (bar.measure().id === id) lastWasIt = true;
+      for (const note of bar.notes()) {
+        if (note.isPreview()) continue;
+        if (lastWasIt) return note;
+        if (note.hasID(id)) lastWasIt = true;
+      }
     }
   }
   return null;
 }
 
-export function previousNote(id: ID, bars: IBar[]) {
+export function previousNote(id: ID, measures: IMeasure[]) {
   let prev: INote | null = null;
-  for (const bar of bars) {
-    if (bar.hasID(id)) return prev;
-    for (const note of bar.notes()) {
-      if (note.isPreview()) continue;
-      if (note.hasID(id)) return prev;
-      prev = note;
+  for (const bars of getMeasureBars(measures)) {
+    for (const bar of bars) {
+      if (bar.measure().id === id) return prev;
+      for (const note of bar.notes()) {
+        if (note.isPreview()) continue;
+        if (note.hasID(id)) return prev;
+        prev = note;
+      }
     }
   }
   return prev;

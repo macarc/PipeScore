@@ -17,7 +17,7 @@
 //  The Score contains the entire score (what a surprise). Since it delegates,
 //  this file mostly deals with delegations and pages.
 
-import type { IBar } from '../Bar';
+import type { IMeasure, IBar } from '../Bar';
 import type { Update } from '../Events/types';
 import type { INote, NoteOrTriplet } from '../Note';
 import type { Playback, PlaybackSecondTiming } from '../Playback';
@@ -29,7 +29,7 @@ import type { ITune } from '../Tune';
 import type { ID } from '../global/id';
 import type { Relative } from '../global/relativeLocation';
 
-type Location = { tune: ITune; stave: IStave; bar: IBar };
+type Location = { tune: ITune; stave: IStave; measure: IMeasure; bar: IBar };
 
 export abstract class IScore {
   abstract landscape: boolean;
@@ -46,18 +46,17 @@ export abstract class IScore {
   abstract makePortrait(): Update;
   abstract addText(text: IMovableTextBox): void;
   abstract staveY(stave: IStave | ITune): number;
-  abstract nextBar(id: ID): IBar | null;
-  abstract previousBar(id: ID): IBar | null;
+  abstract nextMeasure(id: ID): IMeasure | null;
+  abstract previousMeasure(id: ID): IMeasure | null;
   abstract nextNote(id: ID): INote | null;
   abstract previousNote(id: ID): INote | null;
   abstract previousStaveSameTune(stave: IStave): IStave | null;
-  abstract firstOnPage(page: number): IBar | null;
-  abstract lastOnPage(page: number): IBar | null;
+  abstract firstOnPage(page: number): IMeasure | null;
+  abstract lastOnPage(page: number): IMeasure | null;
   abstract addTune(nearTune: ITune | null, where: Relative): void;
   abstract deleteTune(tune: ITune): void;
-  abstract notesAndTriplets(): NoteOrTriplet[];
   abstract notes(): INote[];
-  abstract bars(): IBar[];
+  abstract measures(): IMeasure[];
   abstract staves(): IStave[];
   abstract tunes(): ITune[];
   abstract lastStave(): IStave | null;

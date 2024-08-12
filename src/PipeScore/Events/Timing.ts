@@ -29,8 +29,8 @@ export function addSingleTiming(): ScoreEvent {
         state.score.location(state.selection.start) || state.score.lastBarAndStave();
 
       if (location) {
-        const { bar } = location;
-        state.score.addTiming(new SingleTiming(bar.id, bar.id));
+        const { measure } = location;
+        state.score.addTiming(new SingleTiming(measure.id, measure.id));
         return Update.ShouldSave;
       }
     }
@@ -43,9 +43,9 @@ export function addSecondTiming(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const start = state.score.location(state.selection.start);
       if (start) {
-        const end = after(start.bar, state.score.bars());
+        const end = after(start.measure, state.score.measures());
         if (end) {
-          state.score.addTiming(new SecondTiming(start.bar.id, end.id, end.id));
+          state.score.addTiming(new SecondTiming(start.measure.id, end.id, end.id));
           return Update.ShouldSave;
         }
       }

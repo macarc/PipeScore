@@ -18,15 +18,15 @@
 
 import m from 'mithril';
 import { getLanguage } from '../../common/i18n';
-import type { IBar } from '../Bar';
+import type { IMeasure } from '../Bar';
 import { Barline } from '../Barline';
 import type { Dispatch } from '../Dispatch';
 import {
-  addBar,
+  addMeasure,
   editBarTimeSignature,
   moveBarToNextLine,
   moveBarToPreviousLine,
-  resetBarLength,
+  resetMeasureLength,
   setBarline,
 } from '../Events/Bar';
 import { toggleDoc } from '../Events/Doc';
@@ -100,7 +100,7 @@ export interface UIState {
   isPlaying: boolean;
   selectedGracenote: IGracenote | null;
   selectedStaves: IStave[];
-  selectedBars: IBar[];
+  selectedMeasures: IMeasure[];
   selectedNotes: INote[];
   selectedTune: ITune | null;
   selectedText: IMovableTextBox | null;
@@ -132,7 +132,7 @@ export default function render(state: UIState): m.Children {
   const inputtingNotes = state.preview !== null;
 
   const notesSelected = state.selectedNotes.length > 0;
-  const barsSelected = state.selectedBars.length > 0;
+  const barsSelected = state.selectedMeasures.length > 0;
   const stavesSelected = state.selectedStaves.length > 0;
   const tuneSelected = state.selectedTune !== null;
   const timingSelected = state.selectedTiming !== null;
@@ -148,8 +148,8 @@ export default function render(state: UIState): m.Children {
   const allNotes = (pred: (note: INote) => boolean) =>
     notesSelected && state.selectedNotes.every(pred);
 
-  const allBars = (pred: (bar: IBar) => boolean) =>
-    barsSelected && state.selectedBars.every(pred);
+  const allBars = (pred: (bar: IMeasure) => boolean) =>
+    barsSelected && state.selectedMeasures.every(pred);
 
   const noteInputButton = (length: Duration) =>
     help(
@@ -332,7 +332,7 @@ export default function render(state: UIState): m.Children {
               'button.textual',
               {
                 disabled: !tuneSelected,
-                onclick: () => state.dispatch(addBar(Relative.before)),
+                onclick: () => state.dispatch(addMeasure(Relative.before)),
               },
               text('addBarBefore')
             ),
@@ -344,7 +344,7 @@ export default function render(state: UIState): m.Children {
               'button.textual',
               {
                 disabled: !tuneSelected,
-                onclick: () => state.dispatch(addBar(Relative.after)),
+                onclick: () => state.dispatch(addMeasure(Relative.after)),
               },
               text('addBarAfter')
             ),
@@ -366,7 +366,7 @@ export default function render(state: UIState): m.Children {
                 'button.textual',
                 {
                   disabled: !tuneSelected,
-                  onclick: () => state.dispatch(addBar(Relative.before)),
+                  onclick: () => state.dispatch(addMeasure(Relative.before)),
                 },
                 text('addLeadInBefore')
               ),
@@ -378,7 +378,7 @@ export default function render(state: UIState): m.Children {
                 'button.textual',
                 {
                   disabled: !tuneSelected,
-                  onclick: () => state.dispatch(addBar(Relative.after)),
+                  onclick: () => state.dispatch(addMeasure(Relative.after)),
                 },
                 text('addLeadInAfter')
               ),
@@ -406,7 +406,7 @@ export default function render(state: UIState): m.Children {
             'button.textual',
             {
               disabled: !barsSelected,
-              onclick: () => state.dispatch(resetBarLength()),
+              onclick: () => state.dispatch(resetMeasureLength()),
             },
             text('resetBarLength')
           ),

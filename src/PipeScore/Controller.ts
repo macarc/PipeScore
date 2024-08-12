@@ -158,9 +158,9 @@ function redraw() {
           (state.selection instanceof ScoreSelection &&
             state.selection.staves(state.score)) ||
           [],
-        selectedBars:
+        selectedMeasures:
           state.selection instanceof ScoreSelection
-            ? state.selection.bars(state.score)
+            ? state.selection.measures(state.score)
             : [],
         selectedTune:
           state.selection instanceof ScoreSelection

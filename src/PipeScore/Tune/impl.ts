@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ITune } from '.';
-import type { IBar } from '../Bar';
+import type { IMeasure } from '../Bar';
 import type { SavedTune } from '../SavedModel';
 import type { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
@@ -130,23 +130,23 @@ export class Tune extends ITune {
   }
 
   timeSignature(): ITimeSignature {
-    return this.staves()[0]?.bars()[0]?.timeSignature() || null;
+    return this.staves()[0]?.measures()[0]?.timeSignature() || null;
   }
 
   addStave(nearStave: IStave | null, where: Relative) {
     let index: number;
-    let nearestBar: IBar | null;
+    let nearestBar: IMeasure | null;
 
     if (nearStave) {
       index = this.staves().indexOf(nearStave) + (where === Relative.before ? 0 : 1);
       nearestBar =
-        where === Relative.before ? nearStave.firstBar() : nearStave.lastBar();
+        where === Relative.before ? nearStave.firstMeasure() : nearStave.lastMeasure();
     } else if (where === Relative.before) {
       index = 0;
-      nearestBar = nfirst(this.staves())?.firstBar();
+      nearestBar = nfirst(this.staves())?.firstMeasure();
     } else {
       index = this.staves().length;
-      nearestBar = nlast(this.staves())?.lastBar();
+      nearestBar = nlast(this.staves())?.lastMeasure();
     }
 
     const ts = nearestBar?.timeSignature() || new TimeSignature();

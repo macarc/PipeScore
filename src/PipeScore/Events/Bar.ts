@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { type IBar, setTimeSignatureFrom } from '../Bar';
-import { Bar } from '../Bar/impl';
+import { type IMeasure, setTimeSignatureFrom } from '../Bar';
+import { Measure } from '../Bar/impl';
 import type { Barline } from '../Barline';
 import type { IScore } from '../Score';
 import { BarlineSelection } from '../Selection/barline';
@@ -33,7 +33,7 @@ function setTimeSignature(
   newTimeSignature: ITimeSignature,
   score: IScore
 ) {
-  setTimeSignatureFrom(timeSignature, newTimeSignature, score.bars());
+  setTimeSignatureFrom(timeSignature, newTimeSignature, score.measures());
 }
 
 export function editTimeSignature(timeSignature: ITimeSignature): ScoreEvent {
@@ -46,17 +46,17 @@ export function editTimeSignature(timeSignature: ITimeSignature): ScoreEvent {
 
 export function addAnacrusis(where: Relative): ScoreEvent {
   return async (state: State) => {
-    const bar =
+    const measure =
       state.selection instanceof ScoreSelection
-        ? state.selection.bar(state.score)
+        ? state.selection.measure(state.score)
         : where === Relative.before
           ? state.score.firstOnPage(0)
           : state.score.lastOnPage(0);
 
-    if (bar) {
-      const stave = state.score.location(bar.id)?.stave;
+    if (measure) {
+      const stave = state.score.location(measure.id)?.stave;
       if (stave) {
-        stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
+        stave.insertMeasure(new Measure(measure.timeSignature(), true), measure, where);
         return Update.ShouldSave;
       }
     }
@@ -64,10 +64,10 @@ export function addAnacrusis(where: Relative): ScoreEvent {
   };
 }
 
-export function addBar(where: Relative): ScoreEvent {
+export function addMeasure(where: Relative): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      state.selection.addBar(where, state.score);
+      state.selection.addMeasure(where, state.score);
       return Update.ShouldSave;
     }
 
@@ -83,15 +83,15 @@ export function clickBarline(drag: (x: number) => void): ScoreEvent {
   };
 }
 
-export function resetBarLength(): ScoreEvent {
+export function resetMeasureLength(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const bars = state.selection.bars(state.score);
-      for (const bar of bars) {
-        bar.fixedWidth = 'auto';
+      const measures = state.selection.measures(state.score);
+      for (const measure of measures) {
+        measure.fixedWidth = 'auto';
       }
-      if (bars.length > 0) {
-        const prev = state.score.previousBar(bars[0].id);
+      if (measures.length > 0) {
+        const prev = state.score.previousMeasure(measures[0].id);
         if (prev) prev.fixedWidth = 'auto';
       }
       return Update.ShouldSave;
@@ -100,13 +100,13 @@ export function resetBarLength(): ScoreEvent {
   };
 }
 
-export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
+export function clickMeasure(measure: IMeasure, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
-      state.selection.extend(bar.id);
+      state.selection.extend(measure.id);
       return Update.ViewChanged;
     }
-    state.selection = new ScoreSelection(bar.id, bar.id, true);
+    state.selection = new ScoreSelection(measure.id, measure.id, true);
     return Update.ViewChanged;
   };
 }
@@ -114,8 +114,8 @@ export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
 export function setBarline(which: 'start' | 'end', what: Barline): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      for (const bar of state.selection.bars(state.score)) {
-        bar.setBarline(which, what);
+      for (const measure of state.selection.measures(state.score)) {
+        measure.setBarline(which, what);
       }
       return Update.ShouldSave;
     }
@@ -125,14 +125,14 @@ export function setBarline(which: 'start' | 'end', what: Barline): ScoreEvent {
 
 export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
-    const bar =
+    const measure =
       state.selection instanceof ScoreSelection
-        ? state.score.location(state.selection.start)?.bar
-        : state.score.bars()[0];
+        ? state.score.location(state.selection.start)?.measure
+        : state.score.measures()[0];
 
-    if (bar) {
-      const newTimeSignature = await timeSignatureEditDialog(bar.timeSignature());
-      setTimeSignature(bar.timeSignature(), newTimeSignature, state.score);
+    if (measure) {
+      const newTimeSignature = await timeSignatureEditDialog(measure.timeSignature());
+      setTimeSignature(measure.timeSignature(), newTimeSignature, state.score);
       return Update.ShouldSave;
     }
     return Update.NoChange;
@@ -142,15 +142,15 @@ export function editBarTimeSignature(): ScoreEvent {
 export function moveBarToNextLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      for (const { tune, bar, stave } of reversed(
-        state.selection.barLocations(state.score)
+      for (const { tune, measure, stave } of reversed(
+        state.selection.measureLocations(state.score)
       )) {
         const nextStave = tune.nextStave(stave);
-        if (bar === stave.lastBar() && nextStave) {
-          stave.deleteBar(bar);
-          nextStave.insertBar(bar);
+        if (measure === stave.lastMeasure() && nextStave) {
+          stave.deleteMeasure(measure);
+          nextStave.prependMeasure(measure);
         }
-        if (stave.bars().length === 0) {
+        if (stave.measures().length === 0) {
           tune.deleteStave(stave);
         }
       }
@@ -163,13 +163,13 @@ export function moveBarToNextLine(): ScoreEvent {
 export function moveBarToPreviousLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      for (const { tune, bar, stave } of state.selection.barLocations(state.score)) {
+      for (const { tune, measure, stave } of state.selection.measureLocations(state.score)) {
         const previousStave = tune.previousStave(stave);
-        if (bar === stave.firstBar() && previousStave) {
-          stave.deleteBar(bar);
-          previousStave.appendBar(bar);
+        if (measure === stave.firstMeasure() && previousStave) {
+          stave.deleteMeasure(measure);
+          previousStave.appendMeasure(measure);
         }
-        if (stave.bars().length === 0) {
+        if (stave.measures().length === 0) {
           tune.deleteStave(stave);
         }
       }

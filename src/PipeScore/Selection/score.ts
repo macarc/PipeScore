@@ -19,8 +19,7 @@
 //  so it goes in its own file
 
 import m from 'mithril';
-import type { IBar } from '../Bar';
-import { Bar } from '../Bar/impl';
+import type { IBar, IMeasure } from '../Bar';
 import type { IGracenote } from '../Gracenote';
 import { INote, type NoteOrTriplet, flattenTriplets } from '../Note';
 import type { IScore } from '../Score';
@@ -33,6 +32,7 @@ import { settings } from '../global/settings';
 import { foreach, last } from '../global/utils';
 import { type XY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
+import { Measure } from '../Bar/impl';
 
 interface ScoreSelectionProps {
   page: number;
@@ -63,22 +63,22 @@ export class ScoreSelection extends DraggableSelection {
     let deleteBars = false;
     const newSelection = this.selectedPrevious(score);
     const notesToDelete: [INote, IBar][] = [];
-    const barsToDelete: [IBar, IStave, ITune][] = [];
+    const measuresToDelete: [IMeasure, IStave, ITune][] = [];
 
     all: for (const tune of score.tunes()) {
       for (const stave of tune.staves()) {
-        for (const bar of stave.bars()) {
-          if (bar.hasID(this.start)) {
+        for (const measure of stave.measures()) {
+          if (measure.hasID(this.start)) {
             deleteBars = true;
             started = true;
           }
-          for (const note of bar.notes()) {
+          for (const note of measure.bars()[0].notes()) {
             if (note.hasID(this.start)) started = true;
-            if (started) notesToDelete.push([note, bar]);
+            if (started) notesToDelete.push([note, measure.bars()[0]]);
             if (note.hasID(this.end)) break all;
           }
-          if (started) barsToDelete.push([bar, stave, tune]);
-          if (bar.hasID(this.end)) break all;
+          if (started) measuresToDelete.push([measure, stave, tune]);
+          if (measure.hasID(this.end)) break all;
         }
       }
     }
@@ -97,9 +97,9 @@ export class ScoreSelection extends DraggableSelection {
     }
 
     if (deleteBars) {
-      for (const [bar, stave, tune] of barsToDelete) {
-        stave.deleteBar(bar);
-        if (stave.numberOfBars() === 0) tune.deleteStave(stave);
+      for (const [measure, stave, tune] of measuresToDelete) {
+        stave.deleteMeasure(measure);
+        if (stave.numberOfMeasures() === 0) tune.deleteStave(stave);
       }
     }
 
@@ -109,10 +109,10 @@ export class ScoreSelection extends DraggableSelection {
     return null;
   }
 
-  lastNoteAndBar(score: IScore): { note: INote | null; bar: IBar | null } {
+  lastNoteAndMeasure(score: IScore): { note: INote | null; measure: IMeasure | null } {
     const notes = this.notes(score);
-    const bar = score.location(this.end)?.bar || null;
-    return { note: last(notes), bar };
+    const measure = score.location(this.end)?.measure || null;
+    return { note: last(notes), measure };
   }
 
   // Get all selected notes and triplets
@@ -127,23 +127,23 @@ export class ScoreSelection extends DraggableSelection {
     return this.collectNotes(score, true) as INote[];
   }
 
-  barLocations(score: IScore): { bar: IBar; tune: ITune; stave: IStave }[] {
+  measureLocations(score: IScore): { measure: IMeasure; tune: ITune; stave: IStave }[] {
     let foundStart = false;
-    const bars: { bar: IBar; tune: ITune; stave: IStave }[] = [];
+    const measures: { measure: IMeasure; tune: ITune; stave: IStave }[] = [];
     all: for (const tune of score.tunes()) {
       for (const stave of tune.staves()) {
-        for (const bar of stave.bars()) {
-          if (bar.hasID(this.start)) foundStart = true;
-          if (foundStart) bars.push({ bar, tune, stave });
-          if (bar.hasID(this.end)) break all;
+        for (const measure of stave.measures()) {
+          if (measure.hasID(this.start)) foundStart = true;
+          if (foundStart) measures.push({ measure, tune, stave });
+          if (measure.hasID(this.end)) break all;
         }
       }
     }
-    return bars;
+    return measures;
   }
 
-  bars(score: IScore): IBar[] {
-    return this.barLocations(score).map(({ bar }) => bar);
+  measures(score: IScore): IMeasure[] {
+    return this.measureLocations(score).map(({ measure }) => measure);
   }
 
   staves(score: IScore): IStave[] {
@@ -171,10 +171,10 @@ export class ScoreSelection extends DraggableSelection {
     return null;
   }
 
-  bar(score: IScore): IBar | null {
+  measure(score: IScore): IMeasure | null {
     if (this.start === this.end) {
-      for (const bar of score.bars()) {
-        if (bar.id === this.start) return bar;
+      for (const measure of score.measures()) {
+        if (measure.id === this.start) return measure;
       }
     }
     return null;
@@ -195,16 +195,16 @@ export class ScoreSelection extends DraggableSelection {
   addAnacrusis(where: Relative, score: IScore) {
     const location = score.location(this.start);
     if (location) {
-      const { stave, bar } = location;
-      stave.replaceBar(new Bar(bar.timeSignature(), true), bar, where);
+      const { stave, measure } = location;
+      stave.insertMeasure(new Measure(measure.timeSignature(), true), measure, where);
     }
   }
 
-  addBar(where: Relative, score: IScore) {
+  addMeasure(where: Relative, score: IScore) {
     const location = score.location(this.start);
     if (location) {
-      const { bar, stave } = location;
-      stave.replaceBar(new Bar(bar.timeSignature()), bar, where);
+      const { measure, stave } = location;
+      stave.insertMeasure(new Measure(measure.timeSignature()), measure, where);
     }
   }
 
@@ -217,19 +217,20 @@ export class ScoreSelection extends DraggableSelection {
     }
   }
 
+
   // If selection is:
   // - A single note, find the previous note
-  // - A single bar, find the previous bar
+  // - A single measure, find the previous measure
   private selectedPrevious(score: IScore): ID | null {
     const n = this.note(score);
-    const b = this.bars(score)[0] || null;
+    const b = this.measures(score)[0] || null;
     let newSelection: ID | null = null;
     if (this.start === this.end) {
       if (n) {
         const previousNote = score.location(n.id)?.stave.previousNote(n.id);
         newSelection = previousNote?.id || null;
       } else if (b) {
-        const previousBar = score.location(b.id)?.stave.previousBar(b);
+        const previousBar = score.location(b.id)?.stave.previousMeasure(b);
         newSelection = previousBar?.id || null;
       }
     }
@@ -237,21 +238,21 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   private collectNotes(score: IScore, splitUpTriplets: boolean): NoteOrTriplet[] {
-    const bars = score.bars();
+    const measures = score.measures();
     let foundStart = false;
     const notes: NoteOrTriplet[] = [];
-    all: for (const bar of bars) {
-      if (bar.hasID(this.start)) foundStart = true;
+    all: for (const measure of measures) {
+      if (measure.hasID(this.start)) foundStart = true;
       const barNotes = splitUpTriplets
-        ? flattenTriplets(bar.notesAndTriplets())
-        : bar.notesAndTriplets();
+        ? flattenTriplets(measure.bars()[0].notesAndTriplets())
+        : measure.bars()[0].notesAndTriplets();
       for (const note of barNotes) {
         if (note.hasID(this.start)) foundStart = true;
         if (foundStart && !(note instanceof INote && note.isPreview()))
           notes.push(note);
         if (note.hasID(this.end)) break all;
       }
-      if (bar.hasID(this.end)) break;
+      if (measure.hasID(this.end)) break;
     }
     return notes;
   }

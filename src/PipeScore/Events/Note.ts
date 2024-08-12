@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import type { IBar } from '../Bar';
+import type { IBar, IMeasure } from '../Bar';
 import { INote, ITriplet } from '../Note';
 import { Note } from '../Note/impl';
 import { type Duration, NoteLength } from '../Note/notelength';
@@ -54,16 +54,19 @@ export function addNoteBefore(pitch: Pitch, noteAfter: INote): ScoreEvent {
 export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const last = state.selection.lastNoteAndBar(state.score);
+      const last = state.selection.lastNoteAndMeasure(state.score);
       const length =
         state.preview instanceof NotePreview
           ? state.preview.length()
-          : state.selection.lastNoteAndBar(state.score)?.note?.length() ||
+          : state.selection.lastNoteAndMeasure(state.score)?.note?.length() ||
             state.score.previousNote(state.selection.start)?.length();
 
-      if (length && last.bar) {
+      // TODO : fix for harmony staves
+      const bar = last.measure && last.measure.bars()[0];
+
+      if (length && last.measure && bar) {
         const note = new Note(pitch, length);
-        last.bar.insertNote(last.note, note);
+        bar.insertNote(last.note, note);
         // createdByMouseDown is false since this is triggered by keyboard shortcut
         state.selection = new ScoreSelection(note.id, note.id, false);
         return Update.ShouldSave;

@@ -31,9 +31,9 @@ import {
   detractSelection,
   expandSelection,
   moveLeft,
-  moveLeftBarwise,
+  moveLeftMeasurewise,
   moveRight,
-  moveRightBarwise,
+  moveRightMeasurewise,
   paste,
 } from './Events/Selection';
 import { Duration } from './Note/notelength';
@@ -107,9 +107,9 @@ export function keyHandler(e: KeyboardEvent): void {
 
       case 'Tab':
         if (e.shiftKey) {
-          dispatch(moveLeftBarwise());
+          dispatch(moveLeftMeasurewise());
         } else {
-          dispatch(moveRightBarwise());
+          dispatch(moveRightMeasurewise());
         }
         break;
 

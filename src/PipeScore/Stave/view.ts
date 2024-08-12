@@ -16,8 +16,8 @@
 
 import m from 'mithril';
 import type { IStave } from '.';
-import type { IBar } from '../Bar';
-import { drawBar, minWidth, totalFixedWidth } from '../Bar/view';
+import type { IMeasure } from '../Bar';
+import { drawMeasure, minWidth, totalFixedWidth } from '../Bar/view';
 import type { Dispatch } from '../Dispatch';
 import type { GracenoteState } from '../Gracenote/state';
 import type { NoteState } from '../Note/state';
@@ -57,17 +57,17 @@ export function minStaveGap() {
 function computeBarWidths(
   stave: IStave,
   staveWidth: number,
-  previousBar: (i: number) => IBar | null
+  previousBar: (i: number) => IMeasure | null
 ): number[] {
-  const anacruses = stave.bars().filter((bar) => bar.isAnacrusis());
+  const anacruses = stave.measures().filter((bar) => bar.isAnacrusis());
   const fixedWidth = sum(
     anacruses.map((bar, i) => totalFixedWidth(bar, previousBar(i)))
   );
   const widthAvailable = staveWidth - trebleClefWidth - fixedWidth;
-  const averageBarWidth = widthAvailable / (stave.bars().length - anacruses.length);
+  const averageBarWidth = widthAvailable / (stave.measures().length - anacruses.length);
   let extraWidth = 0;
 
-  return stave.bars().map((bar, i) => {
+  return stave.measures().map((bar, i) => {
     if (bar.isAnacrusis()) {
       return totalFixedWidth(bar, previousBar(i));
     }
@@ -108,7 +108,7 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
   const staveY = props.y + settings.staveGap;
 
   const previousBar = (barIdx: number) =>
-    barIdx === 0 ? props.previousStave?.lastBar() || null : stave.bars()[barIdx - 1];
+    barIdx === 0 ? props.previousStave?.lastMeasure() || null : stave.measures()[barIdx - 1];
 
   const widths = computeBarWidths(stave, props.width, previousBar);
   const width = (index: number) => widths[index];
@@ -117,19 +117,19 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     trebleClefWidth +
     sum(
       stave
-        .bars()
+        .measures()
         .slice(0, barIdx)
         .map((_, i) => width(i))
     );
 
-  const barProps = (bar: IBar, index: number) => ({
+  const barProps = (bar: IMeasure, index: number) => ({
     x: getX(index),
     y: staveY,
     width: width(index),
     previousBar: previousBar(index),
     justAddedNote: props.justAddedNote,
-    shouldRenderLastBarline: stave.bars()[index + 1]
-      ? stave.bars()[index + 1].timeSignature().equals(bar.timeSignature())
+    shouldRenderLastBarline: stave.measures()[index + 1]
+      ? stave.measures()[index + 1].timeSignature().equals(bar.timeSignature())
       : true,
     mustNotRenderFirstBarline: index === 0,
     endOfLastStave: props.x + props.width, // width should always be the same
@@ -142,7 +142,7 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
         return false;
       }
 
-      const next = stave.bars()[index + 1];
+      const next = stave.measures()[index + 1];
       if (next) {
         const barRHS = getX(index) + newWidth;
         const furthestRightPossibleNextLHS =
@@ -160,7 +160,7 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     },
     resize: (widthChange: number) => {
       // Subtract width change from the next bar, to make space for this bar
-      const next = stave.bars()[index + 1];
+      const next = stave.measures()[index + 1];
       if (next?.fixedWidth !== 'auto') {
         next.fixedWidth -= widthChange;
       }
@@ -176,7 +176,7 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
     renderTrebleClef(props.x, staveY),
     m(
       'g[class=bars]',
-      stave.bars().map((bar, idx) => drawBar(bar, barProps(bar, idx)))
+      stave.measures().map((bar, idx) => drawMeasure(bar, barProps(bar, idx)))
     ),
     m(
       'g[class=stave-lines]',

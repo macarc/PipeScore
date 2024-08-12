@@ -15,8 +15,8 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { IStave } from '.';
-import { type IBar, previousNote } from '../Bar';
-import { Bar } from '../Bar/impl';
+import { type IMeasure, previousNote } from '../Bar';
+import { Measure } from '../Bar/impl';
 import { Barline } from '../Barline';
 import type { INote } from '../Note';
 import type { SavedStave } from '../SavedModel';
@@ -27,13 +27,13 @@ import { settings } from '../global/settings';
 import { first, last, nlast } from '../global/utils';
 
 export class Stave extends IStave {
-  private _bars: IBar[];
-  // TODO : propagate this to bars
+  private _measures: IMeasure[];
+  // TODO : propagate this to measures
   private _numberOfParts = 2;
 
-  private constructor(bars: IBar[]) {
+  private constructor(measures: IMeasure[]) {
     super();
-    this._bars = bars;
+    this._measures = measures;
   }
 
   static empty() {
@@ -42,22 +42,22 @@ export class Stave extends IStave {
 
   static create(timeSignature: ITimeSignature) {
     return new Stave([
-      new Bar(timeSignature),
-      new Bar(timeSignature),
-      new Bar(timeSignature),
-      new Bar(timeSignature),
+      new Measure(timeSignature),
+      new Measure(timeSignature),
+      new Measure(timeSignature),
+      new Measure(timeSignature),
     ]);
   }
 
   static fromJSON(o: SavedStave) {
     const st = Stave.empty();
-    st._bars = o.bars.map(Bar.fromJSON);
+    st._measures = o.bars.map(Measure.fromJSON);
     return st;
   }
 
   toJSON(): SavedStave {
     return {
-      bars: this._bars.map((bar) => bar.toJSON()),
+      bars: this._measures.map((bar) => bar.toJSON()),
     };
   }
 
@@ -70,81 +70,81 @@ export class Stave extends IStave {
     return this._numberOfParts;
   }
 
-  numberOfBars() {
-    return this._bars.length;
+  numberOfMeasures() {
+    return this._measures.length;
   }
 
-  insertBar(bar: IBar) {
-    this._bars.unshift(bar);
-    bar.fixedWidth = 'auto';
+  prependMeasure(measure: IMeasure) {
+    this._measures.unshift(measure);
+    measure.fixedWidth = 'auto';
   }
 
-  appendBar(bar: IBar) {
-    this._bars.push(bar);
-    bar.fixedWidth = 'auto';
+  appendMeasure(measure: IMeasure) {
+    this._measures.push(measure);
+    measure.fixedWidth = 'auto';
   }
 
-  deleteBar(bar: IBar) {
-    const index = this._bars.indexOf(bar);
-    this._bars.splice(index, 1);
-    if (index === this._bars.length && this._bars.length > 0)
-      nlast(this._bars).fixedWidth = 'auto';
+  deleteMeasure(measure: IMeasure) {
+    const index = this._measures.indexOf(measure);
+    this._measures.splice(index, 1);
+    if (index === this._measures.length && this._measures.length > 0)
+      nlast(this._measures).fixedWidth = 'auto';
   }
 
   includesID(id: ID) {
-    for (const bar of this.bars()) {
-      if (bar.hasID(id) || bar.includesNote(id)) {
+    for (const measure of this.measures()) {
+      if (measure.containsID(id)) {
         return true;
       }
     }
     return false;
   }
 
-  firstBar() {
-    return first(this._bars);
+  firstMeasure() {
+    return first(this._measures);
   }
 
-  lastBar() {
-    return last(this._bars);
+  lastMeasure() {
+    return last(this._measures);
   }
 
-  bars() {
-    return this._bars;
+  measures() {
+    return this._measures;
   }
 
   previousNote(id: ID): INote | null {
-    return previousNote(id, this.bars());
+    return previousNote(id, this.measures());
   }
 
-  previousBar(bar: IBar): IBar | null {
-    return this._bars[this._bars.indexOf(bar) - 1] || null;
+  previousMeasure(measure: IMeasure): IMeasure | null {
+    return this._measures[this._measures.indexOf(measure) - 1] || null;
   }
 
   partFirst() {
-    this.firstBar()?.setBarline('start', Barline.part);
+    this.firstMeasure()?.setBarline('start', Barline.part);
   }
 
   partLast() {
-    this.lastBar()?.setBarline('end', Barline.part);
+    this.lastMeasure()?.setBarline('end', Barline.part);
   }
 
   repeatFirst() {
-    this.firstBar()?.setBarline('start', Barline.repeat);
+    this.firstMeasure()?.setBarline('start', Barline.repeat);
   }
 
   repeatLast() {
-    this.lastBar()?.setBarline('end', Barline.repeat);
+    this.lastMeasure()?.setBarline('end', Barline.repeat);
   }
 
-  replaceBar(newBar: IBar, oldBar: IBar, where: Relative) {
-    const barInd = this._bars.indexOf(oldBar);
-    const ind = where === Relative.before ? barInd : barInd + 1;
-    this._bars.splice(ind, 0, newBar);
+  insertMeasure(newMeasure: IMeasure, relativeTo: IMeasure, where: Relative) {
+    const measureIndex = this._measures.indexOf(relativeTo);
+    const ind = where === Relative.before ? measureIndex : measureIndex + 1;
+    this._measures.splice(ind, 0, newMeasure);
   }
 
   play(previous: Stave | null) {
-    return this._bars.flatMap((b, i) =>
-      b.play(i === 0 ? previous?.lastBar() || null : this._bars[i - 1])
+    return this._measures.flatMap((b, i) =>
+      b.play(i === 0 ? previous?.lastMeasure() || null : this._measures[i - 1])
     );
   }
 }

@@ -18,7 +18,7 @@
 //  this file mostly deals with delegations and pages.
 
 import { IScore } from '.';
-import { nextBar, nextNote, previousBar, previousNote } from '../Bar';
+import { nextMeasure, nextNote, previousMeasure, previousNote } from '../Bar';
 import { Update } from '../Events/types';
 import { flattenTriplets } from '../Note';
 import type { Playback } from '../Playback';
@@ -179,7 +179,7 @@ export class Score extends IScore {
         text.adjustAfterOrientation(this.width(), this.height());
       }
     }
-    for (const bar of this.bars()) {
+    for (const bar of this.measures()) {
       bar.adjustWidth(this.width() / this.height());
     }
     this.zoom = (this.zoom * this.height()) / this.width();
@@ -269,20 +269,20 @@ export class Score extends IScore {
     return splitStaves;
   }
 
-  nextBar(id: ID) {
-    return nextBar(id, this.bars());
+  nextMeasure(id: ID) {
+    return nextMeasure(id, this.measures());
   }
 
-  previousBar(id: ID) {
-    return previousBar(id, this.bars());
+  previousMeasure(id: ID) {
+    return previousMeasure(id, this.measures());
   }
 
   nextNote(id: ID) {
-    return nextNote(id, this.bars());
+    return nextNote(id, this.measures());
   }
 
   previousNote(id: ID) {
-    return previousNote(id, this.bars());
+    return previousNote(id, this.measures());
   }
 
   previousStaveSameTune(stave: IStave): IStave | null {
@@ -296,23 +296,20 @@ export class Score extends IScore {
   }
 
   firstOnPage(page: number) {
-    return first(this.stavesByPage()[page])?.firstBar() || null;
+    return first(this.stavesByPage()[page])?.firstMeasure() || null;
   }
 
   lastOnPage(page: number) {
-    return last(this.stavesByPage()[page])?.lastBar() || null;
+    return last(this.stavesByPage()[page])?.lastMeasure() || null;
   }
 
-  notesAndTriplets() {
-    return this.bars().flatMap((bar) => bar.notesAndTriplets());
-  }
-
+  // TODO BUG : this should probably return nested array. Or something else?
   notes() {
-    return flattenTriplets(this.notesAndTriplets());
+    return this.measures().flatMap((measure) => measure.bars().flatMap(bar => bar.notes()));
   }
 
-  bars() {
-    return this.staves().flatMap((stave) => stave.bars());
+  measures() {
+    return this.staves().flatMap((stave) => stave.measures());
   }
 
   staves(): IStave[] {
@@ -328,12 +325,15 @@ export class Score extends IScore {
   }
 
   // Finds the parent bar stave, and tune of the bar/note passed
+  // TODO : right now, returns the first bar if the whole measure is selected
   location(id: ID) {
     for (const tune of this.tunes()) {
       for (const stave of tune.staves()) {
-        for (const bar of stave.bars()) {
-          if (bar.hasID(id) || bar.includesNote(id)) {
-            return { tune, stave, bar };
+        for (const measure of stave.measures()) {
+          for (const bar of measure.bars()) {
+            if (measure.hasID(id) || bar.containsNoteWithId(id)) {
+              return { tune, stave, measure, bar };
+            }
           }
         }
       }
@@ -345,11 +345,13 @@ export class Score extends IScore {
   lastBarAndStave() {
     const tune = last(this.tunes());
     const stave = tune && last(tune.staves());
-    const bar = stave && last(stave.bars());
+    const measure = stave && last(stave.measures());
+    const bar = measure && first(measure.bars());
     return (
       bar && {
         tune,
         stave,
+        measure,
         bar,
       }
     );

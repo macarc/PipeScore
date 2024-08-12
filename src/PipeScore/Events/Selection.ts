@@ -84,10 +84,10 @@ export function detractSelection(): ScoreEvent {
   };
 }
 
-export function moveLeftBarwise(): ScoreEvent {
+export function moveLeftMeasurewise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const prev = state.score.previousBar(state.selection.end);
+      const prev = state.score.previousMeasure(state.selection.end);
       if (prev) state.selection = new ScoreSelection(prev.id, prev.id, false);
       return Update.ViewChanged;
     }
@@ -95,10 +95,10 @@ export function moveLeftBarwise(): ScoreEvent {
   };
 }
 
-export function moveRightBarwise(): ScoreEvent {
+export function moveRightMeasurewise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const next = state.score.nextBar(state.selection.end);
+      const next = state.score.nextMeasure(state.selection.end);
       if (next) state.selection = new ScoreSelection(next.id, next.id, false);
       return Update.ViewChanged;
     }
@@ -132,18 +132,18 @@ export function copy(): ScoreEvent {
 
     const notes = state.selection.notesAndTriplets(state.score);
     if (notes.length > 0) {
-      const initialBar = state.score.location(notes[0].id)?.bar;
+      const initialMeasure = state.score.location(notes[0].id)?.measure;
 
-      if (initialBar) {
-        let currentBarId = initialBar.id;
+      if (initialMeasure) {
+        let currentMeasureId = initialMeasure.id;
 
         const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
 
         for (const note of notes) {
-          const bar = state.score.location(note.id)?.bar;
-          if (bar && currentBarId !== bar.id) {
+          const measure = state.score.location(note.id)?.measure;
+          if (measure && currentMeasureId !== measure.id) {
             noteList.push('bar-break');
-            currentBarId = bar.id;
+            currentMeasureId = measure.id;
           }
           noteList.push(noteToJSON(note));
         }
@@ -179,15 +179,18 @@ function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
 
   if (state.selection instanceof ScoreSelection) {
     const id = state.selection.start;
-    const startingBar =
-      state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
-    if (startingBar) {
+    const startingMeasure =
+      state.score.location(id)?.measure || state.score.lastBarAndStave()?.measure;
+    if (startingMeasure) {
       let startedPasting = false;
 
-      for (const bar of state.score.bars()) {
-        if (bar.hasID(startingBar.id)) {
+      for (const measure of state.score.measures()) {
+        // TODO : copying in harmony staves
+        const bar = measure.bars()[0];
+
+        if (measure.hasID(startingMeasure.id)) {
           startedPasting = true;
-          if (bar.hasID(id)) {
+          if (measure.hasID(id)) {
             const notesToDelete = bar.notes();
             for (const note of notesToDelete) {
               bar.deleteNote(note);

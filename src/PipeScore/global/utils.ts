@@ -72,6 +72,11 @@ export function reversed<A>(array: A[]): A[] {
   return copy;
 }
 
+// https://stackoverflow.com/a/54603424
+export function collapseAdjacent<A>(array: A[], cmp: (a: A, b: A) => boolean = (a, b) => a === b): A[] {
+  return array.filter((i, idx) => !cmp(array[idx - 1], i));
+}
+
 export function sum(array: number[]) {
   return array.reduce((acc, n) => acc + n, 0);
 }
