@@ -18,14 +18,7 @@ import { IMeasure } from '.';
 import type { IBar } from '../Bar';
 import { Bar } from '../Bar/impl';
 import { Barline } from '../Barline';
-import { lastNote } from '../Note';
 import { noteFromJSON } from '../Note/impl';
-import {
-  type Playback,
-  PlaybackNote,
-  PlaybackObject,
-  PlaybackRepeat,
-} from '../Playback';
 import {
   type DeprecatedSavedMeasure,
   type SavedMeasure,
@@ -135,32 +128,5 @@ export class Measure extends IMeasure {
     } else {
       this.backBarline = barline;
     }
-  }
-
-  play(previous: Measure | null): Playback[] {
-    const start = this.frontBarline.isRepeat() ? [new PlaybackRepeat('start')] : [];
-    const end = this.backBarline.isRepeat() ? [new PlaybackRepeat('end')] : [];
-    const beatRatio = 1 / this.timeSignature().crotchetsPerBeat();
-    return [
-      ...start,
-      new PlaybackObject('start', this._bars[0].id),
-      ...this._bars[0]
-        .notesAndTriplets()
-        .flatMap((note, i) =>
-          note
-            .play(
-              i === 0
-                ? previous?.bars()[0].lastPitch() || null
-                : lastNote(this._bars[0].notesAndTriplets()[i - 1]).pitch()
-            )
-            .map((p) =>
-              p.type === 'note'
-                ? new PlaybackNote(p.pitch, p.tied, p.duration * beatRatio)
-                : p
-            )
-        ),
-      new PlaybackObject('end', this._bars[0].id),
-      ...end,
-    ];
   }
 }

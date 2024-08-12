@@ -18,6 +18,7 @@
 
 import type { IMeasure } from '../Measure';
 import type { INote, ITriplet, NoteOrTriplet } from '../Note';
+import type { Playback } from '../Playback';
 import type { Previews } from '../Preview/previews';
 import type { SavedBar } from '../SavedModel';
 import { type ID, Item } from '../global/id';
@@ -50,4 +51,5 @@ export abstract class IBar extends Item implements Previews<INote> {
   abstract makePreviewReal(notes: INote[][]): void;
   abstract removePreview(): void;
   abstract preview(): INote | null;
+  abstract play(previous: IBar | null): Playback[];
 }

@@ -19,7 +19,6 @@
 import type { IBar } from '../Bar';
 import type { IMeasure } from '../Measure';
 import type { INote } from '../Note';
-import type { Playback } from '../Playback';
 import type { SavedStave } from '../SavedModel';
 import type { ID } from '../global/id';
 import type { Relative } from '../global/relativeLocation';
@@ -49,5 +48,4 @@ export abstract class IStave {
   abstract partLast(): void;
   abstract repeatFirst(): void;
   abstract repeatLast(): void;
-  abstract play(previous: IStave | null): Playback[];
 }

@@ -27,7 +27,7 @@ export function startPlayback(): ScoreEvent {
     await playback(
       state.playback,
       playbackElements,
-      state.score.playbackTimings(playbackElements)
+      state.score.playbackTimings(playbackElements[0])
     );
     return Update.NoChange;
   };
@@ -39,8 +39,8 @@ export function startPlaybackAtSelection(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       await playback(
         state.playback,
-        playbackElements,
-        state.score.playbackTimings(playbackElements),
+        [playbackElements[0]],
+        state.score.playbackTimings(playbackElements[0]),
         state.selection.start()
       );
     }
@@ -54,8 +54,8 @@ export function playbackLoopingSelection(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       await playback(
         state.playback,
-        playbackElements,
-        state.score.playbackTimings(playbackElements),
+        [playbackElements[0]],
+        state.score.playbackTimings(playbackElements[0]),
         state.selection.start(),
         state.selection.end(),
         true

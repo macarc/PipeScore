@@ -172,10 +172,4 @@ export class Stave extends IStave {
       new Measure(relativeTo.timeSignature(), anacrusis, this._numberOfParts)
     );
   }
-
-  play(previous: Stave | null) {
-    return this._measures.flatMap((b, i) =>
-      b.play(i === 0 ? previous?.lastMeasure() || null : this._measures[i - 1])
-    );
-  }
 }

@@ -89,6 +89,6 @@ export abstract class IScore {
     y: number,
     page: number
   ): void;
-  abstract play(): Playback[];
+  abstract play(): Playback[][];
   abstract playbackTimings(elements: Playback[]): PlaybackSecondTiming[];
 }

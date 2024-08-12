@@ -104,7 +104,7 @@ describe('moveBarToNextLine', () => {
   });
   it('does nothing if the last harmony bar is selected', async () => {
     const state = emptyState();
-    state.score.staves()[3].addHarmony()
+    state.score.staves()[3].addHarmony();
     const selectionStart = state.score.staves()[3].measures()[3].bars()[1].id;
     const selectionEnd = state.score.staves()[3].measures()[3].bars()[1].id;
     state.selection = ScoreSelection.from(selectionStart, selectionEnd, false);
@@ -287,7 +287,7 @@ describe('moveBarToPreviousLine', () => {
     expect(state.score.staves()[0].measures()[4].bars()[0].id).toBe(selectionStart);
     expect(state.score.staves()[0].measures()[7].bars()[0].id).toBe(selectionEnd);
   });
-  
+
   it('does nothing if a harmony bar in the middle of a line is selected', async () => {
     const state = emptyState();
     state.score.staves()[1].addHarmony();

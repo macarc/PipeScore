@@ -32,7 +32,8 @@ import { updatePlaybackCursor } from '../Events/Playback';
 import type { ID } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
-import { Player, Sample, sleep } from './sample';
+import { sleep } from '../global/utils';
+import { Player, Sample } from './sample';
 import type { PlaybackState } from './state';
 
 class Drones {
@@ -57,20 +58,29 @@ class Drones {
 
 class SoundedPitch {
   sample: AudioBufferSourceNode;
+  gain: GainNode;
   pitch: Pitch;
   duration: number;
   id: ID | null;
 
   constructor(pitch: Pitch, duration: number, ctx: AudioContext, id: ID | null) {
     this.sample = pitchToSample(pitch).getSource(ctx);
-    this.sample.connect(ctx.destination);
+    this.gain = ctx.createGain();
+    this.sample.connect(this.gain);
+    this.gain.connect(ctx.destination);
     this.pitch = pitch;
     this.duration = duration;
     this.id = id;
   }
 
-  async play(bpm: number) {
-    dispatch(updatePlaybackCursor(this.id));
+  async play(bpm: number, isMainTune: boolean) {
+    if (isMainTune) {
+      dispatch(updatePlaybackCursor(this.id));
+      this.gain.gain.setValueAtTime(1, 0);
+    } else {
+      this.gain.gain.setValueAtTime(0.4, 0);
+    }
+
     const duration = (1000 * this.duration * 60) / bpm;
     this.sample.start(0);
     await sleep(duration);
@@ -279,7 +289,7 @@ function getSoundedPitches(
 
 export async function playback(
   state: PlaybackState,
-  elements: Playback[],
+  elements: Playback[][],
   timings: PlaybackSecondTiming[],
   start: ID | null = null,
   end: ID | null = null,
@@ -311,25 +321,29 @@ export async function playback(
 
 async function play(
   state: PlaybackState,
-  elements: Playback[],
+  elements: Playback[][],
   timings: PlaybackSecondTiming[],
   context: AudioContext,
   start: ID | null,
   end: ID | null,
   loop: boolean
 ) {
-  outer: for (;;) {
-    const pitches = getSoundedPitches(elements, timings, context, start, end);
-    for (const note of pitches) {
-      if (state.userPressedStop) break outer;
+  await Promise.all(
+    elements.map(async (elements, i) => {
+      outer: for (;;) {
+        const pitches = getSoundedPitches(elements, timings, context, start, end);
+        for (const note of pitches) {
+          if (state.userPressedStop) break outer;
 
-      await note.play(settings.bpm);
-    }
+          await note.play(settings.bpm, i === 0);
+        }
 
-    if (!loop) {
-      break;
-    }
-  }
+        if (!loop) {
+          break;
+        }
+      }
+    })
+  );
 
   state.userPressedStop = false;
   dispatch(updateView());

@@ -427,9 +427,9 @@ export class Score extends IScore {
     return false;
   }
 
-  play() {
-    return this.staves().flatMap((st, i) =>
-      st.play(i === 0 ? null : this.staves()[i - 1])
+  play(): Playback[][] {
+    return this.bars().map((part) =>
+      part.flatMap((bar, i) => bar.play(part[i - 1] || null))
     );
   }
 
