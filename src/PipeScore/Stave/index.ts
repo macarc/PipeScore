@@ -30,7 +30,11 @@ export abstract class IStave {
   abstract numberOfMeasures(): number;
   abstract prependMeasure(measure: IMeasure): void;
   abstract appendMeasure(measure: IMeasure): void;
-  abstract insertMeasure(newMeasure: IMeasure, relativeTo: IMeasure, where: Relative): void;
+  abstract insertMeasure(
+    newMeasure: IMeasure,
+    relativeTo: IMeasure,
+    where: Relative
+  ): void;
   abstract deleteMeasure(measure: IMeasure): void;
   abstract includesID(id: ID): boolean;
   abstract firstMeasure(): IMeasure | null;

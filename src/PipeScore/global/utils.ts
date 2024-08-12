@@ -73,7 +73,10 @@ export function reversed<A>(array: A[]): A[] {
 }
 
 // https://stackoverflow.com/a/54603424
-export function collapseAdjacent<A>(array: A[], cmp: (a: A, b: A) => boolean = (a, b) => a === b): A[] {
+export function collapseAdjacent<A>(
+  array: A[],
+  cmp: (a: A, b: A) => boolean = (a, b) => a === b
+): A[] {
   return array.filter((i, idx) => !cmp(array[idx - 1], i));
 }
 
@@ -83,6 +86,19 @@ export function sum(array: number[]) {
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+export function firstInNestedList<A>(xs: A[][]): A | null {
+  for (const x of xs) {
+    if (x[0] !== undefined) {
+      return x[0];
+    }
+  }
+  return null;
+}
+
+export function nestedListLength<A>(xs: A[][]): number {
+  return sum(xs.map((x) => x.length));
 }
 
 type SvgPt = { x: number; y: number; page: number };

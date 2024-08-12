@@ -140,7 +140,9 @@ export class Tune extends ITune {
     if (nearStave) {
       index = this.staves().indexOf(nearStave) + (where === Relative.before ? 0 : 1);
       nearestBar =
-        where === Relative.before ? nearStave.firstMeasure() : nearStave.lastMeasure();
+        where === Relative.before
+          ? nearStave.firstMeasure()
+          : nearStave.lastMeasure();
     } else if (where === Relative.before) {
       index = 0;
       nearestBar = nfirst(this.staves())?.firstMeasure();

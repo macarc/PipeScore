@@ -22,7 +22,14 @@ import { clickMeasure } from '../Events/Bar';
 import { addNoteToBarEnd } from '../Events/Note';
 import { mouseOverPitch } from '../Events/PitchBoxes';
 import type { GracenoteState } from '../Gracenote/state';
-import { INote, ITriplet, type NoteOrTriplet, flattenTriplets, groupNotes, lastNote } from '../Note';
+import {
+  INote,
+  ITriplet,
+  type NoteOrTriplet,
+  flattenTriplets,
+  groupNotes,
+  lastNote,
+} from '../Note';
 import type { NoteState } from '../Note/state';
 import {
   type NoteProps,
@@ -35,10 +42,10 @@ import {
 import { pitchBoxes } from '../PitchBoxes';
 import { drawTimeSignature } from '../TimeSignature/view';
 import type { Pitch } from '../global/pitch';
+import { settings } from '../global/settings';
 import { nlast } from '../global/utils';
 import width from '../global/width';
 import { setXY } from '../global/xy';
-import { settings } from '../global/settings';
 
 interface BarProps {
   x: number;
@@ -60,7 +67,15 @@ export function minWidth(measure: IMeasure, previousBar: IMeasure | null) {
   const totalReifiedWidth = Math.max(
     ...measure
       .bars()
-      .map((bar, i) => width.reify(noteOffsets(previousBar?.bars()[i].lastPitch() || null, bar.nonPreviewNotes()).total, 5))
+      .map((bar, i) =>
+        width.reify(
+          noteOffsets(
+            previousBar?.bars()[i].lastPitch() || null,
+            bar.nonPreviewNotes()
+          ).total,
+          5
+        )
+      )
   );
   const previousTimeSignature = previousBar?.timeSignature() || null;
   const drawTimeSignature =
@@ -135,22 +150,26 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
       const staveY = props.y + p * settings.harmonyStaveHeight();
 
       const isHarmony = p > 0;
-      
+
       const actualNotes = bar.nonPreviewNotes();
-    
-      const groupedNotes = groupNotes(actualNotes, measure.timeSignature().beatDivision());
-    
+
+      const groupedNotes = groupNotes(
+        actualNotes,
+        measure.timeSignature().beatDivision()
+      );
+
       const previousNote = props.previousBar?.bars()[p]?.lastNote() || null;
       const previousPitch = props.previousBar?.bars()[p]?.lastPitch() || null;
-    
+
       const beats = noteOffsets(previousPitch, actualNotes);
       const numberOfBeats = beats.total.extend;
       const beatWidth = (barWidth - beats.total.min) / numberOfBeats;
-    
-      const xOf = (i: number) => xAfterBarline + width.reify(beats.widths[i], beatWidth);
-    
+
+      const xOf = (i: number) =>
+        xAfterBarline + width.reify(beats.widths[i], beatWidth);
+
       const preview = bar.preview(p);
-    
+
       // There are a few special cases to deal with single notes being further
       // forward than they should be.
       const previewX = preview
@@ -164,7 +183,7 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
               : xOf(bar.notesAndTriplets().indexOf(preview)) + beatWidth / 2
             : xOf(bar.notesAndTriplets().indexOf(preview)) - noteHeadWidth
         : 0;
-    
+
       const noteProps = (notes: INote[] | ITriplet): NoteProps => {
         const firstNote = notes instanceof ITriplet ? notes : notes[0];
         const index = actualNotes.indexOf(firstNote);
@@ -174,7 +193,8 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
           justAddedNote: props.justAddedNote,
           boxToLast: index === 0 ? xAfterBarline : 'lastnote',
           noteWidth: beatWidth,
-          previousNote: index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
+          previousNote:
+            index === 0 ? previousNote : lastNote(actualNotes[index - 1]),
           endOfLastStave: props.endOfLastStave,
           state: props.noteState,
           gracenoteState: props.gracenoteState,

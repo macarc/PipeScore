@@ -84,7 +84,7 @@ abstract class BasePreview<U> implements IPreview {
     this.parent()?.removePreview();
   }
 
-  makeReal(notes: INote[]) {
+  makeReal(notes: INote[][]) {
     this.parent()?.makePreviewReal(notes);
     this.justMadeReal = true;
   }

@@ -30,10 +30,10 @@ export abstract class INote
 {
   abstract toObject(): SavedNote;
   abstract copy(): INote;
-  abstract toggleTie(notes: INote[]): void;
+  abstract toggleTie(notes: INote[][]): void;
   abstract isTied(): boolean;
   // Corrects the pitches of any notes tied to this note
-  abstract makeCorrectTie(notes: INote[]): void;
+  abstract makeCorrectTie(notes: INote[][]): void;
   abstract pitch(): Pitch;
   abstract setPitch(pitch: Pitch): void;
   abstract length(): NoteLength;

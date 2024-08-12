@@ -26,5 +26,5 @@ export interface Previews<T> {
   setPreview(preview: T, noteBefore: INote | null, noteAfter: INote | null): void;
   removePreview(): void;
   hasPreview(): boolean;
-  makePreviewReal(notes: INote[]): void;
+  makePreviewReal(notes: INote[][]): void;
 }

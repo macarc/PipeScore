@@ -56,7 +56,11 @@ export function addAnacrusis(where: Relative): ScoreEvent {
     if (measure) {
       const stave = state.score.location(measure.id)?.stave;
       if (stave) {
-        stave.insertMeasure(new Measure(measure.timeSignature(), true), measure, where);
+        stave.insertMeasure(
+          new Measure(measure.timeSignature(), true),
+          measure,
+          where
+        );
         return Update.ShouldSave;
       }
     }
@@ -131,7 +135,9 @@ export function editBarTimeSignature(): ScoreEvent {
         : state.score.measures()[0];
 
     if (measure) {
-      const newTimeSignature = await timeSignatureEditDialog(measure.timeSignature());
+      const newTimeSignature = await timeSignatureEditDialog(
+        measure.timeSignature()
+      );
       setTimeSignature(measure.timeSignature(), newTimeSignature, state.score);
       return Update.ShouldSave;
     }
@@ -163,7 +169,9 @@ export function moveBarToNextLine(): ScoreEvent {
 export function moveBarToPreviousLine(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      for (const { tune, measure, stave } of state.selection.measureLocations(state.score)) {
+      for (const { tune, measure, stave } of state.selection.measureLocations(
+        state.score
+      )) {
         const previousStave = tune.previousStave(stave);
         if (measure === stave.firstMeasure() && previousStave) {
           stave.deleteMeasure(measure);

@@ -18,9 +18,15 @@
 //  this file mostly deals with delegations and pages.
 
 import { IScore } from '.';
-import { nextMeasure, nextNote, previousMeasure, previousNote } from '../Bar';
+import {
+  type IBar,
+  nextMeasure,
+  nextNote,
+  previousMeasure,
+  previousNote,
+} from '../Bar';
 import { Update } from '../Events/types';
-import { flattenTriplets } from '../Note';
+import { INote, NoteOrTriplet, flattenTriplets } from '../Note';
 import type { Playback } from '../Playback';
 import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
 import type { IStave } from '../Stave';
@@ -303,9 +309,28 @@ export class Score extends IScore {
     return last(this.stavesByPage()[page])?.lastMeasure() || null;
   }
 
-  // TODO BUG : this should probably return nested array. Or something else?
+  bars() {
+    const bars: IBar[][] = [];
+    for (const measure of this.measures()) {
+      for (let i = 0; i < measure.bars().length; i++) {
+        if (i >= bars.length) {
+          bars.push([]);
+        }
+
+        bars[i].push(measure.bars()[i]);
+      }
+    }
+    return bars;
+  }
+
   notes() {
-    return this.measures().flatMap((measure) => measure.bars().flatMap(bar => bar.notes()));
+    return this.bars().map((part) => part.flatMap((bar) => bar.notes()));
+  }
+
+  flatNotes() {
+    return this.measures().flatMap((measure) =>
+      measure.bars().flatMap((bar) => bar.notes())
+    );
   }
 
   measures() {

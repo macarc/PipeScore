@@ -26,6 +26,6 @@ export interface IPreview {
   // Returns true if the location changed
   setLocation(bar: IBar, noteBefore: INote | null, noteAfter: INote | null): boolean;
   stop(): void;
-  makeReal(notes: INote[]): void;
+  makeReal(notes: INote[][]): void;
   justAdded(): boolean;
 }

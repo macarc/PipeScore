@@ -64,7 +64,8 @@ function computeBarWidths(
     anacruses.map((bar, i) => totalFixedWidth(bar, previousBar(i)))
   );
   const widthAvailable = staveWidth - trebleClefWidth - fixedWidth;
-  const averageBarWidth = widthAvailable / (stave.measures().length - anacruses.length);
+  const averageBarWidth =
+    widthAvailable / (stave.measures().length - anacruses.length);
   let extraWidth = 0;
 
   return stave.measures().map((bar, i) => {
@@ -108,7 +109,9 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
   const staveY = props.y + settings.staveGap;
 
   const previousBar = (barIdx: number) =>
-    barIdx === 0 ? props.previousStave?.lastMeasure() || null : stave.measures()[barIdx - 1];
+    barIdx === 0
+      ? props.previousStave?.lastMeasure() || null
+      : stave.measures()[barIdx - 1];
 
   const widths = computeBarWidths(stave, props.width, previousBar);
   const width = (index: number) => widths[index];
@@ -169,7 +172,11 @@ export function drawStave(stave: IStave, props: StaveProps): m.Children {
   });
 
   const staveLines = foreach(stave.numberOfParts(), (p) =>
-    foreach(5, (idx) => settings.lineHeightOf(idx) + staveY + p * settings.harmonyStaveHeight())
+    foreach(
+      5,
+      (idx) =>
+        settings.lineHeightOf(idx) + staveY + p * settings.harmonyStaveHeight()
+    )
   ).flat();
 
   return m('g[class=stave]', [

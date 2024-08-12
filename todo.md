@@ -12,6 +12,15 @@
 - [ ] Snapping for text box dragging
 - [x] View-only mode for mobile
 
+## Harmony stave bug list
+
+- [ ] Selecting doesn't select bar
+- [ ] Undoing deleting measure breaks (probably bar.measure() gets broken?)
+- [ ] Copying/pasting in Firefox
+- [ ] Updating .measure() references in copy/paste
+- [ ] UI
+- [ ] Playback
+
 ## Bugs to fix
 
 - [ ] Dotting should retain the same group (by shortening other notes in group)

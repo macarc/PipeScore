@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { IMeasure, IBar } from '.';
+import { IBar, IMeasure } from '.';
 import { Barline } from '../Barline';
 import {
   type INote,
@@ -35,7 +35,7 @@ import {
 import type { SavedBar } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
-import { genId, ID } from '../global/id';
+import { type ID, genId } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { last } from '../global/utils';
 
@@ -85,7 +85,7 @@ class Bar extends IBar {
     return this.previewNote !== null;
   }
 
-  makePreviewReal(notes: INote[]) {
+  makePreviewReal(notes: INote[][]) {
     this.previewNote?.makeUnPreview().makeCorrectTie(notes);
     this.previewNote = null;
   }
@@ -103,7 +103,6 @@ class Bar extends IBar {
     }
     return null;
   }
-
 
   lastPitch() {
     return this.lastNote()?.pitch() || null;
@@ -175,7 +174,7 @@ class Bar extends IBar {
   }
 
   nonPreviewNotes() {
-    return this._notes.filter((note) => note !== this.previewNote)
+    return this._notes.filter((note) => note !== this.previewNote);
   }
 }
 
@@ -211,17 +210,19 @@ export class Measure extends IMeasure {
     return {
       id: this.id,
       isAnacrusis: this._isAnacrusis,
-      notes: this.bars()[0].notesAndTriplets().map((n) => noteToJSON(n)),
+      notes: this.bars()[0]
+        .notesAndTriplets()
+        .map((n) => noteToJSON(n)),
       backBarline: this.backBarline.toJSON(),
       frontBarline: this.frontBarline.toJSON(),
       timeSignature: this.ts.toJSON(),
       width: this.fixedWidth,
     };
   }
-  
+
   containsID(id: ID): boolean {
     if (this.hasID(id)) return true;
-    return this.bars().some(part => part.containsNoteWithId(id));
+    return this.bars().some((part) => part.containsNoteWithId(id));
   }
 
   isAnacrusis(): boolean {
@@ -276,19 +277,21 @@ export class Measure extends IMeasure {
     return [
       ...start,
       new PlaybackObject('start', this.id),
-      ...this._bars[0].notesAndTriplets().flatMap((note, i) =>
-        note
-          .play(
-            i === 0
-              ? previous?.bars()[0].lastPitch() || null
-              : lastNote(this._bars[0].notesAndTriplets()[i - 1]).pitch()
-          )
-          .map((p) =>
-            p.type === 'note'
-              ? new PlaybackNote(p.pitch, p.tied, p.duration * beatRatio)
-              : p
-          )
-      ),
+      ...this._bars[0]
+        .notesAndTriplets()
+        .flatMap((note, i) =>
+          note
+            .play(
+              i === 0
+                ? previous?.bars()[0].lastPitch() || null
+                : lastNote(this._bars[0].notesAndTriplets()[i - 1]).pitch()
+            )
+            .map((p) =>
+              p.type === 'note'
+                ? new PlaybackNote(p.pitch, p.tied, p.duration * beatRatio)
+                : p
+            )
+        ),
       new PlaybackObject('end', this.id),
       ...end,
     ];

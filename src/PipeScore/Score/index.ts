@@ -17,7 +17,7 @@
 //  The Score contains the entire score (what a surprise). Since it delegates,
 //  this file mostly deals with delegations and pages.
 
-import type { IMeasure, IBar } from '../Bar';
+import type { IBar, IMeasure } from '../Bar';
 import type { Update } from '../Events/types';
 import type { INote, NoteOrTriplet } from '../Note';
 import type { Playback, PlaybackSecondTiming } from '../Playback';
@@ -55,7 +55,9 @@ export abstract class IScore {
   abstract lastOnPage(page: number): IMeasure | null;
   abstract addTune(nearTune: ITune | null, where: Relative): void;
   abstract deleteTune(tune: ITune): void;
-  abstract notes(): INote[];
+  abstract notes(): INote[][];
+  abstract flatNotes(): INote[];
+  abstract bars(): IBar[][];
   abstract measures(): IMeasure[];
   abstract staves(): IStave[];
   abstract tunes(): ITune[];

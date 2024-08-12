@@ -47,10 +47,10 @@ export abstract class IBar implements Previews<INote> {
     noteAfter: INote | null
   ): void;
   abstract hasPreview(): boolean;
-  abstract makePreviewReal(notes: INote[]): void;
+  abstract makePreviewReal(notes: INote[][]): void;
   abstract removePreview(): void;
   abstract preview(inPart: number): INote | null;
-};
+}
 
 export abstract class IMeasure extends Item {
   abstract fixedWidth: number | 'auto';

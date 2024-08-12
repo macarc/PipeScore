@@ -20,6 +20,7 @@
 
 import m from 'mithril';
 import type { IBar, IMeasure } from '../Bar';
+import { Measure } from '../Bar/impl';
 import type { IGracenote } from '../Gracenote';
 import { INote, type NoteOrTriplet, flattenTriplets } from '../Note';
 import type { IScore } from '../Score';
@@ -32,7 +33,6 @@ import { settings } from '../global/settings';
 import { foreach, last } from '../global/utils';
 import { type XY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
-import { Measure } from '../Bar/impl';
 
 interface ScoreSelectionProps {
   page: number;
@@ -52,10 +52,13 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   override dragOverPitch(pitch: Pitch, score: IScore) {
-    for (const note of this.notes(score)) {
-      note.drag(pitch);
-      note.makeCorrectTie(score.notes());
-    }
+    const allNotes = score.notes();
+    this.notes(score).forEach((part, i) => {
+      for (const note of part) {
+        note.drag(pitch);
+        note.makeCorrectTie(allNotes);
+      }
+    });
   }
 
   override delete(score: IScore) {
@@ -109,25 +112,57 @@ export class ScoreSelection extends DraggableSelection {
     return null;
   }
 
-  lastNoteAndMeasure(score: IScore): { note: INote | null; measure: IMeasure | null } {
-    const notes = this.notes(score);
+  lastNoteAndMeasure(score: IScore): {
+    note: INote | null;
+    measure: IMeasure | null;
+  } {
+    // TODO : harmony staves
+    const notes = this.notes(score)[0];
     const measure = score.location(this.end)?.measure || null;
     return { note: last(notes), measure };
   }
 
   // Get all selected notes and triplets
-  notesAndTriplets(score: IScore): NoteOrTriplet[] {
-    return this.collectNotes(score, false);
+  notesAndTriplets(score: IScore): NoteOrTriplet[][] {
+    const notes: NoteOrTriplet[][] = [];
+    const parts = score.bars();
+    all: for (let i = 0; i < parts.length; i++) {
+      notes.push([]);
+      let foundStart = false;
+      for (const bar of parts[i]) {
+        if (bar.measure().hasID(this.start)) foundStart = true;
+        const barNotes = bar.notesAndTriplets();
+        for (const note of barNotes) {
+          if (note.hasID(this.start)) foundStart = true;
+          if (foundStart && !(note instanceof INote && note.isPreview()))
+            notes[i].push(note);
+          if (note.hasID(this.end)) break all;
+        }
+        if (bar.measure().hasID(this.end)) break;
+      }
+    }
+    return notes;
   }
 
   // Get all selected single notes, including notes
   // that are part of a triplet
-  notes(score: IScore): INote[] {
-    // When true is passed, this will always be a Note[]
-    return this.collectNotes(score, true) as INote[];
+  notes(score: IScore): INote[][] {
+    return this.notesAndTriplets(score).map(flattenTriplets);
   }
 
-  measureLocations(score: IScore): { measure: IMeasure; tune: ITune; stave: IStave }[] {
+  // Notes, in an unordered array
+  flatNotes(score: IScore): INote[] {
+    return this.notes(score).flat();
+  }
+
+  // Notes and triplets, in an unordered array
+  flatNotesAndTriplets(score: IScore): NoteOrTriplet[] {
+    return this.notesAndTriplets(score).flat();
+  }
+
+  measureLocations(
+    score: IScore
+  ): { measure: IMeasure; tune: ITune; stave: IStave }[] {
     let foundStart = false;
     const measures: { measure: IMeasure; tune: ITune; stave: IStave }[] = [];
     all: for (const tune of score.tunes()) {
@@ -164,7 +199,7 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   note(score: IScore): INote | null {
-    const notes = this.notes(score);
+    const notes = this.flatNotes(score);
     if (notes.length > 0) {
       return notes[0];
     }
@@ -185,7 +220,7 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   gracenote(score: IScore): IGracenote | null {
-    const notes = this.notes(score);
+    const notes = this.flatNotes(score);
     if (notes.length === 1) {
       return notes[0].gracenote();
     }
@@ -196,7 +231,11 @@ export class ScoreSelection extends DraggableSelection {
     const location = score.location(this.start);
     if (location) {
       const { stave, measure } = location;
-      stave.insertMeasure(new Measure(measure.timeSignature(), true), measure, where);
+      stave.insertMeasure(
+        new Measure(measure.timeSignature(), true),
+        measure,
+        where
+      );
     }
   }
 
@@ -217,7 +256,6 @@ export class ScoreSelection extends DraggableSelection {
     }
   }
 
-
   // If selection is:
   // - A single note, find the previous note
   // - A single measure, find the previous measure
@@ -235,26 +273,6 @@ export class ScoreSelection extends DraggableSelection {
       }
     }
     return newSelection;
-  }
-
-  private collectNotes(score: IScore, splitUpTriplets: boolean): NoteOrTriplet[] {
-    const measures = score.measures();
-    let foundStart = false;
-    const notes: NoteOrTriplet[] = [];
-    all: for (const measure of measures) {
-      if (measure.hasID(this.start)) foundStart = true;
-      const barNotes = splitUpTriplets
-        ? flattenTriplets(measure.bars()[0].notesAndTriplets())
-        : measure.bars()[0].notesAndTriplets();
-      for (const note of barNotes) {
-        if (note.hasID(this.start)) foundStart = true;
-        if (foundStart && !(note instanceof INote && note.isPreview()))
-          notes.push(note);
-        if (note.hasID(this.end)) break all;
-      }
-      if (measure.hasID(this.end)) break;
-    }
-    return notes;
   }
 
   private renderHighlight(start: XY, end: XY, props: ScoreSelectionProps) {

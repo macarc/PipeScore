@@ -20,7 +20,7 @@ import type { SavedNoteOrTriplet } from '../SavedModel';
 import { GracenoteSelection } from '../Selection/gracenote';
 import { ScoreSelection } from '../Selection/score';
 import type { State } from '../State';
-import { splitOn } from '../global/utils';
+import { firstInNestedList, splitOn } from '../global/utils';
 import { type ScoreEvent, Update } from './types';
 
 export function moveLeft(): ScoreEvent {
@@ -131,22 +131,26 @@ export function copy(): ScoreEvent {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
 
     const notes = state.selection.notesAndTriplets(state.score);
-    if (notes.length > 0) {
-      const initialMeasure = state.score.location(notes[0].id)?.measure;
+    const firstNote = firstInNestedList(notes);
+    if (firstNote) {
+      const initialMeasure = state.score.location(firstNote.id)?.measure;
 
       if (initialMeasure) {
         let currentMeasureId = initialMeasure.id;
 
-        const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
+        const noteList: (SavedNoteOrTriplet | 'bar-break')[][] = [];
 
-        for (const note of notes) {
-          const measure = state.score.location(note.id)?.measure;
-          if (measure && currentMeasureId !== measure.id) {
-            noteList.push('bar-break');
-            currentMeasureId = measure.id;
+        notes.forEach((part, i) => {
+          noteList.push([]);
+          for (const note of part) {
+            const measure = state.score.location(note.id)?.measure;
+            if (measure && currentMeasureId !== measure.id) {
+              noteList[i].push('bar-break');
+              currentMeasureId = measure.id;
+            }
+            noteList[i].push(noteToJSON(note));
           }
-          noteList.push(noteToJSON(note));
-        }
+        });
 
         if (browserSupportsCopying()) {
           navigator.clipboard.writeText(
@@ -169,48 +173,54 @@ export function copy(): ScoreEvent {
   };
 }
 
-function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
-  const copiedNotes = splitOn(
-    'bar-break',
-    notes
-      // we have to copy (replace ID) here rather than when copying in case they paste it more than once
-      .map((note) => (typeof note === 'string' ? note : noteFromJSON(note).copy()))
-  ) as NoteOrTriplet[][];
+function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[][]) {
+  console.log('pasting', notes);
+  const copiedNotes = notes.map(
+    (part) =>
+      splitOn(
+        'bar-break',
+        part
+          // we have to copy (replace ID) here rather than when copying in case they paste it more than once
+          .map((note) =>
+            typeof note === 'string' ? note : noteFromJSON(note).copy()
+          )
+      ) as NoteOrTriplet[][]
+  );
 
   if (state.selection instanceof ScoreSelection) {
     const id = state.selection.start;
     const startingMeasure =
       state.score.location(id)?.measure || state.score.lastBarAndStave()?.measure;
     if (startingMeasure) {
-      let startedPasting = false;
+      state.score.bars().forEach((part, i) => {
+        let startedPasting = false;
 
-      for (const measure of state.score.measures()) {
-        // TODO : copying in harmony staves
-        const bar = measure.bars()[0];
+        for (const bar of part) {
+          if (bar.measure().hasID(startingMeasure.id)) {
+            startedPasting = true;
+            if (bar.measure().hasID(id)) {
+              const notesToDelete = bar.notes();
+              for (const note of notesToDelete) {
+                bar.deleteNote(note);
+              }
+            }
+          } else if (startedPasting) {
+            // Only delete the current notes if we aren't on the first bar
+            // since we should append to the first, then replace for the rest
+            bar.clearNotes();
+          }
 
-        if (measure.hasID(startingMeasure.id)) {
-          startedPasting = true;
-          if (measure.hasID(id)) {
-            const notesToDelete = bar.notes();
-            for (const note of notesToDelete) {
-              bar.deleteNote(note);
+          if (startedPasting) {
+            const notesToPaste = copiedNotes[i].shift();
+            if (notesToPaste) {
+              bar.appendNotes(notesToPaste);
+            } else {
+              break;
             }
           }
-        } else if (startedPasting) {
-          // Only delete the current notes if we aren't on the first bar
-          // since we should append to the first, then replace for the rest
-          bar.clearNotes();
         }
+      });
 
-        if (startedPasting) {
-          const notesToPaste = copiedNotes.shift();
-          if (notesToPaste) {
-            bar.appendNotes(notesToPaste);
-          } else {
-            break;
-          }
-        }
-      }
       return Update.ShouldSave;
     }
   }
@@ -227,11 +237,11 @@ function pasteFromPipeScoreClipboard(state: State) {
 export function paste(): ScoreEvent {
   return async (state: State) => {
     if (browserSupportsCopying()) {
-      const text = await navigator.clipboard.readText();
       try {
+        const text = await navigator.clipboard.readText();
         const pasted = JSON.parse(text);
         if (pasted?.['data-type'] === 'pipescore-copied-notes') {
-          const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[];
+          const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[][];
           return pasteNotes(state, noteList);
         }
         console.log("Pasted item wasn't notes, falling back to PipeScore clipboard");

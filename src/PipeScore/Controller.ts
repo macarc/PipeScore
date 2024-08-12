@@ -141,7 +141,7 @@ function redraw() {
         showingPageNumbers: state.score.showNumberOfPages,
         selectedNotes:
           state.selection instanceof ScoreSelection
-            ? state.selection.notes(state.score)
+            ? state.selection.flatNotes(state.score)
             : [],
         selectedGracenote:
           (state.selection instanceof GracenoteSelection &&

@@ -28,6 +28,7 @@ import { ScoreSelection } from '../Selection/score';
 import { TripletLineSelection } from '../Selection/tripletline';
 import type { State } from '../State';
 import type { Pitch } from '../global/pitch';
+import { firstInNestedList, nestedListLength } from '../global/utils';
 import { stopInputMode } from './common';
 import { type ScoreEvent, Update } from './types';
 
@@ -62,7 +63,7 @@ export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
             state.score.previousNote(state.selection.start)?.length();
 
       // TODO : fix for harmony staves
-      const bar = last.measure && last.measure.bars()[0];
+      const bar = last.measure?.bars()[0];
 
       if (length && last.measure && bar) {
         const note = new Note(pitch, length);
@@ -97,7 +98,7 @@ export function moveNoteUp(): ScoreEvent {
 
     if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
-      for (const note of state.selection.notes(state.score)) {
+      for (const note of state.selection.flatNotes(state.score)) {
         note.moveUp();
         note.makeCorrectTie(notes);
       }
@@ -117,7 +118,7 @@ export function moveNoteDown(): ScoreEvent {
 
     if (state.selection instanceof ScoreSelection) {
       const notes = state.score.notes();
-      for (const note of state.selection.notes(state.score)) {
+      for (const note of state.selection.flatNotes(state.score)) {
         note.moveDown();
         note.makeCorrectTie(notes);
       }
@@ -132,14 +133,16 @@ export function tieSelectedNotes(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const notes = state.selection.notes(state.score);
-      if (notes.length === 1) {
-        notes[0].toggleTie(state.score.notes());
+      if (nestedListLength(notes) === 1) {
+        firstInNestedList(notes)?.toggleTie(state.score.notes());
       } else {
         const allNotes = state.score.notes();
-        // Don't tie the first note so that it
-        // ties *between* the selected notes
-        for (const note of notes.slice(1)) {
-          note.toggleTie(allNotes);
+        for (const part of notes) {
+          // Don't tie the first note so that it
+          // ties *between* the selected notes
+          for (const note of part.slice(1)) {
+            note.toggleTie(allNotes);
+          }
         }
       }
       return Update.ShouldSave;
@@ -156,7 +159,7 @@ export function toggleNatural(): ScoreEvent {
     }
 
     if (state.selection instanceof ScoreSelection) {
-      for (const note of state.selection.notes(state.score)) {
+      for (const note of state.selection.flatNotes(state.score)) {
         note.toggleNatural();
       }
       return Update.ShouldSave;
@@ -171,29 +174,31 @@ export function toggleTriplet(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const selected = state.selection.notesAndTriplets(state.score);
 
-      if (selected.length >= 3) {
-        // Create triplet
-        const first = selected[0];
-        const second = selected[1];
-        const third = selected[2];
-        if (
-          first instanceof INote &&
-          second instanceof INote &&
-          third instanceof INote
-        ) {
-          const location = state.score.location(first.id);
-          if (location) {
-            location.bar.makeTriplet(first, second, third);
+      for (const part of selected) {
+        if (part.length >= 3) {
+          // Create triplet
+          const first = part[0];
+          const second = part[1];
+          const third = part[2];
+          if (
+            first instanceof INote &&
+            second instanceof INote &&
+            third instanceof INote
+          ) {
+            const location = state.score.location(first.id);
+            if (location) {
+              location.bar.makeTriplet(first, second, third);
+              return Update.ShouldSave;
+            }
+          }
+        } else if (part.length >= 1) {
+          // Remove triplet
+          const tr = part[0];
+          const location = state.score.location(tr.id);
+          if (tr instanceof ITriplet && location) {
+            location.bar.unmakeTriplet(tr);
             return Update.ShouldSave;
           }
-        }
-      } else if (selected.length >= 1) {
-        // Remove triplet
-        const tr = selected[0];
-        const location = state.score.location(tr.id);
-        if (tr instanceof ITriplet && location) {
-          location.bar.unmakeTriplet(tr);
-          return Update.ShouldSave;
         }
       }
     }
@@ -204,7 +209,7 @@ export function toggleTriplet(): ScoreEvent {
 export function toggleDot(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      for (const note of state.selection.notesAndTriplets(state.score)) {
+      for (const note of state.selection.flatNotesAndTriplets(state.score)) {
         note.setLength(note.length().dotted());
       }
     }
@@ -267,9 +272,9 @@ export function clickNote(note: INote, event: MouseEvent): ScoreEvent {
 export function setInputLength(length: Duration): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const notes = state.selection.notesAndTriplets(state.score);
+      const notes = state.selection.flatNotesAndTriplets(state.score);
       if (notes.length > 0) {
-        for (const note of notes) {
+        for (const note of notes.flat()) {
           note.setLength(new NoteLength(length));
         }
       } else {

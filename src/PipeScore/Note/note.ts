@@ -82,7 +82,7 @@ export class Note extends INote {
     return n;
   }
 
-  toggleTie(notes: Note[]) {
+  toggleTie(notes: Note[][]) {
     this.tied = !this.tied;
     this.makeCorrectTie(notes);
   }
@@ -92,18 +92,23 @@ export class Note extends INote {
   }
 
   // Corrects the pitches of any notes tied to this note
-  makeCorrectTie(notes: Note[]) {
-    const thisIdx = notes.findIndex((n) => n.hasID(this.id));
-    const pitch = this.pitch();
+  makeCorrectTie(notes: Note[][]) {
+    for (const part of notes) {
+      const thisIdx = part.findIndex((n) => n.hasID(this.id));
+      if (thisIdx !== -1) {
+        const pitch = this.pitch();
 
-    // Ensure previous tied notes are the same pitch
-    for (let i = thisIdx; i > 0 && notes[i].tied; i--) {
-      notes[i - 1].setPitch(pitch);
-    }
+        // Ensure previous tied notes are the same pitch
+        for (let i = thisIdx; i > 0 && part[i].tied; i--) {
+          part[i - 1].setPitch(pitch);
+        }
 
-    // Ensure subsequent tied notes are the same pitch
-    for (let i = thisIdx + 1; i < notes.length && notes[i].tied; i++) {
-      notes[i].setPitch(pitch);
+        // Ensure subsequent tied notes are the same pitch
+        for (let i = thisIdx + 1; i < part.length && part[i].tied; i++) {
+          part[i].setPitch(pitch);
+        }
+        return;
+      }
     }
   }
 

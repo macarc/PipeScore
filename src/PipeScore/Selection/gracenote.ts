@@ -36,7 +36,7 @@ export class GracenoteSelection extends DraggableSelection {
 
   override delete(score: IScore) {
     if (this.note === 'all') {
-      for (const note of score.notes()) {
+      for (const note of score.flatNotes()) {
         note.replaceGracenote(this.selected, null);
       }
       return null;
@@ -58,7 +58,7 @@ export class GracenoteSelection extends DraggableSelection {
   }
 
   changeGracenote(newGracenote: IGracenote, score: IScore) {
-    for (const note of score.notes()) {
+    for (const note of score.flatNotes()) {
       note.replaceGracenote(this.selected, newGracenote);
     }
     this.selected = newGracenote;

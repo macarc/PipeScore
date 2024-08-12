@@ -32,7 +32,7 @@ export type State = {
   preview: IPreview | null;
   menu: Menu;
   doc: { current: keyof Documentation | null; show: boolean };
-  clipboard: (SavedNoteOrTriplet | 'bar-break')[] | null;
+  clipboard: (SavedNoteOrTriplet | 'bar-break')[][] | null;
   selection: ISelection | null;
   history: { past: string[]; future: string[] };
   view: { ui: HTMLElement | null; score: HTMLElement | null };
