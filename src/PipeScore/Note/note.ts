@@ -21,7 +21,7 @@ import { IGracenote } from '../Gracenote';
 import { Gracenote, NoGracenote } from '../Gracenote/impl';
 import { type Playback, PlaybackNote, PlaybackObject } from '../Playback';
 import type { SavedNote } from '../SavedModel';
-import { genId } from '../global/id';
+import { genID } from '../global/id';
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
 import { NoteLength } from './notelength';
 
@@ -42,7 +42,7 @@ export class Note extends INote {
     hasNatural = false,
     gracenote: IGracenote = new NoGracenote()
   ) {
-    super(genId());
+    super(genID());
     this.tied = tied;
     this._length = length;
     this._pitch = pitch;
@@ -78,7 +78,7 @@ export class Note extends INote {
 
   copy() {
     const n = Note.fromObject(this.toObject());
-    n.id = genId();
+    n.id = genID();
     return n;
   }
 

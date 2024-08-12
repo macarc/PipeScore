@@ -21,7 +21,7 @@ export type ID = number;
 export class Item {
   public id: ID;
   constructor(id: ID | null) {
-    this.id = id || genId();
+    this.id = id || genID();
   }
   public hasID(id: ID) {
     return this.id === id;
@@ -29,4 +29,4 @@ export class Item {
 }
 
 // Generate a random ID
-export const genId = (): ID => 1 + Math.floor(Math.random() * 1000000000000);
+export const genID = (): ID => 1 + Math.floor(Math.random() * 1000000000000);

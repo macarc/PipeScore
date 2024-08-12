@@ -88,19 +88,6 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export function firstInNestedList<A>(xs: A[][]): A | null {
-  for (const x of xs) {
-    if (x[0] !== undefined) {
-      return x[0];
-    }
-  }
-  return null;
-}
-
-export function nestedListLength<A>(xs: A[][]): number {
-  return sum(xs.map((x) => x.length));
-}
-
 type SvgPt = { x: number; y: number; page: number };
 
 export function svgCoords(event: MouseEvent): SvgPt | null {

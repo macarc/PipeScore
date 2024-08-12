@@ -6,7 +6,7 @@ import type {
   SavedTimeSignature,
   SavedTiming,
 } from '../PipeScore/SavedModel';
-import { type ID, genId } from '../PipeScore/global/id';
+import { type ID, genID } from '../PipeScore/global/id';
 import { Pitch } from '../PipeScore/global/pitch';
 import { Settings } from '../PipeScore/global/settings';
 import { sum } from '../PipeScore/global/utils';
@@ -137,7 +137,7 @@ function reactive(name: string): SavedGracenote {
 }
 
 const emptyBar = (timeSignature: SavedTimeSignature): SavedBar => ({
-  id: genId(),
+  id: genID(),
   isAnacrusis: false,
   timeSignature,
   notes: [],
@@ -153,7 +153,7 @@ const emptyNote = (
   hasNatural: boolean,
   gracenote: SavedGracenote
 ) => ({
-  id: genId(),
+  id: genID(),
   pitch,
   length,
   tied,
@@ -264,7 +264,7 @@ class PartialScore {
     bar.notes.splice(bar.notes.length - 3, 3, {
       notetype: 'triplet',
       value: {
-        id: genId(),
+        id: genID(),
         length: duration,
         notes: notes,
       },

@@ -18,15 +18,8 @@
 //  this file mostly deals with delegations and pages.
 
 import { IScore } from '.';
-import {
-  type IBar,
-  nextMeasure,
-  nextNote,
-  previousMeasure,
-  previousNote,
-} from '../Bar';
+import { type IBar, nextBar, nextNote, previousBar, previousNote } from '../Bar';
 import { Update } from '../Events/types';
-import { INote, NoteOrTriplet, flattenTriplets } from '../Note';
 import type { Playback } from '../Playback';
 import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
 import type { IStave } from '../Stave';
@@ -275,12 +268,12 @@ export class Score extends IScore {
     return splitStaves;
   }
 
-  nextMeasure(id: ID) {
-    return nextMeasure(id, this.measures());
+  nextBar(id: ID) {
+    return nextBar(id, this.measures());
   }
 
-  previousMeasure(id: ID) {
-    return previousMeasure(id, this.measures());
+  previousBar(id: ID) {
+    return previousBar(id, this.measures());
   }
 
   nextNote(id: ID) {
@@ -302,11 +295,13 @@ export class Score extends IScore {
   }
 
   firstOnPage(page: number) {
-    return first(this.stavesByPage()[page])?.firstMeasure() || null;
+    return first(this.stavesByPage()[page])?.firstMeasure()?.bars()[0] || null;
   }
 
   lastOnPage(page: number) {
-    return last(this.stavesByPage()[page])?.lastMeasure() || null;
+    return (
+      last(last(this.stavesByPage()[page])?.lastMeasure()?.bars() || []) || null
+    );
   }
 
   bars() {
@@ -356,7 +351,7 @@ export class Score extends IScore {
       for (const stave of tune.staves()) {
         for (const measure of stave.measures()) {
           for (const bar of measure.bars()) {
-            if (measure.hasID(id) || bar.containsNoteWithId(id)) {
+            if (bar.hasID(id) || bar.containsNoteWithID(id)) {
               return { tune, stave, measure, bar };
             }
           }

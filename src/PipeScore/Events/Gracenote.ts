@@ -43,7 +43,7 @@ export function setGracenoteOnSelectedNotes(value: string | null): ScoreEvent {
   return async (state: State) => {
     const newGracenote = Gracenote.fromName(value);
     if (state.selection instanceof ScoreSelection) {
-      for (const note of state.selection.flatNotes(state.score)) {
+      for (const note of state.selection.notes(state.score)) {
         note.setGracenote(newGracenote.copy());
       }
       return Update.ShouldSave;

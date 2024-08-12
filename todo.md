@@ -14,10 +14,11 @@
 
 ## Harmony stave bug list
 
-- [ ] Selecting doesn't select bar
-- [ ] Undoing deleting measure breaks (probably bar.measure() gets broken?)
+- [x] Selecting doesn't select bar
 - [ ] Copying/pasting in Firefox
-- [ ] Updating .measure() references in copy/paste
+- [x] Updating .measure() references in copy/paste
+- [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
+- [ ] Saving
 - [ ] UI
 - [ ] Playback
 

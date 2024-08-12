@@ -41,7 +41,7 @@ export function startPlaybackAtSelection(): ScoreEvent {
         state.playback,
         playbackElements,
         state.score.playbackTimings(playbackElements),
-        state.selection.start
+        state.selection.start()
       );
     }
     return Update.NoChange;
@@ -56,8 +56,8 @@ export function playbackLoopingSelection(): ScoreEvent {
         state.playback,
         playbackElements,
         state.score.playbackTimings(playbackElements),
-        state.selection.start,
-        state.selection.end,
+        state.selection.start(),
+        state.selection.end(),
         true
       );
     }

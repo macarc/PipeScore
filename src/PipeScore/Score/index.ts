@@ -19,7 +19,7 @@
 
 import type { IBar, IMeasure } from '../Bar';
 import type { Update } from '../Events/types';
-import type { INote, NoteOrTriplet } from '../Note';
+import type { INote } from '../Note';
 import type { Playback, PlaybackSecondTiming } from '../Playback';
 import type { SavedScore } from '../SavedModel';
 import type { IStave } from '../Stave';
@@ -46,13 +46,13 @@ export abstract class IScore {
   abstract makePortrait(): Update;
   abstract addText(text: IMovableTextBox): void;
   abstract staveY(stave: IStave | ITune): number;
-  abstract nextMeasure(id: ID): IMeasure | null;
-  abstract previousMeasure(id: ID): IMeasure | null;
+  abstract nextBar(id: ID): IBar | null;
+  abstract previousBar(id: ID): IBar | null;
   abstract nextNote(id: ID): INote | null;
   abstract previousNote(id: ID): INote | null;
   abstract previousStaveSameTune(stave: IStave): IStave | null;
-  abstract firstOnPage(page: number): IMeasure | null;
-  abstract lastOnPage(page: number): IMeasure | null;
+  abstract firstOnPage(page: number): IBar | null;
+  abstract lastOnPage(page: number): IBar | null;
   abstract addTune(nearTune: ITune | null, where: Relative): void;
   abstract deleteTune(tune: ITune): void;
   abstract notes(): INote[][];

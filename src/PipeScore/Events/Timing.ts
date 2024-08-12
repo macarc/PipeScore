@@ -19,18 +19,18 @@ import { TimingSelection } from '../Selection/timing';
 import type { State } from '../State';
 import type { ITiming, TimingPart } from '../Timing';
 import { SecondTiming, SingleTiming } from '../Timing/impl';
-import { after } from '../global/utils';
 import { type ScoreEvent, Update } from './types';
 
 export function addSingleTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
       const location =
-        state.score.location(state.selection.start) || state.score.lastBarAndStave();
+        state.score.location(state.selection.start()) ||
+        state.score.lastBarAndStave();
 
       if (location) {
-        const { measure } = location;
-        state.score.addTiming(new SingleTiming(measure.id, measure.id));
+        const { bar } = location;
+        state.score.addTiming(new SingleTiming(bar.id, bar.id));
         return Update.ShouldSave;
       }
     }
@@ -41,11 +41,11 @@ export function addSingleTiming(): ScoreEvent {
 export function addSecondTiming(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const start = state.score.location(state.selection.start);
+      const start = state.score.location(state.selection.start());
       if (start) {
-        const end = after(start.measure, state.score.measures());
+        const end = state.score.nextBar(start.bar.id);
         if (end) {
-          state.score.addTiming(new SecondTiming(start.measure.id, end.id, end.id));
+          state.score.addTiming(new SecondTiming(start.bar.id, end.id, end.id));
           return Update.ShouldSave;
         }
       }

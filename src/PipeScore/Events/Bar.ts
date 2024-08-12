@@ -14,8 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { type IMeasure, setTimeSignatureFrom } from '../Bar';
-import { Measure } from '../Bar/impl';
+import { type IBar, setTimeSignatureFrom } from '../Bar';
 import type { Barline } from '../Barline';
 import type { IScore } from '../Score';
 import { BarlineSelection } from '../Selection/barline';
@@ -46,21 +45,17 @@ export function editTimeSignature(timeSignature: ITimeSignature): ScoreEvent {
 
 export function addAnacrusis(where: Relative): ScoreEvent {
   return async (state: State) => {
-    const measure =
+    const bar =
       state.selection instanceof ScoreSelection
-        ? state.selection.measure(state.score)
+        ? state.selection.bar(state.score)
         : where === Relative.before
           ? state.score.firstOnPage(0)
           : state.score.lastOnPage(0);
 
-    if (measure) {
-      const stave = state.score.location(measure.id)?.stave;
+    if (bar) {
+      const stave = state.score.location(bar.id)?.stave;
       if (stave) {
-        stave.insertMeasure(
-          new Measure(measure.timeSignature(), true),
-          measure,
-          where
-        );
+        stave.insertMeasure(bar.measure(), where, true);
         return Update.ShouldSave;
       }
     }
@@ -90,13 +85,13 @@ export function clickBarline(drag: (x: number) => void): ScoreEvent {
 export function resetMeasureLength(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const measures = state.selection.measures(state.score);
-      for (const measure of measures) {
-        measure.fixedWidth = 'auto';
+      const measures = state.selection.bars(state.score);
+      for (const bar of measures) {
+        bar.measure().fixedWidth = 'auto';
       }
       if (measures.length > 0) {
-        const prev = state.score.previousMeasure(measures[0].id);
-        if (prev) prev.fixedWidth = 'auto';
+        const prev = state.score.previousBar(measures[0].id);
+        if (prev) prev.measure().fixedWidth = 'auto';
       }
       return Update.ShouldSave;
     }
@@ -104,13 +99,13 @@ export function resetMeasureLength(): ScoreEvent {
   };
 }
 
-export function clickMeasure(measure: IMeasure, mouseEvent: MouseEvent): ScoreEvent {
+export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
-      state.selection.extend(measure.id);
+      state.selection.extend(bar.id, state.score);
       return Update.ViewChanged;
     }
-    state.selection = new ScoreSelection(measure.id, measure.id, true);
+    state.selection = ScoreSelection.from(bar.id, bar.id, true, state.score);
     return Update.ViewChanged;
   };
 }
@@ -131,7 +126,7 @@ export function editBarTimeSignature(): ScoreEvent {
   return async (state: State) => {
     const measure =
       state.selection instanceof ScoreSelection
-        ? state.score.location(state.selection.start)?.measure
+        ? state.score.location(state.selection.start())?.measure
         : state.score.measures()[0];
 
     if (measure) {

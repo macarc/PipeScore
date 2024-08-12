@@ -86,7 +86,6 @@ import { onMobile } from '../global/browser';
 import { help } from '../global/docs';
 import { Relative } from '../global/relativeLocation';
 import { type Settings, settings } from '../global/settings';
-import { capitalise } from '../global/utils';
 import type { Menu } from './model';
 
 export interface UIState {

@@ -20,9 +20,8 @@
 
 import m from 'mithril';
 import type { IBar, IMeasure } from '../Bar';
-import { Measure } from '../Bar/impl';
 import type { IGracenote } from '../Gracenote';
-import { INote, type NoteOrTriplet, flattenTriplets } from '../Note';
+import type { INote, NoteOrTriplet } from '../Note';
 import type { IScore } from '../Score';
 import type { IStave } from '../Stave';
 import type { ITune } from '../Tune';
@@ -42,27 +41,68 @@ interface ScoreSelectionProps {
 }
 
 export class ScoreSelection extends DraggableSelection {
-  start: ID;
-  end: ID;
+  private _start: ID;
+  private _end: ID;
 
-  constructor(start: ID, end: ID, createdByMouseDown: boolean) {
+  private constructor(start: ID, end: ID, createdByMouseDown: boolean) {
     super(createdByMouseDown);
-    this.start = start;
-    this.end = end;
+    this._start = start;
+    this._end = end;
+  }
+
+  static from(start: ID, end: ID, createdByMouseDown: boolean, score: IScore) {
+    if (ScoreSelection.checkIfInSameHarmonyPart(start, end, score)) {
+      return new ScoreSelection(start, end, createdByMouseDown);
+    }
+    return null;
+  }
+
+  start() {
+    return this._start;
+  }
+
+  end() {
+    return this._end;
+  }
+
+  setEnd(end: ID, score: IScore) {
+    if (ScoreSelection.checkIfInSameHarmonyPart(this._start, this._end, score)) {
+      this._end = end;
+    }
+  }
+
+  static checkIfInSameHarmonyPart(a: ID, b: ID, score: IScore) {
+    if (a === b) return true;
+
+    for (const part of score.bars()) {
+      let foundA = false;
+      let foundB = false;
+      for (const bar of part) {
+        if (bar.hasID(a) || bar.containsNoteWithID(a)) {
+          foundA = true;
+        }
+        if (bar.hasID(b) || bar.containsNoteWithID(b)) {
+          foundB = true;
+        }
+      }
+
+      if (foundA || foundB) {
+        return foundA && foundB;
+      }
+    }
+    return false;
   }
 
   override dragOverPitch(pitch: Pitch, score: IScore) {
     const allNotes = score.notes();
-    this.notes(score).forEach((part, i) => {
-      for (const note of part) {
-        note.drag(pitch);
-        note.makeCorrectTie(allNotes);
-      }
-    });
+    for (const note of this.notes(score)) {
+      note.drag(pitch);
+      note.makeCorrectTie(allNotes);
+    }
   }
 
   override delete(score: IScore) {
-    let started = false;
+    let deletingHarmonyIndex = -1;
     let deleteBars = false;
     const newSelection = this.selectedPrevious(score);
     const notesToDelete: [INote, IBar][] = [];
@@ -71,17 +111,32 @@ export class ScoreSelection extends DraggableSelection {
     all: for (const tune of score.tunes()) {
       for (const stave of tune.staves()) {
         for (const measure of stave.measures()) {
-          if (measure.hasID(this.start)) {
-            deleteBars = true;
-            started = true;
+          for (const bar of measure.bars()) {
+            if (
+              deletingHarmonyIndex !== -1 &&
+              deletingHarmonyIndex !== bar.harmonyIndex()
+            ) {
+              continue;
+            }
+
+            if (bar.hasID(this._start)) {
+              // Delete bars if whole bar is selected AND it isn't in the harmony stave
+              // If it's in a harmony stave, clear bars instead
+              if (bar.harmonyIndex() === 0) {
+                deleteBars = true;
+              }
+              deletingHarmonyIndex = bar.harmonyIndex();
+            }
+            for (const note of bar.notes()) {
+              if (note.hasID(this._start)) deletingHarmonyIndex = bar.harmonyIndex();
+              if (deletingHarmonyIndex !== -1)
+                notesToDelete.push([note, measure.bars()[deletingHarmonyIndex]]);
+              if (note.hasID(this._end)) break all;
+            }
+            if (deletingHarmonyIndex !== -1)
+              measuresToDelete.push([measure, stave, tune]);
+            if (bar.hasID(this._end)) break all;
           }
-          for (const note of measure.bars()[0].notes()) {
-            if (note.hasID(this.start)) started = true;
-            if (started) notesToDelete.push([note, measure.bars()[0]]);
-            if (note.hasID(this.end)) break all;
-          }
-          if (started) measuresToDelete.push([measure, stave, tune]);
-          if (measure.hasID(this.end)) break all;
         }
       }
     }
@@ -116,69 +171,39 @@ export class ScoreSelection extends DraggableSelection {
     note: INote | null;
     measure: IMeasure | null;
   } {
-    // TODO : harmony staves
-    const notes = this.notes(score)[0];
-    const measure = score.location(this.end)?.measure || null;
+    const notes = this.notes(score);
+    const measure = score.location(this._end)?.measure || null;
     return { note: last(notes), measure };
   }
 
-  // Get all selected notes and triplets
-  notesAndTriplets(score: IScore): NoteOrTriplet[][] {
-    const notes: NoteOrTriplet[][] = [];
-    const parts = score.bars();
-    all: for (let i = 0; i < parts.length; i++) {
-      notes.push([]);
+  // Selected notes and triplets
+  // (these are guaranteed to all be in the same harmony stave)
+  notesAndTriplets(score: IScore): NoteOrTriplet[] {
+    return this.bars(score).flatMap((bar) => bar.notesAndTriplets());
+  }
+
+  // Selected notes, including notes that are part of a triplet
+  // (these are guaranteed to all be in the same harmony stave)
+  notes(score: IScore): INote[] {
+    return this.bars(score).flatMap((bar) => bar.notes());
+  }
+
+  bars(score: IScore): IBar[] {
+    for (const part of score.bars()) {
+      const bars = [];
       let foundStart = false;
-      for (const bar of parts[i]) {
-        if (bar.measure().hasID(this.start)) foundStart = true;
-        const barNotes = bar.notesAndTriplets();
-        for (const note of barNotes) {
-          if (note.hasID(this.start)) foundStart = true;
-          if (foundStart && !(note instanceof INote && note.isPreview()))
-            notes[i].push(note);
-          if (note.hasID(this.end)) break all;
-        }
-        if (bar.measure().hasID(this.end)) break;
+      for (const bar of part) {
+        if (bar.hasID(this._start) || bar.containsNoteWithID(this._start))
+          foundStart = true;
+        if (foundStart) bars.push(bar);
+        if (bar.hasID(this._end) || bar.containsNoteWithID(this._end)) return bars;
       }
     }
-    return notes;
-  }
-
-  // Get all selected single notes, including notes
-  // that are part of a triplet
-  notes(score: IScore): INote[][] {
-    return this.notesAndTriplets(score).map(flattenTriplets);
-  }
-
-  // Notes, in an unordered array
-  flatNotes(score: IScore): INote[] {
-    return this.notes(score).flat();
-  }
-
-  // Notes and triplets, in an unordered array
-  flatNotesAndTriplets(score: IScore): NoteOrTriplet[] {
-    return this.notesAndTriplets(score).flat();
-  }
-
-  measureLocations(
-    score: IScore
-  ): { measure: IMeasure; tune: ITune; stave: IStave }[] {
-    let foundStart = false;
-    const measures: { measure: IMeasure; tune: ITune; stave: IStave }[] = [];
-    all: for (const tune of score.tunes()) {
-      for (const stave of tune.staves()) {
-        for (const measure of stave.measures()) {
-          if (measure.hasID(this.start)) foundStart = true;
-          if (foundStart) measures.push({ measure, tune, stave });
-          if (measure.hasID(this.end)) break all;
-        }
-      }
-    }
-    return measures;
+    return [];
   }
 
   measures(score: IScore): IMeasure[] {
-    return this.measureLocations(score).map(({ measure }) => measure);
+    return this.bars(score).map((bar) => bar.measure());
   }
 
   staves(score: IScore): IStave[] {
@@ -190,37 +215,58 @@ export class ScoreSelection extends DraggableSelection {
     const staves: { tune: ITune; stave: IStave }[] = [];
     all: for (const tune of score.tunes()) {
       for (const stave of tune.staves()) {
-        if (stave.includesID(this.start)) foundStart = true;
+        if (stave.containsID(this._start)) foundStart = true;
         if (foundStart) staves.push({ tune, stave });
-        if (stave.includesID(this.end)) break all;
+        if (stave.containsID(this._end)) break all;
       }
     }
     return staves;
   }
 
+  measureLocations(
+    score: IScore
+  ): { measure: IMeasure; stave: IStave; tune: ITune }[] {
+    let foundStart = false;
+    const measures: { measure: IMeasure; stave: IStave; tune: ITune }[] = [];
+
+    all: for (const tune of score.tunes()) {
+      for (const stave of tune.staves()) {
+        for (const measure of stave.measures()) {
+          if (measure.containsID(this._start)) foundStart = true;
+          if (foundStart) measures.push({ measure, tune, stave });
+          if (measure.containsID(this._end)) break all;
+        }
+      }
+    }
+
+    return measures;
+  }
+
   note(score: IScore): INote | null {
-    const notes = this.flatNotes(score);
+    const notes = this.notes(score);
     if (notes.length > 0) {
       return notes[0];
     }
     return null;
   }
 
-  measure(score: IScore): IMeasure | null {
-    if (this.start === this.end) {
-      for (const measure of score.measures()) {
-        if (measure.id === this.start) return measure;
+  bar(score: IScore): IBar | null {
+    if (this._start === this._end) {
+      for (const part of score.bars()) {
+        for (const bar of part) {
+          if (bar.id === this._start) return bar;
+        }
       }
     }
     return null;
   }
 
   tune(score: IScore): ITune | null {
-    return score.location(this.start)?.tune || null;
+    return score.location(this._start)?.tune || null;
   }
 
   gracenote(score: IScore): IGracenote | null {
-    const notes = this.flatNotes(score);
+    const notes = this.notes(score);
     if (notes.length === 1) {
       return notes[0].gracenote();
     }
@@ -228,47 +274,45 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   addAnacrusis(where: Relative, score: IScore) {
-    const location = score.location(this.start);
+    const location = score.location(this._start);
     if (location) {
       const { stave, measure } = location;
-      stave.insertMeasure(
-        new Measure(measure.timeSignature(), true),
-        measure,
-        where
-      );
+      stave.insertMeasure(measure, where, true);
     }
   }
 
   addMeasure(where: Relative, score: IScore) {
-    const location = score.location(this.start);
+    const location = score.location(this._start);
     if (location) {
       const { measure, stave } = location;
-      stave.insertMeasure(new Measure(measure.timeSignature()), measure, where);
+      stave.insertMeasure(measure, where, false);
     }
   }
 
   // Extend the current selection to include the item
-  extend(id: ID) {
-    if (isItemBefore(this.end, id, 'afterX', 'afterX')) {
-      this.end = id;
-    } else if (isItemBefore(id, this.start, 'beforeX', 'beforeX')) {
-      this.start = id;
+  extend(id: ID, score: IScore) {
+    if (ScoreSelection.checkIfInSameHarmonyPart(id, this._start, score)) {
+      if (isItemBefore(this._end, id, 'afterX', 'afterX')) {
+        this._end = id;
+      } else if (isItemBefore(id, this._start, 'beforeX', 'beforeX')) {
+        this._start = id;
+      }
     }
   }
 
   // If selection is:
   // - A single note, find the previous note
-  // - A single measure, find the previous measure
+  // - A single bar, find the previous bar
   private selectedPrevious(score: IScore): ID | null {
     const n = this.note(score);
-    const b = this.measures(score)[0] || null;
+    const b = this.bars(score)[0] || null;
     let newSelection: ID | null = null;
-    if (this.start === this.end) {
+    if (this._start === this._end) {
       if (n) {
         const previousNote = score.location(n.id)?.stave.previousNote(n.id);
         newSelection = previousNote?.id || null;
       } else if (b) {
-        const previousBar = score.location(b.id)?.stave.previousMeasure(b);
+        const previousBar = score.location(b.id)?.stave.previousBar(b);
         newSelection = previousBar?.id || null;
       }
     }
@@ -297,8 +341,8 @@ export class ScoreSelection extends DraggableSelection {
     }
 
     const staves = props.score.staves();
-    const startStaveIndex = staves.findIndex((stave) => stave.includesID(start.id));
-    const endStaveIndex = staves.findIndex((stave) => stave.includesID(end.id));
+    const startStaveIndex = staves.findIndex((stave) => stave.containsID(start.id));
+    const endStaveIndex = staves.findIndex((stave) => stave.containsID(end.id));
     const numStavesBetween = Math.max(endStaveIndex - startStaveIndex - 1, 0);
 
     return m('g[class=selection]', [
@@ -342,8 +386,8 @@ export class ScoreSelection extends DraggableSelection {
 
   render(props: ScoreSelectionProps): m.Children {
     const { start, end } = getXYRangeForPage(
-      this.start,
-      this.end,
+      this._start,
+      this._end,
       props.page,
       props.score,
       false

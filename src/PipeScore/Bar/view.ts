@@ -18,18 +18,11 @@ import m from 'mithril';
 import type { IMeasure } from '.';
 import { barlineWidth, drawBarline } from '../Barline/view';
 import type { Dispatch } from '../Dispatch';
-import { clickMeasure } from '../Events/Bar';
+import { clickBar } from '../Events/Bar';
 import { addNoteToBarEnd } from '../Events/Note';
 import { mouseOverPitch } from '../Events/PitchBoxes';
 import type { GracenoteState } from '../Gracenote/state';
-import {
-  INote,
-  ITriplet,
-  type NoteOrTriplet,
-  flattenTriplets,
-  groupNotes,
-  lastNote,
-} from '../Note';
+import { INote, ITriplet, type NoteOrTriplet, groupNotes, lastNote } from '../Note';
 import type { NoteState } from '../Note/state';
 import {
   type NoteProps,
@@ -121,7 +114,6 @@ function noteOffsets(previousPitch: Pitch | null, notes: NoteOrTriplet[]) {
 }
 
 export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
-  setXY(measure.id, props.x, props.x + props.width, props.y);
   const hasTimeSignature =
     props.previousBar !== null
       ? !props.previousBar.timeSignature().equals(measure.timeSignature())
@@ -145,14 +137,13 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
   return m(
     'g[class=bar]',
     measure.bars().map((bar, p) => {
-      const partNotes = bar.notes();
-
       const staveY = props.y + p * settings.harmonyStaveHeight();
+      setXY(bar.id, props.x, props.x + props.width, staveY);
 
       const isHarmony = p > 0;
 
+      const partNotes = bar.notes();
       const actualNotes = bar.nonPreviewNotes();
-
       const groupedNotes = groupNotes(
         actualNotes,
         measure.timeSignature().beatDivision()
@@ -211,7 +202,7 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
           (pitch, e) =>
             props.noteState.inputtingNotes
               ? props.dispatch(addNoteToBarEnd(pitch, bar))
-              : props.dispatch(clickMeasure(measure, e)),
+              : props.dispatch(clickBar(bar, e)),
           props.justAddedNote
         ),
         ...groupedNotes.map((notes) =>

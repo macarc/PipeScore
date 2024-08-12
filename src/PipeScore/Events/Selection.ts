@@ -20,15 +20,15 @@ import type { SavedNoteOrTriplet } from '../SavedModel';
 import { GracenoteSelection } from '../Selection/gracenote';
 import { ScoreSelection } from '../Selection/score';
 import type { State } from '../State';
-import { firstInNestedList, splitOn } from '../global/utils';
+import { splitOn } from '../global/utils';
 import { type ScoreEvent, Update } from './types';
 
 export function moveLeft(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const prev = state.score.previousNote(state.selection.start);
+      const prev = state.score.previousNote(state.selection.start());
       if (prev) {
-        state.selection = new ScoreSelection(prev.id, prev.id, false);
+        state.selection = ScoreSelection.from(prev.id, prev.id, false, state.score);
         return Update.ViewChanged;
       }
     } else if (state.selection instanceof GracenoteSelection) {
@@ -42,9 +42,9 @@ export function moveLeft(): ScoreEvent {
 export function moveRight(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const next = state.score.nextNote(state.selection.end);
+      const next = state.score.nextNote(state.selection.end());
       if (next) {
-        state.selection = new ScoreSelection(next.id, next.id, false);
+        state.selection = ScoreSelection.from(next.id, next.id, false, state.score);
         return Update.ViewChanged;
       }
     } else if (state.selection instanceof GracenoteSelection) {
@@ -58,9 +58,9 @@ export function moveRight(): ScoreEvent {
 export function expandSelection(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const next = state.score.nextNote(state.selection.end);
+      const next = state.score.nextNote(state.selection.end());
       if (next) {
-        state.selection.end = next.id;
+        state.selection.setEnd(next.id, state.score);
         return Update.ViewChanged;
       }
     }
@@ -72,11 +72,11 @@ export function detractSelection(): ScoreEvent {
   return async (state: State) => {
     if (
       state.selection instanceof ScoreSelection &&
-      state.selection.start !== state.selection.end
+      state.selection.start() !== state.selection.end()
     ) {
-      const prev = state.score.previousNote(state.selection.end);
+      const prev = state.score.previousNote(state.selection.end());
       if (prev) {
-        state.selection.end = prev.id;
+        state.selection.setEnd(prev.id, state.score);
         return Update.ViewChanged;
       }
     }
@@ -87,8 +87,9 @@ export function detractSelection(): ScoreEvent {
 export function moveLeftMeasurewise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const prev = state.score.previousMeasure(state.selection.end);
-      if (prev) state.selection = new ScoreSelection(prev.id, prev.id, false);
+      const prev = state.score.previousBar(state.selection.end());
+      if (prev)
+        state.selection = ScoreSelection.from(prev.id, prev.id, false, state.score);
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -98,8 +99,9 @@ export function moveLeftMeasurewise(): ScoreEvent {
 export function moveRightMeasurewise(): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const next = state.score.nextMeasure(state.selection.end);
-      if (next) state.selection = new ScoreSelection(next.id, next.id, false);
+      const next = state.score.nextBar(state.selection.end());
+      if (next)
+        state.selection = ScoreSelection.from(next.id, next.id, false, state.score);
       return Update.ViewChanged;
     }
     return Update.NoChange;
@@ -130,75 +132,54 @@ export function copy(): ScoreEvent {
   return async (state: State) => {
     if (!(state.selection instanceof ScoreSelection)) return Update.NoChange;
 
-    const notes = state.selection.notesAndTriplets(state.score);
-    const firstNote = firstInNestedList(notes);
-    if (firstNote) {
-      const initialMeasure = state.score.location(firstNote.id)?.measure;
+    const noteList: (SavedNoteOrTriplet | 'bar-break')[] = [];
 
-      if (initialMeasure) {
-        let currentMeasureId = initialMeasure.id;
+    for (const bar of state.selection.bars(state.score)) {
+      noteList.push(...bar.notesAndTriplets().map(noteToJSON));
+      noteList.push('bar-break');
+    }
 
-        const noteList: (SavedNoteOrTriplet | 'bar-break')[][] = [];
+    // Remove last bar-break
+    noteList.pop();
 
-        notes.forEach((part, i) => {
-          noteList.push([]);
-          for (const note of part) {
-            const measure = state.score.location(note.id)?.measure;
-            if (measure && currentMeasureId !== measure.id) {
-              noteList[i].push('bar-break');
-              currentMeasureId = measure.id;
-            }
-            noteList[i].push(noteToJSON(note));
-          }
-        });
-
-        if (browserSupportsCopying()) {
-          navigator.clipboard.writeText(
-            JSON.stringify({
-              'data-type': 'pipescore-copied-notes',
-              notes: noteList,
-            })
-          );
-        } else {
-          console.log(
-            "Browser doesn't support copying, falling back to PipeScore clipboard"
-          );
-          state.clipboard = noteList;
-        }
-      }
-
-      return Update.NoChange;
+    if (browserSupportsCopying()) {
+      navigator.clipboard.writeText(
+        JSON.stringify({
+          'data-type': 'pipescore-copied-notes',
+          notes: noteList,
+        })
+      );
+    } else {
+      console.log(
+        "Browser doesn't support copying, falling back to PipeScore clipboard"
+      );
+      state.clipboard = noteList;
     }
     return Update.NoChange;
   };
 }
 
-function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[][]) {
+function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
   console.log('pasting', notes);
-  const copiedNotes = notes.map(
-    (part) =>
-      splitOn(
-        'bar-break',
-        part
-          // we have to copy (replace ID) here rather than when copying in case they paste it more than once
-          .map((note) =>
-            typeof note === 'string' ? note : noteFromJSON(note).copy()
-          )
-      ) as NoteOrTriplet[][]
-  );
+  const copiedNotes = splitOn(
+    'bar-break',
+    notes
+      // we have to copy (replace ID) here rather than when copying in case they paste it more than once
+      .map((note) => (typeof note === 'string' ? note : noteFromJSON(note).copy()))
+  ) as NoteOrTriplet[][];
 
   if (state.selection instanceof ScoreSelection) {
-    const id = state.selection.start;
-    const startingMeasure =
-      state.score.location(id)?.measure || state.score.lastBarAndStave()?.measure;
-    if (startingMeasure) {
-      state.score.bars().forEach((part, i) => {
+    const id = state.selection.start();
+    const startingBar =
+      state.score.location(id)?.bar || state.score.lastBarAndStave()?.bar;
+    if (startingBar) {
+      for (const part of state.score.bars()) {
         let startedPasting = false;
 
         for (const bar of part) {
-          if (bar.measure().hasID(startingMeasure.id)) {
+          if (bar.hasID(startingBar.id)) {
             startedPasting = true;
-            if (bar.measure().hasID(id)) {
+            if (bar.hasID(id)) {
               const notesToDelete = bar.notes();
               for (const note of notesToDelete) {
                 bar.deleteNote(note);
@@ -211,15 +192,15 @@ function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[][])
           }
 
           if (startedPasting) {
-            const notesToPaste = copiedNotes[i].shift();
-            if (notesToPaste) {
-              bar.appendNotes(notesToPaste);
+            const noteToPaste = copiedNotes.shift();
+            if (noteToPaste) {
+              bar.appendNotes(noteToPaste);
             } else {
               break;
             }
           }
         }
-      });
+      }
 
       return Update.ShouldSave;
     }
@@ -241,7 +222,7 @@ export function paste(): ScoreEvent {
         const text = await navigator.clipboard.readText();
         const pasted = JSON.parse(text);
         if (pasted?.['data-type'] === 'pipescore-copied-notes') {
-          const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[][];
+          const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[];
           return pasteNotes(state, noteList);
         }
         console.log("Pasted item wasn't notes, falling back to PipeScore clipboard");

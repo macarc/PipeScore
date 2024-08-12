@@ -19,7 +19,7 @@
 import { type INote, ITriplet } from '.';
 import { PlaybackNote, PlaybackObject } from '../Playback';
 import type { SavedTriplet } from '../SavedModel';
-import { type ID, genId } from '../global/id';
+import { type ID, genID } from '../global/id';
 import type { Pitch } from '../global/pitch';
 import { nfirst, nlast } from '../global/utils';
 import { Note } from './impl';
@@ -30,16 +30,16 @@ export class Triplet extends ITriplet {
   private _length: NoteLength;
 
   constructor(length: NoteLength, first: INote, second: INote, third: INote) {
-    super(genId());
+    super(genID());
     this._length = length;
     this._notes = [first, second, third];
   }
 
   public copy() {
     const n = Triplet.fromObject(this.toObject());
-    n.id = genId();
+    n.id = genID();
     for (const note of n._notes) {
-      note.id = genId();
+      note.id = genID();
     }
     return n;
   }

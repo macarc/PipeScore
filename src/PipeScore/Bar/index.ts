@@ -22,13 +22,13 @@ import type { SavedBar } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import { type ID, Item } from '../global/id';
 import type { Pitch } from '../global/pitch';
-import { last } from '../global/utils';
 
 // A single bar (whereas IBar contains multiple bars vertically if there are harmony parts)
 // If you have an idea for a better name tell me!
-export abstract class IBar implements Previews<INote> {
+export abstract class IBar extends Item implements Previews<INote> {
   abstract measure(): IMeasure;
-  abstract containsNoteWithId(id: ID): boolean;
+  abstract harmonyIndex(): number;
+  abstract containsNoteWithID(id: ID): boolean;
   abstract notes(): INote[];
   abstract notesAndTriplets(): NoteOrTriplet[];
   abstract nonPreviewNotes(): NoteOrTriplet[];
@@ -52,7 +52,7 @@ export abstract class IBar implements Previews<INote> {
   abstract preview(inPart: number): INote | null;
 }
 
-export abstract class IMeasure extends Item {
+export abstract class IMeasure {
   abstract fixedWidth: number | 'auto';
   // Check if measure or any notes of measure have this ID
   abstract containsID(id: ID): boolean;
@@ -109,25 +109,41 @@ export function getMeasureBars(measures: IMeasure[]): IBar[][] {
   return bars;
 }
 
-export function nextMeasure(id: ID, measures: IMeasure[]) {
+export function nextBar(id: ID, measures: IMeasure[]) {
   for (let i = 0; i < measures.length - 1; i++) {
-    if (measures[i].containsID(id)) return measures[i + 1];
+    const bars = measures[i].bars();
+    for (let j = 0; j < bars.length; j++) {
+      if (bars[j].hasID(id) || bars[j].containsNoteWithID(id)) {
+        if (measures[i + 1] && measures[i + 1].bars()[j]) {
+          return measures[i + 1].bars()[j];
+        }
+        return null;
+      }
+    }
   }
   return null;
 }
 
-export function previousMeasure(id: ID, measures: IMeasure[]) {
+export function previousBar(id: ID, measures: IMeasure[]) {
   for (let i = 1; i < measures.length; i++) {
-    if (measures[i].containsID(id)) return measures[i - 1];
+    const bars = measures[i].bars();
+    for (let j = 0; j < bars.length; j++) {
+      if (bars[j].hasID(id) || bars[j].containsNoteWithID(id)) {
+        if (measures[i - 1] && measures[i - 1].bars()[j]) {
+          return measures[i - 1].bars()[j];
+        }
+        return null;
+      }
+    }
   }
-  return last(measures);
+  return null;
 }
 
 export function nextNote(id: ID, measures: IMeasure[]) {
   let lastWasIt = false;
   for (const bars of getMeasureBars(measures)) {
     for (const bar of bars) {
-      if (bar.measure().id === id) lastWasIt = true;
+      if (bar.hasID(id)) lastWasIt = true;
       for (const note of bar.notes()) {
         if (note.isPreview()) continue;
         if (lastWasIt) return note;
@@ -142,7 +158,7 @@ export function previousNote(id: ID, measures: IMeasure[]) {
   let prev: INote | null = null;
   for (const bars of getMeasureBars(measures)) {
     for (const bar of bars) {
-      if (bar.measure().id === id) return prev;
+      if (bar.hasID(id)) return prev;
       for (const note of bar.notes()) {
         if (note.isPreview()) continue;
         if (note.hasID(id)) return prev;

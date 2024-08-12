@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { IStave } from '.';
-import { type IMeasure, previousNote } from '../Bar';
+import { type IBar, type IMeasure, previousBar, previousNote } from '../Bar';
 import { Measure } from '../Bar/impl';
 import { Barline } from '../Barline';
 import type { INote } from '../Note';
@@ -93,7 +93,7 @@ export class Stave extends IStave {
       nlast(this._measures).fixedWidth = 'auto';
   }
 
-  includesID(id: ID) {
+  containsID(id: ID) {
     for (const measure of this.measures()) {
       if (measure.containsID(id)) {
         return true;
@@ -118,8 +118,8 @@ export class Stave extends IStave {
     return previousNote(id, this.measures());
   }
 
-  previousMeasure(measure: IMeasure): IMeasure | null {
-    return this._measures[this._measures.indexOf(measure) - 1] || null;
+  previousBar(bar: IBar): IBar | null {
+    return previousBar(bar.id, this._measures);
   }
 
   partFirst() {
@@ -138,10 +138,14 @@ export class Stave extends IStave {
     this.lastMeasure()?.setBarline('end', Barline.repeat);
   }
 
-  insertMeasure(newMeasure: IMeasure, relativeTo: IMeasure, where: Relative) {
+  insertMeasure(relativeTo: IMeasure, where: Relative, anacrusis: boolean) {
     const measureIndex = this._measures.indexOf(relativeTo);
     const ind = where === Relative.before ? measureIndex : measureIndex + 1;
-    this._measures.splice(ind, 0, newMeasure);
+    this._measures.splice(
+      ind,
+      0,
+      new Measure(relativeTo.timeSignature(), anacrusis)
+    );
   }
 
   play(previous: Stave | null) {

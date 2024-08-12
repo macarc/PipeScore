@@ -39,9 +39,14 @@ describe('addStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave2.measures()[1].id;
-    const selectionEnd = stave2.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave2.measures()[1].bars()[0].id;
+    const selectionEnd = stave2.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await addStave(Relative.before)(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(5);
@@ -56,9 +61,14 @@ describe('addStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave2.measures()[1].id;
-    const selectionEnd = stave2.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave2.measures()[1].bars()[0].id;
+    const selectionEnd = stave2.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await addStave(Relative.after)(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(5);
@@ -73,9 +83,14 @@ describe('addStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave0.measures()[1].id;
-    const selectionEnd = stave0.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave0.measures()[1].bars()[0].id;
+    const selectionEnd = stave0.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await addStave(Relative.before)(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(5);
@@ -90,9 +105,14 @@ describe('addStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave3.measures()[1].id;
-    const selectionEnd = stave3.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave3.measures()[1].bars()[0].id;
+    const selectionEnd = stave3.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await addStave(Relative.after)(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(5);
@@ -116,9 +136,14 @@ describe('deleteStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave0.measures()[1].id;
-    const selectionEnd = stave0.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave0.measures()[1].bars()[0].id;
+    const selectionEnd = stave0.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await deleteStave()(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(3);
@@ -132,9 +157,14 @@ describe('deleteStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave3.measures()[1].id;
-    const selectionEnd = stave3.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave3.measures()[1].bars()[0].id;
+    const selectionEnd = stave3.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await deleteStave()(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(3);
@@ -148,9 +178,14 @@ describe('deleteStave', () => {
     const stave1 = state.score.staves()[1];
     const stave2 = state.score.staves()[2];
     const stave3 = state.score.staves()[3];
-    const selectionStart = stave2.measures()[1].id;
-    const selectionEnd = stave2.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave2.measures()[1].bars()[0].id;
+    const selectionEnd = stave2.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(4);
     expect(await deleteStave()(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(3);
@@ -165,9 +200,14 @@ describe('deleteStave', () => {
     const stave1 = state.score.staves()[1];
     const stave3 = state.score.staves()[3];
     const stave4 = state.score.staves()[4];
-    const selectionStart = stave1.measures()[1].id;
-    const selectionEnd = stave3.measures()[2].id;
-    state.selection = new ScoreSelection(selectionStart, selectionEnd, false);
+    const selectionStart = stave1.measures()[1].bars()[0].id;
+    const selectionEnd = stave3.measures()[2].bars()[0].id;
+    state.selection = ScoreSelection.from(
+      selectionStart,
+      selectionEnd,
+      false,
+      state.score
+    );
     expect(state.score.staves()).toHaveLength(5);
     expect(await deleteStave()(state)).toBe(Update.ShouldSave);
     expect(state.score.staves()).toHaveLength(2);

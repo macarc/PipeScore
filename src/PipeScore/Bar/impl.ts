@@ -35,7 +35,7 @@ import {
 import type { SavedBar } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
-import { type ID, genId } from '../global/id';
+import { type ID, genID } from '../global/id';
 import { Pitch } from '../global/pitch';
 import { last } from '../global/utils';
 
@@ -46,7 +46,7 @@ class Bar extends IBar {
   private previewNote: INote | null = null;
 
   constructor(measure: IMeasure) {
-    super();
+    super(genID());
     this._measure = measure;
     this._notes = [new Note(Pitch.A, new NoteLength(Duration.Crotchet))];
   }
@@ -59,6 +59,10 @@ class Bar extends IBar {
 
   measure(): IMeasure {
     return this._measure;
+  }
+
+  harmonyIndex(): number {
+    return this._measure.bars().indexOf(this);
   }
 
   setPreview(note: INote, _: INote | null, noteAfter: INote | null) {
@@ -156,7 +160,7 @@ class Bar extends IBar {
     this._notes.splice(this._notes.indexOf(tr), 1, ...tr.tripletSingleNotes());
   }
 
-  containsNoteWithId(id: ID) {
+  containsNoteWithID(id: ID) {
     for (const note of this.notesAndTriplets()) {
       if (note.hasID(id)) {
         return true;
@@ -188,7 +192,7 @@ export class Measure extends IMeasure {
   private _isAnacrusis: boolean;
 
   constructor(timeSignature: ITimeSignature | undefined, isAnacrusis = false) {
-    super(genId());
+    super();
     this.ts = (timeSignature || new TimeSignature()).copy();
     this._bars = [new Bar(this), new Bar(this)];
     this._isAnacrusis = isAnacrusis;
@@ -198,17 +202,20 @@ export class Measure extends IMeasure {
 
   static fromJSON(o: SavedBar) {
     const m = new Measure(TimeSignature.fromJSON(o.timeSignature), o.isAnacrusis);
-    m.id = o.id;
     m.fixedWidth = o.width === undefined ? 'auto' : o.width;
     m.backBarline = Barline.fromJSON(o.backBarline);
     m.frontBarline = Barline.fromJSON(o.frontBarline);
+
+    // TODO : actually save bars (with ids!)
+    // TODO : BREAKING CHANGE - make sure that IDs are moved from measure
+    //        to first bar, if in the old format
     m._bars = [Bar.withNotes(m, o.notes.map(noteFromJSON))];
     return m;
   }
 
   toJSON(): SavedBar {
     return {
-      id: this.id,
+      id: 0,
       isAnacrusis: this._isAnacrusis,
       notes: this.bars()[0]
         .notesAndTriplets()
@@ -221,8 +228,7 @@ export class Measure extends IMeasure {
   }
 
   containsID(id: ID): boolean {
-    if (this.hasID(id)) return true;
-    return this.bars().some((part) => part.containsNoteWithId(id));
+    return this.bars().some((part) => part.hasID(id) || part.containsNoteWithID(id));
   }
 
   isAnacrusis(): boolean {
@@ -276,7 +282,7 @@ export class Measure extends IMeasure {
     const beatRatio = 1 / this.timeSignature().crotchetsPerBeat();
     return [
       ...start,
-      new PlaybackObject('start', this.id),
+      new PlaybackObject('start', this._bars[0].id),
       ...this._bars[0]
         .notesAndTriplets()
         .flatMap((note, i) =>
@@ -292,7 +298,7 @@ export class Measure extends IMeasure {
                 : p
             )
         ),
-      new PlaybackObject('end', this.id),
+      new PlaybackObject('end', this._bars[0].id),
       ...end,
     ];
   }

@@ -103,10 +103,10 @@ function drawLine(
 
     const staveStartIndex = props.score
       .staves()
-      .findIndex((s) => s.includesID(start.id));
+      .findIndex((s) => s.containsID(start.id));
     const staveEndIndex = props.score
       .staves()
-      .findIndex((s) => s.includesID(end.id));
+      .findIndex((s) => s.containsID(end.id));
     const stavesBetween = staveEndIndex - staveStartIndex - 1;
 
     return m('g', [
