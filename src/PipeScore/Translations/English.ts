@@ -89,11 +89,11 @@ export const EnglishDocumentation: Documentation = {
   'delete-stave':
     'Delete the currently selected stave. Select a stave by selecting any note or bar in that stave.',
   'add-harmony':
-    'Add a harmony stave after the currently selected stave. Select a stave by selecting any note or bar in that stave.',
+    'Add a harmony part to the currently selected stave. Select a stave by selecting any note or bar in that stave.',
   'add-harmony-to-all':
-    'Add a harmony stave to all staves in the selected tune. Select a tune by selecting any note or bar in that tune.',
+    'Add a harmony part to all staves.',
   'remove-harmony':
-    'Delete the last harmony stave on selected stave(s). Select a stave by selecting any note or bar in that stave.',
+    'Delete the harmony part on the selected staves. Select a stave by selecting any note or bar in that stave. If there are multiple harmonies on the stave, remove the last one.',
   'set-stave-gap': 'Adjust the default gap between all staves.',
   'reset-stave-gap': 'Reset the gap between staves to its default value.',
   'add-tune-before':

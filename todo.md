@@ -20,9 +20,9 @@
 - [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
 - [x] Saving
 - [x] UI
-- [ ] Documentation
+- [x] Documentation
 - [x] Check it doesn't destroy old scores
-- [ ] Playback
+- [x] Playback
 
 ## Bugs to fix
 
@@ -57,7 +57,7 @@ Mobile
 - [x] Adding staves / bars
 - [x] Text boxes
 - [x] Triplets
-- [ ] Harmony Stave
+- [x] Harmony Stave
 - [x] Resizable interface
 - [x] Copy/paste/undo/redo
 - [x] Documentation
