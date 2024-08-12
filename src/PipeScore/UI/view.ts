@@ -1089,6 +1089,7 @@ export default function render(state: UIState): m.Children {
     m('section', [
       m('h2', text('staveLayout')),
       m('div.section-content', [setting('lineGap', text('gapBetweenLines'))]),
+      m('div.section-content', [setting('harmonyGap', text('harmonyGap'))]),
     ]),
     m('section', [
       m('h2', text('gracenoteLayout')),

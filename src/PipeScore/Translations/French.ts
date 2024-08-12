@@ -222,6 +222,7 @@ export const FrenchTextItems: TextItems = {
   download: 'Charger fichier PipeScore',
   staveLayout: 'Disposition Portées',
   gapBetweenLines: 'Espace entre lignes',
+  harmonyGap: 'Gap between harmony staves',
   gracenoteLayout: 'Disposition Gracenote',
   gapAfterGracenote: 'Espace Après Gracenote ',
   margins: 'Marges',

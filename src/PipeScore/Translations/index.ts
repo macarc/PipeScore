@@ -178,6 +178,7 @@ export type TextItems = {
   download: string;
   staveLayout: string;
   gapBetweenLines: string;
+  harmonyGap: string;
   gracenoteLayout: string;
   gapAfterGracenote: string;
   margins: string;

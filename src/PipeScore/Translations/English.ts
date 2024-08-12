@@ -217,6 +217,7 @@ export const EnglishTextItems: TextItems = {
   download: 'Download PipeScore file',
   staveLayout: 'Stave layout', // TODO move to stave menu? or vice versa
   gapBetweenLines: 'Gap between lines',
+  harmonyGap: 'Gap between harmony staves',
   gracenoteLayout: 'Gracenote layout',
   gapAfterGracenote: 'Gap after gracenote',
   margins: 'Margins',
