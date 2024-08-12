@@ -17,7 +17,7 @@
 import type { IBar } from '../Bar';
 import { INote, ITriplet } from '../Note';
 import { Note } from '../Note/impl';
-import { type Duration, NoteLength } from '../Note/notelength';
+import { Duration, NoteLength } from '../Note/notelength';
 import {
   NotePreview,
   ReactiveGracenotePreview,
@@ -54,19 +54,16 @@ export function addNoteBefore(pitch: Pitch, noteAfter: INote): ScoreEvent {
 export function addNoteAfterSelection(pitch: Pitch): ScoreEvent {
   return async (state: State) => {
     if (state.selection instanceof ScoreSelection) {
-      const last = state.selection.lastNoteAndMeasure(state.score);
+      const last = state.selection.lastNoteAndBar(state.score);
       const length =
         state.preview instanceof NotePreview
           ? state.preview.length()
-          : state.selection.lastNoteAndMeasure(state.score)?.note?.length() ||
+          : state.selection.lastNoteAndBar(state.score)?.note?.length() ||
             state.score.previousNote(state.selection.start())?.length();
 
-      // TODO : fix for harmony staves
-      const bar = last.measure?.bars()[0];
-
-      if (length && last.measure && bar) {
-        const note = new Note(pitch, length);
-        bar.insertNote(last.note, note);
+      if (last.bar) {
+        const note = new Note(pitch, length || new NoteLength(Duration.Crotchet));
+        last.bar.insertNote(last.note, note);
         // createdByMouseDown is false since this is triggered by keyboard shortcut
         state.selection = ScoreSelection.from(note.id, note.id, false, state.score);
         return Update.ShouldSave;

@@ -38,7 +38,6 @@ export function parseDenominator(text: string) {
 export abstract class ITimeSignature {
   abstract toJSON(): SavedTimeSignature;
   abstract copy(): ITimeSignature;
-  // TODO : check if this is used
   abstract width(): number;
   abstract fontSize(): number;
   abstract breaksString(): string;

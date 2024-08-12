@@ -172,13 +172,13 @@ export class ScoreSelection extends DraggableSelection {
     return null;
   }
 
-  lastNoteAndMeasure(score: IScore): {
+  lastNoteAndBar(score: IScore): {
     note: INote | null;
-    measure: IMeasure | null;
+    bar: IBar | null;
   } {
     const notes = this.notes(score);
-    const measure = score.location(this._end)?.measure || null;
-    return { note: last(notes), measure };
+    const bar = score.location(this._end)?.bar || null;
+    return { note: last(notes), bar };
   }
 
   // Selected notes and triplets

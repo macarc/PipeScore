@@ -352,7 +352,6 @@ export class Score extends IScore {
   }
 
   // Finds the parent bar stave, and tune of the bar/note passed
-  // TODO : right now, returns the first bar if the whole measure is selected
   location(id: ID) {
     for (const tune of this.tunes()) {
       for (const stave of tune.staves()) {
