@@ -100,13 +100,15 @@ export class Stave extends IStave {
   prependMeasure(measure: IMeasure) {
     this._measures.unshift(measure);
     measure.fixedWidth = 'auto';
-    measure.setNumberOfParts(this._numberOfParts);
+    this._numberOfParts += Math.max(0, measure.bars().length - this._numberOfParts);
+    this.propagateNumberOfPartsToMeasures();
   }
 
   appendMeasure(measure: IMeasure) {
     this._measures.push(measure);
     measure.fixedWidth = 'auto';
-    measure.setNumberOfParts(this._numberOfParts);
+    this._numberOfParts += Math.max(0, measure.bars().length - this._numberOfParts);
+    this.propagateNumberOfPartsToMeasures();
   }
 
   deleteMeasure(measure: IMeasure) {

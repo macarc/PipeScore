@@ -33,7 +33,7 @@ export class Settings {
   bpm = 80;
 
   static defaultStaveGap = 65;
-  static defaultHarmonyGap = 40;
+  static defaultHarmonyGap = 50;
   static defaultTuneGap = 100;
 
   fromJSON(o: SavedSettings) {

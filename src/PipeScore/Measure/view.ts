@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
+import { barWidth, drawBar } from '../Bar/view';
 import { barlineWidth, drawBarline } from '../Barline/view';
 import type { Dispatch } from '../Dispatch';
 import { clickBar } from '../Events/Bar';
@@ -23,15 +24,12 @@ import { mouseOverPitch } from '../Events/PitchBoxes';
 import type { GracenoteState } from '../Gracenote/state';
 import type { IMeasure } from '../Measure';
 import type { NoteState } from '../Note/state';
-import {
-  noteHeadWidth,
-} from '../Note/view';
+import { noteHeadWidth } from '../Note/view';
 import { pitchBoxes } from '../PitchBoxes';
 import { drawTimeSignature } from '../TimeSignature/view';
 import { settings } from '../global/settings';
 import width from '../global/width';
 import { setXY } from '../global/xy';
-import { barWidth, drawBar } from '../Bar/view';
 
 interface MeasureProps {
   x: number;
@@ -54,13 +52,7 @@ export function minWidth(measure: IMeasure, previousBar: IMeasure | null) {
     ...measure
       .bars()
       .map((bar, i) =>
-        width.reify(
-          barWidth(
-            bar,
-            previousBar?.bars()[i].lastPitch() || null,
-          ),
-          5
-        )
+        width.reify(barWidth(bar, previousBar?.bars()[i].lastPitch() || null), 5)
       )
   );
   const previousTimeSignature = previousBar?.timeSignature() || null;

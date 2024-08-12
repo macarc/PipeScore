@@ -14,16 +14,23 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import m from 'mithril'
-import { IBar } from ".";
-import { Dispatch } from "../Dispatch";
-import { GracenoteState } from "../Gracenote/state";
-import { NoteState } from "../Note/state";
-import { groupNotes, INote, ITriplet, lastNote, NoteOrTriplet } from '../Note';
-import width, { Width } from '../global/width';
-import { drawNoteGroup, drawTriplet, noteHeadWidth, noteOrTripletWidth, NoteProps, spacerWidth } from '../Note/view';
+import type m from 'mithril';
+import type { IBar } from '.';
+import type { Dispatch } from '../Dispatch';
+import type { GracenoteState } from '../Gracenote/state';
+import { INote, ITriplet, type NoteOrTriplet, groupNotes, lastNote } from '../Note';
+import type { NoteState } from '../Note/state';
+import {
+  type NoteProps,
+  drawNoteGroup,
+  drawTriplet,
+  noteHeadWidth,
+  noteOrTripletWidth,
+  spacerWidth,
+} from '../Note/view';
+import type { Pitch } from '../global/pitch';
 import { nlast } from '../global/utils';
-import { Pitch } from '../global/pitch';
+import width, { type Width } from '../global/width';
 
 interface BarProps {
   x: number;

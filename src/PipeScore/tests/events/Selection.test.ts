@@ -20,4 +20,20 @@ describe('deleteSelection', () => {
     expect(state.score.staves()[1]).toBe(stave1);
     expect(state.score.staves()[2]).toBe(stave3);
   });
+  it('doesn\'t delete a bar if only the harmony stave is selected', async () => {
+    const state = emptyState();
+    state.score.staves()[1].addHarmony();
+    state.selection = ScoreSelection.from(state.score.staves()[1].measures()[1].bars()[1].id, state.score.staves()[1].measures()[1].bars()[1].id, false);
+    expect(state.score.staves()[1].numberOfMeasures()).toBe(4);
+    await deleteSelection()(state);
+    expect(state.score.staves()[1].numberOfMeasures()).toBe(4);
+  });
+  it('doesn\'t delete bars if only harmony bars are selected', async () => {
+    const state = emptyState();
+    state.score.staves()[1].addHarmony();
+    state.selection = ScoreSelection.from(state.score.staves()[1].measures()[0].bars()[1].id, state.score.staves()[1].measures()[2].bars()[1].id, false);
+    expect(state.score.staves()[1].numberOfMeasures()).toBe(4);
+    await deleteSelection()(state);
+    expect(state.score.staves()[1].numberOfMeasures()).toBe(4);
+  });
 });

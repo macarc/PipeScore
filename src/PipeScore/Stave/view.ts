@@ -16,10 +16,10 @@
 
 import m from 'mithril';
 import type { IStave } from '.';
-import { drawMeasure, minWidth, totalFixedWidth } from '../Measure/view';
 import type { Dispatch } from '../Dispatch';
 import type { GracenoteState } from '../Gracenote/state';
 import type { IMeasure } from '../Measure';
+import { drawMeasure, minWidth, totalFixedWidth } from '../Measure/view';
 import type { NoteState } from '../Note/state';
 import { settings } from '../global/settings';
 import { foreach, sum } from '../global/utils';
