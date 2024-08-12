@@ -245,12 +245,16 @@ function getSoundedPitches(
 
   let currentID: ID | null = null;
 
+  let currentGracenoteDuration = 0;
+
   for (let i = 0; i < elementsToPlay.length; i++) {
     const e = elementsToPlay[i];
     if (e instanceof PlaybackGracenote) {
       pitches.push(new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID));
+      currentGracenoteDuration += gracenoteDuration;
     } else if (e instanceof PlaybackNote) {
-      let duration = e.duration;
+      let duration = e.duration - currentGracenoteDuration;
+      currentGracenoteDuration = 0;
       // If subsequent notes are tied, increase this note's duration
       // and skip the next notes
       for (
