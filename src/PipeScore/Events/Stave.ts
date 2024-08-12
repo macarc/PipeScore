@@ -83,7 +83,7 @@ export function addHarmonyStave() {
       return Update.ShouldSave;
     }
     return Update.NoChange;
-  }
+  };
 }
 
 export function addHarmonyStaveToAll() {
@@ -92,7 +92,7 @@ export function addHarmonyStaveToAll() {
       stave.addHarmony();
     }
     return Update.ShouldSave;
-  }
+  };
 }
 
 export function removeHarmonyStave() {
@@ -104,6 +104,5 @@ export function removeHarmonyStave() {
       return Update.ShouldSave;
     }
     return Update.NoChange;
-
-  }
+  };
 }

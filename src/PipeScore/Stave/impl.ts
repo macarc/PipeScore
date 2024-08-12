@@ -37,7 +37,7 @@ export class Stave extends IStave {
     this._measures = measures;
   }
 
-  static empty() {  
+  static empty() {
     return new Stave([]);
   }
 

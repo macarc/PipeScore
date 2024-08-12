@@ -411,7 +411,13 @@ export function drawNoteGroup(notes: INote[], props: NoteProps) {
   return m(
     'g[class=grouped-notes]',
     notes.map((note, index) => {
-      setXY(note.id, gracenoteX(index), x(index) + noteHeadWidth, props.y);
+      setXY(
+        note.id,
+        gracenoteX(index),
+        x(index) + noteHeadWidth,
+        props.y,
+        props.harmonyIndex
+      );
 
       const previousNote = notes[index - 1] || props.previousNote;
 

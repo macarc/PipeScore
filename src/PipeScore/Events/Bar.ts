@@ -102,7 +102,7 @@ export function resetMeasureLength(): ScoreEvent {
 export function clickBar(bar: IBar, mouseEvent: MouseEvent): ScoreEvent {
   return async (state: State) => {
     if (mouseEvent.shiftKey && state.selection instanceof ScoreSelection) {
-      state.selection.extend(bar.id, state.score);
+      state.selection.extend(bar.id);
       return Update.ViewChanged;
     }
     state.selection = ScoreSelection.from(bar.id, bar.id, true, state.score);

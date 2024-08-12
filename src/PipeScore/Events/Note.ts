@@ -250,7 +250,7 @@ export function clickNote(note: INote, event: MouseEvent): ScoreEvent {
         return Update.ShouldSave;
       }
     } else if (state.selection instanceof ScoreSelection && event.shiftKey) {
-      state.selection.extend(note.id, state.score);
+      state.selection.extend(note.id);
       return Update.ViewChanged;
     } else {
       state.justClickedNote = true;

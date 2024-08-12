@@ -60,7 +60,7 @@ export function expandSelection(): ScoreEvent {
     if (state.selection instanceof ScoreSelection) {
       const next = state.score.nextNote(state.selection.end());
       if (next) {
-        state.selection.setEnd(next.id, state.score);
+        state.selection.setEnd(next.id);
         return Update.ViewChanged;
       }
     }
@@ -76,7 +76,7 @@ export function detractSelection(): ScoreEvent {
     ) {
       const prev = state.score.previousNote(state.selection.end());
       if (prev) {
-        state.selection.setEnd(prev.id, state.score);
+        state.selection.setEnd(prev.id);
         return Update.ViewChanged;
       }
     }

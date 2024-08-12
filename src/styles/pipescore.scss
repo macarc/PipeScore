@@ -158,7 +158,8 @@ input[type='range'] {
       height: 1.4rem;
       margin-top: 0;
     }
-    .textual:not(:first-child, .top), .textual.bottom {
+    .textual:not(:first-child, .top),
+    .textual.bottom {
       margin-top: 0.2rem;
     }
 

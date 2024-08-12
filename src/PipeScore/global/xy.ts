@@ -27,6 +27,7 @@ export interface XY {
   afterX: number;
   y: number;
   page: number;
+  harmonyIndex: number;
 }
 
 // itemCoords holds the coordinates of all items on the score
@@ -50,13 +51,20 @@ export function setXYPage(page: number) {
 // The y value will be the stave's y rather than the actual y value of the note
 // The y value of the note can always be calculated from this, but it's harder to do it in reverse
 // Also it makes things like checking order easier
-export function setXY(item: ID, beforeX: number, afterX: number, y: number) {
+export function setXY(
+  item: ID,
+  beforeX: number,
+  afterX: number,
+  y: number,
+  harmonyIndex: number
+) {
   itemCoords.set(item, {
     id: item,
     beforeX,
     afterX,
     y,
     page: currentPage,
+    harmonyIndex,
   });
 }
 

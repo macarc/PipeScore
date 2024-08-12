@@ -62,7 +62,15 @@ import {
   stopPlayback,
 } from '../Events/Playback';
 import { copy, deleteSelection, paste } from '../Events/Selection';
-import { addHarmonyStave, addHarmonyStaveToAll, addStave, deleteStave, removeHarmonyStave, resetStaveGap, setStaveGap } from '../Events/Stave';
+import {
+  addHarmonyStave,
+  addHarmonyStaveToAll,
+  addStave,
+  deleteStave,
+  removeHarmonyStave,
+  resetStaveGap,
+  setStaveGap,
+} from '../Events/Stave';
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
@@ -317,7 +325,9 @@ export default function render(state: UIState): m.Children {
       ? 'textual highlighted top'
       : 'textual top';
   const endBarClass = (type: Barline) =>
-    allBars((bar) => bar.endBarline() === type) ? 'textual highlighted bottom' : 'textual bottom';
+    allBars((bar) => bar.endBarline() === type)
+      ? 'textual highlighted bottom'
+      : 'textual bottom';
 
   const barMenu = [
     m('section', [
@@ -661,7 +671,10 @@ export default function render(state: UIState): m.Children {
           'add-harmony',
           m(
             'button.textual',
-            { disabled: !stavesSelected, onclick: () => state.dispatch(addHarmonyStave()) },
+            {
+              disabled: !stavesSelected,
+              onclick: () => state.dispatch(addHarmonyStave()),
+            },
             text('addHarmony')
           ),
           state.dispatch
@@ -684,12 +697,15 @@ export default function render(state: UIState): m.Children {
           'remove-harmony',
           m(
             'button.text',
-            { disabled: !stavesSelected, onclick: () => state.dispatch(removeHarmonyStave()) },
+            {
+              disabled: !stavesSelected,
+              onclick: () => state.dispatch(removeHarmonyStave()),
+            },
             text('delete')
           ),
           state.dispatch
         ),
-      ])
+      ]),
     ]),
   ];
 

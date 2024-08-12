@@ -35,6 +35,7 @@ export { drawTriplet } from './tripletview';
 export interface NoteProps {
   x: number;
   y: number;
+  harmonyIndex: number;
   boxToLast: number | 'lastnote';
   justAddedNote: boolean;
   previousNote: INote | null;

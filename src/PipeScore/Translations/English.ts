@@ -187,7 +187,7 @@ export const EnglishTextItems: TextItems = {
   harmonyStave: 'Add Harmony',
   addHarmony: 'Add harmony to selected staves',
   addHarmonyToAll: 'Add harmony to all staves',
-  deleteHarmony: 'Delete Harmony',  
+  deleteHarmony: 'Delete Harmony',
   addTune: 'Add Tune',
   modifyTune: 'Modify Tune',
   adjustGapBeforeTune: 'Adjust gap before tune',

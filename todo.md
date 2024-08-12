@@ -20,6 +20,7 @@
 - [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
 - [x] Saving
 - [x] UI
+- [ ] Documentation
 - [ ] Playback
 
 ## Bugs to fix

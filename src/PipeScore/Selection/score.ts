@@ -30,7 +30,7 @@ import type { Pitch } from '../global/pitch';
 import type { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
 import { foreach, last } from '../global/utils';
-import { type XY, getXYRangeForPage, isItemBefore } from '../global/xy';
+import { type XY, getXY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
 
 interface ScoreSelectionProps {
@@ -51,7 +51,7 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   static from(start: ID, end: ID, createdByMouseDown: boolean, score: IScore) {
-    if (ScoreSelection.checkIfInSameHarmonyPart(start, end, score)) {
+    if (ScoreSelection.checkIfInSameHarmonyPart(start, end)) {
       return new ScoreSelection(start, end, createdByMouseDown);
     }
     return null;
@@ -65,32 +65,16 @@ export class ScoreSelection extends DraggableSelection {
     return this._end;
   }
 
-  setEnd(end: ID, score: IScore) {
-    if (ScoreSelection.checkIfInSameHarmonyPart(this._start, this._end, score)) {
+  setEnd(end: ID) {
+    if (ScoreSelection.checkIfInSameHarmonyPart(this._start, this._end)) {
       this._end = end;
     }
   }
 
-  static checkIfInSameHarmonyPart(a: ID, b: ID, score: IScore) {
+  static checkIfInSameHarmonyPart(a: ID, b: ID) {
     if (a === b) return true;
 
-    for (const part of score.bars()) {
-      let foundA = false;
-      let foundB = false;
-      for (const bar of part) {
-        if (bar.hasID(a) || bar.containsNoteWithID(a)) {
-          foundA = true;
-        }
-        if (bar.hasID(b) || bar.containsNoteWithID(b)) {
-          foundB = true;
-        }
-      }
-
-      if (foundA || foundB) {
-        return foundA && foundB;
-      }
-    }
-    return false;
+    return getXY(a)?.harmonyIndex === getXY(b)?.harmonyIndex;
   }
 
   override dragOverPitch(pitch: Pitch, score: IScore) {
@@ -141,7 +125,8 @@ export class ScoreSelection extends DraggableSelection {
       }
     }
 
-    const deletedSomething = notesToDelete.length > 0 || (deleteBars && measuresToDelete.length > 0);
+    const deletedSomething =
+      notesToDelete.length > 0 || (deleteBars && measuresToDelete.length > 0);
 
     // If the next note after the selection is tied, untie it
     if (notesToDelete.length > 0) {
@@ -321,8 +306,8 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   // Extend the current selection to include the item
-  extend(id: ID, score: IScore) {
-    if (ScoreSelection.checkIfInSameHarmonyPart(id, this._start, score)) {
+  extend(id: ID) {
+    if (ScoreSelection.checkIfInSameHarmonyPart(id, this._start)) {
       if (isItemBefore(this._end, id, 'afterX', 'afterX')) {
         this._end = id;
       } else if (isItemBefore(id, this._start, 'beforeX', 'beforeX')) {

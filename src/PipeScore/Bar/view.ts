@@ -138,7 +138,7 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
     'g[class=bar]',
     measure.bars().map((bar, p) => {
       const staveY = props.y + p * settings.harmonyStaveHeight();
-      setXY(bar.id, props.x, props.x + props.width, staveY);
+      setXY(bar.id, props.x, props.x + props.width, staveY, bar.harmonyIndex());
 
       const isHarmony = p > 0;
 
@@ -181,6 +181,7 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
         return {
           x: xOf(index),
           y: staveY,
+          harmonyIndex: bar.harmonyIndex(),
           justAddedNote: props.justAddedNote,
           boxToLast: index === 0 ? xAfterBarline : 'lastnote',
           noteWidth: beatWidth,
@@ -214,6 +215,7 @@ export function drawMeasure(measure: IMeasure, props: BarProps): m.Children {
           ? drawNoteGroup([preview], {
               x: previewX,
               y: staveY,
+              harmonyIndex: bar.harmonyIndex(),
               justAddedNote: props.justAddedNote,
               boxToLast: 'lastnote',
               noteWidth: beatWidth / 2,

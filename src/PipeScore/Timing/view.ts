@@ -108,7 +108,7 @@ function drawLine(
       .staves()
       .findIndex((s) => s.containsID(end.id));
     const stavesBetween = staveEndIndex - staveStartIndex - 1;
-
+    
     return m('g', [
       ...(start.y === end.y
         ? [horizontal(start.beforeX, lastx, start.y), ...verticalLines]

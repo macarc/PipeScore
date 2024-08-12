@@ -90,12 +90,12 @@ export const FrenchDocumentation: Documentation = {
     "Ajouter une nouvelle portée vide sur la ligne suivant la portée sélectionnée. Sélectionner une portée en choisissant n'importe quelle note ou mesure de cette portée.",
   'delete-stave':
     "Supprime la portée actuellement sélectionnée. Sélectionner une portée en choisissant n'importe quelle note ou mesure de cette portée.",
-    'add-harmony':
-      'Add a harmony stave after the currently selected stave. Select a stave by selecting any note or bar in that stave.',
-    'add-harmony-to-all':
-      'Add a harmony stave to all staves in the selected tune. Select a tune by selecting any note or bar in that tune.',
-    'remove-harmony':
-      'Delete the last harmony stave on selected stave(s). Select a stave by selecting any note or bar in that stave.',
+  'add-harmony':
+    'Add a harmony stave after the currently selected stave. Select a stave by selecting any note or bar in that stave.',
+  'add-harmony-to-all':
+    'Add a harmony stave to all staves in the selected tune. Select a tune by selecting any note or bar in that tune.',
+  'remove-harmony':
+    'Delete the last harmony stave on selected stave(s). Select a stave by selecting any note or bar in that stave.',
   'set-stave-gap': "Ajuster l'intervalle par défaut entre toutes les portées.",
   'reset-stave-gap':
     "Réinitialiser la valeur par défaut de l'intervalle entre les portées.",
@@ -192,7 +192,7 @@ export const FrenchTextItems: TextItems = {
   harmonyStave: 'Add Harmony',
   addHarmony: 'Add harmony to selected staves',
   addHarmonyToAll: 'Add harmony to all staves',
-  deleteHarmony: 'Delete Harmony',  
+  deleteHarmony: 'Delete Harmony',
   addTune: 'Ajouter Morceau',
   modifyTune: 'Modifier Morceau',
   adjustGapBeforeTune: 'Ajuster la marge avant le morceau',

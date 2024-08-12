@@ -209,7 +209,11 @@ export class Measure extends IMeasure {
   private backBarline: Barline;
   private _isAnacrusis: boolean;
 
-  constructor(timeSignature: ITimeSignature | undefined, isAnacrusis = false, numberOfParts = 1) {
+  constructor(
+    timeSignature: ITimeSignature | undefined,
+    isAnacrusis = false,
+    numberOfParts = 1
+  ) {
     super();
     this.ts = (timeSignature || new TimeSignature()).copy();
     this._bars = [];
@@ -250,7 +254,7 @@ export class Measure extends IMeasure {
   }
 
   containsID(id: ID): boolean {
-    return this.bars().some((part) => part.hasID(id) || part.containsNoteWithID(id));
+    return this.bars().some((bar) => bar.hasID(id) || bar.containsNoteWithID(id));
   }
 
   isAnacrusis(): boolean {

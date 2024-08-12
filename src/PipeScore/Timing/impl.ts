@@ -155,13 +155,16 @@ export class SecondTiming extends Timing {
       getXY(this.start) === null ||
       getXY(this.middle) === null ||
       getXY(this.end) === null
-    );
+    )
   }
 
   protected noSelfOverlap() {
     return (
       isItemBefore(this.start, this.middle, 'beforeX', 'beforeX') &&
-      isItemBefore(this.middle, this.end, 'beforeX', 'afterX')
+      isItemBefore(this.middle, this.end, 'beforeX', 'afterX') &&
+      getXY(this.start)?.harmonyIndex === 0 &&
+      getXY(this.middle)?.harmonyIndex === 0 &&
+      getXY(this.end)?.harmonyIndex === 0
     );
   }
 
@@ -285,11 +288,18 @@ export class SingleTiming extends Timing {
   }
 
   isDangling() {
-    return getXY(this.start) === null || getXY(this.end) === null;
+    const start = getXY(this.start);
+    const end = getXY(this.end);
+    return (
+      start === null ||
+      end === null ||
+      start.harmonyIndex !== 0 ||
+      end.harmonyIndex !== 0
+    );
   }
 
   protected noSelfOverlap() {
-    return isItemBefore(this.start, this.end, 'beforeX', 'afterX');
+    return isItemBefore(this.start, this.end, 'beforeX', 'afterX') && getXY(this.start)?.harmonyIndex === 0 && getXY(this.end)?.harmonyIndex === 0;
   }
 
   async editText() {
