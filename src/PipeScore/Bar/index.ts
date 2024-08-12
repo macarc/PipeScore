@@ -143,7 +143,11 @@ export function nextNote(id: ID, measures: IMeasure[]) {
   let lastWasIt = false;
   for (const bars of getMeasureBars(measures)) {
     for (const bar of bars) {
-      if (bar.hasID(id)) lastWasIt = true;
+      if (bar.hasID(id)) {
+        lastWasIt = true;
+        // Skip over notes in this bar
+        continue;
+      }
       for (const note of bar.notes()) {
         if (note.isPreview()) continue;
         if (lastWasIt) return note;
