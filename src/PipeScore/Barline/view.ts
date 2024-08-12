@@ -55,7 +55,7 @@ function drawNormal({ x, y, isHarmony, drag, dispatch }: BarlineProps) {
     }),
     m('rect', {
       x: x - dragWidth,
-      y1: top,
+      y: top,
       width: 2 * dragWidth,
       height: height(isHarmony) + stavelineThickness,
       opacity: 0,

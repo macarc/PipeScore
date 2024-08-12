@@ -8,13 +8,15 @@ PipeScore is split into the following components:
 
 - `Gracenote` - single gracenotes, custom embellishments and reactive gracenotes
 - `Note` - notes and triplets.
-- `Bar` - bars and barlines.
+- `Bar` - contains notes.
+- `Measure` - barlines, time signatures, holds multiple bars (if there is a harmony).
 - `TimeSignature`
+- `Barline`
 - `Stave` - staves (staffs) - each line of music is its own stave
 - `Score` - pages
 - `Preview` - the orange note that shows a preview of note/gracenote placement
 - `TextBox`
-- `Selection`
+- `Selection` - all types of selection - barline, gracenote, text, timing, triplets, score (which is notes/bars)
 - `Timing` - timings can be second timings or first/second timings
 - `UI` - the top/side panel, containing user controls
 - `PitchBoxes` - the mechanism for detecting which pitch the mouse is hovering over

@@ -15,8 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 //  A ScoreSelection is any selection of notes / bars
-//  It has considerably more functionality than the other selections
-//  so it goes in its own file
+//  It is considerably more complex than the other types of selection
 
 import m from 'mithril';
 import type { IBar } from '../Bar';
@@ -87,9 +86,12 @@ export class ScoreSelection extends DraggableSelection {
   }
 
   override delete(score: IScore) {
-    let deletingHarmonyIndex = -1;
-    let deleteBars = false;
+    // After the deletion, we want to select the previous item
     const newSelection = this.selectedPrevious(score);
+
+    // If true, delete the measures as well as the notes in them
+    let deleteMeasures = false;
+    let deletingHarmonyIndex = -1;
     const notesToDelete: [INote, IBar][] = [];
     const measuresToDelete: [IMeasure, IStave, ITune][] = [];
 
@@ -105,10 +107,10 @@ export class ScoreSelection extends DraggableSelection {
             }
 
             if (bar.hasID(this._start)) {
-              // Delete bars if whole bar is selected AND it isn't in the harmony stave
+              // Delete measures if whole bar is selected AND it isn't in the harmony stave
               // If it's in a harmony stave, clear bars instead
               if (bar.harmonyIndex() === 0) {
-                deleteBars = true;
+                deleteMeasures = true;
               }
               deletingHarmonyIndex = bar.harmonyIndex();
             }
@@ -127,7 +129,7 @@ export class ScoreSelection extends DraggableSelection {
     }
 
     const deletedSomething =
-      notesToDelete.length > 0 || (deleteBars && measuresToDelete.length > 0);
+      notesToDelete.length > 0 || (deleteMeasures && measuresToDelete.length > 0);
 
     // If the next note after the selection is tied, untie it
     if (notesToDelete.length > 0) {
@@ -142,13 +144,14 @@ export class ScoreSelection extends DraggableSelection {
       bar.deleteNote(note);
     }
 
-    if (deleteBars) {
+    if (deleteMeasures) {
       for (const [measure, stave, tune] of measuresToDelete) {
         stave.deleteMeasure(measure);
         if (stave.numberOfMeasures() === 0) tune.deleteStave(stave);
       }
     }
 
+    // Return the updated selection after deleting
     if (!deletedSomething) {
       return this;
     }

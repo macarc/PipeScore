@@ -27,7 +27,6 @@
 
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
-- [ ] Can't drag barlines well when there's stuff in the bar
 - [ ] Deleting multiple staves doesn't preserve gap on first one
 
 Mobile
@@ -244,3 +243,4 @@ Mobile
 - [x] Move multiple bars to next/previous line easily
 - [x] Can't move middle/end of timing closer than 1 bar towards front
 - [x] Add back in gaps after sentences in help documentation
+- [x] Can't drag barlines well when there's stuff in the bar
