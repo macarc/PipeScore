@@ -20,7 +20,7 @@ import type { SavedNoteOrTriplet } from '../SavedModel';
 import { GracenoteSelection } from '../Selection/gracenote';
 import { ScoreSelection } from '../Selection/score';
 import type { State } from '../State';
-import { splitOn } from '../global/utils';
+import { splitOn, timeout } from '../global/utils';
 import { type ScoreEvent, Update } from './types';
 
 export function moveLeft(): ScoreEvent {
@@ -119,10 +119,8 @@ export function deleteSelection(): ScoreEvent {
 function browserSupportsCopying() {
   // Notably, Firefox doesn't support this
   return (
-    navigator &&
-    navigator.clipboard &&
-    navigator.clipboard.writeText !== undefined &&
-    navigator.clipboard.readText !== undefined
+    navigator?.clipboard?.writeText !== undefined &&
+    navigator?.clipboard?.readText !== undefined
   );
 }
 
@@ -147,6 +145,7 @@ export function copy(): ScoreEvent {
           notes: noteList,
         })
       );
+      state.clipboard = noteList;
     } else {
       console.log(
         "Browser doesn't support copying, falling back to PipeScore clipboard"
@@ -158,7 +157,6 @@ export function copy(): ScoreEvent {
 }
 
 function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
-  console.log('pasting', notes);
   const copiedNotes = splitOn(
     'bar-break',
     notes
@@ -217,7 +215,11 @@ export function paste(): ScoreEvent {
   return async (state: State) => {
     if (browserSupportsCopying()) {
       try {
-        const text = await navigator.clipboard.readText();
+        // Firefox fails to readText(), but it also blocks here until next
+        // user interaction. Hence the timeout to ascertain whether it succeeded
+        // (without having to wait)
+        const text = await timeout(navigator.clipboard.readText(), 100);
+        if (text === null) throw new Error("Couldn't read clipboard.");
         const pasted = JSON.parse(text);
         if (pasted?.['data-type'] === 'pipescore-copied-notes') {
           const noteList = pasted.notes as (SavedNoteOrTriplet | 'bar-break')[];

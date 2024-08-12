@@ -111,3 +111,11 @@ export function svgCoords(event: MouseEvent): SvgPt | null {
   }
   return null;
 }
+
+export function sleep(length_in_ms: number): Promise<null> {
+  return new Promise((res) => setTimeout(res, length_in_ms));
+}
+
+export function timeout<A>(promise: Promise<A>, timeout: number): Promise<A | null> {
+  return Promise.any([promise, sleep(timeout)]);
+}

@@ -16,9 +16,6 @@
 
 import { onSafari } from '../global/browser';
 
-export function sleep(length_in_ms: number): Promise<void> {
-  return new Promise((res) => setTimeout(res, length_in_ms));
-}
 export class Sample {
   buffer: AudioBuffer | null = null;
   name: string;

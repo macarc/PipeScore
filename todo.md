@@ -15,12 +15,13 @@
 ## Harmony stave bug list
 
 - [x] Selecting doesn't select bar
-- [ ] Copying/pasting in Firefox
+- [x] Copying/pasting in Firefox
 - [x] Updating .measure() references in copy/paste
 - [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
 - [x] Saving
 - [x] UI
 - [ ] Documentation
+- [x] Check it doesn't destroy old scores
 - [ ] Playback
 
 ## Bugs to fix
