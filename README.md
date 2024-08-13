@@ -2,7 +2,9 @@
 
 ## A bagpipe notation app
 
-PipeScore is designed around reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
+PipeScore is a free, easy-to-use, online bagpipe notation application. [Use it here!](https://pipescore.web.app)
+
+PipeScore's unique feature is reactive gracenotes - pipe embellishments that automatically update when you change the note that they are on. This means gracenotes can be added in sets (e.g. 'add a doubling to this note') rather than the user having to individually pick the correct one.
 
 ![GIF of reactive gracenote](dragging-gracenote.gif)
 
@@ -10,30 +12,30 @@ PipeScore is designed around reactive gracenotes - pipe embellishments that auto
 
 PipeScore is powered by:
 
-- [typescript](https://www.typescriptlang.org/)
-- [mithril](https://mithril.js.org/) for rendering
+- [typescript](https://www.typescriptlang.org)
+- [mithril](https://mithril.js.org) for rendering
 - [firebase](https://firebase.google.com) for saving, user accounts, and hosting, via the following libraries:
   - [firebase-auth-lite](https://github.com/samuelgozi/firebase-auth-lite)
   - [firebase-firestore-lite](https://github.com/samuelgozi/firebase-firestore-lite)
 - [esbuild](https://github.com/evanw/esbuild) for building
-- [biome](https://biomejs.dev/) for linting
+- [biome](https://biomejs.dev) for linting
 - [prettier](https://prettier.io) for code formatting
 
 ## Features
 
 - Reactive embellishments - a faster way to input gracenotes
-- Built-in documentation
-- Undo / Redo
 - Automatic note grouping and spacing
 - Sharing using URLs
 - Playback
-- Parts, repeats, second timings
 - Ties, triplets, time signatures, text boxes
-- Harmony staves
+- Parts, repeats, second timings
+- Harmonies
 - Multiple tunes and pages
+- Undo / Redo
 - Importing/exporting from the Bagpipe Music Writer format
 - Exporting to PDF
 - Cloud saving, downloading and uploading of files
+- Built-in documentation, as well as a comprehensive help page
 - Multi-language interface (currently English and French)
 - Intuitive user interface for all of the above
 - ~16000 lines of code (including tests)

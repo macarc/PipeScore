@@ -90,8 +90,7 @@ export const EnglishDocumentation: Documentation = {
     'Delete the currently selected stave. Select a stave by selecting any note or bar in that stave.',
   'add-harmony':
     'Add a harmony part to the currently selected stave. Select a stave by selecting any note or bar in that stave.',
-  'add-harmony-to-all':
-    'Add a harmony part to all staves.',
+  'add-harmony-to-all': 'Add a harmony part to all staves.',
   'remove-harmony':
     'Delete the harmony part on the selected staves. Select a stave by selecting any note or bar in that stave. If there are multiple harmonies on the stave, remove the last one.',
   'set-stave-gap': 'Adjust the default gap between all staves.',
