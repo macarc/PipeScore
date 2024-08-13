@@ -12,25 +12,13 @@
 - [ ] Snapping for text box dragging
 - [x] View-only mode for mobile
 
-## Harmony stave bug list
-
-- [x] Selecting doesn't select bar
-- [x] Copying/pasting in Firefox
-- [x] Updating .measure() references in copy/paste
-- [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
-- [x] Saving
-- [x] UI
-- [x] Documentation
-- [x] Check it doesn't destroy old scores
-- [x] Playback
-
 ## Bugs to fix
 
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
 - [ ] Deleting multiple staves doesn't preserve gap on first one
 
-Mobile
+## Mobile
 
 - [x] Shouldn't be able to create a new score
 - [x] BPM slider not updating
@@ -245,3 +233,15 @@ Mobile
 - [x] Can't move middle/end of timing closer than 1 bar towards front
 - [x] Add back in gaps after sentences in help documentation
 - [x] Can't drag barlines well when there's stuff in the bar
+
+## Harmony stave bug list
+
+- [x] Selecting doesn't select bar
+- [x] Copying/pasting in Firefox
+- [x] Updating .measure() references in copy/paste
+- [x] Check fix to measures() (before, if you selected from bar to note, then changing e.g. barline would affect all bars afterwards)
+- [x] Saving
+- [x] UI
+- [x] Documentation
+- [x] Check it doesn't destroy old scores
+- [x] Playback
