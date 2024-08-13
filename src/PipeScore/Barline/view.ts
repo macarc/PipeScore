@@ -36,6 +36,8 @@ function yStart(y: number, isHarmony: boolean) {
 }
 
 const lineOffset = 6;
+const circleRadius = 2;
+const circleXOffset = 12;
 const thickLineWidth = 3;
 const dragWidth = 2;
 
@@ -67,10 +69,8 @@ function drawNormal({ x, y, isHarmony, drag, dispatch }: BarlineProps) {
 
 function drawRepeat(props: BarlineProps) {
   const { x, y, atStart } = props;
-  const circleXOffset = 10;
   const topCircleY = y + settings.lineHeightOf(1.5);
   const bottomCircleY = y + settings.lineHeightOf(2.5);
-  const circleRadius = 2;
   const cx = atStart ? x + circleXOffset : x - circleXOffset;
   return m('g[class=barline-repeat]', [
     drawPart(props),
@@ -90,7 +90,7 @@ function drawRepeat(props: BarlineProps) {
 }
 
 function drawPart({ x, y, atStart, isHarmony, drag, dispatch }: BarlineProps) {
-  const thickX = atStart ? x : x - thickLineWidth / 2;
+  const thickX = x - thickLineWidth / 2;
   const thinX = atStart ? x + lineOffset : x - lineOffset;
   const top = yStart(y, isHarmony);
   return m('g[class=barline-end]', [
