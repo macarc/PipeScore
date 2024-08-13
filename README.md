@@ -8,8 +8,6 @@ PipeScore is designed around reactive gracenotes - pipe embellishments that auto
 
 [Watch the video](https://pipescore.web.app/help) for an introduction to using PipeScore.
 
-It is currently under development - see `todo.md` for a rough roadmap.
-
 PipeScore is powered by:
 
 - [typescript](https://www.typescriptlang.org/)
