@@ -173,24 +173,18 @@ function pasteNotes(state: State, notes: (SavedNoteOrTriplet | 'bar-break')[]) {
         let startedPasting = false;
 
         for (const bar of part) {
-          if (bar.hasID(startingBar.id)) {
-            startedPasting = true;
-            if (bar.hasID(id)) {
-              const notesToDelete = bar.notes();
-              for (const note of notesToDelete) {
-                bar.deleteNote(note);
-              }
-            }
-          } else if (startedPasting) {
-            // Only delete the current notes if we aren't on the first bar
-            // since we should append to the first, then replace for the rest
-            bar.clearNotes();
-          }
+          const isFirstPastingBar = bar.hasID(startingBar.id);
+          startedPasting ||= isFirstPastingBar;
 
           if (startedPasting) {
-            const noteToPaste = copiedNotes.shift();
-            if (noteToPaste) {
-              bar.appendNotes(noteToPaste);
+            const notesToPaste = copiedNotes.shift();
+            if (notesToPaste) {
+              // Only delete the current notes if we aren't on the first bar
+              // since we should append to the first, then replace for the rest
+              if (bar.hasID(id) || !isFirstPastingBar) {
+                bar.clearNotes();
+              }
+              bar.appendNotes(notesToPaste);
             } else {
               break;
             }
