@@ -263,24 +263,36 @@ export function clickNote(note: INote, event: MouseEvent): ScoreEvent {
 
 export function setInputLength(length: Duration): ScoreEvent {
   return async (state: State) => {
+    // If notes are selected, then change their length
+    // If inputting same length, stop inputting
+    // If inputting different length, change length
+    // If none of the above, start inputting length
+
+    let changed = false;
+
     if (state.selection instanceof ScoreSelection) {
-      const notes = state.selection.notesAndTriplets(state.score);
-      if (notes.length > 0) {
-        for (const note of notes.flat()) {
-          note.setLength(new NoteLength(length));
-        }
-      } else {
-        stopInputMode(state);
-        state.preview = new NotePreview(new NoteLength(length));
+      const selectedNotes = state.selection.notesAndTriplets(state.score);
+      for (const note of selectedNotes.flat()) {
+        note.setLength(new NoteLength(length));
       }
-    } else if (state.preview instanceof NotePreview) {
+
+      if (selectedNotes.length > 0) changed = true;
+    }
+
+    if (state.preview instanceof NotePreview) {
       if (state.preview.length().sameNoteLengthName(length)) {
         stopInputMode(state);
       } else {
         state.preview.setLength(new NoteLength(length));
       }
-    } else {
-      state.selection = null;
+
+      changed = true;
+    }
+
+    if (!changed) {
+      // Clear non-score selections in preparation for adding notes to the score
+      if (!(state.selection instanceof ScoreSelection)) state.selection = null;
+
       stopInputMode(state);
       state.preview = new NotePreview(new NoteLength(length));
     }
