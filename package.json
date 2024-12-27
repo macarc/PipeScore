@@ -6,9 +6,9 @@
   "scripts": {
     "deploy": "firebase deploy",
     "test": "bun test",
-    "dev": "python server.py",
+    "dev": "python3 server.py",
     "watch": "esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts src/ImportBWW/importbww.ts src/TranslationEditor/translationeditor.ts src/Base/base.ts --bundle --watch --outdir=public/dist",
-    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts src/ImportBWW/importbww.ts src/TranslationEditor/translationeditor.ts src/Base/base.ts --bundle --minify --outdir=public/dist; python build; sass src/styles/:public/styles",
+    "build": "rm -r public/dist/*; esbuild src/PipeScore/PipeScore.ts src/Login/login.ts src/PasswordReset/passwordreset.ts src/Scores/scores.ts src/ImportBWW/importbww.ts src/TranslationEditor/translationeditor.ts src/Base/base.ts --bundle --minify --outdir=public/dist; python3 build; sass src/styles/:public/styles",
     "lint": "prettier --write .; eslint src --ext .ts; biome check --write src"
   },
   "author": "macarc",

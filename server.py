@@ -3,7 +3,7 @@
 # This script copies the behaviour of the configuration in
 # firebase.json, but allows it to run locally without permissions
 
-from http.server import *
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 import re
 
 
@@ -27,9 +27,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
 
 def run():
-    addr = ("", 5000)
+    addr = ("", 8000)
     server = HTTPServer(addr, RequestHandler)
-    print("Serving on localhost:5000")
+    print("Serving on localhost:8000")
     server.serve_forever()
 
 

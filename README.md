@@ -50,14 +50,16 @@ See `src/PipeScore/README.md` for documentation.
 
 You will need:
 
-- `python3` (and `pip3`)
+- `python3` (along with the `svgwrite` package)
 - `npm`
+- `bun` (for faster tests)
 
-To install dependencies, run:
+Either install these manually, or run `nix-shell` to get the development environment.
+
+To install node dependencies, run:
 
 ```bash
 $ npm install            # install JS dependencies
-$ pip3 install svgwrite  # install svgwrite, for building icons
 ```
 
 To build JS files, icons and HTML pages, run:
@@ -72,6 +74,12 @@ Run the following commands to run locally, ideally in separate terminals:
 $ npm run dev       # run the development server
 $ npm run watch     # rebuild JS on changes
 $ npx tsc --watch   # typecheck
+```
+
+To run tests, use:
+
+```bash
+$ bun test
 ```
 
 To build a production JS bundle run:

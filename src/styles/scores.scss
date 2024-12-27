@@ -1,4 +1,4 @@
-@import './spinner.scss';
+@use './spinner.scss';
 
 button {
   font-size: 1rem;
@@ -33,13 +33,4 @@ table {
 }
 .td-name {
   width: 50vw;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
