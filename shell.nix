@@ -6,8 +6,4 @@ pkgs.mkShellNoCC {
     bun
     git
   ];
-
-  shellHook = ''
-    export TERM=xterm-256color
-  '';
 }
