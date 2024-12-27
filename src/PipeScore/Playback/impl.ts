@@ -78,7 +78,7 @@ class SoundedPitch {
       dispatch(updatePlaybackCursor(this.id));
       this.gain.gain.setValueAtTime(1, 0);
     } else {
-      this.gain.gain.setValueAtTime(0.4, 0);
+      this.gain.gain.setValueAtTime(settings.harmonyVolume, 0);
     }
 
     const duration = (1000 * this.duration * 60) / bpm;
