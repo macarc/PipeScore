@@ -117,6 +117,7 @@ export const EnglishDocumentation: Documentation = {
     'Play the currently selected part of the score, repeating forever.',
   stop: 'Stop the playback.',
   'playback-speed': 'Control the playback speed (further right is faster).',
+  'harmony-volume': 'Control how loud the harmony plays (further right is louder).',
   export: 'Export the score to a PDF file, that may then be shared or printed.',
   'export-bww':
     "Export the score to a BWW file, that may be opened in other applications. This is currently very new, and won't work for most scores.",
@@ -203,8 +204,9 @@ export const EnglishTextItems: TextItems = {
   playFromSelection: 'Play from Selection',
   playLoopedSelection: 'Play looped Selection',
   stop: 'Stop',
-  speed: 'Speed',
+  playbackOptions: 'Playback Options',
   beatsPerMinute: 'beats per minute',
+  harmonyVolume: 'harmony volume',
   orientation: 'Orientation',
   landscape: 'Landscape',
   portrait: 'Portrait',

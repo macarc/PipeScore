@@ -84,6 +84,7 @@ export type Documentation = {
   'play-looping-selection': string;
   stop: string;
   'playback-speed': string;
+  'harmony-volume': string;
   export: string;
   'export-bww': string;
   download: string;
@@ -165,8 +166,9 @@ export type TextItems = {
   playFromSelection: string;
   playLoopedSelection: string;
   stop: string;
-  speed: string;
+  playbackOptions: string;
   beatsPerMinute: string;
+  harmonyVolume: string;
   orientation: string;
   landscape: string;
   portrait: string;

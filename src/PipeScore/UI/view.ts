@@ -55,6 +55,7 @@ import {
 } from '../Events/Note';
 import {
   playbackLoopingSelection,
+  setHarmonyVolume,
   setPlaybackBpm,
   startPlayback,
   startPlaybackAtSelection,
@@ -971,7 +972,7 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', text('speed')),
+      m('h2', text('playbackOptions')),
       m('div.section-content', [
         help(
           'playback-speed',
@@ -1000,6 +1001,26 @@ export default function render(state: UIState): m.Children {
                 ),
             }),
             text('beatsPerMinute'),
+          ]),
+          state.dispatch
+        ),
+        help(
+          'harmony-volume',
+          m('label#harmony-volume-label', [
+            m('input', {
+              type: 'range',
+              min: '0',
+              max: '175',
+              step: '1',
+              value: settings.harmonyVolume * 100,
+              oninput: (e: InputEvent) =>
+                state.dispatch(
+                  setHarmonyVolume(
+                    Number.parseInt((e.target as HTMLInputElement).value)
+                  )
+                ),
+            }),
+            text('harmonyVolume'),
           ]),
           state.dispatch
         ),
@@ -1352,7 +1373,9 @@ function mobileView(state: UIState): m.Children {
             value: settings.bpm,
             oninput: (e: InputEvent) =>
               state.dispatch(
-                setPlaybackBpm(Number.parseInt((e.target as HTMLInputElement).value))
+                setHarmonyVolume(
+                  Number.parseInt((e.target as HTMLInputElement).value)
+                )
               ),
           }),
           help(
@@ -1363,7 +1386,7 @@ function mobileView(state: UIState): m.Children {
                 value: settings.bpm,
                 oninput: (e: InputEvent) =>
                   state.dispatch(
-                    setPlaybackBpm(
+                    setHarmonyVolume(
                       Number.parseInt((e.target as HTMLInputElement).value)
                     )
                   ),

@@ -122,6 +122,7 @@ export const FrenchDocumentation: Documentation = {
   stop: 'Arrêter la lecture.',
   'playback-speed':
     "Contrôler la vitesse de lecture (plus c'est à droite, plus c'est rapide).",
+  'harmony-volume': 'Control how loud the harmony plays (further right is louder).',
   export:
     'Exporter la partition vers un fichier PDF, qui peut ensuite être partagé ou imprimé.',
   'export-bww':
@@ -209,8 +210,9 @@ export const FrenchTextItems: TextItems = {
   playFromSelection: 'Jouer de la Sélection',
   playLoopedSelection: 'Jouer Sélection en Boucle',
   stop: 'Arrêter',
-  speed: 'Vitesse',
+  playbackOptions: 'Playback Options',
   beatsPerMinute: 'battements par minute',
+  harmonyVolume: 'harmony volume',
   orientation: 'Orientation',
   landscape: 'Paysage',
   portrait: 'Portrait',

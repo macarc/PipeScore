@@ -210,6 +210,7 @@ export type SavedSettings = {
   harmonyGap: number;
   margin: number;
   gapAfterGracenote: number;
+  harmonyVolume: number;
 };
 
 export type DeprecatedSavedNoteOrTriplet =

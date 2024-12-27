@@ -78,7 +78,14 @@ export function stopPlayback(): ScoreEvent {
 export function setPlaybackBpm(bpm: number): ScoreEvent {
   return async () => {
     settings.bpm = bpm;
-    return Update.ViewChanged;
+    return Update.ShouldSave;
+  };
+}
+
+export function setHarmonyVolume(volume: number): ScoreEvent {
+  return async () => {
+    settings.harmonyVolume = volume / 100;
+    return Update.ShouldSave;
   };
 }
 

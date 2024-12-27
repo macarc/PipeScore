@@ -25,6 +25,7 @@ const a4ShortSide = 210; // in mm
 export class Settings {
   staveGap = Settings.defaultStaveGap;
   harmonyGap = Settings.defaultHarmonyGap;
+  harmonyVolume = Settings.defaultHarmonyVolume;
   lineGap = 7;
   margin = 80;
   pageLongSideLength = a4LongSide * 5;
@@ -35,6 +36,7 @@ export class Settings {
   static defaultStaveGap = 65;
   static defaultHarmonyGap = 50;
   static defaultTuneGap = 100;
+  static defaultHarmonyVolume = 0.5;
 
   fromJSON(o: SavedSettings) {
     this.staveGap = o.staveGap;
@@ -43,6 +45,7 @@ export class Settings {
     this.harmonyGap = o.harmonyGap || Settings.defaultHarmonyGap;
     this.bpm = o.bpm || 80;
     this.gapAfterGracenote = o.gapAfterGracenote || 7;
+    this.harmonyVolume = o.harmonyVolume || Settings.defaultHarmonyVolume;
   }
   toJSON(): SavedSettings {
     return {
@@ -52,6 +55,7 @@ export class Settings {
       margin: this.margin,
       bpm: this.bpm,
       gapAfterGracenote: this.gapAfterGracenote,
+      harmonyVolume: this.harmonyVolume,
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {
