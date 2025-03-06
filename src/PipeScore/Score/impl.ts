@@ -22,7 +22,7 @@ import type { IBar } from '../Bar';
 import { Update } from '../Events/types';
 import { nextBar, nextNote, previousBar, previousNote } from '../Measure';
 import type { NoteOrTriplet } from '../Note';
-import type { Playback } from '../Playback';
+import type { PlaybackMeasure } from '../Playback';
 import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
 import type { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
@@ -427,13 +427,17 @@ export class Score extends IScore {
     return false;
   }
 
-  play(): Playback[][] {
-    return this.bars().map((part) =>
-      part.flatMap((bar, i) => bar.play(part[i - 1] || null))
+  play(): PlaybackMeasure[] {
+    return this.measures().map((measure, i, measures) =>
+      measure.play(measures[i - 1] || null)
     );
+    // TODO : REMOVE
+    // return this.bars().map((part) =>
+    //   part.flatMap((bar, i) => bar.play(part[i - 1] || null))
+    // );
   }
 
-  playbackTimings(elements: Playback[]) {
+  playbackTimings(elements: PlaybackMeasure[]) {
     return removeNulls(this._timings.map((st) => st.play(elements)));
   }
 }

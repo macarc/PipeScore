@@ -23,9 +23,17 @@ export function capitalise(st: string) {
   return st[0].toUpperCase() + st.slice(1);
 }
 
+export function passert(cond: boolean, ...msg: object[]): cond is true {
+  if (!cond) {
+    console.error('Error occurred', ...msg);
+  }
+
+  return cond;
+}
+
 export function isRoughlyZero(i: number) {
   // Beautiful code to deal with floating point errors
-  return i < 0.000001;
+  return Math.abs(i) < 0.000001;
 }
 
 export function log<A>(value: A): A {

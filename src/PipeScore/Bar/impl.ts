@@ -25,12 +25,7 @@ import {
   noteToJSON,
 } from '../Note';
 import { noteFromJSON, notesToTriplet } from '../Note/impl';
-import {
-  type Playback,
-  PlaybackNote,
-  PlaybackObject,
-  PlaybackRepeat,
-} from '../Playback';
+import { type PlaybackItem, PlaybackNote, PlaybackObject } from '../Playback';
 import type { SavedBar } from '../SavedModel';
 import { type ID, genID } from '../global/id';
 import { last } from '../global/utils';
@@ -190,16 +185,9 @@ export class Bar extends IBar {
     return this._notes.filter((note) => note !== this.previewNote);
   }
 
-  play(previous: Bar | null): Playback[] {
-    const start = this.measure().startBarline().isRepeat()
-      ? [new PlaybackRepeat('start')]
-      : [];
-    const end = this.measure().endBarline().isRepeat()
-      ? [new PlaybackRepeat('end')]
-      : [];
+  play(previous: Bar | null): PlaybackItem[] {
     const beatRatio = 1 / this.measure().timeSignature().crotchetsPerBeat();
     return [
-      ...start,
       new PlaybackObject('start', this.id),
       ...this.notesAndTriplets().flatMap((note, i) =>
         note
@@ -215,7 +203,6 @@ export class Bar extends IBar {
           )
       ),
       new PlaybackObject('end', this.id),
-      ...end,
     ];
   }
 }

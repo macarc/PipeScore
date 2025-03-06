@@ -18,9 +18,6 @@
 //  loading and playing audio samples.
 //
 //  AudioResource handles loading the sample, Sample handles playing.
-//  Splitting it up like this means that you can play the same AudioResource
-//  multiple times by creating multiple Samples
-//  (with AudioResource.createSample()).
 
 import { onSafari } from '../global/browser';
 
@@ -67,6 +64,14 @@ export class AudioResource {
   }
 
   /**
+   * Get length of internal audio buffer (i.e. the resource duration) in seconds.
+   * @returns buffer duration in seconds
+   */
+  duration() {
+    return this.buffer?.duration || 0;
+  }
+
+  /**
    * Create an AudioBufferSourceNode with the contents of the resource's
    * buffer. Call .load() first!
    * @param context audio context in which to create the source
@@ -81,13 +86,11 @@ export class AudioResource {
 
 /**
  * Sample turns an AudioResource into a playable object.
- *
- * It can only be played once though!
- * TODO : check this ^ since I think we play multiple times in Drone.play()
  */
 export class Sample {
   private context: AudioContext;
-  private source: AudioBufferSourceNode;
+  private source: AudioBufferSourceNode | null = null;
+  private resource: AudioResource;
 
   /**
    * Create a Sample.
@@ -95,16 +98,16 @@ export class Sample {
    * @param ctx audio context with which to play sample
    */
   constructor(audio: AudioResource, ctx: AudioContext) {
-    this.source = audio.createSource(ctx);
+    this.resource = audio;
     this.context = ctx;
   }
 
   /**
-   * Get length of sample.
+   * Get duration of sample.
    * @returns length of sample in seconds
    */
-  length() {
-    return this.source.buffer?.duration || 0;
+  duration() {
+    return this.resource.duration();
   }
 
   /**
@@ -115,6 +118,8 @@ export class Sample {
     const gainNode = this.context.createGain();
     gainNode.gain.setValueAtTime(gain, 0);
 
+    this.source?.stop();
+    this.source = this.resource.createSource(this.context);
     this.source.connect(gainNode).connect(this.context.destination);
     this.source.start(0);
   }

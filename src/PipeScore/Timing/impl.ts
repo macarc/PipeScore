@@ -20,7 +20,12 @@
 
 import m from 'mithril';
 import { ITiming } from '.';
-import { type Playback, PlaybackObject, PlaybackSecondTiming } from '../Playback';
+import {
+  PlaybackIndex,
+  type PlaybackMeasure,
+  PlaybackObject,
+  PlaybackSecondTiming,
+} from '../Playback';
 import type {
   SavedSecondTiming,
   SavedSingleTiming,
@@ -202,24 +207,42 @@ export class SecondTiming extends Timing {
     }
   }
 
-  play(elements: Playback[]): PlaybackSecondTiming {
-    let start_index = -1;
-    let middle_index = -1;
-    let end_index = -1;
-    for (let i = 0; i < elements.length; i++) {
-      const n = elements[i];
-      if (n instanceof PlaybackObject) {
-        if (n.type === 'object-start' && n.id === this.start) {
-          start_index = i;
-        } else if (n.type === 'object-start' && n.id === this.middle) {
-          middle_index = i;
-        } else if (n.type === 'object-end' && n.id === this.end) {
-          end_index = i;
-          break;
+  play(measures: PlaybackMeasure[]): PlaybackSecondTiming | null {
+    let startIndex: PlaybackIndex | null = null;
+    let middleIndex: PlaybackIndex | null = null;
+    let endIndex: PlaybackIndex | null = null;
+
+    for (let measureIndex = 0; measureIndex < measures.length; measureIndex++) {
+      const parts = measures[measureIndex].parts;
+      for (let partIndex = 0; partIndex < parts.length; partIndex++) {
+        const part = parts[partIndex];
+        for (let itemIndex = 0; itemIndex < part.length; itemIndex++) {
+          const item = part[itemIndex];
+          if (item instanceof PlaybackObject) {
+            if (item.type === 'object-start' && item.id === this.start) {
+              const timeToItem = measures[measureIndex].timeTo(partIndex, itemIndex);
+              startIndex = new PlaybackIndex(measureIndex, timeToItem);
+            } else if (item.type === 'object-start' && item.id === this.middle) {
+              const timeToItem = measures[measureIndex].timeTo(partIndex, itemIndex);
+              middleIndex = new PlaybackIndex(measureIndex, timeToItem);
+            } else if (item.type === 'object-end' && item.id === this.end) {
+              const timeToItem = measures[measureIndex].timeToAfter(
+                partIndex,
+                itemIndex
+              );
+              endIndex = new PlaybackIndex(measureIndex, timeToItem);
+            }
+          }
         }
       }
     }
-    return new PlaybackSecondTiming(start_index, middle_index, end_index);
+
+    if (startIndex === null || middleIndex === null || endIndex === null) {
+      console.error("Didn't find playback measure", this);
+      return null;
+    }
+
+    return new PlaybackSecondTiming(startIndex, middleIndex, endIndex);
   }
 
   lines() {

@@ -24,7 +24,9 @@
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
 - [ ] Deleting multiple staves doesn't preserve gap on first one
-- [ ] Do multiple Samples need to be created for the same AudioResource?
+- [x] Do multiple Samples need to be created for the same AudioResource?
+- [ ] Have to move mouse after starting playback to enable stop button
+- [ ] Use passert everywhere
 
 ## Mobile
 

@@ -16,6 +16,7 @@
 
 import type { ID } from '../global/id';
 import type { Pitch } from '../global/pitch';
+import { sum } from '../global/utils';
 
 export class PlaybackObject {
   type: 'object-start' | 'object-end';
@@ -49,37 +50,112 @@ export class PlaybackGracenote {
   }
 }
 
-export class PlaybackRepeat {
-  type: 'repeat-start' | 'repeat-end';
+export type PlaybackItem = PlaybackObject | PlaybackNote | PlaybackGracenote;
 
-  constructor(position: 'start' | 'end') {
-    this.type = position === 'start' ? 'repeat-start' : 'repeat-end';
+export function itemLength(item: PlaybackItem) {
+  return item instanceof PlaybackNote ? item.duration : 0;
+}
+
+function itemsLength(items: PlaybackItem[]) {
+  return sum(items.map(itemLength));
+}
+
+export class PlaybackMeasure {
+  public parts: PlaybackItem[][];
+  public repeatStart: boolean;
+  public repeatEnd: boolean;
+
+  constructor(items: PlaybackItem[][], repeatStart: boolean, repeatEnd: boolean) {
+    this.parts = items;
+    this.repeatStart = repeatStart;
+    this.repeatEnd = repeatEnd;
+  }
+
+  /**
+   * Get length of measure in beats
+   * @returns maximum length of the parts in the measure, in beats
+   */
+  length() {
+    return Math.max(...this.parts.map(itemsLength));
+  }
+  /**
+   * Get length of main part (first part) of measure in beats
+   * @returns length of the main part of the measure, in beats
+   */
+  lengthOfMainPart() {
+    return itemsLength(this.parts[0]);
+  }
+
+  /**
+   * Get length of part up to an item in beats.
+   * @param partIndex index into .parts
+   * @param itemIndex index into .parts[partIndex]
+   * @returns length up to (but not including) .parts[partIndex], in beats
+   */
+  timeTo(partIndex: number, itemIndex: number) {
+    return itemsLength(this.parts[partIndex].slice(0, itemIndex));
+  }
+
+  /**
+   * Get length of part up to and including an item in beats.
+   * @param partIndex index into .parts
+   * @param itemIndex index into .parts[partIndex]
+   * @returns length up to (and including) .parts[partIndex], in beats
+   */
+  timeToAfter(partIndex: number, itemIndex: number) {
+    return itemsLength(this.parts[partIndex].slice(0, itemIndex + 1));
   }
 }
 
-export type Playback =
-  | PlaybackObject
-  | PlaybackRepeat
-  | PlaybackNote
-  | PlaybackGracenote;
+export class PlaybackIndex {
+  public measureIndex: number;
+  public timeOffset: number;
+
+  constructor(measureIndex: number, timeOffset: number) {
+    this.measureIndex = measureIndex;
+    this.timeOffset = timeOffset;
+  }
+
+  isBefore(other: PlaybackIndex) {
+    return (
+      this.measureIndex < other.measureIndex ||
+      (this.measureIndex === other.measureIndex &&
+        this.timeOffset < other.timeOffset)
+    );
+  }
+
+  isAtOrBefore(other: PlaybackIndex) {
+    return (
+      this.measureIndex < other.measureIndex ||
+      (this.measureIndex === other.measureIndex &&
+        this.timeOffset <= other.timeOffset)
+    );
+  }
+
+  incrementByItem(item: PlaybackItem) {
+    return new PlaybackIndex(this.measureIndex, this.timeOffset + itemLength(item));
+  }
+}
 
 export class PlaybackSecondTiming {
-  start: number;
-  middle: number;
-  end: number;
+  start: PlaybackIndex;
+  middle: PlaybackIndex;
+  end: PlaybackIndex;
 
-  constructor(start: number, middle: number, end: number) {
+  constructor(start: PlaybackIndex, middle: PlaybackIndex, end: PlaybackIndex) {
     this.start = start;
     this.middle = middle;
     this.end = end;
   }
-  in(index: number) {
-    return this.start <= index && index <= this.end;
+
+  in(index: PlaybackIndex) {
+    return this.start.isAtOrBefore(index) && index.isAtOrBefore(this.end);
   }
-  shouldDeleteElement(index: number, repeating: boolean) {
+
+  shouldDeleteElement(index: PlaybackIndex, repeating: boolean) {
     if (repeating) {
-      return this.start <= index && index < this.middle;
+      return this.start.isAtOrBefore(index) && index.isBefore(this.middle);
     }
-    return this.middle <= index && index <= this.end;
+    return this.middle.isAtOrBefore(index) && index.isAtOrBefore(this.end);
   }
 }

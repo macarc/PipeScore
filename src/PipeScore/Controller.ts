@@ -166,13 +166,6 @@ function redraw() {
           state.selection instanceof ScoreSelection
             ? state.selection.tune(state.score)
             : null,
-        tuneContainsHarmony:
-          (state.selection instanceof ScoreSelection &&
-            state.selection
-              .tune(state.score)
-              ?.staves()
-              .some((stave) => stave.numberOfHarmonyParts() > 1)) ||
-          false,
         firstTune: state.score.tunes()[0] || null,
         docs: state.doc.show
           ? helpText(state.doc.current || 'nothing-hovered')

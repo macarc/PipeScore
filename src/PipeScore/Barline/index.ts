@@ -23,6 +23,16 @@ import type { SavedBarline } from '../SavedModel';
 
 type BarlineType = 'normal' | 'repeat' | 'end';
 
+/**
+ * Bar lines.
+ *
+ * There are three Barline objects:
+ * - Barline.normal
+ * - Barline.repeat
+ * - Barline.part
+ *
+ * To check what type of Barline you have, just check if the barline === one of those three
+ */
 export class Barline {
   private type: BarlineType;
 
@@ -50,6 +60,7 @@ export class Barline {
   toJSON(): SavedBarline {
     return { type: this.type };
   }
+
   // Repeat and end barlines must be drawn. Normal barlines may
   // be skipped, e.g. if the previous bar ended in a normal barline,
   // there's no need to draw another normal barline at the start of this bar

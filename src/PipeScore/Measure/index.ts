@@ -21,6 +21,7 @@
 import type { IBar } from '../Bar';
 import type { Barline } from '../Barline';
 import type { INote } from '../Note';
+import type { PlaybackMeasure } from '../Playback';
 import type { SavedMeasure } from '../SavedModel';
 import type { ITimeSignature } from '../TimeSignature';
 import type { ID } from '../global/id';
@@ -39,6 +40,7 @@ export abstract class IMeasure {
   abstract timeSignature(): ITimeSignature;
   abstract setTimeSignature(ts: ITimeSignature): void;
   abstract adjustWidth(ratio: number): void;
+  abstract play(previousMeasure: IMeasure | null): PlaybackMeasure;
 }
 
 // Replaces timeSignature with newTimeSignature.

@@ -18,7 +18,7 @@
 //  - second timings - with two parts
 //  - single timings - has one part
 
-import type { Playback, PlaybackSecondTiming } from '../Playback';
+import type { PlaybackMeasure, PlaybackSecondTiming } from '../Playback';
 import type { SavedTiming } from '../SavedModel';
 import type { ID } from '../global/id';
 
@@ -51,5 +51,5 @@ export abstract class ITiming {
   // This only works if it is called after the score is drawn! i.e. directly before
   // clearXY
   abstract isDangling(): boolean;
-  abstract play(elements: Playback[]): PlaybackSecondTiming | null;
+  abstract play(elements: PlaybackMeasure[]): PlaybackSecondTiming | null;
 }

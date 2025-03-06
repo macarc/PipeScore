@@ -17,7 +17,7 @@
 //  Interfaces of notes and triplets
 
 import type { IGracenote } from '../Gracenote';
-import type { Playback } from '../Playback';
+import type { PlaybackItem } from '../Playback';
 import type { Previews } from '../Preview/previews';
 import type { SavedNote, SavedNoteOrTriplet, SavedTriplet } from '../SavedModel';
 import { Item } from '../global/id';
@@ -54,7 +54,7 @@ export abstract class INote
   abstract setGracenote(gracenote: IGracenote): void;
   abstract addSingleGracenote(grace: Pitch, previous: INote | null): void;
   abstract replaceGracenote(g: IGracenote, n: IGracenote | null): void;
-  abstract play(pitchBefore: Pitch | null): Playback[];
+  abstract play(pitchBefore: Pitch | null): PlaybackItem[];
 }
 
 // TODO : must we extend Item here?
@@ -67,7 +67,7 @@ export abstract class ITriplet extends Item {
   abstract ensureNotesAreCorrectLength(): void;
   abstract length(): NoteLength;
   abstract setLength(length: NoteLength): void;
-  abstract play(previous: Pitch | null): Playback[];
+  abstract play(previous: Pitch | null): PlaybackItem[];
 }
 
 export type NoteOrTriplet = INote | ITriplet;

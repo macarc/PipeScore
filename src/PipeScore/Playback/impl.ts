@@ -19,168 +19,286 @@
 //  <https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API>
 
 import {
-  type Playback,
   PlaybackGracenote,
+  PlaybackIndex,
+  PlaybackMeasure,
   PlaybackNote,
   PlaybackObject,
-  PlaybackRepeat,
   type PlaybackSecondTiming,
+  itemLength,
 } from '.';
 import { dispatch } from '../Controller';
 import { updateView } from '../Events/Misc';
 import type { ID } from '../global/id';
-import type { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
-import { sleep } from '../global/utils';
-import { Drone, SoundedPitch } from './sounds';
+import { isRoughlyZero, last, nlast, passert, sleep, sum } from '../global/utils';
+import { Drone, type SoundedMeasure, SoundedPitch, SoundedSilence } from './sounds';
 import type { PlaybackState } from './state';
 
 function shouldDeleteBecauseOfSecondTimings(
-  index: number,
+  index: PlaybackIndex,
   timings: PlaybackSecondTiming[],
   repeating: boolean
 ) {
   return timings.some((t) => t.shouldDeleteElement(index, repeating));
 }
 
-function inSecondTiming(index: number, timings: PlaybackSecondTiming[]) {
+function inSecondTiming(index: PlaybackIndex, timings: PlaybackSecondTiming[]) {
   return timings.some((t) => t.in(index));
 }
 
-// Removes all PlaybackRepeats and PlaybackObjects from `elements'
-// and duplicates notes where necessary for repeats / second timings
-function expandRepeats(
-  elements: Playback[],
-  timings: PlaybackSecondTiming[],
-  start: ID | null,
-  end: ID | null
-): (PlaybackNote | PlaybackGracenote | PlaybackObject)[] {
-  let started = false;
-  let repeatStartIndex = 0;
-  let repeatEndIndex = 0;
-  let repeating = false;
-  let timingOverRepeat: PlaybackSecondTiming | null = null;
-  let output: (PlaybackNote | PlaybackGracenote | PlaybackObject)[] = [];
+function sliceMeasures(
+  measures: PlaybackMeasure[],
+  start: PlaybackIndex | null,
+  end: PlaybackIndex | null
+) {
+  if (start !== null) {
+    measures.splice(0, start.measureIndex);
+    const firstMeasure = measures[0];
 
-  for (let i = 0; i < elements.length; i++) {
-    const e = elements[i];
-    if (e instanceof PlaybackRepeat) {
-      if (e.type === 'repeat-end' && repeating && !inSecondTiming(i, timings)) {
-        repeating = false;
-        repeatStartIndex = i;
-      } else if (e.type === 'repeat-end' && i > repeatEndIndex) {
-        timingOverRepeat = timings.find((t) => t.in(i)) || null;
-        repeatEndIndex = i;
-        // Go back to repeat
-        i = repeatStartIndex;
-        // Need to do this to avoid an infinite loop
-        // if two end repeats are next to each other
-        repeatStartIndex = i;
-        repeating = true;
-      } else if (e.type === 'repeat-start') {
-        repeatStartIndex = i;
-      }
-    } else if (e instanceof PlaybackObject) {
-      if (e.type === 'object-start' && e.id === start && !started) {
-        output = [];
-        started = true;
-      }
-      if (e.type === 'object-end') {
-        if (e.id === end) {
-          return output;
-        }
-        if (repeating) {
-          if (timingOverRepeat) {
-            // Only stop repeating when the timing that went over the repeat
-            // mark is done (allowing other second timings to be present earlier
-            // in a part)
-            if (i === timingOverRepeat.end) {
-              repeating = false;
-            }
-          }
-        }
-      }
+    for (const part of firstMeasure.parts) {
+      let partLength = 0;
+      for (let itemIndex = 0; itemIndex < part.length; itemIndex++) {
+        const item = part[itemIndex];
 
-      if (!shouldDeleteBecauseOfSecondTimings(i, timings, repeating)) {
-        output.push(e);
+        if (isRoughlyZero(partLength - start.timeOffset)) {
+          part.splice(0, itemIndex);
+          break;
+        }
+
+        if (partLength > start.timeOffset) {
+          // The last item was too long, shave off the difference
+          // Note that the last item must be a note since it was
+          // the thing that increased the partLength
+          (part[itemIndex - 1] as PlaybackNote).duration -=
+            partLength - start.timeOffset;
+
+          part.splice(0, itemIndex - 1);
+          break;
+        }
+
+        partLength += itemLength(item);
       }
-    } else {
-      if (!shouldDeleteBecauseOfSecondTimings(i, timings, repeating)) {
-        output.push(e);
+    }
+
+    // Update the indices in end, since we've modified the underlying arrays
+    if (end) {
+      end.measureIndex -= start.measureIndex;
+      if (end.measureIndex === 0) {
+        end.timeOffset -= start.timeOffset;
       }
     }
   }
-  return output;
+
+  if (end !== null) {
+    measures.splice(end.measureIndex + 1);
+    const lastMeasure = last(measures);
+
+    for (const part of lastMeasure?.parts || []) {
+      let partLength = 0;
+      for (let itemIndex = 0; itemIndex < part.length; itemIndex++) {
+        const item = part[itemIndex];
+
+        if (isRoughlyZero(partLength - end.timeOffset)) {
+          part.splice(itemIndex + 1);
+          break;
+        }
+
+        if (partLength > end.timeOffset) {
+          // The last item was too long, shave off the difference
+          // Note that the last item must be a note since it was
+          // the thing that increased the partLength
+          // Note also that it's gracenote won't be played, but that
+          // is the desired behaviour when we're starting in the middle
+          // of the note
+          passert(part[itemIndex - 1] instanceof PlaybackNote);
+
+          (part[itemIndex - 1] as PlaybackNote).duration -=
+            partLength - end.timeOffset;
+
+          part.splice(itemIndex);
+          break;
+        }
+
+        partLength += itemLength(item);
+      }
+    }
+  }
+
+  return measures;
+}
+
+// TODO : better typing
+/**
+ * Removes all PlaybackObjects from `elements`, duplicates notes where necessary
+ * for repeats / second timings, and removes the notes before start/ after end.
+ *
+ * This code is not pretty.
+ * @param measures
+ * @param timings
+ * @param start ID of item to start playback on
+ * @param end ID of item to end playback on
+ * @returns measures containing only notes, with timings expanded
+ */
+function expandRepeats(
+  measures: PlaybackMeasure[],
+  timings: PlaybackSecondTiming[],
+  start: ID | null,
+  end: ID | null
+): PlaybackMeasure[] {
+  // These are indices into measures
+  let repeatStartIndex = 0;
+  let repeatEndIndex = 0;
+
+  let repeating = false;
+  let timingOverRepeat: PlaybackSecondTiming | null = null;
+  const output: PlaybackMeasure[] = [];
+
+  // These are indices into the output array
+  let startIndex: PlaybackIndex | null = null;
+  let endIndex: PlaybackIndex | null = null;
+
+  for (let measureIndex = 0; measureIndex < measures.length; measureIndex++) {
+    const measure = measures[measureIndex];
+    output.push(new PlaybackMeasure([], false, false));
+    for (let partIndex = 0; partIndex < measure.parts.length; partIndex++) {
+      nlast(output).parts.push([]);
+      const part = measure.parts[partIndex];
+      let index = new PlaybackIndex(output.length - 1, 0);
+      for (const item of part) {
+        if (item instanceof PlaybackObject) {
+          if (
+            item.type === 'object-start' &&
+            item.id === start &&
+            startIndex === null
+          ) {
+            startIndex = index;
+          }
+          if (item.type === 'object-end') {
+            if (item.id === end && endIndex === null && startIndex !== null) {
+              endIndex = index;
+            }
+            if (repeating) {
+              if (timingOverRepeat) {
+                // Only stop repeating when the timing that went over the repeat
+                // mark is done (allowing other second timings to be present earlier
+                // in a part)
+                if (index === timingOverRepeat.end) {
+                  repeating = false;
+                }
+              }
+            }
+          }
+
+          if (!shouldDeleteBecauseOfSecondTimings(index, timings, repeating)) {
+            nlast(output).parts[partIndex].push(item);
+          }
+        } else {
+          if (!shouldDeleteBecauseOfSecondTimings(index, timings, repeating)) {
+            nlast(output).parts[partIndex].push(item);
+          }
+        }
+
+        index = index.incrementByItem(item);
+      }
+    }
+
+    const lastIndex = new PlaybackIndex(
+      output.length - 1,
+      measure.lengthOfMainPart()
+    );
+    if (measure.repeatEnd && repeating && !inSecondTiming(lastIndex, timings)) {
+      repeating = false;
+      repeatStartIndex = measureIndex;
+    } else if (measure.repeatEnd && measureIndex > repeatEndIndex) {
+      timingOverRepeat = timings.find((t) => t.in(lastIndex)) || null;
+      repeatEndIndex = measureIndex;
+      // Go back to repeat
+      measureIndex = repeatStartIndex - 1;
+      // Need to do this to avoid an infinite loop
+      // if two end repeats are next to each other
+      repeatStartIndex = measureIndex;
+      repeating = true;
+    } else if (measure.repeatStart) {
+      repeatStartIndex = measureIndex;
+    }
+  }
+
+  return sliceMeasures(output, startIndex, endIndex);
 }
 
 // Collapses all adjacent notes with the same pitch to one note (with duration of both notes)
 // This fixes playback of tied notes
-function collapsePitches(pitches: SoundedPitch[]): SoundedPitch[] {
-  const collapsed: SoundedPitch[] = [];
-  let lastPitch: Pitch | null = null;
-
-  for (const pitch of pitches) {
-    if (pitch.pitch === lastPitch) {
-      collapsed[collapsed.length - 1].duration += pitch.duration;
-    } else {
-      collapsed.push(pitch);
-    }
-    lastPitch = pitch.pitch;
-  }
+function collapsePitches(measures: SoundedMeasure[]): SoundedMeasure[] {
+  const lastPitches: SoundedPitch[] = [];
+  const collapsed: SoundedMeasure[] = measures.map((measure) => ({
+    parts: measure.parts.map((part, i) => {
+      const newPart = [];
+      for (const pitch of part) {
+        if (pitch instanceof SoundedPitch) {
+          if (lastPitches[i] && pitch.pitch === lastPitches[i].pitch) {
+            lastPitches[i].durationIncludingTies += pitch.duration;
+            newPart.push(new SoundedSilence(pitch.duration, pitch.id));
+          } else {
+            newPart.push(pitch);
+            lastPitches[i] = pitch;
+          }
+        } else {
+          console.error('Unexpected SoundedSilence', pitch);
+        }
+      }
+      return newPart;
+    }),
+  }));
 
   return collapsed;
 }
 
 function getSoundedPitches(
-  elements: Playback[],
+  measures: PlaybackMeasure[],
   timings: PlaybackSecondTiming[],
   ctx: AudioContext,
   start: ID | null,
   end: ID | null
-): SoundedPitch[] {
-  const elementsToPlay = expandRepeats(elements, timings, start, end);
+): SoundedMeasure[] {
+  const measuresToPlay = expandRepeats(measures, timings, start, end);
 
   const gracenoteDuration = 0.044;
 
-  const pitches: SoundedPitch[] = [];
+  const soundedMeasuresToPlay = measuresToPlay.map((measure) => ({
+    parts: measure.parts.map((part) => {
+      let currentGracenoteDuration = 0;
+      const soundedPart: SoundedPitch[] = [];
+      let currentID = null;
 
-  let currentID: ID | null = null;
-
-  let currentGracenoteDuration = 0;
-
-  for (let i = 0; i < elementsToPlay.length; i++) {
-    const e = elementsToPlay[i];
-    if (e instanceof PlaybackGracenote) {
-      pitches.push(new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID));
-      currentGracenoteDuration += gracenoteDuration;
-    } else if (e instanceof PlaybackNote) {
-      let duration = e.duration - currentGracenoteDuration;
-      currentGracenoteDuration = 0;
-      // If subsequent notes are tied, increase this note's duration
-      // and skip the next notes
-      for (
-        let nextNote = elementsToPlay[i + 1];
-        i < elementsToPlay.length &&
-        nextNote instanceof PlaybackNote &&
-        nextNote.tied;
-        nextNote = elementsToPlay[++i + 1]
-      ) {
-        duration += nextNote.duration;
+      for (const e of part) {
+        if (e instanceof PlaybackGracenote) {
+          soundedPart.push(
+            new SoundedPitch(e.pitch, gracenoteDuration, ctx, currentID)
+          );
+          currentGracenoteDuration += gracenoteDuration;
+        } else if (e instanceof PlaybackNote) {
+          const duration = e.duration - currentGracenoteDuration;
+          soundedPart.push(new SoundedPitch(e.pitch, duration, ctx, currentID));
+          currentGracenoteDuration = 0;
+        } else if (e instanceof PlaybackObject) {
+          currentID = e.id;
+        } else {
+          console.log(e);
+          throw new Error(`Unexpected playback element ${e}`);
+        }
       }
-      pitches.push(new SoundedPitch(e.pitch, duration, ctx, currentID));
-    } else if (e instanceof PlaybackObject) {
-      currentID = e.id;
-    } else {
-      console.log(e);
-      throw new Error(`Unexpected playback element ${e}`);
-    }
-  }
-  return collapsePitches(pitches);
+
+      return soundedPart;
+    }),
+  }));
+
+  return collapsePitches(soundedMeasuresToPlay);
 }
 
 export async function playback(
   state: PlaybackState,
-  elements: Playback[][],
+  measures: PlaybackMeasure[],
   timings: PlaybackSecondTiming[],
   start: ID | null = null,
   end: ID | null = null,
@@ -204,38 +322,54 @@ export async function playback(
   await sleep(1000);
   document.body.classList.remove('loading');
 
-  await play(state, elements, timings, context, start, end, loop);
+  await playPitches(state, measures, timings, context, start, end, loop);
 
   drone.stop();
 
   state.playing = false;
 }
 
-async function play(
+async function playPitches(
   state: PlaybackState,
-  elements: Playback[][],
+  measures: PlaybackMeasure[],
   timings: PlaybackSecondTiming[],
   context: AudioContext,
   start: ID | null,
   end: ID | null,
   loop: boolean
 ) {
-  await Promise.all(
-    elements.map(async (elements, i) => {
-      outer: for (;;) {
-        const pitches = getSoundedPitches(elements, timings, context, start, end);
-        for (const note of pitches) {
-          if (state.userPressedStop) break outer;
+  const measuresToPlay = getSoundedPitches(measures, timings, context, start, end);
 
-          await note.play(settings.bpm, i !== 0);
-        }
-
-        if (!loop) {
-          break;
-        }
-      }
-    })
+  const numberOfItems = sum(
+    measuresToPlay.flatMap((measure) => measure.parts.flatMap((part) => part.length))
   );
+
+  if (measuresToPlay.length === 0 || numberOfItems === 0) {
+    return;
+  }
+
+  let stopped = false;
+
+  playing: do {
+    for (const measure of measuresToPlay) {
+      await Promise.all(
+        measure.parts.map(async (pitchlist, i) => {
+          for (const pitch of pitchlist) {
+            if (state.userPressedStop || stopped) {
+              stopped = true;
+              return;
+            }
+
+            await pitch.play(settings.bpm, i !== 0);
+          }
+        })
+      );
+
+      if (stopped) {
+        break playing;
+      }
+    }
+  } while (loop);
 
   state.userPressedStop = false;
   dispatch(updateView());

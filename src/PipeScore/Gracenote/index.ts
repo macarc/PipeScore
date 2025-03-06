@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import type { Playback } from '../Playback';
+import type { PlaybackItem } from '../Playback';
 import type { IPreview } from '../Preview';
 import type { SavedGracenote } from '../SavedModel';
 import type { Pitch } from '../global/pitch';
@@ -29,7 +29,7 @@ export abstract class IGracenote {
   abstract moveUp(index: number): IGracenote | null;
   abstract moveDown(index: number): IGracenote | null;
   abstract numberOfNotes(): number;
-  abstract play(thisNote: Pitch, previousNote: Pitch | null): Playback[];
+  abstract play(thisNote: Pitch, previousNote: Pitch | null): PlaybackItem[];
   // Add a single to an existing gracenote
   // Used for creating custom embellisments
   abstract addSingle(newPitch: Pitch, note: Pitch, prev: Pitch | null): IGracenote;

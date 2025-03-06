@@ -19,7 +19,7 @@
 import { INote } from '.';
 import { IGracenote } from '../Gracenote';
 import { Gracenote, NoGracenote } from '../Gracenote/impl';
-import { type Playback, PlaybackNote, PlaybackObject } from '../Playback';
+import { type PlaybackItem, PlaybackNote, PlaybackObject } from '../Playback';
 import type { SavedNote } from '../SavedModel';
 import { genID } from '../global/id';
 import { Pitch, pitchDown, pitchUp } from '../global/pitch';
@@ -221,7 +221,7 @@ export class Note extends INote {
     if (this._gracenote === g) this._gracenote = n || new NoGracenote();
   }
 
-  play(pitchBefore: Pitch | null): Playback[] {
+  play(pitchBefore: Pitch | null): PlaybackItem[] {
     return [
       new PlaybackObject('start', this.id),
       ...this.gracenote().play(this._pitch, pitchBefore),

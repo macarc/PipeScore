@@ -19,6 +19,7 @@ import type { IBar } from '../Bar';
 import { Bar } from '../Bar/impl';
 import { Barline } from '../Barline';
 import { noteFromJSON } from '../Note/impl';
+import { PlaybackMeasure } from '../Playback';
 import {
   type DeprecatedSavedMeasure,
   type SavedMeasure,
@@ -128,5 +129,13 @@ export class Measure extends IMeasure {
     } else {
       this.backBarline = barline;
     }
+  }
+
+  play(previousMeasure: IMeasure | null): PlaybackMeasure {
+    return new PlaybackMeasure(
+      this.bars().map((bar, i) => bar.play(previousMeasure?.bars()[i] || null)),
+      this.frontBarline === Barline.repeat,
+      this.backBarline === Barline.repeat
+    );
   }
 }

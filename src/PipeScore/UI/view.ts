@@ -114,7 +114,6 @@ export interface UIState {
   selectedText: IMovableTextBox | null;
   selectedTiming: ITiming | null;
   firstTune: ITune | null;
-  tuneContainsHarmony: boolean;
   showingPageNumbers: boolean;
   preview: IPreview | null;
   isLandscape: boolean;
@@ -934,8 +933,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.double-width.text',
             {
-              disabled:
-                state.isPlaying || !barsSelected || state.tuneContainsHarmony,
+              disabled: state.isPlaying || !barsSelected,
               onclick: () => state.dispatch(startPlaybackAtSelection()),
             },
             text('playFromSelection')
@@ -947,10 +945,7 @@ export default function render(state: UIState): m.Children {
           m(
             'button.double-width.text',
             {
-              disabled:
-                state.isPlaying ||
-                state.selectedNotes.length === 0 ||
-                state.tuneContainsHarmony,
+              disabled: state.isPlaying || state.selectedNotes.length === 0,
               onclick: () => state.dispatch(playbackLoopingSelection()),
             },
             text('playLoopedSelection')

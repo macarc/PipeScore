@@ -21,7 +21,7 @@ import type { IBar } from '../Bar';
 import type { Update } from '../Events/types';
 import type { IMeasure } from '../Measure';
 import type { INote, NoteOrTriplet } from '../Note';
-import type { Playback, PlaybackSecondTiming } from '../Playback';
+import type { PlaybackMeasure, PlaybackSecondTiming } from '../Playback';
 import type { SavedScore } from '../SavedModel';
 import type { IStave } from '../Stave';
 import type { IMovableTextBox } from '../TextBox';
@@ -89,6 +89,6 @@ export abstract class IScore {
     y: number,
     page: number
   ): void;
-  abstract play(): Playback[][];
-  abstract playbackTimings(elements: Playback[]): PlaybackSecondTiming[];
+  abstract play(): PlaybackMeasure[];
+  abstract playbackTimings(elements: PlaybackMeasure[]): PlaybackSecondTiming[];
 }
