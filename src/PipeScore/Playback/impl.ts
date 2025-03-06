@@ -28,121 +28,12 @@ import {
 } from '.';
 import { dispatch } from '../Controller';
 import { updateView } from '../Events/Misc';
-import { updatePlaybackCursor } from '../Events/Playback';
 import type { ID } from '../global/id';
-import { Pitch } from '../global/pitch';
+import type { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
 import { sleep } from '../global/utils';
-import { Player, Sample } from './sample';
+import { Drone, SoundedPitch } from './sounds';
 import type { PlaybackState } from './state';
-
-class Drones {
-  private player: Player;
-  private stopped = false;
-
-  constructor(sample: Sample, context: AudioContext) {
-    this.player = new Player(sample, context);
-  }
-  async play() {
-    while (!this.stopped) {
-      this.player.play(0.1);
-      const sleepLength = this.player.length() - 3;
-      await sleep(1000 * sleepLength);
-    }
-  }
-  stop() {
-    this.player.stop();
-    this.stopped = true;
-  }
-}
-
-class SoundedPitch {
-  sample: AudioBufferSourceNode;
-  gain: GainNode;
-  pitch: Pitch;
-  duration: number;
-  id: ID | null;
-
-  constructor(pitch: Pitch, duration: number, ctx: AudioContext, id: ID | null) {
-    this.sample = pitchToSample(pitch).getSource(ctx);
-    this.gain = ctx.createGain();
-    this.sample.connect(this.gain);
-    this.gain.connect(ctx.destination);
-    this.pitch = pitch;
-    this.duration = duration;
-    this.id = id;
-  }
-
-  async play(bpm: number, isMainTune: boolean) {
-    if (isMainTune) {
-      dispatch(updatePlaybackCursor(this.id));
-      this.gain.gain.setValueAtTime(1, 0);
-    } else {
-      this.gain.gain.setValueAtTime(settings.harmonyVolume, 0);
-    }
-
-    const duration = (1000 * this.duration * 60) / bpm;
-    this.sample.start(0);
-    await sleep(duration);
-    this.sample.stop();
-  }
-}
-
-const lowg = new Sample('lowg');
-const lowa = new Sample('lowa');
-const b = new Sample('b');
-const c = new Sample('c');
-const d = new Sample('d');
-const e = new Sample('e');
-const f = new Sample('f');
-const highg = new Sample('highg');
-const higha = new Sample('higha');
-const drones = new Sample('drones');
-
-// This is in a function so that sample loading can be delayed, so that images
-// are loaded first. Hackity hackity.
-export async function startLoadingSamples(onload: () => void) {
-  const context = new AudioContext();
-  const samples = await Promise.all([
-    lowg.load(),
-    lowa.load(),
-    b.load(),
-    c.load(),
-    d.load(),
-    e.load(),
-    f.load(),
-    highg.load(),
-    higha.load(),
-    drones.load(),
-  ]);
-  for (const fn of samples) {
-    fn(context);
-  }
-  onload();
-}
-
-function pitchToSample(pitch: Pitch): Sample {
-  switch (pitch) {
-    case Pitch.G:
-      return lowg;
-    case Pitch.A:
-      return lowa;
-    case Pitch.B:
-      return b;
-    case Pitch.C:
-      return c;
-    case Pitch.D:
-      return d;
-    case Pitch.E:
-      return e;
-    case Pitch.F:
-      return f;
-    case Pitch.HG:
-      return highg;
-    case Pitch.HA:
-      return higha;
-  }
-}
 
 function shouldDeleteBecauseOfSecondTimings(
   index: number,
@@ -306,9 +197,10 @@ export async function playback(
 
   document.body.classList.add('loading');
 
-  const drone = new Drones(drones, context);
+  const drone = new Drone(context);
 
-  drone.play();
+  drone.start();
+
   await sleep(1000);
   document.body.classList.remove('loading');
 
@@ -335,7 +227,7 @@ async function play(
         for (const note of pitches) {
           if (state.userPressedStop) break outer;
 
-          await note.play(settings.bpm, i === 0);
+          await note.play(settings.bpm, i !== 0);
         }
 
         if (!loop) {

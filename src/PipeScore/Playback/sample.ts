@@ -14,67 +14,117 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+//  AudioResource and Sample wrap the browser playback API to allow
+//  loading and playing audio samples.
+//
+//  AudioResource handles loading the sample, Sample handles playing.
+//  Splitting it up like this means that you can play the same AudioResource
+//  multiple times by creating multiple Samples
+//  (with AudioResource.createSample()).
+
 import { onSafari } from '../global/browser';
 
-export class Sample {
-  buffer: AudioBuffer | null = null;
-  name: string;
+/**
+ * AudioResource handles loading an AudioBuffer from a URL.
+ *
+ * After .load() has been called, .createSource() will create
+ * an AudioBufferSourceNode with the buffer data.
+ */
+export class AudioResource {
+  private buffer: AudioBuffer | null = null;
+  private filename: string;
 
-  constructor(name: string) {
-    this.name = name;
+  /**
+   * Create (but don't load) an AudioResource.
+   * @param filename the name of the file, excluding path and file extension.
+   */
+  constructor(filename: string) {
+    this.filename = filename;
   }
 
-  load(): Promise<(context: AudioContext) => void> {
+  /**
+   * Load the file and decode into an internal audio buffer.
+   * @param context audio context in which to load the audio buffers
+   * @returns a promise which resolves when the buffer is loaded
+   */
+  load(context: AudioContext): Promise<void> {
     // Safari can't decode mp3
     const file_format = onSafari() ? 'wav' : 'mp3';
 
     return new Promise((res) => {
       const request = new XMLHttpRequest();
-      request.open('GET', `/audio/${this.name}.${file_format}`, true);
+      request.open('GET', `/audio/${this.filename}.${file_format}`, true);
       request.responseType = 'arraybuffer';
       request.onload = () => {
         const data = request.response;
-        res((context) => {
-          context.decodeAudioData(data, (buffer) => {
-            this.buffer = buffer;
-          });
+        context.decodeAudioData(data, (buffer) => {
+          this.buffer = buffer;
         });
+        res();
       };
       request.send();
     });
   }
 
-  getSource(context: AudioContext): AudioBufferSourceNode {
+  /**
+   * Create an AudioBufferSourceNode with the contents of the resource's
+   * buffer. Call .load() first!
+   * @param context audio context in which to create the source
+   * @returns the AudioBufferSourceNode
+   */
+  createSource(context: AudioContext): AudioBufferSourceNode {
     const source = context.createBufferSource();
     source.buffer = this.buffer;
     return source;
   }
 }
 
-export class Player {
-  private sample: Sample;
+/**
+ * Sample turns an AudioResource into a playable object.
+ *
+ * It can only be played once though!
+ * TODO : check this ^ since I think we play multiple times in Drone.play()
+ */
+export class Sample {
   private context: AudioContext;
   private source: AudioBufferSourceNode;
 
-  constructor(sample: Sample, ctx: AudioContext) {
-    this.sample = sample;
+  /**
+   * Create a Sample.
+   * @param audio audio resource for sample
+   * @param ctx audio context with which to play sample
+   */
+  constructor(audio: AudioResource, ctx: AudioContext) {
+    this.source = audio.createSource(ctx);
     this.context = ctx;
-    this.source = this.createSource();
   }
+
+  /**
+   * Get length of sample.
+   * @returns length of sample in seconds
+   */
   length() {
-    return this.source?.buffer?.duration || 0;
+    return this.source.buffer?.duration || 0;
   }
-  play(gain: number) {
-    this.source = this.createSource();
+
+  /**
+   * Start playing audio sample.
+   * @param gain volume between 0 and 1
+   */
+  start(gain = 1) {
     const gainNode = this.context.createGain();
-    gainNode.gain.value = gain;
+    gainNode.gain.setValueAtTime(gain, 0);
+
     this.source.connect(gainNode).connect(this.context.destination);
     this.source.start(0);
   }
+
+  /**
+   * Stop playing audio sample.
+   */
   stop() {
-    if (this.source) this.source.stop();
-  }
-  private createSource() {
-    return this.sample.getSource(this.context);
+    if (this.source) {
+      this.source.stop();
+    }
   }
 }

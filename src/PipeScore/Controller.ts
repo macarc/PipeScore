@@ -22,7 +22,7 @@ import { mouseDrag, mouseUp } from './Events/Mouse';
 import { type ScoreEvent, Update } from './Events/types';
 import type { Firestore } from './Firestore';
 import { emptyGracenoteState } from './Gracenote/state';
-import { startLoadingSamples } from './Playback/impl';
+import { loadAudioResources } from './Playback/sounds';
 import quickStart from './QuickStart';
 import { Score } from './Score/impl';
 import { drawScore } from './Score/view';
@@ -222,7 +222,7 @@ export default async function startController(
     state.score = opts.toScore();
   }
 
-  startLoadingSamples(() => dispatch(loadedAudio()));
+  loadAudioResources().then(() => dispatch(loadedAudio()));
   state.history.past = [JSON.stringify(state.score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('mouseup', () => dispatch(mouseUp()));

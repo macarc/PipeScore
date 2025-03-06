@@ -11,12 +11,20 @@
 - [x] Playback ties properly
 - [ ] Snapping for text box dragging
 - [x] View-only mode for mobile
+- [ ] Note in docs about keyboard-based
+- [ ] Fix harmony playback
+- [ ] Importing tunes
+- [ ] Count ins
+- [ ] Password change
+- [ ] Chanter playback
+- [ ] Metronome while playing
 
 ## Bugs to fix
 
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
 - [ ] Deleting multiple staves doesn't preserve gap on first one
+- [ ] Do multiple Samples need to be created for the same AudioResource?
 
 ## Mobile
 
