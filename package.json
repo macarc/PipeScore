@@ -26,6 +26,7 @@
     "bun": "^1.1.42",
     "esbuild": "^0.15.18",
     "eslint": "^8.57.1",
+    "firebase-admin": "^13.2.0",
     "firebase-auth-lite": "^0.8.9",
     "firebase-firestore-lite": "^1.0.3",
     "firebase-tools": "^13.29.1",
