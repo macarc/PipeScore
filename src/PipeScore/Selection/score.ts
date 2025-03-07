@@ -29,7 +29,7 @@ import type { ID } from '../global/id';
 import type { Pitch } from '../global/pitch';
 import type { Relative } from '../global/relativeLocation';
 import { settings } from '../global/settings';
-import { foreach, last } from '../global/utils';
+import { foreach, last, passert } from '../global/utils';
 import { type XY, getXY, getXYRangeForPage, isItemBefore } from '../global/xy';
 import { DraggableSelection } from './dragging';
 
@@ -360,6 +360,9 @@ export class ScoreSelection extends DraggableSelection {
       ]);
     }
 
+    const harmonyIndex = start.harmonyIndex;
+    passert(start.harmonyIndex === end.harmonyIndex);
+
     const staves = props.score.staves();
     const startStaveIndex = staves.findIndex((stave) => stave.containsID(start.id));
     const endStaveIndex = staves.findIndex((stave) => stave.containsID(end.id));
@@ -391,7 +394,10 @@ export class ScoreSelection extends DraggableSelection {
       ...foreach(numStavesBetween, (i) => startStaveIndex + i + 1).map((i) =>
         m('rect', {
           x: props.staveStartX,
-          y: props.score.staveY(staves[i]) + settings.staveGap - settings.lineGap,
+          y:
+            props.score.staveY(staves[i], harmonyIndex) +
+            settings.staveGap -
+            settings.lineGap,
           width: props.staveEndX - props.staveStartX,
           height,
           fill: 'orange',

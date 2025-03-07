@@ -23,10 +23,10 @@
 
 - [ ] Dotting should retain the same group (by shortening other notes in group)
 - [ ] Triplets with tails can group
-- [ ] Deleting multiple staves doesn't preserve gap on first one
 - [x] Do multiple Samples need to be created for the same AudioResource?
-- [ ] Have to move mouse after starting playback to enable stop button
+- [x] Have to move mouse after starting playback to enable stop button
 - [ ] Use passert everywhere
+- [ ] Disable timing buttons when harmony staves are selected
 
 ## Mobile
 

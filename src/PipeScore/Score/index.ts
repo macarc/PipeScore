@@ -46,14 +46,14 @@ export abstract class IScore {
   abstract makeLandscape(): Update;
   abstract makePortrait(): Update;
   abstract addText(text: IMovableTextBox): void;
-  abstract staveY(stave: IStave | ITune): number;
+  abstract staveY(stave: IStave | ITune, harmonyIndex: number): number;
   abstract nextBar(id: ID): IBar | null;
   abstract previousBar(id: ID): IBar | null;
   abstract nextNote(id: ID): INote | null;
   abstract previousNote(id: ID): INote | null;
   abstract previousStaveSameTune(stave: IStave): IStave | null;
-  abstract firstOnPage(page: number): IBar | null;
-  abstract lastOnPage(page: number): IBar | null;
+  abstract firstOnPage(page: number, harmonyIndex: number): IBar | null;
+  abstract lastOnPage(page: number, harmonyIndex: number): IBar | null;
   abstract addTune(nearTune: ITune | null, where: Relative): void;
   abstract deleteTune(tune: ITune): void;
   abstract notes(): INote[][];

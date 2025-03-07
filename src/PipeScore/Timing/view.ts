@@ -49,18 +49,20 @@ function drawLine(
     true
   );
 
-  if (start && end) {
+  if (start && end && start.harmonyIndex === end.harmonyIndex) {
     const isSelected =
       props.selection instanceof TimingSelection &&
       props.selection.timing === timing;
 
     const colour = isSelected ? 'orange' : 'black';
 
+    const harmonyIndex = start.harmonyIndex;
+
     const mid = 30;
     const clickWidth = 10;
 
     const y = (i: number) =>
-      props.score.staveY(props.score.staves()[i]) + settings.staveGap;
+      props.score.staveY(props.score.staves()[i], harmonyIndex) + settings.staveGap;
 
     const horizontal = (x1: number, x2: number, y: number) =>
       m('line', {

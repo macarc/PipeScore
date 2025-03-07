@@ -50,8 +50,8 @@ export function addAnacrusis(where: Relative): ScoreEvent {
       state.selection instanceof ScoreSelection
         ? state.selection.bar(state.score)
         : where === Relative.before
-          ? state.score.firstOnPage(0)
-          : state.score.lastOnPage(0);
+          ? state.score.firstOnPage(0, 0)
+          : state.score.lastOnPage(0, 0);
 
     if (bar) {
       const stave = state.score.location(bar.id)?.stave;

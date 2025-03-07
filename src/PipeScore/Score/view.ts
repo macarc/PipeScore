@@ -54,11 +54,11 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
 
   const staveProps = (stave: IStave) => ({
     x: settings.margin,
-    y: score.staveY(stave),
+    y: score.staveY(stave, 0),
     justAddedNote: props.justAddedNote,
     width: staveWidth,
     previousStave: score.previousStaveSameTune(stave),
-    previousStaveY: score.staveY(stave),
+    previousStaveY: score.staveY(stave, 0),
     noteState: props.noteState,
     gracenoteState: props.gracenoteState,
     dispatch: props.dispatch,
@@ -81,7 +81,7 @@ export function drawScore(score: IScore, props: ScoreProps): m.Children {
   });
 
   const tuneProps = (tune: ITune) => ({
-    y: score.staveY(tune),
+    y: score.staveY(tune, 0),
     pageWidth: score.width(),
     dispatch: props.dispatch,
   });

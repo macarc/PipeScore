@@ -120,7 +120,7 @@ function itemOrFirstOnPage(xy: XY, page: number, score: IScore) {
     return xy;
   }
   if (xy.page < page) {
-    const startID = score.firstOnPage(page)?.id;
+    const startID = score.firstOnPage(page, xy.harmonyIndex)?.id;
     return (startID && getXY(startID)) || null;
   }
   return null;
@@ -134,7 +134,7 @@ function itemOrLastOnPage(xy: XY, page: number, score: IScore) {
     return xy;
   }
   if (xy.page > page) {
-    const endID = score.lastOnPage(page)?.id || null;
+    const endID = score.lastOnPage(page, xy.harmonyIndex)?.id || null;
     return endID && getXY(endID);
   }
   return null;
@@ -155,7 +155,16 @@ export function getXYRangeForPage(
   const b = getXY(end);
 
   if (!a && !b) {
-    // Selected objects are on later pages
+    // Objects are on later pages
+    return { start: null, end: null };
+  }
+
+  if (a && b && a.harmonyIndex !== b.harmonyIndex) {
+    console.error(
+      'Tried to get an xy range for items on different harmony staves',
+      a,
+      b
+    );
     return { start: null, end: null };
   }
 
@@ -166,7 +175,8 @@ export function getXYRangeForPage(
     if (start && end) return { start, end };
   }
 
-  const lastID = score.lastOnPage(page)?.id || null;
+  const harmonyIndex = (a === null ? b?.harmonyIndex : a.harmonyIndex) || 0;
+  const lastID = score.lastOnPage(page, harmonyIndex)?.id || null;
   const lastOnPage = lastID && getXY(lastID);
 
   if (a && !b && a.page <= page) {

@@ -231,7 +231,7 @@ export class Score extends IScore {
     }
   }
 
-  staveY(stave: IStave | ITune) {
+  staveY(stave: IStave | ITune, harmonyIndex: number) {
     const pages = this.pages();
     const pageIndex = pages.findIndex((page) => page.includes(stave));
     const page = pages[pageIndex];
@@ -242,7 +242,9 @@ export class Score extends IScore {
     }
 
     return (
-      settings.margin + this.calculateHeight(page.slice(0, page.indexOf(stave)))
+      settings.margin +
+      this.calculateHeight(page.slice(0, page.indexOf(stave))) +
+      harmonyIndex * settings.harmonyStaveHeight()
     );
   }
 
@@ -296,13 +298,15 @@ export class Score extends IScore {
     return null;
   }
 
-  firstOnPage(page: number) {
-    return first(this.stavesByPage()[page])?.firstMeasure()?.bars()[0] || null;
+  firstOnPage(page: number, harmonyIndex: number) {
+    return (
+      first(this.stavesByPage()[page])?.firstMeasure()?.bars()[harmonyIndex] || null
+    );
   }
 
-  lastOnPage(page: number) {
+  lastOnPage(page: number, harmonyIndex: number) {
     return (
-      last(last(this.stavesByPage()[page])?.lastMeasure()?.bars() || []) || null
+      last(this.stavesByPage()[page])?.lastMeasure()?.bars()[harmonyIndex] || null
     );
   }
 
