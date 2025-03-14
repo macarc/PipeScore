@@ -160,58 +160,80 @@ function expandRepeats(
 
   for (let measureIndex = 0; measureIndex < measures.length; measureIndex++) {
     const measure = measures[measureIndex];
+
+    // Add measure to output
     output.push(new PlaybackMeasure([], false, false));
+
     for (let partIndex = 0; partIndex < measure.parts.length; partIndex++) {
-      nlast(output).parts.push([]);
       const part = measure.parts[partIndex];
-      let index = new PlaybackIndex(output.length - 1, 0);
+
+      // Add part to output
+      nlast(output).parts.push([]);
+
+      // Indices into measures and output respectively
+      let inputIndex = new PlaybackIndex(measureIndex, 0);
+      let outputIndex = new PlaybackIndex(output.length - 1, 0);
+
       for (const item of part) {
+        // If the item is a playback object and it corresponds to the start/end objects
+        // assign startIndex/endIndex based on the current outputIndex
         if (item instanceof PlaybackObject) {
           if (
             item.type === 'object-start' &&
             item.id === start &&
             startIndex === null
           ) {
-            startIndex = index;
+            startIndex = outputIndex;
           }
           if (item.type === 'object-end') {
             if (item.id === end && endIndex === null && startIndex !== null) {
-              endIndex = index;
+              endIndex = outputIndex;
             }
             if (repeating) {
               if (timingOverRepeat) {
                 // Only stop repeating when the timing that went over the repeat
                 // mark is done (allowing other second timings to be present earlier
                 // in a part)
-                if (index === timingOverRepeat.end) {
+                if (timingOverRepeat.end.isAtOrBefore(inputIndex)) {
                   repeating = false;
                 }
               }
             }
           }
-
-          if (!shouldDeleteBecauseOfSecondTimings(index, timings, repeating)) {
-            nlast(output).parts[partIndex].push(item);
-          }
-        } else {
-          if (!shouldDeleteBecauseOfSecondTimings(index, timings, repeating)) {
-            nlast(output).parts[partIndex].push(item);
-          }
         }
 
-        index = index.incrementByItem(item);
+        // Append the item to the current measure/part in the output
+        if (!shouldDeleteBecauseOfSecondTimings(inputIndex, timings, repeating)) {
+          nlast(output).parts[partIndex].push(item);
+        }
+
+        // Increase the indices by the duration of the item
+        inputIndex = inputIndex.incrementByItem(item);
+        outputIndex = outputIndex.incrementByItem(item);
       }
     }
 
-    const lastIndex = new PlaybackIndex(
-      output.length - 1,
+    const inputIndexAfterMeasure = new PlaybackIndex(
+      measureIndex,
       measure.lengthOfMainPart()
     );
-    if (measure.repeatEnd && repeating && !inSecondTiming(lastIndex, timings)) {
+
+    if (
+      measure.repeatEnd &&
+      repeating &&
+      !inSecondTiming(inputIndexAfterMeasure, timings)
+    ) {
+      // If the measure has an end repeat, and we're already in a repeat, then
+      // we're no longer repeating
+      // Note: if there's a timing, we only
+      //       stop repeating when the timing that went over the repeat
+      //       mark is done (allowing other second timings to be present earlier
+      //       in a part)
       repeating = false;
       repeatStartIndex = measureIndex;
     } else if (measure.repeatEnd && measureIndex > repeatEndIndex) {
-      timingOverRepeat = timings.find((t) => t.in(lastIndex)) || null;
+      // If the measure has an end repeat, then set measureIndex back to repeatStartIndex
+      timingOverRepeat = timings.find((t) => t.in(inputIndexAfterMeasure)) || null;
       repeatEndIndex = measureIndex;
       // Go back to repeat
       measureIndex = repeatStartIndex - 1;
@@ -220,6 +242,7 @@ function expandRepeats(
       repeatStartIndex = measureIndex;
       repeating = true;
     } else if (measure.repeatStart) {
+      // If the measure has a start repeat, set repeatStartIndex
       repeatStartIndex = measureIndex;
     }
   }
@@ -262,7 +285,6 @@ function getSoundedPitches(
   end: ID | null
 ): SoundedMeasure[] {
   const measuresToPlay = expandRepeats(measures, timings, start, end);
-
   const gracenoteDuration = 0.044;
 
   const soundedMeasuresToPlay = measuresToPlay.map((measure) => ({
@@ -344,7 +366,7 @@ async function playPitches(
     measuresToPlay.flatMap((measure) => measure.parts.flatMap((part) => part.length))
   );
 
-  if (measuresToPlay.length === 0 || numberOfItems === 0) {
+  if (numberOfItems === 0) {
     return;
   }
 

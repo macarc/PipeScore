@@ -12,8 +12,8 @@
 - [ ] Snapping for text box dragging
 - [x] View-only mode for mobile
 - [ ] Note in docs about keyboard-based
-- [ ] Fix harmony playback
-- [ ] Importing tunes
+- [x] Fix harmony playback
+- [ ] Importing tunes into other scores
 - [ ] Count ins
 - [ ] Password change
 - [ ] Chanter playback
