@@ -442,6 +442,32 @@ export class Score extends IScore {
   }
 
   playbackTimings(elements: PlaybackMeasure[]) {
-    return removeNulls(this._timings.map((st) => st.play(elements)));
+    // return removeNulls(this._timings.map((st) => st.play(elements)));
+    let tempTimings = removeNulls(this._timings.map((st) => st.play(elements)));
+    let timings=[];
+    let firsTiming =null;
+    // Convert 2 Single PlaybackSecondTiming into a single PlaybackSecondTiming
+    for (let i = 0; i < tempTimings.length; i++) {
+      if(tempTimings[i].isSingleTiming)
+      {
+        if(firsTiming==null)
+          firsTiming = tempTimings[i];
+        else
+        {
+          // adjust middle and end index 
+          firsTiming.middle = firsTiming.end;
+          firsTiming.end=tempTimings[i].end
+          timings.push(firsTiming);
+          firsTiming = null;
+        }
+      }
+      else
+      {
+        timings.push(tempTimings[i]);
+        firsTiming = null;
+      }
+      
+    }
+    return timings;
   }
 }
