@@ -60,6 +60,7 @@ import {
   startPlayback,
   startPlaybackAtSelection,
   stopPlayback,
+  updateInstrument,
 } from '../Events/Playback';
 import { copy, deleteSelection, paste } from '../Events/Selection';
 import {
@@ -1019,9 +1020,42 @@ export default function render(state: UIState): m.Children {
           ]),
           state.dispatch
         ),
+    
       ]),
     ]),
-  ];
+    m('section', [
+      m('h2', text('instrument')),
+      
+        m('label',
+          m('input', {
+            type: 'radio',
+            id: "Pipes",
+            name: 'test',
+            checked: settings.instrument === "",
+            onchange: () =>
+              state.dispatch(
+                updateInstrument('')                
+              ),
+            value: ""
+          }),
+          text('instrumentPipes')
+        ),
+        m('label',
+          m('input', {
+            type: 'radio',
+            id: "Practice Chanter",
+            name: 'test',
+            checked: settings.instrument === "pc",
+            onchange: () =>
+              state.dispatch(
+                updateInstrument('pc')                
+              ),
+            value: "pc"
+          }),
+          text('instrumentPC')
+        )
+    ]),
+];
 
   const documentMenu = [
     m('section', [
@@ -1390,6 +1424,39 @@ function mobileView(state: UIState): m.Children {
             ]),
             state.dispatch
           ),
+          m('section', [
+            m('h2', text('instrument')),
+            
+              m('label',
+                m('input', {
+                  type: 'radio',
+                  id: "Pipes",
+                  name: 'test',
+                  checked: settings.instrument === "",
+                  onchange: () =>
+                    state.dispatch(
+                      updateInstrument('')                
+                    ),
+                  value: ""
+                }),
+                text('instrumentPipes')
+              ),
+              m('label',
+                m('input', {
+                  type: 'radio',
+                  id: "Practice Chanter",
+                  name: 'test',
+                  checked: settings.instrument === "pc",
+                  onchange: () =>
+                    state.dispatch(
+                      updateInstrument('pc')                
+                    ),
+                  value: "pc"
+                }),
+                text('instrumentPC')
+              )
+          ]),
+      
         ]),
         m('div.section-content', [
           help(
