@@ -141,11 +141,13 @@ export class PlaybackSecondTiming {
   start: PlaybackIndex;
   middle: PlaybackIndex;
   end: PlaybackIndex;
+  isSingleTiming:boolean;
 
-  constructor(start: PlaybackIndex, middle: PlaybackIndex, end: PlaybackIndex) {
+  constructor(start: PlaybackIndex, middle: PlaybackIndex, end: PlaybackIndex,isSingleTiming:boolean=false) {
     this.start = start;
     this.middle = middle;
     this.end = end;
+    this.isSingleTiming = isSingleTiming;
   }
 
   in(index: PlaybackIndex) {
