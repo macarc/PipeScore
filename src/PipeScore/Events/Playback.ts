@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { playback } from '../Playback/impl';
+import { loadAudioResources } from '../Playback/sounds';
 import { ScoreSelection } from '../Selection/score';
 import type { State } from '../State';
 import type { ID } from '../global/id';
@@ -98,3 +99,15 @@ export function updatePlaybackCursor(id: ID | null): ScoreEvent {
     return Update.NoChange;
   };
 }
+
+export function updateInstrument(id: string): ScoreEvent {
+  return async (state: State) => {
+    if (id !== settings.instrument) {
+      settings.instrument = id;
+      await loadAudioResources();
+      return Update.ViewChanged;
+    }
+    return Update.NoChange;
+  };
+}
+

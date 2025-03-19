@@ -231,7 +231,10 @@ export const FrenchTextItems: TextItems = {
   margin: 'Marge',
   view: 'Voir',
   disableHelp: 'Désactiver Aide',
-  save: '',
-  allChangesSaved: '',
-  unsavedChanges: '',
+  save: 'Enregistrer',
+  allChangesSaved: 'Toutes les modifications enregistrées',
+  unsavedChanges: 'Modifications non enregistrées',
+  instrumentPC:'Instrument de pratique',
+  instrumentPipes:'Bagpipe',
+  instrument: 'Instrument',
 };
