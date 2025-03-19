@@ -1029,8 +1029,7 @@ export default function render(state: UIState): m.Children {
         m('label',
           m('input', {
             type: 'radio',
-            id: "Pipes",
-            name: 'test',
+            name: 'instrument',
             checked: settings.instrument === "",
             onchange: () =>
               state.dispatch(
@@ -1043,8 +1042,7 @@ export default function render(state: UIState): m.Children {
         m('label',
           m('input', {
             type: 'radio',
-            id: "Practice Chanter",
-            name: 'test',
+            name: 'instrument',
             checked: settings.instrument === "pc",
             onchange: () =>
               state.dispatch(
@@ -1430,8 +1428,7 @@ function mobileView(state: UIState): m.Children {
               m('label',
                 m('input', {
                   type: 'radio',
-                  id: "Pipes",
-                  name: 'test',
+                  name: 'instrument',
                   checked: settings.instrument === "",
                   onchange: () =>
                     state.dispatch(
@@ -1444,8 +1441,7 @@ function mobileView(state: UIState): m.Children {
               m('label',
                 m('input', {
                   type: 'radio',
-                  id: "Practice Chanter",
-                  name: 'test',
+                  name: 'instrument',
                   checked: settings.instrument === "pc",
                   onchange: () =>
                     state.dispatch(
