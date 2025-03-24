@@ -9,6 +9,7 @@
 
 import re
 import subprocess
+import os
 
 with open(f"src/static/template.html") as f:
     template = f.read()
@@ -64,7 +65,10 @@ def build(filename):
 
 def cp_file(filename):
     "Copy a file straight from src/static to the public directory"
-    subprocess.run(["cp", f"src/static/{filename}.html", f"public/{filename}.html"])
+    if os.name == 'nt':  # Windows
+        os.system(f'"copy src\\static\\{filename}.html public\\{filename}.html"')
+    else:  # Unix/Linux
+        subprocess.run(["cp", f"src/static/{filename}.html", f"public/{filename}.html"])
 
 
 build("index")

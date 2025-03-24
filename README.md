@@ -87,6 +87,10 @@ To build a production JS bundle run:
 ```bash
 $ npm run build    # build minified bundle
 ```
+Windows using VSCode try these alternate script commands in the Terminal Window
+
+$ npm run buildvscode   # build JS, static pages and icons
+$ npm run watchvscode   # rebuild JS on changes
 
 ## Contributors
 

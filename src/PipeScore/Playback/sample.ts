@@ -20,6 +20,7 @@
 //  AudioResource handles loading the sample, Sample handles playing.
 
 import { onSafari } from '../global/browser';
+import { settings } from '../global/settings';
 
 /**
  * AudioResource handles loading an AudioBuffer from a URL.
@@ -50,7 +51,7 @@ export class AudioResource {
 
     return new Promise((res) => {
       const request = new XMLHttpRequest();
-      request.open('GET', `/audio/${this.filename}.${file_format}`, true);
+      request.open('GET', `/audio/${settings.instrument}${this.filename}.${file_format}`, true);
       request.responseType = 'arraybuffer';
       request.onload = () => {
         const data = request.response;
@@ -132,4 +133,5 @@ export class Sample {
       this.source.stop();
     }
   }
+  
 }
