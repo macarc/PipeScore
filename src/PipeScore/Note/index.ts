@@ -22,6 +22,7 @@ import type { Previews } from '../Preview/previews';
 import type { SavedNote, SavedNoteOrTriplet, SavedTriplet } from '../SavedModel';
 import { Item } from '../global/id';
 import type { Pitch } from '../global/pitch';
+import { unreachable } from '../global/utils';
 import type { NoteLength } from './notelength';
 
 export abstract class INote
@@ -85,8 +86,7 @@ export function noteToJSON(note: NoteOrTriplet): SavedNoteOrTriplet {
       value: note.toObject(),
     };
   }
-  console.log(note);
-  throw new Error('Unknown note type (not a single or triplet)');
+  unreachable(note, 'Unknown note type (not a single or triplet)');
 }
 
 export function lastNote(note: NoteOrTriplet): INote {

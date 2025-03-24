@@ -31,7 +31,15 @@ import { dispatch } from '../Controller';
 import { updateView } from '../Events/Misc';
 import type { ID } from '../global/id';
 import { settings } from '../global/settings';
-import { isRoughlyZero, last, nlast, passert, sleep, sum } from '../global/utils';
+import {
+  isRoughlyZero,
+  last,
+  nlast,
+  passert,
+  sleep,
+  sum,
+  unreachable,
+} from '../global/utils';
 import { Drone, type SoundedMeasure, SoundedPitch, SoundedSilence } from './sounds';
 import type { PlaybackState } from './state';
 
@@ -128,10 +136,9 @@ function sliceMeasures(
   return measures;
 }
 
-// TODO : better typing
 /**
- * Removes all PlaybackObjects from `elements`, duplicates notes where necessary
- * for repeats / second timings, and removes the notes before start/ after end.
+ * Duplicates playback items where necessary
+ * for repeats / second timings, and removes the notes before start/after end.
  *
  * This code is not pretty.
  * @param measures
@@ -306,8 +313,7 @@ function getSoundedPitches(
         } else if (e instanceof PlaybackObject) {
           currentID = e.id;
         } else {
-          console.log(e);
-          throw new Error(`Unexpected playback element ${e}`);
+          unreachable(e);
         }
       }
 
