@@ -234,7 +234,7 @@ export const FrenchTextItems: TextItems = {
   save: 'Enregistrer',
   allChangesSaved: 'Toutes les modifications enregistrées',
   unsavedChanges: 'Modifications non enregistrées',
-  instrumentPC:'Instrument de pratique',
-  instrumentPipes:'Bagpipe',
+  instrumentPC: 'Instrument de pratique',
+  instrumentPipes: 'Bagpipe',
   instrument: 'Instrument',
 };

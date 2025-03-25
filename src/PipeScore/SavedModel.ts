@@ -211,7 +211,7 @@ export type SavedSettings = {
   margin: number;
   gapAfterGracenote: number;
   harmonyVolume: number;
-  instrument:string;
+  instrument: string;
 };
 
 export type DeprecatedSavedNoteOrTriplet =

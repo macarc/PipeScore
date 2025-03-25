@@ -17,6 +17,7 @@
 //  Document settings singleton.
 
 import type { SavedSettings } from '../SavedModel';
+import { Instrument, instrumentToString, parseInstrument } from './instrument';
 import { clamp } from './utils';
 
 const a4LongSide = 297; // in mm
@@ -32,7 +33,7 @@ export class Settings {
   pageShortSideLength = a4ShortSide * 5;
   gapAfterGracenote = 7;
   bpm = 80;
-  instrument=""; // Default to Pipes
+  instrument = Instrument.GHB;
 
   static defaultStaveGap = 65;
   static defaultHarmonyGap = 50;
@@ -47,7 +48,7 @@ export class Settings {
     this.bpm = o.bpm || 80;
     this.gapAfterGracenote = o.gapAfterGracenote || 7;
     this.harmonyVolume = o.harmonyVolume || Settings.defaultHarmonyVolume;
-    this.instrument=o.instrument || ""; // Default to Pipes
+    this.instrument = parseInstrument(o.instrument) || Instrument.GHB;
   }
   toJSON(): SavedSettings {
     return {
@@ -58,7 +59,7 @@ export class Settings {
       bpm: this.bpm,
       gapAfterGracenote: this.gapAfterGracenote,
       harmonyVolume: this.harmonyVolume,
-      instrument: this.instrument,
+      instrument: instrumentToString(this.instrument),
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {

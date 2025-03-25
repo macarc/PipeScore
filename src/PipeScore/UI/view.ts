@@ -94,6 +94,7 @@ import { text } from '../Translations/current';
 import type { ITune } from '../Tune';
 import { onMobile } from '../global/browser';
 import { help } from '../global/docs';
+import { Instrument } from '../global/instrument';
 import { Relative } from '../global/relativeLocation';
 import { type Settings, settings } from '../global/settings';
 import type { Menu } from './model';
@@ -1020,40 +1021,37 @@ export default function render(state: UIState): m.Children {
           ]),
           state.dispatch
         ),
-    
       ]),
     ]),
     m('section', [
       m('h2', text('instrument')),
-      
-        m('label',
-          m('input', {
-            type: 'radio',
-            name: 'instrument',
-            checked: settings.instrument === "",
-            onchange: () =>
-              state.dispatch(
-                updateInstrument('')                
-              ),
-            value: ""
-          }),
-          text('instrumentPipes')
-        ),
-        m('label',
-          m('input', {
-            type: 'radio',
-            name: 'instrument',
-            checked: settings.instrument === "pc",
-            onchange: () =>
-              state.dispatch(
-                updateInstrument('pc')                
-              ),
-            value: "pc"
-          }),
-          text('instrumentPC')
-        )
+
+      m(
+        'label',
+        m('input', {
+          type: 'radio',
+          name: 'instrument',
+          disabled: state.isPlaying,
+          checked: settings.instrument === Instrument.GHB,
+          onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
+          value: '',
+        }),
+        text('instrumentPipes')
+      ),
+      m(
+        'label',
+        m('input', {
+          type: 'radio',
+          name: 'instrument',
+          disabled: state.isPlaying,
+          checked: settings.instrument === Instrument.Chanter,
+          onchange: () => state.dispatch(updateInstrument(Instrument.Chanter)),
+          value: 'pc',
+        }),
+        text('instrumentPC')
+      ),
     ]),
-];
+  ];
 
   const documentMenu = [
     m('section', [
@@ -1424,35 +1422,32 @@ function mobileView(state: UIState): m.Children {
           ),
           m('section', [
             m('h2', text('instrument')),
-            
-              m('label',
-                m('input', {
-                  type: 'radio',
-                  name: 'instrument',
-                  checked: settings.instrument === "",
-                  onchange: () =>
-                    state.dispatch(
-                      updateInstrument('')                
-                    ),
-                  value: ""
-                }),
-                text('instrumentPipes')
-              ),
-              m('label',
-                m('input', {
-                  type: 'radio',
-                  name: 'instrument',
-                  checked: settings.instrument === "pc",
-                  onchange: () =>
-                    state.dispatch(
-                      updateInstrument('pc')                
-                    ),
-                  value: "pc"
-                }),
-                text('instrumentPC')
-              )
+
+            m(
+              'label',
+              m('input', {
+                type: 'radio',
+                name: 'instrument',
+                disabled: state.isPlaying,
+                checked: settings.instrument === Instrument.GHB,
+                onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
+                value: '',
+              }),
+              text('instrumentPipes')
+            ),
+            m(
+              'label',
+              m('input', {
+                type: 'radio',
+                name: 'instrument',
+                disabled: state.isPlaying,
+                checked: settings.instrument === Instrument.Chanter,
+                onchange: () => state.dispatch(updateInstrument(Instrument.Chanter)),
+                value: 'pc',
+              }),
+              text('instrumentPC')
+            ),
           ]),
-      
         ]),
         m('div.section-content', [
           help(

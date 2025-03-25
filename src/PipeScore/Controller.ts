@@ -22,7 +22,7 @@ import { mouseDrag, mouseUp } from './Events/Mouse';
 import { type ScoreEvent, Update } from './Events/types';
 import type { Firestore } from './Firestore';
 import { emptyGracenoteState } from './Gracenote/state';
-import { loadAudioResources } from './Playback/sounds';
+import { loadAudioResources } from './Playback/resources';
 import quickStart from './QuickStart';
 import { Score } from './Score/impl';
 import { drawScore } from './Score/view';

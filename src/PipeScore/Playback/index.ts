@@ -18,46 +18,81 @@ import type { ID } from '../global/id';
 import type { Pitch } from '../global/pitch';
 import { sum } from '../global/utils';
 
-export class PlaybackObject {
+/**
+ * Playback items can be either
+ * - an object (with ID) - used for detecting start/end of selection, and for advancing cursor
+ * - note - note with pitch and duration
+ * - gracenote - note with pitch but no duration (duration is 'stolen' from subsequent note)
+ */
+export type PlaybackItem = PlaybackObject | PlaybackNote | PlaybackGracenote;
+
+export type PlaybackObject = {
   type: 'object-start' | 'object-end';
   id: ID;
+};
 
-  constructor(position: 'start' | 'end', id: ID) {
-    this.type = position === 'start' ? 'object-start' : 'object-end';
-    this.id = id;
-  }
-}
-
-export class PlaybackNote {
-  type = 'note' as const;
+export type PlaybackNote = {
+  type: 'note';
   pitch: Pitch;
   tied: boolean;
   duration: number;
+};
 
-  constructor(pitch: Pitch, tied: boolean, duration: number) {
-    this.pitch = pitch;
-    this.tied = tied;
-    this.duration = duration;
-  }
-}
-
-export class PlaybackGracenote {
-  type = 'gracenote' as const;
+export type PlaybackGracenote = {
+  type: 'gracenote';
   pitch: Pitch;
+};
 
-  constructor(pitch: Pitch) {
-    this.pitch = pitch;
-  }
+/**
+ * Helper function to generate PlaybackObjects
+ * @param id id of object
+ * @param children playback items that go between the object start and object end
+ * @returns updated list of PlaybackItems, including object
+ */
+export function playbackObject(id: ID, children: PlaybackItem[]): PlaybackItem[] {
+  return [{ type: 'object-start', id }, ...children, { type: 'object-end', id }];
 }
 
-export type PlaybackItem = PlaybackObject | PlaybackNote | PlaybackGracenote;
-
-export function itemLength(item: PlaybackItem) {
-  return item instanceof PlaybackNote ? item.duration : 0;
+/**
+ * Helper function to generate PlaybackNote
+ * @param pitch
+ * @param duration
+ * @param tied
+ * @returns
+ */
+export function playbackNote(
+  pitch: Pitch,
+  duration: number,
+  tied: boolean
+): PlaybackNote {
+  return { type: 'note', pitch, duration, tied };
 }
 
-function itemsLength(items: PlaybackItem[]) {
-  return sum(items.map(itemLength));
+/**
+ * Helper function to generate PlaybackGracenote
+ * @param pitch
+ * @returns
+ */
+export function playbackGracenote(pitch: Pitch): PlaybackGracenote {
+  return { type: 'gracenote', pitch };
+}
+
+/**
+ * Helper function to get duration of a PlaybackItem.
+ * @param item
+ * @returns
+ */
+export function itemDuration(item: PlaybackItem) {
+  return item.type === 'note' ? item.duration : 0;
+}
+
+/**
+ * Helper function to total duration of a multiple PlaybackItems.
+ * @param items
+ * @returns
+ */
+function itemsDuration(items: PlaybackItem[]) {
+  return sum(items.map(itemDuration));
 }
 
 export class PlaybackMeasure {
@@ -76,14 +111,14 @@ export class PlaybackMeasure {
    * @returns maximum length of the parts in the measure, in beats
    */
   length() {
-    return Math.max(...this.parts.map(itemsLength));
+    return Math.max(...this.parts.map(itemsDuration));
   }
   /**
    * Get length of main part (first part) of measure in beats
    * @returns length of the main part of the measure, in beats
    */
   lengthOfMainPart() {
-    return itemsLength(this.parts[0]);
+    return itemsDuration(this.parts[0]);
   }
 
   /**
@@ -93,7 +128,7 @@ export class PlaybackMeasure {
    * @returns length up to (but not including) .parts[partIndex], in beats
    */
   timeTo(partIndex: number, itemIndex: number) {
-    return itemsLength(this.parts[partIndex].slice(0, itemIndex));
+    return itemsDuration(this.parts[partIndex].slice(0, itemIndex));
   }
 
   /**
@@ -103,7 +138,7 @@ export class PlaybackMeasure {
    * @returns length up to (and including) .parts[partIndex], in beats
    */
   timeToAfter(partIndex: number, itemIndex: number) {
-    return itemsLength(this.parts[partIndex].slice(0, itemIndex + 1));
+    return itemsDuration(this.parts[partIndex].slice(0, itemIndex + 1));
   }
 }
 
@@ -116,6 +151,11 @@ export class PlaybackIndex {
     this.timeOffset = timeOffset;
   }
 
+  /**
+   * Check position relative to another PlaybackIndex.
+   * @param other PlaybackIndex to compare to
+   * @returns true if this PlaybackIndex is before the other
+   */
   isBefore(other: PlaybackIndex) {
     return (
       this.measureIndex < other.measureIndex ||
@@ -124,6 +164,11 @@ export class PlaybackIndex {
     );
   }
 
+  /**
+   * Check position relative to another PlaybackIndex.
+   * @param other PlaybackIndex to compare to
+   * @returns true if this PlaybackIndex is before the other, or if the indices are the same
+   */
   isAtOrBefore(other: PlaybackIndex) {
     return (
       this.measureIndex < other.measureIndex ||
@@ -132,8 +177,16 @@ export class PlaybackIndex {
     );
   }
 
+  /**
+   * Adds the item duration to the PlaybackIndex, advancing the index through the bar.
+   * @param item
+   * @returns a new PlaybackIndex, which is this.timeOffset + item.duration through the bar
+   */
   incrementByItem(item: PlaybackItem) {
-    return new PlaybackIndex(this.measureIndex, this.timeOffset + itemLength(item));
+    return new PlaybackIndex(
+      this.measureIndex,
+      this.timeOffset + itemDuration(item)
+    );
   }
 }
 
@@ -148,10 +201,26 @@ export class PlaybackSecondTiming {
     this.end = end;
   }
 
+  /**
+   * Check if a PlaybackIndex is within a timing.
+   * @param index
+   * @returns true if the index is within the timing
+   */
   in(index: PlaybackIndex) {
     return this.start.isAtOrBefore(index) && index.isAtOrBefore(this.end);
   }
 
+  /**
+   * Check if an item should not be played, which would be because either:
+   * - we're on the first time through the part, and this is part of a second timing
+   * - we're on a repeat, and this is part of a first timing
+   * This is framed in the negative because it should be able to handle indices
+   * outside the timing - shouldKeepElement() would be misleading since we don't know
+   * if we should keep it! Just if it should be deleted.
+   * @param index
+   * @param repeating true if we're on a repeat
+   * @returns true if the element should not be played
+   */
   shouldDeleteElement(index: PlaybackIndex, repeating: boolean) {
     if (repeating) {
       return this.start.isAtOrBefore(index) && index.isBefore(this.middle);

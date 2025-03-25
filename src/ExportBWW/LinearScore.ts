@@ -23,7 +23,6 @@ import { shortBeamDirection } from '../PipeScore/Note/noteview';
 import type { IScore } from '../PipeScore/Score';
 import type { ITimeSignature } from '../PipeScore/TimeSignature';
 import type { Pitch } from '../PipeScore/global/pitch';
-import { unreachable } from '../PipeScore/global/utils';
 import {
   BBarline,
   BBeatBreak,

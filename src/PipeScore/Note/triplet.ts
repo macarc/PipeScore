@@ -17,7 +17,7 @@
 //  Triplet model
 
 import { type INote, ITriplet } from '.';
-import { PlaybackNote, PlaybackObject } from '../Playback';
+import { playbackNote, playbackObject } from '../Playback';
 import type { SavedTriplet } from '../SavedModel';
 import { type ID, genID } from '../global/id';
 import type { Pitch } from '../global/pitch';
@@ -104,17 +104,16 @@ export class Triplet extends ITriplet {
   }
 
   public play(previous: Pitch | null) {
-    return [
-      new PlaybackObject('start', this.id),
-      ...this._notes.flatMap((n, i) => [
+    return playbackObject(
+      this.id,
+      this._notes.flatMap((n, i) => [
         ...n
           .gracenote()
           .play(n.pitch(), i === 0 ? previous : this._notes[i - 1].pitch()),
-        new PlaybackObject('start', n.id),
-        new PlaybackNote(n.pitch(), n.isTied(), (2 / 3) * n.length().inBeats()),
-        new PlaybackObject('end', n.id),
-      ]),
-      new PlaybackObject('end', this.id),
-    ];
+        ...playbackObject(n.id, [
+          playbackNote(n.pitch(), (2 / 3) * n.length().inBeats(), n.isTied()),
+        ]),
+      ])
+    );
   }
 }

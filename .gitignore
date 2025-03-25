@@ -20,3 +20,5 @@ TAGS
 
 tsserver.log
 __pycache__
+
+.DS_Store

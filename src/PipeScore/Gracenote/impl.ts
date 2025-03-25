@@ -24,7 +24,7 @@
 //  - (NoGracenote - used if the note has no gracenote)
 
 import { IGracenote } from '.';
-import { PlaybackGracenote } from '../Playback';
+import { playbackGracenote } from '../Playback';
 import type { IPreview } from '../Preview';
 import { ReactiveGracenotePreview, SingleGracenotePreview } from '../Preview/impl';
 import type {
@@ -98,7 +98,7 @@ export abstract class Gracenote extends IGracenote {
 
   play(thisNote: Pitch, previousNote: Pitch | null) {
     const notes = this.notes(thisNote, previousNote);
-    return notes.invalid ? [] : notes.map((pitch) => new PlaybackGracenote(pitch));
+    return notes.invalid ? [] : notes.map((pitch) => playbackGracenote(pitch));
   }
 
   // Add a single to an existing gracenote

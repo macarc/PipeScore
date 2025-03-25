@@ -25,8 +25,7 @@ export function capitalise(st: string) {
 }
 
 export function unreachable(o: never, msg = ''): never {
-  msg = msg || 'Expected never, got ' + o;
-  throw new Error(msg);
+  throw new Error(msg || `Expected never, got ${o}`);
 }
 
 export function passert(cond: boolean, ...msg: object[]): cond is true {

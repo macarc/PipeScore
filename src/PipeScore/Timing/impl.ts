@@ -218,20 +218,18 @@ export class SecondTiming extends Timing {
         const part = parts[partIndex];
         for (let itemIndex = 0; itemIndex < part.length; itemIndex++) {
           const item = part[itemIndex];
-          if (item instanceof PlaybackObject) {
-            if (item.type === 'object-start' && item.id === this.start) {
-              const timeToItem = measures[measureIndex].timeTo(partIndex, itemIndex);
-              startIndex = new PlaybackIndex(measureIndex, timeToItem);
-            } else if (item.type === 'object-start' && item.id === this.middle) {
-              const timeToItem = measures[measureIndex].timeTo(partIndex, itemIndex);
-              middleIndex = new PlaybackIndex(measureIndex, timeToItem);
-            } else if (item.type === 'object-end' && item.id === this.end) {
-              const timeToItem = measures[measureIndex].timeToAfter(
-                partIndex,
-                itemIndex
-              );
-              endIndex = new PlaybackIndex(measureIndex, timeToItem);
-            }
+          if (item.type === 'object-start' && item.id === this.start) {
+            const timeToItem = measures[measureIndex].timeTo(partIndex, itemIndex);
+            startIndex = new PlaybackIndex(measureIndex, timeToItem);
+          } else if (item.type === 'object-start' && item.id === this.middle) {
+            const timeToItem = measures[measureIndex].timeTo(partIndex, itemIndex);
+            middleIndex = new PlaybackIndex(measureIndex, timeToItem);
+          } else if (item.type === 'object-end' && item.id === this.end) {
+            const timeToItem = measures[measureIndex].timeToAfter(
+              partIndex,
+              itemIndex
+            );
+            endIndex = new PlaybackIndex(measureIndex, timeToItem);
           }
         }
       }

@@ -19,27 +19,29 @@
 import { dispatch } from '../Controller';
 import { updatePlaybackCursor } from '../Events/Playback';
 import type { ID } from '../global/id';
-import { Pitch } from '../global/pitch';
+import type { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
 import { sleep } from '../global/utils';
-import { AudioResource, Sample } from './sample';
+import { Sample } from './audio';
+import { getInstrumentResources, pitchToAudioResource } from './resources';
 
 /**
  * Drone playback.
  */
 export class Drone {
-  private sample: Sample;
+  private sample: Sample | null;
   private stopped = false;
 
   constructor(context: AudioContext) {
-    this.sample = new Sample(drones, context);
+    const drones = getInstrumentResources().drones;
+    this.sample = drones && new Sample(drones, context);
   }
 
   /**
    * Start the drone, looping forever until .stop() is called.
    */
   async start() {
-    while (!this.stopped) {
+    while (!this.stopped && this.sample) {
       this.sample.start(0.1);
       const sleepLength = this.sample.duration() - 3;
       await sleep(1000 * sleepLength);
@@ -50,7 +52,9 @@ export class Drone {
    * Stop the drone.
    */
   stop() {
-    this.sample.stop();
+    if (this.sample) {
+      this.sample.stop();
+    }
     this.stopped = true;
   }
 }
@@ -139,68 +143,3 @@ export class SoundedSilence {
 export type SoundedMeasure = {
   parts: (SoundedPitch | SoundedSilence)[][];
 };
-
-// Audio Resource Loading
-
-const lowg = new AudioResource('lowg');
-const lowa = new AudioResource('lowa');
-const b = new AudioResource('b');
-const c = new AudioResource('c');
-const d = new AudioResource('d');
-const e = new AudioResource('e');
-const f = new AudioResource('f');
-const highg = new AudioResource('highg');
-const higha = new AudioResource('higha');
-const drones = new AudioResource('drones');
-
-// This is in a function (rather than at the top level)
-// so that sample loading can be delayed, so that images
-// are loaded first. Hackity hackity.
-
-/**
- * Load the audio files necessary for playback.
- * @returns a promise which resolves when all resources are loaded
- */
-export async function loadAudioResources() {
-  const context = new AudioContext();
-  return Promise.all([
-    lowg.load(context),
-    lowa.load(context),
-    b.load(context),
-    c.load(context),
-    d.load(context),
-    e.load(context),
-    f.load(context),
-    highg.load(context),
-    higha.load(context),
-    drones.load(context),
-  ]);
-}
-
-/**
- * Get the AudioResource associated with the pitch.
- * @param pitch
- * @returns the audio resource
- */
-function pitchToAudioResource(pitch: Pitch): AudioResource {
-  switch (pitch) {
-    case Pitch.G:
-      return lowg;
-    case Pitch.A:
-      return lowa;
-    case Pitch.B:
-      return b;
-    case Pitch.C:
-      return c;
-    case Pitch.D:
-      return d;
-    case Pitch.E:
-      return e;
-    case Pitch.F:
-      return f;
-    case Pitch.HG:
-      return highg;
-    case Pitch.HA:
-      return higha;
-  }
-}
