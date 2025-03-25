@@ -1405,6 +1405,7 @@ function mobileView(state: UIState): m.Children {
                 )
               ),
           }),
+          
           help(
             'playback-speed',
             m('label#playback-speed-label', [
@@ -1422,9 +1423,9 @@ function mobileView(state: UIState): m.Children {
             ]),
             state.dispatch
           ),
-          m('section', [
-            m('h2', text('instrument')),
-            
+        ]),
+        m('div.section-content', [
+          m('div.section-content.vertical', [
               m('label',
                 m('input', {
                   type: 'radio',
@@ -1436,23 +1437,24 @@ function mobileView(state: UIState): m.Children {
                     ),
                   value: ""
                 }),
-                text('instrumentPipes')
-              ),
-              m('label',
-                m('input', {
-                  type: 'radio',
-                  name: 'instrument',
-                  checked: settings.instrument === "pc",
-                  onchange: () =>
-                    state.dispatch(
-                      updateInstrument('pc')                
-                    ),
-                  value: "pc"
-                }),
-                text('instrumentPC')
-              )
+              text('instrumentPipes'),
+            ),
           ]),
-      
+          m('div.section-content.vertical', [
+            m('label',
+              m('input', {
+                type: 'radio',
+                name: 'instrument',
+                checked: settings.instrument === "pc",
+                onchange: () =>
+                  state.dispatch(
+                    updateInstrument('pc')                
+                  ),
+                value: "pc"
+              }),
+              text('instrumentPC')
+            )
+          ])
         ]),
         m('div.section-content', [
           help(
