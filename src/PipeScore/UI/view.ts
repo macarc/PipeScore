@@ -1420,34 +1420,36 @@ function mobileView(state: UIState): m.Children {
             ]),
             state.dispatch
           ),
-          m('section', [
-            m('h2', text('instrument')),
-
+        ]),
+        m('div.section-content', [
+          m('div.section-content.vertical', [
             m(
-              'label',
-              m('input', {
-                type: 'radio',
-                name: 'instrument',
-                disabled: state.isPlaying,
-                checked: settings.instrument === Instrument.GHB,
-                onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
-                value: '',
-              }),
-              text('instrumentPipes')
-            ),
-            m(
-              'label',
-              m('input', {
-                type: 'radio',
-                name: 'instrument',
-                disabled: state.isPlaying,
-                checked: settings.instrument === Instrument.Chanter,
-                onchange: () => state.dispatch(updateInstrument(Instrument.Chanter)),
-                value: 'pc',
-              }),
-              text('instrumentPC')
+            'label',
+            m('input', {
+              type: 'radio',
+              name: 'instrument',
+              disabled: state.isPlaying,
+              checked: settings.instrument === Instrument.GHB,
+              onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
+              value: '',
+            }),
+            text('instrumentPipes')
             ),
           ]),
+          m('div.section-content.vertical', [
+            m(
+            'label',
+            m('input', {
+              type: 'radio',
+              name: 'instrument',
+              disabled: state.isPlaying,
+              checked: settings.instrument === Instrument.Chanter,
+              onchange: () => state.dispatch(updateInstrument(Instrument.Chanter)),
+              value: 'pc',
+            }),
+            text('instrumentPC')
+            ),
+          ])
         ]),
         m('div.section-content', [
           help(
