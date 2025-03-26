@@ -39,10 +39,6 @@ import { clearXY } from './global/xy';
 import { IScore } from './Score';
 import { SecondTiming, SingleTiming } from './Timing/impl';
 import { INote } from './Note';
-// import { Bar } from './Bar/impl';
-// import { IBar } from './Bar';
-// import { ITimeSignature } from './TimeSignature';
-// import { ITiming } from './Timing';
 
 const state: State = {
   store: null,
