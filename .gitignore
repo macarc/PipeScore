@@ -26,7 +26,4 @@ __pycache__
 *.aup3-shm
 *.aup3-wal
 *.aup3
-public/audio/GHB/snare-roll-end.mp3
-public/audio/GHB/snare-roll-end.wav
-public/audio/GHB/snare-roll-start.mp3
-public/audio/GHB/snare-roll-start.wav
+
