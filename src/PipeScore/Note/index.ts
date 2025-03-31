@@ -19,11 +19,7 @@
 import type { IGracenote } from '../Gracenote';
 import type { PlaybackItem } from '../Playback';
 import type { Previews } from '../Preview/previews';
-import type {
-  SavedNote,
-  SavedNoteOrTriplet,
-  SavedTriplet,
-} from '../SavedModel';
+import type { SavedNote, SavedNoteOrTriplet, SavedTriplet } from '../SavedModel';
 import { Item } from '../global/id';
 import type { Pitch } from '../global/pitch';
 import { unreachable } from '../global/utils';
@@ -45,10 +41,7 @@ export abstract class INote
   abstract setLength(length: NoteLength): void;
   abstract hasPreview(): boolean;
   abstract makePreviewReal(): void;
-  abstract setPreview(
-    gracenote: IGracenote | Pitch,
-    noteBefore: INote | null
-  ): void;
+  abstract setPreview(gracenote: IGracenote | Pitch, noteBefore: INote | null): void;
   abstract removePreview(): void;
   abstract isPreview(): boolean;
   abstract makeUnPreview(): INote;
