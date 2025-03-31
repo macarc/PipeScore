@@ -38,7 +38,13 @@ import {
   sum,
   unreachable,
 } from '../global/utils';
-import { Drone, type SoundedMeasure, SoundedPitch, SoundedSilence, Tick } from './sounds';
+import {
+  Drone,
+  type SoundedMeasure,
+  SoundedPitch,
+  SoundedSilence,
+  Tick,
+} from './sounds';
 import type { PlaybackState } from './state';
 
 function shouldDeleteBecauseOfSecondTimings(
@@ -206,7 +212,9 @@ function expandRepeats(
         }
 
         // Append the item to the current measure/part in the output
-        if (!shouldDeleteBecauseOfSecondTimings(inputIndex, timings, repeating)) {
+        if (
+          !shouldDeleteBecauseOfSecondTimings(inputIndex, timings, repeating)
+        ) {
           nlast(output).parts[partIndex].push(item);
         }
 
@@ -236,7 +244,8 @@ function expandRepeats(
       repeatStartIndex = measureIndex;
     } else if (measure.repeatEnd && measureIndex > repeatEndIndex) {
       // If the measure has an end repeat, then set measureIndex back to repeatStartIndex
-      timingOverRepeat = timings.find((t) => t.in(inputIndexAfterMeasure)) || null;
+      timingOverRepeat =
+        timings.find((t) => t.in(inputIndexAfterMeasure)) || null;
       repeatEndIndex = measureIndex;
       // Go back to repeat
       measureIndex = repeatStartIndex - 1;
@@ -300,7 +309,9 @@ function getSoundedPitches(
         switch (e.type) {
           case 'note': {
             const duration = e.duration - currentGracenoteDuration;
-            soundedPart.push(new SoundedPitch(e.pitch, duration, ctx, currentID));
+            soundedPart.push(
+              new SoundedPitch(e.pitch, duration, ctx, currentID)
+            );
             currentGracenoteDuration = 0;
             break;
           }
@@ -371,10 +382,18 @@ async function playPitches(
   end: ID | null,
   loop: boolean
 ) {
-  const measuresToPlay = getSoundedPitches(measures, timings, context, start, end);
+  const measuresToPlay = getSoundedPitches(
+    measures,
+    timings,
+    context,
+    start,
+    end
+  );
 
   const numberOfItems = sum(
-    measuresToPlay.flatMap((measure) => measure.parts.flatMap((part) => part.length))
+    measuresToPlay.flatMap((measure) =>
+      measure.parts.flatMap((part) => part.length)
+    )
   );
 
   if (numberOfItems === 0) {
@@ -407,10 +426,7 @@ async function playPitches(
   state.userPressedStop = false;
   dispatch(updateView());
 }
-export async function playMetronome(
-  state: PlaybackState,
-)
-{
+export async function playMetronome(state: PlaybackState) {
   if (state.playing || state.loading) return;
 
   const context = new AudioContext();
@@ -418,11 +434,10 @@ export async function playMetronome(
   state.playingMetronome = true;
 
   tick.start();
-  while(true) // Loop until user presses stop
-  {
+  while (true) {
+    // Loop until user presses stop
     await sleep(1000);
-    if(state.userPressedStop)
-      break;
+    if (state.userPressedStop) break;
   }
   tick.stop();
   state.userPressedStop = false;

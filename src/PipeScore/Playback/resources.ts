@@ -38,7 +38,7 @@ type InstrumentResources = {
   highg: AudioResource;
   higha: AudioResource;
   drones: AudioResource | null;
-  tick:AudioResource;
+  tick: AudioResource;
 };
 
 const ghb: InstrumentResources = {
@@ -52,7 +52,7 @@ const ghb: InstrumentResources = {
   highg: new AudioResource('GHB/highg'),
   higha: new AudioResource('GHB/higha'),
   drones: new AudioResource('GHB/drones'),
-  tick:new AudioResource('GHB/tick'),
+  tick: new AudioResource('GHB/tick'),
 };
 
 const chanter: InstrumentResources = {
@@ -102,8 +102,8 @@ export function getInstrumentResources(): InstrumentResources {
   return settings.instrument === Instrument.Chanter
     ? chanter
     : settings.instrument === Instrument.GHB
-      ? ghb
-      : unreachable(settings.instrument);
+    ? ghb
+    : unreachable(settings.instrument);
 }
 
 // This is in a function (rather than at the top level)

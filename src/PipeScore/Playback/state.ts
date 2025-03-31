@@ -20,7 +20,7 @@ export type PlaybackState = {
   userPressedStop: boolean;
   playing: boolean;
   playingMetronome: boolean;
-  beatIndicator:boolean;
+  beatIndicator: boolean;
   loading: boolean;
   // Location of playback cursor
   cursor: ID | null;

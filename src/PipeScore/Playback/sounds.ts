@@ -76,17 +76,16 @@ export class Tick {
    * Start the metronome tick, looping forever until .stop() is called.
    */
   async start() {
-    
-    const beatIndicatorDuration = 200;  // duration of beat indicator on UI in ms
-    const tickLeadInDuration = 150      // Aligns the centre of the audio tick to the beat indicator in ms
+    const beatIndicatorDuration = 200; // duration of beat indicator on UI in ms
+    const tickLeadInDuration = 150; // Aligns the centre of the audio tick to the beat indicator in ms
     while (!this.stopped) {
       const duration = (1000 * 60) / settings.bpm;
       this.sample.start(1);
-        await sleep(tickLeadInDuration);
-        dispatch(updateBeatIndicator(true));
-        await sleep(beatIndicatorDuration);
-        dispatch(updateBeatIndicator(false));
-        await sleep(duration - beatIndicatorDuration - tickLeadInDuration);
+      await sleep(tickLeadInDuration);
+      dispatch(updateBeatIndicator(true));
+      await sleep(beatIndicatorDuration);
+      dispatch(updateBeatIndicator(false));
+      await sleep(duration - beatIndicatorDuration - tickLeadInDuration);
     }
   }
 
@@ -118,7 +117,12 @@ export class SoundedPitch {
   // see SoundedSilence for details.
   public durationIncludingTies: number;
 
-  constructor(pitch: Pitch, duration: number, ctx: AudioContext, id: ID | null) {
+  constructor(
+    pitch: Pitch,
+    duration: number,
+    ctx: AudioContext,
+    id: ID | null
+  ) {
     this.sample = new Sample(pitchToAudioResource(pitch), ctx);
     this.pitch = pitch;
     this.duration = duration;
