@@ -180,6 +180,7 @@ export function exportPDF(): ScoreEvent {
         loading: false,
         cursor: null,
         playingMetronome: false,
+        beatIndicator: false,
       },
       dispatch: async () => void 0,
     };
