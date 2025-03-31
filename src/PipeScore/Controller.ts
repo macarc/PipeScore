@@ -45,6 +45,8 @@ const state: State = {
   playback: {
     userPressedStop: false,
     playing: false,
+    playingMetronome:false,
+    beatIndicator:false,
     loading: true,
     cursor: null,
   },
@@ -136,6 +138,8 @@ function redraw() {
         loggedIn: state.isLoggedIn,
         loadingAudio: state.playback.loading,
         isPlaying: state.playback.playing,
+        isPlayingMetronome: state.playback.playingMetronome,
+        beatIndicator:state.playback.beatIndicator,
         zoomLevel: state.score.zoom,
         preview: state.preview,
         showingPageNumbers: state.score.showNumberOfPages,

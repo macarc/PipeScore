@@ -179,6 +179,7 @@ export function exportPDF(): ScoreEvent {
         userPressedStop: false,
         loading: false,
         cursor: null,
+        playingMetronome:false,
       },
       dispatch: async () => void 0,
     };

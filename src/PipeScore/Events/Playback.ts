@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { playback } from '../Playback/impl';
+import { playback, playMetronome } from '../Playback/impl';
 import { ScoreSelection } from '../Selection/score';
 import type { State } from '../State';
 import type { ID } from '../global/id';
@@ -68,7 +68,7 @@ export function playbackLoopingSelection(): ScoreEvent {
 
 export function stopPlayback(): ScoreEvent {
   return async (state: State) => {
-    if (state.playback.playing) {
+    if (state.playback.playing||state.playback.playingMetronome) {
       state.playback.userPressedStop = true;
       return Update.ViewChanged;
     }
@@ -105,6 +105,24 @@ export function updateInstrument(instrument: Instrument): ScoreEvent {
     if (instrument !== settings.instrument) {
       settings.instrument = instrument;
       return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
+export function startPlayMetronome(): ScoreEvent {
+  return async (state: State) => {
+    const playbackElements = state.score.play();
+    await playMetronome(
+      state.playback,
+     );
+    return Update.NoChange;
+  };
+}
+export function updateBeatIndicator(beat:boolean): ScoreEvent {
+  return async (state: State) => {
+    if (beat !== state.playback.beatIndicator) {
+      state.playback.beatIndicator=beat;
+      return Update.ViewChanged;
     }
     return Update.NoChange;
   };

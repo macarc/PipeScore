@@ -119,6 +119,9 @@ export const FrenchDocumentation: Documentation = {
     "Jouer un aperçu de la partition à partir de la note/mesure sélectionnée. Cela ne fonctionnera qu'une fois les échantillons téléchargés (si les échantillons doivent être téléchargés, vous verrez un avis).",
   'play-looping-selection':
     'Jouer la partie de la partition actuellement sélectionnée, en jouant en boucle.',
+  'play-metronome': 'Démarrer le métronome',
+  'stop-metronome': 'Arrêter le métronome',  
+  beatindicator:'Affiche le battement du métronome',
   stop: 'Arrêter la lecture.',
   'playback-speed':
     "Contrôler la vitesse de lecture (plus c'est à droite, plus c'est rapide).",
@@ -209,6 +212,7 @@ export const FrenchTextItems: TextItems = {
   playFromBeginning: 'Jouer du Début',
   playFromSelection: 'Jouer de la Sélection',
   playLoopedSelection: 'Jouer Sélection en Boucle',
+  playMetronome: 'Jouer au métronome',
   stop: 'Arrêter',
   playbackOptions: 'Playback Options',
   beatsPerMinute: 'battements par minute',

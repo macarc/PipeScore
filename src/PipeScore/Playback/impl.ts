@@ -38,7 +38,7 @@ import {
   sum,
   unreachable,
 } from '../global/utils';
-import { Drone, type SoundedMeasure, SoundedPitch, SoundedSilence } from './sounds';
+import { Drone, type SoundedMeasure, SoundedPitch, SoundedSilence, Tick } from './sounds';
 import type { PlaybackState } from './state';
 
 function shouldDeleteBecauseOfSecondTimings(
@@ -405,5 +405,27 @@ async function playPitches(
   } while (loop);
 
   state.userPressedStop = false;
+  dispatch(updateView());
+}
+export async function playMetronome(
+  state: PlaybackState,
+)
+{
+  if (state.playing || state.loading) return;
+
+  const context = new AudioContext();
+  const tick = new Tick(context);
+  state.playingMetronome = true;
+
+  tick.start();
+  while(true) // Loop until user presses stop
+  {
+    await sleep(1000);
+    if(state.userPressedStop)
+      break;
+  }
+  tick.stop();
+  state.userPressedStop = false;
+  state.playingMetronome = false;
   dispatch(updateView());
 }

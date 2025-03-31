@@ -19,6 +19,8 @@ import type { ID } from '../global/id';
 export type PlaybackState = {
   userPressedStop: boolean;
   playing: boolean;
+  playingMetronome: boolean;
+  beatIndicator:boolean;
   loading: boolean;
   // Location of playback cursor
   cursor: ID | null;
