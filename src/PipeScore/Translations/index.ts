@@ -168,7 +168,7 @@ export type TextItems = {
   playFromBeginning: string;
   playFromSelection: string;
   playLoopedSelection: string;
-  playMetronome:string;
+  playMetronome: string;
   stop: string;
   playbackOptions: string;
   beatsPerMinute: string;
