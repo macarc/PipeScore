@@ -97,6 +97,7 @@ export type Documentation = {
   'move-bar-to-previous-line': string;
   'move-bar-to-next-line': string;
   'nothing-hovered': string;
+  attackoptions :string;
 };
 
 export type TextItems = {
@@ -193,4 +194,7 @@ export type TextItems = {
   instrumentPC: string;
   instrumentPipes: string;
   instrument: string;
+  attackoff:string;
+  attackquick:string;
+  attackslow:string;
 };
