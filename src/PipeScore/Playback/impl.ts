@@ -429,7 +429,7 @@ async function quickAttack(
   const leadInDuration = measures[0].lengthOfMainPart();
   const pitchEIntro = new SoundedPitch(
     Pitch.E,
-    2 - leadInDuration,
+    2 - (leadInDuration > 1? 0 : leadInDuration), // assumption here is that lead in is never more than 1 beat
     context,
     null
   );
@@ -458,7 +458,8 @@ async function slowAttack(
   //5 - Start Tune (if no lead in)
   drone.start();
   const leadInDuration = measures[0].lengthOfMainPart();
-  await sleep(((2 - leadInDuration) * 1000 * 60) / settings.bpm);
+  // assumption here is that lead in is never more than 1 beat
+  await sleep(((2 - (leadInDuration > 1? 0 : leadInDuration)) * 1000 * 60) / settings.bpm);
   if (state.userPressedStop) return true;
   return false;
 }
