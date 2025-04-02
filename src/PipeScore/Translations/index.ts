@@ -82,6 +82,8 @@ export type Documentation = {
   play: string;
   'play-from-selection': string;
   'play-looping-selection': string;
+  'play-metronome': string;
+  'stop-metronome': string;
   stop: string;
   'playback-speed': string;
   'harmony-volume': string;
@@ -98,6 +100,7 @@ export type Documentation = {
   'move-bar-to-next-line': string;
   'nothing-hovered': string;
   attackoptions :string;
+  beatindicator: string;
 };
 
 export type TextItems = {
@@ -166,6 +169,7 @@ export type TextItems = {
   playFromBeginning: string;
   playFromSelection: string;
   playLoopedSelection: string;
+  playMetronome: string;
   stop: string;
   playbackOptions: string;
   beatsPerMinute: string;

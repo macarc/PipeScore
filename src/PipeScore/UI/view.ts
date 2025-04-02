@@ -59,6 +59,7 @@ import {
   setPlaybackBpm,
   startPlayback,
   startPlaybackAtSelection,
+  startPlayMetronome,
   stopPlayback,
   updateAttack,
   updateInstrument,
@@ -120,6 +121,8 @@ export interface UIState {
   loggedIn: boolean;
   loadingAudio: boolean;
   isPlaying: boolean;
+  isPlayingMetronome: boolean;
+  beatIndicator: boolean;
   selectedGracenote: IGracenote | null;
   selectedStaves: IStave[];
   selectedMeasures: IMeasure[];
@@ -940,50 +943,61 @@ export default function render(state: UIState): m.Children {
       m('div.section-content', [
         help(
           'play',
-          m(
-            'button.double-width.text',
-            {
-              disabled: state.isPlaying,
-              onclick: () => state.dispatch(startPlayback()),
-            },
-            text('playFromBeginning')
-          ),
+          m('button', {
+            disabled: state.isPlaying || state.isPlayingMetronome,
+            onclick: () => state.dispatch(startPlayback()),
+            class: 'play-button',
+          }),
           state.dispatch
         ),
         help(
           'play-from-selection',
-          m(
-            'button.double-width.text',
-            {
-              disabled: state.isPlaying || !barsSelected,
-              onclick: () => state.dispatch(startPlaybackAtSelection()),
-            },
-            text('playFromSelection')
-          ),
+          m('button', {
+            disabled:
+              state.isPlaying || !barsSelected || state.isPlayingMetronome,
+            onclick: () => state.dispatch(startPlaybackAtSelection()),
+            class: 'play-fromselection',
+          }),
           state.dispatch
         ),
         help(
           'play-looping-selection',
-          m(
-            'button.double-width.text',
-            {
-              disabled: state.isPlaying || state.selectedNotes.length === 0,
-              onclick: () => state.dispatch(playbackLoopingSelection()),
-            },
-            text('playLoopedSelection')
-          ),
+          m('button', {
+            disabled:
+              state.isPlaying ||
+              state.selectedNotes.length === 0 ||
+              state.isPlayingMetronome,
+            onclick: () => state.dispatch(playbackLoopingSelection()),
+            class: 'play-loopedselection',
+          }),
+          state.dispatch
+        ),
+        help(
+          state.isPlayingMetronome ? 'stop' : 'play-metronome',
+          m('button', {
+            disabled: state.isPlaying || state.isPlayingMetronome,
+            onclick: () => state.dispatch(startPlayMetronome()),
+            class: 'play-metronome',
+          }),
+          state.dispatch
+        ),
+        help(
+          'beatindicator',
+          m('button', {
+            disabled: !state.isPlayingMetronome,
+            class: state.beatIndicator
+              ? 'beat-indicator-on'
+              : 'beat-indicator-off',
+          }),
           state.dispatch
         ),
         help(
           'stop',
-          m(
-            'button',
-            {
-              disabled: !state.isPlaying,
-              onclick: () => state.dispatch(stopPlayback()),
-            },
-            text('stop')
-          ),
+          m('button', {
+            disabled: !state.isPlaying && !state.isPlayingMetronome,
+            onclick: () => state.dispatch(stopPlayback()),
+            class: 'stop-button',
+          }),
           state.dispatch
         ),
       ]),
@@ -1088,32 +1102,35 @@ export default function render(state: UIState): m.Children {
       ]),
     ]),
     m('section', [
-      m('h2', text('instrument')),
+      m('div.section-content.vertical', [
+        m('h2', text('instrument')),
 
-      m(
-        'label',
-        m('input', {
-          type: 'radio',
-          name: 'instrument',
-          disabled: state.isPlaying,
-          checked: settings.instrument === Instrument.GHB,
-          onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
-          value: '',
-        }),
-        text('instrumentPipes')
-      ),
-      m(
-        'label',
-        m('input', {
-          type: 'radio',
-          name: 'instrument',
-          disabled: state.isPlaying,
-          checked: settings.instrument === Instrument.Chanter,
-          onchange: () => state.dispatch(updateInstrument(Instrument.Chanter)),
-          value: 'pc',
-        }),
-        text('instrumentPC')
-      ),
+        m(
+          'label',
+          m('input', {
+            type: 'radio',
+            name: 'instrument',
+            disabled: state.isPlaying,
+            checked: settings.instrument === Instrument.GHB,
+            onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
+            value: '',
+          }),
+          text('instrumentPipes')
+        ),
+        m(
+          'label',
+          m('input', {
+            type: 'radio',
+            name: 'instrument',
+            disabled: state.isPlaying,
+            checked: settings.instrument === Instrument.Chanter,
+            onchange: () =>
+              state.dispatch(updateInstrument(Instrument.Chanter)),
+            value: 'pc',
+          }),
+          text('instrumentPC')
+        ),
+      ]),
     ]),
   ];
 
@@ -1445,11 +1462,12 @@ function mobileView(state: UIState): m.Children {
         m('section', [
           m(
             'div.section-content',
-            { class: state.isPlaying ? 'play-button' : 'stop-button' },
+            { class: state.isPlaying ? 'stop-button' : 'play-button' },
             [
               help(
                 state.isPlaying ? 'stop' : 'play',
                 m('button', {
+                  disabled: state.isPlayingMetronome,
                   onclick: () =>
                     state.dispatch(
                       state.isPlaying
@@ -1465,6 +1483,52 @@ function mobileView(state: UIState): m.Children {
             ]
           ),
         ]),
+        m(
+          'div.section-content',
+          {
+            class: state.isPlayingMetronome
+              ? 'stop-metronome'
+              : 'play-metronome',
+          },
+          [
+            help(
+              state.isPlaying ? 'stop-metronome' : 'play-metronome',
+              m('button', {
+                disabled: state.isPlaying,
+                onclick: () =>
+                  state.dispatch(
+                    state.isPlayingMetronome
+                      ? stopPlayback()
+                      : startPlayMetronome()
+                  ),
+                class: state.isPlayingMetronome
+                  ? 'stop-metronome'
+                  : 'play-metronome',
+              }),
+              state.dispatch
+            ),
+          ]
+        ),
+        m(
+          'div.section-content',
+          {
+            class: state.beatIndicator
+              ? 'beat-indicator-on'
+              : 'beat-indicator-off',
+          },
+          [
+            help(
+              'beatindicator',
+              m('button', {
+                disabled: !state.isPlayingMetronome,
+                class: state.beatIndicator
+                  ? 'beat-indicator-on'
+                  : 'beat-indicator-off',
+              }),
+              state.dispatch
+            ),
+          ]
+        ),
         m('div.section-content', [
           m('input', {
             type: 'range',
@@ -1496,9 +1560,9 @@ function mobileView(state: UIState): m.Children {
             ]),
             state.dispatch
           ),
-          m('section', [
-            m('h2', text('instrument')),
-
+        ]),
+        m('div.section-content', [
+          m('div.section-content.vertical', [
             m(
               'label',
               m('input', {
@@ -1512,6 +1576,8 @@ function mobileView(state: UIState): m.Children {
               }),
               text('instrumentPipes')
             ),
+          ]),
+          m('div.section-content.vertical', [
             m(
               'label',
               m('input', {

@@ -14,10 +14,10 @@
 - [ ] Note in docs about keyboard-based
 - [x] Fix harmony playback
 - [ ] Importing tunes into other scores
-- [x] Count ins / Quick and Slow attack options
+- [ ] Count ins / Quick march attack and Slow march attack 
 - [ ] Password change
 - [ ] Chanter playback
-- [ ] Metronome while playing
+- [x] Metronome while playing
 
 ## Bugs to fix
 
