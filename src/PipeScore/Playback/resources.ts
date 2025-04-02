@@ -38,7 +38,6 @@ type InstrumentResources = {
   highg: AudioResource;
   higha: AudioResource;
   drones: AudioResource | null;
-  tick: AudioResource;
   snareRoll: AudioResource;
   snareTap: AudioResource;
 };
@@ -54,7 +53,6 @@ const ghb: InstrumentResources = {
   highg: new AudioResource('GHB/highg'),
   higha: new AudioResource('GHB/higha'),
   drones: new AudioResource('GHB/drones'),
-  tick: new AudioResource('GHB/tick'),
   snareRoll:new AudioResource('GHB/snare-roll-start'),
   snareTap:new AudioResource('GHB/snare-roll-end'),
 };
@@ -70,7 +68,6 @@ const chanter: InstrumentResources = {
   highg: new AudioResource('chanter/highg'),
   higha: new AudioResource('chanter/higha'),
   drones: null,
-  tick: new AudioResource('chanter/tick'),
   snareRoll:new AudioResource('chanter/snare-roll-start'),
   snareTap:new AudioResource('chanter/snare-roll-end'),
 };
@@ -96,7 +93,6 @@ function loadInstrumentResources(
     resources.highg.load(context),
     resources.higha.load(context),
     resources.drones?.load(context),
-    resources.tick.load(context),
     resources.snareRoll.load(context),
     resources.snareTap.load(context),
   ]);
@@ -110,8 +106,8 @@ export function getInstrumentResources(): InstrumentResources {
   return settings.instrument === Instrument.Chanter
     ? chanter
     : settings.instrument === Instrument.GHB
-    ? ghb
-    : unreachable(settings.instrument);
+      ? ghb
+      : unreachable(settings.instrument);
 }
 
 // This is in a function (rather than at the top level)

@@ -49,15 +49,8 @@ export type PlaybackGracenote = {
  * @param children playback items that go between the object start and object end
  * @returns updated list of PlaybackItems, including object
  */
-export function playbackObject(
-  id: ID,
-  children: PlaybackItem[]
-): PlaybackItem[] {
-  return [
-    { type: 'object-start', id },
-    ...children,
-    { type: 'object-end', id },
-  ];
+export function playbackObject(id: ID, children: PlaybackItem[]): PlaybackItem[] {
+  return [{ type: 'object-start', id }, ...children, { type: 'object-end', id }];
 }
 
 /**
@@ -107,11 +100,7 @@ export class PlaybackMeasure {
   public repeatStart: boolean;
   public repeatEnd: boolean;
 
-  constructor(
-    items: PlaybackItem[][],
-    repeatStart: boolean,
-    repeatEnd: boolean
-  ) {
+  constructor(items: PlaybackItem[][], repeatStart: boolean, repeatEnd: boolean) {
     this.parts = items;
     this.repeatStart = repeatStart;
     this.repeatEnd = repeatEnd;

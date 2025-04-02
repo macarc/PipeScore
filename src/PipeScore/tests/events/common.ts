@@ -19,8 +19,6 @@ export function emptyState(score: IScore = Score.blank()): State {
       loading: false,
       userPressedStop: false,
       cursor: null,
-      playingMetronome: false,
-      beatIndicator: false,
     },
     score,
   };
