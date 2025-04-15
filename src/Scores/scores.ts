@@ -69,31 +69,6 @@ function setName(
     s.tunes[0].name = name;
   }
 }
-function getComposer(
-  score: Document | ScoreRef | SavedScore 
-) {
-  const defaultName = 'Composer';
-  const sscore = score as SavedScore;
-  const composer = sscore.tunes?.[0]?.composer;
-
-  if (typeof composer === 'string') {
-    return composer || defaultName;
-  }
-
-  return composer.text || defaultName;
-}
-
-function setComposer(
-  score: Document | ScoreRef | SavedScore ,
-  composer: string
-) {
-  const s = score as SavedScore | DeprecatedSavedScore;
-  if (scoreHasStavesNotTunes(s)) {
-    s.name = composer;
-  } else if (s.tunes[0]) {
-    s.tunes[0].composer = composer;
-  }
-}
 class ScoresList {
   loading = true;
   scores: ScoreRef[] = [];
@@ -202,6 +177,10 @@ class ScoresList {
       for (let i = 1; i < scores.length; i++) {
         setName(scores[0], `${getName(scores[0])} - ${getName(scores[i])}`);
         scores[0].tunes.push(scores[i].tunes[0]);
+        for(const secondTiming of scores[i].secondTimings)
+        {
+          scores[0].secondTimings.push(secondTiming);
+        }
       }
       await db.ref(`scores/${userId}/scores`).add(scores[0]);
 
