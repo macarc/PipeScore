@@ -186,10 +186,10 @@ class ScoresList {
       console.log(e);
       alert(`Error combining scores: ${(e as Error).name}`);
     }
-    this.selected = [];
     this.refreshScores();
   }
   async refreshScores() {
+    this.selected = [];
     const collection = await db.ref(`scores/${userId}/scores`).list({
       pageSize: 1000,
     });
@@ -275,6 +275,7 @@ class ScoresList {
               'td',
               m('input', {
                 type: 'checkbox',
+                checked: this.selected.indexOf(score) != -1,
                 onchange: (e: InputEvent) =>
                   this.updateSelection(
                     score,
