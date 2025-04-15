@@ -13,11 +13,12 @@
 - [x] View-only mode for mobile
 - [ ] Note in docs about keyboard-based
 - [x] Fix harmony playback
-- [ ] Importing tunes into other scores
+- [x] Importing tunes into other scores/ Combining multiple scores into a single score/document
 - [ ] Count ins
 - [ ] Password change
 - [ ] Chanter playback
 - [ ] Metronome while playing
+- [ ] Allow for people other than who entered the tune to play it back. 
 
 ## Bugs to fix
 

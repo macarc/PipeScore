@@ -36,11 +36,13 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
-type ScoreRef = { path: string };
+type ScoreRef = { name: string; path: string };
 
 type FileInput = HTMLInputElement & { files: FileList };
 
-function getName(score: Document | ScoreRef | SavedScore | DeprecatedSavedScore) {
+function getName(
+  score: Document | ScoreRef | SavedScore | DeprecatedSavedScore
+) {
   const defaultName = 'Empty Score';
   if ((score as DeprecatedSavedScore).name) {
     return (score as DeprecatedSavedScore).name || defaultName;
@@ -67,10 +69,10 @@ function setName(
     s.tunes[0].name = name;
   }
 }
-
 class ScoresList {
   loading = true;
   scores: ScoreRef[] = [];
+  selected: ScoreRef[] = [];
 
   oninit() {
     onUserChange(auth, (user) => {
@@ -151,8 +153,43 @@ class ScoresList {
       this.refreshScores();
     }
   }
-
+  async updateSelection(scoreRef: ScoreRef, checked: boolean) {
+    if (checked) {
+      this.selected.push(scoreRef);
+    } else {
+      let index = this.selected.indexOf(scoreRef);
+      if (index > -1) {
+        this.selected.splice(index, 1);
+      }
+    }
+    m.redraw();
+  }
+  async combineScores() {
+    this.loading = true;
+    try {
+      const scores: SavedScore[] = [];
+      for (const score of this.selected) {
+        scores.push(
+          (await db.ref(`scores${score.path}`).get()) as unknown as SavedScore
+        );
+      }
+      setName(scores[0], `(Combined)${getName(scores[0])}`);
+      for (let i = 1; i < scores.length; i++) {
+        setName(scores[0], `${getName(scores[0])} - ${getName(scores[i])}`);
+        scores[0].tunes.push(scores[i].tunes[0]);
+        for (const secondTiming of scores[i].secondTimings) {
+          scores[0].secondTimings.push(secondTiming);
+        }
+      }
+      await db.ref(`scores/${userId}/scores`).add(scores[0]);
+    } catch (e) {
+      console.log(e);
+      alert(`Error combining scores: ${(e as Error).name}`);
+    }
+    this.refreshScores();
+  }
   async refreshScores() {
+    this.selected = [];
     const collection = await db.ref(`scores/${userId}/scores`).list({
       pageSize: 1000,
     });
@@ -175,6 +212,27 @@ class ScoresList {
       `/pipescore${score.path.replace('/scores/', '/')}`;
 
     return [
+      m('p', 'Selected Scores:'),
+      m('table', [
+        ...this.selected.map((score) =>
+          m('tr', [
+            m('td.td-name', m('a', { href: path(score) }, getName(score))),
+          ])
+        ),
+        m('tr', [
+          m(
+            'td',
+            m(
+              'button.combine',
+              {
+                onclick: () => this.combineScores(),
+                disabled: this.selected.length < 2,
+              },
+              'Combine Scores'
+            )
+          ),
+        ]),
+      ]),
       m('p', 'Scores:'),
       this.scores.length === 0 ? m('p', 'You have no scores.') : null,
       m('table', [
@@ -191,7 +249,11 @@ class ScoresList {
             ),
             m(
               'td',
-              m('button.rename', { onclick: () => this.rename(score) }, 'Rename')
+              m(
+                'button.rename',
+                { onclick: () => this.rename(score) },
+                'Rename'
+              )
             ),
             m(
               'td',
@@ -203,7 +265,23 @@ class ScoresList {
             ),
             m(
               'td',
-              m('button.delete', { onclick: () => this.delete(score) }, 'Delete')
+              m(
+                'button.delete',
+                { onclick: () => this.delete(score) },
+                'Delete'
+              )
+            ),
+            m(
+              'td',
+              m('input', {
+                type: 'checkbox',
+                checked: this.selected.indexOf(score) != -1,
+                onchange: (e: InputEvent) =>
+                  this.updateSelection(
+                    score,
+                    Boolean((e.target as HTMLInputElement).checked)
+                  ),
+              })
             ),
           ])
         ),
