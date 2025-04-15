@@ -177,13 +177,11 @@ class ScoresList {
       for (let i = 1; i < scores.length; i++) {
         setName(scores[0], `${getName(scores[0])} - ${getName(scores[i])}`);
         scores[0].tunes.push(scores[i].tunes[0]);
-        for(const secondTiming of scores[i].secondTimings)
-        {
+        for (const secondTiming of scores[i].secondTimings) {
           scores[0].secondTimings.push(secondTiming);
         }
       }
       await db.ref(`scores/${userId}/scores`).add(scores[0]);
-
     } catch (e) {
       console.log(e);
       alert(`Error combining scores: ${(e as Error).name}`);
@@ -231,7 +229,7 @@ class ScoresList {
                 disabled: this.selected.length < 2,
               },
               'Combine Scores'
-            ),
+            )
           ),
         ]),
       ]),
