@@ -201,13 +201,7 @@ class ScoresList {
       setName(scores[0], `(Combined)${getName(scores[0])}`);
       for (let i = 1; i < scores.length; i++) {
         setName(scores[0], `${getName(scores[0])} - ${getName(scores[i])}`);
-        setComposer(scores[0], `${getComposer(scores[0])} - ${getComposer(scores[i])}`);
-        for (const stave of scores[i].tunes[0].staves) {
-          scores[0].tunes[0].staves.push(stave);
-        }
-        for (const secondTiming of scores[i].secondTimings) {
-          scores[0].secondTimings.push(secondTiming);
-        }
+        scores[0].tunes.push(scores[i].tunes[0]);
       }
       await db.ref(`scores/${userId}/scores`).add(scores[0]);
 
@@ -250,7 +244,7 @@ class ScoresList {
         ),
         m('tr', [
           m(
-            'button.edit',
+            'button.combine',
             {
               onclick: () => this.combineScores(),
               disabled: this.selected.length < 2,
