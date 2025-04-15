@@ -244,12 +244,15 @@ class ScoresList {
         ),
         m('tr', [
           m(
-            'button.combine',
-            {
-              onclick: () => this.combineScores(),
-              disabled: this.selected.length < 2,
-            },
-            'Combine Scores'
+            'td',
+            m(
+              'button.combine',
+              {
+                onclick: () => this.combineScores(),
+                disabled: this.selected.length < 2,
+              },
+              'Combine Scores'
+            ),
           ),
         ]),
       ]),
