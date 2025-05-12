@@ -153,10 +153,12 @@ class ScoresList {
   }
 
   async refreshScores() {
-    const collection = await db.ref(`scores/${userId}/scores`).list({
-      pageSize: 1000,
-    });
-    this.scores = collection.documents
+    // Use query() rather than list() to avoid limits
+    const collection: Document[] = await db
+      .ref(`scores/${userId}/scores`)
+      .query()
+      .run();
+    this.scores = collection
       .map((doc) => ({
         name: getName(doc),
         path: doc.__meta__.path.replace('/scores', ''),
