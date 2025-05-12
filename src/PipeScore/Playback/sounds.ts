@@ -60,6 +60,34 @@ export class Drone {
 }
 
 /**
+ * Snare playback.
+ */
+export class Snare {
+  private sample: Sample;
+  private sampleTap: Sample;
+  private stopped = false;
+
+  constructor(context: AudioContext) {
+    const snareRoll = getInstrumentResources().snareRoll;
+    const snareTap = getInstrumentResources().snareTap;
+    this.sample = new Sample(snareRoll, context);
+    this.sampleTap = new Sample(snareTap, context);
+  }
+
+  /**
+   * Play the snare roll and tap for duration in ms.
+   */
+  async Roll(count: number, hasEndTap: boolean) {
+    const tapDuration: number = 285;
+    const rollDuration: number =
+      (count * 1000 * 60) / settings.bpm - (hasEndTap ? tapDuration : 0);
+    this.sample.start(0.5);
+    await sleep(rollDuration);
+    this.sample.stop();
+    if (hasEndTap) await this.sampleTap.start(0.5);
+  }
+}
+/**
  * Pitched note playback (used for notes and gracenotes).
  */
 export class SoundedPitch {
@@ -77,7 +105,12 @@ export class SoundedPitch {
   // see SoundedSilence for details.
   public durationIncludingTies: number;
 
-  constructor(pitch: Pitch, duration: number, ctx: AudioContext, id: ID | null) {
+  constructor(
+    pitch: Pitch,
+    duration: number,
+    ctx: AudioContext,
+    id: ID | null
+  ) {
     this.sample = new Sample(pitchToAudioResource(pitch), ctx);
     this.pitch = pitch;
     this.duration = duration;

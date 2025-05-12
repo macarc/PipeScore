@@ -27,7 +27,9 @@ import {
 } from '.';
 import { dispatch } from '../Controller';
 import { updateView } from '../Events/Misc';
+import { Attack } from '../global/attack';
 import type { ID } from '../global/id';
+import { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
 import {
   isRoughlyZero,
@@ -38,7 +40,13 @@ import {
   sum,
   unreachable,
 } from '../global/utils';
-import { Drone, type SoundedMeasure, SoundedPitch, SoundedSilence } from './sounds';
+import {
+  Drone,
+  Snare,
+  type SoundedMeasure,
+  SoundedPitch,
+  SoundedSilence,
+} from './sounds';
 import type { PlaybackState } from './state';
 
 function shouldDeleteBecauseOfSecondTimings(
@@ -206,7 +214,9 @@ function expandRepeats(
         }
 
         // Append the item to the current measure/part in the output
-        if (!shouldDeleteBecauseOfSecondTimings(inputIndex, timings, repeating)) {
+        if (
+          !shouldDeleteBecauseOfSecondTimings(inputIndex, timings, repeating)
+        ) {
           nlast(output).parts[partIndex].push(item);
         }
 
@@ -236,7 +246,8 @@ function expandRepeats(
       repeatStartIndex = measureIndex;
     } else if (measure.repeatEnd && measureIndex > repeatEndIndex) {
       // If the measure has an end repeat, then set measureIndex back to repeatStartIndex
-      timingOverRepeat = timings.find((t) => t.in(inputIndexAfterMeasure)) || null;
+      timingOverRepeat =
+        timings.find((t) => t.in(inputIndexAfterMeasure)) || null;
       repeatEndIndex = measureIndex;
       // Go back to repeat
       measureIndex = repeatStartIndex - 1;
@@ -300,7 +311,9 @@ function getSoundedPitches(
         switch (e.type) {
           case 'note': {
             const duration = e.duration - currentGracenoteDuration;
-            soundedPart.push(new SoundedPitch(e.pitch, duration, ctx, currentID));
+            soundedPart.push(
+              new SoundedPitch(e.pitch, duration, ctx, currentID)
+            );
             currentGracenoteDuration = 0;
             break;
           }
@@ -349,10 +362,20 @@ export async function playback(
   document.body.classList.add('loading');
 
   const drone = new Drone(context);
-
-  drone.start();
-
-  await sleep(1000);
+  if (start != null) {
+    // Playback from selection or loop selection doesn't play attack
+    drone.start();
+  } else {
+    if (
+      await playAttack(
+        state,
+        drone,
+        measures,
+        context,
+      )
+    )
+      return;
+  }
   document.body.classList.remove('loading');
 
   await playPitches(state, measures, timings, context, start, end, loop);
@@ -360,6 +383,123 @@ export async function playback(
   drone.stop();
 
   state.playing = false;
+}
+
+async function playAttack(
+  state: PlaybackState,
+  drone: Drone | null,
+  measures: PlaybackMeasure[],
+  context: AudioContext, 
+): Promise<boolean> {
+  let stopAttack: boolean = false;
+  switch (settings.attack) {
+    case Attack.QuickMarchAttack: {
+      stopAttack = await quickAttack(
+        state,
+        drone,
+        measures,
+        context,
+      );
+      break;
+    }
+    case Attack.SlowMarchAttack: {
+      stopAttack = await slowAttack(
+        state,
+        drone,
+        measures,
+        context,
+      );
+      break;
+    }
+    case Attack.Off: {
+      if (drone != undefined) drone.start();
+      const leadInDuration = measures[0].lengthOfMainPart();
+      let silent2Beats = new SoundedSilence(
+        2 - (leadInDuration > 1 ? 0 : leadInDuration),
+        null
+      );
+      await silent2Beats.play(settings.bpm, true);
+      break;
+    }
+  }
+  if (stopAttack) {
+    if (drone != undefined) drone.stop();
+    state.playing = false;
+    state.userPressedStop = false;
+    dispatch(updateView());
+  }
+  return stopAttack;
+}
+
+/**
+ * play quick march attack before tune starts
+ */
+async function quickAttack(
+  state: PlaybackState,
+  drone: Drone | null,
+  measures: PlaybackMeasure[],
+  context: AudioContext,
+): Promise<boolean> {
+  const snare = new Snare(context);
+  const leadInDuration = measures[0].lengthOfMainPart();
+  const silent2Beats = new SoundedSilence(2, null);
+  //Pipe Major Calls 1,2
+  await silent2Beats.play(settings.bpm, false);
+  if (state.userPressedStop) return true;
+  //1 ,2 - Drum Roll
+  await snare.Roll(2, true);
+  if (state.userPressedStop) return true;
+  //3, 4 - Right hand on bag
+  await silent2Beats.play(settings.bpm, false);
+  if (state.userPressedStop) return true;
+  //5 , 6 - 2nd Drum Roll
+  //5 - Strike in Drones
+  if (drone != undefined) drone.start();
+  await snare.Roll(2, true);
+  if (state.userPressedStop) return true;
+  // 7 Start Chanter (intro E)
+  // 8 Start Tune if it has 1 beat of lead in
+  // 9 Start Tune (if no lead in)
+  const pitchEIntro = new SoundedPitch(
+    Pitch.E,
+    2 - (leadInDuration > 1 ? 0 : leadInDuration), // assumption here is lead in is never more than 1 beat
+    context,
+    null
+  );
+  await pitchEIntro.play(settings.bpm, false);
+  if (state.userPressedStop) return true;
+
+  return false;
+}
+/**
+ * play slow march attack before tune starts
+ */
+async function slowAttack(
+  state: PlaybackState,
+  drone: Drone | null,
+  measures: PlaybackMeasure[],
+  context: AudioContext,
+): Promise<boolean> {
+  const snare = new Snare(context);
+  const leadInDuration = measures[0].lengthOfMainPart();
+  const silent2Beats = new SoundedSilence(2, null);
+  //Pipe Major Calls 1,2
+  await silent2Beats.play(settings.bpm, false);
+  if (state.userPressedStop) return true;
+  //1 , 2 - Drum Roll
+  //2 - Right hand on bag
+  await snare.Roll(2, true);
+  if (state.userPressedStop) return true;
+  //3 - Strike in Drones
+  //4 - Start Tune if it has 1 beat of lead in (No E intro)
+  //5 - Start Tune (if no lead in)
+  if (drone != undefined) drone.start();
+  // assumption here is lead is never more than 1 beat
+  await sleep(
+    ((2 - (leadInDuration > 1 ? 0 : leadInDuration)) * 1000 * 60) / settings.bpm
+  );
+  if (state.userPressedStop) return true;
+  return false;
 }
 
 async function playPitches(
@@ -371,10 +511,18 @@ async function playPitches(
   end: ID | null,
   loop: boolean
 ) {
-  const measuresToPlay = getSoundedPitches(measures, timings, context, start, end);
+  const measuresToPlay = getSoundedPitches(
+    measures,
+    timings,
+    context,
+    start,
+    end
+  );
 
   const numberOfItems = sum(
-    measuresToPlay.flatMap((measure) => measure.parts.flatMap((part) => part.length))
+    measuresToPlay.flatMap((measure) =>
+      measure.parts.flatMap((part) => part.length)
+    )
   );
 
   if (numberOfItems === 0) {

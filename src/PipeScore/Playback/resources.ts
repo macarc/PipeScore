@@ -38,6 +38,8 @@ type InstrumentResources = {
   highg: AudioResource;
   higha: AudioResource;
   drones: AudioResource | null;
+  snareRoll: AudioResource;
+  snareTap: AudioResource;
 };
 
 const ghb: InstrumentResources = {
@@ -51,6 +53,8 @@ const ghb: InstrumentResources = {
   highg: new AudioResource('GHB/highg'),
   higha: new AudioResource('GHB/higha'),
   drones: new AudioResource('GHB/drones'),
+  snareRoll:new AudioResource('GHB/snare-roll-start'),
+  snareTap:new AudioResource('GHB/snare-roll-end'),
 };
 
 const chanter: InstrumentResources = {
@@ -64,6 +68,8 @@ const chanter: InstrumentResources = {
   highg: new AudioResource('chanter/highg'),
   higha: new AudioResource('chanter/higha'),
   drones: null,
+  snareRoll:new AudioResource('chanter/snare-roll-start'),
+  snareTap:new AudioResource('chanter/snare-roll-end'),
 };
 
 /**
@@ -87,6 +93,8 @@ function loadInstrumentResources(
     resources.highg.load(context),
     resources.higha.load(context),
     resources.drones?.load(context),
+    resources.snareRoll.load(context),
+    resources.snareTap.load(context),
   ]);
 }
 

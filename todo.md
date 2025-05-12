@@ -14,7 +14,7 @@
 - [ ] Note in docs about keyboard-based
 - [x] Fix harmony playback
 - [ ] Importing tunes into other scores
-- [ ] Count ins
+- [x] Count ins / Quick and Slow attack options
 - [ ] Password change
 - [ ] Chanter playback
 - [ ] Metronome while playing

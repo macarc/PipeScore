@@ -122,7 +122,8 @@ export const FrenchDocumentation: Documentation = {
   stop: 'Arrêter la lecture.',
   'playback-speed':
     "Contrôler la vitesse de lecture (plus c'est à droite, plus c'est rapide).",
-  'harmony-volume': 'Control how loud the harmony plays (further right is louder).',
+  'harmony-volume':
+    'Control how loud the harmony plays (further right is louder).',
   export:
     'Exporter la partition vers un fichier PDF, qui peut ensuite être partagé ou imprimé.',
   'export-bww':
@@ -140,7 +141,10 @@ export const FrenchDocumentation: Documentation = {
     "Déplacez la mesure sélectionnée à la fin de la portée précédente. Ceci ne s'applique que si vous êtes en train de sélectionner la première mesure d'une portée.",
   'move-bar-to-next-line':
     "Déplacer la mesure sélectionnée au début de la portée suivante. Ceci ne s'applique que si vous êtes en train de sélectionner la dernière mesure d'une portée.",
-  'nothing-hovered': "Survolez les différentes icônes pour afficher l'aide ici.",
+  'nothing-hovered':
+    "Survolez les différentes icônes pour afficher l'aide ici.",
+  attackoptions:
+    'Sélectionnez la méthode d’attaque pour le début d’un morceau.',
 };
 
 export const FrenchTextItems: TextItems = {
@@ -237,4 +241,7 @@ export const FrenchTextItems: TextItems = {
   instrumentPC: 'Instrument de pratique',
   instrumentPipes: 'Bagpipe',
   instrument: 'Instrument',
+  attackoff: 'Attaque désactivée',
+  attackquick: 'Attaque à marche rapide',
+  attackslow: 'Attaque à marche lente',
 };

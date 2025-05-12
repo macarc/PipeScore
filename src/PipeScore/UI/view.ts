@@ -60,6 +60,7 @@ import {
   startPlayback,
   startPlaybackAtSelection,
   stopPlayback,
+  updateAttack,
   updateInstrument,
 } from '../Events/Playback';
 import { copy, deleteSelection, paste } from '../Events/Selection';
@@ -72,8 +73,18 @@ import {
   resetStaveGap,
   setStaveGap,
 } from '../Events/Stave';
-import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
-import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
+import {
+  addText,
+  centreText,
+  editText,
+  setTextX,
+  setTextY,
+} from '../Events/Text';
+import {
+  addSecondTiming,
+  addSingleTiming,
+  editTimingText,
+} from '../Events/Timing';
 import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
 import type { IGracenote } from '../Gracenote';
 import type { IMeasure } from '../Measure';
@@ -98,6 +109,7 @@ import { Instrument } from '../global/instrument';
 import { Relative } from '../global/relativeLocation';
 import { type Settings, settings } from '../global/settings';
 import type { Menu } from './model';
+import { Attack } from '../global/attack';
 
 export interface UIState {
   saved: boolean;
@@ -439,7 +451,8 @@ export default function render(state: UIState): m.Children {
                 disabled: !barsSelected,
                 class: startBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
-                onclick: () => state.dispatch(setBarline('start', Barline.normal)),
+                onclick: () =>
+                  state.dispatch(setBarline('start', Barline.normal)),
               },
               text('normalBarline')
             ),
@@ -452,7 +465,8 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: !barsSelected,
                 class: startBarClass(Barline.repeat),
-                onclick: () => state.dispatch(setBarline('start', Barline.repeat)),
+                onclick: () =>
+                  state.dispatch(setBarline('start', Barline.repeat)),
               },
               text('repeatBarline')
             ),
@@ -465,7 +479,8 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: !barsSelected,
                 class: startBarClass(Barline.part),
-                onclick: () => state.dispatch(setBarline('start', Barline.part)),
+                onclick: () =>
+                  state.dispatch(setBarline('start', Barline.part)),
               },
               text('partBarline')
             ),
@@ -482,7 +497,8 @@ export default function render(state: UIState): m.Children {
                 disabled: !barsSelected,
                 class: endBarClass(Barline.normal),
                 style: 'margin-left: .5rem;',
-                onclick: () => state.dispatch(setBarline('end', Barline.normal)),
+                onclick: () =>
+                  state.dispatch(setBarline('end', Barline.normal)),
               },
               text('normalBarline')
             ),
@@ -495,7 +511,8 @@ export default function render(state: UIState): m.Children {
               {
                 disabled: !barsSelected,
                 class: endBarClass(Barline.repeat),
-                onclick: () => state.dispatch(setBarline('end', Barline.repeat)),
+                onclick: () =>
+                  state.dispatch(setBarline('end', Barline.repeat)),
               },
               text('repeatBarline')
             ),
@@ -852,7 +869,10 @@ export default function render(state: UIState): m.Children {
           'edit-text',
           m(
             'button.double-width.text',
-            { disabled: !textSelected, onclick: () => state.dispatch(editText()) },
+            {
+              disabled: !textSelected,
+              onclick: () => state.dispatch(editText()),
+            },
             text('editText')
           ),
           state.dispatch
@@ -1021,6 +1041,50 @@ export default function render(state: UIState): m.Children {
           ]),
           state.dispatch
         ),
+        help(
+          'attackoptions',
+          m('div.section-content.vertical', [
+            m(
+              'label',
+              m('input', {
+                type: 'radio',
+                name: 'attack',
+                disabled: state.isPlaying,
+                checked: settings.attack === Attack.Off,
+                onchange: () => state.dispatch(updateAttack(Attack.Off)),
+                value: '',
+              }),
+              text('attackoff')
+            ),
+            m(
+              'label',
+              m('input', {
+                type: 'radio',
+                name: 'attack',
+                disabled: state.isPlaying,
+                checked: settings.attack === Attack.QuickMarchAttack,
+                onchange: () =>
+                  state.dispatch(updateAttack(Attack.QuickMarchAttack)),
+                value: '',
+              }),
+              text('attackquick')
+            ),
+            m(
+              'label',
+              m('input', {
+                type: 'radio',
+                name: 'attack',
+                disabled: state.isPlaying,
+                checked: settings.attack === Attack.SlowMarchAttack,
+                onchange: () =>
+                  state.dispatch(updateAttack(Attack.SlowMarchAttack)),
+                value: 'pc',
+              }),
+              text('attackslow')
+            ),
+          ]),
+          state.dispatch
+        ),
       ]),
     ]),
     m('section', [
@@ -1062,7 +1126,9 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class: `text double-width ${state.isLandscape ? ' highlighted' : ''}`,
+              class: `text double-width ${
+                state.isLandscape ? ' highlighted' : ''
+              }`,
               onclick: () => state.dispatch(landscape()),
             },
             text('landscape')
@@ -1074,7 +1140,9 @@ export default function render(state: UIState): m.Children {
           m(
             'button',
             {
-              class: `text double-width ${state.isLandscape ? '' : ' highlighted'}`,
+              class: `text double-width ${
+                state.isLandscape ? '' : ' highlighted'
+              }`,
               onclick: () => state.dispatch(portrait()),
             },
             text('portrait')
@@ -1183,7 +1251,8 @@ export default function render(state: UIState): m.Children {
     document: documentMenu,
   };
 
-  const menuClass = (s: Menu): string => (s === state.currentMenu ? 'selected' : '');
+  const menuClass = (s: Menu): string =>
+    s === state.currentMenu ? 'selected' : '';
 
   const loginWarning = [
     'You are currently not logged in. Any changes you make will not be saved. ',
@@ -1197,7 +1266,8 @@ export default function render(state: UIState): m.Children {
   ];
   const showLoginWarning = state.canEdit && !state.loggedIn;
   const showOtherUsersScoreWarning = !state.canEdit;
-  const showAudioWarning = state.loadingAudio && state.currentMenu === 'playback';
+  const showAudioWarning =
+    state.loadingAudio && state.currentMenu === 'playback';
   const warning = [
     ...(showLoginWarning ? loginWarning : []),
     ...(showOtherUsersScoreWarning ? otherUsersScoreWarning : []),
@@ -1238,7 +1308,10 @@ export default function render(state: UIState): m.Children {
         menuHead('settings', text('settingsMenu')),
         help(
           'help',
-          m('button', m('a[href=/help]', { target: '_blank' }, text('helpMenu'))),
+          m(
+            'button',
+            m('a[href=/help]', { target: '_blank' }, text('helpMenu'))
+          ),
           state.dispatch
         ),
         m(
@@ -1272,7 +1345,10 @@ export default function render(state: UIState): m.Children {
                 'save',
                 m(
                   'button.save',
-                  { disabled: state.saved, onclick: () => state.dispatch(save()) },
+                  {
+                    disabled: state.saved,
+                    onclick: () => state.dispatch(save()),
+                  },
                   text('save')
                 ),
                 state.dispatch
@@ -1379,8 +1455,8 @@ function mobileView(state: UIState): m.Children {
                       state.isPlaying
                         ? stopPlayback()
                         : state.selectedTune === null
-                          ? startPlayback()
-                          : startPlaybackAtSelection()
+                        ? startPlayback()
+                        : startPlaybackAtSelection()
                     ),
                   class: state.isPlaying ? 'stop-button' : 'play-button',
                 }),
@@ -1430,7 +1506,8 @@ function mobileView(state: UIState): m.Children {
                 name: 'instrument',
                 disabled: state.isPlaying,
                 checked: settings.instrument === Instrument.GHB,
-                onchange: () => state.dispatch(updateInstrument(Instrument.GHB)),
+                onchange: () =>
+                  state.dispatch(updateInstrument(Instrument.GHB)),
                 value: '',
               }),
               text('instrumentPipes')
@@ -1442,7 +1519,8 @@ function mobileView(state: UIState): m.Children {
                 name: 'instrument',
                 disabled: state.isPlaying,
                 checked: settings.instrument === Instrument.Chanter,
-                onchange: () => state.dispatch(updateInstrument(Instrument.Chanter)),
+                onchange: () =>
+                  state.dispatch(updateInstrument(Instrument.Chanter)),
                 value: 'pc',
               }),
               text('instrumentPC')

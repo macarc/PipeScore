@@ -17,6 +17,7 @@
 //  Document settings singleton.
 
 import type { SavedSettings } from '../SavedModel';
+import { Attack, attackToString ,parseAttack} from './attack';
 import { Instrument, instrumentToString, parseInstrument } from './instrument';
 import { clamp } from './utils';
 
@@ -34,6 +35,7 @@ export class Settings {
   gapAfterGracenote = 7;
   bpm = 80;
   instrument = Instrument.GHB;
+  attack = Attack.Off;
 
   static defaultStaveGap = 65;
   static defaultHarmonyGap = 50;
@@ -49,6 +51,7 @@ export class Settings {
     this.gapAfterGracenote = o.gapAfterGracenote || 7;
     this.harmonyVolume = o.harmonyVolume || Settings.defaultHarmonyVolume;
     this.instrument = parseInstrument(o.instrument) || Instrument.GHB;
+    this.attack = parseAttack(o.attack) || Attack.Off;
   }
   toJSON(): SavedSettings {
     return {
@@ -60,6 +63,7 @@ export class Settings {
       gapAfterGracenote: this.gapAfterGracenote,
       harmonyVolume: this.harmonyVolume,
       instrument: instrumentToString(this.instrument),
+      attack: attackToString(this.attack),
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {

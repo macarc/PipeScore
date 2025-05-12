@@ -117,7 +117,8 @@ export const EnglishDocumentation: Documentation = {
     'Play the currently selected part of the score, repeating forever.',
   stop: 'Stop the playback.',
   'playback-speed': 'Control the playback speed (further right is faster).',
-  'harmony-volume': 'Control how loud the harmony plays (further right is louder).',
+  'harmony-volume':
+    'Control how loud the harmony plays (further right is louder).',
   export: 'Export the score to a PDF file, that may then be shared or printed.',
   'export-bww':
     "Export the score to a BWW file, that may be opened in other applications. This is currently very new, and won't work for most scores.",
@@ -135,6 +136,7 @@ export const EnglishDocumentation: Documentation = {
   'move-bar-to-next-line':
     'Move the currently selected bar to the start of the next stave. This only applies if you are currently selecting the last bar of a stave.',
   'nothing-hovered': 'Hover over different icons to view Help here.',
+  attackoptions: 'Select the method of attack for the beginning of a tune.',
 };
 
 export const EnglishTextItems: TextItems = {
@@ -231,4 +233,7 @@ export const EnglishTextItems: TextItems = {
   instrumentPC: 'Practice Chanter',
   instrumentPipes: 'Bagpipe',
   instrument: 'Instrument',
+  attackoff: 'Attack off',
+  attackquick: 'Quick march attack',
+  attackslow: 'Slow march attack',
 };

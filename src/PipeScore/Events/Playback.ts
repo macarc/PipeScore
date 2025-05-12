@@ -17,6 +17,7 @@
 import { playback } from '../Playback/impl';
 import { ScoreSelection } from '../Selection/score';
 import type { State } from '../State';
+import { Attack } from '../global/attack';
 import type { ID } from '../global/id';
 import type { Instrument } from '../global/instrument';
 import { settings } from '../global/settings';
@@ -104,6 +105,16 @@ export function updateInstrument(instrument: Instrument): ScoreEvent {
   return async () => {
     if (instrument !== settings.instrument) {
       settings.instrument = instrument;
+      return Update.ShouldSave;
+    }
+    return Update.NoChange;
+  };
+}
+
+export function updateAttack(attack: Attack): ScoreEvent {
+  return async () => {
+    if (attack !== settings.attack) {
+      settings.attack = attack;
       return Update.ShouldSave;
     }
     return Update.NoChange;
