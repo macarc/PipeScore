@@ -179,6 +179,8 @@ export function exportPDF(): ScoreEvent {
         userPressedStop: false,
         loading: false,
         cursor: null,
+        playingMetronome: false,
+        beatIndicator: false,
       },
       dispatch: async () => void 0,
     };
@@ -293,7 +295,11 @@ export function exportPDF(): ScoreEvent {
 export function download(): ScoreEvent {
   return async (state: State) => {
     const json = state.score.toJSON();
-    saveFile(`${state.score.name()}.pipescore`, JSON.stringify(json), 'text/json');
+    saveFile(
+      `${state.score.name()}.pipescore`,
+      JSON.stringify(json),
+      'text/json'
+    );
 
     return Update.NoChange;
   };

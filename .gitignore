@@ -22,3 +22,8 @@ tsserver.log
 __pycache__
 
 .DS_Store
+.vscode
+*.aup3-shm
+*.aup3-wal
+*.aup3
+

@@ -115,9 +115,13 @@ export const EnglishDocumentation: Documentation = {
     'Play a preview of the score, starting at the currently selected note/bar. This will only work once the samples are downloaded (if the samples need to download, you will see a notice).',
   'play-looping-selection':
     'Play the currently selected part of the score, repeating forever.',
+  'play-metronome': 'Start the metronome',
+  'stop-metronome': 'Stop the metronome',
+  beatindicator: 'Displays the beat of the metronome',
   stop: 'Stop the playback.',
   'playback-speed': 'Control the playback speed (further right is faster).',
-  'harmony-volume': 'Control how loud the harmony plays (further right is louder).',
+  'harmony-volume':
+    'Control how loud the harmony plays (further right is louder).',
   export: 'Export the score to a PDF file, that may then be shared or printed.',
   'export-bww':
     "Export the score to a BWW file, that may be opened in other applications. This is currently very new, and won't work for most scores.",
@@ -203,6 +207,7 @@ export const EnglishTextItems: TextItems = {
   playFromBeginning: 'Play from Beginning',
   playFromSelection: 'Play from Selection',
   playLoopedSelection: 'Play looped Selection',
+  playMetronome: 'Play Metronome',
   stop: 'Stop',
   playbackOptions: 'Playback Options',
   beatsPerMinute: 'beats per minute',

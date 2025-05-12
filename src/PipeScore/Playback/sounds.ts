@@ -17,7 +17,7 @@
 //  Drone and SoundedPitch classes enable playback of drones and notes (including gracenotes).
 
 import { dispatch } from '../Controller';
-import { updatePlaybackCursor } from '../Events/Playback';
+import { updateBeatIndicator, updatePlaybackCursor } from '../Events/Playback';
 import type { ID } from '../global/id';
 import type { Pitch } from '../global/pitch';
 import { settings } from '../global/settings';
@@ -60,6 +60,46 @@ export class Drone {
 }
 
 /**
+/**
+ * Metronome tick playback.
+ */
+export class Tick {
+  private sample: Sample;
+  private stopped = false;
+
+  constructor(context: AudioContext) {
+    const tick = getInstrumentResources().tick;
+    this.sample = tick && new Sample(tick, context);
+  }
+
+  /**
+   * Start the metronome tick, looping forever until .stop() is called.
+   */
+  async start() {
+    const beatIndicatorDuration = 200; // duration of beat indicator on UI in ms
+    const tickLeadInDuration = 150; // Aligns the centre of the audio tick to the beat indicator in ms
+    while (!this.stopped) {
+      const duration = (1000 * 60) / settings.bpm;
+      this.sample.start(1);
+      await sleep(tickLeadInDuration);
+      dispatch(updateBeatIndicator(true));
+      await sleep(beatIndicatorDuration);
+      dispatch(updateBeatIndicator(false));
+      await sleep(duration - beatIndicatorDuration - tickLeadInDuration);
+    }
+  }
+
+  /**
+   * Stop the tick.
+   */
+  stop() {
+    if (this.sample) {
+      this.sample.stop();
+    }
+    this.stopped = true;
+  }
+}
+/**
  * Pitched note playback (used for notes and gracenotes).
  */
 export class SoundedPitch {
@@ -77,7 +117,12 @@ export class SoundedPitch {
   // see SoundedSilence for details.
   public durationIncludingTies: number;
 
-  constructor(pitch: Pitch, duration: number, ctx: AudioContext, id: ID | null) {
+  constructor(
+    pitch: Pitch,
+    duration: number,
+    ctx: AudioContext,
+    id: ID | null
+  ) {
     this.sample = new Sample(pitchToAudioResource(pitch), ctx);
     this.pitch = pitch;
     this.duration = duration;
