@@ -22,7 +22,7 @@ import type { Update } from '../Events/types';
 import type { IMeasure } from '../Measure';
 import type { INote, NoteOrTriplet } from '../Note';
 import type { PlaybackMeasure, PlaybackSecondTiming } from '../Playback';
-import type { SavedScore } from '../SavedModel';
+import type { SavedScorev3 } from '../SavedModel';
 import type { IStave } from '../Stave';
 import type { IMovableTextBox } from '../TextBox';
 import type { ITiming, TimingPart } from '../Timing';
@@ -37,7 +37,7 @@ export abstract class IScore {
   abstract showNumberOfPages: boolean;
   abstract zoom: number;
   abstract name(): string;
-  abstract toJSON(): SavedScore;
+  abstract toJSON(): SavedScorev3;
   abstract width(): number;
   abstract height(): number;
   abstract printWidth(): number;

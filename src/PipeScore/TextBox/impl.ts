@@ -17,13 +17,14 @@
 import { type Font, IMovableTextBox, IStaticTextBox } from '.';
 import { Update } from '../Events/types';
 import type { SavedMovableTextBox, SavedStaticTextBox } from '../SavedModel';
+import { TITLE_FONT } from '../global/settings';
 
 export class StaticTextBox extends IStaticTextBox {
   private _text: string;
   private _size: number;
   private _font: Font;
 
-  constructor(text = '', size = 20, font: Font = 'sans-serif') {
+  constructor(text = '', size = 20, font: Font = TITLE_FONT) {
     super();
     this._text = text;
     this._size = size;

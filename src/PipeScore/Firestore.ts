@@ -18,7 +18,13 @@
 
 import type { Database } from 'firebase-firestore-lite';
 import quickStart from './QuickStart';
-import { type SavedData, type SavedScore, scoreIsPresent } from './SavedModel';
+import {
+  type SavedData,
+  type SavedScorev3,
+  isJustCreatedScore,
+  isLatestScoreVersion,
+  updateScoreVersion,
+} from './SavedModel';
 import type { IScore } from './Score';
 import { Score } from './Score/impl';
 import { dipIfOnMobile, onMobile } from './global/browser';
@@ -35,7 +41,7 @@ export class Firestore {
   private readonly: boolean;
   private editsSinceSave = 0;
   private oncommit: () => void = () => null;
-  private score: SavedScore = Score.blank().toJSON();
+  private score: SavedScorev3 = Score.blank().toJSON();
 
   private constructor(
     db: Database,
@@ -60,22 +66,34 @@ export class Firestore {
     const store = new Firestore(db, userid, scoreid, readonly);
 
     const data = await store.pull();
-    // If it is a new score, then it won't have staves
-    if (!data || !scoreIsPresent(data)) {
+    if (!data || isJustCreatedScore(data)) {
+      // If it is a new score, then create the empty document and save.
+
       dipIfOnMobile();
       const opts = await quickStart();
       store.save(opts.toScore().toJSON());
       await store.commit();
       const score = await store.pull();
-      if (!score || !scoreIsPresent(score)) throw new Error("Couldn't save score.");
+      if (!score || isJustCreatedScore(score))
+        throw new Error("Couldn't save just-created score.");
+    } else if (!isLatestScoreVersion(data)) {
+      // If it is an out-of-date score, then update it and save.
+
+      store.save(updateScoreVersion(data));
+      await store.commit();
+      const score = await store.pull();
+      if (!score || !isLatestScoreVersion(score))
+        throw new Error("Couldn't save update version of score.");
     } else {
+      // Otherwise, set the score to the data.
+
       store.score = data;
     }
 
     return store;
   }
 
-  async save(score: SavedScore) {
+  async save(score: SavedScorev3) {
     this.score = score;
     window.addEventListener('beforeunload', beforeUnload);
     this.editsSinceSave++;

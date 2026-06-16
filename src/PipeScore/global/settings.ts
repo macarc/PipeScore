@@ -23,6 +23,10 @@ import { clamp } from './utils';
 const a4LongSide = 297; // in mm
 const a4ShortSide = 210; // in mm
 
+export const TITLE_SIZE = 20;
+export const SUBTITLE_SIZE = 15;
+export const TITLE_FONT = 'sans-serif';
+
 export class Settings {
   staveGap = Settings.defaultStaveGap;
   harmonyGap = Settings.defaultHarmonyGap;

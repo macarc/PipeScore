@@ -16,7 +16,7 @@
 
 import { ITune } from '.';
 import type { IMeasure } from '../Measure';
-import type { SavedTune } from '../SavedModel';
+import type { SavedTunev2 } from '../SavedModel';
 import type { IStave } from '../Stave';
 import { Stave } from '../Stave/impl';
 import type { IStaticTextBox } from '../TextBox';
@@ -24,11 +24,8 @@ import { StaticTextBox } from '../TextBox/impl';
 import type { ITimeSignature } from '../TimeSignature';
 import { TimeSignature } from '../TimeSignature/impl';
 import { Relative } from '../global/relativeLocation';
-import { Settings } from '../global/settings';
+import { SUBTITLE_SIZE, Settings, TITLE_SIZE } from '../global/settings';
 import { foreach, nfirst, nlast } from '../global/utils';
-
-const titleSize = 20;
-const otherSize = 15;
 
 export class Tune extends ITune {
   private _staves: IStave[];
@@ -78,24 +75,24 @@ export class Tune extends ITune {
     staves: IStave[]
   ) {
     return new Tune(
-      new StaticTextBox(name, titleSize),
-      new StaticTextBox(composer, otherSize),
-      new StaticTextBox(tuneType, otherSize),
+      new StaticTextBox(name, TITLE_SIZE),
+      new StaticTextBox(composer, SUBTITLE_SIZE),
+      new StaticTextBox(tuneType, SUBTITLE_SIZE),
       staves
     );
   }
 
-  static fromJSON(tune: SavedTune) {
+  static fromJSON(tune: SavedTunev2) {
     return new Tune(
-      StaticTextBox.fromJSON(tune.name, titleSize),
-      StaticTextBox.fromJSON(tune.composer, otherSize),
-      StaticTextBox.fromJSON(tune.tuneType, otherSize),
+      StaticTextBox.fromJSON(tune.name, TITLE_SIZE),
+      StaticTextBox.fromJSON(tune.composer, SUBTITLE_SIZE),
+      StaticTextBox.fromJSON(tune.tuneType, SUBTITLE_SIZE),
       tune.staves.map(Stave.fromJSON),
       tune.tuneGap
     );
   }
 
-  toJSON(): SavedTune {
+  toJSON(): SavedTunev2 {
     return {
       name: this._name.toJSON(),
       tuneType: this._tuneType.toJSON(),
@@ -107,6 +104,10 @@ export class Tune extends ITune {
 
   name() {
     return this._name;
+  }
+
+  setName(name: string) {
+    this._name.set(name, this._name.fontSize(), this._name.font());
   }
 
   tuneType() {

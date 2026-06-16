@@ -2,13 +2,18 @@ import { Duration, NoteLength } from '../PipeScore/Note/notelength';
 import type {
   SavedGracenote,
   SavedMeasure,
-  SavedScore,
+  SavedScorev3,
   SavedTimeSignature,
   SavedTiming,
 } from '../PipeScore/SavedModel';
 import { type ID, genID } from '../PipeScore/global/id';
 import { Pitch } from '../PipeScore/global/pitch';
-import { Settings } from '../PipeScore/global/settings';
+import {
+  SUBTITLE_SIZE,
+  Settings,
+  TITLE_FONT,
+  TITLE_SIZE,
+} from '../PipeScore/global/settings';
 import { sum } from '../PipeScore/global/utils';
 import { TokenStream } from './Tokeniser';
 import { type Token, TokenType } from './token';
@@ -24,7 +29,7 @@ function durationInBeats(d: Duration) {
 }
 
 type ParsedScore = {
-  score: SavedScore;
+  score: SavedScorev3;
   warnings: string[];
   textboxes: string[];
 };
@@ -176,17 +181,19 @@ class PartialScore {
   private currentTiming: SavedTiming | null = null;
   private currentStave: SavedMeasure[] = [emptyMeasure(this.timeSignature)];
 
-  private score: SavedScore;
+  private score: SavedScorev3;
 
   public currentLineIsEmpty = true;
 
   constructor() {
     this.score = {
+      version: 'v3',
+      scoreName: '[Imported from BWW]',
       tunes: [
         {
-          name: '[Imported from BWW]',
-          tuneType: 'Tune Type',
-          composer: 'Composer',
+          name: { text: '[Imported from BWW]', font: TITLE_FONT, size: TITLE_SIZE },
+          tuneType: { text: 'Tune Type', font: TITLE_FONT, size: SUBTITLE_SIZE },
+          composer: { text: 'Composer', font: TITLE_FONT, size: SUBTITLE_SIZE },
           staves: [],
           tuneGap: Settings.defaultTuneGap,
         },

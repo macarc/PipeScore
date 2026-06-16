@@ -23,9 +23,8 @@ import { Update } from '../Events/types';
 import { nextBar, nextNote, previousBar, previousNote } from '../Measure';
 import type { NoteOrTriplet } from '../Note';
 import type { PlaybackMeasure } from '../Playback';
-import { type SavedScore, scoreHasStavesNotTunes } from '../SavedModel';
+import type { SavedScorev3 } from '../SavedModel';
 import type { IStave } from '../Stave';
-import { Stave } from '../Stave/impl';
 import type { IMovableTextBox } from '../TextBox';
 import { MovableTextBox } from '../TextBox/impl';
 import type { ITimeSignature } from '../TimeSignature';
@@ -46,6 +45,7 @@ export function isStave(s: IStave | ITune): s is IStave {
 export class Score extends IScore {
   landscape: boolean;
 
+  private _name: string;
   private _tunes: ITune[];
   // an array rather than a set since it makes rendering easier (with map)
   private _textBoxes: IMovableTextBox[][];
@@ -66,6 +66,7 @@ export class Score extends IScore {
     super();
     this.landscape = true;
     this.showNumberOfPages = true;
+    this._name = name;
     this._tunes = [
       Tune.create(
         timeSignature,
@@ -86,37 +87,31 @@ export class Score extends IScore {
     return new Score('My Score', '', '', 2, true, new TimeSignature());
   }
 
-  static fromJSON(o: SavedScore) {
+  static fromJSON(o: SavedScorev3) {
     const s = Score.blank();
     settings.fromJSON(o.settings);
 
+    s._name = o.scoreName;
     s.landscape = o.landscape;
     s._textBoxes = o.textBoxes.map((p) => p.texts.map(MovableTextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
+    s._tunes = o.tunes.map(Tune.fromJSON);
 
-    if (scoreHasStavesNotTunes(o)) {
-      const name = s._textBoxes[0]?.[0]?.text() || 'My Tune';
-      const composer = s._textBoxes[0]?.[1]?.text() || 'Composer';
-      const tuneType = s._textBoxes[0]?.[2]?.text() || 'Tune Type';
-      s._textBoxes[0].splice(0, 3);
-      s._tunes = [
-        Tune.createFromStaves(
-          name,
-          composer,
-          tuneType,
-          o._staves.map(Stave.fromJSON)
-        ),
-      ];
-    } else {
-      s._tunes = o.tunes.map(Tune.fromJSON);
+    if (s._tunes.length === 1) {
+      s._tunes[0].setName(o.scoreName);
     }
+
+    s.updateWindowTitle();
 
     return s;
   }
 
-  toJSON(): SavedScore {
+  toJSON(): SavedScorev3 {
+    this.updateNameToMatchTune();
     return {
+      version: 'v3',
+      scoreName: this._name,
       landscape: this.landscape,
       showNumberOfPages: this.showNumberOfPages,
       tunes: this._tunes.map((tune) => tune.toJSON()),
@@ -129,7 +124,26 @@ export class Score extends IScore {
   }
 
   name() {
-    return this._tunes[0]?.name().text() || 'Empty Score';
+    this.updateNameToMatchTune();
+    return this._name;
+  }
+
+  /**
+   * If there is a single tune in the score, ensure that
+   * the score's name matches the tune's name.
+   */
+  private updateNameToMatchTune() {
+    if (this._tunes.length === 1) {
+      this._name = this._tunes[0].name().text();
+      this.updateWindowTitle();
+    }
+  }
+
+  /**
+   * Update window title (shown in browser tab) to match the score name.
+   */
+  private updateWindowTitle() {
+    document.title = this._name + " - PipeScore";
   }
 
   width() {

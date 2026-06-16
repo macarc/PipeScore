@@ -1,7 +1,18 @@
 # To-do list
 
-## Things people want
+## Feature requests
 
+- [ ] Page break (R McInnis)
+- [ ] Chanter pitch shift (R McInnis)
+- [ ] BUG can’t drag text boxes (ensure 2nd page) (K Fisher)
+- [ ] Export audio playback (M Morrison, many others)
+- [ ] Disable top banner (M Morrison)
+  - [ ] Better mobile/‘viewing’ view
+  - [ ] View-only mode
+    - [ ] Locks editing (J Kish)
+    - [ ] Works on mobile
+    - [ ] Makes banner tiny
+- [ ] Touchscreen? (G Bolton, others)
 - [x] Upload/download scores (really, editable sharing)
 - [x] Multiple scores per page
 - [ ] Download playback
@@ -27,6 +38,7 @@
 - [x] Have to move mouse after starting playback to enable stop button
 - [ ] Use passert everywhere
 - [ ] Disable timing buttons when harmony staves are selected
+- [ ] Not obvious how to change name/composer
 
 ## Mobile
 

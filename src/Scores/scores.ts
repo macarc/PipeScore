@@ -20,9 +20,11 @@ import Auth from 'firebase-auth-lite';
 import { Database, type Document } from 'firebase-firestore-lite';
 import m from 'mithril';
 import {
-  type DeprecatedSavedScore,
-  type SavedScore,
-  scoreHasStavesNotTunes,
+  type JustCreatedScore,
+  type SavedData,
+  type SavedScorev3,
+  isJustCreatedScore,
+  updateScoreVersion,
 } from '../PipeScore/SavedModel';
 import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
@@ -36,41 +38,126 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
-type ScoreRef = { path: string };
+type ScoreQueryResult = Document & { scoreName: string | undefined };
+
+const DEFAULT_SCORE_NAME = 'Empty Score';
+
+/**
+ * Get the Firestore path to the user's scores.
+ * @param userId User ID.
+ * @returns the path to a collection in Firestore containing the user's scores.
+ */
+function scoresDbPath(userId: string): string {
+  return `scores/${userId}/scores`;
+}
+
+/**
+ * Get the list of user's scores.
+ * @param userId User ID.
+ * @returns the list of ScoreDocs corresponding to the user's scores.
+ */
+async function getScoreDocuments(userId: string, scoresList: ScoresList): Promise<ScoreDoc[]> {
+  // Use query() rather than list() to avoid limits.
+  // Only select the name to avoid loading the entire score.
+  const documents: ScoreQueryResult[] = await db
+    .ref(scoresDbPath(userId))
+    .query({ select: ['scoreName'] })
+    .run();
+  return Promise.all(documents.map((doc) => ScoreDoc.init(doc, scoresList)));
+}
+
+/**
+ *
+ * @param meta the Firestore document containing the user's score.
+ * @returns
+ */
+async function getScoreContents(meta: ScoreQueryResult): Promise<SavedData> {
+  const contents = await db.ref(meta.__meta__.path).get();
+  return contents as unknown as SavedData;
+}
+
+class ScoreDoc {
+  _meta: ScoreQueryResult;
+
+  static async init(meta: ScoreQueryResult, scoresList: ScoresList): Promise<ScoreDoc> {
+    // Legacy workaround: if any document does not have a name field, set it from the first tune in the list
+    if (
+      meta.scoreName === undefined ||
+      meta.scoreName === null ||
+      meta.scoreName === ''
+    ) {
+      const scoreContents = await getScoreContents(meta);
+
+      // Note that this should never be a JustCreatedScore since that should have `scoreName` set.
+      if (!isJustCreatedScore(scoreContents)) {
+
+        const updatedScore = updateScoreVersion(scoreContents);
+        scoresList.showUpdatingScoresMessage()
+        await db.ref(meta.__meta__.path).set(updatedScore);
+        meta.scoreName = updatedScore.scoreName;
+      } else {
+        console.error('Failed to get name for JustCreatedScore', scoreContents);
+
+        // The old JustCreatedScores used 'name' instead of scoreName. This is
+        // very unlikely to ever need to be run.
+        const maybeName = (scoreContents as unknown as { name: string }).name;
+        if (maybeName !== undefined) {
+          scoreContents.scoreName = maybeName;
+          await db.ref(meta.__meta__.path).set(scoreContents);
+          meta.scoreName = maybeName;
+        }
+      }
+    }
+
+    return new ScoreDoc(meta);
+  }
+
+  constructor(meta: ScoreQueryResult) {
+    console.assert(typeof meta.scoreName === 'string' && meta.scoreName.length > 0);
+    this._meta = meta;
+  }
+
+  name(): string {
+    return this._meta.scoreName || DEFAULT_SCORE_NAME;
+  }
+
+  async setName(name: string) {
+    const scoreContents = await this.contents();
+    scoreContents.scoreName = name;
+    await db.ref(this._meta.__meta__.path).set(scoreContents);
+
+    // Set the name temporarily. The list will be refreshed, but this can take
+    // a second or two for large numbers of scores, so setting the name updates
+    // the interface immediately.
+    this._meta.scoreName = name;
+  }
+
+  scoreURL() {
+    return `/pipescore${this._meta.__meta__.path.replaceAll('/scores/', '/')}`;
+  }
+
+  async duplicate() {
+    const name = `${this._meta.scoreName} (copy)`;
+    const scoreContents = await this.contents();
+    scoreContents.scoreName = name;
+    await db.ref(this._meta.__meta__.path).parentCollection.add(scoreContents);
+  }
+
+  async delete() {
+    await db.ref(this._meta.__meta__.path).delete();
+  }
+
+  async contents(): Promise<SavedScorev3 | JustCreatedScore> {
+    return (await getScoreContents(this._meta)) as SavedScorev3 | JustCreatedScore;
+  }
+}
 
 type FileInput = HTMLInputElement & { files: FileList };
 
-function getName(score: Document | ScoreRef | SavedScore | DeprecatedSavedScore) {
-  const defaultName = 'Empty Score';
-  if ((score as DeprecatedSavedScore).name) {
-    return (score as DeprecatedSavedScore).name || defaultName;
-  }
-
-  const sscore = score as SavedScore;
-  const name = sscore.tunes?.[0]?.name;
-
-  if (typeof name === 'string') {
-    return name || defaultName;
-  }
-
-  return name.text || defaultName;
-}
-
-function setName(
-  score: Document | ScoreRef | SavedScore | DeprecatedSavedScore,
-  name: string
-) {
-  const s = score as SavedScore | DeprecatedSavedScore;
-  if (scoreHasStavesNotTunes(s)) {
-    s.name = name;
-  } else if (s.tunes[0]) {
-    s.tunes[0].name = name;
-  }
-}
-
 class ScoresList {
   loading = true;
-  scores: ScoreRef[] = [];
+  scores: ScoreDoc[] = [];
+  updatingScoresMessage = false;
 
   oninit() {
     onUserChange(auth, (user) => {
@@ -116,65 +203,53 @@ class ScoresList {
     });
   }
 
-  async duplicate(score: ScoreRef) {
-    try {
-      const scoreContents = (await db
-        .ref(`scores${score.path}`)
-        .get()) as unknown as SavedScore;
-
-      const newTitle = `${getName(scoreContents)} (copy)`;
-      setName(scoreContents, newTitle);
-
-      await db.ref(`scores/${userId}/scores`).add(scoreContents);
-
-      this.refreshScores();
-    } catch (e) {
-      console.log(e);
-      alert(`Error duplicating score: ${(e as Error).name}`);
-    }
+  async duplicate(score: ScoreDoc) {
+    await score.duplicate();
+    this.refreshScores();
   }
 
-  async delete(score: ScoreRef) {
-    const sure = confirm(`Are you sure you want to delete ${getName(score)}?`);
+  async delete(score: ScoreDoc) {
+    const sure = confirm(`Are you sure you want to delete ${score.name()}?`);
     if (sure) {
-      await db.ref(`scores${score.path}`).delete();
+      await score.delete();
       this.refreshScores();
     }
   }
 
-  async rename(scoreRef: ScoreRef) {
-    const score = await db.ref(`scores${scoreRef.path}`).get();
-    const newName = prompt('Rename:', getName(score));
+  async rename(score: ScoreDoc) {
+    const newName = prompt('Rename:', score.name());
     if (newName) {
-      setName(score, newName);
-      await db.ref(`scores${scoreRef.path}`).set(score);
+      await score.setName(newName);
       this.refreshScores();
     }
   }
 
   async refreshScores() {
-    // Use query() rather than list() to avoid limits
-    const collection: Document[] = await db
-      .ref(`scores/${userId}/scores`)
-      .query()
-      .run();
-    this.scores = collection
-      .map((doc) => ({
-        name: getName(doc),
-        path: doc.__meta__.path.replace('/scores', ''),
-      }))
-      .sort(({ name: name1 }, { name: name2 }) =>
-        name1 === name2 ? 0 : name1.toLowerCase() < name2.toLowerCase() ? -1 : 1
-      );
+    this.scores = await getScoreDocuments(userId, this);
+    this.scores.sort((score1, score2) =>
+      score1.name() === score2.name()
+        ? 0
+        : score1.name().toLowerCase() < score2.name().toLowerCase()
+          ? -1
+          : 1
+    );
     this.loading = false;
     m.redraw();
   }
 
-  view() {
-    if (this.loading) return [m('div.loading', m('div.spinner'))];
+  showUpdatingScoresMessage() {
+    this.updatingScoresMessage = true;
+    m.redraw()
+  }
 
-    const path = (score: ScoreRef) =>
-      `/pipescore${score.path.replace('/scores/', '/')}`;
+  view() {
+    if (this.loading) {
+      if (this.updatingScoresMessage) {
+        return [m('p', 'Updating PipeScore scores - this will only happen once. This may take a little while, please wait!'), m('div.loading', m('div.spinner'))];
+      } else {
+        return [m('div.loading', m('div.spinner'))];
+      }
+    }
 
     return [
       m('p', 'Scores:'),
@@ -182,12 +257,12 @@ class ScoresList {
       m('table', [
         ...this.scores.map((score) =>
           m('tr', [
-            m('td.td-name', m('a', { href: path(score) }, getName(score))),
+            m('td.td-name', m('a', { href: score.scoreURL() }, score.name())),
             m(
               'td',
               m(
                 'button.edit',
-                { onclick: () => window.location.assign(path(score)) },
+                { onclick: () => window.location.assign(score.scoreURL()) },
                 'Edit'
               )
             ),
@@ -226,10 +301,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-score')?.addEventListener('click', async () => {
     if (userId) {
       const collection = db.ref(`scores/${userId}/scores`);
-      const newScore = await collection.add({
-        name: 'Empty Score',
+      const justCreatedScore: JustCreatedScore = {
+        scoreName: DEFAULT_SCORE_NAME,
         justCreated: true,
-      });
+      };
+      const newScore = await collection.add(justCreatedScore);
       if (newScore) {
         window.location.assign(`/pipescore/${userId}/${newScore.id}`);
       }

@@ -1,7 +1,7 @@
 import Auth from 'firebase-auth-lite';
 import { Database, type Reference } from 'firebase-firestore-lite';
 import m from 'mithril';
-import type { SavedScore } from '../PipeScore/SavedModel';
+import type { SavedScorev3 } from '../PipeScore/SavedModel';
 import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
 import { parse } from './Parser';
@@ -37,8 +37,8 @@ function errorImporting(message: string) {
   );
 }
 
-async function savefile(score: SavedScore) {
-  const collection = await db.ref(`scores/${user}/scores`);
+async function savefile(score: SavedScorev3) {
+  const collection = db.ref(`scores/${user}/scores`);
   const newScore = await collection.add(score);
   if (newScore) {
     return newScore;
@@ -46,8 +46,8 @@ async function savefile(score: SavedScore) {
   throw new Error('Could not save score.');
 }
 
-async function updatefile(dbEntry: Reference, score: SavedScore) {
-  const e = await db.ref(`scores/${user}/scores/${dbEntry.id}`);
+async function updatefile(dbEntry: Reference, score: SavedScorev3) {
+  const e = db.ref(`scores/${user}/scores/${dbEntry.id}`);
 
   if (e) {
     await e.set(score);
@@ -83,9 +83,10 @@ async function importfile(e: SubmitEvent) {
         (document.querySelector('#tune-type') as HTMLInputElement | null)?.value ||
         'March';
 
-      score.tunes[0].name = scoreName;
-      score.tunes[0].composer = composer;
-      score.tunes[0].tuneType = tuneType;
+      score.scoreName = scoreName;
+      score.tunes[0].name.text = scoreName;
+      score.tunes[0].composer.text = composer;
+      score.tunes[0].tuneType.text = tuneType;
 
       await updatefile(dbEntry, score);
       window.location.replace(`/pipescore/${user}/${dbEntry.id}`);
