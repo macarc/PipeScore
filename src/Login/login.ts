@@ -83,15 +83,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const emailEl = signUpForm.querySelector('input[type="email"]');
       const passwdEl = signUpForm.querySelector('#first-pwd');
       const passwdRepeatEl = signUpForm.querySelector('#second-pwd');
+      const tandcEl = signUpForm.querySelector('#tandc')
       if (
         emailEl instanceof HTMLInputElement &&
         passwdEl instanceof HTMLInputElement &&
-        passwdRepeatEl instanceof HTMLInputElement
+        passwdRepeatEl instanceof HTMLInputElement &&
+        tandcEl instanceof HTMLInputElement
       ) {
         const email = emailEl.value;
         const passwd = passwdEl.value;
         const passwd2 = passwdRepeatEl.value;
-        if (passwd !== passwd2) {
+        const agreedToTerms = tandcEl.checked;
+        if (!agreedToTerms) {
+          signupError('You must agree to the terms and conditions!');
+        } else if (passwd !== passwd2) {
           signupError('Passwords do not match!');
         } else if (!email || !passwd) {
           signupError('Please enter email and password');
