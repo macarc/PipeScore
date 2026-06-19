@@ -36,6 +36,9 @@ import { helpText } from './Translations/current';
 import renderUI from './UI/view';
 import { svgCoords } from './global/utils';
 import { clearXY } from './global/xy';
+import { IScore } from './Score';
+import { SecondTiming, SingleTiming } from './Timing/impl';
+import { INote } from './Note';
 
 const state: State = {
   store: null,
@@ -214,7 +217,7 @@ export default async function startController(
     const opts = await quickStart();
     state.score = opts.toScore();
   }
-
+  fixUpImportedSingleTimings(state.score); 
   loadAudioResources().then(() => dispatch(loadedAudio()));
   state.history.past = [JSON.stringify(state.score.toJSON())];
   window.addEventListener('mousemove', mouseMove);
@@ -223,3 +226,36 @@ export default async function startController(
   state.view.ui = document.getElementById('interface');
   updateView();
 }
+// Fixes BWW imported single timings that should be second timings
+function fixUpImportedSingleTimings(score: IScore):void {
+  
+  if(score.timings().length!=0){
+    let replaced:boolean=false;
+    while(1){ // Outer loop to restart timings search as iterator maybe confused by deletions and adds to Timings.
+      replaced=false;
+      for(const timing of score.timings()){
+        if(timing instanceof SingleTiming ){
+          const nextNote:INote | null = score.nextNote(timing.EndNote()); // Find the next note after single end
+          for(const innerTiming of score.timings()){
+            if(innerTiming instanceof SingleTiming && nextNote?.id==innerTiming.StartNote() ){
+              // Replace both singles with a SecondTiming
+              var newSecond = new SecondTiming(timing.StartNote(),innerTiming.StartNote(),innerTiming.EndNote());
+              score.deleteTiming(timing);
+              score.deleteTiming(innerTiming);
+              score.timings().push(newSecond);
+              replaced=true; // Restart iterations over timings at outer loop 
+            }
+            if(replaced) break;
+          }
+        }
+        if(replaced)break;
+      }   
+      if(!replaced) break;  // No more matching singles found
+    }
+  }
+}
+    
+
+
+
+
