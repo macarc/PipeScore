@@ -143,7 +143,7 @@ export class Score extends IScore {
    * Update window title (shown in browser tab) to match the score name.
    */
   private updateWindowTitle() {
-    document.title = this._name + " - PipeScore";
+    document.title = `${this._name} - PipeScore`;
   }
 
   width() {

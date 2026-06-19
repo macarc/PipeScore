@@ -38,7 +38,10 @@ const auth = new Auth({ apiKey: apiToken });
 
 const db = new Database({ projectId: 'pipe-score', auth });
 
-type ScoreQueryResult = Document & { scoreName: string | undefined };
+type ScoreQueryResult = {
+  __meta__: { path: string };
+  scoreName: string | undefined;
+};
 
 const DEFAULT_SCORE_NAME = 'Empty Score';
 
@@ -56,7 +59,10 @@ function scoresDbPath(userId: string): string {
  * @param userId User ID.
  * @returns the list of ScoreDocs corresponding to the user's scores.
  */
-async function getScoreDocuments(userId: string, scoresList: ScoresList): Promise<ScoreDoc[]> {
+async function getScoreDocuments(
+  userId: string,
+  scoresList: ScoresList
+): Promise<ScoreDoc[]> {
   // Use query() rather than list() to avoid limits.
   // Only select the name to avoid loading the entire score.
   const documents: ScoreQueryResult[] = await db
@@ -79,7 +85,10 @@ async function getScoreContents(meta: ScoreQueryResult): Promise<SavedData> {
 class ScoreDoc {
   _meta: ScoreQueryResult;
 
-  static async init(meta: ScoreQueryResult, scoresList: ScoresList): Promise<ScoreDoc> {
+  static async init(
+    meta: ScoreQueryResult,
+    scoresList: ScoresList
+  ): Promise<ScoreDoc> {
     // Legacy workaround: if any document does not have a name field, set it from the first tune in the list
     if (
       meta.scoreName === undefined ||
@@ -90,9 +99,8 @@ class ScoreDoc {
 
       // Note that this should never be a JustCreatedScore since that should have `scoreName` set.
       if (!isJustCreatedScore(scoreContents)) {
-
         const updatedScore = updateScoreVersion(scoreContents);
-        scoresList.showUpdatingScoresMessage()
+        scoresList.showUpdatingScoresMessage();
         await db.ref(meta.__meta__.path).set(updatedScore);
         meta.scoreName = updatedScore.scoreName;
       } else {
@@ -239,16 +247,21 @@ class ScoresList {
 
   showUpdatingScoresMessage() {
     this.updatingScoresMessage = true;
-    m.redraw()
+    m.redraw();
   }
 
   view() {
     if (this.loading) {
       if (this.updatingScoresMessage) {
-        return [m('p', 'Updating PipeScore scores - this will only happen once. This may take a little while, please wait!'), m('div.loading', m('div.spinner'))];
-      } else {
-        return [m('div.loading', m('div.spinner'))];
+        return [
+          m(
+            'p',
+            'Updating PipeScore scores - this will only happen once. This may take a little while, please wait!'
+          ),
+          m('div.loading', m('div.spinner')),
+        ];
       }
+      return [m('div.loading', m('div.spinner'))];
     }
 
     return [

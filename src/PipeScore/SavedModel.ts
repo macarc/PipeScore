@@ -52,8 +52,8 @@ import { SUBTITLE_SIZE, Settings, TITLE_SIZE } from './global/settings';
 
 /**
  * Check if saved data is a newly-created score without any data yet.
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 export function isJustCreatedScore(data: SavedData): data is JustCreatedScore {
   return (data as JustCreatedScore).justCreated === true;
@@ -80,15 +80,23 @@ export function isLatestScoreVersion(score: SavedData): score is SavedScorev3 {
 
 /**
  * Update a saved tune to version 2, if it is not already.
- * @param tune 
- * @returns 
+ * @param tune
+ * @returns
  */
 function updateTuneVersion(tune: SavedTunev1 | SavedTunev2): SavedTunev2 {
   if (istunev1(tune)) {
     return {
       name: { text: tune.name, font: 'sans-serif', size: TITLE_SIZE },
-      composer: { text: tune.composer, font: 'sans-serif', size: SUBTITLE_SIZE },
-      tuneType: { text: tune.tuneType, font: 'sans-serif', size: SUBTITLE_SIZE },
+      composer: {
+        text: tune.composer,
+        font: 'sans-serif',
+        size: SUBTITLE_SIZE,
+      },
+      tuneType: {
+        text: tune.tuneType,
+        font: 'sans-serif',
+        size: SUBTITLE_SIZE,
+      },
       tuneGap: Settings.defaultTuneGap,
       staves: tune.staves,
     };
@@ -99,8 +107,8 @@ function updateTuneVersion(tune: SavedTunev1 | SavedTunev2): SavedTunev2 {
 
 /**
  * Update a score to version 3, if it is not already.
- * @param score 
- * @returns 
+ * @param score
+ * @returns
  */
 export function updateScoreVersion(
   score: SavedScorev1 | SavedScorev2 | SavedScorev3

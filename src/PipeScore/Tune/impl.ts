@@ -85,22 +85,22 @@ export class Tune extends ITune {
   static fromJSON(tune: SavedTunev2) {
     // Fix for a bug that I introduced in an earlier version - the 'text' field
     // of the tune name/composer/tune type could accidentally not be a string.
-    if (typeof tune.name.text !== "string") {
-      if (tune.name.text["text"]) {
+    if (typeof tune.name.text !== 'string') {
+      if ((tune.name.text as SavedStaticTextBox).text) {
         tune.name.text = (tune.name as SavedStaticTextBox).text;
       }
     }
-    if (typeof tune.composer.text !== "string") {
-      if (tune.composer.text["text"]) {
+    if (typeof tune.composer.text !== 'string') {
+      if ((tune.composer.text as SavedStaticTextBox).text) {
         tune.composer.text = (tune.composer.text as SavedStaticTextBox).text;
       }
     }
-    if (typeof tune.tuneType.text !== "string") {
-      if (tune.tuneType.text["text"]) {
+    if (typeof tune.tuneType.text !== 'string') {
+      if ((tune.tuneType.text as SavedStaticTextBox).text) {
         tune.tuneType.text = (tune.tuneType.text as SavedStaticTextBox).text;
       }
     }
-    
+
     return new Tune(
       StaticTextBox.fromJSON(tune.name, TITLE_SIZE),
       StaticTextBox.fromJSON(tune.composer, SUBTITLE_SIZE),

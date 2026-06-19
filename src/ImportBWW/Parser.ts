@@ -191,8 +191,16 @@ class PartialScore {
       scoreName: '[Imported from BWW]',
       tunes: [
         {
-          name: { text: '[Imported from BWW]', font: TITLE_FONT, size: TITLE_SIZE },
-          tuneType: { text: 'Tune Type', font: TITLE_FONT, size: SUBTITLE_SIZE },
+          name: {
+            text: '[Imported from BWW]',
+            font: TITLE_FONT,
+            size: TITLE_SIZE,
+          },
+          tuneType: {
+            text: 'Tune Type',
+            font: TITLE_FONT,
+            size: SUBTITLE_SIZE,
+          },
           composer: { text: 'Composer', font: TITLE_FONT, size: SUBTITLE_SIZE },
           staves: [],
           tuneGap: Settings.defaultTuneGap,
@@ -209,7 +217,10 @@ class PartialScore {
   newStave() {
     this.endItem(this.currentMeasure().bars[0].id);
 
-    this.score.tunes[0].staves.push({ numberOfParts: 1, bars: this.currentStave });
+    this.score.tunes[0].staves.push({
+      numberOfParts: 1,
+      bars: this.currentStave,
+    });
     this.currentStave = [emptyMeasure(this.timeSignature)];
     this.currentLineIsEmpty = true;
   }

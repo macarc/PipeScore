@@ -852,7 +852,10 @@ export default function render(state: UIState): m.Children {
           'edit-text',
           m(
             'button.double-width.text',
-            { disabled: !textSelected, onclick: () => state.dispatch(editText()) },
+            {
+              disabled: !textSelected,
+              onclick: () => state.dispatch(editText()),
+            },
             text('editText')
           ),
           state.dispatch
@@ -1272,7 +1275,10 @@ export default function render(state: UIState): m.Children {
                 'save',
                 m(
                   'button.save',
-                  { disabled: state.saved, onclick: () => state.dispatch(save()) },
+                  {
+                    disabled: state.saved,
+                    onclick: () => state.dispatch(save()),
+                  },
                   text('save')
                 ),
                 state.dispatch
