@@ -45,6 +45,8 @@ const state: State = {
   playback: {
     userPressedStop: false,
     playing: false,
+    playingMetronome: false,
+    beatIndicator: false,
     loading: true,
     cursor: null,
   },
@@ -136,6 +138,8 @@ function redraw() {
         loggedIn: state.isLoggedIn,
         loadingAudio: state.playback.loading,
         isPlaying: state.playback.playing,
+        isPlayingMetronome: state.playback.playingMetronome,
+        beatIndicator: state.playback.beatIndicator,
         zoomLevel: state.score.zoom,
         preview: state.preview,
         showingPageNumbers: state.score.showNumberOfPages,
@@ -150,9 +154,13 @@ function redraw() {
             state.selection.gracenote(state.score)) ||
           null,
         selectedText:
-          state.selection instanceof TextSelection ? state.selection.text : null,
+          state.selection instanceof TextSelection
+            ? state.selection.text
+            : null,
         selectedTiming:
-          state.selection instanceof TimingSelection ? state.selection.timing : null,
+          state.selection instanceof TimingSelection
+            ? state.selection.timing
+            : null,
         isLandscape: state.score.landscape,
         selectedStaves:
           (state.selection instanceof ScoreSelection &&
