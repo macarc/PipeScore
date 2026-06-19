@@ -64,7 +64,7 @@ function istunev1(tune: SavedTunev1 | SavedTunev2): tune is SavedTunev1 {
 }
 
 function isv1(score: SavedData): score is SavedScorev1 {
-  return (score as SavedScorev1)._staves !== undefined;
+  return (score as SavedScorev2).tunes === undefined;
 }
 
 function isv2(score: SavedData): score is SavedScorev2 {
