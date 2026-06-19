@@ -44,7 +44,7 @@ PipeScore is powered by:
 
 See `src/PipeScore/README.md` for documentation.
 
-[This manual](http://bagpipe.ddg-hansa.com/Bagpipe_Reader.pdf) is a helpful guide to BWW files.
+[This manual](https://web.archive.org/web/20240209002851/http://bagpipe.ddg-hansa.com/Bagpipe_Reader.pdf) is a helpful guide to BWW files.
 
 ## Running locally
 
