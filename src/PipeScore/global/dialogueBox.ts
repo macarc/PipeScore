@@ -33,6 +33,16 @@ export default function dialogueBox(
   parent.id = 'dialogue-parent';
   document.body.append(parent);
   return new Promise((res) => {
+    // Consume mouse events to prevent user from dragging textboxes etc.
+    // in the background.
+    parent.addEventListener('mousemove', () => null);
+    parent.addEventListener('mousedown', () => null);
+    parent.addEventListener('mouseup', () => null);
+    parent.addEventListener('mouseenter', () => null);
+    parent.addEventListener('mouseleave', () => null);
+    parent.addEventListener('mouseout', () => null);
+    parent.addEventListener('mouseover', () => null);
+
     m.render(
       parent,
       m('div#dialogue-box', [
