@@ -97,23 +97,33 @@ class ScoreDoc {
     ) {
       const scoreContents = await getScoreContents(meta);
 
-      // Note that this should never be a JustCreatedScore since that should have `scoreName` set.
-      if (!isJustCreatedScore(scoreContents)) {
-        const updatedScore = updateScoreVersion(scoreContents);
-        scoresList.showUpdatingScoresMessage();
-        await db.ref(meta.__meta__.path).set(updatedScore);
-        meta.scoreName = updatedScore.scoreName;
-      } else {
-        console.error('Failed to get name for JustCreatedScore', scoreContents);
+      try {
+        // Note that this should never be a JustCreatedScore since that should have `scoreName` set.
+        if (!isJustCreatedScore(scoreContents)) {
+          const updatedScore = updateScoreVersion(scoreContents);
+          scoresList.showUpdatingScoresMessage();
+          await db.ref(meta.__meta__.path).set(updatedScore);
+          meta.scoreName = updatedScore.scoreName;
+        } else {
+          console.error('Failed to get name for JustCreatedScore', scoreContents);
 
-        // The old JustCreatedScores used 'name' instead of scoreName. This is
-        // very unlikely to ever need to be run.
-        const maybeName = (scoreContents as unknown as { name: string }).name;
-        if (maybeName !== undefined) {
-          scoreContents.scoreName = maybeName;
-          await db.ref(meta.__meta__.path).set(scoreContents);
-          meta.scoreName = maybeName;
+          // The old JustCreatedScores used 'name' instead of scoreName. This is
+          // very unlikely to ever need to be run.
+          const maybeName = (scoreContents as unknown as { name: string }).name;
+          if (maybeName !== undefined) {
+            scoreContents.scoreName = maybeName;
+            await db.ref(meta.__meta__.path).set(scoreContents);
+            meta.scoreName = maybeName;
+          }
         }
+      } catch (e) {
+        // This could occur if the score gets corrupted in some way.
+        // (in practice, this happened when someone tried to create a score
+        // using an LLM)
+        console.error('Failed to get name for score');
+        console.log(meta);
+        const path = meta.__meta__.path.split('/');
+        meta.scoreName = `Invalid score (${path[path.length - 1]})`;
       }
     }
 

@@ -23,7 +23,6 @@ import { ITiming } from '.';
 import {
   PlaybackIndex,
   type PlaybackMeasure,
-  PlaybackObject,
   PlaybackSecondTiming,
 } from '../Playback';
 import type {
