@@ -264,6 +264,16 @@ export class SecondTiming extends Timing {
       },
     ];
   }
+  StartNote(): ID {
+    return this.start;
+  }
+  EndNote(): ID {
+    return this.end;
+  }
+  MiddleNote(): ID {
+    return this.middle;
+  }
+
 }
 
 export class SingleTiming extends Timing {
@@ -369,4 +379,14 @@ export class SingleTiming extends Timing {
     // TODO : support single timings ... ?
     return null;
   }
+  StartNote(): ID {
+    return this.start;
+  }
+  EndNote(): ID {
+    return this.end;
+  }
+  MiddleNote(): ID {
+    return 0;
+  }
+
 }

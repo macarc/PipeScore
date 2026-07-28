@@ -52,4 +52,7 @@ export abstract class ITiming {
   // clearXY
   abstract isDangling(): boolean;
   abstract play(elements: PlaybackMeasure[]): PlaybackSecondTiming | null;
+  abstract StartNote():ID;
+  abstract EndNote():ID;
+  abstract MiddleNote():ID;
 }
