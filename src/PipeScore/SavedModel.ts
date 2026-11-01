@@ -74,8 +74,12 @@ function isv2(score: SavedData): score is SavedScorev2 {
   );
 }
 
-export function isLatestScoreVersion(score: SavedData): score is SavedScorev3 {
+function isv3(score: SavedData): score is SavedScorev3 {
   return (score as SavedScorev3).version === 'v3';
+}
+
+export function isLatestScoreVersion(score: SavedData): score is SavedScorev4 {
+  return (score as SavedScorev4).version === 'v4';
 }
 
 /**
@@ -106,13 +110,13 @@ function updateTuneVersion(tune: SavedTunev1 | SavedTunev2): SavedTunev2 {
 }
 
 /**
- * Update a score to version 3, if it is not already.
+ * Update a score to version 4, if it is not already.
  * @param score
  * @returns
  */
 export function updateScoreVersion(
-  score: SavedScorev1 | SavedScorev2 | SavedScorev3
-): SavedScorev3 {
+  score: SavedScorev1 | SavedScorev2 | SavedScorev3 | SavedScorev4
+): SavedScorev4 {
   if (isLatestScoreVersion(score)) {
     return score;
   }
@@ -124,8 +128,9 @@ export function updateScoreVersion(
     score.textBoxes[0]?.texts?.splice(0, 3);
 
     return {
-      version: 'v3',
+      version: 'v4',
       scoreName: score.name,
+      folder: '/',
       landscape: score.landscape,
       textBoxes: score.textBoxes,
       tunes: [
@@ -154,7 +159,16 @@ export function updateScoreVersion(
       ...score,
       tunes: score.tunes.map(updateTuneVersion),
       scoreName: name || 'Empty Score',
-      version: 'v3',
+      version: 'v4',
+      folder: '/',
+    };
+  }
+
+  if (isv3(score)) {
+    return {
+      ...score,
+      version: 'v4',
+      folder: '/',
     };
   }
 
@@ -166,10 +180,12 @@ export type SavedData =
   | SavedScorev1
   | SavedScorev2
   | SavedScorev3
+  | SavedScorev4
   | JustCreatedScore;
 
 export type JustCreatedScore = {
   scoreName: string;
+  folder: string | undefined;
   justCreated: true;
 };
 
@@ -197,6 +213,18 @@ export type SavedScorev2 = {
 export type SavedScorev3 = {
   version: 'v3';
   scoreName: string;
+  landscape: boolean;
+  tunes: SavedTunev2[];
+  textBoxes: SavedTextBoxPage[];
+  secondTimings: SavedTiming[];
+  showNumberOfPages: boolean;
+  settings: SavedSettings;
+};
+
+export type SavedScorev4 = {
+  version: 'v4';
+  scoreName: string;
+  folder: string;
   landscape: boolean;
   tunes: SavedTunev2[];
   textBoxes: SavedTextBoxPage[];

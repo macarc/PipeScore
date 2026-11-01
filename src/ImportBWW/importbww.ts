@@ -1,7 +1,7 @@
 import Auth from 'firebase-auth-lite';
 import { Database, type Reference } from 'firebase-firestore-lite';
 import m from 'mithril';
-import type { SavedScorev3 } from '../PipeScore/SavedModel';
+import type { SavedScorev4 } from '../PipeScore/SavedModel';
 import { onUserChange } from '../auth-helper';
 import { readFile } from '../common/file';
 import { parse } from './Parser';
@@ -37,7 +37,7 @@ function errorImporting(message: string) {
   );
 }
 
-async function savefile(score: SavedScorev3) {
+async function savefile(score: SavedScorev4) {
   const collection = db.ref(`scores/${user}/scores`);
   const newScore = await collection.add(score);
   if (newScore) {
@@ -46,7 +46,7 @@ async function savefile(score: SavedScorev3) {
   throw new Error('Could not save score.');
 }
 
-async function updatefile(dbEntry: Reference, score: SavedScorev3) {
+async function updatefile(dbEntry: Reference, score: SavedScorev4) {
   const e = db.ref(`scores/${user}/scores/${dbEntry.id}`);
 
   if (e) {

@@ -14,6 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { dialogueBoxIsOpen } from '../common/dialogueBox';
 import { dispatch } from './Controller';
 import { exportPDF, redo, save, undo } from './Events/Misc';
 import {
@@ -37,7 +38,6 @@ import {
   paste,
 } from './Events/Selection';
 import { Duration } from './Note/notelength';
-import { dialogueBoxIsOpen } from './global/dialogueBox';
 import { Pitch } from './global/pitch';
 
 export function keyHandler(e: KeyboardEvent): void {

@@ -20,6 +20,7 @@
 
 import m from 'mithril';
 import { ITiming } from '.';
+import dialogueBox from '../../common/dialogueBox';
 import {
   PlaybackIndex,
   type PlaybackMeasure,
@@ -30,7 +31,6 @@ import type {
   SavedSingleTiming,
   SavedTiming,
 } from '../SavedModel';
-import dialogueBox from '../global/dialogueBox';
 import type { ID } from '../global/id';
 import { type XY, closestItem, getXY, isBefore, isItemBefore } from '../global/xy';
 

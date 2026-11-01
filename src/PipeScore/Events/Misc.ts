@@ -16,13 +16,13 @@
 
 import m from 'mithril';
 import scoreToBWW from '../../ExportBWW/index';
+import dialogueBox from '../../common/dialogueBox';
 import { saveFile } from '../../common/file';
 import { setLanguage } from '../../common/i18n';
 import { Score } from '../Score/impl';
 import { drawScore } from '../Score/view';
 import type { State } from '../State';
 import type { Menu } from '../UI/model';
-import dialogueBox from '../global/dialogueBox';
 import { type Settings, settings } from '../global/settings';
 import { last } from '../global/utils';
 import { stopInputMode } from './common';

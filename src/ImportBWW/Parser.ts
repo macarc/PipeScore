@@ -2,7 +2,7 @@ import { Duration, NoteLength } from '../PipeScore/Note/notelength';
 import type {
   SavedGracenote,
   SavedMeasure,
-  SavedScorev3,
+  SavedScorev4,
   SavedTimeSignature,
   SavedTiming,
 } from '../PipeScore/SavedModel';
@@ -29,7 +29,7 @@ function durationInBeats(d: Duration) {
 }
 
 type ParsedScore = {
-  score: SavedScorev3;
+  score: SavedScorev4;
   warnings: string[];
   textboxes: string[];
 };
@@ -181,14 +181,15 @@ class PartialScore {
   private currentTiming: SavedTiming | null = null;
   private currentStave: SavedMeasure[] = [emptyMeasure(this.timeSignature)];
 
-  private score: SavedScorev3;
+  private score: SavedScorev4;
 
   public currentLineIsEmpty = true;
 
   constructor() {
     this.score = {
-      version: 'v3',
+      version: 'v4',
       scoreName: '[Imported from BWW]',
+      folder: '/',
       tunes: [
         {
           name: {

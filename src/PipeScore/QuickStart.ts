@@ -18,12 +18,12 @@
 //  a few default options to choose from.
 
 import m from 'mithril';
+import dialogueBox from '../common/dialogueBox';
 import type { IScore } from './Score';
 import { Score } from './Score/impl';
 import { parseDenominator } from './TimeSignature';
 import { timeSignatureEditor } from './TimeSignature/edit';
 import { TimeSignature } from './TimeSignature/impl';
-import dialogueBox from './global/dialogueBox';
 
 class ScoreOptions {
   name = 'Blank Score';

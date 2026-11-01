@@ -17,7 +17,7 @@
 //  The pop-up for editing a time signature that displays after clicking it.
 
 import m from 'mithril';
-import dialogueBox from '../global/dialogueBox';
+import dialogueBox from '../../common/dialogueBox';
 import { TimeSignature } from './impl';
 import { type Denominator, type ITimeSignature, parseDenominator } from './index';
 

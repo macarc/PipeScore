@@ -20,7 +20,7 @@ import type { Database } from 'firebase-firestore-lite';
 import quickStart from './QuickStart';
 import {
   type SavedData,
-  type SavedScorev3,
+  type SavedScorev4,
   isJustCreatedScore,
   isLatestScoreVersion,
   updateScoreVersion,
@@ -41,7 +41,7 @@ export class Firestore {
   private readonly: boolean;
   private editsSinceSave = 0;
   private oncommit: () => void = () => null;
-  private score: SavedScorev3 = Score.blank().toJSON();
+  private score: SavedScorev4 = Score.blank().toJSON();
 
   private constructor(
     db: Database,
@@ -71,7 +71,13 @@ export class Firestore {
 
       dipIfOnMobile();
       const opts = await quickStart();
-      store.save(opts.toScore().toJSON());
+
+      const tmpScore = opts.toScore().toJSON();
+      if (data?.folder) {
+        tmpScore.folder = data.folder;
+      }
+
+      store.save(tmpScore);
       await store.commit();
       const score = await store.pull();
       if (!score || isJustCreatedScore(score))
@@ -93,7 +99,7 @@ export class Firestore {
     return store;
   }
 
-  async save(score: SavedScorev3) {
+  async save(score: SavedScorev4) {
     this.score = score;
     window.addEventListener('beforeunload', beforeUnload);
     this.editsSinceSave++;

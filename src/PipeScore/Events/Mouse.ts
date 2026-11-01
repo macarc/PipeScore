@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import { dialogueBoxIsOpen } from '../../common/dialogueBox';
 import type { State } from '../State';
-import { dialogueBoxIsOpen } from '../global/dialogueBox';
 import { stopInputMode } from './common';
 import { type ScoreEvent, Update } from './types';
 

@@ -23,7 +23,7 @@ import { Update } from '../Events/types';
 import { nextBar, nextNote, previousBar, previousNote } from '../Measure';
 import type { NoteOrTriplet } from '../Note';
 import type { PlaybackMeasure } from '../Playback';
-import type { SavedScorev3 } from '../SavedModel';
+import type { SavedScorev4 } from '../SavedModel';
 import type { IStave } from '../Stave';
 import type { IMovableTextBox } from '../TextBox';
 import { MovableTextBox } from '../TextBox/impl';
@@ -50,6 +50,8 @@ export class Score extends IScore {
   // an array rather than a set since it makes rendering easier (with map)
   private _textBoxes: IMovableTextBox[][];
   private _timings: ITiming[];
+
+  private _folder: string;
 
   showNumberOfPages: boolean;
 
@@ -81,13 +83,15 @@ export class Score extends IScore {
 
     this._timings = [];
     this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
+
+    this._folder = '/';
   }
 
   static blank() {
     return new Score('My Score', '', '', 2, true, new TimeSignature());
   }
 
-  static fromJSON(o: SavedScorev3) {
+  static fromJSON(o: SavedScorev4) {
     const s = Score.blank();
     settings.fromJSON(o.settings);
 
@@ -97,6 +101,7 @@ export class Score extends IScore {
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
     s._tunes = o.tunes.map(Tune.fromJSON);
+    s._folder = o.folder;
 
     if (s._tunes.length === 1) {
       s._tunes[0].setName(o.scoreName);
@@ -107,11 +112,12 @@ export class Score extends IScore {
     return s;
   }
 
-  toJSON(): SavedScorev3 {
+  toJSON(): SavedScorev4 {
     this.updateNameToMatchTune();
     return {
-      version: 'v3',
+      version: 'v4',
       scoreName: this._name,
+      folder: this._folder,
       landscape: this.landscape,
       showNumberOfPages: this.showNumberOfPages,
       tunes: this._tunes.map((tune) => tune.toJSON()),

@@ -1,7 +1,7 @@
 import m from 'mithril';
 import type { Font, ITextBox } from '.';
+import dialogueBox from '../../common/dialogueBox';
 import { Update } from '../Events/types';
-import dialogueBox from '../global/dialogueBox';
 
 export async function editTextBox(tx: ITextBox) {
   const form = await dialogueBox('Edit Text Box', [
