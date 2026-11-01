@@ -146,25 +146,27 @@ class ScoreDoc {
   }
 
   async setFolder(folder: string) {
-    const scoreContents = await this.contents();
-    scoreContents.folder = folder;
-    await db.ref(this._meta.__meta__.path).set(scoreContents);
-
-    // Set the name temporarily. The list will be refreshed, but this can take
+    // Set the folder temporarily. The list will be refreshed, but this can take
     // a second or two for large numbers of scores, so setting the name updates
     // the interface immediately.
     this._meta.folder = folder;
+    m.redraw();
+
+    const scoreContents = await this.contents();
+    scoreContents.folder = folder;
+    await db.ref(this._meta.__meta__.path).set(scoreContents);
   }
 
   async setName(name: string) {
-    const scoreContents = await this.contents();
-    scoreContents.scoreName = name;
-    await db.ref(this._meta.__meta__.path).set(scoreContents);
-
     // Set the name temporarily. The list will be refreshed, but this can take
     // a second or two for large numbers of scores, so setting the name updates
     // the interface immediately.
     this._meta.scoreName = name;
+    m.redraw();
+
+    const scoreContents = await this.contents();
+    scoreContents.scoreName = name;
+    await db.ref(this._meta.__meta__.path).set(scoreContents);
   }
 
   scoreURL() {
