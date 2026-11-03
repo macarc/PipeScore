@@ -90,6 +90,8 @@ export type Documentation = {
   download: string;
   landscape: string;
   portrait: string;
+  'paper-a4': string;
+  'paper-letter': string;
   'page-numbers': string;
   'disable-help': string;
   zoom: string;
@@ -172,6 +174,9 @@ export type TextItems = {
   orientation: string;
   landscape: string;
   portrait: string;
+  paperSize: string;
+  paperA4: string;
+  paperLetter: string;
   pageNumbers: string;
   showPageNumbers: string;
   export: string;

@@ -35,7 +35,7 @@ export abstract class IMovableTextBox extends ITextBox {
   abstract setCursorDragOffset(mouseX: number, mouseY: number): void;
   abstract toggleCentre(): void;
   abstract centred(): boolean;
-  abstract adjustAfterOrientation(newWidth: number, newHeight: number): void;
+  abstract scalePosition(xRatio: number, yRatio: number): void;
   abstract setCoords(x: number, y: number): void;
   abstract x(): number;
   abstract setX(x: number): void;

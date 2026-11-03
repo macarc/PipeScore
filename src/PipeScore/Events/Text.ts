@@ -19,7 +19,6 @@ import type { State } from '../State';
 import type { IMovableTextBox, ITextBox } from '../TextBox';
 import { editTextBox } from '../TextBox/edit';
 import { MovableTextBox } from '../TextBox/impl';
-import { settings } from '../global/settings';
 import { clamp } from '../global/utils';
 import { stopInputMode } from './common';
 import { type ScoreEvent, Update } from './types';
@@ -62,11 +61,7 @@ export function editText(tx: ITextBox | null = null): ScoreEvent {
 }
 export function setTextX(xPercent: number): ScoreEvent {
   return async (state: State) => {
-    const x =
-      (clamp(xPercent, 0, 100) / 100) *
-      (state.score.landscape
-        ? settings.pageLongSideLength
-        : settings.pageShortSideLength);
+    const x = (clamp(xPercent, 0, 100) / 100) * state.score.width();
     if (state.selection instanceof TextSelection && !Number.isNaN(x)) {
       state.selection.text.setX(x);
       return Update.ViewChanged;
@@ -77,11 +72,7 @@ export function setTextX(xPercent: number): ScoreEvent {
 
 export function setTextY(yPercent: number): ScoreEvent {
   return async (state: State) => {
-    const y =
-      (clamp(yPercent, 0, 100) / 100) *
-      (state.score.landscape
-        ? settings.pageShortSideLength
-        : settings.pageLongSideLength);
+    const y = (clamp(yPercent, 0, 100) / 100) * state.score.height();
     if (state.selection instanceof TextSelection && !Number.isNaN(y)) {
       state.selection.text.setY(y);
       return Update.ViewChanged;
