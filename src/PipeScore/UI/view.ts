@@ -43,6 +43,7 @@ import {
   save,
   setMenu,
   setPageNumberVisibility,
+  setPaperSize,
   undo,
   updateLanguage,
 } from '../Events/Misc';
@@ -75,6 +76,7 @@ import {
 import { addText, centreText, editText, setTextX, setTextY } from '../Events/Text';
 import { addSecondTiming, addSingleTiming, editTimingText } from '../Events/Timing';
 import { addTune, deleteTune, resetTuneGap, setTuneGap } from '../Events/Tune';
+import type { ScoreEvent } from '../Events/types';
 import type { IGracenote } from '../Gracenote';
 import type { IMeasure } from '../Measure';
 import type { INote } from '../Note';
@@ -89,7 +91,7 @@ import type { IStave } from '../Stave';
 import { minStaveGap } from '../Stave/view';
 import type { IMovableTextBox } from '../TextBox';
 import type { ITiming } from '../Timing';
-import type { Documentation } from '../Translations';
+import type { Documentation, TextItems } from '../Translations';
 import { text } from '../Translations/current';
 import type { ITune } from '../Tune';
 import { onMobile } from '../global/browser';
@@ -119,6 +121,8 @@ export interface UIState {
   showingPageNumbers: boolean;
   preview: IPreview | null;
   isLandscape: boolean;
+  pageWidth: number;
+  pageHeight: number;
   currentMenu: Menu;
   docs: string | null;
   zoomLevel: number;
@@ -792,12 +796,7 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
-  const pageWidth = state.isLandscape
-    ? settings.pageLongSideLength
-    : settings.pageShortSideLength;
-  const pageHeight = state.isLandscape
-    ? settings.pageShortSideLength
-    : settings.pageLongSideLength;
+  const { pageWidth, pageHeight } = state;
   const percentage = (value: number, total: number) =>
     Math.round((10000 * value) / total) / 100;
 
@@ -1056,33 +1055,47 @@ export default function render(state: UIState): m.Children {
     ]),
   ];
 
+  const documentOption = (
+    docName: keyof Documentation,
+    label: keyof TextItems,
+    selected: boolean,
+    event: ScoreEvent
+  ) =>
+    help(
+      docName,
+      m(
+        'button',
+        {
+          class: `text double-width${selected ? ' highlighted' : ''}`,
+          onclick: () => state.dispatch(event),
+        },
+        text(label)
+      ),
+      state.dispatch
+    );
+
   const documentMenu = [
     m('section', [
       m('h2', text('orientation')),
       m('div.section-content', [
-        help(
-          'landscape',
-          m(
-            'button',
-            {
-              class: `text double-width ${state.isLandscape ? ' highlighted' : ''}`,
-              onclick: () => state.dispatch(landscape()),
-            },
-            text('landscape')
-          ),
-          state.dispatch
+        documentOption('landscape', 'landscape', state.isLandscape, landscape()),
+        documentOption('portrait', 'portrait', !state.isLandscape, portrait()),
+      ]),
+    ]),
+    m('section', [
+      m('h2', text('paperSize')),
+      m('div.section-content', [
+        documentOption(
+          'paper-a4',
+          'paperA4',
+          settings.paperSize === 'A4',
+          setPaperSize('A4')
         ),
-        help(
-          'portrait',
-          m(
-            'button',
-            {
-              class: `text double-width ${state.isLandscape ? '' : ' highlighted'}`,
-              onclick: () => state.dispatch(portrait()),
-            },
-            text('portrait')
-          ),
-          state.dispatch
+        documentOption(
+          'paper-letter',
+          'paperLetter',
+          settings.paperSize === 'Letter',
+          setPaperSize('Letter')
         ),
       ]),
     ]),

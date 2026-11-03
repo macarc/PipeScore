@@ -131,6 +131,8 @@ export const FrenchDocumentation: Documentation = {
     "Télécharger la partition sous la forme d'un fichier .pipescore. Cela vous permet de sauvegarder vos partitions sur votre ordinateur et de les télécharger à nouveau sur un autre compte. Le fichier téléchargé ne peut être ouvert que dans PipeScore.",
   landscape: 'Mettre la/les page(s) en paysage.',
   portrait: 'Mettre la (les) page(s) en portrait.',
+  'paper-a4': 'Utiliser le format de papier A4 (210 × 297 mm).',
+  'paper-letter': 'Utiliser le format de papier Lettre US (8,5 × 11 pouces).',
   'page-numbers':
     "Afficher les numéros de page au bas de chaque page, s'il y a plus d'une page.",
   'disable-help': "Contrôler l'affichage du volet d'aide en bas à droite.",
@@ -216,6 +218,9 @@ export const FrenchTextItems: TextItems = {
   orientation: 'Orientation',
   landscape: 'Paysage',
   portrait: 'Portrait',
+  paperSize: 'Format du papier',
+  paperA4: 'A4',
+  paperLetter: 'Lettre US',
   pageNumbers: 'Numéros Page',
   showPageNumbers: 'Montrer Numéros Page',
   export: 'Exporter',

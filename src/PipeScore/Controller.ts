@@ -154,6 +154,8 @@ function redraw() {
         selectedTiming:
           state.selection instanceof TimingSelection ? state.selection.timing : null,
         isLandscape: state.score.landscape,
+        pageWidth: state.score.width(),
+        pageHeight: state.score.height(),
         selectedStaves:
           (state.selection instanceof ScoreSelection &&
             state.selection.staves(state.score)) ||

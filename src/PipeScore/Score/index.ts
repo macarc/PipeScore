@@ -29,6 +29,7 @@ import type { ITiming, TimingPart } from '../Timing';
 import type { ITune } from '../Tune';
 import type { ID } from '../global/id';
 import type { Relative } from '../global/relativeLocation';
+import type { PaperSize } from '../global/settings';
 
 type Location = { tune: ITune; stave: IStave; measure: IMeasure; bar: IBar };
 
@@ -44,6 +45,7 @@ export abstract class IScore {
   abstract printHeight(): number;
   abstract orientation(): 'landscape' | 'portrait';
   abstract makeLandscape(): Update;
+  abstract setPaperSize(paperSize: PaperSize): Update;
   abstract makePortrait(): Update;
   abstract addText(text: IMovableTextBox): void;
   abstract staveY(stave: IStave | ITune, harmonyIndex: number): number;

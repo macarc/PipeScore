@@ -242,6 +242,8 @@ export type SavedSettings = {
   gapAfterGracenote: number;
   harmonyVolume: number;
   instrument: string;
+  // Added later, so older scores won't have it (they default to A4)
+  paperSize?: string;
 };
 
 // name/tuneType/composer were originally string,

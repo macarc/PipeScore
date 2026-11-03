@@ -35,7 +35,7 @@ import { ITune } from '../Tune';
 import { Tune } from '../Tune/impl';
 import type { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
-import { settings } from '../global/settings';
+import { type PaperSize, settings } from '../global/settings';
 import { first, last, nlast, removeNulls, sum } from '../global/utils';
 
 export function isStave(s: IStave | ITune): s is IStave {
@@ -194,16 +194,33 @@ export class Score extends IScore {
     return Update.ShouldSave;
   }
 
+  setPaperSize(paperSize: PaperSize) {
+    if (paperSize === settings.paperSize) return Update.NoChange;
+    const oldWidth = this.width();
+    const oldHeight = this.height();
+    settings.paperSize = paperSize;
+    // Keep text boxes at the same relative position on the page
+    this.rescalePage(this.width() / oldWidth, this.height() / oldHeight);
+    return Update.ShouldSave;
+  }
+
   private adjustAfterOrientationChange() {
+    const ratio = this.width() / this.height();
+    this.rescalePage(ratio, ratio);
+  }
+
+  // Rescale page contents after the page dimensions change
+  private rescalePage(xRatio: number, yRatio: number) {
     for (const page of this._textBoxes) {
       for (const text of page) {
-        text.adjustAfterOrientation(this.width(), this.height());
+        text.scalePosition(xRatio, yRatio);
       }
     }
     for (const bar of this.measures()) {
-      bar.adjustWidth(this.width() / this.height());
+      bar.adjustWidth(xRatio);
     }
-    this.zoom = (this.zoom * this.height()) / this.width();
+    // Keep the page the same size on screen
+    this.zoom = this.zoom / xRatio;
   }
 
   addText(text: IMovableTextBox): void {

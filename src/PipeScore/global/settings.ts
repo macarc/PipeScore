@@ -20,8 +20,24 @@ import type { SavedSettings } from '../SavedModel';
 import { Instrument, instrumentToString, parseInstrument } from './instrument';
 import { clamp } from './utils';
 
-const a4LongSide = 297; // in mm
-const a4ShortSide = 210; // in mm
+// Page dimensions, in mm
+const paperSizes = {
+  A4: { longSide: 297, shortSide: 210 },
+  Letter: { longSide: 279.4, shortSide: 215.9 },
+};
+
+export type PaperSize = keyof typeof paperSizes;
+
+const defaultPaperSize: PaperSize = 'A4';
+
+function parsePaperSize(paperSize: string | undefined): PaperSize | null {
+  return paperSize && Object.prototype.hasOwnProperty.call(paperSizes, paperSize)
+    ? (paperSize as PaperSize)
+    : null;
+}
+
+// Number of score units per mm
+const unitsPerMm = 5;
 
 export const TITLE_SIZE = 20;
 export const SUBTITLE_SIZE = 15;
@@ -33,8 +49,7 @@ export class Settings {
   harmonyVolume = Settings.defaultHarmonyVolume;
   lineGap = 7;
   margin = 80;
-  pageLongSideLength = a4LongSide * 5;
-  pageShortSideLength = a4ShortSide * 5;
+  paperSize: PaperSize = defaultPaperSize;
   gapAfterGracenote = 7;
   bpm = 80;
   instrument = Instrument.GHB;
@@ -53,6 +68,7 @@ export class Settings {
     this.gapAfterGracenote = o.gapAfterGracenote || 7;
     this.harmonyVolume = o.harmonyVolume || Settings.defaultHarmonyVolume;
     this.instrument = parseInstrument(o.instrument) || Instrument.GHB;
+    this.paperSize = parsePaperSize(o.paperSize) || defaultPaperSize;
   }
   toJSON(): SavedSettings {
     return {
@@ -64,6 +80,7 @@ export class Settings {
       gapAfterGracenote: this.gapAfterGracenote,
       harmonyVolume: this.harmonyVolume,
       instrument: instrumentToString(this.instrument),
+      paperSize: this.paperSize,
     };
   }
   validate<T extends keyof Settings>(key: T, value: number) {
@@ -83,11 +100,17 @@ export class Settings {
   lineHeightOf(n: number) {
     return n * this.lineGap;
   }
+  get pageLongSideLength() {
+    return this.pageLongSidePrintLength() * unitsPerMm;
+  }
+  get pageShortSideLength() {
+    return this.pageShortSidePrintLength() * unitsPerMm;
+  }
   pageLongSidePrintLength() {
-    return a4LongSide;
+    return paperSizes[this.paperSize].longSide;
   }
   pageShortSidePrintLength() {
-    return a4ShortSide;
+    return paperSizes[this.paperSize].shortSide;
   }
   harmonyStaveHeight() {
     return this.lineHeightOf(4) + this.harmonyGap;

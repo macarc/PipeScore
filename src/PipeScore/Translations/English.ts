@@ -125,6 +125,8 @@ export const EnglishDocumentation: Documentation = {
     'Download the score as a .pipescore file. This allows you to save your scores on your computer, and to upload them again to another account. The downloaded file cannot be opened in anything other than PipeScore.',
   landscape: 'Make the page(s) landscape.',
   portrait: 'Make the page(s) portrait.',
+  'paper-a4': 'Use A4 paper (210 × 297 mm).',
+  'paper-letter': 'Use US Letter paper (8.5 × 11 inches).',
   'page-numbers':
     'Show page numbers at the bottom of each page, if there is more than one page.',
   'disable-help': 'Control whether the help pane is shown in the bottom right.',
@@ -210,6 +212,9 @@ export const EnglishTextItems: TextItems = {
   orientation: 'Orientation',
   landscape: 'Landscape',
   portrait: 'Portrait',
+  paperSize: 'Paper Size',
+  paperA4: 'A4',
+  paperLetter: 'US Letter',
   pageNumbers: 'Page Numbers',
   showPageNumbers: 'Show page numbers',
   export: 'Export',
