@@ -35,7 +35,7 @@ import { ITune } from '../Tune';
 import { Tune } from '../Tune/impl';
 import type { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
-import { settings } from '../global/settings';
+import { type PaperSize, settings } from '../global/settings';
 import { first, last, nlast, removeNulls, sum } from '../global/utils';
 
 export function isStave(s: IStave | ITune): s is IStave {
@@ -194,16 +194,30 @@ export class Score extends IScore {
     return Update.ShouldSave;
   }
 
+  setPaperSize(size: PaperSize) {
+    if (size === settings.paperSize) return Update.NoChange;
+    const width = this.width();
+    const height = this.height();
+    settings.paperSize = size;
+    this.scaleContents(this.width() / width, this.height() / height);
+    return Update.ShouldSave;
+  }
+
   private adjustAfterOrientationChange() {
+    const ratio = this.width() / this.height();
+    this.scaleContents(ratio, ratio);
+  }
+
+  private scaleContents(horizontal: number, vertical: number) {
     for (const page of this._textBoxes) {
       for (const text of page) {
-        text.adjustAfterOrientation(this.width(), this.height());
+        text.scalePosition(horizontal, vertical);
       }
     }
     for (const bar of this.measures()) {
-      bar.adjustWidth(this.width() / this.height());
+      bar.adjustWidth(horizontal);
     }
-    this.zoom = (this.zoom * this.height()) / this.width();
+    this.zoom /= horizontal;
   }
 
   addText(text: IMovableTextBox): void {

@@ -1,5 +1,33 @@
 import { expect, test } from 'bun:test';
-import { Settings } from '../global/settings';
+import { Update } from '../Events/types';
+import { Score } from '../Score/impl';
+import { MovableTextBox } from '../TextBox/impl';
+import { Settings, settings } from '../global/settings';
+
+test('changing paper keeps text position and on-screen page width proportional', () => {
+  const previous = settings.paperSize;
+  try {
+    settings.paperSize = 'A4';
+    const score = Score.blank();
+    const text = new MovableTextBox(
+      'Label',
+      false,
+      score.width() / 4,
+      score.height() / 2,
+      12
+    );
+    score.addText(text);
+    const displayWidth = score.width() * score.zoom;
+    expect(score.setPaperSize('Letter')).toBe(Update.ShouldSave);
+    expect(score.width()).toBeCloseTo(1397);
+    expect(text.x() / score.width()).toBeCloseTo(0.25);
+    expect(text.y() / score.height()).toBeCloseTo(0.5);
+    expect(score.width() * score.zoom).toBeCloseTo(displayWidth);
+    expect(score.setPaperSize('Letter')).toBe(Update.NoChange);
+  } finally {
+    settings.paperSize = previous;
+  }
+});
 
 test('old and unrecognised paper sizes load with the original A4 dimensions', () => {
   const settings = new Settings();
