@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import m from 'mithril';
-import type { IStave } from '.';
+import { type IStave, trebleClefWidth } from '.';
 import type { Dispatch } from '../Dispatch';
 import type { GracenoteState } from '../Gracenote/state';
 import type { IMeasure } from '../Measure';
@@ -36,7 +36,6 @@ interface StaveProps {
   dispatch: Dispatch;
 }
 
-export const trebleClefWidth = 30;
 export const stavelineThickness = 1;
 
 export function minStaveGap() {
@@ -54,7 +53,7 @@ export function minStaveGap() {
 // is that when dragging the barline of a bar, the other barlines shouldn't move
 
 // Returns a list where the pixel width at the nth index is that of the nth bar
-function computeBarWidths(
+export function computeBarWidths(
   stave: IStave,
   staveWidth: number,
   previousBar: (i: number) => IMeasure | null

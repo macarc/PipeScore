@@ -24,7 +24,7 @@ import { nextBar, nextNote, previousBar, previousNote } from '../Measure';
 import type { NoteOrTriplet } from '../Note';
 import type { PlaybackMeasure } from '../Playback';
 import type { SavedScorev4 } from '../SavedModel';
-import type { IStave } from '../Stave';
+import { type IStave, trebleClefWidth } from '../Stave';
 import type { IMovableTextBox } from '../TextBox';
 import { MovableTextBox } from '../TextBox/impl';
 import type { ITimeSignature } from '../TimeSignature';
@@ -204,23 +204,28 @@ export class Score extends IScore {
     const width = this.width();
     const height = this.height();
     settings.paperSize = size;
-    this.scaleContents(this.width() / width, this.height() / height);
+    const reserved = 2 * settings.margin + trebleClefWidth;
+    this.scaleContents(
+      this.width() / width,
+      this.height() / height,
+      (this.width() - reserved) / (width - reserved)
+    );
     return Update.ShouldSave;
   }
 
   private adjustAfterOrientationChange() {
     const ratio = this.width() / this.height();
-    this.scaleContents(ratio, ratio);
+    this.scaleContents(ratio, ratio, ratio);
   }
 
-  private scaleContents(horizontal: number, vertical: number) {
+  private scaleContents(horizontal: number, vertical: number, barRatio: number) {
     for (const page of this._textBoxes) {
       for (const text of page) {
         text.scalePosition(horizontal, vertical);
       }
     }
     for (const bar of this.measures()) {
-      bar.adjustWidth(horizontal);
+      bar.adjustWidth(barRatio);
     }
     this.zoom /= horizontal;
   }

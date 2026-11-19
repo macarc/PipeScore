@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 import { Update } from '../Events/types';
+import { minWidth } from '../Measure/view';
 import { Score } from '../Score/impl';
+import { trebleClefWidth } from '../Stave';
+import { computeBarWidths } from '../Stave/view';
 import { MovableTextBox } from '../TextBox/impl';
 import { Settings, settings } from '../global/settings';
 
@@ -41,6 +44,32 @@ test('reopening a portrait Letter score fits its saved page to the window', () =
     expect((loaded.width() * loaded.zoom) / 100).toBeCloseTo(
       0.9 * Math.max(window.innerWidth, 800)
     );
+  } finally {
+    settings.fromJSON(previous);
+  }
+});
+
+test('fixed bars leave room for the last automatic bar on Letter paper', () => {
+  const previous = settings.toJSON();
+  try {
+    settings.paperSize = 'A4';
+    settings.margin = 80;
+    const score = Score.blank();
+    const stave = score.staves()[0];
+    const bars = stave.measures();
+    const last = bars.length - 1;
+    const minimum = minWidth(bars[last], bars[last - 1]);
+    const staveWidth = () => score.width() - 2 * settings.margin;
+    for (const bar of bars.slice(0, last)) {
+      bar.fixedWidth = (staveWidth() - trebleClefWidth - minimum - 8) / last;
+    }
+    const lastWidth = () =>
+      computeBarWidths(stave, staveWidth(), (i) => bars[i - 1] ?? null)[last];
+    expect(lastWidth()).toBeCloseTo(minimum + 8);
+    score.setPaperSize('Letter');
+    expect(lastWidth()).toBeGreaterThanOrEqual(minimum);
+    score.setPaperSize('A4');
+    expect(lastWidth()).toBeCloseTo(minimum + 8);
   } finally {
     settings.fromJSON(previous);
   }
