@@ -210,6 +210,8 @@ export const EnglishTextItems: TextItems = {
   orientation: 'Orientation',
   landscape: 'Landscape',
   portrait: 'Portrait',
+  paperSize: 'Paper Size',
+  usLetter: 'US Letter',
   pageNumbers: 'Page Numbers',
   showPageNumbers: 'Show page numbers',
   export: 'Export',

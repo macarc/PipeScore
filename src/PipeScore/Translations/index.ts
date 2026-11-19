@@ -172,6 +172,8 @@ export type TextItems = {
   orientation: string;
   landscape: string;
   portrait: string;
+  paperSize: string;
+  usLetter: string;
   pageNumbers: string;
   showPageNumbers: string;
   export: string;

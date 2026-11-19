@@ -43,6 +43,7 @@ import {
   save,
   setMenu,
   setPageNumberVisibility,
+  setPaperSize,
   undo,
   updateLanguage,
 } from '../Events/Misc';
@@ -1085,6 +1086,23 @@ export default function render(state: UIState): m.Children {
           state.dispatch
         ),
       ]),
+    ]),
+    m('section', [
+      m('h2', text('paperSize')),
+      m(
+        'div.section-content',
+        (['A4', 'Letter'] as const).map((size) =>
+          m(
+            'button.text.double-width',
+            {
+              class: settings.paperSize === size ? 'highlighted' : '',
+              'aria-pressed': settings.paperSize === size,
+              onclick: () => state.dispatch(setPaperSize(size)),
+            },
+            size === 'A4' ? 'A4' : text('usLetter')
+          )
+        )
+      ),
     ]),
     m('section', [
       m('h2', text('pageNumbers')),
