@@ -82,9 +82,13 @@ export class Score extends IScore {
     this._textBoxes = [[]];
 
     this._timings = [];
-    this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
+    this.zoom = this.fitPageZoom();
 
     this._folder = '/';
+  }
+
+  private fitPageZoom() {
+    return (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
 
   static blank() {
@@ -97,6 +101,7 @@ export class Score extends IScore {
 
     s._name = o.scoreName;
     s.landscape = o.landscape;
+    s.zoom = s.fitPageZoom();
     s._textBoxes = o.textBoxes.map((p) => p.texts.map(MovableTextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;

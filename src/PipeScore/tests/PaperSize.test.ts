@@ -29,6 +29,23 @@ test('changing paper keeps text position and on-screen page width proportional',
   }
 });
 
+test('reopening a portrait Letter score fits its saved page to the window', () => {
+  const previous = settings.toJSON();
+  try {
+    settings.paperSize = 'Letter';
+    const score = Score.blank();
+    score.makePortrait();
+    const saved = score.toJSON();
+    settings.paperSize = 'A4';
+    const loaded = Score.fromJSON(saved);
+    expect((loaded.width() * loaded.zoom) / 100).toBeCloseTo(
+      0.9 * Math.max(window.innerWidth, 800)
+    );
+  } finally {
+    settings.fromJSON(previous);
+  }
+});
+
 test('old and unrecognised paper sizes load with the original A4 dimensions', () => {
   const settings = new Settings();
   expect(settings.paperSize).toBe('A4');
