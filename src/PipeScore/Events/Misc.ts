@@ -221,7 +221,7 @@ export function exportPDF(): ScoreEvent {
       popupWindow.document.write(
         `<style>
         * { font-family: sans-serif; margin: 0; padding: 0; }
-        @page { size: A4 ${state.score.orientation()}; margin: 0; }
+        @page { size: ${state.score.printWidth()}mm ${state.score.printHeight()}mm; margin: 0; }
         </style>
         ${contents}`
       );
