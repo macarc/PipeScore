@@ -77,8 +77,8 @@ test('fixed bars leave room for the last automatic bar on Letter paper', () => {
 
 test('old and unrecognised paper sizes load with the original A4 dimensions', () => {
   const settings = new Settings();
-  expect(settings.paperSize).toBe('A4');
   const { paperSize, ...legacy } = settings.toJSON();
+  expect(paperSize).toBe('A4');
   for (const saved of [legacy, { ...legacy, paperSize: 'unknown' }]) {
     settings.paperSize = 'Letter';
     settings.fromJSON(saved);
