@@ -20,8 +20,12 @@ import type { SavedSettings } from '../SavedModel';
 import { Instrument, instrumentToString, parseInstrument } from './instrument';
 import { clamp } from './utils';
 
-const a4LongSide = 297; // in mm
-const a4ShortSide = 210; // in mm
+// Physical dimensions in millimetres; the editor uses five units per mm.
+const paperDimensions = {
+  A4: { short: 210, long: 297 },
+  Letter: { short: 215.9, long: 279.4 },
+};
+export type PaperSize = keyof typeof paperDimensions;
 
 export const TITLE_SIZE = 20;
 export const SUBTITLE_SIZE = 15;
@@ -33,8 +37,13 @@ export class Settings {
   harmonyVolume = Settings.defaultHarmonyVolume;
   lineGap = 7;
   margin = 80;
-  pageLongSideLength = a4LongSide * 5;
-  pageShortSideLength = a4ShortSide * 5;
+  paperSize: PaperSize = 'A4';
+  get pageLongSideLength() {
+    return this.pageLongSidePrintLength() * 5;
+  }
+  get pageShortSideLength() {
+    return this.pageShortSidePrintLength() * 5;
+  }
   gapAfterGracenote = 7;
   bpm = 80;
   instrument = Instrument.GHB;
@@ -45,6 +54,7 @@ export class Settings {
   static defaultHarmonyVolume = 0.5;
 
   fromJSON(o: SavedSettings) {
+    this.paperSize = o.paperSize === 'Letter' ? 'Letter' : 'A4';
     this.staveGap = o.staveGap;
     this.lineGap = o.lineGap;
     this.margin = o.margin;
@@ -56,6 +66,7 @@ export class Settings {
   }
   toJSON(): SavedSettings {
     return {
+      paperSize: this.paperSize,
       staveGap: this.staveGap,
       lineGap: this.lineGap,
       harmonyGap: this.harmonyGap,
@@ -84,10 +95,10 @@ export class Settings {
     return n * this.lineGap;
   }
   pageLongSidePrintLength() {
-    return a4LongSide;
+    return paperDimensions[this.paperSize].long;
   }
   pageShortSidePrintLength() {
-    return a4ShortSide;
+    return paperDimensions[this.paperSize].short;
   }
   harmonyStaveHeight() {
     return this.lineHeightOf(4) + this.harmonyGap;
