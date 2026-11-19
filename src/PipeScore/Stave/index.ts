@@ -23,6 +23,8 @@ import type { SavedStave } from '../SavedModel';
 import type { ID } from '../global/id';
 import type { Relative } from '../global/relativeLocation';
 
+export const trebleClefWidth = 30;
+
 export abstract class IStave {
   abstract toJSON(): SavedStave;
   abstract height(): number;

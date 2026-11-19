@@ -216,6 +216,8 @@ export const FrenchTextItems: TextItems = {
   orientation: 'Orientation',
   landscape: 'Paysage',
   portrait: 'Portrait',
+  paperSize: 'Format du papier',
+  usLetter: 'Lettre US',
   pageNumbers: 'Numéros Page',
   showPageNumbers: 'Montrer Numéros Page',
   export: 'Exporter',

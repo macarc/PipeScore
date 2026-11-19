@@ -23,7 +23,7 @@ import { Score } from '../Score/impl';
 import { drawScore } from '../Score/view';
 import type { State } from '../State';
 import type { Menu } from '../UI/model';
-import { type Settings, settings } from '../global/settings';
+import { type PaperSize, type Settings, settings } from '../global/settings';
 import { last } from '../global/utils';
 import { stopInputMode } from './common';
 import { type ScoreEvent, Update } from './types';
@@ -77,6 +77,10 @@ export function landscape(): ScoreEvent {
   return async (state: State) => {
     return state.score.makeLandscape();
   };
+}
+
+export function setPaperSize(size: PaperSize): ScoreEvent {
+  return async (state) => state.score.setPaperSize(size);
 }
 
 export function portrait(): ScoreEvent {
@@ -217,7 +221,7 @@ export function exportPDF(): ScoreEvent {
       popupWindow.document.write(
         `<style>
         * { font-family: sans-serif; margin: 0; padding: 0; }
-        @page { size: A4 ${state.score.orientation()}; margin: 0; }
+        @page { size: ${state.score.printWidth()}mm ${state.score.printHeight()}mm; margin: 0; }
         </style>
         ${contents}`
       );

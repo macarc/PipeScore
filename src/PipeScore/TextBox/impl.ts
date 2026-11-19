@@ -141,9 +141,9 @@ export class MovableTextBox extends IMovableTextBox {
     return this._centred;
   }
 
-  adjustAfterOrientation(newWidth: number, newHeight: number) {
-    this._x = (this._x / newHeight) * newWidth;
-    this._y = (this._y / newHeight) * newWidth;
+  scalePosition(horizontal: number, vertical: number) {
+    this._x *= horizontal;
+    this._y *= vertical;
   }
 
   setCoords(x: number, y: number) {

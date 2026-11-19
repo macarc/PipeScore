@@ -24,7 +24,7 @@ import { nextBar, nextNote, previousBar, previousNote } from '../Measure';
 import type { NoteOrTriplet } from '../Note';
 import type { PlaybackMeasure } from '../Playback';
 import type { SavedScorev4 } from '../SavedModel';
-import type { IStave } from '../Stave';
+import { type IStave, trebleClefWidth } from '../Stave';
 import type { IMovableTextBox } from '../TextBox';
 import { MovableTextBox } from '../TextBox/impl';
 import type { ITimeSignature } from '../TimeSignature';
@@ -35,7 +35,7 @@ import { ITune } from '../Tune';
 import { Tune } from '../Tune/impl';
 import type { ID } from '../global/id';
 import { Relative } from '../global/relativeLocation';
-import { settings } from '../global/settings';
+import { type PaperSize, settings } from '../global/settings';
 import { first, last, nlast, removeNulls, sum } from '../global/utils';
 
 export function isStave(s: IStave | ITune): s is IStave {
@@ -82,9 +82,13 @@ export class Score extends IScore {
     this._textBoxes = [[]];
 
     this._timings = [];
-    this.zoom = (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
+    this.zoom = this.fitPageZoom();
 
     this._folder = '/';
+  }
+
+  private fitPageZoom() {
+    return (100 * 0.9 * Math.max(window.innerWidth, 800)) / this.width();
   }
 
   static blank() {
@@ -97,6 +101,7 @@ export class Score extends IScore {
 
     s._name = o.scoreName;
     s.landscape = o.landscape;
+    s.zoom = s.fitPageZoom();
     s._textBoxes = o.textBoxes.map((p) => p.texts.map(MovableTextBox.fromJSON));
     s._timings = o.secondTimings.map(Timing.fromJSON);
     s.showNumberOfPages = o.showNumberOfPages;
@@ -194,16 +199,35 @@ export class Score extends IScore {
     return Update.ShouldSave;
   }
 
+  setPaperSize(size: PaperSize) {
+    if (size === settings.paperSize) return Update.NoChange;
+    const width = this.width();
+    const height = this.height();
+    settings.paperSize = size;
+    const reserved = 2 * settings.margin + trebleClefWidth;
+    this.scaleContents(
+      this.width() / width,
+      this.height() / height,
+      (this.width() - reserved) / (width - reserved)
+    );
+    return Update.ShouldSave;
+  }
+
   private adjustAfterOrientationChange() {
+    const ratio = this.width() / this.height();
+    this.scaleContents(ratio, ratio, ratio);
+  }
+
+  private scaleContents(horizontal: number, vertical: number, barRatio: number) {
     for (const page of this._textBoxes) {
       for (const text of page) {
-        text.adjustAfterOrientation(this.width(), this.height());
+        text.scalePosition(horizontal, vertical);
       }
     }
     for (const bar of this.measures()) {
-      bar.adjustWidth(this.width() / this.height());
+      bar.adjustWidth(barRatio);
     }
-    this.zoom = (this.zoom * this.height()) / this.width();
+    this.zoom /= horizontal;
   }
 
   addText(text: IMovableTextBox): void {

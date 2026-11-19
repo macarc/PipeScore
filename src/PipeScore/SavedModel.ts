@@ -234,6 +234,7 @@ export type SavedScorev4 = {
 };
 
 export type SavedSettings = {
+  paperSize?: string;
   bpm: number;
   staveGap: number;
   lineGap: number;
